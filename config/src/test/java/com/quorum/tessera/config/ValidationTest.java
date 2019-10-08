@@ -26,7 +26,6 @@ public class ValidationTest {
         Set<ConstraintViolation<ArgonOptions>> violations = validator.validate(options);
 
         assertThat(violations).isEmpty();
-
     }
 
     @Test
@@ -36,7 +35,6 @@ public class ValidationTest {
         Set<ConstraintViolation<ArgonOptions>> violations = validator.validate(options);
 
         assertThat(violations).hasSize(1);
-
     }
 
     @Test
@@ -47,7 +45,6 @@ public class ValidationTest {
 
         assertThat(violations).hasSize(3);
         assertThat(options.getAlgorithm()).isEqualTo("id");
-
     }
 
     @Test
@@ -64,7 +61,9 @@ public class ValidationTest {
 
         ConstraintViolation<InlineKeypair> violation = violations.iterator().next();
 
-        assertThat(violation.getMessageTemplate()).isEqualTo("Could not decrypt the private key with the provided password, please double check the passwords provided");
+        assertThat(violation.getMessageTemplate())
+                .isEqualTo(
+                        "Could not decrypt the private key with the provided password, please double check the passwords provided");
     }
 
     @Test
@@ -153,9 +152,8 @@ public class ValidationTest {
         ConstraintViolation<KeyConfiguration> violation2 = iterator.next();
         assertThat(violation2.getMessageTemplate()).isEqualTo("File does not exist");
 
-        final List<String> paths = Arrays.asList(
-                violation1.getPropertyPath().toString(), violation2.getPropertyPath().toString()
-        );
+        final List<String> paths =
+                Arrays.asList(violation1.getPropertyPath().toString(), violation2.getPropertyPath().toString());
         assertThat(paths).containsExactlyInAnyOrder("keyData[0].publicKeyPath", "keyData[0].privateKeyPath");
     }
 
@@ -192,8 +190,10 @@ public class ValidationTest {
         Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
         assertThat(violations).hasSize(2);
 
-        assertThat(violations).extracting("messageTemplate")
-                .containsExactly("Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
+        assertThat(violations)
+                .extracting("messageTemplate")
+                .containsExactly(
+                        "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)",
                         "Azure Key Vault key IDs can only contain alphanumeric characters and dashes (-)");
     }
 
@@ -214,7 +214,8 @@ public class ValidationTest {
         Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
         assertThat(violations).hasSize(2);
 
-        assertThat(violations).extracting("messageTemplate")
+        assertThat(violations)
+                .extracting("messageTemplate")
                 .containsExactly("length must be 32 characters", "length must be 32 characters");
     }
 
@@ -226,7 +227,8 @@ public class ValidationTest {
         Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(keyPair);
         assertThat(violations).hasSize(2);
 
-        assertThat(violations).extracting("messageTemplate")
+        assertThat(violations)
+                .extracting("messageTemplate")
                 .containsExactly("length must be 32 characters", "length must be 32 characters");
     }
 
@@ -239,7 +241,9 @@ public class ValidationTest {
         Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(azureVaultKeyPair);
         assertThat(violations).hasSize(1);
 
-        assertThat(violations.iterator().next().getMessage()).isEqualTo("Only one key version was provided for the Azure vault key pair.  Either set the version for both the public and private key, or leave both unset");
+        assertThat(violations.iterator().next().getMessage())
+                .isEqualTo(
+                        "Only one key version was provided for the Azure vault key pair.  Either set the version for both the public and private key, or leave both unset");
     }
 
     @Test
@@ -251,7 +255,9 @@ public class ValidationTest {
         Set<ConstraintViolation<AzureVaultKeyPair>> violations = validator.validate(azureVaultKeyPair);
         assertThat(violations).hasSize(1);
 
-        assertThat(violations.iterator().next().getMessage()).isEqualTo("Only one key version was provided for the Azure vault key pair.  Either set the version for both the public and private key, or leave both unset");
+        assertThat(violations.iterator().next().getMessage())
+                .isEqualTo(
+                        "Only one key version was provided for the Azure vault key pair.  Either set the version for both the public and private key, or leave both unset");
     }
 
     @Test
@@ -289,7 +295,8 @@ public class ValidationTest {
 
     @Test
     public void hashicorpKeyPairProvidedWithoutKeyVaultConfigCreatesViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName", null);
+        HashicorpVaultKeyPair keyPair =
+                new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName", null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
@@ -307,7 +314,8 @@ public class ValidationTest {
 
     @Test
     public void hashicorpKeyPairProvidedWithAzureKeyVaultConfigCreatesViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName", null);
+        HashicorpVaultKeyPair keyPair =
+                new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName", null);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
@@ -352,7 +360,8 @@ public class ValidationTest {
     public void azureVaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNotNullViolation() {
         AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pubId", "privId", null, null);
         AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig(null);
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), keyVaultConfig, null);
+        KeyConfiguration keyConfiguration =
+                new KeyConfiguration(null, null, singletonList(keyPair), keyVaultConfig, null);
 
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
         assertThat(violations).hasSize(1);
@@ -375,9 +384,11 @@ public class ValidationTest {
 
     @Test
     public void hashicorpVaultKeyPairProvidedButKeyVaultConfigHasNullUrlCreatesNotNullViolation() {
-        HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", null);
+        HashicorpVaultKeyPair keyPair =
+                new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", null);
         HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig();
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, keyVaultConfig);
+        KeyConfiguration keyConfiguration =
+                new KeyConfiguration(null, null, singletonList(keyPair), null, keyVaultConfig);
 
         Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
         assertThat(violations).hasSize(1);
@@ -390,7 +401,7 @@ public class ValidationTest {
     @Test
     public void serverAddressValidations() {
 
-        String[] invalidAddresses = {"/foo/bar","foo@bar.com,:/fff.ll","file:/tmp/valid.somename"};
+        String[] invalidAddresses = {"/foo/bar", "foo@bar.com,:/fff.ll", "file:/tmp/valid.somename"};
 
         ServerConfig config = new ServerConfig();
         for (String sample : invalidAddresses) {
@@ -399,13 +410,11 @@ public class ValidationTest {
             assertThat(validresult).hasSize(1);
         }
 
-        String[] validSamples = {"unix:/foo/bar.ipc","http://localhost:8080","https://somestrangedomain.com:8080"};
+        String[] validSamples = {"unix:/foo/bar.ipc", "http://localhost:8080", "https://somestrangedomain.com:8080"};
         for (String sample : validSamples) {
             config.setServerAddress(sample);
             Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
             assertThat(validresult).isEmpty();
         }
-
     }
-
 }

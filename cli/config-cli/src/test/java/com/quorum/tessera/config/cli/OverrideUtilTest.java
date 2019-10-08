@@ -38,6 +38,7 @@ public class OverrideUtilTest {
                         "jdbc.password",
                         "jdbc.url",
                         "jdbc.autoCreateTables",
+                        "jdbc.fetchSize",
                         "peer.url",
                         "keys.passwordFile",
                         "keys.passwords",
