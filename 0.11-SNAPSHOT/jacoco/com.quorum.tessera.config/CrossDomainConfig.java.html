@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CrossDomainConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config</a> &gt; <span class="el_source">CrossDomainConfig.java</span></div><h1>CrossDomainConfig.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config;
+
+import java.util.Arrays;
+import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+
+@XmlAccessorType(XmlAccessType.FIELD)
+<span class="fc" id="L10">public class CrossDomainConfig extends ConfigItem {</span>
+
+<span class="fc" id="L12">    @XmlElement</span>
+<span class="fc" id="L13">    private List&lt;String&gt; allowedMethods = Arrays.asList(&quot;GET&quot;, &quot;POST&quot;, &quot;PUT&quot;, &quot;DELETE&quot;, &quot;OPTIONS&quot;, &quot;HEAD&quot;);</span>
+
+    @XmlElement
+    private List&lt;String&gt; allowedOrigins;
+
+    @XmlElement
+    private List&lt;String&gt; allowedHeaders;
+
+<span class="fc" id="L21">    @XmlElement</span>
+    private Boolean allowCredentials = Boolean.TRUE;
+    
+    public List&lt;String&gt; getAllowedOrigins() {
+<span class="fc" id="L25">        return allowedOrigins;</span>
+    }
+
+    public void setAllowedOrigins(List&lt;String&gt; allowedOrigins) {
+<span class="fc" id="L29">        this.allowedOrigins = allowedOrigins;</span>
+<span class="fc" id="L30">    }</span>
+
+    public List&lt;String&gt; getAllowedMethods() {
+<span class="fc" id="L33">        return allowedMethods;</span>
+    }
+
+    public void setAllowedMethods(List&lt;String&gt; allowedMethods) {
+<span class="fc" id="L37">        this.allowedMethods = allowedMethods;</span>
+<span class="fc" id="L38">    }</span>
+
+    public List&lt;String&gt; getAllowedHeaders() {
+<span class="fc" id="L41">        return allowedHeaders;</span>
+    }
+
+    public void setAllowedHeaders(List&lt;String&gt; allowedHeaders) {
+<span class="fc" id="L45">        this.allowedHeaders = allowedHeaders;</span>
+<span class="fc" id="L46">    }</span>
+
+    public Boolean getAllowCredentials() {
+<span class="fc" id="L49">        return allowCredentials;</span>
+    }
+
+    public void setAllowCredentials(Boolean allowCredentials) {
+<span class="fc" id="L53">        this.allowCredentials = allowCredentials;</span>
+<span class="fc" id="L54">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

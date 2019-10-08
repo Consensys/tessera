@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>KeyDataAdapter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config.adapters</a> &gt; <span class="el_source">KeyDataAdapter.java</span></div><h1>KeyDataAdapter.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config.adapters;
+
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.keypairs.*;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import java.util.Objects;
+
+<span class="fc" id="L9">public class KeyDataAdapter extends XmlAdapter&lt;KeyData, ConfigKeyPair&gt; {</span>
+
+    public static final String NACL_FAILURE_TOKEN = &quot;NACL_FAILURE&quot;;
+
+    @Override
+    public ConfigKeyPair unmarshal(final KeyData keyData) {
+
+        //case 1, the keys are provided inline
+<span class="fc bfc" id="L17" title="All 4 branches covered.">        if (Objects.nonNull(keyData.getPrivateKey()) &amp;&amp; Objects.nonNull(keyData.getPublicKey())) {</span>
+<span class="fc" id="L18">            return new DirectKeyPair(keyData.getPublicKey(), keyData.getPrivateKey());</span>
+        }
+
+        //case 2, the config is provided inline
+<span class="pc bpc" id="L22" title="1 of 4 branches missed.">        if (keyData.getPublicKey() != null &amp;&amp; keyData.getConfig() != null) {</span>
+<span class="fc" id="L23">            return new InlineKeypair(keyData.getPublicKey(), keyData.getConfig());</span>
+        }
+
+        //case 3, the Azure Key Vault data is provided
+<span class="fc bfc" id="L27" title="All 4 branches covered.">        if(keyData.getAzureVaultPublicKeyId() != null &amp;&amp; keyData.getAzureVaultPrivateKeyId() != null) {</span>
+<span class="fc" id="L28">            return new AzureVaultKeyPair(keyData.getAzureVaultPublicKeyId(), keyData.getAzureVaultPrivateKeyId(), keyData.getAzureVaultPublicKeyVersion(), keyData.getAzureVaultPrivateKeyVersion());</span>
+        }
+
+        //case 4, the Hashicorp Vault data is provided
+<span class="fc bfc" id="L32" title="All 4 branches covered.">        if(keyData.getHashicorpVaultPublicKeyId() != null &amp;&amp; keyData.getHashicorpVaultPrivateKeyId() != null</span>
+<span class="pc bpc" id="L33" title="2 of 4 branches missed.">            &amp;&amp; keyData.getHashicorpVaultSecretEngineName() != null &amp;&amp; keyData.getHashicorpVaultSecretName() != null) {</span>
+<span class="fc" id="L34">            return new HashicorpVaultKeyPair(keyData.getHashicorpVaultPublicKeyId(), keyData.getHashicorpVaultPrivateKeyId(), keyData.getHashicorpVaultSecretEngineName(), keyData.getHashicorpVaultSecretName(), keyData.getHashicorpVaultSecretVersion());</span>
+        }
+
+        //case 5, the keys are provided inside a file
+<span class="fc bfc" id="L38" title="All 4 branches covered.">        if(keyData.getPublicKeyPath() != null &amp;&amp; keyData.getPrivateKeyPath() != null) {</span>
+<span class="fc" id="L39">            return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath());</span>
+        }
+
+        //case 6, the key config specified is invalid
+<span class="fc" id="L43">        return new UnsupportedKeyPair(</span>
+<span class="fc" id="L44">            keyData.getConfig(),</span>
+<span class="fc" id="L45">            keyData.getPrivateKey(),</span>
+<span class="fc" id="L46">            keyData.getPublicKey(),</span>
+<span class="fc" id="L47">            keyData.getPrivateKeyPath(),</span>
+<span class="fc" id="L48">            keyData.getPublicKeyPath(),</span>
+<span class="fc" id="L49">            keyData.getAzureVaultPublicKeyId(),</span>
+<span class="fc" id="L50">            keyData.getAzureVaultPrivateKeyId(),</span>
+<span class="fc" id="L51">            keyData.getAzureVaultPublicKeyVersion(),</span>
+<span class="fc" id="L52">            keyData.getAzureVaultPrivateKeyVersion(),</span>
+<span class="fc" id="L53">            keyData.getHashicorpVaultPublicKeyId(),</span>
+<span class="fc" id="L54">            keyData.getHashicorpVaultPrivateKeyId(),</span>
+<span class="fc" id="L55">            keyData.getHashicorpVaultSecretEngineName(),</span>
+<span class="fc" id="L56">            keyData.getHashicorpVaultSecretName(),</span>
+<span class="fc" id="L57">            keyData.getHashicorpVaultSecretVersion()</span>
+        );
+    }
+
+    @Override
+    public KeyData marshal(final ConfigKeyPair keyPair) {
+
+<span class="fc" id="L64">        KeyData keyData = new KeyData();</span>
+
+<span class="fc bfc" id="L66" title="All 2 branches covered.">        if(keyPair instanceof DirectKeyPair) {</span>
+<span class="fc" id="L67">            DirectKeyPair kp = (DirectKeyPair) keyPair;</span>
+
+<span class="fc" id="L69">            keyData.setPublicKey(kp.getPublicKey());</span>
+<span class="fc" id="L70">            keyData.setPrivateKey(kp.getPrivateKey());</span>
+<span class="fc" id="L71">            return keyData;</span>
+        }
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if(keyPair instanceof InlineKeypair) {</span>
+<span class="fc" id="L75">            InlineKeypair kp = (InlineKeypair) keyPair;</span>
+
+<span class="fc" id="L77">            keyData.setPublicKey(kp.getPublicKey());</span>
+<span class="fc" id="L78">            keyData.setConfig(kp.getPrivateKeyConfig());</span>
+<span class="fc" id="L79">            return keyData;</span>
+        }
+
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        if(keyPair instanceof AzureVaultKeyPair) {</span>
+<span class="fc" id="L83">            AzureVaultKeyPair kp = (AzureVaultKeyPair) keyPair;</span>
+
+<span class="fc" id="L85">            keyData.setAzureVaultPublicKeyId(kp.getPublicKeyId());</span>
+<span class="fc" id="L86">            keyData.setAzureVaultPrivateKeyId(kp.getPrivateKeyId());</span>
+<span class="fc" id="L87">            keyData.setAzureVaultPublicKeyVersion(kp.getPublicKeyVersion());</span>
+<span class="fc" id="L88">            keyData.setAzureVaultPrivateKeyVersion(kp.getPrivateKeyVersion());</span>
+<span class="fc" id="L89">            return keyData;</span>
+        }
+
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if(keyPair instanceof HashicorpVaultKeyPair) {</span>
+<span class="fc" id="L93">            HashicorpVaultKeyPair kp = (HashicorpVaultKeyPair) keyPair;</span>
+
+<span class="fc" id="L95">            keyData.setHashicorpVaultPublicKeyId(kp.getPublicKeyId());</span>
+<span class="fc" id="L96">            keyData.setHashicorpVaultPrivateKeyId(kp.getPrivateKeyId());</span>
+<span class="fc" id="L97">            keyData.setHashicorpVaultSecretEngineName(kp.getSecretEngineName());</span>
+<span class="fc" id="L98">            keyData.setHashicorpVaultSecretName(kp.getSecretName());</span>
+<span class="fc" id="L99">            return keyData;</span>
+        }
+
+<span class="fc bfc" id="L102" title="All 2 branches covered.">        if(keyPair instanceof FilesystemKeyPair) {</span>
+<span class="fc" id="L103">            FilesystemKeyPair kp = (FilesystemKeyPair) keyPair;</span>
+
+<span class="fc" id="L105">            keyData.setPublicKeyPath(kp.getPublicKeyPath());</span>
+<span class="fc" id="L106">            keyData.setPrivateKeyPath(kp.getPrivateKeyPath());</span>
+<span class="fc" id="L107">            return keyData;</span>
+        }
+
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if(keyPair instanceof UnsupportedKeyPair) {</span>
+<span class="fc" id="L111">            UnsupportedKeyPair kp = (UnsupportedKeyPair) keyPair;</span>
+<span class="fc" id="L112">            return new KeyData(</span>
+<span class="fc" id="L113">                kp.getConfig(),</span>
+<span class="fc" id="L114">                kp.getPrivateKey(),</span>
+<span class="fc" id="L115">                kp.getPublicKey(),</span>
+<span class="fc" id="L116">                kp.getPrivateKeyPath(),</span>
+<span class="fc" id="L117">                kp.getPublicKeyPath(),</span>
+<span class="fc" id="L118">                kp.getAzureVaultPrivateKeyId(),</span>
+<span class="fc" id="L119">                kp.getAzureVaultPublicKeyId(),</span>
+<span class="fc" id="L120">                kp.getAzureVaultPublicKeyVersion(),</span>
+<span class="fc" id="L121">                kp.getAzureVaultPrivateKeyVersion(),</span>
+<span class="fc" id="L122">                kp.getHashicorpVaultPrivateKeyId(),</span>
+<span class="fc" id="L123">                kp.getHashicorpVaultPublicKeyId(),</span>
+<span class="fc" id="L124">                kp.getHashicorpVaultSecretEngineName(),</span>
+<span class="fc" id="L125">                kp.getHashicorpVaultSecretName(),</span>
+<span class="fc" id="L126">                kp.getHashicorpVaultSecretVersion());</span>
+        }
+
+<span class="fc" id="L129">        throw new UnsupportedOperationException(&quot;The keypair type &quot; + keyPair.getClass() + &quot; is not allowed&quot;);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

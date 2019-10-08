@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DirectKeyPair.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config.keypairs</a> &gt; <span class="el_source">DirectKeyPair.java</span></div><h1>DirectKeyPair.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config.keypairs;
+
+import com.quorum.tessera.config.constraints.ValidBase64;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import javax.xml.bind.annotation.XmlElement;
+
+public class DirectKeyPair implements ConfigKeyPair {
+
+    @Size(min = 1)
+    @NotNull
+    @ValidBase64(message = &quot;Invalid Base64 key provided&quot;)
+    @XmlElement
+    private final String publicKey;
+
+    @Size(min = 1)
+    @NotNull
+    @ValidBase64(message = &quot;Invalid Base64 key provided&quot;)
+    @XmlElement
+    private final String privateKey;
+
+<span class="fc" id="L23">    public DirectKeyPair(final String publicKey, final String privateKey) {</span>
+<span class="fc" id="L24">        this.publicKey = publicKey;</span>
+<span class="fc" id="L25">        this.privateKey = privateKey;</span>
+<span class="fc" id="L26">    }</span>
+
+    @Override
+    public String getPublicKey() {
+<span class="fc" id="L30">        return this.publicKey;</span>
+    }
+
+    @Override
+    public String getPrivateKey() {
+<span class="fc" id="L35">        return this.privateKey;</span>
+    }
+
+    @Override
+    public void withPassword(final String password) {
+        //no need to keep a password for this key type
+<span class="fc" id="L41">    }</span>
+
+    @Override
+    public String getPassword() {
+        //no password to return
+<span class="fc" id="L46">        return &quot;&quot;;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

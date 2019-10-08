@@ -14,8 +14,8 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a href="../../../../../com/quorum/tessera/config/keys/KeyEncryptorFactory.html">KeyEncryptorFactory</a> {
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>       <strong class="jxr_keyword">static</strong> <a href="../../../../../com/quorum/tessera/config/keys/KeyEncryptor.html">KeyEncryptor</a> create() {
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>           <strong class="jxr_keyword">final</strong> <a href="../../../../../com/quorum/tessera/nacl/NaclFacadeFactory.html">NaclFacadeFactory</a> naclFactory = NaclFacadeFactory.newFactory();
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../../com/quorum/tessera/argon2/Argon2.html">Argon2</a> argon2 = Argon2.create();
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>           <strong class="jxr_keyword">final</strong> NaclFacadeFactory naclFactory = NaclFacadeFactory.newFactory();
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>          <strong class="jxr_keyword">final</strong> Argon2 argon2 = Argon2.create();
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a href="../../../../../com/quorum/tessera/config/keys/KeyEncryptorImpl.html">KeyEncryptorImpl</a>(argon2, naclFactory.create());
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>      }

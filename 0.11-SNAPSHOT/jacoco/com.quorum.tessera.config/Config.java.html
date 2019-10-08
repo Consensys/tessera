@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Config.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config</a> &gt; <span class="el_source">Config.java</span></div><h1>Config.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config;
+
+import com.quorum.tessera.config.adapters.PathAdapter;
+import com.quorum.tessera.config.constraints.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
+@ValidEitherServerConfigsOrServer
+public class Config extends ConfigItem {
+
+<span class="fc" id="L20">    @XmlAttribute private String version = Version.getVersion();</span>
+
+    @NotNull
+    @Valid
+    @XmlElement(name = &quot;jdbc&quot;, required = true)
+    private JdbcConfig jdbcConfig;
+
+    @Valid
+    @ValidServerConfigs
+    @XmlElement(name = &quot;serverConfigs&quot;, required = true)
+    private List&lt;@Valid @ValidServerConfig ServerConfig&gt; serverConfigs;
+
+    @NotNull
+    @Valid
+    @XmlElement(name = &quot;peer&quot;, required = true)
+    private List&lt;Peer&gt; peers;
+
+    @Valid
+    @XmlElement(required = true)
+    @ValidKeyConfiguration
+    @ValidKeyVaultConfiguration
+    private KeyConfiguration keys;
+
+<span class="fc" id="L43">    @NotNull</span>
+    @XmlElement(name = &quot;alwaysSendTo&quot;)
+    private List&lt;@ValidBase64 String&gt; alwaysSendTo = new ArrayList&lt;&gt;();
+
+    @ValidPath(checkCanCreate = true)
+    @XmlElement(required = true, type = String.class)
+    @XmlJavaTypeAdapter(PathAdapter.class)
+    private Path unixSocketFile;
+
+    @XmlAttribute private boolean useWhiteList;
+
+    @XmlAttribute private boolean disablePeerDiscovery;
+
+    @XmlElement private DeprecatedServerConfig server;
+
+<span class="fc" id="L58">    @XmlElement private FeatureToggles features = new FeatureToggles();</span>
+
+    @Deprecated
+    public Config(
+            final JdbcConfig jdbcConfig,
+            final List&lt;ServerConfig&gt; serverConfigs,
+            final List&lt;Peer&gt; peers,
+            final KeyConfiguration keyConfiguration,
+            final List&lt;String&gt; alwaysSendTo,
+            final Path unixSocketFile,
+            final boolean useWhiteList,
+<span class="fc" id="L69">            final boolean disablePeerDiscovery) {</span>
+<span class="fc" id="L70">        this.jdbcConfig = jdbcConfig;</span>
+<span class="fc" id="L71">        this.serverConfigs = serverConfigs;</span>
+<span class="fc" id="L72">        this.peers = peers;</span>
+<span class="fc" id="L73">        this.keys = keyConfiguration;</span>
+<span class="fc" id="L74">        this.alwaysSendTo = alwaysSendTo;</span>
+<span class="fc" id="L75">        this.unixSocketFile = unixSocketFile;</span>
+<span class="fc" id="L76">        this.useWhiteList = useWhiteList;</span>
+<span class="fc" id="L77">        this.disablePeerDiscovery = disablePeerDiscovery;</span>
+<span class="fc" id="L78">    }</span>
+
+<span class="fc" id="L80">    public Config() {}</span>
+
+    public JdbcConfig getJdbcConfig() {
+<span class="fc" id="L83">        return this.jdbcConfig;</span>
+    }
+
+    // TODO: Shouldn't need to laziely recalcuate on a getter
+    public List&lt;ServerConfig&gt; getServerConfigs() {
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (null != this.serverConfigs) {</span>
+<span class="fc" id="L89">            return this.serverConfigs;</span>
+        }
+<span class="fc" id="L91">        return DeprecatedServerConfig.from(server, unixSocketFile);</span>
+    }
+
+    public boolean isServerConfigsNull() {
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        return null == this.serverConfigs;</span>
+    }
+
+    @Deprecated
+    public Path getUnixSocketFile() {
+<span class="fc" id="L100">        return unixSocketFile;</span>
+    }
+
+    public List&lt;Peer&gt; getPeers() {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (peers == null) {</span>
+<span class="fc" id="L105">            return null;</span>
+        }
+<span class="fc" id="L107">        return Collections.unmodifiableList(peers);</span>
+    }
+
+    public KeyConfiguration getKeys() {
+<span class="fc" id="L111">        return this.keys;</span>
+    }
+
+    public List&lt;String&gt; getAlwaysSendTo() {
+<span class="fc" id="L115">        return this.alwaysSendTo;</span>
+    }
+
+    public boolean isUseWhiteList() {
+<span class="fc" id="L119">        return this.useWhiteList;</span>
+    }
+
+    public boolean isDisablePeerDiscovery() {
+<span class="fc" id="L123">        return disablePeerDiscovery;</span>
+    }
+
+    public void addPeer(Peer peer) {
+<span class="fc bfc" id="L127" title="All 2 branches covered.">        if (peers == null) {</span>
+<span class="fc" id="L128">            this.peers = new ArrayList&lt;&gt;();</span>
+        }
+<span class="fc" id="L130">        this.peers.add(peer);</span>
+<span class="fc" id="L131">    }</span>
+
+    public ServerConfig getP2PServerConfig() {
+        // TODO need to revisit
+<span class="fc" id="L135">        return getServerConfigs().stream()</span>
+<span class="fc" id="L136">                .filter(ServerConfig::isEnabled)</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">                .filter(sc -&gt; sc.getApp() == AppType.P2P)</span>
+<span class="fc" id="L138">                .findFirst()</span>
+<span class="fc" id="L139">                .orElse(null);</span>
+    }
+
+    @Deprecated
+    public DeprecatedServerConfig getServer() {
+<span class="fc" id="L144">        return server;</span>
+    }
+
+    @Deprecated
+    public void setServer(DeprecatedServerConfig server) {
+<span class="fc" id="L149">        this.server = server;</span>
+<span class="fc" id="L150">    }</span>
+
+    public void setJdbcConfig(JdbcConfig jdbcConfig) {
+<span class="fc" id="L153">        this.jdbcConfig = jdbcConfig;</span>
+<span class="fc" id="L154">    }</span>
+
+    public void setServerConfigs(List&lt;ServerConfig&gt; serverConfigs) {
+<span class="fc" id="L157">        this.serverConfigs = serverConfigs;</span>
+<span class="fc" id="L158">    }</span>
+
+    public void setPeers(List&lt;Peer&gt; peers) {
+<span class="fc" id="L161">        this.peers = peers;</span>
+<span class="fc" id="L162">    }</span>
+
+    public void setKeys(KeyConfiguration keys) {
+<span class="fc" id="L165">        this.keys = keys;</span>
+<span class="fc" id="L166">    }</span>
+
+    public void setAlwaysSendTo(List&lt;String&gt; alwaysSendTo) {
+<span class="fc" id="L169">        this.alwaysSendTo = alwaysSendTo;</span>
+<span class="fc" id="L170">    }</span>
+
+    @Deprecated
+    public void setUnixSocketFile(Path unixSocketFile) {
+<span class="fc" id="L174">        this.unixSocketFile = unixSocketFile;</span>
+<span class="fc" id="L175">    }</span>
+
+    public void setUseWhiteList(boolean useWhiteList) {
+<span class="fc" id="L178">        this.useWhiteList = useWhiteList;</span>
+<span class="fc" id="L179">    }</span>
+
+    public void setDisablePeerDiscovery(boolean disablePeerDiscovery) {
+<span class="fc" id="L182">        this.disablePeerDiscovery = disablePeerDiscovery;</span>
+<span class="fc" id="L183">    }</span>
+
+    public String getVersion() {
+<span class="fc" id="L186">        return version;</span>
+    }
+
+    public FeatureToggles getFeatures() {
+<span class="fc" id="L190">        return features;</span>
+    }
+
+    public void setFeatures(final FeatureToggles features) {
+<span class="fc" id="L194">        this.features = features;</span>
+<span class="fc" id="L195">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

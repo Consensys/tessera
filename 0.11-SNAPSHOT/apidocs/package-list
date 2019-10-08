@@ -1,1 +1,9 @@
-com.quorum.tessera.nacl.jnacl
+com.quorum.tessera.config
+com.quorum.tessera.config.adapters
+com.quorum.tessera.config.apps
+com.quorum.tessera.config.constraints
+com.quorum.tessera.config.keypairs
+com.quorum.tessera.config.keys
+com.quorum.tessera.config.util
+com.quorum.tessera.config.util.jaxb
+com.quorum.tessera.config.vault.data

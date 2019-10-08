@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeprecatedServerConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config</a> &gt; <span class="el_source">DeprecatedServerConfig.java</span></div><h1>DeprecatedServerConfig.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config;
+
+import com.quorum.tessera.config.constraints.ValidSsl;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@Deprecated
+@XmlAccessorType(XmlAccessType.FIELD)
+public class DeprecatedServerConfig extends ConfigItem {
+
+    @NotNull
+    @XmlElement(required = true)
+    private String hostName;
+
+    @NotNull
+    @XmlElement
+    private Integer port;
+
+    @XmlElement
+    private Integer grpcPort;
+
+    @XmlElement
+    private CommunicationType communicationType;
+
+    @Valid
+    @XmlElement
+    @ValidSsl
+    private SslConfig sslConfig;
+
+    @Valid
+    @XmlElement
+    private InfluxConfig influxConfig;
+
+    @XmlElement
+    private String bindingAddress;
+
+<span class="fc" id="L45">    public DeprecatedServerConfig() {</span>
+<span class="fc" id="L46">    }</span>
+
+    public String getHostName() {
+<span class="fc" id="L49">        return hostName;</span>
+    }
+
+    public void setHostName(String hostName) {
+<span class="fc" id="L53">        this.hostName = hostName;</span>
+<span class="fc" id="L54">    }</span>
+
+    public Integer getPort() {
+<span class="fc" id="L57">        return port;</span>
+    }
+
+    public void setPort(Integer port) {
+<span class="fc" id="L61">        this.port = port;</span>
+<span class="fc" id="L62">    }</span>
+
+    public Integer getGrpcPort() {
+<span class="fc" id="L65">        return grpcPort;</span>
+    }
+
+    public void setGrpcPort(Integer grpcPort) {
+<span class="fc" id="L69">        this.grpcPort = grpcPort;</span>
+<span class="fc" id="L70">    }</span>
+
+    public CommunicationType getCommunicationType() {
+<span class="fc" id="L73">        return communicationType;</span>
+    }
+
+    public void setCommunicationType(CommunicationType communicationType) {
+<span class="fc" id="L77">        this.communicationType = communicationType;</span>
+<span class="fc" id="L78">    }</span>
+
+    public SslConfig getSslConfig() {
+<span class="fc" id="L81">        return sslConfig;</span>
+    }
+
+    public void setSslConfig(SslConfig sslConfig) {
+<span class="fc" id="L85">        this.sslConfig = sslConfig;</span>
+<span class="fc" id="L86">    }</span>
+
+    public InfluxConfig getInfluxConfig() {
+<span class="fc" id="L89">        return influxConfig;</span>
+    }
+
+    public void setInfluxConfig(InfluxConfig influxConfig) {
+<span class="fc" id="L93">        this.influxConfig = influxConfig;</span>
+<span class="fc" id="L94">    }</span>
+
+    public String getBindingAddress() {
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (bindingAddress == null) {</span>
+<span class="fc" id="L98">            this.bindingAddress = hostName + &quot;:&quot; + port;</span>
+        }
+<span class="fc" id="L100">        return bindingAddress;</span>
+    }
+
+    public void setBindingAddress(String bindingAddress) {
+<span class="fc" id="L104">        this.bindingAddress = bindingAddress;</span>
+<span class="fc" id="L105">    }</span>
+
+    public static List&lt;ServerConfig&gt; from(DeprecatedServerConfig server, Path unixSocketFile) {
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        if (null == server) {</span>
+<span class="fc" id="L109">            return Collections.emptyList();</span>
+        }
+
+<span class="fc" id="L112">        ServerConfig q2tConfig = new ServerConfig();</span>
+<span class="fc" id="L113">        q2tConfig.setEnabled(true);</span>
+<span class="fc" id="L114">        q2tConfig.setApp(AppType.Q2T);</span>
+<span class="fc" id="L115">        q2tConfig.setCommunicationType(CommunicationType.REST);</span>
+<span class="fc" id="L116">        String uriValue = &quot;unix:&quot;+ String.valueOf(unixSocketFile);</span>
+<span class="fc" id="L117">        q2tConfig.setServerAddress(uriValue);</span>
+<span class="fc" id="L118">        q2tConfig.setInfluxConfig(server.getInfluxConfig());</span>
+
+<span class="fc" id="L120">        ServerConfig p2pConfig = new ServerConfig();</span>
+<span class="fc" id="L121">        p2pConfig.setEnabled(true);</span>
+<span class="fc" id="L122">        p2pConfig.setApp(AppType.P2P);</span>
+
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (server.getCommunicationType() == CommunicationType.GRPC) {</span>
+<span class="fc" id="L125">            p2pConfig.setServerAddress(server.getHostName() +&quot;:&quot;+ server.getGrpcPort());</span>
+<span class="fc" id="L126">            p2pConfig.setCommunicationType(CommunicationType.GRPC);</span>
+        } else {
+<span class="fc" id="L128">            p2pConfig.setServerAddress(server.getHostName() +&quot;:&quot;+ server.getPort());</span>
+<span class="fc" id="L129">            p2pConfig.setCommunicationType(CommunicationType.REST);</span>
+        }
+<span class="fc" id="L131">        p2pConfig.setInfluxConfig(server.getInfluxConfig());</span>
+<span class="fc" id="L132">        p2pConfig.setSslConfig(server.getSslConfig());</span>
+<span class="fc" id="L133">        p2pConfig.setBindingAddress(server.getBindingAddress());</span>
+
+<span class="fc" id="L135">        List&lt;ServerConfig&gt; srvConfigs = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L136">        srvConfigs.add(q2tConfig);</span>
+<span class="fc" id="L137">        srvConfigs.add(p2pConfig);</span>
+
+<span class="fc" id="L139">        return srvConfigs;</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>

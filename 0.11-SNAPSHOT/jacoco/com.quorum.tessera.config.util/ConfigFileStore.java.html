@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConfigFileStore.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">config</a> &gt; <a href="index.source.html" class="el_package">com.quorum.tessera.config.util</a> &gt; <span class="el_source">ConfigFileStore.java</span></div><h1>ConfigFileStore.java</h1><pre class="source lang-java linenums">package com.quorum.tessera.config.util;
+
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.io.IOCallback;
+
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
+
+public interface ConfigFileStore {
+
+<span class="fc" id="L14">    enum Store implements ConfigFileStore {</span>
+
+<span class="fc" id="L16">        INSTANCE;</span>
+
+        private Path path;
+
+        @Override
+        public void save(Config config) {
+
+<span class="fc" id="L23">            IOCallback.execute(() -&gt; {</span>
+<span class="fc" id="L24">                Path temp = Files.createTempFile(UUID.randomUUID().toString(), &quot;.tmp&quot;);</span>
+<span class="fc" id="L25">                try (OutputStream fout = Files.newOutputStream(temp)) {</span>
+<span class="fc" id="L26">                    JaxbUtil.marshalWithNoValidation(config, fout);</span>
+                }
+<span class="fc" id="L28">                Files.copy(temp, path, StandardCopyOption.REPLACE_EXISTING);</span>
+<span class="fc" id="L29">                return null;</span>
+            });
+<span class="fc" id="L31">        }</span>
+    }
+
+    static ConfigFileStore create(Path path) {
+<span class="fc" id="L35">        Store.INSTANCE.path = path;</span>
+<span class="fc" id="L36">        return Store.INSTANCE;</span>
+    }
+
+    static ConfigFileStore get() {
+<span class="fc" id="L40">        return Store.INSTANCE;</span>
+    }
+
+    void save(Config config);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.2.201808211720</span></div></body></html>
