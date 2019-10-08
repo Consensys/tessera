@@ -78,7 +78,8 @@ public class TransactionManagerTest {
                         partyInfoService,
                         enclave,
                         encryptedRawTransactionDAO,
-                        resendManager);
+                        resendManager,
+                        1000);
     }
 
     @After
@@ -969,7 +970,12 @@ public class TransactionManagerTest {
 
         TransactionManager tm =
                 new TransactionManagerImpl(
-                        encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, partyInfoService);
+                        encryptedTransactionDAO,
+                        enclave,
+                        encryptedRawTransactionDAO,
+                        resendManager,
+                        partyInfoService,
+                        1000);
 
         assertThat(tm).isNotNull();
     }

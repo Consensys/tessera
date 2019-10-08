@@ -27,6 +27,7 @@
         <constructor-arg ref="encryptedRawTransactionDAO" />
         <constructor-arg ref="resendManager" />
         <constructor-arg ref="partyInfoService" />
+        <constructor-arg value="#{config.getJdbcConfig().getFetchSize() > 0 ? config.getJdbcConfig().getFetchSize() : 1000}"/>
     </bean>
 
     <bean id="cliDelegate" class="com.quorum.tessera.cli.CliDelegate" factory-method="instance"/>
