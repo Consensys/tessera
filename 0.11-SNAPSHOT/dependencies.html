@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>azure-key-vault &#x2013; Project Dependencies</title>
+    <title>hashicorp-key-vault &#x2013; Project Dependencies</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -16,7 +16,7 @@
   <body class="composite">
     <div id="banner">
 <div id="bannerLeft">
-azure-key-vault
+hashicorp-key-vault
 </div>
       <div class="clear">
         <hr/>
@@ -27,7 +27,7 @@ azure-key-vault
         <span id="publishDate">Last Published: 2019-10-08</span>
           &nbsp;| <span id="projectVersion">Version: 0.11-SNAPSHOT</span>
       </div>
-      <div class="xright"><a href="./" title="azure-key-vault">azure-key-vault</a>      </div>
+      <div class="xright"><a href="./" title="hashicorp-key-vault">hashicorp-key-vault</a>      </div>
       <div class="clear">
         <hr/>
       </div>
@@ -80,34 +80,28 @@ azure-key-vault
 <th>Licenses</th></tr>
 <tr class="b">
 <td>com.jpmorgan.quorum</td>
-<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/config">config</a></td>
-<td>0.11-SNAPSHOT</td>
-<td>jar</td>
-<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
-<tr class="a">
-<td>com.jpmorgan.quorum</td>
 <td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/key-vault/key-vault-api">key-vault-api</a></td>
 <td>0.11-SNAPSHOT</td>
 <td>jar</td>
 <td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
-<tr class="b">
-<td>com.microsoft.azure</td>
-<td><a class="externalLink" href="https://github.com/AzureAD/azure-activedirectory-library-for-java">adal4j</a></td>
-<td>1.6.3</td>
-<td>jar</td>
-<td>MIT License</td></tr>
 <tr class="a">
-<td>com.microsoft.azure</td>
-<td><a class="externalLink" href="https://github.com/Azure/azure-sdk-for-java">azure-keyvault</a></td>
-<td>1.2.2</td>
+<td>com.squareup.okhttp3</td>
+<td><a class="externalLink" href="https://github.com/square/okhttp/okhttp">okhttp</a></td>
+<td>3.12.3</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></td></tr>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
 <tr class="b">
 <td>org.slf4j</td>
 <td><a class="externalLink" href="http://www.slf4j.org">slf4j-api</a></td>
 <td>1.7.5</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></td></tr></table></div><a name="Project_Dependencies_runtime"></a>
+<td><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></td></tr>
+<tr class="a">
+<td>org.springframework.vault</td>
+<td><a class="externalLink" href="http://projects.spring.io/spring-vault/spring-vault-core/">spring-vault-core</a></td>
+<td>2.1.1.RELEASE</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></td></tr></table></div><a name="Project_Dependencies_runtime"></a>
 <div class="section">
 <h3><a name="runtime"></a>runtime</h3>
 <p>The following is a list of runtime dependencies for this project. These dependencies are required to run the application:</p>
@@ -214,50 +208,14 @@ azure-key-vault
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
 <tr class="a">
-<td>com.fasterxml.jackson.datatype</td>
-<td><a class="externalLink" href="http://wiki.fasterxml.com/JacksonModuleJoda">jackson-datatype-joda</a></td>
-<td>2.9.4</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="b">
-<td>com.github.stephenc.jcip</td>
-<td><a class="externalLink" href="http://stephenc.github.com/jcip-annotations">jcip-annotations</a></td>
-<td>1.0-1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
-<tr class="a">
-<td>com.google.code.findbugs</td>
-<td><a class="externalLink" href="http://findbugs.sourceforge.net/">jsr305</a></td>
-<td>3.0.2</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="b">
-<td>com.google.code.gson</td>
-<td><a class="externalLink" href="https://github.com/google/gson/gson">gson</a></td>
-<td>2.8.5</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="a">
-<td>com.google.errorprone</td>
-<td><a class="externalLink" href="http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations">error_prone_annotations</a></td>
-<td>2.1.3</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="b">
-<td>com.google.guava</td>
-<td><a class="externalLink" href="https://github.com/google/guava/guava">guava</a></td>
-<td>24.1.1-jre</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="a">
-<td>com.google.j2objc</td>
-<td><a class="externalLink" href="https://github.com/google/j2objc/">j2objc-annotations</a></td>
-<td>1.1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="b">
 <td>com.jpmorgan.quorum</td>
 <td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/argon2">argon2</a></td>
+<td>0.11-SNAPSHOT</td>
+<td>jar</td>
+<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
+<tr class="b">
+<td>com.jpmorgan.quorum</td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/config">config</a></td>
 <td>0.11-SNAPSHOT</td>
 <td>jar</td>
 <td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
@@ -280,107 +238,11 @@ azure-key-vault
 <td>jar</td>
 <td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
 <tr class="b">
-<td>com.microsoft.azure</td>
-<td><a class="externalLink" href="https://github.com/Microsoft/java-api-annotations">azure-annotations</a></td>
-<td>1.2.0</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></td></tr>
-<tr class="a">
-<td>com.microsoft.azure</td>
-<td><a class="externalLink" href="https://github.com/Azure/autorest-clientruntime-for-java">azure-client-runtime</a></td>
-<td>1.6.12</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></td></tr>
-<tr class="b">
-<td>com.microsoft.azure</td>
-<td><a class="externalLink" href="https://github.com/Azure/azure-sdk-for-java">azure-keyvault-core</a></td>
-<td>1.2.2</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></td></tr>
-<tr class="a">
-<td>com.microsoft.azure</td>
-<td><a class="externalLink" href="https://github.com/Azure/azure-sdk-for-java">azure-keyvault-cryptography</a></td>
-<td>1.2.2</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></td></tr>
-<tr class="b">
-<td>com.microsoft.azure</td>
-<td><a class="externalLink" href="https://github.com/Azure/azure-sdk-for-java">azure-keyvault-webkey</a></td>
-<td>1.2.2</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></td></tr>
-<tr class="a">
-<td>com.microsoft.rest</td>
-<td><a class="externalLink" href="https://github.com/Azure/autorest-clientruntime-for-java">client-runtime</a></td>
-<td>1.6.1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></td></tr>
-<tr class="b">
-<td>com.nimbusds</td>
-<td><a class="externalLink" href="https://bitbucket.org/connect2id/nimbus-language-tags">lang-tag</a></td>
-<td>1.4.4</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="a">
-<td>com.nimbusds</td>
-<td><a class="externalLink" href="https://bitbucket.org/connect2id/nimbus-jose-jwt">nimbus-jose-jwt</a></td>
-<td>7.9</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="b">
-<td>com.nimbusds</td>
-<td><a class="externalLink" href="https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions">oauth2-oidc-sdk</a></td>
-<td>5.64.4</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.html‎">Apache License, version 2.0</a></td></tr>
-<tr class="a">
-<td>com.squareup.okhttp3</td>
-<td><a class="externalLink" href="https://github.com/square/okhttp/logging-interceptor">logging-interceptor</a></td>
-<td>3.11.0</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="b">
-<td>com.squareup.okhttp3</td>
-<td><a class="externalLink" href="https://github.com/square/okhttp/okhttp">okhttp</a></td>
-<td>3.12.3</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="a">
-<td>com.squareup.okhttp3</td>
-<td><a class="externalLink" href="https://github.com/square/okhttp/okhttp-urlconnection">okhttp-urlconnection</a></td>
-<td>3.11.0</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="b">
 <td>com.squareup.okio</td>
 <td><a class="externalLink" href="https://github.com/square/okio/okio">okio</a></td>
 <td>1.15.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="a">
-<td>com.squareup.retrofit2</td>
-<td><a class="externalLink" href="https://github.com/square/retrofit/retrofit-adapters/adapter-rxjava/">adapter-rxjava</a></td>
-<td>2.4.0</td>
-<td>jar</td>
-<td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="b">
-<td>com.squareup.retrofit2</td>
-<td><a class="externalLink" href="https://github.com/square/retrofit/retrofit-converters/converter-jackson/">converter-jackson</a></td>
-<td>2.4.0</td>
-<td>jar</td>
-<td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="a">
-<td>com.squareup.retrofit2</td>
-<td><a class="externalLink" href="https://github.com/square/retrofit/retrofit/">retrofit</a></td>
-<td>2.4.0</td>
-<td>jar</td>
-<td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></td></tr>
-<tr class="b">
-<td>commons-codec</td>
-<td><a class="externalLink" href="http://commons.apache.org/proper/commons-codec/">commons-codec</a></td>
-<td>1.12</td>
-<td>jar</td>
-<td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
 <tr class="a">
 <td>de.mkammerer</td>
 <td><a class="externalLink" href="https://github.com/phxql/argon2-jvm">argon2-jvm</a></td>
@@ -388,29 +250,17 @@ azure-key-vault
 <td>jar</td>
 <td><a class="externalLink" href="https://www.gnu.org/licenses/lgpl-3.0.en.html">GNU Lesser General Public License, Version 3</a></td></tr>
 <tr class="b">
-<td>io.reactivex</td>
-<td><a class="externalLink" href="https://github.com/ReactiveX/RxJava">rxjava</a></td>
-<td>1.3.8</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="a">
 <td>javax.json</td>
 <td><a class="externalLink" href="https://javaee.github.io/jsonp">javax.json-api</a></td>
 <td>1.1.2</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></td></tr>
-<tr class="b">
+<tr class="a">
 <td>javax.validation</td>
 <td><a class="externalLink" href="http://beanvalidation.org">validation-api</a></td>
 <td>2.0.1.Final</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></td></tr>
-<tr class="a">
-<td>joda-time</td>
-<td><a class="externalLink" href="http://www.joda.org/joda-time/">joda-time</a></td>
-<td>2.7</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2</a></td></tr>
 <tr class="b">
 <td>net.java.dev.jna</td>
 <td><a class="externalLink" href="https://github.com/java-native-access/jna">jna</a></td>
@@ -418,35 +268,11 @@ azure-key-vault
 <td>jar</td>
 <td><a class="externalLink" href="http://www.gnu.org/licenses/licenses.html">LGPL, version 2.1</a><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License v2.0</a></td></tr>
 <tr class="a">
-<td>net.minidev</td>
-<td><a class="externalLink" href="http://www.minidev.net/">accessors-smart</a></td>
-<td>1.2</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="b">
-<td>net.minidev</td>
-<td><a class="externalLink" href="http://www.minidev.net/">json-smart</a></td>
-<td>2.3</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="a">
 <td>org.apache.commons</td>
 <td><a class="externalLink" href="http://commons.apache.org/proper/commons-lang/">commons-lang3</a></td>
 <td>3.7</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
-<tr class="b">
-<td>org.checkerframework</td>
-<td><a class="externalLink" href="http://checkerframework.org">checker-compat-qual</a></td>
-<td>2.0.0</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.gnu.org/software/classpath/license.html">GNU General Public License, version 2 (GPL2), with the classpath exception</a><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License</a></td></tr>
-<tr class="a">
-<td>org.codehaus.mojo</td>
-<td><a class="externalLink" href="http://mojo.codehaus.org/animal-sniffer/animal-sniffer-annotations">animal-sniffer-annotations</a></td>
-<td>1.14</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a></td></tr>
 <tr class="b">
 <td>org.glassfish</td>
 <td><a class="externalLink" href="https://javaee.github.io/jsonp">javax.json</a></td>
@@ -460,11 +286,41 @@ azure-key-vault
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
 <tr class="b">
-<td>org.ow2.asm</td>
-<td><a class="externalLink" href="http://asm.ow2.org/">asm</a></td>
-<td>7.0</td>
+<td>org.springframework</td>
+<td><a class="externalLink" href="https://github.com/spring-projects/spring-framework">spring-aop</a></td>
+<td>5.1.2.RELEASE</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://asm.ow2.org/license.html">BSD</a></td></tr></table></div><a name="Project_Transitive_Dependencies_runtime"></a>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></td></tr>
+<tr class="a">
+<td>org.springframework</td>
+<td><a class="externalLink" href="https://github.com/spring-projects/spring-framework">spring-beans</a></td>
+<td>5.1.2.RELEASE</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></td></tr>
+<tr class="b">
+<td>org.springframework</td>
+<td><a class="externalLink" href="https://github.com/spring-projects/spring-framework">spring-context</a></td>
+<td>5.1.2.RELEASE</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></td></tr>
+<tr class="a">
+<td>org.springframework</td>
+<td><a class="externalLink" href="https://github.com/spring-projects/spring-framework">spring-core</a></td>
+<td>5.1.2.RELEASE</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></td></tr>
+<tr class="b">
+<td>org.springframework</td>
+<td><a class="externalLink" href="https://github.com/spring-projects/spring-framework">spring-expression</a></td>
+<td>5.1.2.RELEASE</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></td></tr>
+<tr class="a">
+<td>org.springframework</td>
+<td><a class="externalLink" href="https://github.com/spring-projects/spring-framework">spring-web</a></td>
+<td>5.1.2.RELEASE</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></td></tr></table></div><a name="Project_Transitive_Dependencies_runtime"></a>
 <div class="section">
 <h3><a name="runtime"></a>runtime</h3>
 <p>The following is a list of runtime dependencies for this project. These dependencies are required to run the application:</p>
@@ -482,30 +338,24 @@ azure-key-vault
 <td>jar</td>
 <td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
 <tr class="a">
-<td>com.sun.mail</td>
-<td><a class="externalLink" href="http://javaee.github.io/javamail/javax.mail">javax.mail</a></td>
-<td>1.6.2</td>
-<td>jar</td>
-<td><a class="externalLink" href="https://javaee.github.io/javamail/LICENSE">CDDL/GPLv2+CE</a></td></tr>
-<tr class="b">
 <td>eu.neilalexander</td>
 <td><a class="externalLink" href="https://github.com/neilalexander/jnacl">jnacl</a></td>
 <td>1.0.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://opensource.org/licenses/bsd-license.php">The BSD 2-Clause License</a></td></tr>
-<tr class="a">
+<tr class="b">
 <td>org.eclipse.persistence</td>
 <td><a class="externalLink" href="http://www.eclipse.org/eclipselink">org.eclipse.persistence.asm</a></td>
 <td>2.7.3</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></td></tr>
-<tr class="b">
+<tr class="a">
 <td>org.eclipse.persistence</td>
 <td><a class="externalLink" href="http://www.eclipse.org/eclipselink">org.eclipse.persistence.core</a></td>
 <td>2.7.3</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></td></tr>
-<tr class="a">
+<tr class="b">
 <td>org.glassfish</td>
 <td><a class="externalLink" href="http://uel.java.net">javax.el</a></td>
 <td>3.0.1-b10</td>
@@ -544,7 +394,23 @@ azure-key-vault
 <td><a class="externalLink" href="http://objenesis.org">objenesis</a></td>
 <td>2.6</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2</a></td></tr></table></div></div><a name="Project_Dependency_Graph"></a>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2</a></td></tr></table></div><a name="Project_Transitive_Dependencies_provided"></a>
+<div class="section">
+<h3><a name="provided"></a>provided</h3>
+<p>The following is a list of provided dependencies for this project. These dependencies are required to compile the application, but should be provided by default when using the library:</p>
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>GroupId</th>
+<th>ArtifactId</th>
+<th>Version</th>
+<th>Type</th>
+<th>Licenses</th></tr>
+<tr class="b">
+<td>org.springframework</td>
+<td><a class="externalLink" href="https://github.com/spring-projects/spring-framework">spring-jcl</a></td>
+<td>5.1.2.RELEASE</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></td></tr></table></div></div><a name="Project_Dependency_Graph"></a>
 <div class="section">
 <h2><a name="Project_Dependency_Graph"></a>Project Dependency Graph</h2>
 <script language="javascript" type="text/javascript">
@@ -570,18 +436,29 @@ azure-key-vault
 <div class="section">
 <h3><a name="Dependency_Tree"></a>Dependency Tree</h3>
 <ul>
-<li>com.jpmorgan.quorum:azure-key-vault:jar:0.11-SNAPSHOT <img id="_img1" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep0', '_img1' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep0" style="display:none">
+<li>com.jpmorgan.quorum:hashicorp-key-vault:jar:0.11-SNAPSHOT <img id="_img1" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep0', '_img1' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep0" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
-<th>azure-key-vault</th></tr>
+<th>hashicorp-key-vault</th></tr>
 <tr class="b">
 <td>
 <p><b>Description: </b>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
         of private transactions for Quorum.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/key-vault/azure-key-vault">https://github.com/jpmorganchase/tessera/key-vault/azure-key-vault</a></p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/key-vault/hashicorp-key-vault">https://github.com/jpmorganchase/tessera/key-vault/hashicorp-key-vault</a></p>
 <p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>com.jpmorgan.quorum:config:jar:0.11-SNAPSHOT (compile) <img id="_img3" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep2', '_img3' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep2" style="display:none">
+<li>com.jpmorgan.quorum:key-vault-api:jar:0.11-SNAPSHOT (compile) <img id="_img3" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep2', '_img3' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep2" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>key-vault-api</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
+        of private transactions for Quorum.</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/key-vault/key-vault-api">https://github.com/jpmorganchase/tessera/key-vault/key-vault-api</a></p>
+<p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div>
+<ul>
+<li>com.jpmorgan.quorum:config:jar:0.11-SNAPSHOT (compile) <img id="_img5" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep4', '_img5' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep4" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>config</th></tr>
@@ -592,7 +469,7 @@ azure-key-vault
 <p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/config">https://github.com/jpmorganchase/tessera/config</a></p>
 <p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.glassfish:javax.el:jar:3.0.1-b10 (runtime) <img id="_img5" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep4', '_img5' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep4" style="display:none">
+<li>org.glassfish:javax.el:jar:3.0.1-b10 (runtime) <img id="_img7" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep6', '_img7' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep6" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Expression Language 3.0</th></tr>
@@ -601,7 +478,7 @@ azure-key-vault
 <p><b>Description: </b>Java.net - The Source for Java Technology Collaboration</p>
 <p><b>URL: </b><a class="externalLink" href="http://uel.java.net">http://uel.java.net</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html">CDDL + GPLv2 with classpath exception</a></p></td></tr></table></div></li>
-<li>org.glassfish:javax.json:jar:1.1.2 (compile) <img id="_img7" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep6', '_img7' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep6" style="display:none">
+<li>org.glassfish:javax.json:jar:1.1.2 (compile) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep8" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>JSR 374 (JSON Processing) Default Provider</th></tr>
@@ -610,15 +487,6 @@ azure-key-vault
 <p><b>Description: </b>Default provider for JSR 374:Java API for Processing JSON</p>
 <p><b>URL: </b><a class="externalLink" href="https://javaee.github.io/jsonp">https://javaee.github.io/jsonp</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></p></td></tr></table></div></li>
-<li>javax.validation:validation-api:jar:2.0.1.Final (compile) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep8" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Bean Validation API</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Bean Validation API</p>
-<p><b>URL: </b><a class="externalLink" href="http://beanvalidation.org">http://beanvalidation.org</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></p></td></tr></table></div></li>
 <li>com.jpmorgan.quorum:shared:jar:0.11-SNAPSHOT (compile) <img id="_img11" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep10', '_img11' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep10" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
@@ -719,37 +587,83 @@ azure-key-vault
 <td>
 <p><b>Description: </b>Java library which enables encryption in java apps with minimum effort.</p>
 <p><b>URL: </b><a class="externalLink" href="http://www.jasypt.org">http://www.jasypt.org</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>com.microsoft.azure:azure-keyvault:jar:1.2.2 (compile) <img id="_img31" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep30', '_img31' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep30" style="display:none">
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li></ul></li>
+<li>org.springframework.vault:spring-vault-core:jar:2.1.1.RELEASE (compile) <img id="_img31" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep30', '_img31' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep30" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
-<th>Microsoft Azure SDK for Key Vault</th></tr>
+<th>Spring Vault Core</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>This package contains Microsoft Azure Key Vault SDK.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/Azure/azure-sdk-for-java">https://github.com/Azure/azure-sdk-for-java</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></p></td></tr></table></div>
+<p><b>Description: </b>Spring Vault Core Components</p>
+<p><b>URL: </b><a class="externalLink" href="http://projects.spring.io/spring-vault/spring-vault-core/">http://projects.spring.io/spring-vault/spring-vault-core/</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>com.microsoft.azure:azure-keyvault-cryptography:jar:1.2.2 (compile) <img id="_img33" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep32', '_img33' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep32" style="display:none">
+<li>org.springframework:spring-core:jar:5.1.2.RELEASE (compile) <img id="_img33" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep32', '_img33' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep32" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
-<th>Microsoft Azure SDK for Key Vault Cryptography</th></tr>
+<th>Spring Core</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>This package contains Microsoft Azure SDK for Key Vault Cryptography.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/Azure/azure-sdk-for-java">https://github.com/Azure/azure-sdk-for-java</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></p></td></tr></table></div>
+<p><b>Description: </b>Spring Core</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/spring-projects/spring-framework">https://github.com/spring-projects/spring-framework</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>com.microsoft.azure:azure-keyvault-core:jar:1.2.2 (compile) <img id="_img35" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep34', '_img35' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep34" style="display:none">
+<li>org.springframework:spring-jcl:jar:5.1.2.RELEASE (provided) <img id="_img35" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep34', '_img35' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep34" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
-<th>Microsoft Azure SDK for Key Vault Core</th></tr>
+<th>Spring Commons Logging Bridge</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>This package contains Microsoft Azure Key Vault Core SDK.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/Azure/azure-sdk-for-java">https://github.com/Azure/azure-sdk-for-java</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></p></td></tr></table></div></li>
-<li>com.fasterxml.jackson.core:jackson-databind:jar:2.10.0.pr3 (compile) <img id="_img37" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep36', '_img37' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep36" style="display:none">
+<p><b>Description: </b>Spring Commons Logging Bridge</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/spring-projects/spring-framework">https://github.com/spring-projects/spring-framework</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
+<li>org.springframework:spring-context:jar:5.1.2.RELEASE (compile) <img id="_img37" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep36', '_img37' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep36" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Spring Context</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Spring Context</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/spring-projects/spring-framework">https://github.com/spring-projects/spring-framework</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p></td></tr></table></div>
+<ul>
+<li>org.springframework:spring-aop:jar:5.1.2.RELEASE (compile) <img id="_img39" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep38', '_img39' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep38" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Spring AOP</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Spring AOP</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/spring-projects/spring-framework">https://github.com/spring-projects/spring-framework</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>org.springframework:spring-expression:jar:5.1.2.RELEASE (compile) <img id="_img41" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep40', '_img41' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep40" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Spring Expression Language (SpEL)</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Spring Expression Language (SpEL)</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/spring-projects/spring-framework">https://github.com/spring-projects/spring-framework</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
+<li>org.springframework:spring-beans:jar:5.1.2.RELEASE (compile) <img id="_img43" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep42', '_img43' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep42" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Spring Beans</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Spring Beans</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/spring-projects/spring-framework">https://github.com/spring-projects/spring-framework</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>org.springframework:spring-web:jar:5.1.2.RELEASE (compile) <img id="_img45" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep44', '_img45' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep44" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Spring Web</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Spring Web</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/spring-projects/spring-framework">https://github.com/spring-projects/spring-framework</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>com.fasterxml.jackson.core:jackson-databind:jar:2.10.0.pr3 (compile) <img id="_img47" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep46', '_img47' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep46" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>jackson-databind</th></tr>
@@ -757,88 +671,9 @@ azure-key-vault
 <td>
 <p><b>Description: </b>General data-binding functionality for Jackson: works on core streaming API</p>
 <p><b>URL: </b><a class="externalLink" href="http://github.com/FasterXML/jackson">http://github.com/FasterXML/jackson</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>com.google.guava:guava:jar:24.1.1-jre (compile) <img id="_img39" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep38', '_img39' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep38" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Guava: Google Core Libraries for Java</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Guava is a suite of core and expanded libraries that include
-    utility classes, google's collections, io classes, and much
-    much more.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/google/guava/guava">https://github.com/google/guava/guava</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>com.google.code.findbugs:jsr305:jar:3.0.2 (compile) <img id="_img41" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep40', '_img41' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep40" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>FindBugs-jsr305</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>JSR305 Annotations for Findbugs</p>
-<p><b>URL: </b><a class="externalLink" href="http://findbugs.sourceforge.net/">http://findbugs.sourceforge.net/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.checkerframework:checker-compat-qual:jar:2.0.0 (compile) <img id="_img43" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep42', '_img43' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep42" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Checker Qual</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Checker Qual is the set of annotations (qualifiers) and supporting classes
-        used by the Checker Framework to type check Java source code.  Please
-        see artifact:
-        org.checkerframework:checker</p>
-<p><b>URL: </b><a class="externalLink" href="http://checkerframework.org">http://checkerframework.org</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.gnu.org/software/classpath/license.html">GNU General Public License, version 2 (GPL2), with the classpath exception</a>, <a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License</a></p></td></tr></table></div></li>
-<li>com.google.errorprone:error_prone_annotations:jar:2.1.3 (compile) <img id="_img45" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep44', '_img45' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep44" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>error-prone annotations</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Sonatype helps open source projects to set up Maven repositories on https://oss.sonatype.org/</p>
-<p><b>URL: </b><a class="externalLink" href="http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations">http://nexus.sonatype.org/oss-repository-hosting.html/error_prone_parent/error_prone_annotations</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div></li>
-<li>com.google.j2objc:j2objc-annotations:jar:1.1 (compile) <img id="_img47" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep46', '_img47' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep46" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>J2ObjC Annotations</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>A set of annotations that provide additional information to the J2ObjC
-    translator to modify the result of translation.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/google/j2objc/">https://github.com/google/j2objc/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.codehaus.mojo:animal-sniffer-annotations:jar:1.14 (compile) <img id="_img49" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep48', '_img49' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep48" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Animal Sniffer Annotations</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Animal Sniffer Parent project.</p>
-<p><b>URL: </b><a class="externalLink" href="http://mojo.codehaus.org/animal-sniffer/animal-sniffer-annotations">http://mojo.codehaus.org/animal-sniffer/animal-sniffer-annotations</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a></p></td></tr></table></div></li></ul></li></ul></li>
-<li>com.microsoft.azure:azure-keyvault-webkey:jar:1.2.2 (compile) <img id="_img51" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep50', '_img51' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep50" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Microsoft Azure SDK for Key Vault WebKey</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>This package contains Microsoft Azure Key Vault WebKey library.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/Azure/azure-sdk-for-java">https://github.com/Azure/azure-sdk-for-java</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></p></td></tr></table></div>
-<ul>
-<li>com.fasterxml.jackson.core:jackson-core:jar:2.10.0.pr3 (compile) <img id="_img53" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep52', '_img53' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep52" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Jackson-core</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Core Jackson processing abstractions (aka Streaming API), implementation for JSON</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/FasterXML/jackson-core">https://github.com/FasterXML/jackson-core</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>com.fasterxml.jackson.core:jackson-annotations:jar:2.10.0.pr3 (compile) <img id="_img55" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep54', '_img55' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep54" style="display:none">
+<li>com.fasterxml.jackson.core:jackson-annotations:jar:2.10.0.pr3 (compile) <img id="_img49" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep48', '_img49' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep48" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Jackson-annotations</th></tr>
@@ -846,36 +681,17 @@ azure-key-vault
 <td>
 <p><b>Description: </b>Core annotations used for value types, used by Jackson data binding package.</p>
 <p><b>URL: </b><a class="externalLink" href="http://github.com/FasterXML/jackson">http://github.com/FasterXML/jackson</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>com.microsoft.azure:azure-client-runtime:jar:1.6.12 (compile) <img id="_img57" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep56', '_img57' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep56" style="display:none">
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
+<li>com.fasterxml.jackson.core:jackson-core:jar:2.10.0.pr3 (compile) <img id="_img51" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep50', '_img51' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep50" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
-<th>Azure Java Client Runtime for AutoRest</th></tr>
+<th>Jackson-core</th></tr>
 <tr class="b">
 <td>
-<p><b>Description: </b>This package contains the basic runtime for AutoRest generated Azure Java clients.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/Azure/autorest-clientruntime-for-java">https://github.com/Azure/autorest-clientruntime-for-java</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></p></td></tr></table></div></li>
-<li>com.microsoft.rest:client-runtime:jar:1.6.1 (compile) <img id="_img59" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep58', '_img59' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep58" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Java Client Runtime for AutoRest</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>This package contains the basic runtime for AutoRest generated Java clients.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/Azure/autorest-clientruntime-for-java">https://github.com/Azure/autorest-clientruntime-for-java</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></p></td></tr></table></div>
-<ul>
-<li>com.squareup.retrofit2:retrofit:jar:2.4.0 (compile) <img id="_img61" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep60', '_img61' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep60" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Retrofit</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Type-safe HTTP client for Android and Java by Square, Inc.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/square/retrofit/retrofit/">https://github.com/square/retrofit/retrofit/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div></li>
-<li>com.squareup.okhttp3:okhttp:jar:3.12.3 (compile) <img id="_img63" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep62', '_img63' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep62" style="display:none">
+<p><b>Description: </b>Core Jackson processing abstractions (aka Streaming API), implementation for JSON</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/FasterXML/jackson-core">https://github.com/FasterXML/jackson-core</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li></ul></li>
+<li>com.squareup.okhttp3:okhttp:jar:3.12.3 (compile) <img id="_img53" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep52', '_img53' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep52" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>OkHttp</th></tr>
@@ -885,7 +701,7 @@ azure-key-vault
 <p><b>URL: </b><a class="externalLink" href="https://github.com/square/okhttp/okhttp">https://github.com/square/okhttp/okhttp</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div>
 <ul>
-<li>com.squareup.okio:okio:jar:1.15.0 (compile) <img id="_img65" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep64', '_img65' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep64" style="display:none">
+<li>com.squareup.okio:okio:jar:1.15.0 (compile) <img id="_img55" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep54', '_img55' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep54" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Okio</th></tr>
@@ -894,204 +710,7 @@ azure-key-vault
 <p><b>Description: </b>A modern I/O API for Java</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/square/okio/okio">https://github.com/square/okio/okio</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>com.squareup.okhttp3:logging-interceptor:jar:3.11.0 (compile) <img id="_img67" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep66', '_img67' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep66" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>OkHttp Logging Interceptor</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>An HTTP+HTTP/2 client for Android and Java applications</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/square/okhttp/logging-interceptor">https://github.com/square/okhttp/logging-interceptor</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div></li>
-<li>com.squareup.okhttp3:okhttp-urlconnection:jar:3.11.0 (compile) <img id="_img69" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep68', '_img69' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep68" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>OkHttp URLConnection</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>An HTTP+HTTP/2 client for Android and Java applications</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/square/okhttp/okhttp-urlconnection">https://github.com/square/okhttp/okhttp-urlconnection</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div></li>
-<li>com.squareup.retrofit2:converter-jackson:jar:2.4.0 (compile) <img id="_img71" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep70', '_img71' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep70" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Converter: Jackson</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Type-safe HTTP client for Android and Java by Square, Inc.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/square/retrofit/retrofit-converters/converter-jackson/">https://github.com/square/retrofit/retrofit-converters/converter-jackson/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div></li>
-<li>com.fasterxml.jackson.datatype:jackson-datatype-joda:jar:2.9.4 (compile) <img id="_img73" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep72', '_img73' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep72" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Jackson-datatype-Joda</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Add-on module for Jackson (http://jackson.codehaus.org) to support
-Joda (http://joda-time.sourceforge.net/) data types.</p>
-<p><b>URL: </b><a class="externalLink" href="http://wiki.fasterxml.com/JacksonModuleJoda">http://wiki.fasterxml.com/JacksonModuleJoda</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div>
-<ul>
-<li>joda-time:joda-time:jar:2.7 (compile) <img id="_img75" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep74', '_img75' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep74" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Joda-Time</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Date and time library to replace JDK date handling</p>
-<p><b>URL: </b><a class="externalLink" href="http://www.joda.org/joda-time/">http://www.joda.org/joda-time/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2</a></p></td></tr></table></div></li></ul></li>
-<li>io.reactivex:rxjava:jar:1.3.8 (compile) <img id="_img77" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep76', '_img77' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep76" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>rxjava</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>rxjava</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/ReactiveX/RxJava">https://github.com/ReactiveX/RxJava</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>com.squareup.retrofit2:adapter-rxjava:jar:2.4.0 (compile) <img id="_img79" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep78', '_img79' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep78" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Adapter: RxJava</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Type-safe HTTP client for Android and Java by Square, Inc.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/square/retrofit/retrofit-adapters/adapter-rxjava/">https://github.com/square/retrofit/retrofit-adapters/adapter-rxjava/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div></li>
-<li>com.microsoft.azure:azure-annotations:jar:1.2.0 (compile) <img id="_img81" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep80', '_img81' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep80" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Microsoft Azure SDK annotations</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>This package contains Microsoft Azure Management SDK annotations.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/Microsoft/java-api-annotations">https://github.com/Microsoft/java-api-annotations</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/MIT">The MIT License (MIT)</a></p></td></tr></table></div></li></ul></li></ul></li>
-<li>com.microsoft.azure:adal4j:jar:1.6.3 (compile) <img id="_img83" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep82', '_img83' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep82" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>adal4j</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Azure active directory library for Java gives you the ability to add Windows Azure Active Directory 
-    authentication to your web application with just a few lines of additional code. Using our ADAL SDKs you 
-    can quickly and easily extend your existing application to all the employees that use Windows Azure 
-    AD and Active Directory on-premises using Active Directory Federation Services, including Office365 
-    customers.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/AzureAD/azure-activedirectory-library-for-java">https://github.com/AzureAD/azure-activedirectory-library-for-java</a></p>
-<p><b>Project Licenses: </b>MIT License</p></td></tr></table></div>
-<ul>
-<li>com.nimbusds:oauth2-oidc-sdk:jar:5.64.4 (compile) <img id="_img85" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep84', '_img85' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep84" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>OAuth 2.0 SDK with OpenID Connect extensions</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>OAuth 2.0 SDK with OpenID Connection extensions for developing
-		client and server applications.</p>
-<p><b>URL: </b><a class="externalLink" href="https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions">https://bitbucket.org/connect2id/oauth-2.0-sdk-with-openid-connect-extensions</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.html‎">Apache License, version 2.0</a></p></td></tr></table></div>
-<ul>
-<li>com.sun.mail:javax.mail:jar:1.6.2 (runtime) <img id="_img87" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep86', '_img87' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep86" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>JavaMail API</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>JavaMail API</p>
-<p><b>URL: </b><a class="externalLink" href="http://javaee.github.io/javamail/javax.mail">http://javaee.github.io/javamail/javax.mail</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="https://javaee.github.io/javamail/LICENSE">CDDL/GPLv2+CE</a></p></td></tr></table></div></li>
-<li>com.github.stephenc.jcip:jcip-annotations:jar:1.0-1 (compile) <img id="_img89" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep88', '_img89' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep88" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>JCIP Annotations under Apache License</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>A clean room implementation of the JCIP Annotations based entirely on the specification provided by the javadocs.</p>
-<p><b>URL: </b><a class="externalLink" href="http://stephenc.github.com/jcip-annotations">http://stephenc.github.com/jcip-annotations</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>net.minidev:json-smart:jar:2.3 (compile) <img id="_img91" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep90', '_img91' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep90" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>JSON Small and Fast Parser</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>JSON (JavaScript Object Notation) is a lightweight data-interchange format. It is easy for humans to read and write. It is easy for machines to parse and generate. It is based on a subset of the JavaScript Programming Language, Standard ECMA-262 3rd Edition - December 1999. JSON is a text format that is completely language independent but uses conventions that are familiar to programmers of the C-family of languages, including C, C++, C#, Java, JavaScript, Perl, Python, and many others. These properties make JSON an ideal data-interchange language.</p>
-<p><b>URL: </b><a class="externalLink" href="http://www.minidev.net/">http://www.minidev.net/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div>
-<ul>
-<li>net.minidev:accessors-smart:jar:1.2 (compile) <img id="_img93" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep92', '_img93' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep92" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>ASM based accessors helper used by json-smart</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Java reflect give poor performance on getter setter an constructor calls, accessors-smart use ASM to speed up those calls.</p>
-<p><b>URL: </b><a class="externalLink" href="http://www.minidev.net/">http://www.minidev.net/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div>
-<ul>
-<li>org.ow2.asm:asm:jar:7.0 (compile) <img id="_img95" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep94', '_img95' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep94" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>asm</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>ASM, a very small and fast Java bytecode manipulation framework</p>
-<p><b>URL: </b><a class="externalLink" href="http://asm.ow2.org/">http://asm.ow2.org/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://asm.ow2.org/license.html">BSD</a></p></td></tr></table></div></li></ul></li></ul></li>
-<li>com.nimbusds:lang-tag:jar:1.4.4 (compile) <img id="_img97" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep96', '_img97' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep96" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Nimbus LangTag</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Java implementation of &quot;Tags for Identifying Languages&quot;
-        (RFC 5646).</p>
-<p><b>URL: </b><a class="externalLink" href="https://bitbucket.org/connect2id/nimbus-language-tags">https://bitbucket.org/connect2id/nimbus-language-tags</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>com.nimbusds:nimbus-jose-jwt:jar:7.9 (compile) <img id="_img99" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep98', '_img99' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep98" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Nimbus JOSE+JWT</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Java library for Javascript Object Signing and Encryption (JOSE) and
-        JSON Web Tokens (JWT)</p>
-<p><b>URL: </b><a class="externalLink" href="https://bitbucket.org/connect2id/nimbus-jose-jwt">https://bitbucket.org/connect2id/nimbus-jose-jwt</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>com.google.code.gson:gson:jar:2.8.5 (compile) <img id="_img101" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep100', '_img101' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep100" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Gson</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Gson JSON library</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/google/gson/gson">https://github.com/google/gson/gson</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2.0</a></p></td></tr></table></div></li>
-<li>commons-codec:commons-codec:jar:1.12 (compile) <img id="_img103" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep102', '_img103' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep102" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Apache Commons Codec</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>The Apache Commons Codec package contains simple encoder and decoders for
-     various formats such as Base64 and Hexadecimal.  In addition to these
-     widely used encoders and decoders, the codec package also maintains a
-     collection of phonetic encoding utilities.</p>
-<p><b>URL: </b><a class="externalLink" href="http://commons.apache.org/proper/commons-codec/">http://commons.apache.org/proper/commons-codec/</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>com.jpmorgan.quorum:key-vault-api:jar:0.11-SNAPSHOT (compile) <img id="_img105" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep104', '_img105' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep104" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>key-vault-api</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
-        of private transactions for Quorum.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/key-vault/key-vault-api">https://github.com/jpmorganchase/tessera/key-vault/key-vault-api</a></p>
-<p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>junit:junit:jar:4.12 (test) <img id="_img107" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep106', '_img107' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep106" style="display:none">
+<li>junit:junit:jar:4.12 (test) <img id="_img57" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep56', '_img57' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep56" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>JUnit</th></tr>
@@ -1101,7 +720,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>URL: </b><a class="externalLink" href="http://junit.org">http://junit.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License 1.0</a></p></td></tr></table></div>
 <ul>
-<li>org.hamcrest:hamcrest-core:jar:1.3 (test) <img id="_img109" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep108', '_img109' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep108" style="display:none">
+<li>org.hamcrest:hamcrest-core:jar:1.3 (test) <img id="_img59" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep58', '_img59' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep58" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Hamcrest Core</th></tr>
@@ -1110,7 +729,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>This is the core API of hamcrest matcher framework to be used by third-party framework providers. This includes the a foundation set of matcher implementations for common operations.</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/hamcrest/JavaHamcrest/hamcrest-core">https://github.com/hamcrest/JavaHamcrest/hamcrest-core</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/bsd-license.php">New BSD License</a></p></td></tr></table></div></li></ul></li>
-<li>org.assertj:assertj-core:jar:3.9.1 (test) <img id="_img111" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep110', '_img111' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep110" style="display:none">
+<li>org.assertj:assertj-core:jar:3.9.1 (test) <img id="_img61" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep60', '_img61' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep60" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>AssertJ fluent assertions</th></tr>
@@ -1119,7 +738,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>Rich and fluent assertions for testing for Java</p>
 <p><b>URL: </b><a class="externalLink" href="http://assertj.org/assertj-core">http://assertj.org/assertj-core</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.mockito:mockito-core:jar:2.23.0 (test) <img id="_img113" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep112', '_img113' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep112" style="display:none">
+<li>org.mockito:mockito-core:jar:2.23.0 (test) <img id="_img63" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep62', '_img63' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep62" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>mockito-core</th></tr>
@@ -1129,7 +748,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/mockito/mockito">https://github.com/mockito/mockito</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://github.com/mockito/mockito/blob/master/LICENSE">The MIT License</a></p></td></tr></table></div>
 <ul>
-<li>net.bytebuddy:byte-buddy:jar:1.9.0 (test) <img id="_img115" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep114', '_img115' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep114" style="display:none">
+<li>net.bytebuddy:byte-buddy:jar:1.9.0 (test) <img id="_img65" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep64', '_img65' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep64" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Byte Buddy (without dependencies)</th></tr>
@@ -1139,7 +758,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
         This artifact is a build of Byte Buddy with all ASM dependencies repackaged into its own name space.</p>
 <p><b>URL: </b><a class="externalLink" href="http://bytebuddy.net/byte-buddy">http://bytebuddy.net/byte-buddy</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>net.bytebuddy:byte-buddy-agent:jar:1.9.0 (test) <img id="_img117" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep116', '_img117' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep116" style="display:none">
+<li>net.bytebuddy:byte-buddy-agent:jar:1.9.0 (test) <img id="_img67" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep66', '_img67' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep66" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Byte Buddy Java agent</th></tr>
@@ -1148,7 +767,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>The Byte Buddy Java agent allows to access the JVM's HotSwap feature.</p>
 <p><b>URL: </b><a class="externalLink" href="http://bytebuddy.net/byte-buddy-agent">http://bytebuddy.net/byte-buddy-agent</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.objenesis:objenesis:jar:2.6 (test) <img id="_img119" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep118', '_img119' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep118" style="display:none">
+<li>org.objenesis:objenesis:jar:2.6 (test) <img id="_img69" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep68', '_img69' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep68" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Objenesis</th></tr>
@@ -1157,7 +776,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>A library for instantiating Java objects</p>
 <p><b>URL: </b><a class="externalLink" href="http://objenesis.org">http://objenesis.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2</a></p></td></tr></table></div></li></ul></li>
-<li>com.openpojo:openpojo:jar:0.8.10 (test) <img id="_img121" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep120', '_img121' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep120" style="display:none">
+<li>com.openpojo:openpojo:jar:0.8.10 (test) <img id="_img71" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep70', '_img71' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep70" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>openpojo</th></tr>
@@ -1169,7 +788,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
         * Simplifying identity management (hashCode / equals) using annotation.</p>
 <p><b>URL: </b><a class="externalLink" href="http://openpojo.com/">http://openpojo.com/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>com.github.stefanbirkner:system-rules:jar:1.18.0 (test) <img id="_img123" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep122', '_img123' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep122" style="display:none">
+<li>com.github.stefanbirkner:system-rules:jar:1.18.0 (test) <img id="_img73" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep72', '_img73' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep72" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>System Rules</th></tr>
@@ -1178,7 +797,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>A collection of JUnit rules for testing code which uses java.lang.System.</p>
 <p><b>URL: </b><a class="externalLink" href="http://stefanbirkner.github.io/system-rules/">http://stefanbirkner.github.io/system-rules/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/cpl1.0">Common Public License Version 1.0</a></p></td></tr></table></div></li>
-<li>ch.qos.logback:logback-classic:jar:1.2.3 (runtime) <img id="_img125" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep124', '_img125' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep124" style="display:none">
+<li>ch.qos.logback:logback-classic:jar:1.2.3 (runtime) <img id="_img75" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep74', '_img75' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep74" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Logback Classic Module</th></tr>
@@ -1187,7 +806,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>logback-classic module</p>
 <p><b>URL: </b><a class="externalLink" href="http://logback.qos.ch/logback-classic">http://logback.qos.ch/logback-classic</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</a>, <a class="externalLink" href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU Lesser General Public License</a></p></td></tr></table></div></li>
-<li>ch.qos.logback:logback-core:jar:1.2.3 (runtime) <img id="_img127" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep126', '_img127' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep126" style="display:none">
+<li>ch.qos.logback:logback-core:jar:1.2.3 (runtime) <img id="_img77" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep76', '_img77' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep76" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Logback Core Module</th></tr>
@@ -1196,7 +815,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>logback-core module</p>
 <p><b>URL: </b><a class="externalLink" href="http://logback.qos.ch/logback-core">http://logback.qos.ch/logback-core</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</a>, <a class="externalLink" href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU Lesser General Public License</a></p></td></tr></table></div></li>
-<li>org.slf4j:slf4j-api:jar:1.7.5 (compile) <img id="_img129" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep128', '_img129' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep128" style="display:none">
+<li>org.slf4j:slf4j-api:jar:1.7.5 (compile) <img id="_img79" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep78', '_img79' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep78" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>SLF4J API Module</th></tr>
@@ -1205,7 +824,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>The slf4j API</p>
 <p><b>URL: </b><a class="externalLink" href="http://www.slf4j.org">http://www.slf4j.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></p></td></tr></table></div></li>
-<li>org.eclipse.persistence:org.eclipse.persistence.moxy:jar:2.7.3 (runtime) <img id="_img131" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep130', '_img131' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep130" style="display:none">
+<li>org.eclipse.persistence:org.eclipse.persistence.moxy:jar:2.7.3 (runtime) <img id="_img81" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep80', '_img81' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep80" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>EclipseLink Moxy</th></tr>
@@ -1215,7 +834,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>URL: </b><a class="externalLink" href="http://www.eclipse.org/eclipselink">http://www.eclipse.org/eclipselink</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></p></td></tr></table></div>
 <ul>
-<li>org.eclipse.persistence:org.eclipse.persistence.core:jar:2.7.3 (runtime) <img id="_img133" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep132', '_img133' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep132" style="display:none">
+<li>org.eclipse.persistence:org.eclipse.persistence.core:jar:2.7.3 (runtime) <img id="_img83" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep82', '_img83' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep82" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>EclipseLink Core</th></tr>
@@ -1225,7 +844,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>URL: </b><a class="externalLink" href="http://www.eclipse.org/eclipselink">http://www.eclipse.org/eclipselink</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></p></td></tr></table></div>
 <ul>
-<li>org.eclipse.persistence:org.eclipse.persistence.asm:jar:2.7.3 (runtime) <img id="_img135" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep134', '_img135' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep134" style="display:none">
+<li>org.eclipse.persistence:org.eclipse.persistence.asm:jar:2.7.3 (runtime) <img id="_img85" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep84', '_img85' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep84" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>EclipseLink ASM</th></tr>
@@ -1234,7 +853,16 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>EclipseLink build based upon Git transaction 4be1041</p>
 <p><b>URL: </b><a class="externalLink" href="http://www.eclipse.org/eclipselink">http://www.eclipse.org/eclipselink</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></p></td></tr></table></div></li></ul></li>
-<li>javax.json:javax.json-api:jar:1.1.2 (compile) <img id="_img137" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep136', '_img137' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep136" style="display:none">
+<li>javax.validation:validation-api:jar:2.0.1.Final (compile) <img id="_img87" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep86', '_img87' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep86" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Bean Validation API</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Bean Validation API</p>
+<p><b>URL: </b><a class="externalLink" href="http://beanvalidation.org">http://beanvalidation.org</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></p></td></tr></table></div></li>
+<li>javax.json:javax.json-api:jar:1.1.2 (compile) <img id="_img89" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep88', '_img89' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep88" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>JSR 374 (JSON Processing) API</th></tr>
@@ -1243,7 +871,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Description: </b>API module of JSR 374:Java API for Processing JSON</p>
 <p><b>URL: </b><a class="externalLink" href="https://javaee.github.io/jsonp">https://javaee.github.io/jsonp</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></p></td></tr></table></div></li></ul></li>
-<li>nl.jqno.equalsverifier:equalsverifier:jar:3.1.5 (test) <img id="_img139" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep138', '_img139' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep138" style="display:none">
+<li>nl.jqno.equalsverifier:equalsverifier:jar:3.1.5 (test) <img id="_img91" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep90', '_img91' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep90" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>EqualsVerifier</th></tr>
@@ -1254,32 +882,26 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li></ul></div></div><a name="Licenses"></a>
 <div class="section">
 <h2><a name="Licenses"></a>Licenses</h2>
-<p><b>Apache License, version 2.0: </b>OAuth 2.0 SDK with OpenID Connect extensions</p>
-<p><b>The Apache License, Version 2.0: </b>argon2, azure-key-vault, config, encryption-api, encryption-jnacl, key-vault-api, service-locator-api, shared</p>
-<p><b>Apache 2.0: </b>Adapter: RxJava, Converter: Jackson, Gson, OkHttp, OkHttp Logging Interceptor, OkHttp URLConnection, Okio, Retrofit, error-prone annotations</p>
+<p><b>The Apache License, Version 2.0: </b>argon2, config, encryption-api, encryption-jnacl, hashicorp-key-vault, key-vault-api, service-locator-api, shared</p>
+<p><b>Apache 2.0: </b>OkHttp, Okio</p>
 <p><b>Eclipse Public License 1.0: </b>JUnit</p>
-<p><b>MIT License: </b>SLF4J API Module, adal4j</p>
-<p><b>New BSD License: </b>Hamcrest Core</p>
-<p><b>Apache 2: </b>Joda-Time, Objenesis</p>
-<p><b>CDDL/GPLv2+CE: </b>JavaMail API</p>
-<p><b>BSD: </b>asm</p>
-<p><b>Eclipse Public License v. 2.0: </b>EclipseLink ASM, EclipseLink Core, EclipseLink Moxy</p>
-<p><b>Apache License 2.0: </b>Bean Validation API</p>
-<p><b>The MIT License: </b>Checker Qual, mockito-core</p>
-<p><b>Apache License, Version 2.0: </b>Apache Commons Codec, Apache Commons Lang, AssertJ fluent assertions, JCIP Annotations under Apache License</p>
-<p><b>GNU General Public License, version 2 (GPL2), with the classpath exception: </b>Checker Qual</p>
-<p><b>GNU Lesser General Public License, Version 3: </b>Argon2 JVM</p>
-<p><b>MIT license: </b>Animal Sniffer Annotations</p>
-<p><b>LGPL, version 2.1: </b>Java Native Access</p>
-<p><b>Apache License v2.0: </b>Java Native Access</p>
-<p><b>Common Public License Version 1.0: </b>System Rules</p>
 <p><b>The BSD 2-Clause License: </b>eu.neilalexander:jnacl</p>
+<p><b>MIT License: </b>SLF4J API Module</p>
 <p><b>Eclipse Distribution License v. 1.0: </b>EclipseLink ASM, EclipseLink Core, EclipseLink Moxy</p>
 <p><b>GNU Lesser General Public License: </b>Logback Classic Module, Logback Core Module</p>
-<p><b>The MIT License (MIT): </b>Azure Java Client Runtime for AutoRest, Java Client Runtime for AutoRest, Microsoft Azure SDK annotations, Microsoft Azure SDK for Key Vault, Microsoft Azure SDK for Key Vault Core, Microsoft Azure SDK for Key Vault Cryptography, Microsoft Azure SDK for Key Vault WebKey</p>
+<p><b>New BSD License: </b>Hamcrest Core</p>
+<p><b>Apache 2: </b>Objenesis</p>
+<p><b>Eclipse Public License v. 2.0: </b>EclipseLink ASM, EclipseLink Core, EclipseLink Moxy</p>
+<p><b>Apache License 2.0: </b>Bean Validation API</p>
+<p><b>The MIT License: </b>mockito-core</p>
+<p><b>Apache License, Version 2.0: </b>Apache Commons Lang, AssertJ fluent assertions, Spring AOP, Spring Beans, Spring Commons Logging Bridge, Spring Context, Spring Core, Spring Expression Language (SpEL), Spring Vault Core, Spring Web</p>
 <p><b>CDDL + GPLv2 with classpath exception: </b>Expression Language 3.0</p>
+<p><b>GNU Lesser General Public License, Version 3: </b>Argon2 JVM</p>
 <p><b>Dual license consisting of the CDDL v1.1 and GPL v2: </b>JSR 374 (JSON Processing) API, JSR 374 (JSON Processing) Default Provider</p>
-<p><b>The Apache Software License, Version 2.0: </b>ASM based accessors helper used by json-smart, Byte Buddy (without dependencies), Byte Buddy Java agent, EqualsVerifier, FindBugs-jsr305, Guava: Google Core Libraries for Java, J2ObjC Annotations, JASYPT: Java Simplified Encryption, JSON Small and Fast Parser, Jackson-annotations, Jackson-core, Jackson-datatype-Joda, Nimbus JOSE+JWT, Nimbus LangTag, jackson-databind, openpojo, rxjava</p>
+<p><b>LGPL, version 2.1: </b>Java Native Access</p>
+<p><b>Apache License v2.0: </b>Java Native Access</p>
+<p><b>The Apache Software License, Version 2.0: </b>Byte Buddy (without dependencies), Byte Buddy Java agent, EqualsVerifier, JASYPT: Java Simplified Encryption, Jackson-annotations, Jackson-core, jackson-databind, openpojo</p>
+<p><b>Common Public License Version 1.0: </b>System Rules</p>
 <p><b>Eclipse Public License - v 1.0: </b>Logback Classic Module, Logback Core Module</p></div><a name="Dependency_File_Details"></a>
 <div class="section">
 <h2><a name="Dependency_File_Details"></a>Dependency File Details</h2>
@@ -1333,14 +955,6 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>-</td>
 <td>Yes</td></tr>
 <tr class="a">
-<td>jackson-datatype-joda-2.9.4.jar</td>
-<td>68.1 kB</td>
-<td>61</td>
-<td>42</td>
-<td>5</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="b">
 <td>system-rules-1.18.0.jar</td>
 <td>38.6 kB</td>
 <td>47</td>
@@ -1348,55 +962,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>2</td>
 <td>1.5</td>
 <td>Yes</td></tr>
-<tr class="a">
-<td>jcip-annotations-1.0-1.jar</td>
-<td>4.7 kB</td>
-<td>14</td>
-<td>4</td>
-<td>1</td>
-<td>1.5</td>
-<td>No</td></tr>
 <tr class="b">
-<td>jsr305-3.0.2.jar</td>
-<td>19.9 kB</td>
-<td>46</td>
-<td>35</td>
-<td>3</td>
-<td>1.5</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>gson-2.8.5.jar</td>
-<td>241.6 kB</td>
-<td>197</td>
-<td>180</td>
-<td>8</td>
-<td>1.6</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>error_prone_annotations-2.1.3.jar</td>
-<td>13.7 kB</td>
-<td>34</td>
-<td>22</td>
-<td>2</td>
-<td>1.7</td>
-<td>No</td></tr>
-<tr class="a">
-<td>guava-24.1.1-jre.jar</td>
-<td>2.7 MB</td>
-<td>1976</td>
-<td>1946</td>
-<td>18</td>
-<td>1.8</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>j2objc-annotations-1.1.jar</td>
-<td>8.8 kB</td>
-<td>23</td>
-<td>12</td>
-<td>1</td>
-<td>1.5</td>
-<td>Yes</td></tr>
-<tr class="a">
 <td>argon2-0.11-SNAPSHOT.jar</td>
 <td>5.6 kB</td>
 <td>17</td>
@@ -1404,7 +970,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>1</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>config-0.11-SNAPSHOT.jar</td>
 <td>110.3 kB</td>
 <td>122</td>
@@ -1412,7 +978,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>9</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>encryption-api-0.11-SNAPSHOT.jar</td>
 <td>14.4 kB</td>
 <td>31</td>
@@ -1420,7 +986,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>2</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>encryption-jnacl-0.11-SNAPSHOT.jar</td>
 <td>7.9 kB</td>
 <td>18</td>
@@ -1428,7 +994,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>1</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>key-vault-api-0.11-SNAPSHOT.jar</td>
 <td>5.3 kB</td>
 <td>17</td>
@@ -1436,7 +1002,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>1</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>service-locator-api-0.11-SNAPSHOT.jar</td>
 <td>2.8 kB</td>
 <td>13</td>
@@ -1444,101 +1010,13 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>1</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>shared-0.11-SNAPSHOT.jar</td>
 <td>21.4 kB</td>
 <td>41</td>
 <td>22</td>
 <td>7</td>
 <td>1.8</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>adal4j-1.6.3.jar</td>
-<td>94.7 kB</td>
-<td>63</td>
-<td>50</td>
-<td>1</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>azure-annotations-1.2.0.jar</td>
-<td>17.7 kB</td>
-<td>25</td>
-<td>9</td>
-<td>1</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>azure-client-runtime-1.6.12.jar</td>
-<td>96.7 kB</td>
-<td>82</td>
-<td>68</td>
-<td>3</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>azure-keyvault-1.2.2.jar</td>
-<td>981.7 kB</td>
-<td>879</td>
-<td>860</td>
-<td>7</td>
-<td>1.8</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>azure-keyvault-core-1.2.2.jar</td>
-<td>10.5 kB</td>
-<td>16</td>
-<td>2</td>
-<td>1</td>
-<td>1.8</td>
-<td>No</td></tr>
-<tr class="a">
-<td>azure-keyvault-cryptography-1.2.2.jar</td>
-<td>74.1 kB</td>
-<td>67</td>
-<td>52</td>
-<td>2</td>
-<td>1.8</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>azure-keyvault-webkey-1.2.2.jar</td>
-<td>26.8 kB</td>
-<td>23</td>
-<td>9</td>
-<td>1</td>
-<td>1.8</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>client-runtime-1.6.1.jar</td>
-<td>92.1 kB</td>
-<td>80</td>
-<td>63</td>
-<td>6</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>lang-tag-1.4.4.jar</td>
-<td>10.8 kB</td>
-<td>14</td>
-<td>4</td>
-<td>1</td>
-<td>1.6</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>nimbus-jose-jwt-7.9.jar</td>
-<td>338.6 kB</td>
-<td>240</td>
-<td>216</td>
-<td>15</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>oauth2-oidc-sdk-5.64.4.jar</td>
-<td>406.2 kB</td>
-<td>263</td>
-<td>229</td>
-<td>22</td>
-<td>1.7</td>
 <td>Yes</td></tr>
 <tr class="a">
 <td>openpojo-0.8.10.jar</td>
@@ -1549,27 +1027,11 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>1.5</td>
 <td>Yes</td></tr>
 <tr class="b">
-<td>logging-interceptor-3.11.0.jar</td>
-<td>8.9 kB</td>
-<td>14</td>
-<td>5</td>
-<td>1</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="a">
 <td>okhttp-3.12.3.jar</td>
 <td>422.9 kB</td>
 <td>230</td>
 <td>205</td>
 <td>15</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>okhttp-urlconnection-3.11.0.jar</td>
-<td>33.9 kB</td>
-<td>27</td>
-<td>17</td>
-<td>3</td>
 <td>1.7</td>
 <td>Yes</td></tr>
 <tr class="a">
@@ -1581,46 +1043,6 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>1.7</td>
 <td>Yes</td></tr>
 <tr class="b">
-<td>adapter-rxjava-2.4.0.jar</td>
-<td>17.1 kB</td>
-<td>23</td>
-<td>13</td>
-<td>1</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>converter-jackson-2.4.0.jar</td>
-<td>5.7 kB</td>
-<td>14</td>
-<td>4</td>
-<td>1</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>retrofit-2.4.0.jar</td>
-<td>91 kB</td>
-<td>92</td>
-<td>83</td>
-<td>2</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>javax.mail-1.6.2.jar</td>
-<td>659 kB</td>
-<td>375</td>
-<td>340</td>
-<td>14</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="b">
-<td>commons-codec-1.12.jar</td>
-<td>339.7 kB</td>
-<td>244</td>
-<td>97</td>
-<td>7</td>
-<td>1.7</td>
-<td>Yes</td></tr>
-<tr class="a">
 <td>argon2-jvm-2.5.jar</td>
 <td>407.1 kB</td>
 <td>38</td>
@@ -1628,21 +1050,13 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>2</td>
 <td>1.6</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>jnacl-1.0.0.jar</td>
 <td>19.9 kB</td>
 <td>20</td>
 <td>9</td>
 <td>2</td>
 <td>1.8</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>rxjava-1.3.8.jar</td>
-<td>1.2 MB</td>
-<td>1038</td>
-<td>1015</td>
-<td>19</td>
-<td>1.6</td>
 <td>Yes</td></tr>
 <tr class="b">
 <td>javax.json-api-1.1.2.jar</td>
@@ -1661,14 +1075,6 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>1.8</td>
 <td>Yes</td></tr>
 <tr class="b">
-<td>joda-time-2.7.jar</td>
-<td>589.3 kB</td>
-<td>674</td>
-<td>245</td>
-<td>7</td>
-<td>1.5</td>
-<td>Yes</td></tr>
-<tr class="a">
 <td>junit-4.12.jar</td>
 <td>314.9 kB</td>
 <td>323</td>
@@ -1676,7 +1082,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>30</td>
 <td>1.5</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>byte-buddy-1.9.0.jar</td>
 <td>3.2 MB</td>
 <td>2288</td>
@@ -1684,7 +1090,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>37</td>
 <td>-</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>byte-buddy-agent-1.9.0.jar</td>
 <td>43.2 kB</td>
 <td>41</td>
@@ -1692,7 +1098,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>2</td>
 <td>-</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>jna-4.5.2.jar</td>
 <td>1.5 MB</td>
 <td>163</td>
@@ -1700,23 +1106,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>3</td>
 <td>1.6</td>
 <td>Yes</td></tr>
-<tr class="a">
-<td>accessors-smart-1.2.jar</td>
-<td>30 kB</td>
-<td>24</td>
-<td>13</td>
-<td>2</td>
-<td>1.6</td>
-<td>Yes</td></tr>
 <tr class="b">
-<td>json-smart-2.3.jar</td>
-<td>120.3 kB</td>
-<td>106</td>
-<td>92</td>
-<td>5</td>
-<td>1.6</td>
-<td>Yes</td></tr>
-<tr class="a">
 <td>equalsverifier-3.1.5.jar</td>
 <td>2.8 MB</td>
 <td>1938</td>
@@ -1724,7 +1114,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>53</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>commons-lang3-3.7.jar</td>
 <td>499.6 kB</td>
 <td>295</td>
@@ -1732,7 +1122,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>13</td>
 <td>1.7</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>assertj-core-3.9.1.jar</td>
 <td>3.9 MB</td>
 <td>2627</td>
@@ -1740,23 +1130,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>57</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
-<td>checker-compat-qual-2.0.0.jar</td>
-<td>31.5 kB</td>
-<td>47</td>
-<td>28</td>
-<td>10</td>
-<td>1.7</td>
-<td>Yes</td></tr>
 <tr class="a">
-<td>animal-sniffer-annotations-1.14.jar</td>
-<td>3.5 kB</td>
-<td>12</td>
-<td>1</td>
-<td>1</td>
-<td>1.5</td>
-<td>No</td></tr>
-<tr class="b">
 <td>org.eclipse.persistence.asm-2.7.3.jar</td>
 <td>498.2 kB</td>
 <td>218</td>
@@ -1764,7 +1138,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>7</td>
 <td>1.7</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>org.eclipse.persistence.core-2.7.3.jar</td>
 <td>5.4 MB</td>
 <td>2261</td>
@@ -1772,7 +1146,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>172</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>org.eclipse.persistence.moxy-2.7.3.jar</td>
 <td>652.4 kB</td>
 <td>301</td>
@@ -1780,7 +1154,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>20</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>javax.el-3.0.1-b10.jar</td>
 <td>237 kB</td>
 <td>181</td>
@@ -1788,7 +1162,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>6</td>
 <td>1.7</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>javax.json-1.1.2.jar</td>
 <td>101.1 kB</td>
 <td>73</td>
@@ -1796,7 +1170,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>3</td>
 <td>-</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>hamcrest-core-1.3.jar</td>
 <td>45 kB</td>
 <td>52</td>
@@ -1804,7 +1178,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>3</td>
 <td>1.5</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>jasypt-1.9.3.jar</td>
 <td>142.3 kB</td>
 <td>154</td>
@@ -1812,7 +1186,7 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>23</td>
 <td>1.6</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>mockito-core-2.23.0.jar</td>
 <td>565 kB</td>
 <td>613</td>
@@ -1820,21 +1194,13 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>64</td>
 <td>1.6</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>objenesis-2.6.jar</td>
 <td>55.7 kB</td>
 <td>59</td>
 <td>43</td>
 <td>10</td>
 <td>1.6</td>
-<td>Yes</td></tr>
-<tr class="a">
-<td>asm-7.0.jar</td>
-<td>113.7 kB</td>
-<td>42</td>
-<td>36</td>
-<td>3</td>
-<td>-</td>
 <td>Yes</td></tr>
 <tr class="b">
 <td>slf4j-api-1.7.5.jar</td>
@@ -1845,6 +1211,70 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>1.5</td>
 <td>Yes</td></tr>
 <tr class="a">
+<td>spring-aop-5.1.2.RELEASE.jar</td>
+<td>368.8 kB</td>
+<td>306</td>
+<td>277</td>
+<td>17</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="b">
+<td>spring-beans-5.1.2.RELEASE.jar</td>
+<td>671.4 kB</td>
+<td>410</td>
+<td>380</td>
+<td>13</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="a">
+<td>spring-context-5.1.2.RELEASE.jar</td>
+<td>1.1 MB</td>
+<td>909</td>
+<td>822</td>
+<td>64</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="b">
+<td>spring-core-5.1.2.RELEASE.jar</td>
+<td>1.3 MB</td>
+<td>931</td>
+<td>876</td>
+<td>47</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="a">
+<td>spring-expression-5.1.2.RELEASE.jar</td>
+<td>280 kB</td>
+<td>164</td>
+<td>150</td>
+<td>6</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="b">
+<td>spring-jcl-5.1.2.RELEASE.jar</td>
+<td>23.6 kB</td>
+<td>28</td>
+<td>17</td>
+<td>2</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="a">
+<td>spring-web-5.1.2.RELEASE.jar</td>
+<td>1.4 MB</td>
+<td>978</td>
+<td>909</td>
+<td>54</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="b">
+<td>spring-vault-core-2.1.1.RELEASE.jar</td>
+<td>462.5 kB</td>
+<td>367</td>
+<td>335</td>
+<td>19</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="a">
 <th>Total</th>
 <th>Size</th>
 <th>Entries</th>
@@ -1853,21 +1283,21 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <th>Java Version</th>
 <th>Debug Information</th></tr>
 <tr class="b">
-<td>69</td>
-<td>32.6 MB</td>
-<td>21288</td>
-<td>19026</td>
-<td>911</td>
+<td>45</td>
+<td>29.7 MB</td>
+<td>18546</td>
+<td>17000</td>
+<td>959</td>
 <td>1.8</td>
-<td>65</td></tr>
+<td>45</td></tr>
 <tr class="a">
-<td>compile: 50</td>
-<td>compile: 13.1 MB</td>
-<td>compile: 8864</td>
-<td>compile: 7463</td>
-<td>compile: 294</td>
+<td>compile: 26</td>
+<td>compile: 10.8 MB</td>
+<td>compile: 6469</td>
+<td>compile: 5760</td>
+<td>compile: 354</td>
 <td>-</td>
-<td>compile: 46</td></tr>
+<td>compile: 26</td></tr>
 <tr class="b">
 <td>test: 10</td>
 <td>test: 11.3 MB</td>
@@ -1877,13 +1307,21 @@ Joda (http://joda-time.sourceforge.net/) data types.</p>
 <td>-</td>
 <td>test: 10</td></tr>
 <tr class="a">
-<td>runtime: 9</td>
-<td>runtime: 8.2 MB</td>
-<td>runtime: 4027</td>
-<td>runtime: 3588</td>
-<td>runtime: 285</td>
+<td>runtime: 8</td>
+<td>runtime: 7.6 MB</td>
+<td>runtime: 3652</td>
+<td>runtime: 3248</td>
+<td>runtime: 271</td>
 <td>-</td>
-<td>runtime: 9</td></tr></table></div>
+<td>runtime: 8</td></tr>
+<tr class="b">
+<td>provided: 1</td>
+<td>provided: 23.6 kB</td>
+<td>provided: 28</td>
+<td>provided: 17</td>
+<td>provided: 2</td>
+<td>-</td>
+<td>provided: 1</td></tr></table></div>
       </div>
     </div>
     <div class="clear">
