@@ -18,6 +18,8 @@ public @interface ProcessConfig {
 
     CommunicationType communicationType();
 
+    String p2pCommunicationType() default "NONE";
+
     SocketType socketType();
 
     EnclaveType enclaveType() default EnclaveType.LOCAL;
@@ -25,4 +27,6 @@ public @interface ProcessConfig {
     boolean admin() default false;
 
     String prefix() default "";
+
+    boolean p2pSsl() default false;
 }

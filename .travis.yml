@@ -4,7 +4,7 @@ dist: trusty
 
 env:
   global:
-    - CODECOV_TOKEN="b5659ea0-f191-4e1d-9139-a8a31971c386"
+    - CODECOV_TOKEN="44fc325e-8b3c-4ee9-94a5-103e17012433"
 
 install: true
 
@@ -24,7 +24,7 @@ jobs:
       install: &build_no_checks
         - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
       script: &build_with_unittests
-        - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+        - mvn install -pl \!tests/acceptance-test -P reduce-logging -Djacoco.haltOnFailure=true -o || travis_terminate 1
 
     - name: "Unit Tests Java 11"
       jdk:  oraclejdk11

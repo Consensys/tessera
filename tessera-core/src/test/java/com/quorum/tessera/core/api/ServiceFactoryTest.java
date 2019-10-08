@@ -9,7 +9,7 @@ import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
-import com.quorum.tessera.partyinfo.ResendManager;
+import com.quorum.tessera.transaction.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
@@ -69,12 +69,6 @@ public class ServiceFactoryTest {
     }
 
     @Test
-    public void partyInfoService() {
-        PartyInfoService partyInfoService = serviceFactory.partyInfoService();
-        assertThat(partyInfoService).isNotNull();
-    }
-
-    @Test
     public void encryptedTransactionDAO() {
         EncryptedTransactionDAO encryptedTransactionDAO = serviceFactory.encryptedTransactionDAO();
         assertThat(encryptedTransactionDAO).isNotNull();
@@ -98,11 +92,5 @@ public class ServiceFactoryTest {
     public void findResendManager() {
         ResendManager resendManager = serviceFactory.resendManager();
         assertThat(resendManager).isNotNull();
-    }
-
-    @Test
-    public void findPayloadPublisher() {
-        PayloadPublisher payloadPublisher = serviceFactory.payloadPublisher();
-        assertThat(payloadPublisher).isNotNull();
     }
 }

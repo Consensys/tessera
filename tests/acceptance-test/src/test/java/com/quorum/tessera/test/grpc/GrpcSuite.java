@@ -25,7 +25,7 @@ public class GrpcSuite {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
 
         for (final DBType database : DBType.values()) {
-            configurations.add(new ProcessConfiguration(database, GRPC, HTTP, EnclaveType.LOCAL, false, ""));
+            configurations.add(new ProcessConfiguration(database, GRPC, HTTP, EnclaveType.LOCAL, false, "", false));
         }
 
         return configurations;

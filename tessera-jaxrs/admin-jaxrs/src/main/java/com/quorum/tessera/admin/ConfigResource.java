@@ -6,6 +6,7 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -33,12 +34,7 @@ public class ConfigResource {
     private final PartyInfoService partyInfoService;
 
     public ConfigResource() {
-
-        ServiceFactory serviceFactory = ServiceFactory.create();
-
-        this.configService = serviceFactory.configService();
-
-        this.partyInfoService = serviceFactory.partyInfoService();
+        this(ServiceFactory.create().configService(), PartyInfoServiceFactory.create().partyInfoService());
     }
 
     public ConfigResource(final ConfigService configService, final PartyInfoService partyInfoService) {

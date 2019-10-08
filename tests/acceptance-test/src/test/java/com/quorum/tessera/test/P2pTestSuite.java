@@ -25,7 +25,8 @@ public class P2pTestSuite {
                                         SocketType.HTTP,
                                         EnclaveType.LOCAL,
                                         false,
-                                        "p2p"))
+                                        "p2p",
+                                        false))
                 .collect(Collectors.toList());
     }
 }

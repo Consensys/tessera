@@ -10,6 +10,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.client.Client;
@@ -36,10 +37,12 @@ public class P2PRestApp extends TesseraRestApplication {
     private final Config config;
 
     public P2PRestApp() {
+        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
+
         final ServiceFactory serviceFactory = ServiceFactory.create();
         this.config = serviceFactory.config();
 
-        this.partyInfoService = serviceFactory.partyInfoService();
+        this.partyInfoService = partyInfoServiceFactory.partyInfoService();
 
         this.enclave = serviceFactory.enclave();
 
@@ -53,8 +56,7 @@ public class P2PRestApp extends TesseraRestApplication {
                 new PartyInfoResource(
                         partyInfoService,
                         partyInfoParser,
-                        client,
-                        enclave,
+                        new RestPartyInfoValidatorCallback(client),
                         config.getFeatures().isEnableRemoteKeyValidation());
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();

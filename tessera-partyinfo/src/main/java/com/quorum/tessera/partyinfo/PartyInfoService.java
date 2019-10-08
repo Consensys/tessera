@@ -1,8 +1,8 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.model.Recipient;
+import java.util.Set;
 
 public interface PartyInfoService {
 
@@ -26,13 +26,8 @@ public interface PartyInfoService {
 
     PartyInfo removeRecipient(String uri);
 
-    /**
-     * Formats, encodes and publishes encrypted messages using the target public key as the identifier, instead of the
-     * URL
-     *
-     * @param payload the pre-formatted payload object (i.e. with all recipients still present)
-     * @param recipientKey the target public key to publish the payload to
-     * @throws KeyNotFoundException if the target public key is not known
-     */
-    void publishPayload(EncodedPayload payload, PublicKey recipientKey);
+    Set<Recipient> validateAndExtractValidRecipients(
+            PartyInfo partyInfo, PartyInfoValidatorCallback partyInfoValidatorCallback);
+
+    byte[] unencryptSampleData(byte[] data);
 }

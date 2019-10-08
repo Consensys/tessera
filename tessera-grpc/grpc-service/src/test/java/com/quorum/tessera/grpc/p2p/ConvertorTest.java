@@ -27,9 +27,7 @@ public class ConvertorTest {
 
         String key = "Some Key";
 
-        DeleteRequest grpcRequest = DeleteRequest.newBuilder()
-                .setKey(key)
-                .build();
+        DeleteRequest grpcRequest = DeleteRequest.newBuilder().setKey(key).build();
 
         com.quorum.tessera.api.model.DeleteRequest result = Convertor.toModel(grpcRequest);
 
@@ -40,51 +38,47 @@ public class ConvertorTest {
     @Test
     public void toModelResendRequest() {
 
-        ResendRequest resendRequest = ResendRequest.newBuilder()
-                .setKey("KEY")
-                .setPublicKey("PUBLICKEY")
-                .setType(ResendRequestType.ALL)
-                .build();
+        ResendRequest resendRequest =
+                ResendRequest.newBuilder()
+                        .setKey("KEY")
+                        .setPublicKey("PUBLICKEY")
+                        .setType(ResendRequestType.ALL)
+                        .build();
 
         com.quorum.tessera.partyinfo.ResendRequest result = Convertor.toModel(resendRequest);
 
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
         assertThat(result.getType()).isEqualTo(com.quorum.tessera.partyinfo.ResendRequestType.ALL);
-
     }
 
     @Test
     public void toModelResendRequestNoTypeDefinedType() {
 
-        ResendRequest resendRequest = ResendRequest.newBuilder()
-                .setKey("KEY")
-                .setPublicKey("PUBLICKEY")
-                .build();
+        ResendRequest resendRequest = ResendRequest.newBuilder().setKey("KEY").setPublicKey("PUBLICKEY").build();
 
         com.quorum.tessera.partyinfo.ResendRequest result = Convertor.toModel(resendRequest);
 
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
         assertThat(result.getType()).isEqualTo(com.quorum.tessera.partyinfo.ResendRequestType.ALL);
-
     }
 
     @Test
     public void toModelResendRequestTypeDefinedType() {
 
-        ResendRequest resendRequest = ResendRequest.newBuilder()
-                .setKey("KEY")
-                .setType(ResendRequestType.INDIVIDUAL)
-                .setPublicKey("PUBLICKEY")
-                .build();
+        ResendRequest resendRequest =
+                ResendRequest.newBuilder()
+                        .setKey("KEY")
+                        .setType(ResendRequestType.INDIVIDUAL)
+                        .setPublicKey("PUBLICKEY")
+                        .build();
 
         com.quorum.tessera.partyinfo.ResendRequest result = Convertor.toModel(resendRequest);
 
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLICKEY");
         assertThat(result.getType()).isEqualTo(com.quorum.tessera.partyinfo.ResendRequestType.INDIVIDUAL);
-
     }
 
     @Test
@@ -100,7 +94,6 @@ public class ConvertorTest {
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLIC_KEY");
         assertThat(result.getType()).isEqualTo(ResendRequestType.ALL);
-
     }
 
     @Test
@@ -115,7 +108,6 @@ public class ConvertorTest {
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLIC_KEY");
         assertThat(result.getType()).isEqualTo(ResendRequestType.INDIVIDUAL);
-
     }
 
     @Test
@@ -131,7 +123,5 @@ public class ConvertorTest {
         assertThat(result.getKey()).isEqualTo("KEY");
         assertThat(result.getPublicKey()).isEqualTo("PUBLIC_KEY");
         assertThat(result.getType()).isEqualTo(ResendRequestType.INDIVIDUAL);
-
     }
-
 }

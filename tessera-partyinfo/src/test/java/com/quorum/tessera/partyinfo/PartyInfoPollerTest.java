@@ -30,7 +30,7 @@ public class PartyInfoPollerTest {
 
     private PartyInfoParser partyInfoParser;
 
-    private PartyInfoPoller partyInfoPoller;
+    private P2pClientPartyInfoPoller partyInfoPoller;
 
     private P2pClient p2pClient;
 
@@ -42,7 +42,7 @@ public class PartyInfoPollerTest {
 
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
 
-        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, p2pClient);
+        this.partyInfoPoller = new P2pClientPartyInfoPoller(partyInfoService, partyInfoParser, p2pClient);
     }
 
     @After
@@ -94,6 +94,21 @@ public class PartyInfoPollerTest {
 
     @Test
     public void constructWithMinimalArgs() {
-        assertThat(new PartyInfoPoller(partyInfoService, p2pClient)).isNotNull();
+        assertThat(new P2pClientPartyInfoPoller(partyInfoService, p2pClient)).isNotNull();
+    }
+
+    @Test
+    public void noP2pClient() throws Exception {
+
+        PartyInfo partyInfo = mock(PartyInfo.class);
+
+        P2pClientPartyInfoPoller partyInfoPollerWithNullClient
+                = new P2pClientPartyInfoPoller(partyInfoService, partyInfoParser, null);
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        partyInfoPollerWithNullClient.run();
+
+        verify(partyInfoService).getPartyInfo();
+        verify(partyInfoParser).to(partyInfo);
+
     }
 }

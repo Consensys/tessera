@@ -15,6 +15,10 @@ public class ExecutionContext {
 
     private final CommunicationType communicationType;
 
+    private final CommunicationType p2pCommunicationType;
+
+    private final boolean p2pSsl;
+
     private final SocketType socketType;
 
     private final EnclaveType enclaveType;
@@ -25,16 +29,23 @@ public class ExecutionContext {
 
     private String prefix;
 
-    private ExecutionContext(DBType dbType,
-        CommunicationType communicationType,
-        SocketType socketType,
-        EnclaveType enclaveType, boolean admin,String prefix) {
+    private ExecutionContext(
+            DBType dbType,
+            CommunicationType communicationType,
+            SocketType socketType,
+            EnclaveType enclaveType,
+            boolean admin,
+            String prefix,
+            CommunicationType p2pCommunicationType,
+            boolean p2pSsl) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
         this.enclaveType = enclaveType;
         this.admin = admin;
         this.prefix = prefix;
+        this.p2pCommunicationType = p2pCommunicationType;
+        this.p2pSsl = p2pSsl;
     }
 
     public DBType getDbType() {
@@ -65,6 +76,14 @@ public class ExecutionContext {
         return Optional.ofNullable(prefix);
     }
 
+    public CommunicationType getP2pCommunicationType() {
+        return p2pCommunicationType;
+    }
+
+    public boolean isP2pSsl() {
+        return p2pSsl;
+    }
+
     public static class Builder {
 
         private DBType dbType;
@@ -77,8 +96,11 @@ public class ExecutionContext {
 
         private String prefix;
 
-        private Builder() {
-        }
+        private CommunicationType p2pCommunicationType;
+
+        private boolean p2pSsl = false;
+
+        private Builder() {}
 
         public static Builder create() {
             return new Builder();
@@ -99,13 +121,18 @@ public class ExecutionContext {
             return this;
         }
 
+        public Builder withP2pCommunicationType(CommunicationType p2pCommunicationType) {
+            this.p2pCommunicationType = p2pCommunicationType;
+            return this;
+        }
+
         public Builder with(EnclaveType enclaveType) {
             this.enclaveType = enclaveType;
             return this;
         }
 
         public Builder prefix(String prefix) {
-            this.prefix = Objects.equals("",prefix) ? null : prefix;
+            this.prefix = Objects.equals("", prefix) ? null : prefix;
             return this;
         }
 
@@ -116,11 +143,26 @@ public class ExecutionContext {
             return this;
         }
 
-        public ExecutionContext build() {
-            Stream.of(dbType, communicationType, socketType, enclaveType)
-                .forEach(Objects::requireNonNull);
+        public Builder withP2pSsl(boolean p2pSsl) {
+            this.p2pSsl = p2pSsl;
+            return this;
+        }
 
-            ExecutionContext executionContext = new ExecutionContext(dbType, communicationType, socketType, enclaveType, admin,prefix);
+        public ExecutionContext build() {
+            Stream.of(dbType, communicationType, socketType, enclaveType).forEach(Objects::requireNonNull);
+
+            this.p2pCommunicationType = Optional.ofNullable(p2pCommunicationType).orElse(communicationType);
+
+            ExecutionContext executionContext =
+                    new ExecutionContext(
+                            dbType,
+                            communicationType,
+                            socketType,
+                            enclaveType,
+                            admin,
+                            prefix,
+                            p2pCommunicationType,
+                            p2pSsl);
 
             return executionContext;
         }
@@ -140,14 +182,13 @@ public class ExecutionContext {
 
         public ExecutionContext createAndSetupContext() {
 
-            Stream.of(dbType, communicationType, socketType, enclaveType)
-                .forEach(Objects::requireNonNull);
+            Stream.of(dbType, communicationType, socketType, enclaveType).forEach(Objects::requireNonNull);
 
             ExecutionContext executionContext = build();
 
             List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
 
-            //FIXME: YUk
+            // FIXME: YUk
             executionContext.configs = configs;
 
             if (THREAD_SCOPE.get() != null) {
@@ -158,7 +199,6 @@ public class ExecutionContext {
 
             return THREAD_SCOPE.get();
         }
-
     }
 
     private static final ThreadLocal<ExecutionContext> THREAD_SCOPE = new ThreadLocal<ExecutionContext>();
@@ -170,9 +210,7 @@ public class ExecutionContext {
         return THREAD_SCOPE.get();
     }
 
-
     public static void destroyContext() {
         THREAD_SCOPE.remove();
     }
-
 }

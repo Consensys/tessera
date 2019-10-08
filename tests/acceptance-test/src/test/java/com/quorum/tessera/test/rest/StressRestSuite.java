@@ -23,7 +23,7 @@ public class StressRestSuite {
     public static List<ProcessConfiguration> configurations() {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
 
-        configurations.add(new ProcessConfiguration(DBType.H2, REST, HTTP, EnclaveType.LOCAL, false, ""));
+        configurations.add(new ProcessConfiguration(DBType.H2, REST, HTTP, EnclaveType.LOCAL, false, "", false));
 
         return configurations;
     }

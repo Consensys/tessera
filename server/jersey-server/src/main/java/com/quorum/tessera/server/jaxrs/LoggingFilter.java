@@ -16,6 +16,7 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
 
     @Override
     public void filter(final ContainerRequestContext request) {
+
         log("Enter", request);
     }
 
@@ -23,15 +24,18 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
     public void filter(final ContainerRequestContext request, final ContainerResponseContext response) {
         log("Exit", request);
         String path = Optional.ofNullable(request.getUriInfo()).map(UriInfo::getPath).orElse(null);
-        Optional.ofNullable(response.getStatusInfo()).ifPresent(statusType -> LOGGER.info("Response for {} : {} {}", path, statusType.getStatusCode(), statusType.getReasonPhrase()));
+        Optional.ofNullable(response.getStatusInfo())
+                .ifPresent(
+                        statusType ->
+                                LOGGER.info(
+                                        "Response for {} : {} {}",
+                                        path,
+                                        statusType.getStatusCode(),
+                                        statusType.getReasonPhrase()));
     }
 
     private static void log(String prefix, ContainerRequestContext request) {
         String path = Optional.ofNullable(request.getUriInfo()).map(UriInfo::getPath).orElse(null);
         LOGGER.info("{} Request : {} : {}", prefix, request.getMethod(), "/" + path);
-
     }
-    
-
- 
 }
