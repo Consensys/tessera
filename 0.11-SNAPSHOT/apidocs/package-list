@@ -1,2 +1,1 @@
-com.quorum.tessera.encryption
-com.quorum.tessera.nacl
+com.quorum.tessera.nacl.jnacl
