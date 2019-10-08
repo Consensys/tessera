@@ -78,7 +78,8 @@ public class TransactionManagerTest {
                         partyInfoService,
                         enclave,
                         encryptedRawTransactionDAO,
-                        resendManager);
+                        resendManager,
+                        1000);
     }
 
     @After
@@ -151,10 +152,12 @@ public class TransactionManagerTest {
 
         verify(enclave).encryptPayload(any(RawTransaction.class), any());
         verify(payloadEncoder).encode(payload);
-        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
+        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
+        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(partyInfoService).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
+        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
         verify(enclave).getForwardingKeys();
     }
 
@@ -969,7 +972,12 @@ public class TransactionManagerTest {
 
         TransactionManager tm =
                 new TransactionManagerImpl(
-                        encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, partyInfoService);
+                        encryptedTransactionDAO,
+                        enclave,
+                        encryptedRawTransactionDAO,
+                        resendManager,
+                        partyInfoService,
+                        1000);
 
         assertThat(tm).isNotNull();
     }

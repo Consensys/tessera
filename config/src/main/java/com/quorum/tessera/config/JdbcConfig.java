@@ -20,6 +20,8 @@ public class JdbcConfig extends ConfigItem {
     @XmlElement(defaultValue = "false")
     private boolean autoCreateTables;
 
+    @XmlElement private int fetchSize;
+
     public JdbcConfig(String username, String password, String url) {
         this.username = username;
         this.password = password;
@@ -60,5 +62,13 @@ public class JdbcConfig extends ConfigItem {
 
     public void setAutoCreateTables(boolean autoCreateTables) {
         this.autoCreateTables = autoCreateTables;
+    }
+
+    public int getFetchSize() {
+        return fetchSize;
+    }
+
+    public void setFetchSize(int fetchSize) {
+        this.fetchSize = fetchSize;
     }
 }

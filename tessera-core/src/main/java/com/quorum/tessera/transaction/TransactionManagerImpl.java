@@ -55,12 +55,15 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
 
+    private int resendFetchSize;
+
     public TransactionManagerImpl(
             EncryptedTransactionDAO encryptedTransactionDAO,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
-            PartyInfoService partyInfoService) {
+            PartyInfoService partyInfoService,
+            int resendFetchSize) {
         this(
                 Base64Decoder.create(),
                 PayloadEncoder.create(),
@@ -68,11 +71,12 @@ public class TransactionManagerImpl implements TransactionManager {
                 partyInfoService,
                 enclave,
                 encryptedRawTransactionDAO,
-                resendManager);
+                resendManager,
+                resendFetchSize);
     }
 
     /*
-    Only sue for tests
+    Only use for tests
     */
     public TransactionManagerImpl(
             Base64Decoder base64Decoder,
@@ -81,7 +85,8 @@ public class TransactionManagerImpl implements TransactionManager {
             PartyInfoService partyInfoService,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
-            ResendManager resendManager) {
+            ResendManager resendManager,
+            int resendFetchSize) {
 
         this.base64Decoder = Objects.requireNonNull(base64Decoder, "base64Decoder is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
@@ -92,6 +97,7 @@ public class TransactionManagerImpl implements TransactionManager {
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
         this.resendManager = Objects.requireNonNull(resendManager, "resendManager is required");
+        this.resendFetchSize = resendFetchSize;
     }
 
     @Override
@@ -149,7 +155,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     @Override
     @Transactional
-    public SendResponse sendSignedTransaction(SendSignedRequest sendRequest) {
+    public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
 
         final byte[][] recipients =
                 Stream.of(sendRequest)
@@ -162,7 +168,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.addAll(enclave.getForwardingKeys());
 
-        MessageHash messageHash = new MessageHash(sendRequest.getHash());
+        final MessageHash messageHash = new MessageHash(sendRequest.getHash());
 
         EncryptedRawTransaction encryptedRawTransaction =
                 encryptedRawTransactionDAO
@@ -171,6 +177,8 @@ public class TransactionManagerImpl implements TransactionManager {
                                 () ->
                                         new TransactionNotFoundException(
                                                 "Raw Transaction with hash " + messageHash + " was not found"));
+
+        recipientList.add(PublicKey.from(encryptedRawTransaction.getSender()));
 
         final EncodedPayload payload =
                 enclave.encryptPayload(encryptedRawTransaction.toRawTransaction(), recipientList);
@@ -202,11 +210,10 @@ public class TransactionManagerImpl implements TransactionManager {
         if (request.getType() == ResendRequestType.ALL) {
 
             int offset = 0;
-            final int maxResult = 10000;
 
             while (offset < encryptedTransactionDAO.transactionCount()) {
 
-                encryptedTransactionDAO.retrieveTransactions(offset, maxResult).stream()
+                encryptedTransactionDAO.retrieveTransactions(offset, resendFetchSize).stream()
                         .map(EncryptedTransaction::getEncodedPayload)
                         .map(payloadEncoder::decode)
                         .filter(
@@ -250,7 +257,7 @@ public class TransactionManagerImpl implements TransactionManager {
                                     }
                                 });
 
-                offset += maxResult;
+                offset += resendFetchSize;
             }
 
             return new ResendResponse();

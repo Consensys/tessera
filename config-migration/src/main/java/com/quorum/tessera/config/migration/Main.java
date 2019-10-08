@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.migration;
 
+import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliResult;
 
 public class Main {
@@ -8,9 +9,8 @@ public class Main {
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        LegacyCliAdapter adapter = new LegacyCliAdapter();
         try {
-            CliResult result = adapter.execute(args);
+            final CliResult result = CliDelegate.instance().execute(args);
             System.exit(result.getStatus());
         } catch (final Exception ex) {
             System.err.println(ex.toString());

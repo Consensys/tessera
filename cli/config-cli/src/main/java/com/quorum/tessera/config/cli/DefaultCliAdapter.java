@@ -8,7 +8,7 @@ import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigurationParser;
-import com.quorum.tessera.cli.parsers.PidFileParser;
+import com.quorum.tessera.cli.parsers.PidFileMixin;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.cli.parsers.KeyGenerationParser;
 import com.quorum.tessera.config.cli.parsers.KeyUpdateParser;
@@ -40,6 +40,8 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
         .ignoreXmlConfiguration()
         .buildValidatorFactory()
         .getValidator();
+
+    @picocli.CommandLine.Mixin private PidFileMixin pidFileMixin = new PidFileMixin();
 
     @picocli.CommandLine.Unmatched private String[] allParameters = new String[0];
 
@@ -123,7 +125,7 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
                 }
             }
 
-            new PidFileParser().parse(line);
+            pidFileMixin.call();
 
             boolean suppressStartup = line.hasOption("keygen") && Objects.isNull(config);
 
@@ -132,7 +134,6 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
         } catch (ParseException exp) {
             throw new CliException(exp.getMessage());
         }
-
     }
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
@@ -254,6 +255,7 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
                 .build()
         );
 
+        // Moved already to PicoCLI, but kept here for the help option
         options.addOption(
             Option.builder("pidfile")
                 .desc("Path to pid file")

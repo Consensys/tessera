@@ -1,63 +1,88 @@
 package com.quorum.tessera.data.migration;
 
-import org.apache.commons.cli.*;
+import com.quorum.tessera.cli.CliAdapter;
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
+import picocli.CommandLine.Command;
+import picocli.CommandLine.Option;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 
 import static java.util.Collections.singletonList;
 
-public class CmdLineExecutor {
+@Command(
+        headerHeading = "Usage:%n%n",
+        synopsisHeading = "%n",
+        parameterListHeading = "%nParameters:%n",
+        optionListHeading = "%nOptions:%n",
+        header = "Database migration tool from older systems to Tessera")
+public class CmdLineExecutor implements CliAdapter, Callable<CliResult> {
 
-    public int execute(String... args) throws Exception {
+    @Option(names = "help", usageHelp = true, description = "display this help message")
+    private boolean isHelpRequested;
 
-        final Options options = this.createOptions();
+    @Option(names = "-storetype", required = true, description = "Store type i.e. bdb, dir, sqlite")
+    private StoreType storeType;
 
-        if (Arrays.asList(args).contains("help")) {
-            new HelpFormatter().printHelp("tessera-data-migration", options);
-            return 0;
-        }
+    @Option(names = "-inputpath", required = true, description = "Path to input file or directory")
+    private Path inputpath;
 
-        final CommandLine line = new DefaultParser().parse(options, args);
+    @Option(names = "-exporttype", required = true, description = "Export DB type i.e. h2, sqlite")
+    private ExportType exportType;
 
-        final StoreLoader storeLoader = StoreType.valueOf(line.getOptionValue("storetype").toUpperCase()).getLoader();
+    @Option(names = "-dbconfig", description = "Properties file with create table, insert row and jdbc url")
+    private Path dbconfig;
 
-        final Path inputpath = Paths.get(line.getOptionValue("inputpath"));
+    @Option(names = "-outputfile", required = true, description = "Path to output file")
+    private Path outputFile;
+
+    @Option(names = "-dbuser", description = "Database username to use")
+    private String username;
+
+    @Option(names = "-dbpass", description = "Database password to use")
+    private String password;
+
+    @Override
+    public CliResult call() throws Exception {
+        return this.execute();
+    }
+
+    @Override
+    public CliType getType() {
+        return CliType.DATA_MIGRATION;
+    }
+
+    @Override
+    public CliResult execute(String... args) throws Exception {
+        final StoreLoader storeLoader = storeType.getLoader();
+
         storeLoader.load(inputpath);
-
-        final String username = line.getOptionValue("dbuser");
-        final String password = line.getOptionValue("dbpass");
-
-        final ExportType exportType = Optional
-            .ofNullable(line.getOptionValue("exporttype"))
-            .map(String::toUpperCase)
-            .map(ExportType::valueOf)
-            .get();
-
-        final Path outputFile = Paths.get(line.getOptionValue("outputfile")).toAbsolutePath();
 
         final DataExporter dataExporter;
         if (exportType == ExportType.JDBC) {
-            if (!line.hasOption("dbconfig")) {
-                throw new MissingOptionException("dbconfig file path is required when no export type is defined.");
+            if (dbconfig == null) {
+                throw new IllegalArgumentException("dbconfig file path is required when no export type is defined.");
             }
 
-            final String dbconfig = line.getOptionValue("dbconfig");
-
             final Properties properties = new Properties();
-            try (InputStream inStream = Files.newInputStream(Paths.get(dbconfig))) {
+            try (InputStream inStream = Files.newInputStream(dbconfig)) {
                 properties.load(inStream);
             }
 
-            final String insertRow = Objects.requireNonNull(properties.getProperty("insertRow"), "No insertRow value defined in config file. ");
-            final String createTable = Objects.requireNonNull(properties.getProperty("createTable"), "No createTable value defined in config file. ");
-            final String jdbcUrl = Objects.requireNonNull(properties.getProperty("jdbcUrl"), "No jdbcUrl value defined in config file. ");
+            final String insertRow =
+                    Objects.requireNonNull(
+                            properties.getProperty("insertRow"), "No insertRow value defined in config file. ");
+            final String createTable =
+                    Objects.requireNonNull(
+                            properties.getProperty("createTable"), "No createTable value defined in config file. ");
+            final String jdbcUrl =
+                    Objects.requireNonNull(
+                            properties.getProperty("jdbcUrl"), "No jdbcUrl value defined in config file. ");
 
             dataExporter = new JdbcDataExporter(jdbcUrl, insertRow, singletonList(createTable));
 
@@ -70,90 +95,6 @@ public class CmdLineExecutor {
         System.out.printf("Exported data to %s", Objects.toString(outputFile));
         System.out.println();
 
-        return 0;
+        return new CliResult(0, true, null);
     }
-
-    private Options createOptions() {
-        final Options options = new Options();
-
-        options.addOption(
-            Option.builder()
-                .longOpt("storetype")
-                .desc("Store type i.e. bdb, dir, sqlite")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("TYPE")
-                .valueSeparator('=')
-                .required()
-                .build());
-
-        options.addOption(
-            Option.builder()
-                .longOpt("inputpath")
-                .desc("Path to input file or directory")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .required()
-                .build());
-
-        options.addOption(
-            Option.builder()
-                .longOpt("exporttype")
-                .desc("Export DB type i.e. h2, sqlite")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("TYPE")
-                .required()
-                .build());
-
-        options.addOption(
-            Option.builder()
-                .longOpt("dbconfig")
-                .desc("Properties file with create table, insert row and jdbc url")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .build());
-
-        options.addOption(
-            Option.builder()
-                .longOpt("outputfile")
-                .desc("Path to output file")
-                .hasArg(true)
-                .optionalArg(false)
-                .numberOfArgs(1)
-                .argName("PATH")
-                .required()
-                .build());
-
-        options.addOption(
-            Option.builder()
-                .longOpt("dbuser")
-                .desc("Database username to use")
-                .hasArg(true)
-                .optionalArg(true)
-                .numberOfArgs(1)
-                .argName("USER")
-                .required()
-                .build());
-
-        options.addOption(
-            Option.builder()
-                .longOpt("dbpass")
-                .desc("Database password to use")
-                .hasArg(true)
-                .optionalArg(true)
-                .numberOfArgs(1)
-                .argName("PASS")
-                .required()
-                .build());
-
-        return options;
-    }
-
 }
