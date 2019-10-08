@@ -1,5 +1,0 @@
-GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-key-vault-api,com.quorum.tessera.key.vault,NoKeyVaultServiceFactoryException,0,4,0,0,0,2,0,1,0,1
-key-vault-api,com.quorum.tessera.key.vault,KeyVaultException,0,8,0,0,0,4,0,2,0,2
-key-vault-api,com.quorum.tessera.key.vault,KeyVaultServiceFactory,0,43,0,2,0,6,0,4,0,3
-key-vault-api,com.quorum.tessera.key.vault,VaultSecretNotFoundException,0,4,0,0,0,2,0,1,0,1

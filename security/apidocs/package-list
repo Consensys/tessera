@@ -1,6 +1,0 @@
-com.quorum.tessera.ssl.context
-com.quorum.tessera.ssl.context.model
-com.quorum.tessera.ssl.exception
-com.quorum.tessera.ssl.strategy
-com.quorum.tessera.ssl.trust
-com.quorum.tessera.ssl.util

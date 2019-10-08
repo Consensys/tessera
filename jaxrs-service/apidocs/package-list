@@ -1,9 +1,0 @@
-com.quorum.tessera.admin
-com.quorum.tessera.api.common
-com.quorum.tessera.api.exception
-com.quorum.tessera.api.filter
-com.quorum.tessera.app
-com.quorum.tessera.client
-com.quorum.tessera.p2p
-com.quorum.tessera.q2t
-com.quorum.tessera.thridparty

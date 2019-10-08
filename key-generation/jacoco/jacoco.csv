@@ -1,7 +1,0 @@
-GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-key-generation,com.quorum.tessera.key.generation,FileKeyGenerator,0,200,0,4,0,38,0,7,0,5
-key-generation,com.quorum.tessera.key.generation,KeyVaultOptions,0,9,0,0,0,4,0,2,0,2
-key-generation,com.quorum.tessera.key.generation,DefaultKeyGeneratorFactory,0,72,0,4,0,16,0,4,0,2
-key-generation,com.quorum.tessera.key.generation,AzureVaultKeyGenerator,0,106,0,4,0,25,0,6,0,4
-key-generation,com.quorum.tessera.key.generation,HashicorpVaultKeyGenerator,0,158,0,0,0,21,0,3,0,3
-key-generation,com.quorum.tessera.key.generation,KeyGeneratorFactory,0,8,0,0,0,1,0,1,0,1

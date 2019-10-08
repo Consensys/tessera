@@ -1,4 +1,0 @@
-GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
-encryption-jnacl,com.quorum.tessera.nacl.jnacl,JnaclFactory,0,24,0,0,0,6,0,3,0,3
-encryption-jnacl,com.quorum.tessera.nacl.jnacl,Jnacl,0,541,0,8,0,100,0,16,0,12
-encryption-jnacl,com.quorum.tessera.nacl.jnacl,JnaclSecretBox,0,28,0,0,0,5,0,5,0,5
