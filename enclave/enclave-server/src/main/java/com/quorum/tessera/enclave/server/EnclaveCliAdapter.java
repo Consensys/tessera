@@ -1,39 +1,46 @@
 package com.quorum.tessera.enclave.server;
 
 import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.cli.*;
+import com.quorum.tessera.cli.CliAdapter;
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
-import com.quorum.tessera.cli.parsers.PidFileParser;
+import com.quorum.tessera.cli.parsers.ConfigurationMixin;
+import com.quorum.tessera.cli.parsers.PidFileMixin;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.util.JaxbUtil;
-import org.apache.commons.cli.*;
+import picocli.CommandLine;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
-@picocli.CommandLine.Command
+@CommandLine.Command(
+        headerHeading = "Usage:%n%n",
+        synopsisHeading = "%n",
+        descriptionHeading = "%nDescription:%n%n",
+        parameterListHeading = "%nParameters:%n",
+        optionListHeading = "%nOptions:%n",
+        header = "Run a standalone enclave to perform encryption/decryption operations",
+        description = "Run a standalone enclave, which will perform encryption/decryption operations " +
+            "for a transaction manager. This means that the transaction manager does not perform any of the " +
+            "operations inside its own process, shielding the user from potential attacks.")
 public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
 
-    @picocli.CommandLine.Unmatched private String[] allParameters = new String[0];
+    @CommandLine.Option(names = "help", usageHelp = true, description = "display this help message")
+    private boolean isHelpRequested;
 
-    private final CommandLineParser parser;
+    @CommandLine.Mixin private ConfigurationMixin configurationMixin = new ConfigurationMixin();
+
+    @CommandLine.Mixin private PidFileMixin pidFileMixin = new PidFileMixin();
 
     private final KeyPasswordResolver keyPasswordResolver;
 
-    public EnclaveCliAdapter(final CommandLineParser parser, final KeyPasswordResolver keyPasswordResolver) {
-        this.parser = Objects.requireNonNull(parser);
+    public EnclaveCliAdapter(final KeyPasswordResolver keyPasswordResolver) {
         this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
     }
 
     public EnclaveCliAdapter() {
-        this(
-                new DefaultParser(),
-                ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
+        this(ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
     }
 
     @Override
@@ -43,58 +50,19 @@ public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
 
     @Override
     public CliResult call() throws Exception {
-        return this.execute(allParameters);
+        return this.execute();
     }
 
     @Override
     public CliResult execute(String... args) throws Exception {
+        // set the PID if it exists
+        this.pidFileMixin.call();
 
-        final Options options = new Options();
+        // to make it this far, the configuration has to be set and valid
+        final Config config = configurationMixin.getConfig();
 
-        options.addOption(
-                Option.builder("configfile")
-                        .desc("Path to configuration file")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .numberOfArgs(1)
-                        .argName("PATH")
-                        .build());
+        keyPasswordResolver.resolveKeyPasswords(config);
 
-        options.addOption(
-                Option.builder("pidfile")
-                        .desc("Path to pid file")
-                        .hasArg(true)
-                        .optionalArg(false)
-                        .numberOfArgs(1)
-                        .argName("PATH")
-                        .build());
-
-        final List<String> argsList = Arrays.asList(args);
-        if (argsList.contains("help") || argsList.isEmpty()) {
-            HelpFormatter formatter = new HelpFormatter();
-            formatter.setWidth(200);
-            formatter.printHelp("enclave -configfile <PATH>", options);
-            return new CliResult(0, true, null);
-        }
-
-        try {
-            final CommandLine line = parser.parse(options, args);
-            new PidFileParser().parse(line);
-            String configfile = line.getOptionValue("configfile");
-
-            Config config = JaxbUtil.unmarshal(Files.newInputStream(Paths.get(configfile)), Config.class);
-
-            keyPasswordResolver.resolveKeyPasswords(config);
-
-            return new CliResult(0, false, config);
-
-        } catch (ParseException exp) {
-            throw new CliException(exp.getMessage());
-        }
-    }
-
-    // TODO: for testing, remove if possible
-    public void setAllParameters(final String[] allParameters) {
-        this.allParameters = allParameters;
+        return new CliResult(0, false, config);
     }
 }

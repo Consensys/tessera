@@ -60,8 +60,9 @@ public class CliDelegateTest {
 
     // PicoCLI tests
     @Test
-    public void nullResultReturnsNull() {
-        assertThat(instance.getResult(null)).isNull();
+    public void nullResultReturnsDefaultCliResult() {
+        final CliResult result = instance.getResult(null);
+        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
     }
 
     @Test
@@ -70,6 +71,14 @@ public class CliDelegateTest {
         MockSubcommandCliAdapter.setResult(result);
 
         assertThat(instance.execute("some-subcommand")).isSameAs(result);
+    }
+
+    @Test
+    public void helpOptionGivenReturnsSuccessCliResult() throws Exception {
+        MockSubcommandCliAdapter.setResult(null);
+
+        final CliResult expected = new CliResult(0, true, null);
+        assertThat(instance.execute("some-subcommand", "help")).isEqualToComparingFieldByField(expected);
     }
 
     @Test

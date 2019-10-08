@@ -44,7 +44,7 @@ public enum CliDelegate {
                         .findFirst()
                         .get();
 
-        // The will find all the others and attach them as sub-commands. It is expected that they have defined their
+        // Then we find all the others and attach them as sub-commands. It is expected that they have defined their
         // own hierarchy and command names.
         final List<CliAdapter> others = new ArrayList<>(adapters);
         others.remove(adapter);
@@ -58,8 +58,10 @@ public enum CliDelegate {
         commandLine
                 .registerConverter(Config.class, new ConfigConverter())
                 .setSeparator(" ")
+                .setCaseInsensitiveEnumValuesAllowed(true)
                 .setUnmatchedArgumentsAllowed(true)
-                .setExecutionExceptionHandler(mapper);
+                .setExecutionExceptionHandler(mapper)
+                .setParameterExceptionHandler(mapper);
 
         commandLine.execute(args);
 
@@ -70,19 +72,29 @@ public enum CliDelegate {
 
         // otherwise, set the config object (if there is one) and return
         final CliResult result = this.getResult(commandLine.getParseResult());
-        this.config = Optional.ofNullable(result).flatMap(CliResult::getConfig).orElse(null);
+        this.config = result.getConfig().orElse(null);
         return result;
     }
 
     // checks all the commands thats ran for a result, and returns it, or null otherwise
     public CliResult getResult(final CommandLine.ParseResult parseResult) {
         if (parseResult == null) {
-            return null;
+            // we've reached the end of the line and still not found our result,
+            // don't start the app and let the console output show the user what happened
+
+            // note: this is a normal case when required options are not given.
+            // exit code of 1 is a generic error code, specific exceptions are handled in the Main method
+            return new CliResult(1, true, null);
         }
 
         final CliResult result = parseResult.commandSpec().commandLine().getExecutionResult();
         if (result != null) {
             return result;
+        }
+
+        // we used the help option, let the application exit gracefully
+        if (parseResult.isUsageHelpRequested()) {
+            return new CliResult(0, true, null);
         }
 
         return getResult(parseResult.subcommand());
