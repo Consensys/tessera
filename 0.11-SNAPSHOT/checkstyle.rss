@@ -19,20 +19,20 @@ under the License.
 -->
 <rss version="0.91">
   <channel>
-    <title>encryption-jnacl - Checkstyle report</title>
-    <link>https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl</link>
-    <description>encryption-jnacl - Checkstyle report</description>
+    <title>service-locator-api - Checkstyle report</title>
+    <link>https://github.com/jpmorganchase/tessera/service-locator/service-locator-api</link>
+    <description>service-locator-api - Checkstyle report</description>
     <language>en-us</language>
     <copyright>&#169;2019</copyright>
     <item>
-      <title>File: 4,
-             Errors: 94,
+      <title>File: 1,
+             Errors: 6,
              Warnings: 0,
              Infos: 0
       </title>
-            <link>https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl/checkstyle.html</link>
+            <link>https://github.com/jpmorganchase/tessera/service-locator/service-locator-api/checkstyle.html</link>
       <description>
-        <p>Click <a href="https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl/checkstyle.html">here</a> for the full Checkstyle report.</p>
+        <p>Click <a href="https://github.com/jpmorganchase/tessera/service-locator/service-locator-api/checkstyle.html">here</a> for the full Checkstyle report.</p>
 
         <table summary="Files" boder="1">
           <thead>
@@ -46,7 +46,7 @@ under the License.
           <tbody>
                           <tr>
                 <td>
-                  <a href="https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl/checkstyle.html#com.quorum.tessera.nacl.jnacl.JnaclSecretBox.java">com/quorum/tessera/nacl/jnacl/JnaclSecretBox.java</a>
+                  <a href="https://github.com/jpmorganchase/tessera/service-locator/service-locator-api/checkstyle.html#com.quorum.tessera.service.locator.ServiceLocator.java">com/quorum/tessera/service/locator/ServiceLocator.java</a>
                 </td>
                 <td>
                   0
@@ -55,49 +55,7 @@ under the License.
                   0
                 </td>
                 <td>
-                  15
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl/checkstyle.html#com.quorum.tessera.nacl.jnacl.SecretBox.java">com/quorum/tessera/nacl/jnacl/SecretBox.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  14
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl/checkstyle.html#com.quorum.tessera.nacl.jnacl.Jnacl.java">com/quorum/tessera/nacl/jnacl/Jnacl.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  61
-                </td>
-              </tr>
-                          <tr>
-                <td>
-                  <a href="https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl/checkstyle.html#com.quorum.tessera.nacl.jnacl.JnaclFactory.java">com/quorum/tessera/nacl/jnacl/JnaclFactory.java</a>
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  0
-                </td>
-                <td>
-                  4
+                  6
                 </td>
               </tr>
                       </tbody>
