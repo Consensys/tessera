@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>config &#x2013; Project Dependencies</title>
+    <title>cli &#x2013; Project Dependencies</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -16,7 +16,7 @@
   <body class="composite">
     <div id="banner">
 <div id="bannerLeft">
-config
+cli
 </div>
       <div class="clear">
         <hr/>
@@ -27,7 +27,7 @@ config
         <span id="publishDate">Last Published: 2019-10-08</span>
           &nbsp;| <span id="projectVersion">Version: 0.11-SNAPSHOT</span>
       </div>
-      <div class="xright"><a href="./" title="config">config</a>      </div>
+      <div class="xright"><a href="./" title="cli">cli</a>      </div>
       <div class="clear">
         <hr/>
       </div>
@@ -37,6 +37,12 @@ config
        <h5>Parent Project</h5>
     <ul>
      <li class="none"><a href="../index.html" title="tessera">tessera</a></li>
+    </ul>
+       <h5>Modules</h5>
+    <ul>
+     <li class="none"><a href="cli-api/index.html" title="cli-api">cli-api</a></li>
+     <li class="none"><a href="config-cli/index.html" title="config-cli">config-cli</a></li>
+     <li class="none"><a href="admin-cli/index.html" title="admin-cli">admin-cli</a></li>
     </ul>
        <h5>Project Documentation</h5>
     <ul>
@@ -50,6 +56,7 @@ config
        <li class="none"><a href="index.html" title="About">About</a></li>
        <li class="none"><a href="issue-management.html" title="Issue Management">Issue Management</a></li>
        <li class="none"><a href="licenses.html" title="Licenses">Licenses</a></li>
+       <li class="none"><a href="modules.html" title="Project Modules">Project Modules</a></li>
        <li class="none"><a href="plugin-management.html" title="Plugin Management">Plugin Management</a></li>
        <li class="none"><a href="plugins.html" title="Plugins">Plugins</a></li>
        <li class="none"><a href="scm.html" title="Source Code Management">Source Code Management</a></li>
@@ -80,47 +87,17 @@ config
 <th>Licenses</th></tr>
 <tr class="b">
 <td>com.jpmorgan.quorum</td>
-<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/argon2">argon2</a></td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/config">config</a></td>
 <td>0.11-SNAPSHOT</td>
 <td>jar</td>
 <td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
 <tr class="a">
-<td>com.jpmorgan.quorum</td>
-<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/encryption/encryption-api">encryption-api</a></td>
-<td>0.11-SNAPSHOT</td>
-<td>jar</td>
-<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
-<tr class="b">
-<td>com.jpmorgan.quorum</td>
-<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/shared">shared</a></td>
-<td>0.11-SNAPSHOT</td>
-<td>jar</td>
-<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
-<tr class="a">
-<td>javax.validation</td>
-<td><a class="externalLink" href="http://beanvalidation.org">validation-api</a></td>
-<td>2.0.1.Final</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></td></tr>
-<tr class="b">
-<td>org.apache.commons</td>
-<td><a class="externalLink" href="http://commons.apache.org/proper/commons-lang/">commons-lang3</a></td>
-<td>3.7</td>
+<td>commons-cli</td>
+<td><a class="externalLink" href="http://commons.apache.org/proper/commons-cli/">commons-cli</a></td>
+<td>1.4</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
-<tr class="a">
-<td>org.glassfish</td>
-<td><a class="externalLink" href="https://javaee.github.io/jsonp">javax.json</a></td>
-<td>1.1.2</td>
-<td>jar</td>
-<td><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></td></tr>
 <tr class="b">
-<td>org.jasypt</td>
-<td><a class="externalLink" href="http://www.jasypt.org">jasypt</a></td>
-<td>1.9.3</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="a">
 <td>org.slf4j</td>
 <td><a class="externalLink" href="http://www.slf4j.org">slf4j-api</a></td>
 <td>1.7.5</td>
@@ -149,23 +126,17 @@ config
 <td>jar</td>
 <td><a class="externalLink" href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</a><a class="externalLink" href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU Lesser General Public License</a></td></tr>
 <tr class="b">
-<td>com.jpmorgan.quorum</td>
-<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl">encryption-jnacl</a></td>
-<td>0.11-SNAPSHOT</td>
-<td>jar</td>
-<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
-<tr class="a">
 <td>org.eclipse.persistence</td>
 <td><a class="externalLink" href="http://www.eclipse.org/eclipselink">org.eclipse.persistence.moxy</a></td>
 <td>2.7.3</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></td></tr>
-<tr class="b">
-<td>org.glassfish</td>
-<td><a class="externalLink" href="http://uel.java.net">javax.el</a></td>
-<td>3.0.1-b10</td>
+<tr class="a">
+<td>org.hibernate.validator</td>
+<td><a class="externalLink" href="http://hibernate.org/validator/hibernate-validator">hibernate-validator</a></td>
+<td>6.0.2.Final</td>
 <td>jar</td>
-<td><a class="externalLink" href="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html">CDDL + GPLv2 with classpath exception</a></td></tr></table></div><a name="Project_Dependencies_test"></a>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></td></tr></table></div><a name="Project_Dependencies_test"></a>
 <div class="section">
 <h3><a name="test"></a>test</h3>
 <p>The following is a list of test dependencies for this project. These dependencies are only required to compile and run unit tests for the application:</p>
@@ -213,12 +184,6 @@ config
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
 <tr class="b">
-<td>org.hibernate.validator</td>
-<td><a class="externalLink" href="http://hibernate.org/validator/hibernate-validator">hibernate-validator</a></td>
-<td>6.0.2.Final</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></td></tr>
-<tr class="a">
 <td>org.mockito</td>
 <td><a class="externalLink" href="https://github.com/mockito/mockito">mockito-core</a></td>
 <td>2.23.0</td>
@@ -239,28 +204,70 @@ config
 <th>Licenses</th></tr>
 <tr class="b">
 <td>com.jpmorgan.quorum</td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/argon2">argon2</a></td>
+<td>0.11-SNAPSHOT</td>
+<td>jar</td>
+<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
+<tr class="a">
+<td>com.jpmorgan.quorum</td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/encryption/encryption-api">encryption-api</a></td>
+<td>0.11-SNAPSHOT</td>
+<td>jar</td>
+<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
+<tr class="b">
+<td>com.jpmorgan.quorum</td>
 <td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/service-locator/service-locator-api">service-locator-api</a></td>
 <td>0.11-SNAPSHOT</td>
 <td>jar</td>
 <td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
 <tr class="a">
+<td>com.jpmorgan.quorum</td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/shared">shared</a></td>
+<td>0.11-SNAPSHOT</td>
+<td>jar</td>
+<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
+<tr class="b">
 <td>de.mkammerer</td>
 <td><a class="externalLink" href="https://github.com/phxql/argon2-jvm">argon2-jvm</a></td>
 <td>2.5</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://www.gnu.org/licenses/lgpl-3.0.en.html">GNU Lesser General Public License, Version 3</a></td></tr>
-<tr class="b">
+<tr class="a">
 <td>javax.json</td>
 <td><a class="externalLink" href="https://javaee.github.io/jsonp">javax.json-api</a></td>
 <td>1.1.2</td>
 <td>jar</td>
 <td><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></td></tr>
+<tr class="b">
+<td>javax.validation</td>
+<td><a class="externalLink" href="http://beanvalidation.org">validation-api</a></td>
+<td>2.0.1.Final</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></td></tr>
 <tr class="a">
 <td>net.java.dev.jna</td>
 <td><a class="externalLink" href="https://github.com/java-native-access/jna">jna</a></td>
 <td>4.5.2</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.gnu.org/licenses/licenses.html">LGPL, version 2.1</a><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License v2.0</a></td></tr></table></div><a name="Project_Transitive_Dependencies_runtime"></a>
+<td><a class="externalLink" href="http://www.gnu.org/licenses/licenses.html">LGPL, version 2.1</a><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License v2.0</a></td></tr>
+<tr class="b">
+<td>org.apache.commons</td>
+<td><a class="externalLink" href="http://commons.apache.org/proper/commons-lang/">commons-lang3</a></td>
+<td>3.7</td>
+<td>jar</td>
+<td><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></td></tr>
+<tr class="a">
+<td>org.glassfish</td>
+<td><a class="externalLink" href="https://javaee.github.io/jsonp">javax.json</a></td>
+<td>1.1.2</td>
+<td>jar</td>
+<td><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></td></tr>
+<tr class="b">
+<td>org.jasypt</td>
+<td><a class="externalLink" href="http://www.jasypt.org">jasypt</a></td>
+<td>1.9.3</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr></table></div><a name="Project_Transitive_Dependencies_runtime"></a>
 <div class="section">
 <h3><a name="runtime"></a>runtime</h3>
 <p>The following is a list of runtime dependencies for this project. These dependencies are required to run the application:</p>
@@ -271,6 +278,18 @@ config
 <th>Version</th>
 <th>Type</th>
 <th>Licenses</th></tr>
+<tr class="b">
+<td>com.fasterxml</td>
+<td><a class="externalLink" href="http://github.com/cowtowncoder/java-classmate">classmate</a></td>
+<td>1.3.1</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
+<tr class="a">
+<td>com.jpmorgan.quorum</td>
+<td><a class="externalLink" href="https://github.com/jpmorganchase/tessera/encryption/encryption-jnacl">encryption-jnacl</a></td>
+<td>0.11-SNAPSHOT</td>
+<td>jar</td>
+<td><a href="LICENSE">The Apache License, Version 2.0</a></td></tr>
 <tr class="b">
 <td>eu.neilalexander</td>
 <td><a class="externalLink" href="https://github.com/neilalexander/jnacl">jnacl</a></td>
@@ -288,7 +307,19 @@ config
 <td><a class="externalLink" href="http://www.eclipse.org/eclipselink">org.eclipse.persistence.core</a></td>
 <td>2.7.3</td>
 <td>jar</td>
-<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></td></tr></table></div><a name="Project_Transitive_Dependencies_test"></a>
+<td><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a><a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></td></tr>
+<tr class="a">
+<td>org.glassfish</td>
+<td><a class="externalLink" href="http://uel.java.net">javax.el</a></td>
+<td>3.0.1-b10</td>
+<td>jar</td>
+<td><a class="externalLink" href="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html">CDDL + GPLv2 with classpath exception</a></td></tr>
+<tr class="b">
+<td>org.jboss.logging</td>
+<td><a class="externalLink" href="http://www.jboss.org">jboss-logging</a></td>
+<td>3.3.0.Final</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, version 2.0</a></td></tr></table></div><a name="Project_Transitive_Dependencies_test"></a>
 <div class="section">
 <h3><a name="test"></a>test</h3>
 <p>The following is a list of test dependencies for this project. These dependencies are only required to compile and run unit tests for the application:</p>
@@ -300,35 +331,23 @@ config
 <th>Type</th>
 <th>Licenses</th></tr>
 <tr class="b">
-<td>com.fasterxml</td>
-<td><a class="externalLink" href="http://github.com/cowtowncoder/java-classmate">classmate</a></td>
-<td>1.3.1</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="a">
 <td>net.bytebuddy</td>
 <td><a class="externalLink" href="http://bytebuddy.net/byte-buddy">byte-buddy</a></td>
 <td>1.9.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="b">
+<tr class="a">
 <td>net.bytebuddy</td>
 <td><a class="externalLink" href="http://bytebuddy.net/byte-buddy-agent">byte-buddy-agent</a></td>
 <td>1.9.0</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></td></tr>
-<tr class="a">
+<tr class="b">
 <td>org.hamcrest</td>
 <td><a class="externalLink" href="https://github.com/hamcrest/JavaHamcrest/hamcrest-core">hamcrest-core</a></td>
 <td>1.3</td>
 <td>jar</td>
 <td><a class="externalLink" href="http://www.opensource.org/licenses/bsd-license.php">New BSD License</a></td></tr>
-<tr class="b">
-<td>org.jboss.logging</td>
-<td><a class="externalLink" href="http://www.jboss.org">jboss-logging</a></td>
-<td>3.3.0.Final</td>
-<td>jar</td>
-<td><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, version 2.0</a></td></tr>
 <tr class="a">
 <td>org.objenesis</td>
 <td><a class="externalLink" href="http://objenesis.org">objenesis</a></td>
@@ -360,7 +379,27 @@ config
 <div class="section">
 <h3><a name="Dependency_Tree"></a>Dependency Tree</h3>
 <ul>
-<li>com.jpmorgan.quorum:config:jar:0.11-SNAPSHOT <img id="_img1" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep0', '_img1' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep0" style="display:none">
+<li>com.jpmorgan.quorum:cli:pom:0.11-SNAPSHOT <img id="_img1" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep0', '_img1' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep0" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>cli</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
+        of private transactions for Quorum.</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/cli">https://github.com/jpmorganchase/tessera/cli</a></p>
+<p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div>
+<ul>
+<li>commons-cli:commons-cli:jar:1.4 (compile) <img id="_img3" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep2', '_img3' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep2" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Apache Commons CLI</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Apache Commons CLI provides a simple API for presenting, processing and validating a command line interface.</p>
+<p><b>URL: </b><a class="externalLink" href="http://commons.apache.org/proper/commons-cli/">http://commons.apache.org/proper/commons-cli/</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>com.jpmorgan.quorum:config:jar:0.11-SNAPSHOT (compile) <img id="_img5" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep4', '_img5' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep4" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>config</th></tr>
@@ -371,7 +410,7 @@ config
 <p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/config">https://github.com/jpmorganchase/tessera/config</a></p>
 <p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div>
 <ul>
-<li>org.glassfish:javax.el:jar:3.0.1-b10 (runtime) <img id="_img3" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep2', '_img3' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep2" style="display:none">
+<li>org.glassfish:javax.el:jar:3.0.1-b10 (runtime) <img id="_img7" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep6', '_img7' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep6" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Expression Language 3.0</th></tr>
@@ -380,7 +419,7 @@ config
 <p><b>Description: </b>Java.net - The Source for Java Technology Collaboration</p>
 <p><b>URL: </b><a class="externalLink" href="http://uel.java.net">http://uel.java.net</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://glassfish.dev.java.net/nonav/public/CDDL+GPL.html">CDDL + GPLv2 with classpath exception</a></p></td></tr></table></div></li>
-<li>org.glassfish:javax.json:jar:1.1.2 (compile) <img id="_img5" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep4', '_img5' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep4" style="display:none">
+<li>org.glassfish:javax.json:jar:1.1.2 (compile) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep8" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>JSR 374 (JSON Processing) Default Provider</th></tr>
@@ -388,18 +427,8 @@ config
 <td>
 <p><b>Description: </b>Default provider for JSR 374:Java API for Processing JSON</p>
 <p><b>URL: </b><a class="externalLink" href="https://javaee.github.io/jsonp">https://javaee.github.io/jsonp</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></p></td></tr></table></div>
-<ul>
-<li>javax.json:javax.json-api:jar:1.1.2 (compile) <img id="_img7" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep6', '_img7' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep6" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>JSR 374 (JSON Processing) API</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>API module of JSR 374:Java API for Processing JSON</p>
-<p><b>URL: </b><a class="externalLink" href="https://javaee.github.io/jsonp">https://javaee.github.io/jsonp</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></p></td></tr></table></div></li></ul></li>
-<li>javax.validation:validation-api:jar:2.0.1.Final (compile) <img id="_img9" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep8', '_img9' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep8" style="display:none">
+<p><b>Project Licenses: </b><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></p></td></tr></table></div></li>
+<li>javax.validation:validation-api:jar:2.0.1.Final (compile) <img id="_img11" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep10', '_img11' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep10" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Bean Validation API</th></tr>
@@ -408,16 +437,6 @@ config
 <p><b>Description: </b>Bean Validation API</p>
 <p><b>URL: </b><a class="externalLink" href="http://beanvalidation.org">http://beanvalidation.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></p></td></tr></table></div></li>
-<li>com.jpmorgan.quorum:test-util:jar:0.11-SNAPSHOT (test) <img id="_img11" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep10', '_img11' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep10" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>test-util</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
-        of private transactions for Quorum.</p>
-<p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/tests/test-util">https://github.com/jpmorganchase/tessera/tests/test-util</a></p>
-<p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div></li>
 <li>com.jpmorgan.quorum:shared:jar:0.11-SNAPSHOT (compile) <img id="_img13" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep12', '_img13' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep12" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
@@ -499,36 +518,7 @@ config
 <p><b>Description: </b>Pure Java implementation of NaCl: Networking and Cryptography library.</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/neilalexander/jnacl">https://github.com/neilalexander/jnacl</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://opensource.org/licenses/bsd-license.php">The BSD 2-Clause License</a></p></td></tr></table></div></li></ul></li>
-<li>org.hibernate.validator:hibernate-validator:jar:6.0.2.Final (test) <img id="_img29" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep28', '_img29' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep28" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Hibernate Validator Engine</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Hibernate's Bean Validation (JSR-380) reference implementation.</p>
-<p><b>URL: </b><a class="externalLink" href="http://hibernate.org/validator/hibernate-validator">http://hibernate.org/validator/hibernate-validator</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></p></td></tr></table></div>
-<ul>
-<li>org.jboss.logging:jboss-logging:jar:3.3.0.Final (test) <img id="_img31" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep30', '_img31' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep30" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>JBoss Logging 3</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>The JBoss Logging Framework</p>
-<p><b>URL: </b><a class="externalLink" href="http://www.jboss.org">http://www.jboss.org</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, version 2.0</a></p></td></tr></table></div></li>
-<li>com.fasterxml:classmate:jar:1.3.1 (test) <img id="_img33" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep32', '_img33' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep32" style="display:none">
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>ClassMate</th></tr>
-<tr class="b">
-<td>
-<p><b>Description: </b>Library for introspecting types with full generic information
-        including resolving of field and method types.</p>
-<p><b>URL: </b><a class="externalLink" href="http://github.com/cowtowncoder/java-classmate">http://github.com/cowtowncoder/java-classmate</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
-<li>org.apache.commons:commons-lang3:jar:3.7 (compile) <img id="_img35" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep34', '_img35' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep34" style="display:none">
+<li>org.apache.commons:commons-lang3:jar:3.7 (compile) <img id="_img29" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep28', '_img29' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep28" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Apache Commons Lang</th></tr>
@@ -539,7 +529,7 @@ config
   standard as to justify existence in java.lang.</p>
 <p><b>URL: </b><a class="externalLink" href="http://commons.apache.org/proper/commons-lang/">http://commons.apache.org/proper/commons-lang/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.jasypt:jasypt:jar:1.9.3 (compile) <img id="_img37" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep36', '_img37' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep36" style="display:none">
+<li>org.jasypt:jasypt:jar:1.9.3 (compile) <img id="_img31" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep30', '_img31' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep30" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>JASYPT: Java Simplified Encryption</th></tr>
@@ -547,8 +537,47 @@ config
 <td>
 <p><b>Description: </b>Java library which enables encryption in java apps with minimum effort.</p>
 <p><b>URL: </b><a class="externalLink" href="http://www.jasypt.org">http://www.jasypt.org</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>junit:junit:jar:4.12 (test) <img id="_img39" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep38', '_img39' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep38" style="display:none">
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
+<li>org.hibernate.validator:hibernate-validator:jar:6.0.2.Final (runtime) <img id="_img33" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep32', '_img33' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep32" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Hibernate Validator Engine</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Hibernate's Bean Validation (JSR-380) reference implementation.</p>
+<p><b>URL: </b><a class="externalLink" href="http://hibernate.org/validator/hibernate-validator">http://hibernate.org/validator/hibernate-validator</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License 2.0</a></p></td></tr></table></div>
+<ul>
+<li>org.jboss.logging:jboss-logging:jar:3.3.0.Final (runtime) <img id="_img35" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep34', '_img35' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep34" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>JBoss Logging 3</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>The JBoss Logging Framework</p>
+<p><b>URL: </b><a class="externalLink" href="http://www.jboss.org">http://www.jboss.org</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, version 2.0</a></p></td></tr></table></div></li>
+<li>com.fasterxml:classmate:jar:1.3.1 (runtime) <img id="_img37" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep36', '_img37' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep36" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>ClassMate</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Library for introspecting types with full generic information
+        including resolving of field and method types.</p>
+<p><b>URL: </b><a class="externalLink" href="http://github.com/cowtowncoder/java-classmate">http://github.com/cowtowncoder/java-classmate</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li></ul></li>
+<li>com.jpmorgan.quorum:test-util:jar:0.11-SNAPSHOT (test) <img id="_img39" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep38', '_img39' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep38" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>test-util</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
+        of private transactions for Quorum.</p>
+<p><b>URL: </b><a class="externalLink" href="https://github.com/jpmorganchase/tessera/tests/test-util">https://github.com/jpmorganchase/tessera/tests/test-util</a></p>
+<p><b>Project Licenses: </b><a href="LICENSE">The Apache License, Version 2.0</a></p></td></tr></table></div></li>
+<li>junit:junit:jar:4.12 (test) <img id="_img41" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep40', '_img41' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep40" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>JUnit</th></tr>
@@ -558,7 +587,7 @@ config
 <p><b>URL: </b><a class="externalLink" href="http://junit.org">http://junit.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License 1.0</a></p></td></tr></table></div>
 <ul>
-<li>org.hamcrest:hamcrest-core:jar:1.3 (test) <img id="_img41" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep40', '_img41' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep40" style="display:none">
+<li>org.hamcrest:hamcrest-core:jar:1.3 (test) <img id="_img43" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep42', '_img43' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep42" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Hamcrest Core</th></tr>
@@ -567,7 +596,7 @@ config
 <p><b>Description: </b>This is the core API of hamcrest matcher framework to be used by third-party framework providers. This includes the a foundation set of matcher implementations for common operations.</p>
 <p><b>URL: </b><a class="externalLink" href="https://github.com/hamcrest/JavaHamcrest/hamcrest-core">https://github.com/hamcrest/JavaHamcrest/hamcrest-core</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/bsd-license.php">New BSD License</a></p></td></tr></table></div></li></ul></li>
-<li>org.assertj:assertj-core:jar:3.9.1 (test) <img id="_img43" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep42', '_img43' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep42" style="display:none">
+<li>org.assertj:assertj-core:jar:3.9.1 (test) <img id="_img45" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep44', '_img45' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep44" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>AssertJ fluent assertions</th></tr>
@@ -576,7 +605,7 @@ config
 <p><b>Description: </b>Rich and fluent assertions for testing for Java</p>
 <p><b>URL: </b><a class="externalLink" href="http://assertj.org/assertj-core">http://assertj.org/assertj-core</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.mockito:mockito-core:jar:2.23.0 (test) <img id="_img45" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep44', '_img45' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep44" style="display:none">
+<li>org.mockito:mockito-core:jar:2.23.0 (test) <img id="_img47" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep46', '_img47' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep46" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>mockito-core</th></tr>
@@ -586,7 +615,7 @@ config
 <p><b>URL: </b><a class="externalLink" href="https://github.com/mockito/mockito">https://github.com/mockito/mockito</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="https://github.com/mockito/mockito/blob/master/LICENSE">The MIT License</a></p></td></tr></table></div>
 <ul>
-<li>net.bytebuddy:byte-buddy:jar:1.9.0 (test) <img id="_img47" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep46', '_img47' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep46" style="display:none">
+<li>net.bytebuddy:byte-buddy:jar:1.9.0 (test) <img id="_img49" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep48', '_img49' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep48" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Byte Buddy (without dependencies)</th></tr>
@@ -596,7 +625,7 @@ config
         This artifact is a build of Byte Buddy with all ASM dependencies repackaged into its own name space.</p>
 <p><b>URL: </b><a class="externalLink" href="http://bytebuddy.net/byte-buddy">http://bytebuddy.net/byte-buddy</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>net.bytebuddy:byte-buddy-agent:jar:1.9.0 (test) <img id="_img49" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep48', '_img49' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep48" style="display:none">
+<li>net.bytebuddy:byte-buddy-agent:jar:1.9.0 (test) <img id="_img51" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep50', '_img51' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep50" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Byte Buddy Java agent</th></tr>
@@ -605,7 +634,7 @@ config
 <p><b>Description: </b>The Byte Buddy Java agent allows to access the JVM's HotSwap feature.</p>
 <p><b>URL: </b><a class="externalLink" href="http://bytebuddy.net/byte-buddy-agent">http://bytebuddy.net/byte-buddy-agent</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>org.objenesis:objenesis:jar:2.6 (test) <img id="_img51" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep50', '_img51' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep50" style="display:none">
+<li>org.objenesis:objenesis:jar:2.6 (test) <img id="_img53" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep52', '_img53' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep52" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Objenesis</th></tr>
@@ -614,7 +643,7 @@ config
 <p><b>Description: </b>A library for instantiating Java objects</p>
 <p><b>URL: </b><a class="externalLink" href="http://objenesis.org">http://objenesis.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">Apache 2</a></p></td></tr></table></div></li></ul></li>
-<li>com.openpojo:openpojo:jar:0.8.10 (test) <img id="_img53" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep52', '_img53' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep52" style="display:none">
+<li>com.openpojo:openpojo:jar:0.8.10 (test) <img id="_img55" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep54', '_img55' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep54" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>openpojo</th></tr>
@@ -626,7 +655,7 @@ config
         * Simplifying identity management (hashCode / equals) using annotation.</p>
 <p><b>URL: </b><a class="externalLink" href="http://openpojo.com/">http://openpojo.com/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.apache.org/licenses/LICENSE-2.0.txt">The Apache Software License, Version 2.0</a></p></td></tr></table></div></li>
-<li>com.github.stefanbirkner:system-rules:jar:1.18.0 (test) <img id="_img55" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep54', '_img55' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep54" style="display:none">
+<li>com.github.stefanbirkner:system-rules:jar:1.18.0 (test) <img id="_img57" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep56', '_img57' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep56" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>System Rules</th></tr>
@@ -635,7 +664,7 @@ config
 <p><b>Description: </b>A collection of JUnit rules for testing code which uses java.lang.System.</p>
 <p><b>URL: </b><a class="externalLink" href="http://stefanbirkner.github.io/system-rules/">http://stefanbirkner.github.io/system-rules/</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/cpl1.0">Common Public License Version 1.0</a></p></td></tr></table></div></li>
-<li>ch.qos.logback:logback-classic:jar:1.2.3 (runtime) <img id="_img57" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep56', '_img57' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep56" style="display:none">
+<li>ch.qos.logback:logback-classic:jar:1.2.3 (runtime) <img id="_img59" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep58', '_img59' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep58" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Logback Classic Module</th></tr>
@@ -644,7 +673,7 @@ config
 <p><b>Description: </b>logback-classic module</p>
 <p><b>URL: </b><a class="externalLink" href="http://logback.qos.ch/logback-classic">http://logback.qos.ch/logback-classic</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</a>, <a class="externalLink" href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU Lesser General Public License</a></p></td></tr></table></div></li>
-<li>ch.qos.logback:logback-core:jar:1.2.3 (runtime) <img id="_img59" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep58', '_img59' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep58" style="display:none">
+<li>ch.qos.logback:logback-core:jar:1.2.3 (runtime) <img id="_img61" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep60', '_img61' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep60" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>Logback Core Module</th></tr>
@@ -653,7 +682,7 @@ config
 <p><b>Description: </b>logback-core module</p>
 <p><b>URL: </b><a class="externalLink" href="http://logback.qos.ch/logback-core">http://logback.qos.ch/logback-core</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v10.html">Eclipse Public License - v 1.0</a>, <a class="externalLink" href="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html">GNU Lesser General Public License</a></p></td></tr></table></div></li>
-<li>org.slf4j:slf4j-api:jar:1.7.5 (compile) <img id="_img61" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep60', '_img61' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep60" style="display:none">
+<li>org.slf4j:slf4j-api:jar:1.7.5 (compile) <img id="_img63" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep62', '_img63' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep62" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>SLF4J API Module</th></tr>
@@ -662,7 +691,7 @@ config
 <p><b>Description: </b>The slf4j API</p>
 <p><b>URL: </b><a class="externalLink" href="http://www.slf4j.org">http://www.slf4j.org</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.opensource.org/licenses/mit-license.php">MIT License</a></p></td></tr></table></div></li>
-<li>org.eclipse.persistence:org.eclipse.persistence.moxy:jar:2.7.3 (runtime) <img id="_img63" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep62', '_img63' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep62" style="display:none">
+<li>org.eclipse.persistence:org.eclipse.persistence.moxy:jar:2.7.3 (runtime) <img id="_img65" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep64', '_img65' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep64" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>EclipseLink Moxy</th></tr>
@@ -672,7 +701,7 @@ config
 <p><b>URL: </b><a class="externalLink" href="http://www.eclipse.org/eclipselink">http://www.eclipse.org/eclipselink</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></p></td></tr></table></div>
 <ul>
-<li>org.eclipse.persistence:org.eclipse.persistence.core:jar:2.7.3 (runtime) <img id="_img65" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep64', '_img65' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep64" style="display:none">
+<li>org.eclipse.persistence:org.eclipse.persistence.core:jar:2.7.3 (runtime) <img id="_img67" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep66', '_img67' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep66" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>EclipseLink Core</th></tr>
@@ -682,7 +711,7 @@ config
 <p><b>URL: </b><a class="externalLink" href="http://www.eclipse.org/eclipselink">http://www.eclipse.org/eclipselink</a></p>
 <p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></p></td></tr></table></div>
 <ul>
-<li>org.eclipse.persistence:org.eclipse.persistence.asm:jar:2.7.3 (runtime) <img id="_img67" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep66', '_img67' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep66" style="display:none">
+<li>org.eclipse.persistence:org.eclipse.persistence.asm:jar:2.7.3 (runtime) <img id="_img69" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep68', '_img69' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep68" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>EclipseLink ASM</th></tr>
@@ -690,8 +719,17 @@ config
 <td>
 <p><b>Description: </b>EclipseLink build based upon Git transaction 4be1041</p>
 <p><b>URL: </b><a class="externalLink" href="http://www.eclipse.org/eclipselink">http://www.eclipse.org/eclipselink</a></p>
-<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></p></td></tr></table></div></li></ul></li></ul></li>
-<li>nl.jqno.equalsverifier:equalsverifier:jar:3.1.5 (test) <img id="_img69" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep68', '_img69' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep68" style="display:none">
+<p><b>Project Licenses: </b><a class="externalLink" href="http://www.eclipse.org/legal/epl-v20.html">Eclipse Public License v. 2.0</a>, <a class="externalLink" href="http://www.eclipse.org/org/documents/edl-v10.php">Eclipse Distribution License v. 1.0</a></p></td></tr></table></div></li></ul></li>
+<li>javax.json:javax.json-api:jar:1.1.2 (compile) <img id="_img71" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep70', '_img71' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep70" style="display:none">
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>JSR 374 (JSON Processing) API</th></tr>
+<tr class="b">
+<td>
+<p><b>Description: </b>API module of JSR 374:Java API for Processing JSON</p>
+<p><b>URL: </b><a class="externalLink" href="https://javaee.github.io/jsonp">https://javaee.github.io/jsonp</a></p>
+<p><b>Project Licenses: </b><a class="externalLink" href="https://oss.oracle.com/licenses/CDDL+GPL-1.1">Dual license consisting of the CDDL v1.1 and GPL v2</a></p></td></tr></table></div></li></ul></li>
+<li>nl.jqno.equalsverifier:equalsverifier:jar:3.1.5 (test) <img id="_img73" src="./images/icon_info_sml.gif" alt="[Information]" onclick="toggleDependencyDetails( '_dep72', '_img73' );" style="cursor: pointer; vertical-align: text-bottom;"></img><div id="_dep72" style="display:none">
 <table border="0" class="bodyTable">
 <tr class="a">
 <th>EqualsVerifier</th></tr>
@@ -703,7 +741,7 @@ config
 <div class="section">
 <h2><a name="Licenses"></a>Licenses</h2>
 <p><b>Apache License, version 2.0: </b>JBoss Logging 3</p>
-<p><b>The Apache License, Version 2.0: </b>argon2, config, encryption-api, encryption-jnacl, service-locator-api, shared, test-util</p>
+<p><b>The Apache License, Version 2.0: </b>argon2, cli, config, encryption-api, encryption-jnacl, service-locator-api, shared, test-util</p>
 <p><b>Eclipse Public License 1.0: </b>JUnit</p>
 <p><b>The BSD 2-Clause License: </b>eu.neilalexander:jnacl</p>
 <p><b>MIT License: </b>SLF4J API Module</p>
@@ -714,7 +752,7 @@ config
 <p><b>Eclipse Public License v. 2.0: </b>EclipseLink ASM, EclipseLink Core, EclipseLink Moxy</p>
 <p><b>Apache License 2.0: </b>Bean Validation API, Hibernate Validator Engine</p>
 <p><b>The MIT License: </b>mockito-core</p>
-<p><b>Apache License, Version 2.0: </b>Apache Commons Lang, AssertJ fluent assertions</p>
+<p><b>Apache License, Version 2.0: </b>Apache Commons CLI, Apache Commons Lang, AssertJ fluent assertions</p>
 <p><b>CDDL + GPLv2 with classpath exception: </b>Expression Language 3.0</p>
 <p><b>GNU Lesser General Public License, Version 3: </b>Argon2 JVM</p>
 <p><b>Dual license consisting of the CDDL v1.1 and GPL v2: </b>JSR 374 (JSON Processing) API, JSR 374 (JSON Processing) Default Provider</p>
@@ -775,6 +813,14 @@ config
 <td>1.8</td>
 <td>Yes</td></tr>
 <tr class="a">
+<td>config-0.11-SNAPSHOT.jar</td>
+<td>110.3 kB</td>
+<td>122</td>
+<td>95</td>
+<td>9</td>
+<td>1.8</td>
+<td>Yes</td></tr>
+<tr class="b">
 <td>encryption-api-0.11-SNAPSHOT.jar</td>
 <td>14.4 kB</td>
 <td>31</td>
@@ -782,7 +828,7 @@ config
 <td>2</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>encryption-jnacl-0.11-SNAPSHOT.jar</td>
 <td>7.9 kB</td>
 <td>18</td>
@@ -790,7 +836,7 @@ config
 <td>1</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>service-locator-api-0.11-SNAPSHOT.jar</td>
 <td>2.8 kB</td>
 <td>13</td>
@@ -798,7 +844,7 @@ config
 <td>1</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>shared-0.11-SNAPSHOT.jar</td>
 <td>21.4 kB</td>
 <td>41</td>
@@ -806,7 +852,7 @@ config
 <td>7</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="a">
+<tr class="b">
 <td>test-util-0.11-SNAPSHOT.jar</td>
 <td>5.1 kB</td>
 <td>13</td>
@@ -814,12 +860,20 @@ config
 <td>1</td>
 <td>1.8</td>
 <td>Yes</td></tr>
-<tr class="b">
+<tr class="a">
 <td>openpojo-0.8.10.jar</td>
 <td>331.3 kB</td>
 <td>409</td>
 <td>325</td>
 <td>74</td>
+<td>1.5</td>
+<td>Yes</td></tr>
+<tr class="b">
+<td>commons-cli-1.4.jar</td>
+<td>53.8 kB</td>
+<td>40</td>
+<td>27</td>
+<td>1</td>
 <td>1.5</td>
 <td>Yes</td></tr>
 <tr class="a">
@@ -1015,37 +1069,37 @@ config
 <th>Java Version</th>
 <th>Debug Information</th></tr>
 <tr class="a">
-<td>34</td>
-<td>22.9 MB</td>
-<td>14109</td>
-<td>12887</td>
-<td>751</td>
+<td>36</td>
+<td>23.1 MB</td>
+<td>14271</td>
+<td>13009</td>
+<td>761</td>
 <td>1.8</td>
-<td>34</td></tr>
+<td>36</td></tr>
 <tr class="b">
-<td>compile: 12</td>
-<td>compile: 2.8 MB</td>
-<td>compile: 1068</td>
-<td>compile: 820</td>
-<td>compile: 71</td>
+<td>compile: 14</td>
+<td>compile: 3 MB</td>
+<td>compile: 1230</td>
+<td>compile: 942</td>
+<td>compile: 81</td>
 <td>-</td>
-<td>compile: 12</td></tr>
+<td>compile: 14</td></tr>
 <tr class="a">
-<td>test: 14</td>
-<td>test: 12.5 MB</td>
-<td>test: 9389</td>
-<td>test: 8819</td>
-<td>test: 409</td>
+<td>test: 11</td>
+<td>test: 11.3 MB</td>
+<td>test: 8410</td>
+<td>test: 7976</td>
+<td>test: 333</td>
 <td>-</td>
-<td>test: 14</td></tr>
+<td>test: 11</td></tr>
 <tr class="b">
-<td>runtime: 8</td>
-<td>runtime: 7.6 MB</td>
-<td>runtime: 3652</td>
-<td>runtime: 3248</td>
-<td>runtime: 271</td>
+<td>runtime: 11</td>
+<td>runtime: 8.8 MB</td>
+<td>runtime: 4631</td>
+<td>runtime: 4091</td>
+<td>runtime: 347</td>
 <td>-</td>
-<td>runtime: 8</td></tr></table></div>
+<td>runtime: 11</td></tr></table></div>
       </div>
     </div>
     <div class="clear">
