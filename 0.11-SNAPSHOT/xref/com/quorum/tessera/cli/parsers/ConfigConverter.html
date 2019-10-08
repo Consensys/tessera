@@ -22,8 +22,8 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a href="../../../../../com/quorum/tessera/cli/parsers/ConfigConverter.html">ConfigConverter</a> <strong class="jxr_keyword">implements</strong> CommandLine.ITypeConverter&lt;Config&gt; {
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>      @Override
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">public</strong> <a href="../../../../../com/quorum/tessera/config/Config.html">Config</a> convert(<strong class="jxr_keyword">final</strong> String value) <strong class="jxr_keyword">throws</strong> Exception {
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>          <strong class="jxr_keyword">final</strong> <a href="../../../../../com/quorum/tessera/config/ConfigFactory.html">ConfigFactory</a> configFactory = ConfigFactory.create();
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">public</strong> Config convert(<strong class="jxr_keyword">final</strong> String value) <strong class="jxr_keyword">throws</strong> Exception {
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>          <strong class="jxr_keyword">final</strong> ConfigFactory configFactory = ConfigFactory.create();
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>          <strong class="jxr_keyword">final</strong> Path path = Paths.get(value);
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  

@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>config &#x2013; SpotBugs Bug Detector Report</title>
+    <title>cli-api &#x2013; SpotBugs Bug Detector Report</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -16,7 +16,7 @@
   <body class="composite">
     <div id="banner">
 <div id="bannerLeft">
-config
+cli-api
 </div>
       <div class="clear">
         <hr/>
@@ -27,7 +27,7 @@ config
         <span id="publishDate">Last Published: 2019-10-08</span>
           &nbsp;| <span id="projectVersion">Version: 0.11-SNAPSHOT</span>
       </div>
-      <div class="xright"><a href="./" title="config">config</a>      </div>
+      <div class="xright"><a href="./" title="cli-api">cli-api</a>      </div>
       <div class="clear">
         <hr/>
       </div>
@@ -36,7 +36,7 @@ config
       <div id="navcolumn">
        <h5>Parent Project</h5>
     <ul>
-     <li class="none"><a href="../index.html" title="tessera">tessera</a></li>
+     <li class="none"><a href="../index.html" title="cli">cli</a></li>
     </ul>
        <h5>Project Documentation</h5>
     <ul>
@@ -49,8 +49,6 @@ config
        <li class="none"><a href="apidocs/index.html" title="Javadoc">Javadoc</a></li>
        <li class="none"><a href="jacoco/index.html" title="JaCoCo">JaCoCo</a></li>
        <li class="none"><strong>SpotBugs</strong></li>
-       <li class="none"><a href="cpd.html" title="CPD">CPD</a></li>
-       <li class="none"><a href="pmd.html" title="PMD">PMD</a></li>
        <li class="none"><a href="xref/index.html" title="Source Xref">Source Xref</a></li>
        <li class="none"><a href="xref-test/index.html" title="Test Source Xref">Test Source Xref</a></li>
        <li class="none"><a href="checkstyle.html" title="Checkstyle">Checkstyle</a></li>
@@ -78,10 +76,10 @@ config
 <th>Errors</th>
 <th>Missing Classes</th></tr>
 <tr class="b">
-<td>95</td>
-<td>12</td>
+<td>14</td>
+<td>8</td>
 <td>0</td>
-<td>5</td></tr></table></div>
+<td>4</td></tr></table></div>
 <div class="section">
 <h2><a name="Files"></a>Files</h2>
 <table border="0" class="bodyTable">
@@ -89,25 +87,19 @@ config
 <th>Class</th>
 <th>Bugs</th></tr>
 <tr class="b">
-<td><a href="#com.quorum.tessera.config.adapters.PathAdapter">com.quorum.tessera.config.adapters.PathAdapter</a></td>
+<td><a href="#com.quorum.tessera.cli.parsers.ConfigConverter">com.quorum.tessera.cli.parsers.ConfigConverter</a></td>
 <td>1</td></tr>
 <tr class="a">
-<td><a href="#com.quorum.tessera.config.apps.TesseraAppFactory">com.quorum.tessera.config.apps.TesseraAppFactory</a></td>
+<td><a href="#com.quorum.tessera.cli.parsers.ConfigurationParser">com.quorum.tessera.cli.parsers.ConfigurationParser</a></td>
 <td>2</td></tr>
 <tr class="b">
-<td><a href="#com.quorum.tessera.config.constraints.ServerAddressValidator">com.quorum.tessera.config.constraints.ServerAddressValidator</a></td>
-<td>1</td></tr>
+<td><a href="#com.quorum.tessera.cli.parsers.PidFileMixin">com.quorum.tessera.cli.parsers.PidFileMixin</a></td>
+<td>2</td></tr>
 <tr class="a">
-<td><a href="#com.quorum.tessera.config.constraints.ServerConfigValidator">com.quorum.tessera.config.constraints.ServerConfigValidator</a></td>
-<td>1</td></tr>
-<tr class="b">
-<td><a href="#com.quorum.tessera.config.keys.KeyEncryptorImpl">com.quorum.tessera.config.keys.KeyEncryptorImpl</a></td>
-<td>5</td></tr>
-<tr class="a">
-<td><a href="#com.quorum.tessera.config.util.JaxbUtil">com.quorum.tessera.config.util.JaxbUtil</a></td>
-<td>2</td></tr></table></div><a name="com.quorum.tessera.config.adapters.PathAdapter"></a>
+<td><a href="#com.quorum.tessera.cli.parsers.PidFileParser">com.quorum.tessera.cli.parsers.PidFileParser</a></td>
+<td>3</td></tr></table></div><a name="com.quorum.tessera.cli.parsers.ConfigConverter"></a>
 <div class="section">
-<h3><a name="com.quorum.tessera.config.adapters.PathAdapter"></a>com.quorum.tessera.config.adapters.PathAdapter</h3>
+<h3><a name="com.quorum.tessera.cli.parsers.ConfigConverter"></a>com.quorum.tessera.cli.parsers.ConfigConverter</h3>
 <table border="0" class="bodyTable">
 <tr class="b">
 <th>Bug</th>
@@ -119,10 +111,10 @@ config
 <td>java/nio/file/Paths.get(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path; reads a file whose location might be specified by user input</td>
 <td>SECURITY</td>
 <td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#PATH_TRAVERSAL_IN">PATH_TRAVERSAL_IN</a></td>
-<td><a href="./xref/com/quorum/tessera/config/adapters/PathAdapter.html#L14">14</a></td>
-<td>Medium</td></tr></table></div><a name="com.quorum.tessera.config.apps.TesseraAppFactory"></a>
+<td><a href="./xref/com/quorum/tessera/cli/parsers/ConfigConverter.html#L20">20</a></td>
+<td>Medium</td></tr></table></div><a name="com.quorum.tessera.cli.parsers.ConfigurationParser"></a>
 <div class="section">
-<h3><a name="com.quorum.tessera.config.apps.TesseraAppFactory"></a>com.quorum.tessera.config.apps.TesseraAppFactory</h3>
+<h3><a name="com.quorum.tessera.cli.parsers.ConfigurationParser"></a>com.quorum.tessera.cli.parsers.ConfigurationParser</h3>
 <table border="0" class="bodyTable">
 <tr class="b">
 <th>Bug</th>
@@ -131,106 +123,64 @@ config
 <th>Line</th>
 <th>Priority</th></tr>
 <tr class="a">
-<td>This use of org/slf4j/Logger.info(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
+<td>java/nio/file/Paths.get(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path; reads a file whose location might be specified by user input</td>
+<td>SECURITY</td>
+<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#PATH_TRAVERSAL_IN">PATH_TRAVERSAL_IN</a></td>
+<td><a href="./xref/com/quorum/tessera/cli/parsers/ConfigurationParser.html#L68">68</a></td>
+<td>Medium</td></tr>
+<tr class="b">
+<td>java/nio/file/Paths.get(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path; reads a file whose location might be specified by user input</td>
+<td>SECURITY</td>
+<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#PATH_TRAVERSAL_IN">PATH_TRAVERSAL_IN</a></td>
+<td><a href="./xref/com/quorum/tessera/cli/parsers/ConfigurationParser.html#L43">43</a></td>
+<td>Medium</td></tr></table></div><a name="com.quorum.tessera.cli.parsers.PidFileMixin"></a>
+<div class="section">
+<h3><a name="com.quorum.tessera.cli.parsers.PidFileMixin"></a>com.quorum.tessera.cli.parsers.PidFileMixin</h3>
+<table border="0" class="bodyTable">
+<tr class="a">
+<th>Bug</th>
+<th>Category</th>
+<th>Details</th>
+<th>Line</th>
+<th>Priority</th></tr>
+<tr class="b">
+<td>This use of org/slf4j/Logger.info(Ljava/lang/String;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
 <td>SECURITY</td>
 <td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/apps/TesseraAppFactory.html#L30">30</a></td>
+<td><a href="./xref/com/quorum/tessera/cli/parsers/PidFileMixin.html#L31">31</a></td>
+<td>Low</td></tr>
+<tr class="a">
+<td>This use of org/slf4j/Logger.info(Ljava/lang/String;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
+<td>SECURITY</td>
+<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
+<td><a href="./xref/com/quorum/tessera/cli/parsers/PidFileMixin.html#L33">33</a></td>
+<td>Low</td></tr></table></div><a name="com.quorum.tessera.cli.parsers.PidFileParser"></a>
+<div class="section">
+<h3><a name="com.quorum.tessera.cli.parsers.PidFileParser"></a>com.quorum.tessera.cli.parsers.PidFileParser</h3>
+<table border="0" class="bodyTable">
+<tr class="b">
+<th>Bug</th>
+<th>Category</th>
+<th>Details</th>
+<th>Line</th>
+<th>Priority</th></tr>
+<tr class="a">
+<td>This use of org/slf4j/Logger.info(Ljava/lang/String;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
+<td>SECURITY</td>
+<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
+<td><a href="./xref/com/quorum/tessera/cli/parsers/PidFileParser.html#L31">31</a></td>
 <td>Low</td></tr>
 <tr class="b">
 <td>This use of org/slf4j/Logger.info(Ljava/lang/String;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
 <td>SECURITY</td>
 <td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/apps/TesseraAppFactory.html#L26">26</a></td>
-<td>Low</td></tr></table></div><a name="com.quorum.tessera.config.constraints.ServerAddressValidator"></a>
-<div class="section">
-<h3><a name="com.quorum.tessera.config.constraints.ServerAddressValidator"></a>com.quorum.tessera.config.constraints.ServerAddressValidator</h3>
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Bug</th>
-<th>Category</th>
-<th>Details</th>
-<th>Line</th>
-<th>Priority</th></tr>
-<tr class="b">
-<td>This use of org/slf4j/Logger.debug(Ljava/lang/String;Ljava/lang/Throwable;)V might be used to include CRLF characters into log messages</td>
-<td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/constraints/ServerAddressValidator.html#L39">39</a></td>
-<td>Low</td></tr></table></div><a name="com.quorum.tessera.config.constraints.ServerConfigValidator"></a>
-<div class="section">
-<h3><a name="com.quorum.tessera.config.constraints.ServerConfigValidator"></a>com.quorum.tessera.config.constraints.ServerConfigValidator</h3>
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Bug</th>
-<th>Category</th>
-<th>Details</th>
-<th>Line</th>
-<th>Priority</th></tr>
-<tr class="b">
-<td>This use of org/slf4j/Logger.debug(Ljava/lang/String;)V might be used to include CRLF characters into log messages</td>
-<td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/constraints/ServerConfigValidator.html#L22">22</a></td>
-<td>Low</td></tr></table></div><a name="com.quorum.tessera.config.keys.KeyEncryptorImpl"></a>
-<div class="section">
-<h3><a name="com.quorum.tessera.config.keys.KeyEncryptorImpl"></a>com.quorum.tessera.config.keys.KeyEncryptorImpl</h3>
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Bug</th>
-<th>Category</th>
-<th>Details</th>
-<th>Line</th>
-<th>Priority</th></tr>
-<tr class="b">
-<td>This use of org/slf4j/Logger.debug(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
-<td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/keys/KeyEncryptorImpl.html#L105">105</a></td>
+<td><a href="./xref/com/quorum/tessera/cli/parsers/PidFileParser.html#L34">34</a></td>
 <td>Low</td></tr>
 <tr class="a">
-<td>This use of org/slf4j/Logger.debug(Ljava/lang/String;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
+<td>java/nio/file/Paths.get(Ljava/lang/String;[Ljava/lang/String;)Ljava/nio/file/Path; reads a file whose location might be specified by user input</td>
 <td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/keys/KeyEncryptorImpl.html#L129">129</a></td>
-<td>Low</td></tr>
-<tr class="b">
-<td>This use of org/slf4j/Logger.debug(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
-<td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/keys/KeyEncryptorImpl.html#L50">50</a></td>
-<td>Low</td></tr>
-<tr class="a">
-<td>This use of org/slf4j/Logger.debug(Ljava/lang/String;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
-<td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/keys/KeyEncryptorImpl.html#L55">55</a></td>
-<td>Low</td></tr>
-<tr class="b">
-<td>This use of org/slf4j/Logger.debug(Ljava/lang/String;Ljava/lang/Object;)V might be used to include CRLF characters into log messages</td>
-<td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#CRLF_INJECTION_LOGS">CRLF_INJECTION_LOGS</a></td>
-<td><a href="./xref/com/quorum/tessera/config/keys/KeyEncryptorImpl.html#L75">75</a></td>
-<td>Low</td></tr></table></div><a name="com.quorum.tessera.config.util.JaxbUtil"></a>
-<div class="section">
-<h3><a name="com.quorum.tessera.config.util.JaxbUtil"></a>com.quorum.tessera.config.util.JaxbUtil</h3>
-<table border="0" class="bodyTable">
-<tr class="a">
-<th>Bug</th>
-<th>Category</th>
-<th>Details</th>
-<th>Line</th>
-<th>Priority</th></tr>
-<tr class="b">
-<td>The use of TransformerFactory.newInstance(...) is vulnerable to XML External Entity attacks</td>
-<td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#XXE_DTD_TRANSFORM_FACTORY">XXE_DTD_TRANSFORM_FACTORY</a></td>
-<td><a href="./xref/com/quorum/tessera/config/util/JaxbUtil.html#L146">146</a></td>
-<td>Medium</td></tr>
-<tr class="a">
-<td>The use of TransformerFactory.newInstance(...) is vulnerable to XSLT External Entity attacks</td>
-<td>SECURITY</td>
-<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#XXE_XSLT_TRANSFORM_FACTORY">XXE_XSLT_TRANSFORM_FACTORY</a></td>
-<td><a href="./xref/com/quorum/tessera/config/util/JaxbUtil.html#L146">146</a></td>
+<td><a class="externalLink" href="https://spotbugs.readthedocs.io/en/latest/bugDescriptions.html#PATH_TRAVERSAL_IN">PATH_TRAVERSAL_IN</a></td>
+<td><a href="./xref/com/quorum/tessera/cli/parsers/PidFileParser.html#L28">28</a></td>
 <td>Medium</td></tr></table></div>
       </div>
     </div>

@@ -1,9 +1,3 @@
-com.quorum.tessera.config
-com.quorum.tessera.config.adapters
-com.quorum.tessera.config.apps
-com.quorum.tessera.config.constraints
-com.quorum.tessera.config.keypairs
-com.quorum.tessera.config.keys
-com.quorum.tessera.config.util
-com.quorum.tessera.config.util.jaxb
-com.quorum.tessera.config.vault.data
+com.quorum.tessera.cli
+com.quorum.tessera.cli.keypassresolver
+com.quorum.tessera.cli.parsers
