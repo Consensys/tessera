@@ -201,7 +201,7 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
 
         verify(enclave).getForwardingKeys();
-        verify(enclave).getPublicKeys();
+        verify(enclave,times(2)).getPublicKeys();
     }
 
     @Test
