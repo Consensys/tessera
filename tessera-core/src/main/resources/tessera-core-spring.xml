@@ -35,6 +35,7 @@
                 <constructor-arg ref="config" />
             </bean>  
         </constructor-arg>
+        <constructor-arg value="#{config.getJdbcConfig().getFetchSize() > 0 ? config.getJdbcConfig().getFetchSize() : 1000}"/>
     </bean>
 
     <bean id="cliDelegate" class="com.quorum.tessera.cli.CliDelegate" factory-method="instance"/>
