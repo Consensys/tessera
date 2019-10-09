@@ -12,6 +12,23 @@
         <version>0.11-SNAPSHOT</version>
     </parent>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.github.tomakehurst</groupId>
+                <artifactId>wiremock-jre8</artifactId>
+                <version>2.24.1</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse.jetty</groupId>
+                        <artifactId>jetty-webapp</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <dependency>
@@ -103,7 +120,6 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
-            <version>2.24.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -204,7 +220,10 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
+                        
+                        <include>RestSuiteP2pWebsocketH2</include>
                         <include>CucumberFileKeyGenerationIT</include>
+                        <include>RestSuiteUnixH2</include>
                         <include>AdminRestSuite</include>
                         <include>RestSuite</include>
                         <include>RestSuiteUnixH2</include>
@@ -213,6 +232,7 @@
                         <include>P2pTestSuite</include>
                         <include>GrpcSuite</include>
                         <include>SendWithRemoteEnclaveReconnectIT</include>
+
                     </includes>
                 </configuration>
                 <executions>

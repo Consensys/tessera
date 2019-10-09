@@ -38,13 +38,14 @@ public class EnclaveKeySynchroniserTest {
         when(configService.getServerUri()).thenReturn(new URI(URL));
 
         this.enclave = mock(Enclave.class);
-        this.partyInfoStore = new PartyInfoStore(new URI(URL));
+        this.partyInfoStore = PartyInfoStore.create(URI.create(URL));
 
         this.enclaveKeySynchroniser = new EnclaveKeySynchroniser(enclave, partyInfoStore, configService);
     }
 
     @After
     public void after() {
+        PartyInfoStoreImpl.INSTANCE.clear();
         verifyNoMoreInteractions(enclave, configService);
     }
 

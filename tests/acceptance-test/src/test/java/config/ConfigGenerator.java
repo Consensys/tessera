@@ -102,8 +102,9 @@ public class ConfigGenerator {
                     .getPrefix()
                     .map(v -> Paths.get(baseUri).resolve(v))
                     .orElse(Paths.get(baseUri))
-                    .resolve(executionContext.getCommunicationType().name().toLowerCase())
+                    .resolve("q2t-" + executionContext.getCommunicationType().name().toLowerCase())
                     .resolve(executionContext.getSocketType().name().toLowerCase())
+                    .resolve("p2p-" + executionContext.getP2pCommunicationType().name().toLowerCase())
                     .resolve(executionContext.getDbType().name().toLowerCase())
                     .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
         } catch (URISyntaxException ex) {

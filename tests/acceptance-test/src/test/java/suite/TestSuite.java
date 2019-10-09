@@ -15,12 +15,18 @@ import org.junit.runners.model.RunnerBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestSuite extends Suite {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TestSuite.class);
 
     private ProcessConfiguration testConfig;
 
@@ -39,12 +45,19 @@ public class TestSuite extends Suite {
         try {
 
             if (testConfig == null) {
+
                 final ProcessConfig annotatedConfig =
                         Arrays.stream(getRunnerAnnotations())
                                 .filter(ProcessConfig.class::isInstance)
                                 .map(ProcessConfig.class::cast)
                                 .findAny()
                                 .orElseThrow(() -> new AssertionError("No Test config found"));
+
+                com.quorum.tessera.config.CommunicationType p2pCommType =
+                        Optional.of(annotatedConfig.p2pCommunicationType())
+                                .filter(v -> !Objects.equals("NONE", v))
+                                .map(com.quorum.tessera.config.CommunicationType::valueOf)
+                                .orElse(annotatedConfig.communicationType());
 
                 this.testConfig =
                         new ProcessConfiguration(
@@ -53,7 +66,10 @@ public class TestSuite extends Suite {
                                 annotatedConfig.socketType(),
                                 annotatedConfig.enclaveType(),
                                 annotatedConfig.admin(),
-                                annotatedConfig.prefix());
+                                annotatedConfig.prefix(),
+                                annotatedConfig.p2pSsl());
+
+                this.testConfig.setP2pCommunicationType(p2pCommType);
             }
 
             ExecutionContext executionContext =
@@ -62,8 +78,10 @@ public class TestSuite extends Suite {
                             .with(testConfig.getDbType())
                             .with(testConfig.getSocketType())
                             .with(testConfig.getEnclaveType())
+                            .withP2pCommunicationType(testConfig.getP2pCommunicationType())
                             .withAdmin(testConfig.isAdmin())
                             .prefix(testConfig.getPrefix())
+                            .withP2pSsl(testConfig.isP2pSsl())
                             .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
@@ -92,7 +110,7 @@ public class TestSuite extends Suite {
                                 executors.add(exec);
                             });
 
-            PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getCommunicationType());
+            PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getP2pCommunicationType());
 
             CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
             ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -101,9 +119,11 @@ public class TestSuite extends Suite {
                         while (!partyInfoChecker.hasSynced()) {
                             try {
                                 Thread.sleep(1000L);
+                                LOGGER.info("Failed to sync retrying");
                             } catch (InterruptedException ex) {
                             }
                         }
+                        LOGGER.info("All nodes have synced party info");
                         partyInfoSyncLatch.countDown();
                     });
 
@@ -111,6 +131,7 @@ public class TestSuite extends Suite {
                 Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
                 notifier.fireTestFailure(new Failure(de, new IllegalStateException("Unable to sync party info nodes")));
             }
+
             executorService.shutdown();
 
             super.run(notifier);

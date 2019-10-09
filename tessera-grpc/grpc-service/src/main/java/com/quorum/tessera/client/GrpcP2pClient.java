@@ -5,7 +5,7 @@ import com.quorum.tessera.grpc.p2p.Convertor;
 
 import java.util.Objects;
 
-public class GrpcP2pClient implements P2pClient {
+public class GrpcP2pClient implements P2pClient<com.quorum.tessera.partyinfo.ResendRequest> {
 
     private final GrpcClientFactory grpcClientFactory;
 

@@ -13,10 +13,22 @@ public interface P2pClientFactory {
     CommunicationType communicationType();
 
     static P2pClientFactory newFactory(Config config) {
+
         // TODO: return the stream and let the caller deal with it
         return ServiceLoaderUtil.loadAll(P2pClientFactory.class)
                 .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
                 .findFirst()
-                .get();
+                .orElse(
+                        new P2pClientFactory() {
+                            @Override
+                            public P2pClient create(Config config) {
+                                return null;
+                            }
+
+                            @Override
+                            public CommunicationType communicationType() {
+                                return config.getP2PServerConfig().getCommunicationType();
+                            }
+                        });
     }
 }
