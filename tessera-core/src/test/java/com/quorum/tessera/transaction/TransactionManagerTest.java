@@ -197,8 +197,8 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
 
-        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
-        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
+        verify(payloadPublisher).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
+        verify(payloadPublisher).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
 
         verify(enclave).getForwardingKeys();
         verify(enclave).getPublicKeys();
