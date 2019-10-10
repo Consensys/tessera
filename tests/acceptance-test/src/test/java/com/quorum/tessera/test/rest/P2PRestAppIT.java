@@ -1,6 +1,6 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.config.Version;
+import com.quorum.tessera.api.Version;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.*;

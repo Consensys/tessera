@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.common;
 
-import com.quorum.tessera.config.Version;
+import com.quorum.tessera.api.Version;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiOperation;
