@@ -1,0 +1,60 @@
+version: 2
+jobs:
+  build: # runs not using Workflows must have a `build` job as entry point
+    working_directory: ~/tessera
+
+    docker:
+      - image: circleci/openjdk:8-jdk-stretch
+
+    steps:
+
+      - checkout # check out source code to working directory
+
+      - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
+          # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          key: tessera-{{ checksum "pom.xml" }}
+      
+      - run: 
+          name: Download dependencies
+          command: | 
+            mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+
+      - save_cache: # saves the project dependencies
+          paths:
+            - ~/.m2
+          key: tessera-{{ checksum "pom.xml" }}
+          
+      - run: 
+          name: Build no checks
+          command: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true
+          environment: 
+            MAVEN_OPTS: -Xms512m -Xmx1024m
+          
+      - run: 
+          name: Unit Tests
+          command: mvn test -pl \!tests/acceptance-test  -o 
+      
+#      - run: 
+#          name: Integration Tests Vault
+#          command: | 
+#            wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
+#            mkdir -p vault/bin && pushd $_
+#            unzip /tmp/vault_1.2.2_linux_amd64.zip
+#            export PATH=$PATH:$PWD && popd
+#            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o 
+#          environment: 
+#            MAVEN_OPTS: -Xms1024m -Xmx2048m
+      
+#      - run: 
+#          name: Integration Tests RestSuiteUnixH2
+#          command:  mvn verify -pl tests/acceptance-test -P reduce-logging -o -Dit.test=RestSuiteUnixH2
+#          environment: 
+#            MAVEN_OPTS: -Xms2048m -Xmx4096m
+            
+      
+#      - store_test_results: # uploads the test metadata from the `target/surefire-reports` directory so that it can show up in the CircleCI dashboard. 
+#          path: target/surefire-reports
+      
+#      - store_artifacts: # store the uberjar as an artifact
+#          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
+
