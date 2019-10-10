@@ -10,11 +10,13 @@ install: true
 
 stages:
   - name: test
-    if: type = pull_request OR type = api OR (branch = master AND type = push)
-#  - name: deploy only
-#    if: branch = master AND type = push
+    if: type = pull_request OR type = api OR (branch = mainline AND type = push)
+  - name: integration_tests
+    if: branch = mainline AND type = push
+  - name: acceptence_tests
+    if: branch = mainline AND type = push
   - name: tag and deploy
-    if: type = api
+    if: branch = mainline AND type = push
 
 jobs:
   include:
@@ -31,12 +33,13 @@ jobs:
       install: *build_no_checks
       script: *build_with_unittests
 
-    - name: "Acceptance Tests Java 8"
+    - stage: integration_tests
+      name: "Integration Tests Java 8"
       jdk:  oraclejdk8
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
 
-    - name: "Acceptance Tests Java 11"
+    - name: "Integration Tests Java 11"
       jdk:  oraclejdk11
 #      before_install:
 #        - rm "${JAVA_HOME}/lib/security/cacerts"
@@ -44,12 +47,12 @@ jobs:
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
 
-    - name: "Simple Only Acceptance Tests"
+    - name: "Simple Only Integration Tests Java 8"
       jdk:  oraclejdk8
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
 
-    - name: "Vault Acceptance Tests Java 8"
+    - name: "Vault Integration Tests Java 8"
       jdk:  oraclejdk8
       before_install: &install_hashicorp
         - wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
@@ -57,26 +60,86 @@ jobs:
         - unzip /tmp/vault_1.2.2_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
+      script: 
+        - mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
 
-    - name: "Vault Acceptance Tests Java 11"
+    - name: "Vault Integration Tests Java 11"
       jdk:  oraclejdk11
       before_install: *install_hashicorp
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
-
-#    - stage: deploy only
-#      name: "Deploy to OSSRH"
-#      jdk:  oraclejdk8
-#      script:
-#        - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
-#        - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-#        - travis_wait 60 mvn deploy --settings .maven.xml -B -P release,reduce-logging -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Djavadoc.skip=true || travis_terminate 1
+      
+    - stage: acceptence_tests
+      name: "Quorum acceptence tests Java 8"
+      jdk: oraclejdk8
+      before_install: &install_gauge_dependencies
+        - echo "Install geth"
+        - curl -L https://dl.bintray.com/quorumengineering/quorum/v2.3.0/geth_v2.3.0_linux_amd64.tar.gz -o geth.tar.gz
+        - tar xvzf geth.tar.gz
+        - sudo mv geth /usr/local/bin/
+        - geth version
+        - echo "Installed geth"
+        - echo "Install solc"
+        - curl -L https://github.com/ethereum/solidity/releases/download/v0.5.4/solc-static-linux -o solc
+        - sudo mv solc /usr/local/bin/
+        - sudo chmod 755 /usr/local/bin/solc
+        - solc --version
+        - echo "Installed solc"
+        - echo "Install gauge"
+        - curl -L https://github.com/getgauge/gauge/releases/download/v1.0.4/gauge-1.0.4-linux.x86_64.zip -o gauge.zip
+        - sudo unzip -o gauge.zip -d /usr/local/bin
+        - gauge telemetry off
+        - gauge install
+        - echo "Installed gauge"
+        
+      install: *build_no_checks
+      script: 
+        - git clone https://github.com/jpmorganchase/quorum-examples.git
+        - git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
+        - export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+        - export TESSERA_JAR=$HOME/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
+        - echo "Start $TESSERA_JAR for 7 nodes"
+        - cd quorum-examples/examples/7nodes
+        - ./tessera-init.sh
+        - ./init.sh istanbul
+        - ./start.sh istanbul tessera
+        - cd ../../../
+        - echo "Started $TESSERA_JAR for 7 nodes"
+        - echo "Run quorum-acceptance-tests"
+        - cd quorum-acceptance-tests
+        - cp config/application-local.7nodes.yml config/application-local.yml 
+        - mvn test
+        - echo "Complete quorum-acceptance-tests"
+        
+    - name: "Quorum acceptence tests Java 11"
+      jdk: oraclejdk11
+      before_install: *install_gauge_dependencies
+      install: *build_no_checks
+      script: 
+        - git clone https://github.com/jpmorganchase/quorum-examples.git
+        - git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
+        - export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+        - export TESSERA_JAR=$HOME/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-jdk11_app.jar
+        - echo "Start $TESSERA_JAR for 7 nodes"
+        - cd quorum-examples/examples/7nodes
+        - ./tessera-init.sh
+        - ./init.sh istanbul
+        - ./start.sh istanbul tessera
+        - cd ../../../
+        - echo "Started $TESSERA_JAR for 7 nodes"
+        - echo "Run quorum-acceptance-tests"
+        - cd quorum-acceptance-tests
+        - cp config/application-local.7nodes.yml config/application-local.yml 
+        - mvn test
+        - echo "Complete quorum-acceptance-tests"
 
     - stage: tag and deploy
       name: "Tag on GitHub and deploy to OSSRH"
-      jdk:  oraclejdk8
-      script:
+      jdk:  
+       - oraclejdk8
+       - oraclejdk11
+      before_install: &prepare_deploy
+        - echo -e "machine github.com\n login $GITHUB_USERNAME\n password $GITHUB_TOKEN" > ~/.netrc
         - head_ref=$(git rev-parse HEAD) || travis_terminate 1
         - branch_ref=$(git rev-parse "$TRAVIS_BRANCH") || travis_terminate 1
         - |
@@ -84,21 +147,34 @@ jobs:
             echo "HEAD ref ($head_ref) does not match $TRAVIS_BRANCH ref ($branch_ref).  New commits may have been pushed before the build cloned the repo"
           return 0
           fi
-        - git checkout $TRAVIS_BRANCH || travis_terminate 1
-        - release_version=`mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec`
-        - branch_name="release-${release_version}"
-
-        # prepare current branch for release, create release branch, increment development version on current branch
-        - mvn --settings .maven.xml -B -DbranchName=${branch_name} release:branch || travis_terminate 1
-        - git checkout $branch_name || travis_terminate 1
-
-        # remove SNAPSHOT version suffix, create a tag in GitHub, increment development version on release branch
-        - mvn --settings .maven.xml -B -DpushChanges=true release:prepare || travis_terminate 1
-
+        - export now=`date +%d%m%Y%H%M%S`
+        - git checkout -b release-$now
+        - mvn --settings .maven.xml build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.$now versions:commit -B  || travis_terminate 1
+        - export new_version=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+        - git add \*/pom.xml || travis_terminate 1
+        - git commit -m "Change pom versions to $new_version" || travis_terminate 1
+        - export tag_version=tessera-$new_version
+        - git tag -a $tag_version -m "Create $tag_version" || travis_terminate 1
+       # - git push origin $tag_version || travis_terminate 1
         # check out tag from GitHub, build then deploy to OSSRH
         - echo $GPG_SECRET_KEYS | base64 --decode | gpg --import
         - echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-        - mvn --settings .maven.xml -B release:perform || travis_terminate 1
+      before_cache:
+        - echo "Skip before cache"
+        - travis_terminate 0
+      script: 
+        - echo "Deploying $new_version"
+        #- mvn --settings .maven.xml -B deploy -P release,reduce-logging -pl \!tests/acceptance-test -Dorg.slf4j.simpleLogger.log.org.apache.maven.cl‌​i.transfer.Slf4jMave‌​nTransferListener=warn -DskipTests  || travis_terminate 1
+        - mvn -v
+        - echo "Deployed $new_version"
+        - jdk_switcher use oraclejdk11 || travis_terminate 1
+        - mvn -v
+        - echo "Deploying java 11 jar $new_version"
+#        - mvn clean install -Dsilent=true -Dmaven.javadoc.skip=true -pl \!tests/acceptance-test -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B || travis_terminate 1
+#        - mvn --settings .maven.xml -B deploy -P release,reduce-logging -pl tessera-dist/tessera-app || travis_terminate 1
+        - echo "Deployed java 11 jar $new_version"
+        
+        - travis_terminate 0
 
 #    - if: branch = travis_changes AND type = push
 #      name: "Deploy site"
