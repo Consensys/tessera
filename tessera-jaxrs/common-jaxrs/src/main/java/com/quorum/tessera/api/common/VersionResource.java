@@ -1,5 +1,6 @@
 package com.quorum.tessera.api.common;
 
+import com.quorum.tessera.config.Version;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiOperation;
@@ -18,7 +19,7 @@ public class VersionResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VersionResource.class);
 
-    private static final String VERSION = "No version defined yet!";
+    private static final String VERSION = Version.getVersion();
 
     /**
      * An endpoint describing the current version of the application
