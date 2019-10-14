@@ -7,6 +7,7 @@ import picocli.CommandLine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,10 @@ import static picocli.CommandLine.Model.CommandSpec.DEFAULT_COMMAND_NAME;
 
 public enum CliDelegate {
     INSTANCE;
+
+    private static final CliResult HELP_RESULT = new CliResult(0, true, null);
+
+    private static final CliResult DEFAULT_RESULT = new CliResult(1, true, null);
 
     private Config config;
 
@@ -71,32 +76,14 @@ public enum CliDelegate {
         }
 
         // otherwise, set the config object (if there is one) and return
-        final CliResult result = this.getResult(commandLine.getParseResult());
+        final CliResult result =
+                commandLine.getParseResult().asCommandLineList().stream()
+                        .map(cl -> cl.isUsageHelpRequested() ? HELP_RESULT : cl.getExecutionResult())
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElse(DEFAULT_RESULT);
+
         this.config = result.getConfig().orElse(null);
         return result;
-    }
-
-    // checks all the commands thats ran for a result, and returns it, or null otherwise
-    public CliResult getResult(final CommandLine.ParseResult parseResult) {
-        if (parseResult == null) {
-            // we've reached the end of the line and still not found our result,
-            // don't start the app and let the console output show the user what happened
-
-            // note: this is a normal case when required options are not given.
-            // exit code of 1 is a generic error code, specific exceptions are handled in the Main method
-            return new CliResult(1, true, null);
-        }
-
-        final CliResult result = parseResult.commandSpec().commandLine().getExecutionResult();
-        if (result != null) {
-            return result;
-        }
-
-        // we used the help option, let the application exit gracefully
-        if (parseResult.isUsageHelpRequested()) {
-            return new CliResult(0, true, null);
-        }
-
-        return getResult(parseResult.subcommand());
     }
 }
