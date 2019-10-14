@@ -60,12 +60,6 @@ public class CliDelegateTest {
 
     // PicoCLI tests
     @Test
-    public void nullResultReturnsDefaultCliResult() {
-        final CliResult result = instance.getResult(null);
-        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
-    }
-
-    @Test
     public void nonnullResultReturnsResult() throws Exception {
         final CliResult result = new CliResult(0, true, null);
         MockSubcommandCliAdapter.setResult(result);
