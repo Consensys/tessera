@@ -28,13 +28,21 @@
     </dependencyManagement>
     
     <dependencies>
+        
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>mock-service-locator</artifactId>
-            <version>0.11-SNAPSHOT</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+        
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-server</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+        
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-api</artifactId>
@@ -73,6 +81,11 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>mock-websocket-container</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-client</artifactId>
         </dependency>
         
     </dependencies>

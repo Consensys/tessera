@@ -3,27 +3,17 @@ package com.quorum.tessera.core.api;
 import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
-import com.quorum.tessera.partyinfo.PayloadPublisher;
-import com.quorum.tessera.partyinfo.ResendManager;
+import com.quorum.tessera.transaction.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 
 public class ServiceFactoryImpl implements ServiceFactory {
 
     private final ServiceLocator serviceLocator = ServiceLocator.create();
 
-    private final PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
-
     public ServiceFactoryImpl() {}
-
-    @Override
-    public PartyInfoService partyInfoService() {
-        return partyInfoServiceFactory.partyInfoService();
-    }
 
     @Override
     public Enclave enclave() {
@@ -65,11 +55,6 @@ public class ServiceFactoryImpl implements ServiceFactory {
 
     @Override
     public ResendManager resendManager() {
-        return partyInfoServiceFactory.resendManager();
-    }
-
-    @Override
-    public PayloadPublisher payloadPublisher() {
-        return partyInfoServiceFactory.payloadPublisher();
+        return find(ResendManager.class);
     }
 }

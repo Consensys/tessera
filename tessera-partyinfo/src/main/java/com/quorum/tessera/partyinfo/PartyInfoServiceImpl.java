@@ -1,14 +1,15 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.encryption.KeyNotFoundException;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.encryption.PublicKey;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
+import javax.annotation.PostConstruct;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
 
@@ -29,32 +31,40 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final Enclave enclave;
 
-    private final PayloadPublisher payloadPublisher;
+    private final PartyInfoValidator partyInfoValidator;
 
-    public PartyInfoServiceImpl(final PartyInfoServiceFactory partyInfoServiceFactory) {
-        this(
-                partyInfoServiceFactory.partyInfoStore(),
-                partyInfoServiceFactory.configService(),
-                partyInfoServiceFactory.enclave(),
-                partyInfoServiceFactory.payloadPublisher());
+    private final PayloadEncoder payloadEncoder;
+
+    public PartyInfoServiceImpl(
+            PartyInfoStore partyInfoStore,
+            ConfigService configService,
+            Enclave enclave,
+            PartyInfoValidator partyInfoValidator,
+            PayloadEncoder payloadEncoder) {
+        this.partyInfoStore = partyInfoStore;
+        this.configService = configService;
+        this.enclave = enclave;
+        this.partyInfoValidator = partyInfoValidator;
+        this.payloadEncoder = payloadEncoder;
     }
 
-    protected PartyInfoServiceImpl(
-            final PartyInfoStore partyInfoStore,
-            final ConfigService configService,
-            final Enclave enclave,
-            final PayloadPublisher payloadPublisher) {
-        this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
-        this.configService = Objects.requireNonNull(configService);
-        this.enclave = Objects.requireNonNull(enclave);
-        this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
+    public PartyInfoServiceImpl(
+            PartyInfoStore partyInfoStore, final ConfigService configService, final Enclave enclave) {
+        this(partyInfoStore, configService, enclave, new PartyInfoValidatorImpl(enclave), PayloadEncoder.create());
+    }
+
+    @PostConstruct
+    public void onConstruct() {
         final String advertisedUrl = URLNormalizer.create().normalize(configService.getServerUri().toString());
 
         final Set<Party> initialParties =
                 configService.getPeers().stream().map(Peer::getUrl).map(Party::new).collect(toSet());
 
         final Set<Recipient> ourKeys =
-                enclave.getPublicKeys().stream().map(key -> new Recipient(key, advertisedUrl)).collect(toSet());
+                enclave.getPublicKeys().stream()
+                        .map(key -> PublicKey.from(key.getKeyBytes()))
+                        .map(key -> new Recipient(key, advertisedUrl))
+                        .collect(toSet());
 
         partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, initialParties));
     }
@@ -80,7 +90,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         if (!configService.isDisablePeerDiscovery()) {
             // auto-discovery is on, we can accept all input to us
             this.partyInfoStore.store(partyInfo);
-            return this.getPartyInfo();
+            return partyInfoStore.getPartyInfo();
         }
 
         // auto-discovery is off
@@ -115,35 +125,8 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     @Override
     public PartyInfo removeRecipient(String uri) {
+        LOGGER.debug("Removing recipient {} from store", uri);
         return partyInfoStore.removeRecipient(uri);
-    }
-
-    @Override
-    public void publishPayload(final EncodedPayload payload, final PublicKey recipientKey) {
-
-        if (enclave.getPublicKeys().contains(recipientKey)) {
-            // we are trying to send something to ourselves - don't do it
-            LOGGER.debug(
-                    "Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
-            return;
-        }
-
-        final Recipient retrievedRecipientFromStore =
-                partyInfoStore.getPartyInfo().getRecipients().stream()
-                        .filter(recipient -> recipientKey.equals(recipient.getKey()))
-                        .findAny()
-                        .orElseThrow(
-                                () ->
-                                        new KeyNotFoundException(
-                                                "Recipient not found for key: " + recipientKey.encodeToBase64()));
-
-        final String targetUrl = retrievedRecipientFromStore.getUrl();
-
-        LOGGER.info("Publishing message to {}", targetUrl);
-
-        payloadPublisher.publishPayload(payload, targetUrl);
-
-        LOGGER.info("Published to {}", targetUrl);
     }
 
     boolean validateKeysToUrls(final PartyInfo existingPartyInfo, final PartyInfo newPartyInfo) {
@@ -168,5 +151,21 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         }
 
         return true;
+    }
+
+    @Override
+    public Set<Recipient> validateAndExtractValidRecipients(
+            PartyInfo partyInfo, PartyInfoValidatorCallback partyInfoValidatorCallback) {
+        return partyInfoValidator.validateAndFetchValidRecipients(partyInfo, partyInfoValidatorCallback);
+    }
+
+    @Override
+    public byte[] unencryptSampleData(byte[] payloadData) {
+
+        final EncodedPayload payload = payloadEncoder.decode(payloadData);
+
+        final PublicKey mykey = payload.getRecipientKeys().iterator().next();
+
+        return enclave.unencryptTransaction(payload, mykey);
     }
 }

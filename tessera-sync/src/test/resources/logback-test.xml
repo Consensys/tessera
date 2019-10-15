@@ -12,7 +12,7 @@
     <logger name="org.springframework" level="ERROR"/>
     <logger name="com.quorum.tessera.api.exception" level="OFF"/>
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 

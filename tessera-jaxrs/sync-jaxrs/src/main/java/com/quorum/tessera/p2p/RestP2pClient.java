@@ -8,7 +8,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class RestP2pClient implements P2pClient {
+public class RestP2pClient implements P2pClient<ResendRequest> {
 
     private final Client client;
 

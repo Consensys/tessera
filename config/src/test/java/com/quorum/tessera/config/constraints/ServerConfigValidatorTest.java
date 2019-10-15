@@ -61,8 +61,8 @@ public class ServerConfigValidatorTest {
 
     @Test
     public void unsupportedCommunicationType() {
-
-        serverConfig.setCommunicationType(CommunicationType.WEB_SOCKET);
+        serverConfig.setApp(AppType.THIRD_PARTY);
+        serverConfig.setCommunicationType(CommunicationType.GRPC);
 
         assertThat(validator.isValid(serverConfig, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();

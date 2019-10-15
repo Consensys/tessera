@@ -23,11 +23,13 @@ public class TesseraAppFactory {
     }
 
     private TesseraAppFactory() {
+
         ServiceLoaderUtil.loadAll(TesseraApp.class).peek(app -> LOGGER.info("Loaded app {}", app)).forEach(cache::add);
     }
 
     private Optional<TesseraApp> createApp(CommunicationType communicationType, AppType appType) {
         LOGGER.info("Creating application type {} for {}", appType, communicationType);
+
         return cache.stream()
                 .filter(a -> a.getAppType() == appType)
                 .filter(a -> a.getCommunicationType() == communicationType)

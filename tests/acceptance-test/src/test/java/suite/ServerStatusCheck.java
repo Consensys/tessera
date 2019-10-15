@@ -3,6 +3,7 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.io.IOCallback;
+import java.net.URI;
 import java.net.URL;
 import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
@@ -33,6 +34,13 @@ public interface ServerStatusCheck {
             }
         }
 
+        if (communicationType == CommunicationType.WEB_SOCKET) {
+
+            final URI uri =
+                    IOCallback.execute(() -> UriBuilder.fromUri(serverConfig.getServerUri()).path("status").build());
+            return new WebSocketServerStatusCheck(uri);
+        }
+
         if (communicationType == CommunicationType.GRPC) {
             URL grpcUrl =
                     IOCallback.execute(
@@ -40,6 +48,6 @@ public interface ServerStatusCheck {
             return new GrpcServerStatusCheck(grpcUrl, serverConfig.getApp());
         }
 
-        throw new UnsupportedOperationException("Unable to cerate server check for " + serverConfig);
+        throw new UnsupportedOperationException("Unable to create server check for " + serverConfig);
     }
 }

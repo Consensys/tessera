@@ -41,7 +41,7 @@
 
     <properties>
         <jersey.version>2.27</jersey.version>
-        <jetty.version>9.4.17.v20190418</jetty.version>
+        <jetty.version>9.4.20.v20190813</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -604,7 +604,13 @@
                 <artifactId>jersey-server</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>websockets-server</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+            
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>test-util</artifactId>
@@ -712,6 +718,12 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-api</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-sync</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
 
@@ -1164,7 +1176,13 @@
                 <artifactId>javax-websocket-client-impl</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
-
+            
+            <dependency>
+                <groupId>org.eclipse.jetty.websocket</groupId>
+                <artifactId>websocket-client</artifactId>
+                <version>${jetty.version}</version>
+                <type>jar</type>
+            </dependency>
 
             <dependency>
                 <groupId>com.github.jnr</groupId>
@@ -1469,7 +1487,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.2</version>
+                <version>0.8.3</version>
 
                 <reportSets>
                     <reportSet>

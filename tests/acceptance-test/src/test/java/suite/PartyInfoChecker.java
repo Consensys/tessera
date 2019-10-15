@@ -12,9 +12,15 @@ public interface PartyInfoChecker {
 
     static PartyInfoChecker create(CommunicationType communicationType) {
         LOGGER.info("Creating checker for {}", communicationType);
+
         if (communicationType == CommunicationType.GRPC) {
             return new GrpcPartyInfoCheck();
         }
+
+        if (communicationType == CommunicationType.WEB_SOCKET) {
+            return new WebsocketPartyInfoChecker();
+        }
+
         return new RestPartyInfoChecker();
     }
 }

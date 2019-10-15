@@ -25,12 +25,7 @@ public class PasswordReaderTest {
 
     @Test
     public void passwordsNotMatchingCausesRetry() {
-        final byte[] systemInBytes = (
-            "TRY1" + System.lineSeparator() +
-            "TRY2" + System.lineSeparator() +
-            "TRY3" + System.lineSeparator() +
-            "TRY3" + System.lineSeparator()
-        ).getBytes();
+        final byte[] systemInBytes = String.join(System.lineSeparator(), "TRY1", "TRY2", "TRY3", "TRY3").getBytes();
 
         final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(systemInBytes);
 
@@ -40,5 +35,4 @@ public class PasswordReaderTest {
 
         assertThat(password).isEqualTo("TRY3");
     }
-
 }
