@@ -7,7 +7,7 @@
         </encoder>
     </appender>
 
-    <logger name="exec" level="INFO"/>
+    <logger name="exec" level="ERROR"/>
 
     <root level="ERROR">
         <appender-ref ref="STDOUT"/>

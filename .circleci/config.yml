@@ -1,14 +1,19 @@
-version: 2
+version: 2.0
+
 jobs:
-  build: # runs not using Workflows must have a `build` job as entry point
+  build:
     working_directory: ~/tessera
+    branches:
+      ignore:
+        - master
 
     docker:
       - image: circleci/openjdk:8-jdk-stretch
+    resource_class: xlarge
 
     steps:
-
-      - checkout # check out source code to working directory
+        
+      - checkout
 
       - restore_cache: # restore the saved cache after the first run or if `pom.xml` has changed
           # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
@@ -18,42 +23,126 @@ jobs:
           name: Download dependencies
           command: | 
             mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
-
-      - save_cache: # saves the project dependencies
+            mvn dependency:resolve-plugins
+            cd
+            git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
+            cd quorum-acceptance-tests
+            mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+            mvn dependency:resolve-plugins
+            cd ~/tessera
+ 
+      - save_cache: 
           paths:
             - ~/.m2
           key: tessera-{{ checksum "pom.xml" }}
-          
+
       - run: 
-          name: Build no checks
-          command: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true
+          name: Build
+          command: mvn install -DskipTests -Dmaven.javadoc.skip=true
           environment: 
             MAVEN_OPTS: -Xms512m -Xmx1024m
-          
+
       - run: 
           name: Unit Tests
           command: mvn test -pl \!tests/acceptance-test  -o 
-      
-#      - run: 
-#          name: Integration Tests Vault
-#          command: | 
-#            wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
-#            mkdir -p vault/bin && pushd $_
-#            unzip /tmp/vault_1.2.2_linux_amd64.zip
-#            export PATH=$PATH:$PWD && popd
-#            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o 
-#          environment: 
-#            MAVEN_OPTS: -Xms1024m -Xmx2048m
-      
-#      - run: 
-#          name: Integration Tests RestSuiteUnixH2
-#          command:  mvn verify -pl tests/acceptance-test -P reduce-logging -o -Dit.test=RestSuiteUnixH2
-#          environment: 
-#            MAVEN_OPTS: -Xms2048m -Xmx4096m
+
+      - run: 
+          name: Integration Tests All
+          command:  mvn verify -pl tests/acceptance-test -o
+          environment: 
+            MAVEN_OPTS: -Xms2048m -Xmx4096m
+
+      - run: 
+          name: Integration Tests Vault
+          command: | 
+            wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
+            mkdir -p vault/bin && pushd $_
+            unzip /tmp/vault_1.2.2_linux_amd64.zip
+            export PATH=$PATH:$PWD && popd
+            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o 
+          environment: 
+            MAVEN_OPTS: -Xms1024m -Xmx2048m
+
+      - run: 
+           name: Acceptance Tests
+           command: | 
+            echo "Install geth"
+            curl -L https://dl.bintray.com/quorumengineering/quorum/v2.3.0/geth_v2.3.0_linux_amd64.tar.gz -o geth.tar.gz
+            tar xvzf geth.tar.gz
+            sudo mv geth /usr/local/bin/
+            geth version
+            echo "Installed geth"
+            echo "Install solc"
+            curl -L https://github.com/ethereum/solidity/releases/download/v0.5.4/solc-static-linux -o solc
+            sudo mv solc /usr/local/bin/
+            sudo chmod 755 /usr/local/bin/solc
+            solc --version
+            echo "Installed solc"
+            echo "Install gauge"
+            curl -L https://github.com/getgauge/gauge/releases/download/v1.0.4/gauge-1.0.4-linux.x86_64.zip -o gauge.zip
+            sudo unzip -o gauge.zip -d /usr/local/bin
+            gauge telemetry off
+            gauge install
+            echo "Installed gauge"
+            git clone https://github.com/jpmorganchase/quorum-examples.git
+            git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
+            export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+            export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
+            echo "Start $TESSERA_JAR for 7 nodes"
+            cd quorum-examples/examples/7nodes
+            ./tessera-init.sh
+            ./init.sh istanbul
+            ./start.sh istanbul tessera
+            cd ../../../
+            echo "Started $TESSERA_JAR for 7 nodes"
+            echo "Run quorum-acceptance-tests"
+            cd quorum-acceptance-tests
+            cp config/application-local.7nodes.yml config/application-local.yml 
+            mvn test
+            echo "Complete quorum-acceptance-tests"
+           environment: 
+              MAVEN_OPTS: -Xms1024m -Xmx2048m
             
-      
-#      - store_test_results: # uploads the test metadata from the `target/surefire-reports` directory so that it can show up in the CircleCI dashboard. 
-#          path: target/surefire-reports
+      - run:
+          name: Save test results
+          command: |
+            mkdir -p ~/test-results/junit/
+            find . -type f -regex ".*/target/surefire-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+            find . -type f -regex ".*/target/failsafe-reports/.*xml" -exec cp {} ~/test-results/junit/ \;
+
+      - store_test_results:
+          path: test-results
+
+      - store_artifacts:
+          path: test-results/junit
+
+      - add_ssh_keys:
+          fingerprints:
+              - "47:fb:83:09:36:dd:71:4a:cd:98:d7:e6:af:31:7c:b7" 
+
+      - run: 
+            name: Tag and deploy
+            command: |
+              if [ "${CIRCLE_BRANCH}" == "mainline" ]; then
+
+                git config user.email "melowe@gmail.com"
+                git config user.name "melowe"
+                export now=`date +%d%m%Y%H%M%S`
+                git checkout -b release-$now
+                mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.$now versions:commit -B
+                export new_version=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+                git add \*/pom.xml
+                git commit -m "Change pom versions to $new_version"
+                export tag_version=tessera-$new_version
+                git tag -a $tag_version -m "Create $tag_version"
+                git push origin $tag_version
+                echo "Deploy stuff"
+                echo $GPG_SECRET_KEYS | base64 --decode | gpg --import --no-tty --batch --yes
+                echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+
+                mvn --settings .maven.xml -B deploy -P release,reduce-logging -pl \!tests/acceptance-test
+              fi
+            when: on_success
       
 #      - store_artifacts: # store the uberjar as an artifact
 #          path: target/demo-java-spring-0.0.1-SNAPSHOT.jar
