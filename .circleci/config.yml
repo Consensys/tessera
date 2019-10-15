@@ -68,6 +68,8 @@ jobs:
       - run: 
            name: Acceptance Tests
            command: | 
+            export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
+            export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
             cd
             echo "Install geth"
             curl -L https://dl.bintray.com/quorumengineering/quorum/v2.3.0/geth_v2.3.0_linux_amd64.tar.gz -o geth.tar.gz
@@ -89,8 +91,6 @@ jobs:
             echo "Installed gauge"
             git clone https://github.com/jpmorganchase/quorum-examples.git
             git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
-            export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
-            export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
             echo "Start $TESSERA_JAR for 7 nodes"
             cd quorum-examples/examples/7nodes
             ./tessera-init.sh
