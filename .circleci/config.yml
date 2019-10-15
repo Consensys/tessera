@@ -66,6 +66,7 @@ jobs:
       - run: 
            name: Acceptance Tests
            command: | 
+            cd
             echo "Install geth"
             curl -L https://dl.bintray.com/quorumengineering/quorum/v2.3.0/geth_v2.3.0_linux_amd64.tar.gz -o geth.tar.gz
             tar xvzf geth.tar.gz
