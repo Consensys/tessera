@@ -30,6 +30,7 @@ jobs:
             mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
             mvn dependency:resolve-plugins
             cd ~/tessera
+            rm -rf quorum-acceptance-tests 
  
       - save_cache: 
           paths:
