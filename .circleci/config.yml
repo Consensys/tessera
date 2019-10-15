@@ -29,6 +29,7 @@ jobs:
             cd quorum-acceptance-tests
             mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
             mvn dependency:resolve-plugins
+            cd
             rm -rf quorum-acceptance-tests 
             cd ~/tessera
 
