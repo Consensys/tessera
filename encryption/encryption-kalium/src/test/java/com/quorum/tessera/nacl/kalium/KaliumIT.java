@@ -2,7 +2,7 @@ package com.quorum.tessera.nacl.kalium;
 
 import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.Nonce;
 import org.abstractj.kalium.NaCl;
 import org.junit.Before;
 import org.junit.Test;

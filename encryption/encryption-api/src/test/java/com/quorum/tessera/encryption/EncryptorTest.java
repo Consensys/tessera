@@ -1,22 +1,17 @@
-package com.quorum.tessera.nacl;
+package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.encryption.MasterKey;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
 
-public class NaclFacadeTest {
+public class EncryptorTest {
 
-    private NaclFacade naclFacade;
+    private Encryptor encryptor;
 
     @Before
     public void onSetUp() {
-        naclFacade = new MockNaclFacade();
+        encryptor = new MockNaclFacade();
     }
 
     @Test
@@ -27,7 +22,7 @@ public class NaclFacadeTest {
 
         byte[] outcome = "sealAfterPrecomputationWithSharedKey".getBytes();
 
-        byte[] result = naclFacade.sealAfterPrecomputation(message, nonce, masterKey);
+        byte[] result = encryptor.sealAfterPrecomputation(message, nonce, masterKey);
 
         assertThat(result).isEqualTo(outcome);
     }
@@ -40,7 +35,7 @@ public class NaclFacadeTest {
 
         byte[] outcome = "openAfterPrecomputationWithSharedKey".getBytes();
 
-        byte[] result = naclFacade.openAfterPrecomputation(message, nonce, masterKey);
+        byte[] result = encryptor.openAfterPrecomputation(message, nonce, masterKey);
 
         assertThat(result).isEqualTo(outcome);
     }
@@ -48,11 +43,11 @@ public class NaclFacadeTest {
     @Test
     public void createMasterKey() {
 
-        MasterKey result = naclFacade.createMasterKey();
+        MasterKey result = encryptor.createMasterKey();
         assertThat(result.getKeyBytes()).isEqualTo("createSingleKey".getBytes());
     }
 
-    static class MockNaclFacade implements NaclFacade {
+    static class MockNaclFacade implements Encryptor {
 
         @Override
         public SharedKey computeSharedKey(PublicKey publicKey, PrivateKey privateKey) {

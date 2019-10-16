@@ -1,8 +1,8 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.Nonce;
 
 import static java.util.Collections.singletonList;
 

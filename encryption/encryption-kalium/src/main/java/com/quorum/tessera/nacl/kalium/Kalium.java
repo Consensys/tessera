@@ -1,12 +1,12 @@
 package com.quorum.tessera.nacl.kalium;
 
+import com.quorum.tessera.encryption.Encryptor;
+import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.nacl.NaclException;
-import com.quorum.tessera.nacl.NaclFacade;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.Nonce;
 import org.abstractj.kalium.NaCl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +19,7 @@ import static org.abstractj.kalium.NaCl.Sodium.*;
 /**
  * An implementation of the {@link NaclFacade} using the Kalium and libsodium binding
  */
-public class Kalium implements NaclFacade {
+public class Kalium implements Encryptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Kalium.class);
 
@@ -48,7 +48,7 @@ public class Kalium implements NaclFacade {
         if (sodiumResult == -1) {
             LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
             LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
-            throw new NaclException("Kalium could not compute the shared key");
+            throw new EncryptorException("Kalium could not compute the shared key");
         }
 
         final SharedKey sharedKey = SharedKey.from(output);
@@ -81,7 +81,7 @@ public class Kalium implements NaclFacade {
         if (sodiumResult == -1) {
             LOGGER.warn("Could not create sealed payload using public key {} and private key {}", publicKey, REDACTED);
             LOGGER.debug("Could not create sealed payload using public key {} and private key {}", publicKey, privateKey);
-            throw new NaclException("Kalium could not seal the payload using the provided keys directly");
+            throw new EncryptorException("Kalium could not seal the payload using the provided keys directly");
         }
 
         LOGGER.info("Created sealed payload for public key {}", publicKey);
@@ -119,7 +119,7 @@ public class Kalium implements NaclFacade {
         if (sodiumResult == -1) {
             LOGGER.warn("Could not open sealed payload using public key {} and private key {}", publicKey, REDACTED);
             LOGGER.debug("Could not opern sealed payload using public key {} and private key {}", publicKey, privateKey);
-            throw new NaclException("Kalium could not open the payload using the provided keys directly");
+            throw new EncryptorException("Kalium could not open the payload using the provided keys directly");
         }
 
         LOGGER.info("Opened sealed payload for public key {}", publicKey);
@@ -152,7 +152,7 @@ public class Kalium implements NaclFacade {
         if (sodiumResult == -1) {
             LOGGER.warn("Could not create sealed payload using shared key {}", sharedKey);
             LOGGER.debug("Could not create sealed payload using shared key {}", sharedKey);
-            throw new NaclException("Kalium could not seal the payload using the shared key");
+            throw new EncryptorException("Kalium could not seal the payload using the shared key");
         }
 
         LOGGER.info("Created sealed payload for shared key {}", sharedKey);
@@ -188,7 +188,7 @@ public class Kalium implements NaclFacade {
         if (sodiumResult == -1) {
             LOGGER.warn("Could not open sealed payload using shared key {}", sharedKey);
             LOGGER.debug("Could not open sealed payload using shared key {}", sharedKey);
-            throw new NaclException("Kalium could not open the payload using the shared key");
+            throw new EncryptorException("Kalium could not open the payload using the shared key");
         }
 
         LOGGER.info("Opened sealed payload for shared key {}", sharedKey);
@@ -225,7 +225,7 @@ public class Kalium implements NaclFacade {
 
         if (sodiumResult == -1) {
             LOGGER.warn("Unable to generate a new keypair!");
-            throw new NaclException("Kalium could not generate a new public/private keypair");
+            throw new EncryptorException("Kalium could not generate a new public/private keypair");
         }
 
         final PublicKey pubKey = PublicKey.from(publicKey);
