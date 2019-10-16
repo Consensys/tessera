@@ -5,8 +5,8 @@ import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.nacl.NaclFacade;
-import com.quorum.tessera.nacl.NaclFacadeFactory;
+import com.quorum.tessera.encryption.Encryptor;
+import com.quorum.tessera.encryption.EncryptorFactory;
 import cucumber.api.java8.En;
 
 import java.nio.file.Files;
@@ -113,7 +113,7 @@ public class FileKeygenSteps implements En {
                     final PublicKey publicKey = PublicKey.from(DECODER.decode(generatedKeys.getPublicKey()));
                     final PrivateKey privateKey = PrivateKey.from(DECODER.decode(generatedKeys.getPrivateKey()));
 
-                    final NaclFacade naclFacade = NaclFacadeFactory.newFactory().create();
+                    final Encryptor naclFacade = EncryptorFactory.newFactory().create();
                     final SharedKey firstKey = naclFacade.computeSharedKey(publicKey, knownGoodKeypair.getPrivateKey());
                     final SharedKey secondKey =
                             naclFacade.computeSharedKey(knownGoodKeypair.getPublicKey(), privateKey);

@@ -4,8 +4,8 @@ import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.nacl.NaclException;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.EncryptorException;
+import com.quorum.tessera.encryption.Nonce;
 import org.abstractj.kalium.NaCl;
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +67,7 @@ public class KaliumTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.computeSharedKey(publicKey, privateKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not compute the shared key");
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("Kalium could not compute the shared key");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_beforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
     }
@@ -82,7 +82,7 @@ public class KaliumTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.seal(message, nonce, publicKey, privateKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not seal the payload using the provided keys directly");
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("Kalium could not seal the payload using the provided keys directly");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305(
             any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
@@ -99,7 +99,7 @@ public class KaliumTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.open(message, nonce, publicKey, privateKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not open the payload using the provided keys directly");
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("Kalium could not open the payload using the provided keys directly");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_open(
             any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class), any(byte[].class)
@@ -116,7 +116,7 @@ public class KaliumTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.sealAfterPrecomputation(message, nonce, sharedKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not seal the payload using the shared key");
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("Kalium could not seal the payload using the shared key");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_afternm(
             any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
@@ -133,7 +133,7 @@ public class KaliumTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.openAfterPrecomputation(message, nonce, sharedKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not open the payload using the shared key");
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("Kalium could not open the payload using the shared key");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_open_afternm(
             any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
@@ -155,7 +155,7 @@ public class KaliumTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.kalium.generateNewKeys());
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("Kalium could not generate a new public/private keypair");
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("Kalium could not generate a new public/private keypair");
 
         verify(this.sodium).crypto_box_curve25519xsalsa20poly1305_keypair(any(byte[].class), any(byte[].class));
     }

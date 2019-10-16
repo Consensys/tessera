@@ -11,8 +11,8 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.NaclException;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
@@ -370,7 +370,7 @@ public class TransactionManagerImpl implements TransactionManager {
             try {
                 enclave.unencryptTransaction(payload, potentialMatchingKey);
                 return Optional.of(potentialMatchingKey);
-            } catch (EnclaveException | IndexOutOfBoundsException | NaclException ex) {
+            } catch (EnclaveException | IndexOutOfBoundsException | EncryptorException ex) {
                 LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
             }
         }

@@ -6,7 +6,7 @@ import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.nacl.NaclFacade;
+import com.quorum.tessera.encryption.Encryptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -24,20 +24,19 @@ public class HashicorpVaultKeyGeneratorTest {
     private final PublicKey pub = PublicKey.from(pubStr.getBytes());
     private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
 
-    private NaclFacade naclFacade;
+    private Encryptor encryptor;
     private KeyVaultService keyVaultService;
     private HashicorpVaultKeyGenerator hashicorpVaultKeyGenerator;
 
     @Before
     public void setUp() {
-        this.naclFacade = mock(NaclFacade.class);
+        this.encryptor = mock(Encryptor.class);
         this.keyVaultService = mock(KeyVaultService.class);
 
         final KeyPair keyPair = new KeyPair(pub, priv);
-        when(naclFacade.generateNewKeys()).thenReturn(keyPair);
+        when(encryptor.generateNewKeys()).thenReturn(keyPair);
 
-        this.hashicorpVaultKeyGenerator = new HashicorpVaultKeyGenerator(naclFacade, keyVaultService);
-
+        this.hashicorpVaultKeyGenerator = new HashicorpVaultKeyGenerator(encryptor, keyVaultService);
     }
 
     @Test(expected = NullPointerException.class)
@@ -71,7 +70,8 @@ public class HashicorpVaultKeyGeneratorTest {
 
         HashicorpVaultKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null, keyVaultOptions);
 
-        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
+        HashicorpVaultKeyPair expected =
+                new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
         assertThat(result).isEqualToComparingFieldByField(expected);
 
         final ArgumentCaptor<HashicorpSetSecretData> captor = ArgumentCaptor.forClass(HashicorpSetSecretData.class);
@@ -84,12 +84,11 @@ public class HashicorpVaultKeyGeneratorTest {
         expectedNameValuePairs.put("publicKey", pub.encodeToBase64());
         expectedNameValuePairs.put("privateKey", priv.encodeToBase64());
 
-        HashicorpSetSecretData expectedData = new HashicorpSetSecretData(secretEngine, filename, expectedNameValuePairs);
+        HashicorpSetSecretData expectedData =
+                new HashicorpSetSecretData(secretEngine, filename, expectedNameValuePairs);
 
         assertThat(capturedArg).isEqualToComparingFieldByFieldRecursively(expectedData);
 
         verifyNoMoreInteractions(keyVaultService);
-
     }
-
 }

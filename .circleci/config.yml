@@ -130,7 +130,7 @@ jobs:
 
                 git config user.email "melowe@gmail.com"
                 git config user.name "melowe"
-                export now=`date +%d%m%Y%H%M%S`
+                export now=`date +%Y%m%d%H%M%S`
                 git checkout -b release-$now
                 mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.$now versions:commit -B
                 export new_version=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`

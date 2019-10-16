@@ -15,8 +15,8 @@ import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.NaclException;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.EncryptorException;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
@@ -201,7 +201,7 @@ public class TransactionManagerTest {
         verify(payloadPublisher).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
 
         verify(enclave).getForwardingKeys();
-        verify(enclave,times(2)).getPublicKeys();
+        verify(enclave, times(2)).getPublicKeys();
     }
 
     @Test
@@ -847,7 +847,7 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(NaclException.class);
+                .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);
@@ -917,7 +917,7 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(NaclException.class);
+                .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);
@@ -952,7 +952,7 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(NaclException.class);
+                .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);
@@ -1053,7 +1053,12 @@ public class TransactionManagerTest {
 
         TransactionManager tm =
                 new TransactionManagerImpl(
-                        encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, payloadPublisher,1000);
+                        encryptedTransactionDAO,
+                        enclave,
+                        encryptedRawTransactionDAO,
+                        resendManager,
+                        payloadPublisher,
+                        1000);
 
         assertThat(tm).isNotNull();
     }

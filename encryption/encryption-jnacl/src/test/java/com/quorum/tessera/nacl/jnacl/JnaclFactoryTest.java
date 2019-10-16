@@ -1,10 +1,10 @@
 package com.quorum.tessera.nacl.jnacl;
 
-import com.quorum.tessera.nacl.NaclFacade;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.encryption.Encryptor;
 
 public class JnaclFactoryTest {
 
@@ -17,9 +17,8 @@ public class JnaclFactoryTest {
 
     @Test
     public void createInstance() {
-        final NaclFacade result = jnaclFactory.create();
+        final Encryptor result = jnaclFactory.create();
 
         assertThat(result).isNotNull().isExactlyInstanceOf(Jnacl.class);
     }
-
 }

@@ -1,17 +1,17 @@
 package com.quorum.tessera.nacl.kalium;
 
-import com.quorum.tessera.nacl.NaclFacade;
-import com.quorum.tessera.nacl.NaclFacadeFactory;
+import com.quorum.tessera.encryption.Encryptor;
+import com.quorum.tessera.encryption.EncryptorFactory;
 import org.abstractj.kalium.NaCl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KaliumFactory implements NaclFacadeFactory {
+public class KaliumFactory implements EncryptorFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KaliumFactory.class);
 
     @Override
-    public NaclFacade create() {
+    public Encryptor create() {
         LOGGER.debug("Creating a Kalium implementation of NaclFacadeFactory");
 
         final NaCl.Sodium sodium = NaCl.sodium();
