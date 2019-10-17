@@ -5,6 +5,7 @@ import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.partyinfo.PartyInfoPoller;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.Map;
@@ -72,9 +73,10 @@ public class WebsocketPartyInfoPoller implements PartyInfoPoller {
                             return null;
                         });
 
-            } catch (UncheckedWebSocketException ex) {
-                LOGGER.error("Excepting while polling party info from {}. Exception message {}", uri, ex.getMessage());
-                LOGGER.error("", ex);
+            } catch (UncheckedIOException | UncheckedWebSocketException ex) {
+                LOGGER.warn("Exception while polling party info from {}. Exception message {}", uri, ex.getMessage());
+                LOGGER.debug("", ex);
+                sessions.remove(peer.getUrl());
             }
         }
     }

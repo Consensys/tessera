@@ -108,7 +108,5 @@ public class WebsocketPartyInfoPollerTest {
         verify(container, times(2)).connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class));
 
         websocketPartyInfoPoller.clearSessions();
-
-        verify(session, times(2)).close(any(CloseReason.class));
     }
 }
