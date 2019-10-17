@@ -53,6 +53,8 @@ public class Config extends ConfigItem {
 
     @XmlAttribute private boolean disablePeerDiscovery;
 
+    @XmlTransient private boolean recovery;
+
     @XmlElement private DeprecatedServerConfig server;
 
     @XmlElement private FeatureToggles features = new FeatureToggles();
@@ -192,5 +194,13 @@ public class Config extends ConfigItem {
 
     public void setFeatures(final FeatureToggles features) {
         this.features = features;
+    }
+
+    public boolean isRecovery() {
+        return recovery;
+    }
+
+    public void setRecovery(boolean recovery) {
+        this.recovery = recovery;
     }
 }
