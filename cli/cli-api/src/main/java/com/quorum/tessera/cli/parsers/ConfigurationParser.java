@@ -37,7 +37,8 @@ public class ConfigurationParser implements Parser<Config> {
 
         Config config = null;
 
-        final boolean isGeneratingWithKeyVault = commandLine.hasOption("keygen") && commandLine.hasOption("keygenvaulturl");
+        final boolean isGeneratingWithKeyVault =
+                commandLine.hasOption("keygen") && commandLine.hasOption("keygenvaulturl");
 
         if (commandLine.hasOption("configfile") && !isGeneratingWithKeyVault) {
             final Path path = Paths.get(commandLine.getOptionValue("configfile"));
@@ -51,12 +52,15 @@ public class ConfigurationParser implements Parser<Config> {
             }
 
             if (!newlyGeneratedKeys.isEmpty()) {
-                //we have generated new keys, so we need to output the new configuration
+                // we have generated new keys, so we need to output the new configuration
                 output(commandLine, config);
             }
 
             ConfigFileStore.create(path);
+        }
 
+        if (config != null) {
+            config.setRecovery(commandLine.hasOption("recover"));
         }
 
         return config;
@@ -73,6 +77,5 @@ public class ConfigurationParser implements Parser<Config> {
         } else {
             JaxbUtil.marshal(config, SystemAdapter.INSTANCE.out());
         }
-
     }
 }
