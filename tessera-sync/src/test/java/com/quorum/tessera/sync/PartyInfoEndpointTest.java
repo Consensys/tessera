@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import javax.websocket.RemoteEndpoint.Basic;
+import javax.websocket.RemoteEndpoint.Async;
 import javax.websocket.Session;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
@@ -78,8 +78,8 @@ public class PartyInfoEndpointTest {
         when(partyInfoService.validateAndExtractValidRecipients(any(), any())).thenReturn(partyInfo.getRecipients());
 
         Session otherClientSession = mock(Session.class);
-        Basic basic = mock(Basic.class);
-        when(otherClientSession.getBasicRemote()).thenReturn(basic);
+        Async async = mock(Async.class);
+        when(otherClientSession.getAsyncRemote()).thenReturn(async);
         when(otherClientSession.isOpen()).thenReturn(true);
 
         partyInfoEndpoint.onOpen(otherClientSession);
@@ -92,7 +92,7 @@ public class PartyInfoEndpointTest {
 
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoService).updatePartyInfo(partyInfo);
-        verify(basic).sendObject(any());
+        verify(async).sendObject(any());
         verify(partyInfoService).validateAndExtractValidRecipients(any(), any());
     }
 
@@ -136,15 +136,15 @@ public class PartyInfoEndpointTest {
                         .withTransactions(transactions)
                         .build();
 
-        Basic basic = mock(Basic.class);
-        when(session.getBasicRemote()).thenReturn(basic);
+        Async async = mock(Async.class);
+        when(session.getAsyncRemote()).thenReturn(async);
 
         partyInfoEndpoint.onSync(session, syncRequestMessage);
 
         byte[] expectedData = PayloadEncoder.create().encode(transactions);
         verify(transactionManager).storePayload(expectedData);
-        verify(basic).sendText(syncRequestMessage.getCorrelationId());
-        verify(session).getBasicRemote();
+        verify(async).sendText(syncRequestMessage.getCorrelationId());
+        verify(session).getAsyncRemote();
     }
 
     @Test
