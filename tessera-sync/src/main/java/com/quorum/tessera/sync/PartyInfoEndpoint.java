@@ -63,7 +63,7 @@ public class PartyInfoEndpoint {
                     transactionManager.storePayload(payloadEncoder.encode(payload));
             LOGGER.debug("Created message hash {}", mesageHash);
 
-            session.getBasicRemote().sendText(syncRequestMessage.getCorrelationId());
+            session.getAsyncRemote().sendText(syncRequestMessage.getCorrelationId());
             return;
         }
 
@@ -133,7 +133,7 @@ public class PartyInfoEndpoint {
                             WebSocketSessionCallback.execute(
                                     () -> {
                                         LOGGER.debug("Sending response {}", s);
-                                        s.getBasicRemote().sendObject(response);
+                                        s.getAsyncRemote().sendObject(response);
                                         LOGGER.debug("Sent response {}", s);
                                         return null;
                                     });
