@@ -5,7 +5,7 @@
 
     <groupId>com.jpmorgan.quorum</groupId>
     <artifactId>tessera</artifactId>
-    <version>0.11.0-SNAPSHOT</version>
+    <version>0.11.0</version>
 
     <name>tessera</name>
     <packaging>pom</packaging>
@@ -20,7 +20,7 @@
         <url>https://github.com/jpmorganchase/tessera</url>
         <connection>scm:git:https://github.com/jpmorganchase/tessera.git</connection>
         <developerConnection>scm:git:https://github.com/jpmorganchase/tessera.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>tessera-0.11</tag>
     </scm>
 
     <description>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
@@ -490,241 +490,241 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-api</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>argon2</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>config</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>cli-api</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>config-cli</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>admin-cli</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>security</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-jnacl</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-kalium</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-api</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-api</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-partyinfo</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-admin</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
                 <classifier>server</classifier>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>service-locator-spring</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>mock-service-locator</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>server-api</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
             
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>websockets-server</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
             
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>test-util</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>shared</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-core</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>admin-jaxrs</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>sync-jaxrs</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>transaction-jaxrs</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>thirdparty-jaxrs</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-vault-api</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>azure-key-vault</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>hashicorp-key-vault</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-generation</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>ddls</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client-unixsocket</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-data</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-server</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-api</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
             
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-sync</artifactId>
-                <version>0.11.0-SNAPSHOT</version>
+                <version>0.11.0</version>
             </dependency>
 
             <dependency>
