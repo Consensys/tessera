@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.websocket.*;
 import javax.ws.rs.core.UriBuilder;
-import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.util.UUID;
 
@@ -19,13 +19,13 @@ import java.util.UUID;
 @ClientEndpoint(encoders = {SyncRequestMessageCodec.class})
 public class WebSocketP2pClient implements P2pClient<ResendRequest> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPayloadPublisher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketP2pClient.class);
 
     @Override
     public byte[] push(String targetUrl, byte[] data) {
 
-        final SyncRequestMessage syncRequestMessage =
-                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_PUSH)
+        final SyncRequestMessage syncRequestMessage
+                = SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_PUSH)
                         .withTransactions(PayloadEncoder.create().decode(data))
                         .withCorrelationId(UUID.randomUUID().toString())
                         .build();
@@ -38,8 +38,8 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
     @Override
     public boolean sendPartyInfo(String targetUrl, byte[] data) {
 
-        final SyncRequestMessage syncRequestMessage =
-                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
+        final SyncRequestMessage syncRequestMessage
+                = SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
                         .withPartyInfo(PartyInfoParser.create().from(data))
                         .withCorrelationId(UUID.randomUUID().toString())
                         .build();
@@ -49,8 +49,8 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
     @Override
     public boolean makeResendRequest(String targetUrl, ResendRequest request) {
 
-        final SyncRequestMessage syncRequestMessage =
-                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_SYNC)
+        final SyncRequestMessage syncRequestMessage
+                = SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_SYNC)
                         .withRecipientKey(PublicKey.from(Base64Decoder.create().decode(request.getPublicKey())))
                         .withCorrelationId(UUID.randomUUID().toString())
                         .build();
@@ -58,22 +58,25 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
         return doSend(targetUrl, syncRequestMessage);
     }
 
-    private boolean doSend(String targetUrl, SyncRequestMessage request) {
-        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        URI uri = UriBuilder.fromUri(URI.create(targetUrl)).path("sync").build();
+    private boolean doSend(String targetUrl, SyncRequestMessage syncRequestMessage) {
+        
+        final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
-        try {
-            final Session session = container.connectToServer(this, uri);
-            WebSocketSessionCallback.execute(
-                    () -> {
-                        LOGGER.debug("Sending {} ", request);
-                        session.getBasicRemote().sendObject(request);
-                        return null;
-                    });
-            return true;
-        } catch (DeploymentException | IOException e) {
-            LOGGER.error("", e);
-        }
-        return false;
+        final URI uri = UriBuilder.fromUri(URI.create(targetUrl))
+                .path("sync")
+                .build();
+
+        return WebSocketSessionCallback.execute(() -> {
+            try (Session session = container.connectToServer(this, uri)) {
+                return WebSocketSessionCallback.execute(() -> {
+                    session.getBasicRemote().sendObject(syncRequestMessage);
+                    return true;
+                });
+            } catch (UncheckedWebSocketException | UncheckedIOException ex) {
+                LOGGER.error("Unable to send sync request message", ex);
+                return false;
+            }
+        });
     }
+
 }
