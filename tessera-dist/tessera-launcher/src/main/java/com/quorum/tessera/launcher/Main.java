@@ -47,6 +47,18 @@ public class Main {
                     = cliResult
                             .getConfig()
                             .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
+            final String springProfileWarning = "Warn: Spring profiles will not be supported in future. To start in recover mode use 'tessera recover'";
+            if(System.getProperties().containsKey("spring.profiles.active") ) {
+                System.out.println(springProfileWarning);
+                config.setRecovery(System.getProperty("spring.profiles.active").contains("enable-sync-poller"));
+            } else if(System.getenv().containsKey("SPRING_PROFILES_ACTIVE")) {
+                System.out.println(springProfileWarning);
+                config.setRecovery(System.getenv("SPRING_PROFILES_ACTIVE").contains("enable-sync-poller"));
+            }
+            
+            if(config.isRecovery()) {
+                System.setProperty("spring.profiles.active", "enable-sync-poller");
+            }
 
             runWebServer(config);
 
