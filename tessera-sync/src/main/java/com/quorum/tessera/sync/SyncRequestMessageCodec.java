@@ -54,6 +54,13 @@ public class SyncRequestMessageCodec extends TextCodecAdapter<SyncRequestMessage
                 messageBuilder.withTransactions(transaction);
             }
 
+            if (type == SyncRequestMessage.Type.TRANSACTION_SYNC) {
+                if (json.containsKey("recipientKey")) {
+                    final String recipientKey = json.getString("recipientKey");
+                    messageBuilder.withRecipientKey(MessageUtil.decodePublicKeyFromBase64(recipientKey));
+                }
+            }
+
             return messageBuilder.build();
         }
     }
@@ -78,7 +85,9 @@ public class SyncRequestMessageCodec extends TextCodecAdapter<SyncRequestMessage
 
         } else {
 
-            jsonObjectBuilder.add("transactions", MessageUtil.encodeToBase64(syncRequestMessage.getTransactions()));
+            if (syncRequestMessage.getType() == SyncRequestMessage.Type.TRANSACTION_PUSH) {
+                jsonObjectBuilder.add("transactions", MessageUtil.encodeToBase64(syncRequestMessage.getTransactions()));
+            }
 
             if (syncRequestMessage.getRecipientKey() != null) {
                 jsonObjectBuilder.add("recipientKey", MessageUtil.encodeToBase64(syncRequestMessage.getRecipientKey()));
