@@ -21,9 +21,9 @@ import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebsocketPartyInfoPoller implements PartyInfoPoller {
+public class WebSocketPartyInfoPoller implements PartyInfoPoller {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPartyInfoPoller.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketPartyInfoPoller.class);
 
     private final PartyInfoService partyInfoService;
 
@@ -31,7 +31,7 @@ public class WebsocketPartyInfoPoller implements PartyInfoPoller {
 
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
 
-    public WebsocketPartyInfoPoller(Config config, PartyInfoService partyInfoService) {
+    public WebSocketPartyInfoPoller(Config config, PartyInfoService partyInfoService) {
         this.partyInfoService = partyInfoService;
         this.config = config;
     }

@@ -7,18 +7,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 import static org.mockito.Mockito.mock;
 
-public class WebsocketPayloadPublisherFactoryTest {
+public class WebSocketPayloadPublisherFactoryTest {
 
-    private WebsocketPayloadPublisherFactory websocketPayloadPublisherFactory = new WebsocketPayloadPublisherFactory();
+    private WebSocketPayloadPublisherFactory websocketPayloadPublisherFactory = new WebSocketPayloadPublisherFactory();
 
     @Test
     public void create() {
         Config config = mock(Config.class);
         PayloadPublisher p = websocketPayloadPublisherFactory.create(config);
-        assertThat(p).isNotNull().isExactlyInstanceOf(WebsocketPayloadPublisher.class);
+        assertThat(p).isNotNull().isExactlyInstanceOf(WebSocketPayloadPublisher.class);
         assertThat(websocketPayloadPublisherFactory.communicationType()).isEqualTo(CommunicationType.WEB_SOCKET);
         PayloadPublisher result = websocketPayloadPublisherFactory.create(config);
 
-        assertThat(result).isExactlyInstanceOf(WebsocketPayloadPublisher.class);
+        assertThat(result).isExactlyInstanceOf(WebSocketPayloadPublisher.class);
     }
 }

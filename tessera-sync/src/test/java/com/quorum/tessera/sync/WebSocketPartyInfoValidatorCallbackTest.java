@@ -15,13 +15,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
-public class WebsocketPartyInfoValidatorCallbackTest {
+public class WebSocketPartyInfoValidatorCallbackTest {
 
-    private WebsocketPartyInfoValidatorCallback websocketPartyInfoValidatorCallback;
+    private WebSocketPartyInfoValidatorCallback websocketPartyInfoValidatorCallback;
 
     @Before
     public void onSetUp() {
-        websocketPartyInfoValidatorCallback = new WebsocketPartyInfoValidatorCallback();
+        websocketPartyInfoValidatorCallback = new WebSocketPartyInfoValidatorCallback();
     }
 
     @Test
