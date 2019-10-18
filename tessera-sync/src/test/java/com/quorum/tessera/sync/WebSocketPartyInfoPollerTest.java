@@ -20,9 +20,9 @@ import static org.mockito.ArgumentMatchers.any;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
-public class WebsocketPartyInfoPollerTest {
+public class WebSocketPartyInfoPollerTest {
 
-    private WebsocketPartyInfoPoller websocketPartyInfoPoller;
+    private WebSocketPartyInfoPoller webSocketPartyInfoPoller;
 
     private PartyInfoService partyInfoService;
 
@@ -39,7 +39,7 @@ public class WebsocketPartyInfoPollerTest {
         container = ContainerProvider.getWebSocketContainer();
 
         partyInfoService = mock(PartyInfoService.class);
-        websocketPartyInfoPoller = new WebsocketPartyInfoPoller(config, partyInfoService);
+        webSocketPartyInfoPoller = new WebSocketPartyInfoPoller(config, partyInfoService);
     }
 
     @After
@@ -70,7 +70,7 @@ public class WebsocketPartyInfoPollerTest {
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
-        websocketPartyInfoPoller.run();
+        webSocketPartyInfoPoller.run();
 
         assertThat(requestMessages).hasSize(2);
 
@@ -81,7 +81,7 @@ public class WebsocketPartyInfoPollerTest {
 
         verify(container, times(2)).connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class));
 
-        websocketPartyInfoPoller.clearSessions();
+        webSocketPartyInfoPoller.clearSessions();
 
         verify(session, times(2)).close(any(CloseReason.class));
     }
@@ -101,12 +101,12 @@ public class WebsocketPartyInfoPollerTest {
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
-        websocketPartyInfoPoller.run();
+        webSocketPartyInfoPoller.run();
 
         verify(partyInfoService, times(2)).getPartyInfo();
 
         verify(container, times(2)).connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class));
 
-        websocketPartyInfoPoller.clearSessions();
+        webSocketPartyInfoPoller.clearSessions();
     }
 }

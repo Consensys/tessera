@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.sync;
 
 import com.quorum.tessera.config.CommunicationType;
@@ -7,8 +6,7 @@ import com.quorum.tessera.partyinfo.PartyInfoPoller;
 import com.quorum.tessera.partyinfo.PartyInfoPollerFactory;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 
-
-public class WebsocketPartyInfoPollerFactory implements PartyInfoPollerFactory {
+public class WebSocketPartyInfoPollerFactory implements PartyInfoPollerFactory {
 
     @Override
     public CommunicationType communicationType() {
@@ -16,11 +14,8 @@ public class WebsocketPartyInfoPollerFactory implements PartyInfoPollerFactory {
     }
 
     @Override
-    public PartyInfoPoller create(PartyInfoService partyInfoService,Config config) {
-        
-        return new WebsocketPartyInfoPoller(config,partyInfoService);
+    public PartyInfoPoller create(PartyInfoService partyInfoService, Config config) {
+
+        return new WebSocketPartyInfoPoller(config, partyInfoService);
     }
-    
-    
-    
 }

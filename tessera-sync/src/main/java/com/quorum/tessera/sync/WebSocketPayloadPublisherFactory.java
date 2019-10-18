@@ -5,11 +5,11 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
 import com.quorum.tessera.partyinfo.PayloadPublisherFactory;
 
-public class WebsocketPayloadPublisherFactory implements PayloadPublisherFactory {
+public class WebSocketPayloadPublisherFactory implements PayloadPublisherFactory {
 
     @Override
     public PayloadPublisher create(Config config) {
-        return new WebsocketPayloadPublisher();
+        return new WebSocketPayloadPublisher();
     }
 
     @Override

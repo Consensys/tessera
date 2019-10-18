@@ -13,13 +13,13 @@ import org.junit.Test;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class WebsocketPayloadPublisherTest {
+public class WebSocketPayloadPublisherTest {
 
-    private WebsocketPayloadPublisher websocketPayloadPublisher;
+    private WebSocketPayloadPublisher wsPayloadPublisher;
 
     @Before
     public void onSetup() {
-        this.websocketPayloadPublisher = new WebsocketPayloadPublisher();
+        this.wsPayloadPublisher = new WebSocketPayloadPublisher();
     }
 
     @Test
@@ -36,25 +36,24 @@ public class WebsocketPayloadPublisherTest {
         Basic basic = mock(Basic.class);
         when(session.getBasicRemote()).thenReturn(basic);
 
-
         doAnswer(
                         (invocation) -> {
                             SyncRequestMessage message = invocation.getArgument(0);
-                            websocketPayloadPublisher.onResponse(mock(Session.class), message.getCorrelationId());
+                            wsPayloadPublisher.onResponse(mock(Session.class), message.getCorrelationId());
                             return null;
                         })
                 .when(basic)
                 .sendObject(any(SyncRequestMessage.class));
 
-        when(mockWebSocketContainer.connectToServer(websocketPayloadPublisher, expectedUri)).thenReturn(session);
+        when(mockWebSocketContainer.connectToServer(wsPayloadPublisher, expectedUri)).thenReturn(session);
 
-        websocketPayloadPublisher.publishPayload(payload, targetUrl);
+        wsPayloadPublisher.publishPayload(payload, targetUrl);
 
-        verify(mockWebSocketContainer).connectToServer(websocketPayloadPublisher, expectedUri);
+        verify(mockWebSocketContainer).connectToServer(wsPayloadPublisher, expectedUri);
         verify(basic).sendObject(any(SyncRequestMessage.class));
         verify(session).getBasicRemote();
 
-        websocketPayloadPublisher.clearSessions();
+        wsPayloadPublisher.clearSessions();
 
         verify(session).close(any(CloseReason.class));
 
@@ -64,7 +63,7 @@ public class WebsocketPayloadPublisherTest {
     @Test
     public void onError() {
         Throwable ex = mock(Throwable.class);
-        websocketPayloadPublisher.onError(ex);
+        wsPayloadPublisher.onError(ex);
         assertThat(ex).isNotNull();
     }
 }

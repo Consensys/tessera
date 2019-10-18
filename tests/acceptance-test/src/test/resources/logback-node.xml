@@ -29,10 +29,10 @@
     <logger name="com.quorum.tessera.sync.PartyInfoEndpoint" level="INFO" />
     <logger name="com.quorum.tessera.sync.PartyInfoClientEndpoint" level="INFO" />
     <logger name="com.quorum.tessera.partyinfo.PartyInfoStore" level="INFO" />
-    <logger name="com.quorum.tessera.sync.WebsocketPartyInfoPoller" level="DEBUG" />
+    <logger name="com.quorum.tessera.sync.WebSocketPartyInfoPoller" level="DEBUG" />
     <logger name="com.quorum.tessera.sync.PartyInfoClientEndpointConfigurator" level="INFO" />
     <logger name="com.quorum.tessera.api.exception" level="INFO" />
-    <logger name="com.quorum.tessera.sync.WebsocketPayloadPublisher" level="INFO" />
+    <logger name="com.quorum.tessera.sync.WebSocketPayloadPublisher" level="INFO" />
     <logger name="com.quorum.tessera.server.jaxrs.LoggingFilter" level="INFO" />
     
     <root level="INFO">

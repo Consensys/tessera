@@ -18,7 +18,7 @@ public interface PartyInfoChecker {
         }
 
         if (communicationType == CommunicationType.WEB_SOCKET) {
-            return new WebsocketPartyInfoChecker();
+            return new WebSocketPartyInfoChecker();
         }
 
         return new RestPartyInfoChecker();

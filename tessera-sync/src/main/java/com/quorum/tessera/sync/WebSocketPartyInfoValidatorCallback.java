@@ -21,9 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ClientEndpoint
-public class WebsocketPartyInfoValidatorCallback implements PartyInfoValidatorCallback {
+public class WebSocketPartyInfoValidatorCallback implements PartyInfoValidatorCallback {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPartyInfoValidatorCallback.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketPartyInfoValidatorCallback.class);
 
     private final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 

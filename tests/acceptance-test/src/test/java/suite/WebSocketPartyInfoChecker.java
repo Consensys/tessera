@@ -26,9 +26,9 @@ import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebsocketPartyInfoChecker implements PartyInfoChecker {
+public class WebSocketPartyInfoChecker implements PartyInfoChecker {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPartyInfoChecker.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketPartyInfoChecker.class);
 
     private PartyHelper partyHelper = new DefaultPartyHelper();
 
@@ -42,7 +42,7 @@ public class WebsocketPartyInfoChecker implements PartyInfoChecker {
 
         BlockingQueue<SyncResponseMessage> queue = new LinkedBlockingQueue<>();
 
-        WebsocketPartyInfoClientEndpoint endpoint = new WebsocketPartyInfoClientEndpoint(queue);
+        WebSocketPartyInfoClientEndpoint endpoint = new WebSocketPartyInfoClientEndpoint(queue);
 
         long totalKeys =
                 parties.stream()

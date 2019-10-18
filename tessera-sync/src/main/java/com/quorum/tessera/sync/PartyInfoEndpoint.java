@@ -41,7 +41,7 @@ public class PartyInfoEndpoint {
 
     private final Set<Session> sessionStore = ConcurrentHashMap.newKeySet();
 
-    private PartyInfoValidatorCallback partyInfoValidatorCallback = new WebsocketPartyInfoValidatorCallback();
+    private PartyInfoValidatorCallback partyInfoValidatorCallback = new WebSocketPartyInfoValidatorCallback();
 
     public PartyInfoEndpoint(PartyInfoService partyInfoService, TransactionManager transactionManager) {
         this.partyInfoService = partyInfoService;

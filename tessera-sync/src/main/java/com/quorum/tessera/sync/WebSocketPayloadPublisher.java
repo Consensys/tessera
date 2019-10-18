@@ -23,9 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ClientEndpoint(encoders = {SyncRequestMessageCodec.class})
-public class WebsocketPayloadPublisher implements PayloadPublisher {
+public class WebSocketPayloadPublisher implements PayloadPublisher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPayloadPublisher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketPayloadPublisher.class);
 
     private final Map<String, Session> cache = new ConcurrentHashMap<>();
 

@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 @ClientEndpoint(
         decoders = {SyncResponseMessageCodec.class},encoders = {SyncRequestMessageCodec.class}
 )
-public class WebsocketPartyInfoClientEndpoint {
+public class WebSocketPartyInfoClientEndpoint {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebsocketPartyInfoClientEndpoint.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketPartyInfoClientEndpoint.class);
 
     private final BlockingQueue<SyncResponseMessage> queue;
 
-    public WebsocketPartyInfoClientEndpoint(BlockingQueue<SyncResponseMessage> queue) {
+    public WebSocketPartyInfoClientEndpoint(BlockingQueue<SyncResponseMessage> queue) {
         this.queue = queue;
     }
 

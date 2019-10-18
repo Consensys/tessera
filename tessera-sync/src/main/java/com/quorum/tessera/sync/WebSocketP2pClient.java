@@ -24,8 +24,8 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
     @Override
     public byte[] push(String targetUrl, byte[] data) {
 
-        final SyncRequestMessage syncRequestMessage
-                = SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_PUSH)
+        final SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_PUSH)
                         .withTransactions(PayloadEncoder.create().decode(data))
                         .withCorrelationId(UUID.randomUUID().toString())
                         .build();
@@ -38,8 +38,8 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
     @Override
     public boolean sendPartyInfo(String targetUrl, byte[] data) {
 
-        final SyncRequestMessage syncRequestMessage
-                = SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
+        final SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
                         .withPartyInfo(PartyInfoParser.create().from(data))
                         .withCorrelationId(UUID.randomUUID().toString())
                         .build();
@@ -49,8 +49,8 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
     @Override
     public boolean makeResendRequest(String targetUrl, ResendRequest request) {
 
-        final SyncRequestMessage syncRequestMessage
-                = SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_SYNC)
+        final SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_SYNC)
                         .withRecipientKey(PublicKey.from(Base64Decoder.create().decode(request.getPublicKey())))
                         .withCorrelationId(UUID.randomUUID().toString())
                         .build();
@@ -59,24 +59,23 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
     }
 
     private boolean doSend(String targetUrl, SyncRequestMessage syncRequestMessage) {
-        
+
         final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
-        final URI uri = UriBuilder.fromUri(URI.create(targetUrl))
-                .path("sync")
-                .build();
+        final URI uri = UriBuilder.fromUri(URI.create(targetUrl)).path("sync").build();
 
-        return WebSocketSessionCallback.execute(() -> {
-            try (Session session = container.connectToServer(this, uri)) {
-                return WebSocketSessionCallback.execute(() -> {
-                    session.getBasicRemote().sendObject(syncRequestMessage);
-                    return true;
+        return WebSocketSessionCallback.execute(
+                () -> {
+                    try (Session session = container.connectToServer(this, uri)) {
+                        return WebSocketSessionCallback.execute(
+                                () -> {
+                                    session.getBasicRemote().sendObject(syncRequestMessage);
+                                    return true;
+                                });
+                    } catch (UncheckedWebSocketException | UncheckedIOException ex) {
+                        LOGGER.error("Unable to send sync request message", ex);
+                        return false;
+                    }
                 });
-            } catch (UncheckedWebSocketException | UncheckedIOException ex) {
-                LOGGER.error("Unable to send sync request message", ex);
-                return false;
-            }
-        });
     }
-
 }
