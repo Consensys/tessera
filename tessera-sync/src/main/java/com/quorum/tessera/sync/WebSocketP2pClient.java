@@ -5,7 +5,6 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.transaction.ResendManager;
 import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,14 +50,13 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
     public boolean makeResendRequest(String targetUrl, ResendRequest request) {
 
         final SyncRequestMessage syncRequestMessage =
-            SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_SYNC)
-            .withRecipientKey(PublicKey.from(Base64Decoder.create().decode(request.getPublicKey())))
-            .withCorrelationId(UUID.randomUUID().toString())
-            .build();
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_SYNC)
+                        .withRecipientKey(PublicKey.from(Base64Decoder.create().decode(request.getPublicKey())))
+                        .withCorrelationId(UUID.randomUUID().toString())
+                        .build();
 
         return doSend(targetUrl, syncRequestMessage);
     }
-
 
     private boolean doSend(String targetUrl, SyncRequestMessage request) {
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
@@ -67,14 +65,14 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
         try {
             final Session session = container.connectToServer(this, uri);
             WebSocketSessionCallback.execute(
-                () -> {
-                    LOGGER.debug("Sending {} ", request);
-                    session.getBasicRemote().sendObject(request);
-                    return null;
-                });
+                    () -> {
+                        LOGGER.debug("Sending {} ", request);
+                        session.getBasicRemote().sendObject(request);
+                        return null;
+                    });
             return true;
         } catch (DeploymentException | IOException e) {
-            e.printStackTrace();
+            LOGGER.error("", e);
         }
         return false;
     }
