@@ -19,6 +19,16 @@ import java.util.UUID;
 @ClientEndpoint(encoders = {SyncRequestMessageCodec.class})
 public class WebSocketP2pClient implements P2pClient<ResendRequest> {
 
+    private PartyInfoParser partyInfoParser;
+
+    public WebSocketP2pClient() {
+        this(PartyInfoParser.create());
+    }
+
+    protected WebSocketP2pClient(PartyInfoParser partyInfoParser) {
+        this.partyInfoParser = partyInfoParser;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketP2pClient.class);
 
     @Override
@@ -40,7 +50,7 @@ public class WebSocketP2pClient implements P2pClient<ResendRequest> {
 
         final SyncRequestMessage syncRequestMessage =
                 SyncRequestMessage.Builder.create(SyncRequestMessage.Type.PARTY_INFO)
-                        .withPartyInfo(PartyInfoParser.create().from(data))
+                        .withPartyInfo(partyInfoParser.from(data))
                         .withCorrelationId(UUID.randomUUID().toString())
                         .build();
         return doSend(targetUrl, syncRequestMessage);

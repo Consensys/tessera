@@ -86,6 +86,31 @@ public class SyncRequestMessageCodecTest {
     }
 
     @Test
+    public void encodeSync() throws Exception {
+
+        final SyncRequestMessage syncRequestMessage =
+                SyncRequestMessage.Builder.create(SyncRequestMessage.Type.TRANSACTION_SYNC)
+                        .withRecipientKey(sampleKey())
+                        .withCorrelationId(UUID.randomUUID().toString())
+                        .build();
+
+        try (Writer writer = new StringWriter()) {
+
+            syncRequestMessageCodec.encode(syncRequestMessage, writer);
+
+            String resultData = writer.toString();
+
+            try (JsonReader jsonReader = Json.createReader(new StringReader(resultData))) {
+
+                JsonObject result = jsonReader.readObject();
+                assertThat(result.getString("recipientKey")).isEqualTo(sampleKey().encodeToBase64());
+                assertThat(result.getString("correlationId")).isEqualTo(syncRequestMessage.getCorrelationId());
+                assertThat(result.getString("type")).isEqualTo(SyncRequestMessage.Type.TRANSACTION_SYNC.name());
+            }
+        }
+    }
+
+    @Test
     public void decodePartyInfo() throws Exception {
 
         PartyInfo samplePartyInfo = samplePartyInfo();
@@ -127,6 +152,26 @@ public class SyncRequestMessageCodecTest {
             SyncRequestMessage result = syncRequestMessageCodec.decode(reader);
             assertThat(result.getType()).isEqualTo(SyncRequestMessage.Type.TRANSACTION_PUSH);
             assertThat(result.getTransactions()).isNotNull();
+            assertThat(result.getRecipientKey()).isEqualTo(recipientKey);
+        }
+    }
+
+    @Test
+    public void decodeSyncMessage() throws Exception {
+
+        PublicKey recipientKey = PublicKey.from("HELLOW".getBytes());
+
+        String data =
+                Json.createObjectBuilder()
+                        .add("type", SyncRequestMessage.Type.TRANSACTION_SYNC.name())
+                        .add("recipientKey", recipientKey.encodeToBase64())
+                        .add("correlationId", UUID.randomUUID().toString())
+                        .build()
+                        .toString();
+
+        try (Reader reader = new StringReader(data)) {
+            SyncRequestMessage result = syncRequestMessageCodec.decode(reader);
+            assertThat(result.getType()).isEqualTo(SyncRequestMessage.Type.TRANSACTION_SYNC);
             assertThat(result.getRecipientKey()).isEqualTo(recipientKey);
         }
     }

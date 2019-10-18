@@ -60,7 +60,6 @@ public class WebSocketPayloadPublisher implements PayloadPublisher {
                     session.getBasicRemote().sendObject(syncRequestMessage);
 
                     try {
-
                         ExecutorCallback.execute(() -> responseHandler.get(30, TimeUnit.SECONDS));
                     } finally {
                         responseQueue.remove(syncRequestMessage.getCorrelationId());
