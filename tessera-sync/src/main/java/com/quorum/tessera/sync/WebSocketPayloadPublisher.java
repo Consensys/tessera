@@ -10,14 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
-import javax.websocket.ClientEndpoint;
-import javax.websocket.CloseReason;
+import javax.websocket.*;
 import javax.websocket.CloseReason.CloseCodes;
-import javax.websocket.ContainerProvider;
-import javax.websocket.OnError;
-import javax.websocket.OnMessage;
-import javax.websocket.Session;
-import javax.websocket.WebSocketContainer;
 import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,5 +87,11 @@ public class WebSocketPayloadPublisher implements PayloadPublisher {
     @OnError
     public void onError(Throwable ex) {
         LOGGER.error(null, ex);
+    }
+
+    @OnClose
+    public void onClose(Session session, CloseReason reason) {
+        LOGGER.debug("Session has been closed. Reason {}", reason.getReasonPhrase());
+        cache.values().removeIf(value -> value == session);
     }
 }
