@@ -223,7 +223,6 @@
                         
                         <include>RestSuiteP2pWebsocketH2</include>
                         <include>CucumberFileKeyGenerationIT</include>
-                        <include>RestSuiteUnixH2</include>
                         <include>AdminRestSuite</include>
                         <include>RestSuite</include>
                         <include>RestSuiteUnixH2</include>
