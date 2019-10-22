@@ -8,6 +8,7 @@ import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
@@ -22,7 +23,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -48,6 +51,8 @@ public class SendWithRemoteEnclaveReconnectIT {
     private EnclaveExecManager enclaveExecManager;
 
     private NodeExecManager nodeExecManager;
+
+    private ConfigDescriptor configDescriptor;
 
     private Party party;
 
@@ -131,8 +136,7 @@ public class SendWithRemoteEnclaveReconnectIT {
             JaxbUtil.marshalWithNoValidation(enclaveConfig, out);
             out.flush();
         }
-        ConfigDescriptor configDescriptor =
-                new ConfigDescriptor(NodeAlias.A, configPath, nodeConfig, enclaveConfig, enclaveConfigPath);
+        configDescriptor = new ConfigDescriptor(NodeAlias.A, configPath, nodeConfig, enclaveConfig, enclaveConfigPath);
 
         String key = configDescriptor.getKey().getPublicKey();
         URL file = Utils.toUrl(configDescriptor.getPath());
@@ -191,5 +195,37 @@ public class SendWithRemoteEnclaveReconnectIT {
         //                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
         //
         //        assertThat(secondresponse.getStatus()).isEqualTo(201);
+    }
+
+    @Test
+    public void reconnectingToEnclaveUpdatesKeys() throws IOException {
+        enclaveExecManager.stop();
+
+        final DirectKeyPair addedKeypair =
+                new DirectKeyPair(
+                        "sL/prFZhfUNhbL+7Ky7bHA+OEBhqty0L+PaOuA0bj1M=", "JIQ3a2udSn+xxfhM5pQP+sn3u9BblC84Clpk5tsYmg4=");
+
+        final Config enclaveConfig = this.configDescriptor.getEnclaveConfig().get();
+        List<ConfigKeyPair> keys = new ArrayList<>(enclaveConfig.getKeys().getKeyData());
+        keys.add(addedKeypair);
+        enclaveConfig.getKeys().setKeyData(keys);
+
+        this.writeConfig(enclaveConfig, this.configDescriptor.getEnclavePath());
+
+        this.enclaveExecManager = new EnclaveExecManager(this.configDescriptor);
+        enclaveExecManager.start();
+
+        Client client = ClientBuilder.newClient();
+
+        final Response response = client.target(party.getP2PUri()).path("partyinfo").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    private void writeConfig(final Config config, final Path outputPath) throws IOException {
+        try (OutputStream out = Files.newOutputStream(outputPath)) {
+            JaxbUtil.marshalWithNoValidation(config, out);
+            out.flush();
+        }
     }
 }
