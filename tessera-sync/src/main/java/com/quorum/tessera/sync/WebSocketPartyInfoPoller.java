@@ -1,9 +1,8 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.partyinfo.PartyInfoPoller;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -27,13 +26,10 @@ public class WebSocketPartyInfoPoller implements PartyInfoPoller {
 
     private final PartyInfoService partyInfoService;
 
-    private final Config config;
-
     private final Map<String, Session> sessions = new ConcurrentHashMap<>();
 
-    public WebSocketPartyInfoPoller(Config config, PartyInfoService partyInfoService) {
+    public WebSocketPartyInfoPoller(PartyInfoService partyInfoService) {
         this.partyInfoService = partyInfoService;
-        this.config = config;
     }
 
     @Override
@@ -41,17 +37,17 @@ public class WebSocketPartyInfoPoller implements PartyInfoPoller {
 
         final WebSocketContainer container = ContainerProvider.getWebSocketContainer();
 
-        final Queue<Peer> peerQueue = new LinkedList<>(config.getPeers());
+        final PartyInfo partyInfo = partyInfoService.getPartyInfo();
 
-        Peer peer = null;
+        final Queue<Party> partyQueue = new LinkedList<>(partyInfo.getParties());
 
-        while ((peer = peerQueue.poll()) != null) {
+        Party party = null;
 
-            UriBuilder uriBuilder = UriBuilder.fromUri(URI.create(peer.getUrl())).path("sync");
+        while ((party = partyQueue.poll()) != null) {
+
+            UriBuilder uriBuilder = UriBuilder.fromUri(URI.create(party.getUrl())).path("sync");
 
             final PartyInfoClientEndpoint endpoint = new PartyInfoClientEndpoint(partyInfoService);
-
-            PartyInfo partyInfo = partyInfoService.getPartyInfo();
 
             URI uri = uriBuilder.build();
 
@@ -63,7 +59,7 @@ public class WebSocketPartyInfoPoller implements PartyInfoPoller {
             try {
                 Session session =
                         sessions.computeIfAbsent(
-                                peer.getUrl(),
+                                party.getUrl(),
                                 k -> WebSocketSessionCallback.execute(() -> container.connectToServer(endpoint, uri)));
                 LOGGER.debug("Connecting to server {}", uri);
 
@@ -76,7 +72,7 @@ public class WebSocketPartyInfoPoller implements PartyInfoPoller {
             } catch (UncheckedIOException | UncheckedWebSocketException ex) {
                 LOGGER.warn("Exception while polling party info from {}. Exception message {}", uri, ex.getMessage());
                 LOGGER.debug("", ex);
-                sessions.remove(peer.getUrl());
+                sessions.remove(party.getUrl());
             }
         }
     }

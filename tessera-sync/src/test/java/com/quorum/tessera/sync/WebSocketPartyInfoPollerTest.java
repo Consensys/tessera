@@ -1,12 +1,10 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import javax.websocket.CloseReason;
 import javax.websocket.ContainerProvider;
 import javax.websocket.RemoteEndpoint.Basic;
@@ -26,20 +24,25 @@ public class WebSocketPartyInfoPollerTest {
 
     private PartyInfoService partyInfoService;
 
-    private Config config;
-
     private WebSocketContainer container;
+
+    private PartyInfo partyInfo;
 
     @Before
     public void onSetUp() {
-        config = new Config();
-        config.addPeer(new Peer("ws://first.com"));
-        config.addPeer(new Peer("ws://second.com"));
+
+        Set<Party> parties = new HashSet<>();
+        parties.add(new Party("ws://first.com"));
+        parties.add(new Party("ws://second.com"));
+
+        partyInfo = new PartyInfo("ws://localhost", Collections.emptySet(), parties);
 
         container = ContainerProvider.getWebSocketContainer();
 
         partyInfoService = mock(PartyInfoService.class);
-        webSocketPartyInfoPoller = new WebSocketPartyInfoPoller(config, partyInfoService);
+        webSocketPartyInfoPoller = new WebSocketPartyInfoPoller(partyInfoService);
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
     }
 
     @After
@@ -66,10 +69,6 @@ public class WebSocketPartyInfoPollerTest {
 
         when(container.connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class))).thenReturn(session);
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
-
         webSocketPartyInfoPoller.run();
 
         assertThat(requestMessages).hasSize(2);
@@ -77,7 +76,7 @@ public class WebSocketPartyInfoPollerTest {
         assertThat(requestMessages.get(0).getPartyInfo()).isSameAs(partyInfo);
         assertThat(requestMessages.get(1).getPartyInfo()).isSameAs(partyInfo);
 
-        verify(partyInfoService, times(2)).getPartyInfo();
+        verify(partyInfoService).getPartyInfo();
 
         verify(container, times(2)).connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class));
 
@@ -97,13 +96,9 @@ public class WebSocketPartyInfoPollerTest {
 
         when(container.connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class))).thenReturn(session);
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
-
         webSocketPartyInfoPoller.run();
 
-        verify(partyInfoService, times(2)).getPartyInfo();
+        verify(partyInfoService).getPartyInfo();
 
         verify(container, times(2)).connectToServer(any(PartyInfoClientEndpoint.class), any(URI.class));
 

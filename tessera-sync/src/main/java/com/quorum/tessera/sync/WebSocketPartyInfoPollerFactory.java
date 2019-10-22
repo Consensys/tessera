@@ -15,7 +15,6 @@ public class WebSocketPartyInfoPollerFactory implements PartyInfoPollerFactory {
 
     @Override
     public PartyInfoPoller create(PartyInfoService partyInfoService, Config config) {
-
-        return new WebSocketPartyInfoPoller(config, partyInfoService);
+        return new WebSocketPartyInfoPoller(partyInfoService);
     }
 }
