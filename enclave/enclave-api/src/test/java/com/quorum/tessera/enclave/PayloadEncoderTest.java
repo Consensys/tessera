@@ -52,14 +52,15 @@ public class PayloadEncoderTest {
         final byte[] recipientNonce = new byte[]{-110, 45, 44, -76, 17, 23, -76, 0, -75, 112, 70, 97, 108, -70, -76, 32, 100, -46, -67, 107, -89, 98, 64, -85};
         final byte[] recipientKey = new byte[]{68, -32, 25, 5, 107, 82, 105, -52, 87, 66, -77, -98, -36, 81, -128, -88, -112, -14, 38, 49, 94, 61, 30, 92, 123, -124, -46, 35, 57, -119, -48, 23};
 
-        final EncodedPayload payload = new EncodedPayload(
-            PublicKey.from(sender),
-            cipherText,
-            new Nonce(nonce),
-            singletonList(recipientBox),
-            new Nonce(recipientNonce),
-            singletonList(PublicKey.from(recipientKey))
-        );
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from(sender))
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(nonce)
+                        .withRecipientBoxes(singletonList(recipientBox))
+                        .withRecipientNonce(recipientNonce)
+                        .withRecipientKeys(singletonList(PublicKey.from(recipientKey)))
+                        .build();
 
         final byte[] encodedResult = payloadEncoder.encode(payload);
 
