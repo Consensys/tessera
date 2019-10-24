@@ -258,9 +258,12 @@ public class TransactionManagerTest {
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
         final byte[] input = "SOMEDATA".getBytes();
-        final EncodedPayload encodedPayload =
-                new EncodedPayload(
-                        senderKey, "CIPHERTEXT".getBytes(), null, new ArrayList<>(), null, new ArrayList<>());
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        when(encodedPayload.getSenderKey()).thenReturn(senderKey);
+        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
+        when(encodedPayload.getRecipientBoxes()).thenReturn(new ArrayList<>());
+        when(encodedPayload.getRecipientKeys()).thenReturn(new ArrayList<>());
 
         when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
@@ -686,8 +689,8 @@ public class TransactionManagerTest {
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
                 .thenReturn(Optional.of(encryptedTransaction));
 
-        final EncodedPayload encodedPayload =
-                new EncodedPayload(null, null, null, singletonList("RECIPIENTBOX".getBytes()), null, null);
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList("RECIPIENTBOX".getBytes()));
 
         byte[] encodedOutcome = "SUCCESS".getBytes();
         PublicKey recipientKey = PublicKey.from("PUBLICKEY".getBytes());
@@ -725,9 +728,11 @@ public class TransactionManagerTest {
         PublicKey senderKey = PublicKey.from("PUBLICKEY".getBytes());
         PublicKey recipientKey = PublicKey.from("RECIPIENTKEY".getBytes());
 
-        final EncodedPayload encodedPayload =
-                new EncodedPayload(
-                        senderKey, null, null, singletonList("RECIPIENTBOX".getBytes()), null, new ArrayList<>());
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        when(encodedPayload.getSenderKey()).thenReturn(senderKey);
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList("RECIPIENTBOX".getBytes()));
+        when(encodedPayload.getRecipientKeys()).thenReturn(new ArrayList<>());
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
                 .thenReturn(Optional.of(encryptedTransaction));

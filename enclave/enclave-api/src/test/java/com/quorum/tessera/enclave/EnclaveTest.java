@@ -75,14 +75,13 @@ public class EnclaveTest {
 
         Nonce recipientNonce = mock(Nonce.class);
 
-        EncodedPayload payload =
-                new EncodedPayload(
-                        senderKey,
-                        cipherText,
-                        cipherTextNonce,
-                        singletonList(recipientBox),
-                        recipientNonce,
-                        singletonList(recipientKey));
+        EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn(cipherText);
+        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(recipientBox));
+        when(payload.getRecipientNonce()).thenReturn(recipientNonce);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
 
         when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(senderKey));
 
@@ -129,14 +128,13 @@ public class EnclaveTest {
 
         Nonce recipientNonce = mock(Nonce.class);
 
-        EncodedPayload payload =
-                new EncodedPayload(
-                        senderKey,
-                        cipherText,
-                        cipherTextNonce,
-                        singletonList(recipientBox),
-                        recipientNonce,
-                        singletonList(recipientKey));
+        EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn(cipherText);
+        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(recipientBox));
+        when(payload.getRecipientNonce()).thenReturn(recipientNonce);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
 
         when(keyManager.getPublicKeys()).thenReturn(Collections.emptySet());
 
@@ -325,8 +323,14 @@ public class EnclaveTest {
     public void createNewRecipientBoxWithExistingNoRecipientBoxes() {
 
         final PublicKey publicKey = PublicKey.from(new byte[0]);
-        final EncodedPayload payload =
-                new EncodedPayload(null, null, null, emptyList(), null, singletonList(publicKey));
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(null);
+        when(payload.getCipherText()).thenReturn(null);
+        when(payload.getCipherTextNonce()).thenReturn(null);
+        when(payload.getRecipientBoxes()).thenReturn(emptyList());
+        when(payload.getRecipientNonce()).thenReturn(null);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(publicKey));
 
         final Throwable throwable = catchThrowable(() -> enclave.createNewRecipientBox(payload, publicKey));
 
@@ -345,8 +349,13 @@ public class EnclaveTest {
         final byte[] openbox = "open".getBytes();
         final Nonce nonce = new Nonce("nonce".getBytes());
 
-        final EncodedPayload payload =
-                new EncodedPayload(senderKey, null, null, singletonList(closedbox), nonce, singletonList(publicKey));
+        EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn(null);
+        when(payload.getCipherTextNonce()).thenReturn(null);
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(payload.getRecipientNonce()).thenReturn(nonce);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(publicKey));
 
         when(nacl.computeSharedKey(publicKey, privateKey)).thenReturn(recipientSenderShared);
         when(nacl.computeSharedKey(senderKey, privateKey)).thenReturn(senderShared);

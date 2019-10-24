@@ -19,8 +19,8 @@ public class EnclaveImpl implements Enclave {
 
     private final KeyManager keyManager;
 
-    public EnclaveImpl(Encryptor nacl, KeyManager keyManager) {
-        this.encryptor = Objects.requireNonNull(nacl);
+    public EnclaveImpl(Encryptor encryptor, KeyManager keyManager) {
+        this.encryptor = Objects.requireNonNull(encryptor);
         this.keyManager = Objects.requireNonNull(keyManager);
     }
 
@@ -36,8 +36,14 @@ public class EnclaveImpl implements Enclave {
         final List<byte[]> encryptedMasterKeys =
                 buildRecipientMasterKeys(senderPublicKey, recipientPublicKeys, recipientNonce, masterKey);
 
-        return new EncodedPayload(
-                senderPublicKey, cipherText, nonce, encryptedMasterKeys, recipientNonce, recipientPublicKeys);
+        return EncodedPayload.Builder.create()
+                .withSenderKey(senderPublicKey)
+                .withCipherText(cipherText)
+                .withCipherTextNonce(nonce)
+                .withRecipientBoxes(encryptedMasterKeys)
+                .withRecipientNonce(recipientNonce)
+                .withRecipientKeys(recipientPublicKeys)
+                .build();
     }
 
     @Override
@@ -71,13 +77,14 @@ public class EnclaveImpl implements Enclave {
         final List<byte[]> encryptedMasterKeys =
                 buildRecipientMasterKeys(rawTransaction.getFrom(), recipientPublicKeys, recipientNonce, masterKey);
 
-        return new EncodedPayload(
-                rawTransaction.getFrom(),
-                rawTransaction.getEncryptedPayload(),
-                rawTransaction.getNonce(),
-                encryptedMasterKeys,
-                recipientNonce,
-                recipientPublicKeys);
+        return EncodedPayload.Builder.create()
+                .withSenderKey(rawTransaction.getFrom())
+                .withCipherText(rawTransaction.getEncryptedPayload())
+                .withCipherTextNonce(rawTransaction.getNonce())
+                .withRecipientBoxes(encryptedMasterKeys)
+                .withRecipientNonce(recipientNonce)
+                .withRecipientKeys(recipientPublicKeys)
+                .build();
     }
 
     private List<byte[]> buildRecipientMasterKeys(

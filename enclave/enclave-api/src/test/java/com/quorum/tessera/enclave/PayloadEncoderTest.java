@@ -127,13 +127,14 @@ public class PayloadEncoderTest {
                 };
 
         final EncodedPayload payload =
-                new EncodedPayload(
-                        PublicKey.from(sender),
-                        cipherText,
-                        new Nonce(nonce),
-                        singletonList(recipientBox),
-                        new Nonce(recipientNonce),
-                        singletonList(PublicKey.from(recipientKey)));
+                EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from(sender))
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(nonce)
+                        .withRecipientBoxes(singletonList(recipientBox))
+                        .withRecipientNonce(recipientNonce)
+                        .withRecipientKeys(singletonList(PublicKey.from(recipientKey)))
+                        .build();
 
         final byte[] encodedResult = payloadEncoder.encode(payload);
 
