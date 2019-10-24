@@ -4,10 +4,10 @@ import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.vault.data.AzureGetSecretData;
 import com.quorum.tessera.config.vault.data.AzureSetSecretData;
+import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.Key;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,18 +19,19 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AzureVaultKeyGenerator.class);
 
-    private final NaclFacade nacl;
+    private final Encryptor nacl;
 
     private final KeyVaultService<AzureSetSecretData, AzureGetSecretData> keyVaultService;
 
     public AzureVaultKeyGenerator(
-            final NaclFacade nacl, KeyVaultService<AzureSetSecretData, AzureGetSecretData> keyVaultService) {
+            final Encryptor nacl, KeyVaultService<AzureSetSecretData, AzureGetSecretData> keyVaultService) {
         this.nacl = nacl;
         this.keyVaultService = keyVaultService;
     }
 
     @Override
-    public AzureVaultKeyPair generate(String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
+    public AzureVaultKeyPair generate(
+            String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
         final KeyPair keys = this.nacl.generateNewKeys();
 
         final StringBuilder publicId = new StringBuilder();
@@ -41,7 +42,8 @@ public class AzureVaultKeyGenerator implements KeyGenerator {
             final String keyVaultId = path.getFileName().toString();
 
             if (!keyVaultId.matches("^[0-9a-zA-Z\\-]*$")) {
-                throw new UnsupportedCharsetException("Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters");
+                throw new UnsupportedCharsetException(
+                        "Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters");
             }
 
             publicId.append(keyVaultId);

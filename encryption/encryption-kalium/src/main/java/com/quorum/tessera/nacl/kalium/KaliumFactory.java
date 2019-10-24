@@ -7,7 +7,7 @@ import org.abstractj.kalium.NaCl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KaliumFactory implements NaclFacadeFactory {
+public class KaliumFactory implements EncryptorFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KaliumFactory.class);
 

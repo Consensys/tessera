@@ -16,6 +16,10 @@ public class ExecutionContext {
 
     private final CommunicationType communicationType;
 
+    private final CommunicationType p2pCommunicationType;
+
+    private final boolean p2pSsl;
+
     private final SocketType socketType;
 
     private final EnclaveType enclaveType;
@@ -133,13 +137,18 @@ public class ExecutionContext {
             return this;
         }
 
+        public Builder withP2pCommunicationType(CommunicationType p2pCommunicationType) {
+            this.p2pCommunicationType = p2pCommunicationType;
+            return this;
+        }
+
         public Builder with(EnclaveType enclaveType) {
             this.enclaveType = enclaveType;
             return this;
         }
 
         public Builder prefix(String prefix) {
-            this.prefix = Objects.equals("",prefix) ? null : prefix;
+            this.prefix = Objects.equals("", prefix) ? null : prefix;
             return this;
         }
 
@@ -147,6 +156,11 @@ public class ExecutionContext {
 
         public Builder withAdmin(boolean admin) {
             this.admin = admin;
+            return this;
+        }
+
+        public Builder withP2pSsl(boolean p2pSsl) {
+            this.p2pSsl = p2pSsl;
             return this;
         }
 
@@ -193,7 +207,7 @@ public class ExecutionContext {
 
             List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
 
-            //FIXME: YUk
+            // FIXME: YUk
             executionContext.configs = configs;
 
             if (THREAD_SCOPE.get() != null) {
@@ -204,7 +218,6 @@ public class ExecutionContext {
 
             return THREAD_SCOPE.get();
         }
-
     }
 
     private static final ThreadLocal<ExecutionContext> THREAD_SCOPE = new ThreadLocal<ExecutionContext>();
@@ -216,9 +229,7 @@ public class ExecutionContext {
         return THREAD_SCOPE.get();
     }
 
-
     public static void destroyContext() {
         THREAD_SCOPE.remove();
     }
-
 }

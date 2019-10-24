@@ -19,6 +19,8 @@ public @interface ProcessConfig {
 
     CommunicationType communicationType();
 
+    String p2pCommunicationType() default "NONE";
+
     SocketType socketType();
 
     EnclaveType enclaveType() default EnclaveType.LOCAL;

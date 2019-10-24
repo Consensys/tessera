@@ -1,8 +1,6 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.*;
-import com.quorum.tessera.nacl.NaclFacade;
-import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.service.Service;
 import org.junit.After;
 import org.junit.Before;
@@ -21,13 +19,13 @@ public class EnclaveTest {
 
     private Enclave enclave;
 
-    private NaclFacade nacl;
+    private Encryptor nacl;
 
     private KeyManager keyManager;
 
     @Before
     public void onSetUp() {
-        this.nacl = mock(NaclFacade.class);
+        this.nacl = mock(Encryptor.class);
         this.keyManager = mock(KeyManager.class);
 
         this.enclave = new EnclaveImpl(nacl, keyManager);
@@ -52,7 +50,6 @@ public class EnclaveTest {
     public void getForwardingKeys() {
         enclave.getForwardingKeys();
         verify(keyManager).getForwardingKeys();
-
     }
 
     @Test
@@ -100,7 +97,8 @@ public class EnclaveTest {
         when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class)))
                 .thenReturn("sharedOrMasterKeyBytes".getBytes());
 
-        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class))).thenReturn(expectedOutcome);
+        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
 
         byte[] result = enclave.unencryptTransaction(payload, providedSenderKey);
 
@@ -152,7 +150,8 @@ public class EnclaveTest {
         when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class)))
                 .thenReturn("sharedOrMasterKeyBytes".getBytes());
 
-        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class))).thenReturn(expectedOutcome);
+        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
 
         byte[] result = enclave.unencryptTransaction(payload, providedSenderKey);
 
@@ -235,7 +234,8 @@ public class EnclaveTest {
         SharedKey sharedKeyForSender = mock(SharedKey.class);
         when(nacl.computeSharedKey(senderPublicKey, senderPrivateKey)).thenReturn(sharedKeyForSender);
 
-        when(nacl.openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender)).thenReturn(masterKeyBytes);
+        when(nacl.openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender))
+                .thenReturn(masterKeyBytes);
 
         when(nacl.randomNonce()).thenReturn(recipientNonce);
 
@@ -298,7 +298,6 @@ public class EnclaveTest {
         assertThat(result.getEncryptedPayload()).isEqualTo(cipherText);
         assertThat(result.getNonce()).isEqualTo(cipherNonce);
         assertThat(result.getEncryptedKey()).isEqualTo(encryptedMasterKey);
-
 
         verify(nacl).createMasterKey();
         verify(nacl).randomNonce();
@@ -374,5 +373,4 @@ public class EnclaveTest {
         verify(nacl).sealAfterPrecomputation(openbox, nonce, senderShared);
         verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderKey);
     }
-
 }

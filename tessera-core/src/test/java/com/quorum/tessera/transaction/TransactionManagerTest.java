@@ -19,8 +19,8 @@ import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.NaclException;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.EncryptorException;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
@@ -771,7 +771,7 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(NaclException.class);
+                .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);
@@ -841,7 +841,7 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(NaclException.class);
+                .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);
@@ -876,7 +876,7 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(NaclException.class);
+                .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);

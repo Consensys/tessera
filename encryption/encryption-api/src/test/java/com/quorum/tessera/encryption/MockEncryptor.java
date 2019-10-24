@@ -1,12 +1,6 @@
-package com.quorum.tessera.nacl;
+package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.encryption.MasterKey;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
-
-public enum MockNaclFacade implements NaclFacade {
+public enum MockEncryptor implements Encryptor {
 
     INSTANCE;
 

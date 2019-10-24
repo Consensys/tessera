@@ -1,12 +1,11 @@
 package com.quorum.tessera.enclave;
 
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * This class contains the data that is sent to other nodes
- */
+/** This class contains the data that is sent to other nodes */
 public class EncodedPayload {
 
     private final PublicKey senderKey;

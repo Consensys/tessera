@@ -11,7 +11,7 @@ import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
-import com.quorum.tessera.nacl.NaclFacadeFactory;
+import com.quorum.tessera.encryption.EncryptorFactory;
 import com.quorum.tessera.passwords.PasswordReaderFactory;
 import java.util.Objects;
 
@@ -26,7 +26,8 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
         final Encryptor encryptor = encryptorFactory.create(encryptorConfig.getProperties());
 
         if (keyVaultConfig != null) {
-            final KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(keyVaultConfig.getKeyVaultType());
+            final KeyVaultServiceFactory keyVaultServiceFactory =
+                    KeyVaultServiceFactory.getInstance(keyVaultConfig.getKeyVaultType());
 
             final Config config = new Config();
             final KeyConfiguration keyConfiguration = new KeyConfiguration();

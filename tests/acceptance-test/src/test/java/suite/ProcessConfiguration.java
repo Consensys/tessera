@@ -14,6 +14,8 @@ public class ProcessConfiguration {
 
     private CommunicationType communicationType;
 
+    private CommunicationType p2pCommunicationType;
+
     private SocketType socketType;
 
     private EnclaveType enclaveType = EnclaveType.LOCAL;
@@ -93,6 +95,18 @@ public class ProcessConfiguration {
 
     public void setPrefix(final String prefix) {
         this.prefix = prefix;
+    }
+
+    public CommunicationType getP2pCommunicationType() {
+        return p2pCommunicationType;
+    }
+
+    public void setP2pCommunicationType(final CommunicationType p2pCommunicationType) {
+        this.p2pCommunicationType = p2pCommunicationType;
+    }
+
+    public boolean isP2pSsl() {
+        return p2pSsl;
     }
 
     public EncryptorType getEncryptorType() {
