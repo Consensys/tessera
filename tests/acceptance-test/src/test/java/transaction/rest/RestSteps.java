@@ -79,7 +79,8 @@ public class RestSteps implements En {
 
                     final SendRequest sendRequest = new SendRequest();
                     sendRequest.setFrom(sender.getPublicKey());
-                    sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
+                    String unknown = Utils.generateValidButUnknownPublicKey().encodeToBase64();
+                    sendRequest.setTo(unknown);
                     sendRequest.setPayload(txnData);
 
                     final Response response =

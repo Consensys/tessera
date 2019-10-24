@@ -2,6 +2,9 @@ package config;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.encryption.Encryptor;
+import com.quorum.tessera.encryption.EncryptorFactory;
+import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.test.DBType;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -111,49 +114,50 @@ public class ConfigGenerator {
         }
     }
 
+    private Encryptor encryptor = EncryptorFactory.newFactory().create();
+
     private Map<Integer, SortedMap<String, String>> keyLookUp =
             new HashMap<Integer, SortedMap<String, String>>() {
                 {
                     put(
                             1,
                             new TreeMap<String, String>() {
+                                KeyPair pair = encryptor.generateNewKeys();
+
                                 {
-                                    put(
-                                            "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
-                                            "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+                                    put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
                                 }
                             });
 
                     put(
                             2,
                             new TreeMap<String, String>() {
+                                KeyPair pair = encryptor.generateNewKeys();
+
                                 {
-                                    put(
-                                            "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=",
-                                            "fF5UOlKKIwuaNrZ8+KU4WO+pxOYu8tNMQncyxbsSC6U=");
+                                    put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
                                 }
                             });
 
                     put(
                             3,
                             new TreeMap<String, String>() {
+                                KeyPair pair = encryptor.generateNewKeys();
+                                KeyPair pair2 = encryptor.generateNewKeys();
+
                                 {
-                                    put(
-                                            "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=",
-                                            "ygQVE998+w/C+rU/4CVgyhSAJf63YLKufbkqihcpjVI=");
-                                    put(
-                                            "jP4f+k/IbJvGyh0LklWoea2jQfmLwV53m9XoHVS4NSU=",
-                                            "rVtozM4nTmiwGAtOfYBNWO+CZgubzhIdPwGLZn3HrMU=");
+                                    put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                                    put(pair2.getPublicKey().encodeToBase64(), pair2.getPrivateKey().encodeToBase64());
                                 }
                             });
 
                     put(
                             4,
                             new TreeMap<String, String>() {
+                                KeyPair pair = encryptor.generateNewKeys();
+
                                 {
-                                    put(
-                                            "Tj8xg/HpsYmh7Te3UerzlLx1HgpWVOGq25ZgbwaPNVM=",
-                                            "q2UeGA4o9g4rpn4+VdCELQVsbqTTBS0HCpcL/dgal24=");
+                                    put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
                                 }
                             });
                 }

@@ -182,12 +182,14 @@ public class RawSteps implements En {
                 () -> {
                     Party sender = getSender(senderHolder);
 
+                    String unknown = transaction.utils.Utils.generateValidButUnknownPublicKey().encodeToBase64();
+
                     final Response response =
                             sender.getRestClientWebTarget()
                                     .path("sendraw")
                                     .request()
                                     .header(SENDER, sender.getPublicKey())
-                                    .header(RECIPIENTS, "8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=")
+                                    .header(RECIPIENTS, unknown)
                                     .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
                     assertThat(response).isNotNull();
