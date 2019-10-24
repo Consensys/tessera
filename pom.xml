@@ -49,7 +49,8 @@
         <slf4j.version>1.7.5</slf4j.version>
         <eclipselink.version>2.7.3</eclipselink.version>
         <grpc.version>1.14.0</grpc.version>
-        <h2.version>1.4.199</h2.version>
+        <h2.version>1.4.200</h2.version>
+        <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
         <bouncycastle.version>1.61</bouncycastle.version>
         <logback.version>1.2.3</logback.version>
         <jackson.version>2.10.0.pr3</jackson.version>

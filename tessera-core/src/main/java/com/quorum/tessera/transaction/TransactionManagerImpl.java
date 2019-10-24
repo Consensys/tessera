@@ -201,7 +201,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public ResendResponse resend(ResendRequest request) {
 
         final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
