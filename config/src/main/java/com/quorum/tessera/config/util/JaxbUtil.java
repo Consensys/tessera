@@ -25,6 +25,8 @@ public final class JaxbUtil {
 
     public static final Class[] JAXB_CLASSES =
             new Class[] {
+                EncryptorConfig.class,
+                EncryptorType.class,
                 Config.class,
                 KeyDataConfig.class,
                 PrivateKeyData.class,
@@ -38,8 +40,7 @@ public final class JaxbUtil {
                 SslAuthenticationMode.class,
                 SslConfig.class,
                 SslTrustMode.class,
-                EncryptorConfig.class,
-                EncryptorType.class
+                ConfigProperties.class
             };
 
     private JaxbUtil() {}
