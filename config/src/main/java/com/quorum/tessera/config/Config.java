@@ -19,6 +19,9 @@ public class Config extends ConfigItem {
 
     @XmlAttribute private String version = Version.getVersion();
 
+    @XmlElement(name = "encryptor")
+    private EncryptorConfig encryptorConfig;
+
     @NotNull
     @Valid
     @XmlElement(name = "jdbc", required = true)
@@ -192,5 +195,13 @@ public class Config extends ConfigItem {
 
     public void setFeatures(final FeatureToggles features) {
         this.features = features;
+    }
+
+    public EncryptorConfig getEncryptorConfig() {
+        return encryptorConfig;
+    }
+
+    public void setEncryptorConfig(EncryptorConfig encryptorConfig) {
+        this.encryptorConfig = encryptorConfig;
     }
 }
