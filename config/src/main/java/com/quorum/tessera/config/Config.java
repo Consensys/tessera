@@ -19,9 +19,6 @@ public class Config extends ConfigItem {
 
     @XmlAttribute private String version = Version.getVersion();
 
-    @XmlElement(name = "encryptor")
-    private EncryptorConfig encryptorConfig;
-
     @NotNull
     @Valid
     @XmlElement(name = "jdbc", required = true)
@@ -59,6 +56,8 @@ public class Config extends ConfigItem {
     @XmlElement private DeprecatedServerConfig server;
 
     @XmlElement private FeatureToggles features = new FeatureToggles();
+
+    @XmlElement private EncryptorConfig encryptor;
 
     @Deprecated
     public Config(
@@ -197,11 +196,11 @@ public class Config extends ConfigItem {
         this.features = features;
     }
 
-    public EncryptorConfig getEncryptorConfig() {
-        return encryptorConfig;
+    public EncryptorConfig getEncryptor() {
+        return encryptor;
     }
 
-    public void setEncryptorConfig(EncryptorConfig encryptorConfig) {
-        this.encryptorConfig = encryptorConfig;
+    public void setEncryptor(EncryptorConfig encryptor) {
+        this.encryptor = encryptor;
     }
 }
