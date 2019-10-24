@@ -25,10 +25,7 @@ public class FileKeygenSteps implements En {
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     // this is used to check the generated keys against, to produce the SharedKey
-    private final KeyPair knownGoodKeypair =
-            new KeyPair(
-                    PublicKey.from(DECODER.decode("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")),
-                    PrivateKey.from(DECODER.decode("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")));
+    private final KeyPair knownGoodKeypair = EncryptorFactory.newFactory().create().generateNewKeys();
 
     private Path buildDir;
 
