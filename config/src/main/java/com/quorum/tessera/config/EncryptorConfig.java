@@ -11,17 +11,17 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class EncryptorConfig {
 
-    @XmlAttribute private String type;
+    @XmlAttribute private EncryptorType type;
 
     @XmlJavaTypeAdapter(MapAdapter.class)
     @XmlElement
     private Map<String, String> properties;
 
-    public String getType() {
+    public EncryptorType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(EncryptorType type) {
         this.type = type;
     }
 
