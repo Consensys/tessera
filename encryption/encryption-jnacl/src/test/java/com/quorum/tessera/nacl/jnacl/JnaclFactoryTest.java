@@ -19,6 +19,7 @@ public class JnaclFactoryTest {
     public void createInstance() {
         final Encryptor result = jnaclFactory.create();
 
+        assertThat(jnaclFactory.getType()).isEqualTo("NACL");
         assertThat(result).isNotNull().isExactlyInstanceOf(Jnacl.class);
     }
 }
