@@ -18,7 +18,7 @@ public class AecEncryptorFactoryTest {
     @Test
     public void createInstance() {
         final Encryptor result = encryptorFactory.create();
-
+        assertThat(encryptorFactory.getType()).isEqualTo("AEC");
         assertThat(result).isNotNull().isExactlyInstanceOf(AecEncryptor.class);
     }
 }
