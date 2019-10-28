@@ -43,9 +43,7 @@ public class TomlConfigFactory {
             }).map(uri -> uri.getProtocol() + "://" + uri.getHost())
             .orElse(null);
 
-        final Integer port = Optional.ofNullable(toml.getLong("port"))
-            .map(Long::intValue)
-            .orElse(null);
+        final Integer port = Optional.ofNullable(toml.getLong("port")).map(Long::intValue).orElse(0);
 
         final String workdir = toml.getString("workdir", "");
         final String socket = toml.getString("socket");
@@ -61,18 +59,18 @@ public class TomlConfigFactory {
         final List<String> ipwhitelist = toml.getList("ipwhitelist", emptyList());
         final boolean useWhiteList = !ipwhitelist.isEmpty();
 
-        //Server side
+        // Server side
         final String tlsservertrust = toml.getString("tlsservertrust", "tofu");
         final Optional<String> tlsserverkey = Optional.ofNullable(toml.getString("tlsserverkey"));
         final Optional<String> tlsservercert = Optional.ofNullable(toml.getString("tlsservercert"));
-        final Optional<List<String>> tlsserverchainnames = Optional.ofNullable(toml.getList("tlsserverchain", emptyList()));
+        final Optional<List<String>> tlsserverchainnames = Optional.of(toml.getList("tlsserverchain", emptyList()));
         final Optional<String> tlsknownclients = Optional.ofNullable(toml.getString("tlsknownclients"));
 
-        //Client side
+        // Client side
         final String tlsclienttrust = toml.getString("tlsclienttrust", "tofu");
         final Optional<String> tlsclientkey = Optional.ofNullable(toml.getString("tlsclientkey"));
         final Optional<String> tlsclientcert = Optional.ofNullable(toml.getString("tlsclientcert"));
-        final Optional<List<String>> tlsclientchainnames = Optional.ofNullable(toml.getList("tlsclientchain", emptyList()));
+        final Optional<List<String>> tlsclientchainnames = Optional.of(toml.getList("tlsclientchain", emptyList()));
         final Optional<String> tlsknownservers = Optional.ofNullable(toml.getString("tlsknownservers"));
 
         ConfigBuilder configBuilder = ConfigBuilder.create()
@@ -120,5 +118,4 @@ public class TomlConfigFactory {
             .withPrivateKeyPasswordFile(pwd)
             .withWorkingDirectory(workdir);
     }
-
 }
