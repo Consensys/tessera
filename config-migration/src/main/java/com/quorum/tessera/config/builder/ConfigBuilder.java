@@ -9,6 +9,9 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.quorum.tessera.config.AppType.P2P;
+import static com.quorum.tessera.config.AppType.Q2T;
+import static com.quorum.tessera.config.CommunicationType.REST;
 import static java.util.Collections.emptyList;
 
 public class ConfigBuilder {
@@ -21,7 +24,7 @@ public class ConfigBuilder {
 
     private String serverHostname;
 
-    private Integer serverPort;
+    private Integer serverPort = 0;
 
     private JdbcConfig jdbcConfig;
 
@@ -205,18 +208,13 @@ public class ConfigBuilder {
         return this;
     }
 
-    static Path toPath(String workDir, String value) {
-        final Path path;
-
-        if (Optional.ofNullable(workDir).isPresent() && Optional.ofNullable(value).isPresent()) {
-            path = Paths.get(workDir, value);
-        } else if (Optional.ofNullable(value).isPresent()) {
-            path = Paths.get(value);
-        } else {
-            path = null;
+    static Path toPath(final String workDir, final String value) {
+        if (workDir != null && value != null) {
+            return Paths.get(workDir, value);
+        } else if (value != null) {
+            return Paths.get(value);
         }
-
-        return path;
+        return null;
     }
 
     public Config build() {
@@ -253,13 +251,16 @@ public class ConfigBuilder {
                         toPath(workDir, sslClientTlsCertificatePath),
                         null);
 
-        // TODO must add P2P and Q2T server configs. Maybe ThirdParty too - in disabled state.
-        // serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null
-        final DeprecatedServerConfig serverConfig = new DeprecatedServerConfig();
-        serverConfig.setPort(serverPort);
-        serverConfig.setHostName(serverHostname);
-        serverConfig.setCommunicationType(CommunicationType.REST);
-        serverConfig.setSslConfig(sslConfig);
+        final String unixPath =
+                Optional.ofNullable(toPath(workDir, unixSocketFile))
+                        .map(Path::toAbsolutePath)
+                        .map(Path::toString)
+                        .map("unix:"::concat)
+                        .orElse(null);
+        final ServerConfig q2tConfig = new ServerConfig(Q2T, true, unixPath, REST, null, null, null);
+
+        final String address = (serverHostname == null) ? null : serverHostname + ":" + serverPort;
+        final ServerConfig p2pConfig = new ServerConfig(P2P, true, address, REST, sslConfig, null, address);
 
         final List<Peer> peerList;
         if (peers != null) {
@@ -270,7 +271,6 @@ public class ConfigBuilder {
 
         final List<String> forwardingKeys = new ArrayList<>();
         if (alwaysSendTo != null) {
-
             for (String keyPath : alwaysSendTo) {
                 try {
                     List<String> keysFromFile = Files.readAllLines(toPath(workDir, keyPath));
@@ -281,7 +281,7 @@ public class ConfigBuilder {
             }
         }
 
-        Config config = new Config();
+        final Config config = new Config();
         config.setEncryptor(
                 new EncryptorConfig() {
                     {
@@ -289,11 +289,10 @@ public class ConfigBuilder {
                     }
                 });
 
-        config.setServer(serverConfig);
+        config.setServerConfigs(Arrays.asList(q2tConfig, p2pConfig));
         config.setJdbcConfig(jdbcConfig);
         config.setPeers(peerList);
         config.setAlwaysSendTo(forwardingKeys);
-        config.setUnixSocketFile(toPath(workDir, unixSocketFile));
         config.setUseWhiteList(useWhiteList);
         config.setKeys(keyData);
         config.setDisablePeerDiscovery(false);

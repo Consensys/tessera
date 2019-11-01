@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.quorum.tessera.config.AppType.Q2T;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.mock;
@@ -22,44 +23,39 @@ public class TomlConfigFactoryTest {
 
     @Test
     public void createConfigFromSampleFile() throws IOException {
+        final Path passwordFile = Files.createTempFile("password", ".txt");
+        final InputStream template = getClass().getResourceAsStream("/sample-all-values.conf");
 
-        Path passwordFile = Files.createTempFile("password", ".txt");
-        InputStream template = getClass().getResourceAsStream("/sample-all-values.conf");
-
-        Map<String, Object> params = new HashMap<String, Object>() {
-            {
-                put("passwordFile", passwordFile);
-                put("serverKeyStorePath", "serverKeyStorePath");
-            }
-        };
+        final Map<String, Object> params = new HashMap<>();
+        params.put("passwordFile", passwordFile);
+        params.put("serverKeyStorePath", "serverKeyStorePath");
 
         try (InputStream configData = ElUtil.process(template, params)) {
-            Config result = tomlConfigFactory.create(configData, null).build();
+            final Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
-            assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "myipcfile.ipc"));
-            assertThat(result.getServer()).isNotNull();
-            assertThat(result.getServer().getSslConfig()).isNotNull();
 
-            SslConfig sslConfig = result.getServer().getSslConfig();
+            final String unixSocketAddress = this.getUnixSocketServerAddress(result);
+            assertThat(unixSocketAddress).isEqualTo("unix:" + Paths.get("data", "myipcfile.ipc").toAbsolutePath());
 
-            assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
-            assertThat(result.getServer().getPort()).isEqualTo(9001);
-            assertThat(result.getServer().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
+            final ServerConfig p2pServer = result.getP2PServerConfig();
+            assertThat(p2pServer).isNotNull();
+            assertThat(p2pServer.getSslConfig()).isNotNull();
+            assertThat(p2pServer.getServerAddress()).isEqualTo("http://127.0.0.1:9001");
+            assertThat(p2pServer.getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
 
+            final SslConfig sslConfig = p2pServer.getSslConfig();
             assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
             assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
-
         }
     }
 
     @Test
     public void urlPortNotSetInConfig() {
-
         InputStream template = getClass().getResourceAsStream("/sample-all-values-urlport-not-present.conf");
 
         Config result = tomlConfigFactory.create(template, null).build();
 
-        assertThat(result.getServer().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(result.getP2PServerConfig().getServerAddress()).isEqualTo("http://127.0.0.1:0");
     }
 
     @Test
@@ -70,35 +66,27 @@ public class TomlConfigFactoryTest {
         } catch (RuntimeException ex) {
             assertThat(ex).hasMessage("Bad server url given: unknown protocol: ht");
         }
-
     }
 
     @Test
     public void createConfigFromSampleFileOnly() throws IOException {
-
-        Path passwordFile = Files.createTempFile("password", ".txt");
-        InputStream template = getClass().getResourceAsStream("/sample.conf");
-
-        try (InputStream configData = template) {
+        try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
-            assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get("data", "constellation.ipc"));
-            assertThat(result.getServer()).isNotNull();
-            assertThat(result.getServer().getSslConfig()).isNotNull();
 
-            SslConfig sslConfig = result.getServer().getSslConfig();
+            final String unixSocketAddress = this.getUnixSocketServerAddress(result);
+            assertThat(unixSocketAddress).isEqualTo("unix:" + Paths.get("data", "constellation.ipc").toAbsolutePath());
 
-            assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
-            assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
-
+            final ServerConfig p2pServer = result.getP2PServerConfig();
+            assertThat(p2pServer).isNotNull();
+            assertThat(p2pServer.getSslConfig()).isNotNull();
+            assertThat(p2pServer.getSslConfig().getClientTlsKeyPath()).isEqualTo(Paths.get("data/tls-client-key.pem"));
+            assertThat(p2pServer.getSslConfig().getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
         }
-
-        Files.deleteIfExists(passwordFile);
     }
 
     @Test
     public void createConfigFromSampleFileAndAddedPasswordsFile() throws IOException {
-
         Path passwordsFile = Files.createTempFile("createConfigFromSampleFileAndAddedPasswordsFile", ".txt");
 
         List<String> passwordsFileLines = Arrays.asList("PASSWORD_1", "PASSWORD_2", "PASSWORD_3");
@@ -107,11 +95,12 @@ public class TomlConfigFactoryTest {
 
         try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
 
-            List<String> lines = Stream.of(configData)
-                .map(InputStreamReader::new)
-                .map(BufferedReader::new)
-                .flatMap(BufferedReader::lines)
-                .collect(Collectors.toList());
+            final List<String> lines =
+                    Stream.of(configData)
+                            .map(InputStreamReader::new)
+                            .map(BufferedReader::new)
+                            .flatMap(BufferedReader::lines)
+                            .collect(Collectors.toList());
 
             lines.add(String.format("passwords = \"%s\"", passwordsFile.toString()));
 
@@ -119,10 +108,8 @@ public class TomlConfigFactoryTest {
             try (InputStream ammendedInput = new ByteArrayInputStream(data)) {
                 Config result = tomlConfigFactory.create(ammendedInput, null).build();
                 assertThat(result).isNotNull();
-
             }
         }
-
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -134,56 +121,48 @@ public class TomlConfigFactoryTest {
 
     @Test
     public void createConfigFromNoPasswordsFile() throws IOException {
-
         try (InputStream configData = getClass().getResourceAsStream("/sample.conf")) {
-
             Config result = tomlConfigFactory.create(configData, null).build();
             assertThat(result).isNotNull();
-
         }
-
     }
 
     @Test
     public void ifPublicAndPrivateKeyListAreEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-no-keys.conf")) {
-
             KeyConfiguration result = tomlConfigFactory.createKeyDataBuilder(configData).build();
             assertThat(result).isNotNull();
 
             KeyConfiguration expected = new KeyConfiguration(null, null, Collections.emptyList(), null, null);
             assertThat(result).isEqualTo(expected);
-
         }
     }
 
     @Test
     public void ifPublicKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-private-keys.conf")) {
+            final Throwable throwable =
+                    catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
 
-            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
-
-            assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(RuntimeException.class);
+            assertThat(throwable).isInstanceOf(ConfigException.class).hasCauseExactlyInstanceOf(RuntimeException.class);
 
             assertThat(throwable.getCause()).hasMessage("Different amount of public and private keys supplied");
-
         }
     }
 
     @Test
     public void ifPrivateKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-public-keys.conf")) {
+            final Throwable throwable =
+                    catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
 
-            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
-
-            assertThat(throwable)
-                .isInstanceOf(ConfigException.class)
-                .hasCauseExactlyInstanceOf(RuntimeException.class);
+            assertThat(throwable).isInstanceOf(ConfigException.class).hasCauseExactlyInstanceOf(RuntimeException.class);
 
             assertThat(throwable.getCause()).hasMessage("Different amount of public and private keys supplied");
-
         }
+    }
+
+    private String getUnixSocketServerAddress(final Config config) {
+        return config.getServerConfigs().stream().filter(s -> s.getApp() == Q2T).findAny().get().getServerAddress();
     }
 }

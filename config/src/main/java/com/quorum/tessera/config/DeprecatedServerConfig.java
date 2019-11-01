@@ -8,9 +8,14 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static com.quorum.tessera.config.AppType.P2P;
+import static com.quorum.tessera.config.AppType.Q2T;
+import static com.quorum.tessera.config.CommunicationType.GRPC;
+import static com.quorum.tessera.config.CommunicationType.REST;
 
 @Deprecated
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -20,30 +25,19 @@ public class DeprecatedServerConfig extends ConfigItem {
     @XmlElement(required = true)
     private String hostName;
 
-    @NotNull
-    @XmlElement
-    private Integer port;
+    @NotNull @XmlElement private Integer port;
 
-    @XmlElement
-    private Integer grpcPort;
+    @XmlElement private Integer grpcPort;
 
-    @XmlElement
-    private CommunicationType communicationType;
+    @XmlElement private CommunicationType communicationType;
 
-    @Valid
-    @XmlElement
-    @ValidSsl
-    private SslConfig sslConfig;
+    @Valid @XmlElement @ValidSsl private SslConfig sslConfig;
 
-    @Valid
-    @XmlElement
-    private InfluxConfig influxConfig;
+    @Valid @XmlElement private InfluxConfig influxConfig;
 
-    @XmlElement
-    private String bindingAddress;
+    @XmlElement private String bindingAddress;
 
-    public DeprecatedServerConfig() {
-    }
+    public DeprecatedServerConfig() {}
 
     public String getHostName() {
         return hostName;
@@ -109,34 +103,21 @@ public class DeprecatedServerConfig extends ConfigItem {
             return Collections.emptyList();
         }
 
-        ServerConfig q2tConfig = new ServerConfig();
-        q2tConfig.setEnabled(true);
-        q2tConfig.setApp(AppType.Q2T);
-        q2tConfig.setCommunicationType(CommunicationType.REST);
-        String uriValue = "unix:"+ String.valueOf(unixSocketFile);
-        q2tConfig.setServerAddress(uriValue);
-        q2tConfig.setInfluxConfig(server.getInfluxConfig());
+        final ServerConfig q2tConfig =
+                new ServerConfig(Q2T, true, "unix:" + unixSocketFile, REST, null, server.getInfluxConfig(), null);
 
-        ServerConfig p2pConfig = new ServerConfig();
-        p2pConfig.setEnabled(true);
-        p2pConfig.setApp(AppType.P2P);
+        final Integer port = (server.getCommunicationType() == GRPC) ? server.getGrpcPort() : server.getPort();
 
-        if (server.getCommunicationType() == CommunicationType.GRPC) {
-            p2pConfig.setServerAddress(server.getHostName() +":"+ server.getGrpcPort());
-            p2pConfig.setCommunicationType(CommunicationType.GRPC);
-        } else {
-            p2pConfig.setServerAddress(server.getHostName() +":"+ server.getPort());
-            p2pConfig.setCommunicationType(CommunicationType.REST);
-        }
-        p2pConfig.setInfluxConfig(server.getInfluxConfig());
-        p2pConfig.setSslConfig(server.getSslConfig());
-        p2pConfig.setBindingAddress(server.getBindingAddress());
+        final ServerConfig p2pConfig =
+                new ServerConfig(
+                        P2P,
+                        true,
+                        server.getHostName() + ":" + port,
+                        server.getCommunicationType(),
+                        server.getSslConfig(),
+                        server.getInfluxConfig(),
+                        server.getBindingAddress());
 
-        List<ServerConfig> srvConfigs = new ArrayList<>();
-        srvConfigs.add(q2tConfig);
-        srvConfigs.add(p2pConfig);
-
-        return srvConfigs;
+        return Arrays.asList(q2tConfig, p2pConfig);
     }
-
 }

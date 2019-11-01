@@ -9,6 +9,7 @@ import com.quorum.tessera.config.builder.KeyDataBuilder;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import com.quorum.tessera.io.SystemAdapter;
 import com.quorum.tessera.test.util.ElUtil;
+import org.assertj.core.groups.Tuple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,6 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.quorum.tessera.config.AppType.Q2T;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -92,60 +94,47 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         final Config config = result.getConfig().get();
+        final ServerConfig p2pServer = config.getP2PServerConfig();
+        final SslConfig sslConfig = p2pServer.getSslConfig();
 
-        assertThat(config.getServer().getHostName()).isEqualTo("http://127.0.0.1");
-        assertThat(config.getServer().getPort()).isEqualTo(9001);
-        assertThat(config.getServer().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
-        assertThat(config.getUnixSocketFile().toString()).isEqualTo("data/constellation.ipc");
-        assertThat(config.getPeers().size()).isEqualTo(2);
-        assertThat(config.getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
-        assertThat(config.getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
-        assertThat(config.getKeys().getKeyData().size()).isEqualTo(2);
-        assertThat(config.getKeys().getKeyData().get(0))
-                .extracting("publicKeyPath")
-                .containsExactly(Paths.get("data/foo.pub"));
-        assertThat(config.getKeys().getKeyData().get(0))
-                .extracting("privateKeyPath")
-                .containsExactly(Paths.get("data/foo.key"));
-        assertThat(config.getKeys().getKeyData().get(1))
-                .extracting("publicKeyPath")
-                .containsExactly(Paths.get("data/foo2.pub"));
-        assertThat(config.getKeys().getKeyData().get(1))
-                .extracting("privateKeyPath")
-                .containsExactly(Paths.get("data/foo2.key"));
-        assertThat(config.getAlwaysSendTo().size()).isEqualTo(3);
-        assertThat(config.getAlwaysSendTo().get(0)).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(config.getAlwaysSendTo().get(1)).isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
-        assertThat(config.getAlwaysSendTo().get(2)).isEqualTo("yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=");
+        assertThat(p2pServer.getServerAddress()).isEqualTo("http://127.0.0.1:9001");
+        assertThat(p2pServer.getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
+        assertThat(this.getUnixSocketServerAddress(config))
+                .isEqualTo("unix:" + Paths.get("data/constellation.ipc").toAbsolutePath());
+        assertThat(config.getPeers())
+                .hasSize(2)
+                .extracting("url")
+                .containsExactlyInAnyOrder("http://127.0.0.1:9001/", "http://127.0.0.1:9002/");
+        assertThat(config.getKeys().getKeyData())
+                .hasSize(2)
+                .extracting("publicKeyPath", "privateKeyPath")
+                .containsExactlyInAnyOrder(
+                        Tuple.tuple(Paths.get("data/foo.pub"), Paths.get("data/foo.key")),
+                        Tuple.tuple(Paths.get("data/foo2.pub"), Paths.get("data/foo2.key")));
+        assertThat(config.getAlwaysSendTo())
+                .hasSize(3)
+                .containsExactlyInAnyOrder(
+                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                        "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=",
+                        "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=");
         assertThat(config.getKeys().getPasswordFile().toString()).isEqualTo("data/passwords");
         assertThat(config.getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(config.isUseWhiteList()).isTrue();
-        assertThat(config.getServer().getSslConfig().getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
-        assertThat(config.getServer().getSslConfig().getServerTlsCertificatePath().toString())
-                .isEqualTo("data/tls-server-cert.pem");
-        assertThat(config.getServer().getSslConfig().getServerTrustCertificates().size()).isEqualTo(2);
-        assertThat(config.getServer().getSslConfig().getServerTrustCertificates().get(0).toString())
-                .isEqualTo("data/chain1");
-        assertThat(config.getServer().getSslConfig().getServerTrustCertificates().get(1).toString())
-                .isEqualTo("data/chain2");
-        assertThat(config.getServer().getSslConfig().getServerTlsKeyPath().toString())
-                .isEqualTo("data/tls-server-key.pem");
-        assertThat(config.getServer().getSslConfig().getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(config.getServer().getSslConfig().getKnownClientsFile().toString())
-                .isEqualTo("data/tls-known-clients");
-        assertThat(config.getServer().getSslConfig().getClientTlsCertificatePath().toString())
-                .isEqualTo("data/tls-client-cert.pem");
-        assertThat(config.getServer().getSslConfig().getClientTrustCertificates().size()).isEqualTo(2);
-        assertThat(config.getServer().getSslConfig().getClientTrustCertificates().get(0).toString())
-                .isEqualTo("data/clientchain1");
-        assertThat(config.getServer().getSslConfig().getClientTrustCertificates().get(1).toString())
-                .isEqualTo("data/clientchain2");
-        assertThat(config.getServer().getSslConfig().getClientTlsKeyPath().toString())
-                .isEqualTo("data/tls-client-key.pem");
-        assertThat(config.getServer().getSslConfig().getClientTrustMode())
-                .isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
-        assertThat(config.getServer().getSslConfig().getKnownServersFile().toString())
-                .isEqualTo("data/tls-known-servers");
+        assertThat(sslConfig.getTls()).isEqualByComparingTo(SslAuthenticationMode.STRICT);
+        assertThat(sslConfig.getServerTlsCertificatePath().toString()).isEqualTo("data/tls-server-cert.pem");
+        assertThat(sslConfig.getServerTrustCertificates())
+                .hasSize(2)
+                .containsExactlyInAnyOrder(Paths.get("data/chain1"), Paths.get("data/chain2"));
+        assertThat(sslConfig.getServerTlsKeyPath().toString()).isEqualTo("data/tls-server-key.pem");
+        assertThat(sslConfig.getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(sslConfig.getKnownClientsFile().toString()).isEqualTo("data/tls-known-clients");
+        assertThat(sslConfig.getClientTlsCertificatePath().toString()).isEqualTo("data/tls-client-cert.pem");
+        assertThat(sslConfig.getClientTrustCertificates())
+                .hasSize(2)
+                .containsExactlyInAnyOrder(Paths.get("data/clientchain1"), Paths.get("data/clientchain2"));
+        assertThat(sslConfig.getClientTlsKeyPath().toString()).isEqualTo("data/tls-client-key.pem");
+        assertThat(sslConfig.getClientTrustMode()).isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
+        assertThat(sslConfig.getKnownServersFile().toString()).isEqualTo("data/tls-known-servers");
     }
 
     @Test
@@ -225,53 +214,39 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
 
-        assertThat(result.getConfig().get().getServer().getHostName()).isEqualTo("http://override");
-        assertThat(result.getConfig().get().getServer().getPort()).isEqualTo(1111);
-        assertThat(result.getConfig().get().getServer().getBindingAddress()).isEqualTo("http://override:1111");
-        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("override/cli.ipc");
-        assertThat(result.getConfig().get().getPeers().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://others");
-        assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0))
-                .extracting("publicKeyPath")
-                .containsExactly(Paths.get("override/new.pub"));
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0))
-                .extracting("privateKeyPath")
-                .containsExactly(Paths.get("override/new.key"));
-        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getAlwaysSendTo().get(0))
-                .isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(result.getConfig().get().getAlwaysSendTo().get(1))
-                .isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
-        assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/pw.txt");
-        assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
-        assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
-        assertThat(result.getConfig().get().getServer().getSslConfig().getTls())
-                .isEqualByComparingTo(SslAuthenticationMode.OFF);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsCertificatePath().toString())
-                .isEqualTo("override/over-server-cert.pem");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().size())
-                .isEqualTo(1);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().get(0).toString())
-                .isEqualTo("override/serverchain.file");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsKeyPath().toString())
-                .isEqualTo("override/over-server-key.pem");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustMode())
-                .isEqualByComparingTo(SslTrustMode.WHITELIST);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownClientsFile().toString())
-                .isEqualTo("override/over-known-clients");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsCertificatePath().toString())
-                .isEqualTo("override/over-client-cert.pem");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().size())
-                .isEqualTo(1);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().get(0).toString())
-                .isEqualTo("override/clientchain.file");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsKeyPath().toString())
-                .isEqualTo("override/over-client-key.pem");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode())
-                .isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile().toString())
-                .isEqualTo("override/over-known-servers");
+        final Config config = result.getConfig().get();
+        final ServerConfig p2pServer = config.getP2PServerConfig();
+        final SslConfig sslConfig = p2pServer.getSslConfig();
+
+        assertThat(p2pServer.getServerAddress()).isEqualTo("http://override:1111");
+        assertThat(p2pServer.getBindingAddress()).isEqualTo("http://override:1111");
+        assertThat(this.getUnixSocketServerAddress(config))
+                .isEqualTo("unix:" + Paths.get("override/cli.ipc").toAbsolutePath());
+        assertThat(config.getPeers()).hasSize(1).extracting("url").containsExactlyInAnyOrder("http://others");
+        assertThat(config.getKeys().getKeyData())
+                .hasSize(1)
+                .flatExtracting("publicKeyPath", "privateKeyPath")
+                .containsExactlyInAnyOrder(Paths.get("override/new.pub"), Paths.get("override/new.key"));
+        assertThat(config.getAlwaysSendTo())
+                .hasSize(2)
+                .containsExactlyInAnyOrder(
+                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
+        assertThat(config.getKeys().getPasswordFile().toString()).isEqualTo("override/pw.txt");
+        assertThat(config.getJdbcConfig().getUrl()).isEqualTo("jdbc:test");
+        assertThat(config.isUseWhiteList()).isTrue();
+        assertThat(sslConfig.getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
+        assertThat(sslConfig.getServerTlsCertificatePath().toString()).isEqualTo("override/over-server-cert.pem");
+        assertThat(sslConfig.getServerTrustCertificates()).hasSize(1);
+        assertThat(sslConfig.getServerTrustCertificates().get(0).toString()).isEqualTo("override/serverchain.file");
+        assertThat(sslConfig.getServerTlsKeyPath().toString()).isEqualTo("override/over-server-key.pem");
+        assertThat(sslConfig.getServerTrustMode()).isEqualByComparingTo(SslTrustMode.WHITELIST);
+        assertThat(sslConfig.getKnownClientsFile().toString()).isEqualTo("override/over-known-clients");
+        assertThat(sslConfig.getClientTlsCertificatePath().toString()).isEqualTo("override/over-client-cert.pem");
+        assertThat(sslConfig.getClientTrustCertificates()).hasSize(1);
+        assertThat(sslConfig.getClientTrustCertificates().get(0).toString()).isEqualTo("override/clientchain.file");
+        assertThat(sslConfig.getClientTlsKeyPath().toString()).isEqualTo("override/over-client-key.pem");
+        assertThat(sslConfig.getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(sslConfig.getKnownServersFile().toString()).isEqualTo("override/over-known-servers");
 
         Files.walk(workdir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
     }
@@ -299,35 +274,34 @@ public class LegacyCliAdapterTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
-        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("myipcfile.ipc");
+        final Config config = result.getConfig().get();
+        final SslConfig sslConfig = config.getP2PServerConfig().getSslConfig();
+
+        assertThat(this.getUnixSocketServerAddress(config))
+                .isEqualTo("unix:" + Paths.get("myipcfile.ipc").toAbsolutePath());
         // Empty List
-        assertThat(Optional.ofNullable(result.getConfig().get().getKeys().getKeyData()).isPresent()).isEqualTo(true);
-        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(0);
-        assertThat(result.getConfig().get().getKeys().getPasswordFile()).isNull();
-        assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
-        assertThat(result.getConfig().get().isUseWhiteList()).isFalse();
-        assertThat(result.getConfig().get().getServer().getSslConfig().getTls())
-                .isEqualByComparingTo(SslAuthenticationMode.OFF);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsCertificatePath()).isNull();
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().size())
-                .isEqualTo(0);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsKeyPath()).isNull();
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustMode())
-                .isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownClientsFile()).isNull();
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsCertificatePath()).isNull();
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().size())
-                .isEqualTo(0);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsKeyPath()).isNull();
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode())
-                .isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile()).isNull();
+        assertThat(config.getKeys().getKeyData()).isNotNull();
+        assertThat(config.getAlwaysSendTo()).isEmpty();
+        assertThat(config.getKeys().getPasswordFile()).isNull();
+        assertThat(config.getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
+        assertThat(config.isUseWhiteList()).isFalse();
+        assertThat(sslConfig.getTls()).isEqualByComparingTo(SslAuthenticationMode.OFF);
+        assertThat(sslConfig.getServerTlsCertificatePath()).isNull();
+        assertThat(sslConfig.getServerTrustCertificates()).isEmpty();
+        assertThat(sslConfig.getServerTlsKeyPath()).isNull();
+        assertThat(sslConfig.getServerTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(sslConfig.getKnownClientsFile()).isNull();
+        assertThat(sslConfig.getClientTlsCertificatePath()).isNull();
+        assertThat(sslConfig.getClientTrustCertificates()).isEmpty();
+        assertThat(sslConfig.getClientTlsKeyPath()).isNull();
+        assertThat(sslConfig.getClientTrustMode()).isEqualByComparingTo(SslTrustMode.TOFU);
+        assertThat(sslConfig.getKnownServersFile()).isNull();
     }
 
     @Test
     public void ifWorkDirCliOverrideIsProvidedThenItIsAppliedToBothTomlAndCliSetParameters() throws Exception {
 
-        Path workdir = Paths.get("override");
+        final Path workdir = Paths.get("override");
 
         if (Files.exists(workdir)) {
             Files.walk(workdir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
@@ -338,7 +312,7 @@ public class LegacyCliAdapterTest {
         Path alwaysSendToFile = Files.createFile(workdir.resolve("alwayssendto"));
         Files.write(
                 alwaysSendToFile,
-                ("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\n" + "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=")
+                "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=\njWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk="
                         .getBytes());
 
         Path sampleFile = Paths.get(getClass().getResource("/sample-toml-no-nulls-tls-off.conf").toURI());
@@ -363,96 +337,77 @@ public class LegacyCliAdapterTest {
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
 
-        assertThat(result.getConfig().get().getServer().getHostName()).isEqualTo("http://127.0.0.1");
-        assertThat(result.getConfig().get().getServer().getPort()).isEqualTo(9001);
-        assertThat(result.getConfig().get().getServer().getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
-        assertThat(result.getConfig().get().getUnixSocketFile().toString()).isEqualTo("override/constellation.ipc");
-        assertThat(result.getConfig().get().getPeers().size()).isEqualTo(2);
-        assertThat(result.getConfig().get().getPeers().get(0).getUrl()).isEqualTo("http://127.0.0.1:9001/");
-        assertThat(result.getConfig().get().getPeers().get(1).getUrl()).isEqualTo("http://127.0.0.1:9002/");
-        assertThat(result.getConfig().get().getKeys().getKeyData().size()).isEqualTo(1);
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0))
-                .extracting("publicKeyPath")
-                .containsExactly(Paths.get("override/new.pub"));
-        assertThat(result.getConfig().get().getKeys().getKeyData().get(0))
-                .extracting("privateKeyPath")
-                .containsExactly(Paths.get("override/new.key"));
-        assertThat(result.getConfig().get().getAlwaysSendTo().size()).isEqualTo(4);
-        assertThat(result.getConfig().get().getAlwaysSendTo().get(0))
-                .isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(result.getConfig().get().getAlwaysSendTo().get(1))
-                .isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
-        assertThat(result.getConfig().get().getAlwaysSendTo().get(2))
-                .isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
-        assertThat(result.getConfig().get().getAlwaysSendTo().get(3))
-                .isEqualTo("jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
-        assertThat(result.getConfig().get().getKeys().getPasswordFile().toString()).isEqualTo("override/passwords");
-        assertThat(result.getConfig().get().getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
-        assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
-        assertThat(result.getConfig().get().getServer().getSslConfig().getTls())
-                .isEqualByComparingTo(SslAuthenticationMode.OFF);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsCertificatePath().toString())
-                .isEqualTo("override/tls-server-cert.pem");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().size())
-                .isEqualTo(2);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().get(0).toString())
-                .isEqualTo("override/chain1");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustCertificates().get(1).toString())
-                .isEqualTo("override/chain2");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTlsKeyPath().toString())
-                .isEqualTo("override/tls-server-key.pem");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getServerTrustMode())
-                .isEqualByComparingTo(SslTrustMode.TOFU);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownClientsFile().toString())
-                .isEqualTo("override/tls-known-clients");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsCertificatePath().toString())
-                .isEqualTo("override/tls-client-cert.pem");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().size())
-                .isEqualTo(2);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().get(0).toString())
-                .isEqualTo("override/clientchain1");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustCertificates().get(1).toString())
-                .isEqualTo("override/clientchain2");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTlsKeyPath().toString())
-                .isEqualTo("override/tls-client-key.pem");
-        assertThat(result.getConfig().get().getServer().getSslConfig().getClientTrustMode())
-                .isEqualByComparingTo(SslTrustMode.CA_OR_TOFU);
-        assertThat(result.getConfig().get().getServer().getSslConfig().getKnownServersFile().toString())
-                .isEqualTo("override/tls-known-servers");
+        final Config config = result.getConfig().get();
+        final ServerConfig p2pServer = config.getP2PServerConfig();
+        final SslConfig sslConfig = p2pServer.getSslConfig();
+
+        assertThat(p2pServer.getServerAddress()).isEqualTo("http://127.0.0.1:9001");
+        assertThat(p2pServer.getBindingAddress()).isEqualTo("http://127.0.0.1:9001");
+        assertThat(this.getUnixSocketServerAddress(config))
+                .isEqualTo("unix:" + Paths.get("override/constellation.ipc").toAbsolutePath());
+        assertThat(config.getPeers())
+                .hasSize(2)
+                .extracting("url")
+                .containsExactly("http://127.0.0.1:9001/", "http://127.0.0.1:9002/");
+        assertThat(config.getKeys().getKeyData()).hasSize(1);
+        assertThat(config.getKeys().getKeyData().get(0))
+                .extracting("publicKeyPath", "privateKeyPath")
+                .containsExactlyInAnyOrder(Paths.get("override/new.pub"), Paths.get("override/new.key"));
+        assertThat(config.getAlwaysSendTo())
+                .hasSize(4)
+                .containsExactlyInAnyOrder(
+                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                        "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=",
+                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                        "jWKqelS4XjJ67JBbuKE7x9CVGFJ706wRYy/ev/OCOzk=");
+        assertThat(config.getKeys().getPasswordFile().toString()).isEqualTo("override/passwords");
+        assertThat(config.getJdbcConfig().getUrl()).isEqualTo("jdbc:h2:mem:tessera");
+        assertThat(config.isUseWhiteList()).isTrue();
+        assertThat(sslConfig.getTls()).isEqualTo(SslAuthenticationMode.OFF);
+        assertThat(sslConfig.getServerTlsCertificatePath().toString()).isEqualTo("override/tls-server-cert.pem");
+        assertThat(sslConfig.getServerTrustCertificates())
+                .hasSize(2)
+                .containsExactlyInAnyOrder(Paths.get("override/chain1"), Paths.get("override/chain2"));
+        assertThat(sslConfig.getServerTlsKeyPath().toString()).isEqualTo("override/tls-server-key.pem");
+        assertThat(sslConfig.getServerTrustMode()).isEqualTo(SslTrustMode.TOFU);
+        assertThat(sslConfig.getKnownClientsFile().toString()).isEqualTo("override/tls-known-clients");
+        assertThat(sslConfig.getClientTlsCertificatePath().toString()).isEqualTo("override/tls-client-cert.pem");
+        assertThat(sslConfig.getClientTrustCertificates())
+                .hasSize(2)
+                .containsExactlyInAnyOrder(Paths.get("override/clientchain1"), Paths.get("override/clientchain2"));
+        assertThat(sslConfig.getClientTlsKeyPath().toString()).isEqualTo("override/tls-client-key.pem");
+        assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+        assertThat(sslConfig.getKnownServersFile().toString()).isEqualTo("override/tls-known-servers");
     }
 
     @Test
     public void urlNotSetGivesNullHostname() throws Exception {
+        final Path configFile = Files.createTempFile("emptyConfig", ".txt");
 
-        Path configFile = Files.createTempFile("emptyConfig", ".txt");
-
-        String[] requiredParams = {
-            "--tomlfile=" + configFile.toString(), "--port=9001", "--othernodes=localhost:1111",
+        final String[] requiredParams = {
+            "--tomlfile", configFile.toString(), "--port", "9001", "--othernodes", "localhost:1111"
         };
 
-        CliResult result = instance.execute(requiredParams);
+        final CliResult result = instance.execute(requiredParams);
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-
-        assertThat(result.getConfig().get().getServer().getHostName()).isNull();
+        assertThat(result.getConfig().get().getP2PServerConfig().getServerAddress()).isNull();
     }
 
     @Test
     public void urlWithPortSet() throws Exception {
+        final Path configFile = Files.createTempFile("emptyConfig", ".txt");
 
-        Path configFile = Files.createTempFile("emptyConfig", ".txt");
-
-        String[] requiredParams = {
-            "--tomlfile", configFile.toString(), "--url", "http://127.0.0.1:9001", "--port", "9001",
+        final String[] requiredParams = {
+            "--tomlfile", configFile.toString(), "--url", "http://127.0.0.1:9001", "--port", "9001"
         };
 
-        CliResult result = CliDelegate.instance().execute(requiredParams);
+        final CliResult result = CliDelegate.instance().execute(requiredParams);
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-
-        assertThat(result.getConfig().get().getServer().getHostName()).isEqualTo("http://127.0.0.1");
+        assertThat(result.getConfig().get().getP2PServerConfig().getServerAddress()).isEqualTo("http://127.0.0.1:9001");
     }
 
     @Test
@@ -597,9 +552,9 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder result = instance.applyOverrides(configBuilder, KeyDataBuilder.create());
 
-        Path expected = Paths.get(tomlWorkDir, socketFilepath);
+        Path expected = Paths.get(tomlWorkDir, socketFilepath).toAbsolutePath();
 
-        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+        assertThat(this.getUnixSocketServerAddress(result.build())).isEqualTo("unix:" + expected);
     }
 
     @Test
@@ -616,9 +571,9 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder result = instance.applyOverrides(configBuilder, KeyDataBuilder.create());
 
-        Path expected = Paths.get(overrideWorkDir, socketFilepath);
+        Path expected = Paths.get(overrideWorkDir, socketFilepath).toAbsolutePath();
 
-        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+        assertThat(this.getUnixSocketServerAddress(result.build())).isEqualTo("unix:" + expected);
     }
 
     @Test
@@ -633,9 +588,9 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder result = instance.applyOverrides(configBuilder, KeyDataBuilder.create());
 
-        Path expected = Paths.get(socketFilepath);
+        Path expected = Paths.get(socketFilepath).toAbsolutePath();
 
-        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+        assertThat(this.getUnixSocketServerAddress(result.build())).isEqualTo("unix:" + expected);
     }
 
     @Test
@@ -652,9 +607,9 @@ public class LegacyCliAdapterTest {
 
         ConfigBuilder result = instance.applyOverrides(configBuilder, KeyDataBuilder.create());
 
-        Path expected = Paths.get(overrideWorkDir, socketFilepath);
+        Path expected = Paths.get(overrideWorkDir, socketFilepath).toAbsolutePath();
 
-        assertThat(result.build().getUnixSocketFile()).isEqualByComparingTo(expected);
+        assertThat(this.getUnixSocketServerAddress(result.build())).isEqualTo("unix:" + expected);
     }
 
     @Test
@@ -706,12 +661,13 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
 
-        final SslConfig sslConfig = result.getServer().getSslConfig();
+        final ServerConfig serverConfig = result.getP2PServerConfig();
+        final SslConfig sslConfig = serverConfig.getSslConfig();
 
-        assertThat(result.getServer().getHostName()).isEqualTo("http://junit.com");
-        assertThat(result.getServer().getPort()).isEqualTo(portOverride);
-        assertThat(result.getServer().getBindingAddress()).isEqualTo("http://junit.com:" + portOverride);
-        assertThat(result.getUnixSocketFile()).isEqualTo(Paths.get(workdirOverride, unixSocketFileOverride));
+        assertThat(serverConfig.getBindingAddress()).isEqualTo("http://junit.com:" + portOverride);
+        assertThat(serverConfig.getServerAddress()).isEqualTo("http://junit.com:" + portOverride);
+        assertThat(this.getUnixSocketServerAddress(result))
+                .isEqualTo("unix:" + Paths.get(workdirOverride, unixSocketFileOverride).toAbsolutePath());
         assertThat(result.getPeers()).containsExactly(overridePeers.toArray(new Peer[0]));
         assertThat(result.getKeys().getKeyData()).hasSize(2);
         assertThat(result.getJdbcConfig()).isNotNull();
@@ -721,19 +677,16 @@ public class LegacyCliAdapterTest {
         assertThat(sslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA);
         assertThat(sslConfig.getClientTlsCertificatePath()).isEqualTo(Paths.get("workdirOverride/tlsclientcert.cert"));
         assertThat(sslConfig.getServerTlsCertificatePath()).isEqualTo(Paths.get("workdirOverride/tlsservercert.cert"));
-
         assertThat(sslConfig.getServerTrustCertificates())
                 .containsExactly(
                         Paths.get(workdirOverride, "server1.crt"),
                         Paths.get(workdirOverride, "server2.crt"),
                         Paths.get(workdirOverride, "server3.crt"));
-
         assertThat(sslConfig.getClientTrustCertificates())
                 .containsExactly(
                         Paths.get(workdirOverride, "client1.crt"),
                         Paths.get(workdirOverride, "client2.crt"),
                         Paths.get(workdirOverride, "client3.crt"));
-
         assertThat(sslConfig.getServerKeyStore()).isEqualTo(Paths.get("workdirOverride/sslServerKeyStorePath"));
         assertThat(sslConfig.getClientKeyStore()).isEqualTo(Paths.get("workdirOverride/sslClientKeyStorePath"));
         assertThat(sslConfig.getKnownServersFile()).isEqualTo(Paths.get("workdirOverride/tlsknownservers.file"));
@@ -748,18 +701,16 @@ public class LegacyCliAdapterTest {
 
         assertThat(result).isNotNull();
 
-        final DeprecatedServerConfig expectedServerConfig = expectedValues.getServer();
-        final DeprecatedServerConfig realServerConfig = result.getServer();
+        final ServerConfig expectedServerConfig = expectedValues.getP2PServerConfig();
+        final ServerConfig realServerConfig = result.getP2PServerConfig();
         final SslConfig sslConfig = realServerConfig.getSslConfig();
 
-        assertThat(realServerConfig.getHostName()).isEqualTo(expectedServerConfig.getHostName());
-        assertThat(realServerConfig.getPort()).isEqualTo(expectedServerConfig.getPort());
+        assertThat(realServerConfig.getServerAddress()).isEqualTo(expectedServerConfig.getServerAddress());
         assertThat(realServerConfig.getBindingAddress()).isEqualTo(expectedServerConfig.getBindingAddress());
 
-        assertThat(result.getUnixSocketFile()).isEqualTo(expectedValues.getUnixSocketFile());
+        assertThat(this.getUnixSocketServerAddress(result)).isEqualTo(this.getUnixSocketServerAddress(expectedValues));
 
         assertThat(result.getPeers()).containsOnlyElementsOf(expectedValues.getPeers());
-
         assertThat(result.getJdbcConfig().getUrl()).isEqualTo("jdbc:bogus");
 
         assertThat(sslConfig.getServerTrustMode()).isEqualTo(SslTrustMode.TOFU);
@@ -781,5 +732,9 @@ public class LegacyCliAdapterTest {
         CliResult result = LegacyCliAdapter.writeToOutputFile(config, outputPath);
 
         assertThat(result.getStatus()).isEqualTo(2);
+    }
+
+    private String getUnixSocketServerAddress(final Config config) {
+        return config.getServerConfigs().stream().filter(s -> s.getApp() == Q2T).findAny().get().getServerAddress();
     }
 }
