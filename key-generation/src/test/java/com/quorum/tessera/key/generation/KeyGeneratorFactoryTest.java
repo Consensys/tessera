@@ -20,7 +20,7 @@ public class KeyGeneratorFactoryTest {
         final EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
 
         EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
-        when(encryptorConfig.getType()).thenReturn(EncryptorType.AEC);
+        when(encryptorConfig.getType()).thenReturn(EncryptorType.EC);
         when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
 
         final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(null, encryptorConfig);
@@ -35,7 +35,7 @@ public class KeyGeneratorFactoryTest {
         final AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig();
 
         EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
-        when(encryptorConfig.getType()).thenReturn(EncryptorType.AEC);
+        when(encryptorConfig.getType()).thenReturn(EncryptorType.EC);
         when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
 
         final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig);
@@ -49,7 +49,7 @@ public class KeyGeneratorFactoryTest {
         final HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig();
 
         EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
-        when(encryptorConfig.getType()).thenReturn(EncryptorType.AEC);
+        when(encryptorConfig.getType()).thenReturn(EncryptorType.EC);
         when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
 
         final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig);

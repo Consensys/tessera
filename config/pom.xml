@@ -60,7 +60,7 @@
         
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>encryption-aec</artifactId>
+            <artifactId>encryption-ec</artifactId>
         </dependency>
 
         <dependency>

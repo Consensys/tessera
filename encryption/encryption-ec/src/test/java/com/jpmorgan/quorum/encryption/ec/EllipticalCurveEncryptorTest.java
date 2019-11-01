@@ -1,5 +1,6 @@
 
-package com.jpmorgan.quorum.encryption.aec;
+package com.jpmorgan.quorum.encryption.ec;
+
 
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.EncryptorFactory;
@@ -17,12 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class AecEncryptorTest {
-private static final Logger LOGGER = LoggerFactory.getLogger(AecEncryptor.class);
+public class EllipticalCurveEncryptorTest {
+private static final Logger LOGGER = LoggerFactory.getLogger(EllipticalCurveEncryptor.class);
 
-    private final EncryptorFactory facadeFactory = new AecEncryptorFactory();
+    private final EncryptorFactory facadeFactory = new EllipticalCurveEncryptorFactory();
     
-    private final AecEncryptor encryptor = (AecEncryptor) facadeFactory.create();
+    private final EllipticalCurveEncryptor encryptor = (EllipticalCurveEncryptor) facadeFactory.create();
 
     @Test
     public void computeSharedKey() {
@@ -63,7 +64,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(AecEncryptor.class)
 
     @Test(expected = EncryptorException.class)
     public void sealAfterPrecomputationInvalidSymmetricCipher() {
-        AecEncryptor facade = new AecEncryptor("garbage", "secp256r1");
+        EllipticalCurveEncryptor facade = new EllipticalCurveEncryptor("garbage", "secp256r1");
         MasterKey masterKey = encryptor.createMasterKey();
         Nonce nonce = encryptor.randomNonce();
         facade.sealAfterPrecomputation("test".getBytes(), nonce, masterKey);
@@ -71,7 +72,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(AecEncryptor.class)
 
     @Test(expected = EncryptorException.class)
     public void openAfterPrecomputationInvalidSymmetricCipher() {
-        AecEncryptor facade = new AecEncryptor("garbage", "secp256r1");
+        EllipticalCurveEncryptor facade = new EllipticalCurveEncryptor("garbage", "secp256r1");
         MasterKey masterKey = encryptor.createMasterKey();
         Nonce nonce = encryptor.randomNonce();
         facade.openAfterPrecomputation("test".getBytes(), nonce, masterKey);
@@ -110,6 +111,6 @@ private static final Logger LOGGER = LoggerFactory.getLogger(AecEncryptor.class)
 
     @Test(expected = EncryptorException.class)
     public void invalidCurve() {
-        new AecEncryptor("asdf", "nonsense");
+        new EllipticalCurveEncryptor("asdf", "nonsense");
     }
 }
