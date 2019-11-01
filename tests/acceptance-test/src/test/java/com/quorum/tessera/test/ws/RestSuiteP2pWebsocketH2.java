@@ -1,6 +1,7 @@
 package com.quorum.tessera.test.ws;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.rest.DeleteIT;
 import com.quorum.tessera.test.rest.ReceiveIT;
@@ -19,5 +20,6 @@ import suite.TestSuite;
         p2pCommunicationType = "WEB_SOCKET",
         dbType = DBType.H2,
         socketType = SocketType.HTTP,
-        p2pSsl = true)
+        p2pSsl = true,
+        encryptorType = EncryptorType.NACL)
 public class RestSuiteP2pWebsocketH2 {}

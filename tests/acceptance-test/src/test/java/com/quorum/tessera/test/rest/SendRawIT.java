@@ -14,6 +14,7 @@ import static com.quorum.tessera.test.rest.RawHeaderName.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.test.PartyHelper;
+import suite.ExecutionContext;
 import static transaction.utils.Utils.generateValidButUnknownPublicKey;
 
 public class SendRawIT {
@@ -236,7 +237,9 @@ public class SendRawIT {
     /** Quorum sends transaction with unknown public key */
     @Test
     public void sendUnknownPublicKey() {
-        final String unknownkey = generateValidButUnknownPublicKey().encodeToBase64();
+        ExecutionContext executionContext = ExecutionContext.currentContext();
+        final String unknownkey =
+                generateValidButUnknownPublicKey(executionContext.getEncryptorType()).encodeToBase64();
         final Response response =
                 client.target(sender.getQ2TUri())
                         .path(SEND_PATH)

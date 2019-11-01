@@ -7,20 +7,19 @@ import org.junit.Test;
 
 public class EncryptorFactoryTest {
 
-    private EncryptorFactory facadeFactory;
+    private EncryptorFactory encryptorFactory;
 
     @Before
     public void onSetUp() {
-        this.facadeFactory = EncryptorFactory.newFactory();
+        this.encryptorFactory = EncryptorFactory.newFactory("MOCK");
 
-        assertThat(this.facadeFactory).isExactlyInstanceOf(MockEncryptorFactory.class);
+        assertThat(this.encryptorFactory).isExactlyInstanceOf(MockEncryptorFactory.class);
     }
 
     @Test
     public void create() {
-        final Encryptor result = this.facadeFactory.create();
+        final Encryptor result = this.encryptorFactory.create();
 
         assertThat(result).isNotNull().isSameAs(MockEncryptor.INSTANCE);
     }
-
 }

@@ -1,6 +1,7 @@
 package suite;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
 import config.ConfigGenerator;
@@ -29,6 +30,8 @@ public class ExecutionContext {
 
     private String prefix;
 
+    private EncryptorType encryptorType;
+
     private ExecutionContext(
             DBType dbType,
             CommunicationType communicationType,
@@ -37,7 +40,8 @@ public class ExecutionContext {
             boolean admin,
             String prefix,
             CommunicationType p2pCommunicationType,
-            boolean p2pSsl) {
+            boolean p2pSsl,
+            EncryptorType encryptorType) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -46,6 +50,7 @@ public class ExecutionContext {
         this.prefix = prefix;
         this.p2pCommunicationType = p2pCommunicationType;
         this.p2pSsl = p2pSsl;
+        this.encryptorType = encryptorType;
     }
 
     public DBType getDbType() {
@@ -84,6 +89,10 @@ public class ExecutionContext {
         return p2pSsl;
     }
 
+    public EncryptorType getEncryptorType() {
+        return encryptorType;
+    }
+
     public static class Builder {
 
         private DBType dbType;
@@ -100,10 +109,17 @@ public class ExecutionContext {
 
         private boolean p2pSsl = false;
 
+        private EncryptorType encryptorType;
+
         private Builder() {}
 
         public static Builder create() {
             return new Builder();
+        }
+
+        public Builder with(EncryptorType encryptorType) {
+            this.encryptorType = encryptorType;
+            return this;
         }
 
         public Builder with(DBType dbType) {
@@ -149,7 +165,8 @@ public class ExecutionContext {
         }
 
         public ExecutionContext build() {
-            Stream.of(dbType, communicationType, socketType, enclaveType).forEach(Objects::requireNonNull);
+            Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
+                    .forEach(Objects::requireNonNull);
 
             this.p2pCommunicationType = Optional.ofNullable(p2pCommunicationType).orElse(communicationType);
 
@@ -162,7 +179,8 @@ public class ExecutionContext {
                             admin,
                             prefix,
                             p2pCommunicationType,
-                            p2pSsl);
+                            p2pSsl,
+                            encryptorType);
 
             return executionContext;
         }
@@ -182,7 +200,8 @@ public class ExecutionContext {
 
         public ExecutionContext createAndSetupContext() {
 
-            Stream.of(dbType, communicationType, socketType, enclaveType).forEach(Objects::requireNonNull);
+            Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
+                    .forEach(Objects::requireNonNull);
 
             ExecutionContext executionContext = build();
 

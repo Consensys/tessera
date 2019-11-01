@@ -3,6 +3,7 @@ package config;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
 import com.quorum.tessera.test.DBType;
@@ -43,6 +44,8 @@ public class ConfigBuilder {
                     null,
                     null,
                     null);
+
+    private EncryptorConfig encryptorConfig;
 
     private Integer q2tPort;
 
@@ -123,6 +126,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder withEncryptorConfig(EncryptorConfig encryptorConfig) {
+        this.encryptorConfig = encryptorConfig;
+        return this;
+    }
+
     public ConfigBuilder withExecutionContext(ExecutionContext executionContext) {
         this.executionContext = executionContext;
         return this;
@@ -134,8 +142,13 @@ public class ConfigBuilder {
     }
 
     public Config build() {
-        final Config config = new Config();
 
+        Objects.requireNonNull(encryptorConfig, "no encryptorConfig defined");
+
+        KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
+        final Config config = new Config();
+        config.setEncryptor(encryptorConfig);
         JdbcConfig jdbcConfig = new JdbcConfig();
         jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeId, nodeNumber));
         jdbcConfig.setUsername("sa");

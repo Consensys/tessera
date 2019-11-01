@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.quorum.tessera.config.CommunicationType.REST;
+import com.quorum.tessera.config.EncryptorType;
 import static suite.EnclaveType.LOCAL;
 import static suite.SocketType.HTTP;
 
@@ -40,7 +41,10 @@ public class RestSuiteSimple {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
 
         for (final DBType database : DBType.values()) {
-            configurations.add(new ProcessConfiguration(database, REST, HTTP, LOCAL, false, "", false));
+            for (EncryptorType encryptorType : EncryptorType.values()) {
+                configurations.add(
+                        new ProcessConfiguration(database, REST, HTTP, LOCAL, false, "", false, encryptorType));
+            }
         }
 
         return configurations;

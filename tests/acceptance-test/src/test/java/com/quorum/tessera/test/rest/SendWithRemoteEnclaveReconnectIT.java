@@ -4,11 +4,14 @@ import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.Party;
@@ -64,18 +67,30 @@ public class SendWithRemoteEnclaveReconnectIT {
     @Before
     public void onSetup() throws IOException {
 
+        EncryptorConfig encryptorConfig =
+                new EncryptorConfig() {
+                    {
+                        setType(EncryptorType.NACL);
+                    }
+                };
+
         ExecutionContext.Builder.create()
                 .with(CommunicationType.REST)
                 .with(DBType.H2)
                 .with(SocketType.HTTP)
                 .with(EnclaveType.REMOTE)
+                .with(encryptorConfig.getType())
                 .buildAndStoreContext();
 
         final PortUtil portGenerator = new PortUtil(50100);
 
         final String serverUriTemplate = "http://localhost:%d";
 
+        KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
         final Config nodeConfig = new Config();
+        nodeConfig.setEncryptor(encryptorConfig);
+
         JdbcConfig jdbcConfig = new JdbcConfig();
         jdbcConfig.setUrl("jdbc:h2:mem:junit");
         jdbcConfig.setUsername("sa");
@@ -95,6 +110,7 @@ public class SendWithRemoteEnclaveReconnectIT {
         q2tServerConfig.setCommunicationType(CommunicationType.REST);
 
         final Config enclaveConfig = new Config();
+        enclaveConfig.setEncryptor(nodeConfig.getEncryptor());
 
         final ServerConfig enclaveServerConfig = new ServerConfig();
         enclaveServerConfig.setApp(AppType.ENCLAVE);

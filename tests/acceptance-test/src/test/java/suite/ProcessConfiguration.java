@@ -1,6 +1,7 @@
 package suite;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
 
 /**
@@ -25,6 +26,8 @@ public class ProcessConfiguration {
 
     private boolean p2pSsl = false;
 
+    private EncryptorType encryptorType;
+
     public ProcessConfiguration(
             final DBType dbType,
             final CommunicationType communicationType,
@@ -32,7 +35,8 @@ public class ProcessConfiguration {
             final EnclaveType enclaveType,
             final boolean admin,
             final String prefix,
-            boolean p2pSsl) {
+            boolean p2pSsl,
+            EncryptorType encryptorType) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -40,6 +44,7 @@ public class ProcessConfiguration {
         this.admin = admin;
         this.prefix = prefix;
         this.p2pSsl = p2pSsl;
+        this.encryptorType = encryptorType;
     }
 
     public ProcessConfiguration() {}
@@ -102,5 +107,13 @@ public class ProcessConfiguration {
 
     public boolean isP2pSsl() {
         return p2pSsl;
+    }
+
+    public EncryptorType getEncryptorType() {
+        return encryptorType;
+    }
+
+    public void setEncryptorType(EncryptorType encryptorType) {
+        this.encryptorType = encryptorType;
     }
 }

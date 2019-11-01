@@ -1,6 +1,7 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import java.io.IOException;
@@ -16,6 +17,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.nio.file.StandardOpenOption.APPEND;
+import java.util.Collections;
+import java.util.Optional;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 
 public class JaxbConfigFactory implements ConfigFactory {
 
@@ -25,8 +31,30 @@ public class JaxbConfigFactory implements ConfigFactory {
     @Override
     public Config create(final InputStream configData, final List<ConfigKeyPair> newKeys) {
 
-        final Config config = JaxbUtil.unmarshal(configData, Config.class);
+        byte[] originalData =
+                Stream.of(configData)
+                        .map(InputStreamReader::new)
+                        .map(BufferedReader::new)
+                        .flatMap(BufferedReader::lines)
+                        .collect(Collectors.joining(System.lineSeparator()))
+                        .getBytes();
 
+        final Config initialConfig = JaxbUtil.unmarshal(new ByteArrayInputStream(originalData), Config.class);
+
+        EncryptorConfig encryptorConfig =
+                Optional.ofNullable(initialConfig.getEncryptor())
+                        .orElse(
+                                new EncryptorConfig() {
+                                    {
+                                        setType(EncryptorType.NACL);
+                                        setProperties(Collections.emptyMap());
+                                    }
+                                });
+        // Initialise the key encrypter it will store into holder object.
+        KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
+        final Config config = JaxbUtil.unmarshal(new ByteArrayInputStream(originalData), Config.class);
+        config.setEncryptor(encryptorConfig);
         boolean createdNewPasswordFile = false;
 
         if (Objects.nonNull(config.getKeys()) && !newKeys.isEmpty()) {

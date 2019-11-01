@@ -220,17 +220,18 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-                        
-                        <include>RestSuiteP2pWebsocketH2</include>
-                        <include>CucumberFileKeyGenerationIT</include>
-                        <include>AdminRestSuite</include>
                         <include>RestSuite</include>
                         <include>RestSuiteUnixH2</include>
                         <include>CucumberWhitelistIT</include>
-                        <include>ConfigMigrationIT</include>
+                        <include>RestSuiteP2pWebsocketH2</include>
                         <include>P2pTestSuite</include>
                         <include>GrpcSuite</include>
                         <include>SendWithRemoteEnclaveReconnectIT</include>
+                        <include>CucumberFileKeyGenerationIT</include>
+
+                        <include>AdminRestSuite</include>
+                        <include>ConfigMigrationIT</include>
+
 
                     </includes>
                 </configuration>

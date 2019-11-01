@@ -1,6 +1,7 @@
 package suite;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
 
 import java.lang.annotation.*;
@@ -29,4 +30,6 @@ public @interface ProcessConfig {
     String prefix() default "";
 
     boolean p2pSsl() default false;
+
+    EncryptorType encryptorType();
 }

@@ -1,6 +1,7 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.keypairs.*;
+import com.quorum.tessera.config.keys.KeyEncryptor;
 import org.junit.Test;
 
 import javax.validation.ConstraintViolation;
@@ -18,6 +19,8 @@ import static org.mockito.Mockito.when;
 public class ValidationTest {
 
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+    private KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
     @Test
     public void validateArgonOptions() {
@@ -49,11 +52,12 @@ public class ValidationTest {
 
     @Test
     public void inlineKeyPairNaClFailure() {
+
         KeyDataConfig keyConfig = mock(KeyDataConfig.class);
         when(keyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
         when(keyConfig.getValue()).thenReturn("NACL_FAILURE");
 
-        InlineKeypair keyPair = new InlineKeypair("validkey", keyConfig);
+        InlineKeypair keyPair = new InlineKeypair("validkey", keyConfig, keyEncryptor);
 
         Set<ConstraintViolation<InlineKeypair>> violations = validator.validate(keyPair);
 
@@ -89,7 +93,7 @@ public class ValidationTest {
         KeyDataConfig keyConfig = mock(KeyDataConfig.class);
         when(keyConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
         when(keyConfig.getValue()).thenReturn("validkey");
-        InlineKeypair keyPair = new InlineKeypair("INVALID_BASE", keyConfig);
+        InlineKeypair keyPair = new InlineKeypair("INVALID_BASE", keyConfig, keyEncryptor);
 
         Set<ConstraintViolation<InlineKeypair>> violations = validator.validate(keyPair);
 
@@ -137,7 +141,9 @@ public class ValidationTest {
         final Path publicKeyPath = Paths.get(UUID.randomUUID().toString());
         final Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
 
-        final ConfigKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        InlineKeypair inlineKeypair = mock(InlineKeypair.class);
+
+        final ConfigKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, inlineKeypair);
 
         final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null);
 

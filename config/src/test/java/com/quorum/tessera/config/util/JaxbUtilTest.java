@@ -2,9 +2,12 @@ package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -179,6 +182,15 @@ public class JaxbUtilTest {
 
     @Test
     public void marshalMaskedConfig() throws Exception {
+        // Initialises and stores KeyEncryptor
+        KeyEncryptorFactory.newFactory()
+                .create(
+                        new EncryptorConfig() {
+                            {
+                                setType(EncryptorType.NACL);
+                                setProperties(Collections.EMPTY_MAP);
+                            }
+                        });
 
         final String expectedMaskValue = "*********";
         try (InputStream inputStream = getClass().getResourceAsStream("/mask-fixture.json")) {

@@ -1,5 +1,8 @@
 {
     "useWhiteList": false,
+    "encryptor": {
+        "type": "NACL"
+    },
     "jdbc": {
         "username": "sa",
         "password": "",

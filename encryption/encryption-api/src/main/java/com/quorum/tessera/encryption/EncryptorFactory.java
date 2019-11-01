@@ -32,7 +32,7 @@ public interface EncryptorFactory {
                 .orElse(ServiceLoaderUtil.load(EncryptorFactory.class).get());
     }
 
-    static EncryptorFactory newFactory() {
-        return newFactory("AEC");
-    }
+    //    static EncryptorFactory newFactory() {
+    //        return newFactory("NACL");
+    //    }
 }

@@ -67,7 +67,8 @@ public class TestSuite extends Suite {
                                 annotatedConfig.enclaveType(),
                                 annotatedConfig.admin(),
                                 annotatedConfig.prefix(),
-                                annotatedConfig.p2pSsl());
+                                annotatedConfig.p2pSsl(),
+                                annotatedConfig.encryptorType());
 
                 this.testConfig.setP2pCommunicationType(p2pCommType);
             }
@@ -82,6 +83,7 @@ public class TestSuite extends Suite {
                             .withAdmin(testConfig.isAdmin())
                             .prefix(testConfig.getPrefix())
                             .withP2pSsl(testConfig.isP2pSsl())
+                            .with(testConfig.getEncryptorType())
                             .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {

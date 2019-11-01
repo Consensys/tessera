@@ -13,8 +13,7 @@ import static java.util.Collections.emptyList;
 
 public class ConfigBuilder {
 
-    private ConfigBuilder() {
-    }
+    private ConfigBuilder() {}
 
     public static ConfigBuilder create() {
         return new ConfigBuilder();
@@ -209,9 +208,9 @@ public class ConfigBuilder {
     static Path toPath(String workDir, String value) {
         final Path path;
 
-        if(Optional.ofNullable(workDir).isPresent() && Optional.ofNullable(value).isPresent()) {
+        if (Optional.ofNullable(workDir).isPresent() && Optional.ofNullable(value).isPresent()) {
             path = Paths.get(workDir, value);
-        } else if(Optional.ofNullable(value).isPresent()) {
+        } else if (Optional.ofNullable(value).isPresent()) {
             path = Paths.get(value);
         } else {
             path = null;
@@ -224,57 +223,55 @@ public class ConfigBuilder {
 
         boolean generateKeyStoreIfNotExisted = false;
 
-        SslConfig sslConfig = new SslConfig(
-                sslAuthenticationMode,
-                generateKeyStoreIfNotExisted,
-                toPath(workDir, sslServerKeyStorePath),
-                sslServerKeyStorePassword,
-                toPath(workDir, sslServerTrustStorePath),
-                sslServerTrustStorePassword,
-                sslServerTrustMode,
-                toPath(workDir, sslClientKeyStorePath),
-                sslClientKeyStorePassword,
-                toPath(workDir, sslClientTrustStorePath),
-                sslClientTrustStorePassword,
-                sslClientTrustMode,
-                toPath(workDir, sslKnownClientsFile),
-                toPath(workDir, sslKnownServersFile),
-                sslServerTrustCertificates.stream()
-                        .filter(Objects::nonNull)
-                        .map(v -> toPath(workDir, v))
-                        .collect(Collectors.toList()),
-                sslClientTrustCertificates.stream()
-                        .filter(Objects::nonNull)
-                        .map(v -> toPath(workDir, v))
-                        .collect(Collectors.toList()),
-                toPath(workDir, sslServerTlsKeyPath),
-                toPath(workDir, sslServerTlsCertificatePath),
-                toPath(workDir, sslClientTlsKeyPath),
-                toPath(workDir, sslClientTlsCertificatePath),
-                null
-        );
+        SslConfig sslConfig =
+                new SslConfig(
+                        sslAuthenticationMode,
+                        generateKeyStoreIfNotExisted,
+                        toPath(workDir, sslServerKeyStorePath),
+                        sslServerKeyStorePassword,
+                        toPath(workDir, sslServerTrustStorePath),
+                        sslServerTrustStorePassword,
+                        sslServerTrustMode,
+                        toPath(workDir, sslClientKeyStorePath),
+                        sslClientKeyStorePassword,
+                        toPath(workDir, sslClientTrustStorePath),
+                        sslClientTrustStorePassword,
+                        sslClientTrustMode,
+                        toPath(workDir, sslKnownClientsFile),
+                        toPath(workDir, sslKnownServersFile),
+                        sslServerTrustCertificates.stream()
+                                .filter(Objects::nonNull)
+                                .map(v -> toPath(workDir, v))
+                                .collect(Collectors.toList()),
+                        sslClientTrustCertificates.stream()
+                                .filter(Objects::nonNull)
+                                .map(v -> toPath(workDir, v))
+                                .collect(Collectors.toList()),
+                        toPath(workDir, sslServerTlsKeyPath),
+                        toPath(workDir, sslServerTlsCertificatePath),
+                        toPath(workDir, sslClientTlsKeyPath),
+                        toPath(workDir, sslClientTlsCertificatePath),
+                        null);
 
-        //TODO must add P2P and Q2T server configs. Maybe ThirdParty too - in disabled state.
-        //serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null
+        // TODO must add P2P and Q2T server configs. Maybe ThirdParty too - in disabled state.
+        // serverHostname, serverPort, 50521, CommunicationType.REST, sslConfig, null, null, null
         final DeprecatedServerConfig serverConfig = new DeprecatedServerConfig();
         serverConfig.setPort(serverPort);
         serverConfig.setHostName(serverHostname);
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setSslConfig(sslConfig);
-        
+
         final List<Peer> peerList;
-        if(peers != null) {
-            peerList = peers.stream()
-                            .map(Peer::new)
-                            .collect(Collectors.toList());
+        if (peers != null) {
+            peerList = peers.stream().map(Peer::new).collect(Collectors.toList());
         } else {
             peerList = null;
         }
 
         final List<String> forwardingKeys = new ArrayList<>();
-        if(alwaysSendTo != null) {
+        if (alwaysSendTo != null) {
 
-            for(String keyPath : alwaysSendTo) {
+            for (String keyPath : alwaysSendTo) {
                 try {
                     List<String> keysFromFile = Files.readAllLines(toPath(workDir, keyPath));
                     forwardingKeys.addAll(keysFromFile);
@@ -285,6 +282,13 @@ public class ConfigBuilder {
         }
 
         Config config = new Config();
+        config.setEncryptor(
+                new EncryptorConfig() {
+                    {
+                        setType(EncryptorType.NACL);
+                    }
+                });
+
         config.setServer(serverConfig);
         config.setJdbcConfig(jdbcConfig);
         config.setPeers(peerList);
@@ -295,5 +299,4 @@ public class ConfigBuilder {
         config.setDisablePeerDiscovery(false);
         return config;
     }
-
 }
