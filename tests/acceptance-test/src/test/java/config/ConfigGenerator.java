@@ -3,7 +3,6 @@ package config;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.encryption.Encryptor;
-import com.quorum.tessera.encryption.EncryptorFactory;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.test.DBType;
 import java.io.IOException;
@@ -93,7 +92,7 @@ public class ConfigGenerator {
 
         enclaveConfig.setKeys(config.getKeys());
         enclaveConfig.setAlwaysSendTo(config.getAlwaysSendTo());
-
+        enclaveConfig.setEncryptor(config.getEncryptor());
         return enclaveConfig;
     }
 
@@ -114,54 +113,54 @@ public class ConfigGenerator {
         }
     }
 
-    private Encryptor encryptor = EncryptorFactory.newFactory().create();
+    private static Map<Integer, SortedMap<String, String>> keyLookup(EncryptorType encryptorType) {
+        final Encryptor encryptor = transaction.utils.Utils.getEncryptor(encryptorType);
+        return new HashMap<Integer, SortedMap<String, String>>() {
+            {
+                put(
+                        1,
+                        new TreeMap<String, String>() {
+                            KeyPair pair = encryptor.generateNewKeys();
 
-    private Map<Integer, SortedMap<String, String>> keyLookUp =
-            new HashMap<Integer, SortedMap<String, String>>() {
-                {
-                    put(
-                            1,
-                            new TreeMap<String, String>() {
-                                KeyPair pair = encryptor.generateNewKeys();
+                            {
+                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                            }
+                        });
 
-                                {
-                                    put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                                }
-                            });
+                put(
+                        2,
+                        new TreeMap<String, String>() {
+                            KeyPair pair = encryptor.generateNewKeys();
 
-                    put(
-                            2,
-                            new TreeMap<String, String>() {
-                                KeyPair pair = encryptor.generateNewKeys();
+                            {
+                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                            }
+                        });
 
-                                {
-                                    put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                                }
-                            });
+                put(
+                        3,
+                        new TreeMap<String, String>() {
+                            KeyPair pair = encryptor.generateNewKeys();
+                            KeyPair pair2 = encryptor.generateNewKeys();
 
-                    put(
-                            3,
-                            new TreeMap<String, String>() {
-                                KeyPair pair = encryptor.generateNewKeys();
-                                KeyPair pair2 = encryptor.generateNewKeys();
+                            {
+                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                                put(pair2.getPublicKey().encodeToBase64(), pair2.getPrivateKey().encodeToBase64());
+                            }
+                        });
 
-                                {
-                                    put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                                    put(pair2.getPublicKey().encodeToBase64(), pair2.getPrivateKey().encodeToBase64());
-                                }
-                            });
+                put(
+                        4,
+                        new TreeMap<String, String>() {
+                            KeyPair pair = encryptor.generateNewKeys();
 
-                    put(
-                            4,
-                            new TreeMap<String, String>() {
-                                KeyPair pair = encryptor.generateNewKeys();
-
-                                {
-                                    put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                                }
-                            });
-                }
-            };
+                            {
+                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                            }
+                        });
+            }
+        };
+    }
 
     public List<Config> createConfigs(ExecutionContext executionContext) {
 
@@ -169,6 +168,16 @@ public class ConfigGenerator {
         String nodeId = NodeId.generate(executionContext);
         final FeatureToggles toggles = new FeatureToggles();
         toggles.setEnableRemoteKeyValidation(true);
+
+        EncryptorType encryptorType = executionContext.getEncryptorType();
+        EncryptorConfig encryptorConfig =
+                new EncryptorConfig() {
+                    {
+                        setType(encryptorType);
+                    }
+                };
+
+        Map<Integer, SortedMap<String, String>> keyLookUp = keyLookup(encryptorType);
 
         Config first =
                 new ConfigBuilder()
@@ -181,6 +190,7 @@ public class ConfigGenerator {
                         .withEnclavePort(port.nextPort())
                         .withKeys(keyLookUp.get(1))
                         .withFeatureToggles(toggles)
+                        .withEncryptorConfig(encryptorConfig)
                         .build();
 
         Config second =
@@ -194,6 +204,7 @@ public class ConfigGenerator {
                         .withEnclavePort(port.nextPort())
                         .withKeys(keyLookUp.get(2))
                         .withFeatureToggles(toggles)
+                        .withEncryptorConfig(encryptorConfig)
                         .build();
 
         Config third =
@@ -208,6 +219,7 @@ public class ConfigGenerator {
                         .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
                         .withKeys(keyLookUp.get(3))
                         .withFeatureToggles(toggles)
+                        .withEncryptorConfig(encryptorConfig)
                         .build();
 
         Config fourth =
@@ -221,6 +233,7 @@ public class ConfigGenerator {
                         .withEnclavePort(port.nextPort())
                         .withKeys(keyLookUp.get(4))
                         .withFeatureToggles(toggles)
+                        .withEncryptorConfig(encryptorConfig)
                         .build();
 
         first.addPeer(new Peer(second.getP2PServerConfig().getServerAddress()));

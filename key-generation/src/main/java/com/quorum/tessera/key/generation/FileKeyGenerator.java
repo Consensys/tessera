@@ -22,6 +22,7 @@ import java.util.Objects;
 
 import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import com.quorum.tessera.config.keypairs.InlineKeypair;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -53,36 +54,32 @@ public class FileKeyGenerator implements KeyGenerator {
         final String publicKeyBase64 = Base64.getEncoder().encodeToString(generated.getPublicKey().getKeyBytes());
 
         final KeyData finalKeys = new KeyData();
-
+        final KeyDataConfig keyDataConfig;
         if (!password.isEmpty()) {
 
             final PrivateKeyData encryptedPrivateKey = this.keyEncryptor.encryptPrivateKey(
                 generated.getPrivateKey(), password, encryptionOptions
             );
 
-            finalKeys.setConfig(
-                new KeyDataConfig(
-                    new PrivateKeyData(
-                        null,
-                        encryptedPrivateKey.getSnonce(),
-                        encryptedPrivateKey.getAsalt(),
-                        encryptedPrivateKey.getSbox(),
-                        encryptedPrivateKey.getArgonOptions()
-                    ),
-                    LOCKED
-                )
-            );
+            keyDataConfig =
+                    new KeyDataConfig(
+                            new PrivateKeyData(
+                                    null,
+                                    encryptedPrivateKey.getSnonce(),
+                                    encryptedPrivateKey.getAsalt(),
+                                    encryptedPrivateKey.getSbox(),
+                                    encryptedPrivateKey.getArgonOptions()),
+                            LOCKED);
 
             LOGGER.info("Newly generated private key has been encrypted");
 
         } else {
             
             String keyData = Base64.getEncoder().encodeToString(generated.getPrivateKey().getKeyBytes());
-
-            finalKeys.setConfig(new KeyDataConfig(new PrivateKeyData(keyData, null, null, null, null), UNLOCKED));
-
+            keyDataConfig = new KeyDataConfig(new PrivateKeyData(keyData, null, null, null, null), UNLOCKED);
         }
 
+        finalKeys.setConfig(keyDataConfig);
         finalKeys.setPrivateKey(generated.getPrivateKey().encodeToBase64());
         finalKeys.setPublicKey(publicKeyBase64);
 
@@ -106,7 +103,9 @@ public class FileKeyGenerator implements KeyGenerator {
         LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
         LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
 
-        final FilesystemKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        InlineKeypair inlineKeypair = new InlineKeypair(publicKeyBase64, keyDataConfig, keyEncryptor);
+
+        final FilesystemKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, inlineKeypair);
 
         keyPair.withPassword(password);
 

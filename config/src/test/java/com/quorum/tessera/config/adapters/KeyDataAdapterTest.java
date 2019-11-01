@@ -7,16 +7,35 @@ import com.quorum.tessera.config.keypairs.*;
 import org.junit.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorHolder;
+import com.quorum.tessera.io.FilesDelegate;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import org.junit.Before;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class KeyDataAdapterTest {
 
     private KeyDataAdapter adapter = new KeyDataAdapter();
+
+    private KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+
+    private FilesDelegate filesDelegate;
+
+    @Before
+    public void onSetUp() {
+        KeyEncryptorHolder.INSTANCE.setKeyEncryptor(keyEncryptor);
+        filesDelegate = mock(FilesDelegate.class);
+        adapter = new KeyDataAdapter(filesDelegate);
+    }
 
     @Test
     public void marshallDirectKeys() {
@@ -33,7 +52,7 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallInlineKeys() {
         final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null);
-        final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED));
+        final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED), keyEncryptor);
         final KeyData expected = new KeyData();
 
         expected.setPublicKey("PUB");
@@ -47,7 +66,10 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallFilesystemKeys() {
         final Path path = mock(Path.class);
-        final FilesystemKeyPair keyPair = new FilesystemKeyPair(path, path);
+
+        InlineKeypair inlineKeypair = mock(InlineKeypair.class);
+
+        final FilesystemKeyPair keyPair = new FilesystemKeyPair(path, path, inlineKeypair);
 
         final KeyData expected = new KeyData();
         expected.setPublicKeyPath(path);
@@ -75,7 +97,8 @@ public class KeyDataAdapterTest {
 
     @Test
     public void marshallHashicorpKeys() {
-        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
+        final HashicorpVaultKeyPair keyPair =
+                new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
 
         final KeyData expected = new KeyData();
         expected.setHashicorpVaultPublicKeyId("pubId");
@@ -92,8 +115,10 @@ public class KeyDataAdapterTest {
     public void marshallUnsupportedKeys() {
         final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         final Path path = mock(Path.class);
-        //set a random selection of values that are not sufficient to make a complete key pair of any type
-        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null);
+        // set a random selection of values that are not sufficient to make a complete key pair of any type
+        final UnsupportedKeyPair keyPair =
+                new UnsupportedKeyPair(
+                        keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null);
 
         final KeyData expected = new KeyData();
         expected.setConfig(keyDataConfig);
@@ -119,7 +144,7 @@ public class KeyDataAdapterTest {
 
         @Override
         public void withPassword(String password) {
-            //do nothing
+            // do nothing
         }
 
         @Override
@@ -141,12 +166,11 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallLockedKeyNullifiesPrivateKey() {
         final PrivateKeyData pkd = new PrivateKeyData("val", null, null, null, null);
-        final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED));
+        final ConfigKeyPair keys = new InlineKeypair("PUB", new KeyDataConfig(pkd, UNLOCKED), keyEncryptor);
 
         final KeyData marshalledKey = adapter.marshal(keys);
 
         assertThat(marshalledKey.getPrivateKey()).isNull();
-
     }
 
     @Test
@@ -157,7 +181,6 @@ public class KeyDataAdapterTest {
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(DirectKeyPair.class);
-
     }
 
     @Test
@@ -168,17 +191,6 @@ public class KeyDataAdapterTest {
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(InlineKeypair.class);
-
-    }
-
-    @Test
-    public void unmarshallingFilesystemKeysGivesCorrectKeypair() {
-        final KeyData input = new KeyData();
-        input.setPublicKeyPath(Paths.get("public"));
-        input.setPrivateKeyPath(Paths.get("private"));
-
-        final ConfigKeyPair result = this.adapter.unmarshal(input);
-        assertThat(result).isInstanceOf(FilesystemKeyPair.class);
     }
 
     @Test
@@ -311,4 +323,95 @@ public class KeyDataAdapterTest {
         assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
     }
 
+    @Test
+    public void unmarshalWithoutKeyEncryptorReturnNull() {
+        KeyEncryptorHolder.INSTANCE.setKeyEncryptor(null);
+
+        KeyData keyData = mock(KeyData.class);
+        ConfigKeyPair result = adapter.unmarshal(keyData);
+        assertThat(result).isNull();
+    }
+
+    @Test
+    public void marshalWithoutKeyEncryptorReturnNull() {
+        KeyEncryptorHolder.INSTANCE.setKeyEncryptor(null);
+
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+        KeyData result = adapter.marshal(configKeyPair);
+        assertThat(result).isNull();
+    }
+
+    @Test
+    public void unmarshalInlineKeyPair() throws Exception {
+
+        KeyData keyData = mock(KeyData.class);
+
+        Path privateKeyPath = Files.createFile(Paths.get("target", UUID.randomUUID().toString()));
+        privateKeyPath.toFile().deleteOnExit();
+
+        Path publicKeyPath = Files.createFile(Paths.get("target", UUID.randomUUID().toString()));
+        publicKeyPath.toFile().deleteOnExit();
+
+        when(keyData.getPrivateKeyPath()).thenReturn(privateKeyPath);
+        when(keyData.getPublicKeyPath()).thenReturn(publicKeyPath);
+
+        when(filesDelegate.exists(publicKeyPath)).thenReturn(true);
+        when(filesDelegate.exists(privateKeyPath)).thenReturn(true);
+
+        when(filesDelegate.readAllBytes(publicKeyPath)).thenReturn("Some public key data".getBytes());
+
+        String d =
+                "            {\n"
+                        + "                \"config\": {\n"
+                        + "                    \"data\": {\n"
+                        + "                        \"aopts\": {\n"
+                        + "                            \"variant\": \"id\",\n"
+                        + "                            \"memory\": 1024,\n"
+                        + "                            \"iterations\": 1,\n"
+                        + "                            \"parallelism\": 1\n"
+                        + "                        },\n"
+                        + "                        \"snonce\": \"dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe\",\n"
+                        + "                        \"asalt\": \"JoPVq9G6NdOb+Ugv+HnUeA==\",\n"
+                        + "                        \"sbox\": \"6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw\"\n"
+                        + "                    },\n"
+                        + "                    \"type\": \"argon2sbox\"\n"
+                        + "                },\n"
+                        + "                \"publicKey\": \"UFVCTElDX0tFWQ==\"\n"
+                        + "            }";
+
+        InputStream dataIn = new java.io.ByteArrayInputStream(d.getBytes());
+
+        when(filesDelegate.newInputStream(privateKeyPath)).thenReturn(dataIn);
+
+        ConfigKeyPair configKeyPair = adapter.unmarshal(keyData);
+
+        assertThat(configKeyPair).isExactlyInstanceOf(FilesystemKeyPair.class);
+    }
+
+    @Test
+    public void unmarshalKeyFileDontExist() throws Exception {
+
+        KeyData keyData = mock(KeyData.class);
+
+        Path privateKeyPath = mock(Path.class);
+
+        Path publicKeyPath = mock(Path.class);
+
+        when(keyData.getPrivateKeyPath()).thenReturn(privateKeyPath);
+        when(keyData.getPublicKeyPath()).thenReturn(publicKeyPath);
+
+        when(filesDelegate.exists(privateKeyPath)).thenReturn(false);
+        when(filesDelegate.exists(publicKeyPath)).thenReturn(false);
+
+        ConfigKeyPair configKeyPair = adapter.unmarshal(keyData);
+
+        assertThat(configKeyPair).isExactlyInstanceOf(FilesystemKeyPair.class);
+        assertThat(FilesystemKeyPair.class.cast(configKeyPair).getInlineKeypair()).isNull();
+    }
+
+    @Test
+    public void createDefaultInstance() {
+        KeyDataAdapter keyDataAdapter = new KeyDataAdapter();
+        assertThat(keyDataAdapter).isNotNull();
+    }
 }

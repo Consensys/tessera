@@ -9,5 +9,4 @@ public interface ConfigKeyPair {
     void withPassword(String password);
 
     String getPassword();
-
 }

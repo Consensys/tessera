@@ -53,7 +53,11 @@ public class TestSuite extends Suite {
                                 annotatedConfig.socketType(),
                                 annotatedConfig.enclaveType(),
                                 annotatedConfig.admin(),
-                                annotatedConfig.prefix());
+                                annotatedConfig.prefix(),
+                                annotatedConfig.p2pSsl(),
+                                annotatedConfig.encryptorType());
+
+                this.testConfig.setP2pCommunicationType(p2pCommType);
             }
 
             ExecutionContext executionContext =
@@ -64,6 +68,8 @@ public class TestSuite extends Suite {
                             .with(testConfig.getEnclaveType())
                             .withAdmin(testConfig.isAdmin())
                             .prefix(testConfig.getPrefix())
+                            .withP2pSsl(testConfig.isP2pSsl())
+                            .with(testConfig.getEncryptorType())
                             .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {

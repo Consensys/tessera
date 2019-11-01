@@ -1,12 +1,9 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.config.constraints.ValidContent;
 import com.quorum.tessera.config.constraints.ValidPath;
-import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.io.IOCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +12,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.nio.file.Files;
 import java.nio.file.Path;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FilesystemKeyPair implements ConfigKeyPair {
 
@@ -38,20 +32,18 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path privateKeyPath;
 
-    private InlineKeypair inlineKeypair;
+    private final InlineKeypair inlineKeypair;
 
     private String password;
 
     public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath) {
+        this(publicKeyPath, privateKeyPath, null);
+    }
+
+    public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath, InlineKeypair inlineKeypair) {
         this.publicKeyPath = publicKeyPath;
         this.privateKeyPath = privateKeyPath;
-
-        try {
-            loadKeys();
-        } catch (final Exception ex) {
-            //silently discard errors as these get picked up by the validator
-            LOGGER.debug("Unable to read key files", ex);
-        }
+        this.inlineKeypair = inlineKeypair;
     }
 
     @Override
@@ -67,7 +59,10 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     @Override
     @Size(min = 1)
     @ValidBase64(message = "Invalid Base64 key provided")
-    @Pattern(regexp = "^((?!NACL_FAILURE).)*$", message = "Could not decrypt the private key with the provided password, please double check the passwords provided")
+    @Pattern(
+            regexp = "^((?!NACL_FAILURE).)*$",
+            message =
+                    "Could not decrypt the private key with the provided password, please double check the passwords provided")
     public String getPrivateKey() {
         if (this.inlineKeypair == null) {
             return null;
@@ -99,15 +94,4 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     public InlineKeypair getInlineKeypair() {
         return inlineKeypair;
     }
-
-    private void loadKeys() {
-        this.inlineKeypair = new InlineKeypair(
-            IOCallback.execute(() -> new String(Files.readAllBytes(this.publicKeyPath), UTF_8)),
-            JaxbUtil.unmarshal(
-                IOCallback.execute(() -> Files.newInputStream(privateKeyPath)),
-                KeyDataConfig.class
-            )
-        );
-    }
-
 }

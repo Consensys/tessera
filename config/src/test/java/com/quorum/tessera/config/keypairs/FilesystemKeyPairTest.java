@@ -1,8 +1,5 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -13,41 +10,28 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class FilesystemKeyPairTest {
+
+    private InlineKeypair inlineKeypair;
+
+    @Before
+    public void onSetup() {
+        inlineKeypair = mock(InlineKeypair.class);
+    }
 
     @Test
     public void gettersWorkAsExpected() {
         Path pub = Paths.get("pubPath");
         Path priv = Paths.get("privPath");
 
-        FilesystemKeyPair keyPair = new FilesystemKeyPair(pub, priv);
+        FilesystemKeyPair keyPair = new FilesystemKeyPair(pub, priv, inlineKeypair);
 
         assertThat(keyPair.getPublicKeyPath()).isEqualByComparingTo(pub);
         assertThat(keyPair.getPrivateKeyPath()).isEqualByComparingTo(priv);
-    }
-
-    @Test
-    public void getInlineKeypairReturnsKeysReadFromFile() throws Exception {
-
-        Path pubFile = Files.createTempFile(UUID.randomUUID().toString(), ".pub");
-        Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
-
-        String pub = "public";
-        Files.write(pubFile, pub.getBytes());
-
-        FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile);
-
-        KeyDataConfig privKeyDataConfig = new KeyDataConfig(
-            new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
-            PrivateKeyType.UNLOCKED
-        );
-
-        InlineKeypair expected = new InlineKeypair(pub, privKeyDataConfig);
-
-        assertThat(filesystemKeyPair.getInlineKeypair()).isEqualToComparingFieldByFieldRecursively(expected);
-        assertThat(filesystemKeyPair.getPublicKey()).isEqualTo(pub);
-        assertThat(filesystemKeyPair.getPrivateKey()).isEqualTo("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=");
     }
 
     @Test
@@ -58,7 +42,7 @@ public class FilesystemKeyPairTest {
         final String pub = "public";
         Files.write(pubFile, pub.getBytes());
 
-        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile);
+        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, inlineKeypair);
         filesystemKeyPair.withPassword("password");
 
         assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
@@ -66,13 +50,43 @@ public class FilesystemKeyPairTest {
 
     @Test
     public void setPasswordIsRetrievableOnNullInlineKey() throws IOException, URISyntaxException {
-        final Path pubFile = Files.createTempFile(UUID.randomUUID().toString(), ".pub").resolveSibling("nonexistantkey");
+        final Path pubFile =
+                Files.createTempFile(UUID.randomUUID().toString(), ".pub").resolveSibling("nonexistantkey");
         final Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
 
-        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile);
+        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, inlineKeypair);
         filesystemKeyPair.withPassword("password");
 
         assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
     }
 
+    @Test
+    public void noDelegateInclinePair() {
+        Path publicKeyPath = mock(Path.class);
+        Path privateKeyPath = mock(Path.class);
+
+        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, null);
+
+        assertThat(filesystemKeyPair.getPublicKey()).isNull();
+        assertThat(filesystemKeyPair.getInlineKeypair()).isNull();
+        assertThat(filesystemKeyPair.getPrivateKey()).isNull();
+        assertThat(filesystemKeyPair.getPrivateKeyPath()).isSameAs(privateKeyPath);
+        assertThat(filesystemKeyPair.getPublicKeyPath()).isSameAs(publicKeyPath);
+
+        verifyZeroInteractions(inlineKeypair);
+    }
+
+    @Test
+    public void constructDefaultWithoutEncrptor() {
+        Path publicKeyPath = mock(Path.class);
+        Path privateKeyPath = mock(Path.class);
+        FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        assertThat(filesystemKeyPair.getPublicKey()).isNull();
+        assertThat(filesystemKeyPair.getInlineKeypair()).isNull();
+        assertThat(filesystemKeyPair.getPrivateKey()).isNull();
+        assertThat(filesystemKeyPair.getPrivateKeyPath()).isSameAs(privateKeyPath);
+        assertThat(filesystemKeyPair.getPublicKeyPath()).isSameAs(publicKeyPath);
+
+        verifyZeroInteractions(inlineKeypair);
+    }
 }
