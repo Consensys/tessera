@@ -1,4 +1,4 @@
-package com.jpmorgan.quorum.encryption.aec;
+package com.jpmorgan.quorum.encryption.ec;
 
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
@@ -20,9 +20,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
-public class AecEncryptor implements Encryptor {
+public class EllipticalCurveEncryptor implements Encryptor {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AecEncryptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EllipticalCurveEncryptor.class);
 
     private final int nonceLength;
 
@@ -38,11 +38,11 @@ public class AecEncryptor implements Encryptor {
 
     private final String symmetricCipher;
 
-    public AecEncryptor(final String symmetricCipher, final String ellipticCurve) {
+    public EllipticalCurveEncryptor(final String symmetricCipher, final String ellipticCurve) {
         this(symmetricCipher, ellipticCurve, 24, 32);
     }
 
-    public AecEncryptor(final String symmetricCipher, final String ellipticCurve, int nonceLength, int sharedKeyLength) {
+    public EllipticalCurveEncryptor(final String symmetricCipher, final String ellipticCurve, int nonceLength, int sharedKeyLength) {
         this.nonceLength = nonceLength;
         this.sharedKeyLength = sharedKeyLength;
         this.symmetricCipher = symmetricCipher;

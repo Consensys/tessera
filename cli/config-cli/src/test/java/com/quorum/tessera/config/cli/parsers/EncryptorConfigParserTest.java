@@ -33,15 +33,15 @@ public class EncryptorConfigParserTest {
     public void elipticalCurveNoPropertiesDefined() throws IOException {
         Config config = new Config();
         config.setEncryptor(new EncryptorConfig());
-        config.getEncryptor().setType(EncryptorType.AEC);
+        config.getEncryptor().setType(EncryptorType.EC);
         when(commandLine.hasOption("configfile")).thenReturn(false);
         when(commandLine.hasOption("encryptor.type")).thenReturn(true);
         when(commandLine.getOptionValue(anyString())).thenReturn(null);
-        when(commandLine.getOptionValue("encryptor.type")).thenReturn(EncryptorType.AEC.name());
+        when(commandLine.getOptionValue("encryptor.type")).thenReturn(EncryptorType.EC.name());
 
         EncryptorConfig result = parser.parse(commandLine);
 
-        assertThat(result.getType()).isEqualTo(EncryptorType.AEC);
+        assertThat(result.getType()).isEqualTo(EncryptorType.EC);
         assertThat(result.getProperties()).isEmpty();
 
         verify(commandLine).getOptionValue("encryptor.type");
@@ -54,13 +54,12 @@ public class EncryptorConfigParserTest {
     public void elipticalCurveWithDefinedProperties() throws IOException {
         Config config = new Config();
         config.setEncryptor(new EncryptorConfig());
-        config.getEncryptor().setType(EncryptorType.AEC);
+        config.getEncryptor().setType(EncryptorType.EC);
 
         when(commandLine.hasOption("configfile")).thenReturn(false);
         when(commandLine.hasOption("encryptor.type")).thenReturn(true);
 
-        when(commandLine.getOptionValue("encryptor.type"))
-                .thenReturn(EncryptorType.AEC.name());
+        when(commandLine.getOptionValue("encryptor.type")).thenReturn(EncryptorType.EC.name());
 
         when(commandLine.getOptionValue("encryptor.symmetricCipher")).thenReturn("somecipher");
         when(commandLine.getOptionValue("encryptor.ellipticCurve")).thenReturn("somecurve");
@@ -69,8 +68,9 @@ public class EncryptorConfigParserTest {
 
         EncryptorConfig result = parser.parse(commandLine);
 
-        assertThat(result.getType()).isEqualTo(EncryptorType.AEC);
-        assertThat(result.getProperties()).containsOnlyKeys("symmetricCipher", "ellipticCurve", "nonceLength", "sharedKeyLength");
+        assertThat(result.getType()).isEqualTo(EncryptorType.EC);
+        assertThat(result.getProperties())
+                .containsOnlyKeys("symmetricCipher", "ellipticCurve", "nonceLength", "sharedKeyLength");
 
         assertThat(result.getProperties().get("symmetricCipher")).isEqualTo("somecipher");
         assertThat(result.getProperties().get("ellipticCurve")).isEqualTo("somecurve");
@@ -94,9 +94,7 @@ public class EncryptorConfigParserTest {
             parser.parse(commandLine);
             failBecauseExceptionWasNotThrown(CliException.class);
         } catch (CliException ex) {
-            verify(commandLine,times(2)).hasOption(anyString());
+            verify(commandLine, times(2)).hasOption(anyString());
         }
-
     }
-
 }

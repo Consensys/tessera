@@ -6,7 +6,7 @@
         <artifactId>encryption</artifactId>
         <version>0.11-SNAPSHOT</version>
     </parent>
-    <artifactId>encryption-aec</artifactId>
+    <artifactId>encryption-ec</artifactId>
     <packaging>jar</packaging>
     
     <dependencies>
@@ -22,5 +22,5 @@
         </dependency>
         
     </dependencies>
-    <name>encryption-aec</name>
+    <name>encryption-ec</name>
 </project>

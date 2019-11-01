@@ -38,7 +38,7 @@ public class EncryptorConfigParser implements Parser<EncryptorConfig> {
         encryptorConfig.setType(encryptorType);
 
         Map<String, String> properties = new HashMap<>();
-        if (encryptorType == EncryptorType.AEC) {
+        if (encryptorType == EncryptorType.EC) {
 
             Optional.ofNullable(commandLine.getOptionValue("encryptor.symmetricCipher"))
                     .ifPresent(v -> properties.put("symmetricCipher", v));
@@ -51,12 +51,10 @@ public class EncryptorConfigParser implements Parser<EncryptorConfig> {
 
             Optional.ofNullable(commandLine.getOptionValue("encryptor.sharedKeyLength"))
                     .ifPresent(v -> properties.put("sharedKeyLength", v));
-
         }
 
         encryptorConfig.setProperties(properties);
 
         return encryptorConfig;
     }
-
 }
