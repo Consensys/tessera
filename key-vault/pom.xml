@@ -13,6 +13,7 @@
         <module>azure-key-vault</module>
         <module>key-vault-api</module>
         <module>hashicorp-key-vault</module>
+        <module>aws-key-vault</module>
     </modules>
     <build>
         <pluginManagement>

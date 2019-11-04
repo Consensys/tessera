@@ -26,8 +26,7 @@ import static org.mockito.Mockito.when;
 
 public class CliKeyPasswordResolverTest {
 
-    @Rule
-    public SystemOutRule systemOutRule = new SystemOutRule().enableLog();
+    @Rule public SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
     private PasswordReader passwordReader;
 
@@ -54,9 +53,10 @@ public class CliKeyPasswordResolverTest {
     @Test
     public void emptyPasswordsReturnsSameKeys() {
 
-        //null paths since we won't actually be reading them
+        // null paths since we won't actually be reading them
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, emptyList(), singletonList(keypair), null, null);
+        final KeyConfiguration keyConfig =
+                new KeyConfiguration(null, emptyList(), singletonList(keypair), null, null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -65,7 +65,7 @@ public class CliKeyPasswordResolverTest {
         assertThat(keyConfig.getKeyData()).hasSize(1);
         final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
 
-        //passwords are always non-null, set to empty string if not present or not needed
+        // passwords are always non-null, set to empty string if not present or not needed
         assertThat(returned.getPassword()).isNull();
         assertThat(returned).isSameAs(keypair);
     }
@@ -73,9 +73,9 @@ public class CliKeyPasswordResolverTest {
     @Test
     public void noPasswordsReturnsSameKeys() {
 
-        //null paths since we won't actually be reading them
+        // null paths since we won't actually be reading them
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, null, singletonList(keypair), null, null);
+        final KeyConfiguration keyConfig = new KeyConfiguration(null, null, singletonList(keypair), null, null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -84,7 +84,7 @@ public class CliKeyPasswordResolverTest {
         assertThat(keyConfig.getKeyData()).hasSize(1);
         final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
 
-        //passwords are always non-null, set to empty string if not present or not needed
+        // passwords are always non-null, set to empty string if not present or not needed
         assertThat(returned.getPassword()).isNull();
         assertThat(returned).isSameAs(keypair);
     }
@@ -92,10 +92,11 @@ public class CliKeyPasswordResolverTest {
     @Test
     public void passwordsAssignedToKeys() {
 
-        //null paths since we won't actually be reading them
+        // null paths since we won't actually be reading them
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig
-            = new KeyConfiguration(null, singletonList("passwordsAssignedToKeys"), singletonList(keypair), null, null);
+        final KeyConfiguration keyConfig =
+                new KeyConfiguration(
+                        null, singletonList("passwordsAssignedToKeys"), singletonList(keypair), null, null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -112,7 +113,7 @@ public class CliKeyPasswordResolverTest {
         final Path passes = Files.createTempDirectory("testdirectory").resolve("nonexistantfile.txt");
 
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
+        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -130,7 +131,7 @@ public class CliKeyPasswordResolverTest {
         Files.write(passes, "q".getBytes());
 
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
+        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -170,10 +171,10 @@ public class CliKeyPasswordResolverTest {
 
     @Test
     public void unlockedKeyDoesntReadPassword() {
-        final KeyDataConfig privKeyDataConfig = new KeyDataConfig(
-            new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
-            PrivateKeyType.UNLOCKED
-        );
+        final KeyDataConfig privKeyDataConfig =
+                new KeyDataConfig(
+                        new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
+                        PrivateKeyType.UNLOCKED);
 
         final InlineKeypair keyPair = new InlineKeypair("public", privKeyDataConfig);
 
@@ -186,16 +187,15 @@ public class CliKeyPasswordResolverTest {
     public void lockedKeyWithEmptyPasswordRequestsPassword() {
         when(passwordReader.readPasswordFromConsole()).thenReturn("a");
 
-        final KeyDataConfig privKeyDataConfig = new KeyDataConfig(
-            new PrivateKeyData(
-                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
-                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
-                "MIqkFlgR2BWEpx2U0rObGg==",
-                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
-                new ArgonOptions("i", 10, 1048576, 4)
-            ),
-            PrivateKeyType.LOCKED
-        );
+        final KeyDataConfig privKeyDataConfig =
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
+                                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
+                                "MIqkFlgR2BWEpx2U0rObGg==",
+                                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
+                                new ArgonOptions("i", 10, 1048576, 4)),
+                        PrivateKeyType.LOCKED);
 
         final InlineKeypair keyPair = new InlineKeypair("public", privKeyDataConfig);
         keyPair.withPassword("");
@@ -203,23 +203,23 @@ public class CliKeyPasswordResolverTest {
         this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
 
         assertThat(systemOutRule.getLog())
-            .containsOnlyOnce("Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
+                .containsOnlyOnce(
+                        "Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
     }
 
     @Test
     public void lockedKeyWithInvalidPasswordRequestsPassword() {
         when(passwordReader.readPasswordFromConsole()).thenReturn("a");
 
-        final KeyDataConfig privKeyDataConfig = new KeyDataConfig(
-            new PrivateKeyData(
-                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
-                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
-                "MIqkFlgR2BWEpx2U0rObGg==",
-                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
-                new ArgonOptions("i", 10, 1048576, 4)
-            ),
-            PrivateKeyType.LOCKED
-        );
+        final KeyDataConfig privKeyDataConfig =
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
+                                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
+                                "MIqkFlgR2BWEpx2U0rObGg==",
+                                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
+                                new ArgonOptions("i", 10, 1048576, 4)),
+                        PrivateKeyType.LOCKED);
 
         final InlineKeypair keyPair = new InlineKeypair("public", privKeyDataConfig);
         keyPair.withPassword("invalidPassword");
@@ -227,33 +227,34 @@ public class CliKeyPasswordResolverTest {
         this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
 
         assertThat(systemOutRule.getLog())
-            .containsOnlyOnce("Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
+                .containsOnlyOnce(
+                        "Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
     }
 
     @Test
     public void invalidRequestedPasswordRerequests() {
         when(passwordReader.readPasswordFromConsole()).thenReturn("invalid", "a");
 
-        final KeyDataConfig privKeyDataConfig = new KeyDataConfig(
-            new PrivateKeyData(
-                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
-                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
-                "MIqkFlgR2BWEpx2U0rObGg==",
-                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
-                new ArgonOptions("i", 10, 1048576, 4)
-            ),
-            PrivateKeyType.LOCKED
-        );
+        final KeyDataConfig privKeyDataConfig =
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
+                                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
+                                "MIqkFlgR2BWEpx2U0rObGg==",
+                                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
+                                new ArgonOptions("i", 10, 1048576, 4)),
+                        PrivateKeyType.LOCKED);
 
         final InlineKeypair keyPair = new InlineKeypair("public", privKeyDataConfig);
         keyPair.withPassword("invalidPassword");
 
         this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
 
-        //work around for checking string appears twice in message
+        // work around for checking string appears twice in message
         assertThat(systemOutRule.getLog())
-            .containsOnlyOnce("Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key")
-            .containsOnlyOnce("Password for key[0] missing or invalid.\nAttempt 2 of 2. Enter a password for the key");
+                .containsOnlyOnce(
+                        "Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key")
+                .containsOnlyOnce(
+                        "Password for key[0] missing or invalid.\nAttempt 2 of 2. Enter a password for the key");
     }
-
 }

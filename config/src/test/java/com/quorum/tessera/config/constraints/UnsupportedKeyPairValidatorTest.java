@@ -23,7 +23,8 @@ public class UnsupportedKeyPairValidatorTest {
     public void setUp() {
 
         this.context = mock(ConstraintValidatorContext.class);
-        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        ConstraintValidatorContext.ConstraintViolationBuilder builder =
+                mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
 
         when(context.buildConstraintViolationWithTemplate(any(String.class))).thenReturn(builder);
 
@@ -58,6 +59,7 @@ public class UnsupportedKeyPairValidatorTest {
         keyPair.setPrivateKeyPath(path);
         keyPair.setAzureVaultPrivateKeyId("privAzure");
         keyPair.setHashicorpVaultPrivateKeyId("privHashicorp");
+        keyPair.setAwsSecretsManagerPrivateKeyId(("privAWS"));
 
         validator.isValid(keyPair, context);
 
@@ -74,6 +76,7 @@ public class UnsupportedKeyPairValidatorTest {
         keyPair.setPublicKeyPath(path);
         keyPair.setAzureVaultPublicKeyId("pubAzure");
         keyPair.setHashicorpVaultPublicKeyId("pubHashicorp");
+        keyPair.setAwsSecretsManagerPublicKeyId("pubAWS");
 
         validator.isValid(keyPair, context);
 
@@ -100,6 +103,7 @@ public class UnsupportedKeyPairValidatorTest {
         keyPair.setPublicKeyPath(path);
         keyPair.setAzureVaultPublicKeyId("pubId");
         keyPair.setHashicorpVaultPublicKeyId("pubId");
+        keyPair.setAwsSecretsManagerPublicKeyId("pubId");
 
         validator.isValid(keyPair, context);
 
@@ -142,7 +146,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -151,7 +156,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -160,7 +166,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -169,7 +176,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -179,7 +187,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -189,7 +198,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -199,7 +209,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -209,7 +220,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -219,7 +231,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -229,7 +242,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -240,7 +254,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -251,7 +266,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -262,7 +278,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -273,7 +290,8 @@ public class UnsupportedKeyPairValidatorTest {
 
         validator.isValid(keyPair, context);
 
-        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
+        verify(context)
+                .buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}");
     }
 
     @Test
@@ -286,6 +304,36 @@ public class UnsupportedKeyPairValidatorTest {
         validator.isValid(keyPair, context);
 
         verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}");
+    }
+
+    @Test
+    public void awsViolationIfPublicIdButNoPrivateId() {
+        keyPair.setAwsSecretsManagerPublicKeyId("pubId");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAWSKeysRequired.message}");
+    }
+
+    @Test
+    public void awsViolationIfNoPublicIdButPrivateId() {
+        keyPair.setAwsSecretsManagerPrivateKeyId("privId");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAWSKeysRequired.message}");
+    }
+
+    @Test
+    public void awsViolationIfNoPublicIdEvenIfFilesystemIncomplete() {
+        Path path = mock(Path.class);
+
+        keyPair.setPublicKeyPath(path);
+        keyPair.setAwsSecretsManagerPrivateKeyId("privId");
+
+        validator.isValid(keyPair, context);
+
+        verify(context).buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAWSKeysRequired.message}");
     }
 
     @Test
@@ -312,10 +360,9 @@ public class UnsupportedKeyPairValidatorTest {
 
     @Test
     public void defaultViolationIfNoRecognisedKeyPairDataProvided() {
-        //nothing set
+        // nothing set
         validator.isValid(keyPair, context);
 
         verifyNoMoreInteractions(context);
     }
-
 }

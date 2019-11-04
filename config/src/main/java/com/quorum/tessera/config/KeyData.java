@@ -12,14 +12,11 @@ import java.nio.file.Path;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyData extends ConfigItem {
 
-    @XmlElement
-    private KeyDataConfig config;
+    @XmlElement private KeyDataConfig config;
 
-    @XmlElement
-    private String privateKey;
+    @XmlElement private String privateKey;
 
-    @XmlElement
-    private String publicKey;
+    @XmlElement private String publicKey;
 
     @XmlElement
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -37,28 +34,41 @@ public class KeyData extends ConfigItem {
     @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
     private String azureVaultPrivateKeyId;
 
-    @XmlElement
-    private String azureVaultPublicKeyVersion;
+    @XmlElement private String azureVaultPublicKeyVersion;
 
-    @XmlElement
-    private String azureVaultPrivateKeyVersion;
+    @XmlElement private String azureVaultPrivateKeyVersion;
 
-    @XmlElement
-    private String hashicorpVaultPublicKeyId;
+    @XmlElement private String hashicorpVaultPublicKeyId;
 
-    @XmlElement
-    private String hashicorpVaultPrivateKeyId;
+    @XmlElement private String hashicorpVaultPrivateKeyId;
 
-    @XmlElement
-    private String hashicorpVaultSecretEngineName;
+    @XmlElement private String hashicorpVaultSecretEngineName;
 
-    @XmlElement
-    private String hashicorpVaultSecretName;
+    @XmlElement private String hashicorpVaultSecretName;
 
-    @XmlElement
-    private String hashicorpVaultSecretVersion;
+    @XmlElement private String hashicorpVaultSecretVersion;
 
-    public KeyData(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
+    @XmlElement private String awsSecretsManagerPublicKeyId;
+
+    @XmlElement private String awsSecretsManagerPrivateKeyId;
+
+    public KeyData(
+            KeyDataConfig config,
+            String privateKey,
+            String publicKey,
+            Path privateKeyPath,
+            Path publicKeyPath,
+            String azureVaultPublicKeyId,
+            String azureVaultPrivateKeyId,
+            String azureVaultPublicKeyVersion,
+            String azureVaultPrivateKeyVersion,
+            String hashicorpVaultPublicKeyId,
+            String hashicorpVaultPrivateKeyId,
+            String hashicorpVaultSecretEngineName,
+            String hashicorpVaultSecretName,
+            String hashicorpVaultSecretVersion,
+            String awsSecretsManagerPublicKeyId,
+            String awsSecretsManagerPrivateKeyId) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -73,11 +83,11 @@ public class KeyData extends ConfigItem {
         this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
         this.hashicorpVaultSecretName = hashicorpVaultSecretName;
         this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
+        this.awsSecretsManagerPublicKeyId = awsSecretsManagerPublicKeyId;
+        this.awsSecretsManagerPrivateKeyId = awsSecretsManagerPrivateKeyId;
     }
 
-    public KeyData() {
-
-    }
+    public KeyData() {}
 
     public String getPrivateKey() {
         return privateKey;
@@ -191,4 +201,19 @@ public class KeyData extends ConfigItem {
         this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 
+    public String getAwsSecretsManagerPublicKeyId() {
+        return awsSecretsManagerPublicKeyId;
+    }
+
+    public void setAwsSecretsManagerPublicKeyId(String awsSecretsManagerPublicKeyId) {
+        this.awsSecretsManagerPublicKeyId = awsSecretsManagerPublicKeyId;
+    }
+
+    public String getAwsSecretsManagerPrivateKeyId() {
+        return awsSecretsManagerPrivateKeyId;
+    }
+
+    public void setAwsSecretsManagerPrivateKeyId(String awsSecretsManagerPrivateKeyId) {
+        this.awsSecretsManagerPrivateKeyId = awsSecretsManagerPrivateKeyId;
+    }
 }

@@ -75,7 +75,8 @@ public class KeyDataAdapterTest {
 
     @Test
     public void marshallHashicorpKeys() {
-        final HashicorpVaultKeyPair keyPair = new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
+        final HashicorpVaultKeyPair keyPair =
+                new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
 
         final KeyData expected = new KeyData();
         expected.setHashicorpVaultPublicKeyId("pubId");
@@ -89,11 +90,41 @@ public class KeyDataAdapterTest {
     }
 
     @Test
+    public void marshallAWSKeys() {
+        final AWSKeyPair keyPair = new AWSKeyPair("pubId", "privId");
+
+        final KeyData expected = new KeyData();
+        expected.setAwsSecretsManagerPublicKeyId("pubId");
+        expected.setAwsSecretsManagerPrivateKeyId("privId");
+
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
     public void marshallUnsupportedKeys() {
         final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         final Path path = mock(Path.class);
-        //set a random selection of values that are not sufficient to make a complete key pair of any type
-        final UnsupportedKeyPair keyPair = new UnsupportedKeyPair(keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null);
+        // set a random selection of values that are not sufficient to make a complete key pair of any type
+        final UnsupportedKeyPair keyPair =
+                new UnsupportedKeyPair(
+                        keyDataConfig,
+                        "priv",
+                        null,
+                        path,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null);
 
         final KeyData expected = new KeyData();
         expected.setConfig(keyDataConfig);
@@ -119,7 +150,7 @@ public class KeyDataAdapterTest {
 
         @Override
         public void withPassword(String password) {
-            //do nothing
+            // do nothing
         }
 
         @Override
@@ -146,7 +177,6 @@ public class KeyDataAdapterTest {
         final KeyData marshalledKey = adapter.marshal(keys);
 
         assertThat(marshalledKey.getPrivateKey()).isNull();
-
     }
 
     @Test
@@ -157,7 +187,6 @@ public class KeyDataAdapterTest {
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(DirectKeyPair.class);
-
     }
 
     @Test
@@ -168,7 +197,6 @@ public class KeyDataAdapterTest {
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(InlineKeypair.class);
-
     }
 
     @Test
@@ -216,6 +244,16 @@ public class KeyDataAdapterTest {
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingAWSKeysGivesCorrectKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAwsSecretsManagerPublicKeyId("pubId");
+        input.setAwsSecretsManagerPrivateKeyId("privId");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(AWSKeyPair.class);
     }
 
     @Test
@@ -311,4 +349,21 @@ public class KeyDataAdapterTest {
         assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
     }
 
+    @Test
+    public void unmarshallingAWSPublicOnlyGivesUnsupportedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAwsSecretsManagerPublicKeyId("pubId");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingAWSPrivateOnlyGivesUnsupportedKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAwsSecretsManagerPrivateKeyId("privId");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(UnsupportedKeyPair.class);
+    }
 }

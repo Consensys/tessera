@@ -31,24 +31,28 @@ public class KeyConfiguration extends ConfigItem {
     @XmlJavaTypeAdapter(KeyDataAdapter.class)
     private List<@Valid ConfigKeyPair> keyData;
 
-    @Valid
-    @XmlElement
-    private AzureKeyVaultConfig azureKeyVaultConfig;
+    @Valid @XmlElement private AzureKeyVaultConfig azureKeyVaultConfig;
 
-    @Valid
-    @XmlElement
-    private HashicorpKeyVaultConfig hashicorpKeyVaultConfig;
+    @Valid @XmlElement private HashicorpKeyVaultConfig hashicorpKeyVaultConfig;
 
-    public KeyConfiguration(final Path passwordFile, final List<String> passwords, final List<ConfigKeyPair> keyData, final AzureKeyVaultConfig azureKeyVaultConfig, final HashicorpKeyVaultConfig hashicorpKeyVaultConfig) {
+    @Valid @XmlElement private AWSKeyVaultConfig awsKeyVaultConfig;
+
+    public KeyConfiguration(
+            final Path passwordFile,
+            final List<String> passwords,
+            final List<ConfigKeyPair> keyData,
+            final AzureKeyVaultConfig azureKeyVaultConfig,
+            final HashicorpKeyVaultConfig hashicorpKeyVaultConfig,
+            final AWSKeyVaultConfig awsKeyVaultConfig) {
         this.passwordFile = passwordFile;
         this.passwords = passwords;
         this.keyData = keyData;
         this.azureKeyVaultConfig = azureKeyVaultConfig;
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
+        this.awsKeyVaultConfig = awsKeyVaultConfig;
     }
 
-    public KeyConfiguration() {
-    }
+    public KeyConfiguration() {}
 
     public Path getPasswordFile() {
         return this.passwordFile;
@@ -68,6 +72,10 @@ public class KeyConfiguration extends ConfigItem {
 
     public HashicorpKeyVaultConfig getHashicorpKeyVaultConfig() {
         return hashicorpKeyVaultConfig;
+    }
+
+    public AWSKeyVaultConfig getAwsKeyVaultConfig() {
+        return this.awsKeyVaultConfig;
     }
 
     public void setPasswordFile(Path passwordFile) {
@@ -90,4 +98,7 @@ public class KeyConfiguration extends ConfigItem {
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
     }
 
+    public void setAwsKeyVaultConfig(AWSKeyVaultConfig awsKeyVaultConfig) {
+        this.awsKeyVaultConfig = awsKeyVaultConfig;
+    }
 }
