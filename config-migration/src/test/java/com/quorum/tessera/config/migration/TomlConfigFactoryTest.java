@@ -133,7 +133,7 @@ public class TomlConfigFactoryTest {
             KeyConfiguration result = tomlConfigFactory.createKeyDataBuilder(configData).build();
             assertThat(result).isNotNull();
 
-            KeyConfiguration expected = new KeyConfiguration(null, null, Collections.emptyList(), null, null);
+            KeyConfiguration expected = new KeyConfiguration(null, null, Collections.emptyList(), null, null, null);
             assertThat(result).isEqualTo(expected);
         }
     }

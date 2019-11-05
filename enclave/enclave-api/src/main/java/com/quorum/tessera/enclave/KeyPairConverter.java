@@ -71,7 +71,7 @@ public class KeyPairConverter {
 
             base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
             base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);
-        } else if (configKeyPair instanceof AWSKeyPair ) {
+        } else if (configKeyPair instanceof AWSKeyPair) {
             KeyVaultServiceFactory keyVaultServiceFactory = KeyVaultServiceFactory.getInstance(KeyVaultType.AWS);
 
             KeyVaultService keyVaultService = keyVaultServiceFactory.create(config, envProvider);

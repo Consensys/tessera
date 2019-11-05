@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.CreateSecretRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
+import software.amazon.awssdk.services.secretsmanager.model.InvalidParameterException;
 import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -73,13 +74,13 @@ public class AWSKeyVaultServiceTest {
         when(getSecretData.getSecretName()).thenReturn(secretName);
 
         when(secretsManager.getSecretValue(Mockito.any(GetSecretValueRequest.class)))
-            .thenThrow(ResourceNotFoundException.builder().build());
+                .thenThrow(ResourceNotFoundException.builder().build());
 
         Throwable throwable = catchThrowable(() -> awsKeyVaultService.getSecret(getSecretData));
 
         assertThat(throwable).isInstanceOf(VaultSecretNotFoundException.class);
         assertThat(throwable)
-            .hasMessageContaining("The requested secret '" + secretName + "' was not found in AWS Secrets Manager");
+                .hasMessageContaining("The requested secret '" + secretName + "' was not found in AWS Secrets Manager");
     }
 
     @Test
@@ -89,7 +90,10 @@ public class AWSKeyVaultServiceTest {
         String secretName = "secret";
 
         AWSGetSecretData getSecretData = mock(AWSGetSecretData.class);
-        when(getSecretData.getSecretName()).thenThrow(ResourceNotFoundException.builder().build());
+        when(getSecretData.getSecretName()).thenReturn(secretName);
+
+        when(secretsManager.getSecretValue(Mockito.any(GetSecretValueRequest.class)))
+                .thenThrow(InvalidParameterException.builder().build());
 
         Throwable throwable = catchThrowable(() -> awsKeyVaultService.getSecret(getSecretData));
 

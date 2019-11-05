@@ -51,7 +51,7 @@ public class AWSKeyVaultServiceFactoryTest {
     public void nullKeyVaultConfigurationThrowsException() {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getAwsKeyVaultConfig()).thenReturn(null);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         Throwable ex = catchThrowable(() -> awsKeyVaultServiceFactory.create(config, envProvider));
@@ -77,5 +77,20 @@ public class AWSKeyVaultServiceFactoryTest {
     @Test
     public void getType() {
         assertThat(awsKeyVaultServiceFactory.getType()).isEqualTo(KeyVaultType.AWS);
+    }
+
+    @Test
+    public void getAwsSecretsManagerWithNotNullKeyVaultConfigEndpoint() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        AWSKeyVaultConfig keyVaultConfig = new AWSKeyVaultConfig();
+        keyVaultConfig.setEndpoint("http://localhost.com");
+
+        when(envProvider.getEnv(anyString())).thenReturn("envVar");
+        when(keyConfiguration.getAwsKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(config.getKeys()).thenReturn(keyConfiguration);
+
+        KeyVaultService result = awsKeyVaultServiceFactory.create(config, envProvider);
+
+        assertThat(result).isInstanceOf(AWSKeyVaultService.class);
     }
 }
