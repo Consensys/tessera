@@ -31,8 +31,8 @@ public class OverrideUtilTest {
     @Test
     public void buildOptions() {
 
-        final List<String> expected =
-                Arrays.asList(
+        final List<String> expected
+                = Arrays.asList(
                         "version",
                         "jdbc.username",
                         "jdbc.password",
@@ -223,7 +223,8 @@ public class OverrideUtilTest {
         @XmlElement(name = "some_value")
         String someValue;
 
-        @XmlElement String otherValue;
+        @XmlElement
+        String otherValue;
     }
 
     static class OtherClass {
@@ -416,5 +417,26 @@ public class OverrideUtilTest {
     public void convertToByteArray() {
         final byte[] result = OverrideUtil.convertTo(byte[].class, "HELLOW");
         assertThat(result).isEqualTo("HELLOW".getBytes());
+    }
+
+    @Test
+    public void setValueWithAnnoClass() throws Exception {
+
+        SomeIFace annon = new SomeIFace() {
+            private String value = "HEllow";
+
+            @Override
+            public String getValue() {
+                return value;
+            }
+        };
+        
+        OverrideUtil.setValue(annon, "value", "SOMETHING","SOMETHINGELSE");
+
+    }
+
+    interface SomeIFace {
+
+        String getValue();
     }
 }

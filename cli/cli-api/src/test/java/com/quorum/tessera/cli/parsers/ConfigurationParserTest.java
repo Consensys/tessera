@@ -1,8 +1,11 @@
 package com.quorum.tessera.cli.parsers;
 
+import static com.quorum.tessera.cli.parsers.ConfigurationParser.NEW_PASSWORD_FILE_PERMS;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.io.FilesDelegate;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,11 +17,13 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ConfigurationParserTest {
 
@@ -193,33 +198,117 @@ public class ConfigurationParserTest {
         assertThat(output).exists();
         output.toFile().deleteOnExit();
     }
-    
-    
-        @Test
-    public void withNewKeysAndPasswordFile() throws Exception {
-        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        configFile.toFile().deleteOnExit();
+    @Test
+    public void doPasswordStuffWithEmptyPasswordsElement() throws Exception {
 
-        when(commandLine.hasOption("configfile")).thenReturn(true);
-        when(commandLine.getOptionValue("configfile")).thenReturn(configFile.toString());
+        final String password = "I LOVE SPARROWS!";
+        final ConfigKeyPair newKey = mock(ConfigKeyPair.class);
+        when(newKey.getPassword()).thenReturn(password);
 
-        when(commandLine.hasOption("output")).thenReturn(true);
+        final List<ConfigKeyPair> newKeys = Arrays.asList(newKey);
 
-        Path output = Paths.get("target", UUID.randomUUID().toString() + ".conf");
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
 
-        when(commandLine.getOptionValue("output")).thenReturn(output.toString());
+        final ConfigurationParser configParser = new ConfigurationParser(newKeys, filesDelegate);
 
-        ConfigKeyPair newKey = new DirectKeyPair("pub", "priv");
+        Config config = mock(Config.class);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getPasswords()).thenReturn(new ArrayList<>());
+        when(config.getKeys()).thenReturn(keyConfiguration);
 
-        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey));
+        Config result = configParser.doPasswordStuff(config);
+        assertThat(result).isSameAs(config);
 
-        Config result = configParser.parse(commandLine);
+        assertThat(result.getKeys().getPasswords()).containsExactly(password);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getKeys().getKeyData()).contains(newKey);
+        verifyZeroInteractions(filesDelegate);
+    }
 
-        assertThat(output).exists();
-        output.toFile().deleteOnExit();
+    @Test
+    public void doPasswordStuffWithPasswordFileDefined() throws Exception {
+
+        final String password = "I LOVE SPARROWS!";
+
+        final ConfigKeyPair newKey = mock(ConfigKeyPair.class);
+        when(newKey.getPassword()).thenReturn(password);
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+
+        final List<ConfigKeyPair> newKeys = Arrays.asList(newKey);
+
+        final ConfigurationParser configParser = new ConfigurationParser(newKeys, filesDelegate);
+
+        Config config = mock(Config.class);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getPasswords()).thenReturn(null);
+
+        when(config.getKeys()).thenReturn(keyConfiguration);
+
+        final Path passwordFile = mock(Path.class);
+        when(keyConfiguration.getPasswordFile()).thenReturn(passwordFile);
+
+        when(filesDelegate.notExists(passwordFile)).thenReturn(true);
+
+        when(filesDelegate.setPosixFilePermissions(passwordFile, NEW_PASSWORD_FILE_PERMS)).thenReturn(passwordFile);
+
+        Config result = configParser.doPasswordStuff(config);
+
+        assertThat(result).isSameAs(config);
+
+        verify(filesDelegate).notExists(passwordFile);
+        verify(filesDelegate).setPosixFilePermissions(passwordFile, NEW_PASSWORD_FILE_PERMS);
+        verify(filesDelegate).createFile(passwordFile);
+
+        verify(filesDelegate).write(passwordFile, Arrays.asList(password), StandardOpenOption.APPEND);
+
+        verifyNoMoreInteractions(filesDelegate);
+    }
+
+    @Test
+    public void doPasswordStuffNewPasswordsOnly() {
+        final String password = "I LOVE SPARROWS!";
+
+        final ConfigKeyPair newKey = mock(ConfigKeyPair.class);
+        when(newKey.getPassword()).thenReturn(password);
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+
+        final List<ConfigKeyPair> newKeys = Arrays.asList(newKey);
+
+        final ConfigurationParser configParser = new ConfigurationParser(newKeys, filesDelegate);
+
+        Config config = mock(Config.class);
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.emptyList());
+
+        when(keyConfiguration.getPasswords()).thenReturn(null);
+        when(keyConfiguration.getPasswordFile()).thenReturn(null);
+        when(config.getKeys()).thenReturn(keyConfiguration);
+
+        Config result = configParser.doPasswordStuff(config);
+        assertThat(result).isSameAs(config);
+
+        verify(keyConfiguration).setPasswords(Arrays.asList(password));
+        verifyZeroInteractions(filesDelegate);
+    }
+
+    @Test
+    public void doPasswordStuffNoNewPasswords() {
+
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+
+        final ConfigurationParser configParser = new ConfigurationParser(Collections.emptyList(), filesDelegate);
+
+        Config config = mock(Config.class);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getPasswordFile()).thenReturn(null);
+        when(keyConfiguration.getPasswords()).thenReturn(null);
+
+        when(config.getKeys()).thenReturn(keyConfiguration);
+
+        Config result = configParser.doPasswordStuff(config);
+        assertThat(result).isSameAs(config);
     }
 }

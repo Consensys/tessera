@@ -13,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,7 +29,7 @@ import java.util.stream.Stream;
 
 public class ConfigurationParser implements Parser<Config> {
 
-    private static final Set<PosixFilePermission> NEW_PASSWORD_FILE_PERMS =
+    protected static final Set<PosixFilePermission> NEW_PASSWORD_FILE_PERMS =
             Stream.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE).collect(Collectors.toSet());
 
     private final List<ConfigKeyPair> newlyGeneratedKeys;
@@ -41,9 +40,9 @@ public class ConfigurationParser implements Parser<Config> {
         this(newlyGeneratedKeys, FilesDelegate.create());
     }
 
-    public ConfigurationParser(List<ConfigKeyPair> newlyGeneratedKeys, FilesDelegate filesDelegate) {
+    protected ConfigurationParser(List<ConfigKeyPair> newlyGeneratedKeys, FilesDelegate filesDelegate) {
         this.newlyGeneratedKeys = Objects.requireNonNull(newlyGeneratedKeys);
-        this.filesDelegate = filesDelegate;
+        this.filesDelegate = Objects.requireNonNull(filesDelegate);
     }
 
     @Override
@@ -66,12 +65,10 @@ public class ConfigurationParser implements Parser<Config> {
 
                 if (!newlyGeneratedKeys.isEmpty()) {
                     if (config.getKeys() == null) {
-                        KeyConfiguration keyConfiguration = new KeyConfiguration();
-                        keyConfiguration.setKeyData(new ArrayList<>());
-                        keyConfiguration.setPasswords(new ArrayList<>());
-                        config.setKeys(keyConfiguration);
+                        config.setKeys(new KeyConfiguration());
+                        config.getKeys().setKeyData(new ArrayList<>());
                     }
-                    doPasswordStuff(config, newlyGeneratedKeys);
+                    doPasswordStuff(config);
                     config.getKeys().getKeyData().addAll(newlyGeneratedKeys);
                 }
             }
@@ -102,51 +99,43 @@ public class ConfigurationParser implements Parser<Config> {
 
     // create a file if it doesn't exist and set the permissions to be only
     // read/write for the creator
-    private Path createFile(final Path fileToMake) {
-        if (filesDelegate.notExists(fileToMake)) {
+    private void createFile(Path fileToMake) {
+        boolean notExists = filesDelegate.notExists(fileToMake);
+        if (notExists) {
             filesDelegate.createFile(fileToMake);
-            return filesDelegate.setPosixFilePermissions(fileToMake, NEW_PASSWORD_FILE_PERMS);
+            filesDelegate.setPosixFilePermissions(fileToMake, NEW_PASSWORD_FILE_PERMS);
         }
-        return fileToMake;
     }
 
-    public Config doPasswordStuff(Config config, List<ConfigKeyPair> newKeys) {
+    public Config doPasswordStuff(Config config) {
 
-        try {
-            final List<String> newPasswords =
-                    newKeys.stream().map(ConfigKeyPair::getPassword).collect(Collectors.toList());
+        final List<String> newPasswords =
+                newlyGeneratedKeys.stream().map(ConfigKeyPair::getPassword).collect(Collectors.toList());
 
-            if (config.getKeys().getPasswords() != null) {
-                config.getKeys().getPasswords().addAll(newPasswords);
-            } else if (config.getKeys().getPasswordFile() != null) {
-                createFile(config.getKeys().getPasswordFile());
-                filesDelegate.write(config.getKeys().getPasswordFile(), newPasswords, APPEND);
-            } else if (!newPasswords.stream().allMatch(Objects::isNull)) {
-                final List<String> existingPasswords =
-                        config.getKeys().getKeyData().stream().map(k -> "").collect(Collectors.toList());
-                existingPasswords.addAll(newPasswords);
+        if (config.getKeys().getPasswords() != null) {
+            config.getKeys().getPasswords().addAll(newPasswords);
+            return config;
+        }
 
-                Path passwordsFile = createFile(Paths.get("passwords.txt"));
-                filesDelegate.write(passwordsFile, existingPasswords, APPEND);
+        if (config.getKeys().getPasswordFile() != null) {
+            Path passwordFile = config.getKeys().getPasswordFile();
+            createFile(passwordFile);
+            filesDelegate.write(passwordFile, newPasswords, APPEND);
+            return config;
+        }
 
-                return new Config(
-                        config.getJdbcConfig(),
-                        config.getServerConfigs(),
-                        config.getPeers(),
-                        new KeyConfiguration(
-                                passwordsFile,
-                                null,
-                                config.getKeys().getKeyData(),
-                                config.getKeys().getAzureKeyVaultConfig(),
-                                config.getKeys().getHashicorpKeyVaultConfig()),
-                        config.getAlwaysSendTo(),
-                        config.getUnixSocketFile(),
-                        config.isUseWhiteList(),
-                        config.isDisablePeerDiscovery());
-            }
-        } catch (final UncheckedIOException ex) {
-            // TODO : Check is this is used to feedbeck message to cli and remove
-            throw new RuntimeException("Could not store new passwords: " + ex.getMessage());
+        /*
+         * Populate transient list of passwords that is consumed by KeyPasswordResolver
+         */
+        if (newPasswords.stream().anyMatch(Objects::nonNull) && config.getKeys().getKeyData() != null) {
+
+            final List<String> existingPasswords =
+                    config.getKeys().getKeyData().stream().map(k -> "").collect(Collectors.toList());
+
+            existingPasswords.addAll(newPasswords);
+            config.getKeys().setPasswords(existingPasswords);
+
+            return config;
         }
 
         return config;
