@@ -47,17 +47,22 @@ public interface EnclaveFactory {
      * @return the {@link Enclave}, which may be either local or remote
      */
     default Enclave create(Config config) {
-        final Optional<ServerConfig> enclaveServerConfig =
-                config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.ENCLAVE).findAny();
+        try {
+            final Optional<ServerConfig> enclaveServerConfig =
+                    config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.ENCLAVE).findAny();
 
-        // FIXME: this is needs to create a holder instance .
-        KeyEncryptorFactory.newFactory().create(config.getEncryptor());
+            // FIXME: this is needs to create a holder instance .
+            KeyEncryptorFactory.newFactory().create(config.getEncryptor());
 
-        if (enclaveServerConfig.isPresent()) {
-            return EnclaveClientFactory.create().create(config);
+            if (enclaveServerConfig.isPresent()) {
+                return EnclaveClientFactory.create().create(config);
+            }
+
+            return createServer(config);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+            throw ex;
         }
-
-        return createServer(config);
     }
 
     static EnclaveFactory create() {

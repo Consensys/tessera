@@ -165,8 +165,8 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
         } // end update password stuff
 
         final List<ConfigKeyPair> newKeys = new KeyGenerationParser(encryptorConfig).parse(commandLine);
-
-        final Config config = new ConfigurationParser().withNewKeys(newKeys).parse(commandLine);
+     
+        final Config config = new ConfigurationParser(newKeys).parse(commandLine);
 
         return config;
     }

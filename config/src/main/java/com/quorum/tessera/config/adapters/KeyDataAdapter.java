@@ -76,7 +76,6 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
         // case 5, the keys are provided inside a file
         if (keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
 
-            final InlineKeypair inlineKeypair;
             if (filesDelegate.exists(keyData.getPublicKeyPath()) && filesDelegate.exists(keyData.getPrivateKeyPath())) {
                 byte[] publicKeyData = filesDelegate.readAllBytes(keyData.getPublicKeyPath());
                 final String publicKey = new String(publicKeyData, UTF_8);
@@ -87,13 +86,9 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
                 KeyEncryptor keyEncryptor = keyEncryptorHolder.getKeyEncryptor().get();
 
-                inlineKeypair = new InlineKeypair(publicKey, keyDataConfig, keyEncryptor);
-
-            } else {
-                inlineKeypair = null;
+                InlineKeypair inlineKeypair = new InlineKeypair(publicKey, keyDataConfig, keyEncryptor);
+                return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath(), inlineKeypair);
             }
-
-            return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath(), inlineKeypair);
         }
 
         // case 6, the key config specified is invalid

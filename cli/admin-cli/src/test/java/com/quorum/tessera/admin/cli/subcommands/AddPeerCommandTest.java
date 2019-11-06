@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,7 +94,7 @@ public class AddPeerCommandTest {
         final Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         final ConfigurationMixin mixin = new ConfigurationMixin();
         try (InputStream in = Files.newInputStream(configFile)) {
-            final Config config = ConfigFactory.create().create(in, Collections.emptyList());
+            final Config config = ConfigFactory.create().create(in);
             mixin.setConfig(config);
         }
 
@@ -119,7 +118,7 @@ public class AddPeerCommandTest {
         final Path configFile = ElUtil.createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         final ConfigurationMixin mixin = new ConfigurationMixin();
         try (InputStream in = Files.newInputStream(configFile)) {
-            final Config config = ConfigFactory.create().create(in, Collections.emptyList());
+            final Config config = ConfigFactory.create().create(in);
             mixin.setConfig(config);
         }
 

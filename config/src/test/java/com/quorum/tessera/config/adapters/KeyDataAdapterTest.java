@@ -405,8 +405,7 @@ public class KeyDataAdapterTest {
 
         ConfigKeyPair configKeyPair = adapter.unmarshal(keyData);
 
-        assertThat(configKeyPair).isExactlyInstanceOf(FilesystemKeyPair.class);
-        assertThat(FilesystemKeyPair.class.cast(configKeyPair).getInlineKeypair()).isNull();
+        assertThat(configKeyPair).isExactlyInstanceOf(UnsupportedKeyPair.class);
     }
 
     @Test

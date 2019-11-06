@@ -279,9 +279,9 @@ public class DefaultCliAdapterTest {
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations())
-                    .hasSize(2)
+                    .hasSize(1)
                     .extracting("messageTemplate")
-                    .containsExactly("File does not exist", "File does not exist");
+                    .containsExactly("{UnsupportedKeyPair.message}");
         }
     }
 

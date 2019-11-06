@@ -103,7 +103,7 @@ public class InlineKeypairTest {
         inlineKeypair.withPassword("wrong-password");
 
         String result = inlineKeypair.getPrivateKey();
-
+        assertThat(inlineKeypair.getPassword()).isEqualTo("wrong-password");
         assertThat(result).isEqualTo("NACL_FAILURE");
     }
 

@@ -1,189 +1,44 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
-import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.util.JaxbUtil;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
-
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.mock;
 
 public class JaxbConfigFactoryTest {
 
     private JaxbConfigFactory factory;
 
-    private ConfigKeyPair sampleGeneratedKey;
-
-    private KeyEncryptor keyEncryptor;
-
     @Before
     public void init() {
-        keyEncryptor = mock(KeyEncryptor.class);
-        this.sampleGeneratedKey =
-                new InlineKeypair(
-                        "publickey",
-                        new KeyDataConfig(
-                                new PrivateKeyData("value", "nonce", "salt", "box", new ArgonOptions("i", 1, 1, 1)),
-                                PrivateKeyType.LOCKED),
-                        keyEncryptor);
-
         this.factory = new JaxbConfigFactory();
     }
 
     @Test
-    public void createNewLockedKeyAddPasswordToInline() {
+    public void createMinimal() {
 
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddInline.json");
-        this.sampleGeneratedKey.withPassword("pass");
+        Config config = new Config();
+        config.setEncryptor(
+                new EncryptorConfig() {
+                    {
+                        setType(EncryptorType.NACL);
+                    }
+                });
 
-        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
+        InputStream in =
+                Optional.of(config)
+                        .map(JaxbUtil::marshalToStringNoValidation)
+                        .map(String::getBytes)
+                        .map(ByteArrayInputStream::new)
+                        .get();
 
-        assertThat(config.getKeys()).isNotNull();
-        assertThat(config.getKeys().getKeyData()).hasSize(1);
-        assertThat(config.getKeys().getPasswords()).hasSize(1).containsExactlyInAnyOrder("pass");
-        assertThat(config.getKeys().getPasswordFile()).isNull();
-    }
+        JaxbUtil.marshalToStringNoValidation(config);
 
-    @Test
-    public void createNewLockedKeyAppendsToList() {
+        Config result = factory.create(in);
 
-        final InputStream inputStream =
-                getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddInlineWithExisting.json");
-        this.sampleGeneratedKey.withPassword("pass");
-
-        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
-
-        assertThat(config.getKeys()).isNotNull();
-        assertThat(config.getKeys().getKeyData()).hasSize(1);
-        assertThat(config.getKeys().getPasswords()).hasSize(2).containsExactly("existing", "pass");
-        assertThat(config.getKeys().getPasswordFile()).isNull();
-    }
-
-    @Test
-    public void createNewLockedKeyCreatesNewPasswordFile() throws IOException {
-
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
-        this.sampleGeneratedKey.withPassword("pass");
-
-        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
-
-        assertThat(config.getKeys()).isNotNull();
-        assertThat(config.getKeys().getKeyData()).hasSize(1);
-        assertThat(config.getKeys().getPasswords()).isNull();
-
-        assertThat(config.getKeys().getPasswordFile()).isNotNull();
-        final List<String> passes = Files.readAllLines(config.getKeys().getPasswordFile());
-        assertThat(passes).hasSize(1).containsExactly("pass");
-        Files.deleteIfExists(config.getKeys().getPasswordFile());
-    }
-
-    @Test
-    public void cantAppendToPasswordFileThrowsError() throws IOException {
-        final Path file = Paths.get("newPasses.txt");
-        Files.deleteIfExists(file);
-        Files.createFile(file);
-        file.toFile().setWritable(false);
-
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/newLockedKeyAddToFile.json");
-
-        final Throwable throwable =
-                catchThrowable(() -> factory.create(inputStream, singletonList(sampleGeneratedKey)));
-
-        assertThat(throwable).hasMessage("Could not store new passwords: newPasses.txt");
-
-        Files.deleteIfExists(file);
-    }
-
-    @Test
-    public void createNewLockedKeyWithNoPasswordsSet() throws IOException {
-
-        final InputStream inputStream =
-                getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
-        this.sampleGeneratedKey.withPassword("pass");
-
-        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
-
-        assertThat(config.getKeys()).isNotNull();
-        assertThat(config.getKeys().getKeyData()).hasSize(1);
-        assertThat(config.getKeys().getPasswords()).isNull();
-
-        assertThat(config.getKeys().getPasswordFile()).isEqualTo(Paths.get("passwords.txt"));
-        final List<String> passes = Files.readAllLines(config.getKeys().getPasswordFile());
-        assertThat(passes).hasSize(1).containsExactly("pass");
-        Files.deleteIfExists(config.getKeys().getPasswordFile());
-    }
-
-    @Test
-    public void unlockedKeyDoesntTriggerPasswordFile() {
-
-        final ConfigKeyPair unlockedSampleGeneratedKey =
-                new InlineKeypair(
-                        "publickey",
-                        new KeyDataConfig(new PrivateKeyData("value", null, null, null, null), PrivateKeyType.UNLOCKED),
-                        keyEncryptor);
-
-        final InputStream inputStream =
-                getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
-
-        final Config config = factory.create(inputStream, singletonList(unlockedSampleGeneratedKey));
-
-        assertThat(config.getKeys()).isNotNull();
-        assertThat(config.getKeys().getKeyData()).hasSize(1);
-        assertThat(config.getKeys().getPasswords()).isNull();
-        assertThat(config.getKeys().getPasswordFile()).isNull();
-    }
-
-    @Test
-    public void ifExistingKeysWereUnlockedThenAddEmptyPassword() throws IOException {
-
-        final InputStream inputStream =
-                getClass().getResourceAsStream("/keypassupdate/newLockedKeyWithUnlockedPrevious.json");
-        this.sampleGeneratedKey.withPassword("pass");
-
-        final Config config = factory.create(inputStream, singletonList(sampleGeneratedKey));
-
-        assertThat(config.getKeys()).isNotNull();
-        assertThat(config.getKeys().getKeyData()).hasSize(2);
-        assertThat(config.getKeys().getPasswords()).isNull();
-
-        assertThat(config.getKeys().getPasswordFile()).isEqualTo(Paths.get("passwords.txt"));
-        final List<String> passes = Files.readAllLines(config.getKeys().getPasswordFile());
-        assertThat(passes).hasSize(2).containsExactly("", "pass");
-        Files.deleteIfExists(config.getKeys().getPasswordFile());
-    }
-
-    @Test
-    public void noNewKeyDoesntTriggerPasswords() {
-
-        final InputStream inputStream =
-                getClass().getResourceAsStream("/keypassupdate/newLockedKeyNoPasswordsSet.json");
-
-        final Config config = factory.create(inputStream, emptyList());
-
-        assertThat(config.getKeys()).isNotNull();
-        assertThat(config.getKeys().getKeyData()).isEmpty();
-        assertThat(config.getKeys().getPasswords()).isNull();
-        assertThat(config.getKeys().getPasswordFile()).isNull();
-    }
-
-    @Test
-    public void nullKeysDoesntCreatePasswords() {
-
-        final InputStream inputStream = getClass().getResourceAsStream("/keypassupdate/nullKeys.json");
-
-        final Config config = factory.create(inputStream, emptyList());
-
-        assertThat(config.getKeys()).isNull();
+        assertThat(result).isNotNull();
     }
 }
