@@ -22,7 +22,6 @@ import java.util.Objects;
 
 import static com.quorum.tessera.config.PrivateKeyType.LOCKED;
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
@@ -104,9 +103,7 @@ public class FileKeyGenerator implements KeyGenerator {
         LOGGER.info("Saved public key to {}", publicKeyPath.toAbsolutePath().toString());
         LOGGER.info("Saved private key to {}", privateKeyPath.toAbsolutePath().toString());
 
-        InlineKeypair inlineKeypair = new InlineKeypair(publicKeyBase64, keyDataConfig, keyEncryptor);
-
-        final FilesystemKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, inlineKeypair);
+        final FilesystemKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
 
         keyPair.withPassword(password);
 

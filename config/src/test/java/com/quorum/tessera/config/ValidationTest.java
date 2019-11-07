@@ -141,9 +141,9 @@ public class ValidationTest {
         final Path publicKeyPath = Paths.get(UUID.randomUUID().toString());
         final Path privateKeyPath = Paths.get(UUID.randomUUID().toString());
 
-        InlineKeypair inlineKeypair = mock(InlineKeypair.class);
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
-        final ConfigKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, inlineKeypair);
+        final ConfigKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
 
         final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null);
 

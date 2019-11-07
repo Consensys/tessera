@@ -1,13 +1,9 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.keys.KeyEncryptorHolder;
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.io.FilesDelegate;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Objects;
@@ -21,16 +17,6 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
     public static final String NACL_FAILURE_TOKEN = "NACL_FAILURE";
 
     private KeyEncryptorHolder keyEncryptorHolder = KeyEncryptorHolder.INSTANCE;
-
-    private final FilesDelegate filesDelegate;
-
-    public KeyDataAdapter() {
-        this(FilesDelegate.create());
-    }
-
-    protected KeyDataAdapter(FilesDelegate filesDelegate) {
-        this.filesDelegate = Objects.requireNonNull(filesDelegate);
-    }
 
     @Override
     public ConfigKeyPair unmarshal(final KeyData keyData) {
@@ -75,20 +61,8 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
         // case 5, the keys are provided inside a file
         if (keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
-
-            if (filesDelegate.exists(keyData.getPublicKeyPath()) && filesDelegate.exists(keyData.getPrivateKeyPath())) {
-                byte[] publicKeyData = filesDelegate.readAllBytes(keyData.getPublicKeyPath());
-                final String publicKey = new String(publicKeyData, UTF_8);
-
-                KeyDataConfig keyDataConfig =
-                        JaxbUtil.unmarshal(
-                                filesDelegate.newInputStream(keyData.getPrivateKeyPath()), KeyDataConfig.class);
-
-                KeyEncryptor keyEncryptor = keyEncryptorHolder.getKeyEncryptor().get();
-
-                InlineKeypair inlineKeypair = new InlineKeypair(publicKey, keyDataConfig, keyEncryptor);
-                return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath(), inlineKeypair);
-            }
+            final KeyEncryptor keyEncryptor = keyEncryptorHolder.getKeyEncryptor().get();
+            return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath(), keyEncryptor);
         }
 
         // case 6, the key config specified is invalid

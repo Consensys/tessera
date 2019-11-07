@@ -4,12 +4,8 @@ import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 
@@ -73,7 +69,7 @@ public class KeyDataBuilder {
                                         i -> ConfigBuilder.toPath(workdir, publicKeys.get(i)),
                                         i -> ConfigBuilder.toPath(workdir, privateKeys.get(i))));
 
-        KeyEncryptor keyEncryptor =
+        final KeyEncryptor keyEncryptor =
                 KeyEncryptorFactory.newFactory()
                         .create(
                                 new EncryptorConfig() {
@@ -81,20 +77,10 @@ public class KeyDataBuilder {
                                         setType(EncryptorType.NACL);
                                     }
                                 });
-        KeyDataConfig keyDataConfig =
-                new KeyDataConfig(
-                        new PrivateKeyData() {
-                            {
-                                setValue("PASSWORD");
-                            }
-                        },
-                        PrivateKeyType.UNLOCKED);
-
-        InlineKeypair inlineKeypair = new InlineKeypair(workdir, keyDataConfig, keyEncryptor);
 
         final List<ConfigKeyPair> keyData =
                 mappedKeyPairs.entrySet().stream()
-                        .map(pair -> new FilesystemKeyPair(pair.getKey(), pair.getValue(), inlineKeypair))
+                        .map(pair -> new FilesystemKeyPair(pair.getKey(), pair.getValue(), keyEncryptor))
                         .collect(toList());
 
         final Path privateKeyPasswordFilePath;

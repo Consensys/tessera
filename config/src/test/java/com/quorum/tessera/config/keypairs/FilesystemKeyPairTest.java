@@ -1,5 +1,9 @@
 package com.quorum.tessera.config.keypairs;
 
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.keys.KeyEncryptor;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,11 +20,11 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class FilesystemKeyPairTest {
 
-    private InlineKeypair inlineKeypair;
+    private KeyEncryptor keyEncryptor;
 
     @Before
     public void onSetup() {
-        inlineKeypair = mock(InlineKeypair.class);
+        keyEncryptor = mock(KeyEncryptor.class);
     }
 
     @Test
@@ -28,7 +32,7 @@ public class FilesystemKeyPairTest {
         Path pub = Paths.get("pubPath");
         Path priv = Paths.get("privPath");
 
-        FilesystemKeyPair keyPair = new FilesystemKeyPair(pub, priv, inlineKeypair);
+        FilesystemKeyPair keyPair = new FilesystemKeyPair(pub, priv, keyEncryptor);
 
         assertThat(keyPair.getPublicKeyPath()).isEqualByComparingTo(pub);
         assertThat(keyPair.getPrivateKeyPath()).isEqualByComparingTo(priv);
@@ -42,10 +46,33 @@ public class FilesystemKeyPairTest {
         final String pub = "public";
         Files.write(pubFile, pub.getBytes());
 
-        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, inlineKeypair);
+        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, keyEncryptor);
         filesystemKeyPair.withPassword("password");
 
         assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
+    }
+
+    @Test
+    public void getInlineKeypairReturnsKeysReadFromFile() throws Exception {
+
+        Path pubFile = Files.createTempFile(UUID.randomUUID().toString(), ".pub");
+        Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
+
+        String pub = "public";
+        Files.write(pubFile, pub.getBytes());
+
+        FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, keyEncryptor);
+
+        KeyDataConfig privKeyDataConfig =
+                new KeyDataConfig(
+                        new PrivateKeyData("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=", null, null, null, null),
+                        PrivateKeyType.UNLOCKED);
+
+        InlineKeypair expected = new InlineKeypair(pub, privKeyDataConfig, keyEncryptor);
+
+        assertThat(filesystemKeyPair.getInlineKeypair()).isEqualToComparingFieldByFieldRecursively(expected);
+        assertThat(filesystemKeyPair.getPublicKey()).isEqualTo(pub);
+        assertThat(filesystemKeyPair.getPrivateKey()).isEqualTo("Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=");
     }
 
     @Test
@@ -54,7 +81,7 @@ public class FilesystemKeyPairTest {
                 Files.createTempFile(UUID.randomUUID().toString(), ".pub").resolveSibling("nonexistantkey");
         final Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
 
-        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, inlineKeypair);
+        final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, keyEncryptor);
         filesystemKeyPair.withPassword("password");
 
         assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
@@ -73,7 +100,7 @@ public class FilesystemKeyPairTest {
         assertThat(filesystemKeyPair.getPrivateKeyPath()).isSameAs(privateKeyPath);
         assertThat(filesystemKeyPair.getPublicKeyPath()).isSameAs(publicKeyPath);
 
-        verifyZeroInteractions(inlineKeypair);
+        verifyZeroInteractions(keyEncryptor);
     }
 
     @Test
@@ -87,6 +114,6 @@ public class FilesystemKeyPairTest {
         assertThat(filesystemKeyPair.getPrivateKeyPath()).isSameAs(privateKeyPath);
         assertThat(filesystemKeyPair.getPublicKeyPath()).isSameAs(publicKeyPath);
 
-        verifyZeroInteractions(inlineKeypair);
+        verifyZeroInteractions(keyEncryptor);
     }
 }

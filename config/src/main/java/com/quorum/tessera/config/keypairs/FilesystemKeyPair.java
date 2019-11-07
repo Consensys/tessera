@@ -1,9 +1,16 @@
 package com.quorum.tessera.config.keypairs;
 
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.config.constraints.ValidContent;
 import com.quorum.tessera.config.constraints.ValidPath;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.io.IOCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +19,10 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FilesystemKeyPair implements ConfigKeyPair {
 
@@ -32,18 +42,36 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private final Path privateKeyPath;
 
-    private final InlineKeypair inlineKeypair;
+    private InlineKeypair inlineKeypair;
 
     private String password;
 
+    private final KeyEncryptor keyEncryptor;
+
     public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath) {
-        this(publicKeyPath, privateKeyPath, null);
+        this(
+                publicKeyPath,
+                privateKeyPath,
+                KeyEncryptorFactory.newFactory()
+                        .create(
+                                new EncryptorConfig() {
+                                    {
+                                        setType(EncryptorType.NACL);
+                                    }
+                                }));
     }
 
-    public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath, InlineKeypair inlineKeypair) {
+    public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath, final KeyEncryptor keyEncryptor) {
         this.publicKeyPath = publicKeyPath;
         this.privateKeyPath = privateKeyPath;
-        this.inlineKeypair = inlineKeypair;
+        this.keyEncryptor = keyEncryptor;
+
+        try {
+            loadKeys();
+        } catch (final Exception ex) {
+            // silently discard errors as these get picked up by the validator
+            LOGGER.debug("Unable to read key files", ex);
+        }
     }
 
     @Override
@@ -93,5 +121,14 @@ public class FilesystemKeyPair implements ConfigKeyPair {
 
     public InlineKeypair getInlineKeypair() {
         return inlineKeypair;
+    }
+
+    private void loadKeys() {
+        this.inlineKeypair =
+                new InlineKeypair(
+                        IOCallback.execute(() -> new String(Files.readAllBytes(this.publicKeyPath), UTF_8)),
+                        JaxbUtil.unmarshal(
+                                IOCallback.execute(() -> Files.newInputStream(privateKeyPath)), KeyDataConfig.class),
+                        keyEncryptor);
     }
 }

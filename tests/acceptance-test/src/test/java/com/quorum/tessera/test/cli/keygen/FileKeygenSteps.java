@@ -1,8 +1,11 @@
 package com.quorum.tessera.test.cli.keygen;
 
+import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
@@ -126,8 +129,17 @@ public class FileKeygenSteps implements En {
                     when(inlineKeypair.getPublicKey()).thenReturn(encodedPublicKey);
                     when(inlineKeypair.getPrivateKey()).thenReturn(encodedPrivateKey);
 
+                    KeyEncryptor keyEncryptor =
+                            KeyEncryptorFactory.newFactory()
+                                    .create(
+                                            new EncryptorConfig() {
+                                                {
+                                                    setType(EncryptorType.NACL);
+                                                }
+                                            });
+
                     final FilesystemKeyPair generatedKeys =
-                            new FilesystemKeyPair(this.publicKeyPath, this.privateKeyPath, inlineKeypair);
+                            new FilesystemKeyPair(this.publicKeyPath, this.privateKeyPath, keyEncryptor);
                     generatedKeys.withPassword(this.password);
 
                     final PublicKey publicKey = PublicKey.from(DECODER.decode(generatedKeys.getPublicKey()));

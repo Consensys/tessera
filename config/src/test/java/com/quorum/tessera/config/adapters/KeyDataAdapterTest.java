@@ -11,7 +11,6 @@ import java.nio.file.Path;
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorHolder;
-import com.quorum.tessera.io.FilesDelegate;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -28,13 +27,10 @@ public class KeyDataAdapterTest {
 
     private KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
-    private FilesDelegate filesDelegate;
-
     @Before
     public void onSetUp() {
         KeyEncryptorHolder.INSTANCE.setKeyEncryptor(keyEncryptor);
-        filesDelegate = mock(FilesDelegate.class);
-        adapter = new KeyDataAdapter(filesDelegate);
+        adapter = new KeyDataAdapter();
     }
 
     @Test
@@ -67,9 +63,9 @@ public class KeyDataAdapterTest {
     public void marshallFilesystemKeys() {
         final Path path = mock(Path.class);
 
-        InlineKeypair inlineKeypair = mock(InlineKeypair.class);
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
-        final FilesystemKeyPair keyPair = new FilesystemKeyPair(path, path, inlineKeypair);
+        final FilesystemKeyPair keyPair = new FilesystemKeyPair(path, path, keyEncryptor);
 
         final KeyData expected = new KeyData();
         expected.setPublicKeyPath(path);
@@ -355,11 +351,6 @@ public class KeyDataAdapterTest {
         when(keyData.getPrivateKeyPath()).thenReturn(privateKeyPath);
         when(keyData.getPublicKeyPath()).thenReturn(publicKeyPath);
 
-        when(filesDelegate.exists(publicKeyPath)).thenReturn(true);
-        when(filesDelegate.exists(privateKeyPath)).thenReturn(true);
-
-        when(filesDelegate.readAllBytes(publicKeyPath)).thenReturn("Some public key data".getBytes());
-
         String d =
                 "            {\n"
                         + "                \"config\": {\n"
@@ -381,31 +372,9 @@ public class KeyDataAdapterTest {
 
         InputStream dataIn = new java.io.ByteArrayInputStream(d.getBytes());
 
-        when(filesDelegate.newInputStream(privateKeyPath)).thenReturn(dataIn);
-
         ConfigKeyPair configKeyPair = adapter.unmarshal(keyData);
 
         assertThat(configKeyPair).isExactlyInstanceOf(FilesystemKeyPair.class);
-    }
-
-    @Test
-    public void unmarshalKeyFileDontExist() throws Exception {
-
-        KeyData keyData = mock(KeyData.class);
-
-        Path privateKeyPath = mock(Path.class);
-
-        Path publicKeyPath = mock(Path.class);
-
-        when(keyData.getPrivateKeyPath()).thenReturn(privateKeyPath);
-        when(keyData.getPublicKeyPath()).thenReturn(publicKeyPath);
-
-        when(filesDelegate.exists(privateKeyPath)).thenReturn(false);
-        when(filesDelegate.exists(publicKeyPath)).thenReturn(false);
-
-        ConfigKeyPair configKeyPair = adapter.unmarshal(keyData);
-
-        assertThat(configKeyPair).isExactlyInstanceOf(UnsupportedKeyPair.class);
     }
 
     @Test
