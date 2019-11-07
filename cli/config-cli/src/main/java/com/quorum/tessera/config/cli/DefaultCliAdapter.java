@@ -148,6 +148,10 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
+        if (commandLine.hasOption("updatepassword") && !commandLine.hasOption("encryptor.type")) {
+            throw new CliException("arg: --encryptor.type=[NACL|EC] is required for option -updatepassword");
+        }
+
         if (!commandLine.hasOption("configfile") && !commandLine.hasOption("keygen")) {
             throw new CliException("One or more: -configfile or -keygen or -updatepassword options are required.");
         }
@@ -165,7 +169,7 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
         } // end update password stuff
 
         final List<ConfigKeyPair> newKeys = new KeyGenerationParser(encryptorConfig).parse(commandLine);
-     
+
         final Config config = new ConfigurationParser(newKeys).parse(commandLine);
 
         return config;

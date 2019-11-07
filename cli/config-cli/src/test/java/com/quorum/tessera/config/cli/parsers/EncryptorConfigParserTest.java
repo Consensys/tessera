@@ -4,7 +4,12 @@ import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.EncryptorType;
+import static com.quorum.tessera.config.cli.parsers.EncryptorConfigParser.NO_ENCRYPTOR_DEFINED_ERROR_MESSAGE;
+import com.quorum.tessera.io.FilesDelegate;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import org.apache.commons.cli.CommandLine;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.After;
@@ -18,10 +23,13 @@ public class EncryptorConfigParserTest {
 
     private CommandLine commandLine;
 
+    private FilesDelegate filesDelegate;
+
     @Before
     public void onSetup() {
-        this.parser = new EncryptorConfigParser();
         commandLine = mock(CommandLine.class);
+        filesDelegate = mock(FilesDelegate.class);
+        this.parser = new EncryptorConfigParser(filesDelegate);
     }
 
     @After
@@ -31,12 +39,8 @@ public class EncryptorConfigParserTest {
 
     @Test
     public void elipticalCurveNoPropertiesDefined() throws IOException {
-        Config config = new Config();
-        config.setEncryptor(new EncryptorConfig());
-        config.getEncryptor().setType(EncryptorType.EC);
         when(commandLine.hasOption("configfile")).thenReturn(false);
         when(commandLine.hasOption("encryptor.type")).thenReturn(true);
-        when(commandLine.getOptionValue(anyString())).thenReturn(null);
         when(commandLine.getOptionValue("encryptor.type")).thenReturn(EncryptorType.EC.name());
 
         EncryptorConfig result = parser.parse(commandLine);
@@ -45,9 +49,12 @@ public class EncryptorConfigParserTest {
         assertThat(result.getProperties()).isEmpty();
 
         verify(commandLine).getOptionValue("encryptor.type");
-        verify(commandLine, times(5)).getOptionValue(anyString());
-        verify(commandLine).hasOption("encryptor.type");
         verify(commandLine).hasOption("configfile");
+
+        verify(commandLine).getOptionValue("encryptor.symmetricCipher");
+        verify(commandLine).getOptionValue("encryptor.ellipticCurve");
+        verify(commandLine).getOptionValue("encryptor.nonceLength");
+        verify(commandLine).getOptionValue("encryptor.sharedKeyLength");
     }
 
     @Test
@@ -57,7 +64,6 @@ public class EncryptorConfigParserTest {
         config.getEncryptor().setType(EncryptorType.EC);
 
         when(commandLine.hasOption("configfile")).thenReturn(false);
-        when(commandLine.hasOption("encryptor.type")).thenReturn(true);
 
         when(commandLine.getOptionValue("encryptor.type")).thenReturn(EncryptorType.EC.name());
 
@@ -83,18 +89,41 @@ public class EncryptorConfigParserTest {
         verify(commandLine).getOptionValue("encryptor.sharedKeyLength");
 
         verify(commandLine).getOptionValue("encryptor.type");
-        verify(commandLine).hasOption("encryptor.type");
         verify(commandLine).hasOption("configfile");
     }
 
     @Test
-    public void noEncryptorTypeDefined() throws IOException {
+    public void noEncryptorTypeDefinedAndNoConfigFile() throws IOException {
+
+        when(commandLine.hasOption("configfile")).thenReturn(false);
+        EncryptorConfig result = parser.parse(commandLine);
+        assertThat(result.getType()).isEqualTo(EncryptorType.NACL);
+        assertThat(result.getProperties()).isEmpty();
+
+        verify(commandLine).getOptionValue("encryptor.type");
+        verify(commandLine).hasOption("configfile");
+    }
+
+    @Test
+    public void keyGenRequiresEncryptorTypeDefining() throws Exception {
+
+        when(commandLine.hasOption("configfile")).thenReturn(true);
+        when(commandLine.getOptionValue("configfile")).thenReturn("somepath");
+        when(commandLine.hasOption("keygen")).thenReturn(true);
+
+        InputStream inputStream = new ByteArrayInputStream("{}".getBytes());
+        when(filesDelegate.newInputStream(any(Path.class))).thenReturn(inputStream);
 
         try {
             parser.parse(commandLine);
             failBecauseExceptionWasNotThrown(CliException.class);
         } catch (CliException ex) {
-            verify(commandLine, times(2)).hasOption(anyString());
+            assertThat(ex).hasMessage(NO_ENCRYPTOR_DEFINED_ERROR_MESSAGE);
+            verify(commandLine).getOptionValue("encryptor.type");
+            verify(commandLine).getOptionValue("configfile");
+            verify(commandLine).hasOption("configfile");
+            verify(commandLine).hasOption("keygen");
+            verify(filesDelegate).newInputStream(any(Path.class));
         }
     }
 }
