@@ -113,6 +113,7 @@ public class ConfigMigrationSteps implements En {
                                     null);
 
                     final KeyConfiguration keys = new KeyConfiguration();
+
                     keys.setKeyData(
                             singletonList(
                                     new FilesystemKeyPair(
@@ -128,7 +129,6 @@ public class ConfigMigrationSteps implements En {
                     assertThat(migratedConfig.getAlwaysSendTo()).isEqualTo(emptyList());
                     assertThat(migratedConfig.getServerConfigs())
                             .hasSize(2)
-                            .usingRecursiveFieldByFieldElementComparator()
                             .containsExactlyInAnyOrder(p2pServer, unixServer);
                     assertThat(migratedConfig.getPeers()).containsExactly(new Peer("http://127.0.0.1:9000/"));
                 });
