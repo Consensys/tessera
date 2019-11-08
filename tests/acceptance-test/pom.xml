@@ -212,11 +212,8 @@
                         <include>GrpcSuite</include>
                         <include>SendWithRemoteEnclaveReconnectIT</include>
                         <include>CucumberFileKeyGenerationIT</include>
-
                         <include>AdminRestSuite</include>
                         <include>ConfigMigrationIT</include>
-
-
                     </includes>
                 </configuration>
                 <executions>
