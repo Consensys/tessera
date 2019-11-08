@@ -102,18 +102,4 @@ public class FilesystemKeyPairTest {
 
         verifyZeroInteractions(keyEncryptor);
     }
-
-    @Test
-    public void constructDefaultWithoutEncrptor() {
-        Path publicKeyPath = mock(Path.class);
-        Path privateKeyPath = mock(Path.class);
-        FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
-        assertThat(filesystemKeyPair.getPublicKey()).isNull();
-        assertThat(filesystemKeyPair.getInlineKeypair()).isNull();
-        assertThat(filesystemKeyPair.getPrivateKey()).isNull();
-        assertThat(filesystemKeyPair.getPrivateKeyPath()).isSameAs(privateKeyPath);
-        assertThat(filesystemKeyPair.getPublicKeyPath()).isSameAs(publicKeyPath);
-
-        verifyZeroInteractions(keyEncryptor);
-    }
 }

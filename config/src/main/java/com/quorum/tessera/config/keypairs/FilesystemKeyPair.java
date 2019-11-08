@@ -1,14 +1,11 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.EncryptorConfig;
-import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.config.constraints.ValidContent;
 import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.io.IOCallback;
 import org.slf4j.Logger;
@@ -48,18 +45,18 @@ public class FilesystemKeyPair implements ConfigKeyPair {
 
     private final KeyEncryptor keyEncryptor;
 
-    public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath) {
-        this(
-                publicKeyPath,
-                privateKeyPath,
-                KeyEncryptorFactory.newFactory()
-                        .create(
-                                new EncryptorConfig() {
-                                    {
-                                        setType(EncryptorType.NACL);
-                                    }
-                                }));
-    }
+    //    public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath) {
+    //        this(
+    //                publicKeyPath,
+    //                privateKeyPath,
+    //                KeyEncryptorFactory.newFactory()
+    //                        .create(
+    //                                new EncryptorConfig() {
+    //                                    {
+    //                                        setType(EncryptorType.NACL);
+    //                                    }
+    //                                }));
+    //    }
 
     public FilesystemKeyPair(final Path publicKeyPath, final Path privateKeyPath, final KeyEncryptor keyEncryptor) {
         this.publicKeyPath = publicKeyPath;
