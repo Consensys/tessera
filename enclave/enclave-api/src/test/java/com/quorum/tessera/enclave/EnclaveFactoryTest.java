@@ -11,6 +11,9 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class EnclaveFactoryTest {
 
@@ -135,5 +138,19 @@ public class EnclaveFactoryTest {
         Enclave result = enclaveFactory.createLocal(config);
 
         assertThat(result).isInstanceOf(EnclaveImpl.class);
+    }
+
+    @Test
+    public void handleException() {
+        Config config = mock(Config.class);
+        EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
+        when(encryptorConfig.getType()).thenThrow(new RuntimeException("OUCH"));
+        when(config.getEncryptor()).thenReturn(encryptorConfig);
+        try {
+            enclaveFactory.create(config);
+            failBecauseExceptionWasNotThrown(RuntimeException.class);
+        } catch (RuntimeException ex) {
+            assertThat(ex).hasMessage("OUCH");
+        }
     }
 }
