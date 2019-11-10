@@ -22,7 +22,7 @@ jar {
         attributes(
                 "Implementation-Title": project.name,
                 "Implementation-Version": version,
-                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT")
+                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
         )
     }
 
