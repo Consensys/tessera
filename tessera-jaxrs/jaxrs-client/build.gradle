@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(':shared')
+    implementation project(':config')
+    implementation project(':security')
+    runtimeOnly project(':server:jaxrs-client-unixsocket')
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
+}

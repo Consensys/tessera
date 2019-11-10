@@ -1,0 +1,64 @@
+
+dependencies {
+    implementation project(':tessera-core')
+    implementation project(':security')
+    implementation project(':tessera-partyinfo')
+    implementation project(':tessera-dist:tessera-launcher')
+    implementation project(':tessera-dist:tessera-app')
+    implementation project(':enclave:enclave-jaxrs')
+    implementation project(':enclave:enclave-api')
+    implementation project(':encryption:encryption-api')
+    implementation project(':shared')
+    implementation project(':config')
+    implementation project(':tests:test-util')
+    implementation project(':config-migration')
+    implementation project(':ddls')
+    implementation 'io.cucumber:cucumber-junit:4.0.1'
+    implementation 'io.cucumber:cucumber-java8:4.0.1'
+    implementation 'org.xerial:sqlite-jdbc:3.23.1'
+    implementation 'org.hsqldb:hsqldb:2.4.1'
+    implementation 'com.github.tomakehurst:wiremock-jre8:2.24.1'
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
+    implementation 'org.assertj:assertj-core:3.9.1'
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
+    implementation project(':tessera-jaxrs:common-jaxrs')
+    implementation project(':tessera-jaxrs:jaxrs-client')
+    implementation 'com.github.jnr:jnr-unixsocket:0.22'
+    implementation 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
+
+    sourceSets {
+        main {
+            java {
+
+                srcDir 'src/test/java'
+                exclude '**/grpc/**'
+                exclude '**/Grpc*.java'
+            }
+            resources {
+                srcDir 'src/test/resources'
+            }
+        }
+
+        test {
+            java {
+                srcDir 'src/test/java'
+                exclude '**/RestSuite.java'
+                exclude '**/grpc/**'
+                exclude '**/Grpc*.java'
+
+
+            }
+            resources {
+                srcDir 'src/test/resources'
+                include '**/*.xml'
+                include 'META-INF/services/**'
+            }
+        }
+    }
+
+
+
+
+
+}
+

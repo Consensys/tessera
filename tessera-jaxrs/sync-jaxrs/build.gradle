@@ -1,0 +1,19 @@
+
+dependencies {
+    implementation project(':security')
+    implementation project(':shared')
+    implementation project(':config')
+    implementation project(':enclave:enclave-api')
+    implementation project(':encryption:encryption-api')
+    implementation project(':tessera-jaxrs:common-jaxrs')
+    implementation project(':tessera-jaxrs:jaxrs-client')
+    implementation 'io.swagger:swagger-annotations:1.5.4'
+    implementation project(':tessera-core')
+    implementation project(':tessera-partyinfo')
+    implementation project(':tessera-data')
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
+    implementation project(':tessera-jaxrs:common-jaxrs')
+    testImplementation project(':test-utils:mock-jaxrs')
+}
+
+description = 'sync-jaxrs'

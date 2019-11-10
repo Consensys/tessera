@@ -1,0 +1,14 @@
+
+dependencies {
+    implementation 'info.picocli:picocli:4.0.4'
+    implementation project(':shared')
+    implementation project(':config')
+    implementation project(':ddls')
+    implementation project(':cli:cli-api')
+    implementation 'commons-codec:commons-codec:1.6'
+    implementation 'commons-io:commons-io:2.6'
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.61'
+    runtimeOnly 'org.xerial:sqlite-jdbc:3.23.1'
+    runtimeOnly 'com.h2database:h2:1.4.200'
+    testImplementation 'com.mockrunner:mockrunner-jdbc:2.0.1'
+}

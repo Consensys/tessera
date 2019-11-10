@@ -1,0 +1,18 @@
+
+dependencies {
+    implementation project(':service-locator:service-locator-spring')
+    implementation project(':tessera-jaxrs:jaxrs-client')
+    implementation project(':tessera-admin')
+    implementation project(':tessera-core')
+    implementation project(':tessera-partyinfo')
+    implementation project(':enclave:enclave-api')
+    implementation project(':config')
+    implementation project(':shared')
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
+    implementation 'io.swagger:swagger-annotations:1.5.4'
+    compileOnly 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'org.apache.commons:commons-lang3:3.7'
+    compileOnly 'javax.persistence:javax.persistence-api:2.2'
+    implementation project(':encryption:encryption-api')
+}
+

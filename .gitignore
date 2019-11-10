@@ -1,5 +1,6 @@
 # Maven output directories
 /**/target/
+/**/build/
 
 # Netbeans project config
 /**/nbproject

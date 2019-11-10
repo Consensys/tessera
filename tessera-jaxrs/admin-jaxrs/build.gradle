@@ -1,0 +1,13 @@
+
+dependencies {
+    implementation project(':shared')
+    implementation project(':config')
+    implementation project(':tessera-jaxrs:common-jaxrs')
+    implementation project(':tessera-core')
+    implementation project(':tessera-admin')
+    implementation project(':encryption:encryption-api')
+    implementation project(':tessera-partyinfo')
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
+}
+
+description = 'admin-jaxrs'

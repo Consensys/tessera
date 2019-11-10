@@ -1,0 +1,11 @@
+
+dependencies {
+    implementation project(':config')
+    implementation project(':tessera-core')
+    implementation project(':service-locator:service-locator-api')
+    implementation project(':tessera-jaxrs:common-jaxrs')
+    implementation 'io.swagger:swagger-annotations:1.5.4'
+    implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
+}
+
+description = 'transaction-jaxrs'
