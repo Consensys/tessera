@@ -38,7 +38,7 @@ public enum CliDelegate {
 
         // Finds the top level adapter that we want to start with. Exactly one is expected to be on the classpath.
         final CliAdapter adapter =
-                adapters.stream().peek(System.out::println)
+                adapters.stream()
                         .filter(a -> a.getClass().isAnnotationPresent(CommandLine.Command.class))
                         .filter(
                                 a ->
@@ -58,7 +58,6 @@ public enum CliDelegate {
         // mostly since we have an existing system, and this is a workaround
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
         final CommandLine commandLine = new CommandLine(adapter);
-        System.out.println(commandLine);
         others.stream().forEach(commandLine::addSubcommand);
 
         commandLine
