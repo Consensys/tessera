@@ -1,9 +1,11 @@
 package com.jpmorgan.quorum.mock.servicelocator;
 
+import com.quorum.tessera.service.locator.Default;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import java.util.Collections;
 import java.util.Set;
 
+@Default
 public class MockServiceLocator implements com.quorum.tessera.service.locator.ServiceLocator {
 
     private static Set<Object> services = Collections.EMPTY_SET;

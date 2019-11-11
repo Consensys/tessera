@@ -35,5 +35,6 @@ dependencies {
     runtimeOnly 'org.glassfish.jersey.media:jersey-media-json-processing:2.27'
     runtimeOnly project(':encryption:encryption-jnacl')
     implementation project(':cli:cli-api')
+    testImplementation "org.bouncycastle:bcpkix-jdk15on"
 
 }
