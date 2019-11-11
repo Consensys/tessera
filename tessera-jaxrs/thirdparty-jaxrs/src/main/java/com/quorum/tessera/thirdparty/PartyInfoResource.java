@@ -44,7 +44,6 @@ public class PartyInfoResource {
 
         final String output =
                 Json.createObjectBuilder()
-                        .add("url", current.getUrl())
                         .add("keys", recipientBuilder.build())
                         .build()
                         .toString();
