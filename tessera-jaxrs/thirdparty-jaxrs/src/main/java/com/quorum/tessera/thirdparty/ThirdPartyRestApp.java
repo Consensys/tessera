@@ -3,6 +3,9 @@ package com.quorum.tessera.thirdparty;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,13 +16,21 @@ import javax.ws.rs.ApplicationPath;
 @ApplicationPath("/")
 public class ThirdPartyRestApp extends TesseraRestApplication {
 
+    private final PartyInfoService partyInfoService;
+
+    public ThirdPartyRestApp() {
+        final ServiceFactory serviceFactory = ServiceFactory.create();
+        this.partyInfoService = serviceFactory.partyInfoService();
+    }
+
     @Override
     public Set<Object> getSingletons() {
 
-        IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
-        RawTransactionResource rawTransactionResource = new RawTransactionResource();
+        final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
+        final RawTransactionResource rawTransactionResource = new RawTransactionResource();
+        final PartyInfoResource partyInfoResource = new PartyInfoResource(partyInfoService);
 
-        return Stream.of(iPWhitelistFilter, rawTransactionResource).collect(Collectors.toSet());
+        return Stream.of(iPWhitelistFilter, rawTransactionResource, partyInfoResource).collect(Collectors.toSet());
     }
 
     @Override

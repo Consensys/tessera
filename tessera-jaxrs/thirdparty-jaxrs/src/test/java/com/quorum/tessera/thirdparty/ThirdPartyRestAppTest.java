@@ -1,9 +1,9 @@
 package com.quorum.tessera.thirdparty;
 
-import com.quorum.tessera.thirdparty.ThirdPartyRestApp;
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
@@ -34,6 +34,7 @@ public class ThirdPartyRestAppTest {
         Set services = new HashSet();
         services.add(mock(ConfigService.class));
         services.add(mock(TransactionManager.class));
+        services.add(mock(PartyInfoService.class));
 
         serviceLocator.setServices(services);
 
@@ -62,7 +63,7 @@ public class ThirdPartyRestAppTest {
 
         Set<Object> results = thirdParty.getSingletons();
 
-        assertThat(results).hasSize(2);
+        assertThat(results).hasSize(3);
     }
 
     @Test
