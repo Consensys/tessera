@@ -1,9 +1,20 @@
 
+plugins {
+    id "org.owasp.dependencycheck" version "5.2.2"
+    id 'jacoco'
+    id 'com.diffplug.gradle.spotless' version '3.25.0'
+}
+
+
+
 allprojects {
     group = 'com.jpmorgan.quorum'
     version = '0.11-SNAPSHOT'
 
+
+
     plugins.withType(JavaPlugin).whenPluginAdded {
+
         dependencies {
             constraints {
                 implementation "org.slf4j:slf4j-api:1.7.5"
@@ -12,12 +23,14 @@ allprojects {
                 implementation "org.slf4j:jcl-over-slf4j:1.7.5"
                 implementation "org.slf4j:jul-to-slf4j:1.7.5"
                 implementation  "org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3"
+
                 implementation "junit:junit:4.12"
                 implementation "org.assertj:assertj-core:3.9.1"
                 implementation "org.mockito:mockito-core:2.23.0"
                 implementation "com.openpojo:openpojo:0.8.10"
                 implementation "com.github.stefanbirkner:system-rules:1.18.0"
                 implementation "nl.jqno.equalsverifier:equalsverifier:3.1.5"
+
                 implementation "de.mkammerer:argon2-jvm:2.5"
                 implementation "javax.validation:validation-api:2.0.1.Final"
                 implementation "javax.ws.rs:javax.ws.rs-api:2.1"
@@ -86,27 +99,25 @@ allprojects {
                 implementation "javax.servlet:javax.servlet-api:4.0.1"
                 implementation "javax.persistence:javax.persistence-api:2.2"
                 implementation "javax:javaee-api:7.0"
+
             }
         }
     }
-
-
-
 }
 
 subprojects {
-    apply plugin: 'java'
-    apply plugin: 'maven-publish'
 
+    apply plugin: 'java'
+    apply plugin: 'com.diffplug.gradle.spotless'
+    apply plugin: 'maven-publish'
+    apply plugin: 'jacoco'
+    apply plugin: 'org.owasp.dependencycheck'
     repositories {
         mavenLocal()
         maven {
             url = 'http://repo.maven.apache.org/maven2'
         }
-
-
     }
-
 
     dependencies {
         implementation 'org.slf4j:slf4j-api'
@@ -122,61 +133,120 @@ subprojects {
     }
 
     test {
-        systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
+        systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
+
     }
 
+    jacoco {
+        toolVersion = "0.8.5"
+    }
+    spotless {
 
-    sourceSets {
-        main {
-            java {
-                srcDir 'src/main/java'
+        lineEndings = 'unix'
+
+        java {
+
+
+            target fileTree('**/*.java') {
+                exclude('enclave/enclave-websockets/**/*.java')
             }
-            resources {
-                srcDir 'src/main/resources'
+           // indentWithSpaces(4)
+            removeUnusedImports()
+           // googleJavaFormat().aosp()
+        }
+        groovyGradle {
+            target '*.gradle'
+            indentWithSpaces(4)
+            paddedCell()
+        }
+    }
+
+    jacocoTestCoverageVerification {
+
+
+        violationRules {
+            rule {
+                element = 'CLASS'
+                limit {
+                    counter = 'LINE'
+                    value = 'COVEREDRATIO'
+                    minimum = 1.0
+                }
+                limit {
+                    counter = 'INSTRUCTION'
+                    value = 'COVEREDRATIO'
+                    minimum = 1.0
+                }
+
+                excludes = [
+                        'com.quorum.tessera.config.migration.Main',
+                        'com.quorum.tessera.data.migration.Main',
+                        'com.quorum.tessera.passwords.ConsolePasswordReader',
+                        'com.quorum.tessera.passwords.PasswordReaderFactory',
+                        'com.quorum.tessera.enclave.rest.Main',
+                        'com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate',
+                        'com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory'
+                ]
+            }
+
+        }
+    }
+
+        sourceSets {
+            main {
+                java {
+                    srcDir 'src/main/java'
+                }
+                resources {
+                    srcDir 'src/main/resources'
 //                include '**/**'
- //               include 'META-INF/services/**'
+                    //               include 'META-INF/services/**'
+                }
             }
-        }
-        test {
-            java {
+            test {
+                java {
 
-                srcDir 'src/test/java'
-        //        include '**/Test.java'
-       //         exclude '**/*IT'
+                    srcDir 'src/test/java'
+                    //        include '**/Test.java'
+                    //         exclude '**/*IT'
 
-            }
-            resources {
-                srcDir 'src/test/resources'
+                }
+                resources {
+                    srcDir 'src/test/resources'
 //                include '**'
- //               include 'META-INF/services/**'
+                    //               include 'META-INF/services/**'
+                }
+            }
+
+
+        }
+
+        sourceCompatibility = '1.8'
+
+        configurations.all {
+        }
+
+        publishing {
+            publications {
+                maven(MavenPublication) {
+                    from(components.java)
+                }
             }
         }
-    }
 
-    sourceCompatibility = '1.8'
-
-
-    configurations.all {
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                from(components.java)
-            }
+        tasks.withType(JavaCompile) {
+            options.encoding = 'UTF-8'
         }
+
+
+
+        test {
+            exclude '**/*IT.class'
+        }
+
+        check.dependsOn spotlessCheck,jacocoTestCoverageVerification
+
     }
 
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-    }
 
-test {
-    exclude '**/*IT.class'
-}
-
-
-
-
-}
