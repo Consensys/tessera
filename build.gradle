@@ -172,6 +172,10 @@ subprojects {
         options.encoding = 'UTF-8'
     }
 
+test {
+    exclude '**/*IT.class'
+}
+
 
 
 
