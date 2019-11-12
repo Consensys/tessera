@@ -40,7 +40,7 @@ public class RawTransactionResource {
         this.delegate = Objects.requireNonNull(delegate);
     }
 
-    @ApiOperation(value = "Store raw private transaction payload", produces = "Encrypted payload")
+    @ApiOperation(value = "Store raw private transaction payload")
     @ApiResponses({
         @ApiResponse(code = 200, response = StoreRawResponse.class, message = "Store response"),
         @ApiResponse(code = 400, message = "For unknown sender")

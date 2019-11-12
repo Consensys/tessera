@@ -29,7 +29,7 @@ public class UpCheckResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     @ApiResponses({@ApiResponse(code = 200, message = UPCHECK_RESPONSE)})
-    @ApiOperation(value = "Check if local P2PRestApp Node is up", produces = "I'm up")
+    @ApiOperation(value = "Check if local P2PRestApp Node is up")
     public String upCheck() {
 
         LOGGER.info("GET upcheck");
