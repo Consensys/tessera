@@ -2,6 +2,8 @@
 dependencies {
     implementation project(':config')
     implementation project(':tessera-core')
+    implementation project(':tessera-partyinfo')
+    implementation project(':encryption:encryption-api')
     implementation project(':tessera-jaxrs:common-jaxrs')
     implementation 'io.swagger:swagger-annotations'
     implementation 'javax.ws.rs:javax.ws.rs-api'
