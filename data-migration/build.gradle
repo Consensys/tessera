@@ -25,14 +25,14 @@ dependencies {
     testImplementation 'com.h2database:h2:1.4.200'
 }
 
-task copyDdls(type:Copy) {
-
-        def dest = project.file('build/resources/main/ddls/')
-        from(project(':ddls').file('create-table'))
-        into(dest)
-
+task unzipDdl(type:Copy) {
+    def zipFile = file(project(':ddls').jar.outputs.files.getFiles()[0])
+    def outputDir = file("${buildDir}/resources/test/ddls")
+    from zipTree(zipFile)
+    into outputDir
 }
 
-processResources.dependsOn copyDdls
+
+processResources.dependsOn unzipDdl
 
 

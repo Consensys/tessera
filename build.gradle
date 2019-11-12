@@ -3,6 +3,7 @@ plugins {
     id "org.owasp.dependencycheck" version "5.2.2"
     id 'jacoco'
     id 'com.diffplug.gradle.spotless' version '3.25.0'
+
 }
 
 
@@ -97,7 +98,6 @@ allprojects {
                 implementation "javax.inject:javax.inject:1"
                 implementation "io.swagger:swagger-annotations:1.5.4"
                 implementation "javax.servlet:javax.servlet-api:4.0.1"
-                implementation "javax.persistence:javax.persistence-api:2.2"
                 implementation "javax:javaee-api:7.0"
 
             }
@@ -112,6 +112,8 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
     apply plugin: 'org.owasp.dependencycheck'
+    apply plugin: 'signing'
+
     repositories {
         mavenLocal()
         maven {
