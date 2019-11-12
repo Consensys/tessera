@@ -47,7 +47,7 @@ public class TransactionResource {
         this.delegate = Objects.requireNonNull(delegate);
     }
 
-    @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
+    @ApiOperation(value = "Send private transaction payload")
     @ApiResponses({
         @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
@@ -69,7 +69,7 @@ public class TransactionResource {
         return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(response).build();
     }
 
-    @ApiOperation(value = "Send private raw transaction payload", produces = "Encrypted payload hash")
+    @ApiOperation(value = "Send private raw transaction payload")
     @ApiResponses({
         @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
         @ApiResponse(code = 400, message = "For unknown and unknown keys")
@@ -106,7 +106,7 @@ public class TransactionResource {
         return Response.status(Status.OK).entity(encodedKey).location(location).build();
     }
 
-    @ApiOperation(value = "Send private transaction payload", produces = "Encrypted payload")
+    @ApiOperation(value = "Send private transaction payload")
     @ApiResponses({
         @ApiResponse(code = 200, message = "Encoded Key", response = String.class),
         @ApiResponse(code = 500, message = "Unknown server error")
@@ -175,7 +175,7 @@ public class TransactionResource {
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(response).build();
     }
 
-    @ApiOperation(value = "Submit keys to retrieve payload and decrypt it", produces = "Unencrypted payload")
+    @ApiOperation(value = "Submit keys to retrieve payload and decrypt it")
     @ApiResponses({@ApiResponse(code = 200, message = "Raw payload", response = byte[].class)})
     @GET
     @Path("receiveraw")
