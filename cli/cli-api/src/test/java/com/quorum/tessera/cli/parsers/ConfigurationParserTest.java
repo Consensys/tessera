@@ -148,7 +148,7 @@ public class ConfigurationParserTest {
 
         when(commandLine.hasOption("output")).thenReturn(true);
 
-        Path output = Paths.get("target", UUID.randomUUID().toString() + ".conf");
+        Path output = Paths.get(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString() + ".conf");
 
         when(commandLine.getOptionValue("output")).thenReturn(output.toString());
 
