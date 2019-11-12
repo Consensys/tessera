@@ -28,7 +28,7 @@ public class VersionResource {
      */
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Request current version of P2PRestApp", produces = "current version number")
+    @ApiOperation(value = "Request current version of P2PRestApp")
     @ApiResponses({@ApiResponse(code = 200, message = "Current application version ", response = String.class)})
     public String getVersion() {
 
