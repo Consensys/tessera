@@ -1,6 +1,7 @@
 package com.quorum.tessera.key.vault.aws;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Optional;
 
 import com.quorum.tessera.config.AWSKeyVaultConfig;
@@ -35,11 +36,11 @@ public class AWSKeyVaultServiceFactory implements KeyVaultServiceFactory {
     }
 
     private SecretsManagerClient getAwsSecretsManager(AWSKeyVaultConfig keyVaultConfig) {
-        SecretsManagerClientBuilder clientBuilder = SecretsManagerClient.builder();
+        SecretsManagerClientBuilder secretsManagerClient = SecretsManagerClient.builder();
 
-        if (keyVaultConfig.getEndpoint() != null) {
-            clientBuilder.endpointOverride(URI.create(keyVaultConfig.getEndpoint()));
+        if (Objects.nonNull(keyVaultConfig.getEndpoint())) {
+            secretsManagerClient.endpointOverride(URI.create(keyVaultConfig.getEndpoint()));
         }
-        return SecretsManagerClient.builder().build();
+        return secretsManagerClient.build();
     }
 }

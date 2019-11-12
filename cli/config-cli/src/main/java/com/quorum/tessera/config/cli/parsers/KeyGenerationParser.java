@@ -119,7 +119,7 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
             if(!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }
-        } else {
+        } else if(keyVaultType.equals(KeyVaultType.HASHICORP)) {
             if(!commandLine.hasOption("filename")) {
                 throw new CliException("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
             }
@@ -144,7 +144,9 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
             if(!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }
-        }
+        } else {
+            keyVaultConfig = new AWSKeyVaultConfig(keyVaultUrl);
+        } 
 
         return Optional.of(keyVaultConfig);
     }

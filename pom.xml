@@ -662,6 +662,12 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>aws-key-vault</artifactId>
+                <version>0.10.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>hashicorp-key-vault</artifactId>
                 <version>0.10.1</version>
             </dependency>
