@@ -596,80 +596,80 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>server-api</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jersey-server</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>test-util</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>shared</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-core</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>admin-jaxrs</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>sync-jaxrs</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>transaction-jaxrs</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>thirdparty-jaxrs</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>key-vault-api</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>azure-key-vault</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>aws-key-vault</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>hashicorp-key-vault</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
@@ -681,44 +681,44 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>ddls</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client-unixsocket</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-data</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-server</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>grpc-api</artifactId>
-               <version>0.11-SNAPSHOT</version>
+                <version>0.11-SNAPSHOT</version>
             </dependency>
 
             <dependency>
