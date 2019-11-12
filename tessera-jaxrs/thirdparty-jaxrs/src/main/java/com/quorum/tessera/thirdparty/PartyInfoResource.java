@@ -26,10 +26,11 @@ public class PartyInfoResource {
     }
 
     @GET
+    @Path("/keys")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Fetch network/peer information", produces = "public list of peers/publickey mappings")
-    @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network information", response = PartyInfo.class)})
-    public Response getPartyInfo() {
+    @ApiOperation(value = "Fetch network/peer public keys")
+    @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network public keys")})
+    public Response getPartyInfoKeys() {
 
         final PartyInfo current = this.partyInfoService.getPartyInfo();
 
