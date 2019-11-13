@@ -24,7 +24,6 @@ public class AWSKeyVaultService implements KeyVaultService<AWSSetSecretData, AWS
         GetSecretValueRequest getSecretValueRequest =
                 GetSecretValueRequest.builder()
                         .secretId(getSecretData.getSecretName())
-                        .versionStage("AWSCURRENT")
                         .build();
         GetSecretValueResponse secretValueResponse;
 
