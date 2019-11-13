@@ -40,7 +40,7 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void partyInfoGet() {
+    public void getPartyInfoKeys() {
 
         final String partyInfoJson =
             "{\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
@@ -70,7 +70,7 @@ public class PartyInfoResourceTest {
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
-        final Response response = partyInfoResource.getPartyInfo();
+        final Response response = partyInfoResource.getPartyInfoKeys();
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);

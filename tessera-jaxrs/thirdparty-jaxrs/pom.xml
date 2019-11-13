@@ -41,7 +41,7 @@
                             </info>
 
                             <locations>
-                                <location>com.quorum.tessera.thridparty</location>
+                                <location>com.quorum.tessera.thirdparty</location>
    
                             </locations>
                             <templatePath>${project.parent.basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
