@@ -365,4 +365,26 @@ public class KeyGenerationParserTest {
         verify(commandLine, times(1)).getOptionValue("keygenvaultsecretengine");
     }
 
+    @Test
+    public void ifAwsVaultTypeProvidedAndEndpointProvidedThenOkay() throws Exception {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("http://localhost.com");
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AWS");
+
+        this.parser.parse(commandLine);
+        
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+    }
+
+    @Test
+    public void ifAwsVaultTypeProvidedAndNoEndpointProvidedThenOkay() throws Exception {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AWS");
+
+        this.parser.parse(commandLine);
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+    }
+
 }

@@ -36,62 +36,78 @@ public class FixtureUtil {
 
     public static ConfigBuilder builderWithValidValues() {
 
-        return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
-            .peers(Collections.emptyList())
-            .alwaysSendTo(Collections.emptyList())
-            .serverPort(892)
-            .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-            .unixSocketFile("somepath.ipc")
-            .serverHostname("http://bogus.com")
-            .sslServerKeyStorePath("sslServerKeyStorePath")
-            .sslServerTrustMode(SslTrustMode.TOFU)
-            .sslServerTrustStorePath("sslServerTrustStorePath")
-            .sslServerTrustStorePath("sslServerKeyStorePath")
-            .sslClientKeyStorePath("sslClientKeyStorePath")
-            .sslClientTrustStorePath("sslClientTrustStorePath")
-            .sslClientKeyStorePassword("sslClientKeyStorePassword")
-            .sslClientTrustStorePassword("sslClientTrustStorePassword")
-            .sslServerTlsKeyPath("sslServerTlsKeyPath")
-            .sslClientTlsKeyPath("sslClientTlsKeyPath")
-            .sslKnownClientsFile("knownClientsFile")
-            .sslKnownServersFile("knownServersFile")
-            .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-            .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
-            .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
-            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
-            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
-            .keyData(new KeyConfiguration(null, Collections.emptyList(),
-                Collections.singletonList(new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))), null, null));
+        return ConfigBuilder.create()
+                .jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
+                .peers(Collections.emptyList())
+                .alwaysSendTo(Collections.emptyList())
+                .serverPort(892)
+                .sslAuthenticationMode(SslAuthenticationMode.STRICT)
+                .unixSocketFile("somepath.ipc")
+                .serverHostname("http://bogus.com")
+                .sslServerKeyStorePath("sslServerKeyStorePath")
+                .sslServerTrustMode(SslTrustMode.TOFU)
+                .sslServerTrustStorePath("sslServerTrustStorePath")
+                .sslServerTrustStorePath("sslServerKeyStorePath")
+                .sslClientKeyStorePath("sslClientKeyStorePath")
+                .sslClientTrustStorePath("sslClientTrustStorePath")
+                .sslClientKeyStorePassword("sslClientKeyStorePassword")
+                .sslClientTrustStorePassword("sslClientTrustStorePassword")
+                .sslServerTlsKeyPath("sslServerTlsKeyPath")
+                .sslClientTlsKeyPath("sslClientTlsKeyPath")
+                .sslKnownClientsFile("knownClientsFile")
+                .sslKnownServersFile("knownServersFile")
+                .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
+                .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
+                .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
+                .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
+                .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
+                .keyData(
+                        new KeyConfiguration(
+                                null,
+                                Collections.emptyList(),
+                                Collections.singletonList(
+                                        new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))),
+                                null,
+                                null,
+                                null));
     }
 
     public static ConfigBuilder builderWithNullValues() {
 
-        return ConfigBuilder.create().jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
-            .peers(Collections.emptyList())
-            .alwaysSendTo(Collections.emptyList())
-            .serverPort(892)
-            .sslAuthenticationMode(SslAuthenticationMode.STRICT)
-            .unixSocketFile("somepath.ipc")
-            .serverHostname("http://bogus.com")
-            .sslServerKeyStorePath(null)
-            .sslServerTrustMode(SslTrustMode.TOFU)
-            .sslServerTrustStorePath("sslServerTrustStorePath")
-            .sslServerTrustStorePath("sslServerKeyStorePath")
-            .sslClientKeyStorePath("sslClientKeyStorePath")
-            .sslClientTrustStorePath("sslClientTrustStorePath")
-            .sslClientKeyStorePassword("sslClientKeyStorePassword")
-            .sslClientTrustStorePassword("sslClientTrustStorePassword")
-            .sslServerTlsKeyPath("sslServerTlsKeyPath")
-            .sslClientTlsKeyPath("sslClientTlsKeyPath")
-            .sslKnownClientsFile("knownClientsFile")
-            .sslKnownServersFile(null)
-            .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
-            .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
-            .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
-            .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
-            .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
-            .keyData(new KeyConfiguration(null, Collections.emptyList(),
-                Collections.singletonList(new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))), null, null));
+        return ConfigBuilder.create()
+                .jdbcConfig(new JdbcConfig("jdbcUsername", "jdbcPassword", "jdbc:bogus"))
+                .peers(Collections.emptyList())
+                .alwaysSendTo(Collections.emptyList())
+                .serverPort(892)
+                .sslAuthenticationMode(SslAuthenticationMode.STRICT)
+                .unixSocketFile("somepath.ipc")
+                .serverHostname("http://bogus.com")
+                .sslServerKeyStorePath(null)
+                .sslServerTrustMode(SslTrustMode.TOFU)
+                .sslServerTrustStorePath("sslServerTrustStorePath")
+                .sslServerTrustStorePath("sslServerKeyStorePath")
+                .sslClientKeyStorePath("sslClientKeyStorePath")
+                .sslClientTrustStorePath("sslClientTrustStorePath")
+                .sslClientKeyStorePassword("sslClientKeyStorePassword")
+                .sslClientTrustStorePassword("sslClientTrustStorePassword")
+                .sslServerTlsKeyPath("sslServerTlsKeyPath")
+                .sslClientTlsKeyPath("sslClientTlsKeyPath")
+                .sslKnownClientsFile("knownClientsFile")
+                .sslKnownServersFile(null)
+                .sslClientTrustMode(SslTrustMode.CA_OR_TOFU)
+                .sslServerTrustCertificates(Collections.singletonList("sslServerTrustCertificates"))
+                .sslClientTrustCertificates(Collections.singletonList("sslClientTrustCertificates"))
+                .sslClientTlsCertificatePath("sslClientTlsCertificatePath")
+                .sslServerTlsCertificatePath("sslServerTlsCertificatePath")
+                .keyData(
+                        new KeyConfiguration(
+                                null,
+                                Collections.emptyList(),
+                                Collections.singletonList(
+                                        new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))),
+                                null,
+                                null,
+                                null));
     }
     
     public static JsonObject createUnlockedPrivateKey() {

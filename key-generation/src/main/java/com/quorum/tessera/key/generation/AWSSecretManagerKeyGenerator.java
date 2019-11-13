@@ -1,12 +1,7 @@
 package com.quorum.tessera.key.generation;
 
-import java.nio.charset.UnsupportedCharsetException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.AWSKeyPair;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.vault.data.AWSGetSecretData;
 import com.quorum.tessera.config.vault.data.AWSSetSecretData;
 import com.quorum.tessera.encryption.Key;
@@ -15,6 +10,10 @@ import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.nio.charset.UnsupportedCharsetException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class AWSSecretManagerKeyGenerator implements KeyGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AWSSecretManagerKeyGenerator.class);
@@ -30,7 +29,7 @@ public class AWSSecretManagerKeyGenerator implements KeyGenerator {
     }
 
     @Override
-    public ConfigKeyPair generate(String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
+    public AWSKeyPair generate(String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
         final KeyPair keys = this.nacl.generateNewKeys();
 
         final StringBuilder publicId = new StringBuilder();

@@ -1,5 +1,6 @@
 package com.quorum.tessera.key.generation;
 
+import com.quorum.tessera.config.AWSKeyVaultConfig;
 import com.quorum.tessera.config.AzureKeyVaultConfig;
 import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
@@ -42,6 +43,13 @@ public class KeyGeneratorFactoryTest {
         assertThat(keyGenerator).isExactlyInstanceOf(HashicorpVaultKeyGenerator.class);
     }
 
+    @Test
+    public void hashicorpVaultKeyGeneratorWhenAwsConfigProvided() {
+        final AWSKeyVaultConfig keyVaultConfig = new AWSKeyVaultConfig();
 
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig);
 
+        assertThat(keyGenerator).isNotNull();
+        assertThat(keyGenerator).isExactlyInstanceOf(AWSSecretManagerKeyGenerator.class);
+    }
 }

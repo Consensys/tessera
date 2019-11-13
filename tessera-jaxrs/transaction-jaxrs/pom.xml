@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera-jaxrs</artifactId>
-        <version>0.10.1</version>
+        <version>0.11-SNAPSHOT</version>
     </parent>
     <artifactId>transaction-jaxrs</artifactId>
     <packaging>jar</packaging>
@@ -12,7 +12,7 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>common-jaxrs</artifactId>
-            <version>0.10.1</version>
+            <version>0.11-SNAPSHOT</version>
         </dependency>
     </dependencies>
     <build>
