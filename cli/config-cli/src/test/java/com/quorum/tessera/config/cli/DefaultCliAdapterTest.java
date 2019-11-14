@@ -312,7 +312,6 @@ public class DefaultCliAdapterTest {
         try {
             result = cliAdapter.execute("-configfile", configFile.toString(), "-alwaysSendTo", alwaysSendToKey);
         } catch (Exception ex) {
-            ex.printStackTrace();
             fail(ex.getMessage());
         }
         assertThat(result).isNotNull();
@@ -364,10 +363,7 @@ public class DefaultCliAdapterTest {
                         "--keys.keyData.privateKeyPath",
                         key.toString(),
                         "--keys.passwords",
-                        "testpassword",
-                        "-keygen",
-                        "--encryptor.type",
-                        "NACL");
+                        "testpassword");
 
         assertThat(result).isNotNull();
 
@@ -422,15 +418,5 @@ public class DefaultCliAdapterTest {
                         configFile.toString());
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
-    }
-
-    @Test
-    public void updatepasswordWithNoEncrptorTypeDefinedThrowsCliException() throws Exception {
-
-        try {
-            cliAdapter.execute("-updatepassword");
-        } catch (CliException ex) {
-            assertThat(ex).hasMessage("arg: --encryptor.type=[NACL|EC] is required for option -updatepassword");
-        }
     }
 }

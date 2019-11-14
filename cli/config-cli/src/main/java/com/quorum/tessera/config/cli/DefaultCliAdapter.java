@@ -148,11 +148,9 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
 
     private Config parseConfig(CommandLine commandLine) throws IOException {
 
-        if (commandLine.hasOption("updatepassword") && !commandLine.hasOption("encryptor.type")) {
-            throw new CliException("arg: --encryptor.type=[NACL|EC] is required for option -updatepassword");
-        }
-
-        if (!commandLine.hasOption("configfile") && !commandLine.hasOption("keygen")) {
+        if (!commandLine.hasOption("configfile")
+                && !commandLine.hasOption("keygen")
+                && !commandLine.hasOption("updatepassword")) {
             throw new CliException("One or more: -configfile or -keygen or -updatepassword options are required.");
         }
 
@@ -161,6 +159,10 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
         KeyEncryptor keyEncryptor = keyEncryptorFactory.create(encryptorConfig);
         // Handle update password stuff
         if (commandLine.hasOption("updatepassword")) {
+
+            if (!commandLine.hasOption("encryptor.type")) {
+                System.out.println("No encryptor type defined NACL will be used as default");
+            }
 
             new KeyUpdateParser(keyEncryptor, PasswordReaderFactory.create()).parse(commandLine);
 
@@ -171,8 +173,7 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
         final List<ConfigKeyPair> newKeys = new KeyGenerationParser(encryptorConfig).parse(commandLine);
 
         final Config config = new ConfigurationParser(newKeys).parse(commandLine);
-        Optional.ofNullable(config)
-                .ifPresent(c -> c.setEncryptor(encryptorConfig));
+        Optional.ofNullable(config).ifPresent(c -> c.setEncryptor(encryptorConfig));
         return config;
     }
 

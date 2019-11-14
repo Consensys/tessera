@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.cli.parsers;
 
-import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.parsers.Parser;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorConfig;
@@ -30,12 +29,10 @@ public class EncryptorConfigParser implements Parser<EncryptorConfig> {
         this.filesDelegate = Objects.requireNonNull(filesDelegate);
     }
 
-    private static final EncryptorType DEFAULT_ENC_TYPE = EncryptorType.NACL;
-
     @Override
     public EncryptorConfig parse(CommandLine commandLine) throws IOException {
 
-        final String encryptorTypeValue = commandLine.getOptionValue("encryptor.type");
+        final String encryptorTypeValue = commandLine.getOptionValue("encryptor.type", EncryptorType.NACL.name());
 
         if (commandLine.hasOption("configfile")) {
             final String path = commandLine.getOptionValue("configfile");
@@ -43,21 +40,12 @@ public class EncryptorConfigParser implements Parser<EncryptorConfig> {
 
             if (Objects.nonNull(config.getEncryptor())) {
                 return config.getEncryptor();
-            } else if (commandLine.hasOption("keygen")) {
-                if (Objects.isNull(encryptorTypeValue)) {
-                    throw new CliException(NO_ENCRYPTOR_DEFINED_ERROR_MESSAGE);
-                }
             }
         }
 
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
 
-        final EncryptorType encryptorType =
-                Optional.ofNullable(encryptorTypeValue)
-                        .map(String::toUpperCase)
-                        .map(EncryptorType::valueOf)
-                        .orElse(DEFAULT_ENC_TYPE);
-
+        final EncryptorType encryptorType = EncryptorType.valueOf(encryptorTypeValue.toUpperCase());
         encryptorConfig.setType(encryptorType);
 
         Map<String, String> properties = new HashMap<>();
