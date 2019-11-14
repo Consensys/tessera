@@ -204,11 +204,7 @@ public class JaxbUtilTest {
 
                     assertThat(result.getJsonObject("jdbc").getString("password")).isEqualTo(expectedMaskValue);
 
-                    assertThat(
-                                    result.getJsonObject("keys")
-                                            .getJsonArray("keyData")
-                                            .getJsonObject(0)
-                                            .getString("privateKey"))
+                    assertThat(result.getJsonObject("keys").getJsonObject("keyData").getString("privateKey"))
                             .isEqualTo(expectedMaskValue);
                 }
             }
