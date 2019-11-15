@@ -1,6 +1,7 @@
 package com.quorum.tessera.api.common;
 
 import com.quorum.tessera.api.Version;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiOperation;
@@ -15,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 /** Provides endpoints to determine versioning information */
 @Path("/version")
+@Api
 public class VersionResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VersionResource.class);

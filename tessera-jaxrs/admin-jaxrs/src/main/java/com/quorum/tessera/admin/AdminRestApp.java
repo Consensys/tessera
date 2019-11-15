@@ -9,8 +9,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.ws.rs.ApplicationPath;
-
+import io.swagger.annotations.Api;
 /** An app that allows access to node management resources */
+@Api
 @GlobalFilter
 @ApplicationPath("/")
 public class AdminRestApp extends TesseraRestApplication {

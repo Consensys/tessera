@@ -1,15 +1,14 @@
 plugins {
     id 'application'
-
 }
 
 application {
     mainClassName = 'com.quorum.tessera.launcher.Main'
-
 }
 
 
 dependencies {
+    runtimeOnly "com.h2database:h2"
     implementation 'org.apache.commons:commons-lang3:3.7'
     implementation project(':config')
     implementation project(':tessera-dist:tessera-launcher')

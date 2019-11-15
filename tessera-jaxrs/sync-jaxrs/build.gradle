@@ -1,11 +1,14 @@
+plugins {
+    id "com.benjaminsproule.swagger" version "1.0.7"
+}
 
 dependencies {
+    compile project(':tessera-jaxrs:common-jaxrs')
     implementation project(':security')
     implementation project(':shared')
     implementation project(':config')
     implementation project(':enclave:enclave-api')
     implementation project(':encryption:encryption-api')
-    implementation project(':tessera-jaxrs:common-jaxrs')
     implementation project(':tessera-jaxrs:jaxrs-client')
     implementation 'io.swagger:swagger-annotations'
     implementation project(':tessera-core')
@@ -29,3 +32,71 @@ dependencies {
 }
 
 description = 'sync-jaxrs'
+
+swagger {
+
+    apiSource {
+        springmvc = false
+
+        schemes = ['http', 'https']
+        host = 'localhost:8080'
+        basePath = '/'
+        outputFormats = ['json']
+        //attachSwaggerArtifact = true
+
+        locations = ['com.quorum.tessera.p2p']
+        info {
+            title = 'Peer to peer resources'
+            version = project.version
+            license {
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                name = 'Apache 2.0'
+            }
+        }
+
+        swaggerDirectory = ''+ project.buildDir +'/resources/main'
+        swaggerFileName = 'p2p'
+    }
+
+    apiSource {
+        springmvc = false
+
+        schemes = ['http', 'https']
+        host = 'localhost:8080'
+        basePath = '/'
+        outputFormats = ['json']
+        //attachSwaggerArtifact = true
+
+        locations = ['com.quorum.tessera.p2p']
+        info {
+            title = 'Peer to peer resources'
+            version = project.version
+            license {
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                name = 'Apache 2.0'
+            }
+        }
+
+        swaggerDirectory = ''+ project.buildDir +'/resources/main'
+        templatePath =  ''+ rootProject.rootDir +'/tessera-jaxrs/src/main/swagger/strapdown.html.hbs'
+        outputPath = ''+ project.buildDir +'/resources/main/p2p.html'
+        swaggerFileName = 'p2p'
+    }
+}
+
+task loaddeps() {
+
+        def urls = []
+        project.configurations.compileClasspath.resolve().flatten().each {
+            urls += it.toURI().toURL()
+        }
+        urls.each {
+            buildscript.classLoader.addURL it
+        }
+
+
+}
+
+generateSwaggerDocumentation.dependsOn(loaddeps)
+jar.dependsOn(generateSwaggerDocumentation)
+
