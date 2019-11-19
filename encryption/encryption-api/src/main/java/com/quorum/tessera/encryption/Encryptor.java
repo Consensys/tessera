@@ -1,10 +1,4 @@
-package com.quorum.tessera.nacl;
-
-import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.encryption.MasterKey;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
+package com.quorum.tessera.encryption;
 
 /**
  * The API provided to the application that all implementation of this API
@@ -13,7 +7,7 @@ import com.quorum.tessera.encryption.SharedKey;
  * Provides all function relating to encrypting and decrypting messages
  * using public/private and symmetric keys.
  */
-public interface NaclFacade {
+public interface Encryptor {
 
     /**
      * Compute the shared key from a public/private key combination
@@ -115,7 +109,7 @@ public interface NaclFacade {
      * @param cipherTextNonce the nonce that was used to encrypt the payload
      * @param masterKey       the key used to encrypt the payload
      * @return the decrypted payload
-     * @see NaclFacade#openAfterPrecomputation(byte[], Nonce, SharedKey)
+     * @see Encryptor#openAfterPrecomputation(byte[], Nonce, SharedKey)
      */
     default byte[] openAfterPrecomputation(byte[] cipherText, Nonce cipherTextNonce, MasterKey masterKey) {
         SharedKey sharedKey = SharedKey.from(masterKey.getKeyBytes());

@@ -15,6 +15,8 @@ import java.net.URI;
 import javax.json.Json;
 import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.test.PartyHelper;
+import suite.ExecutionContext;
+import static transaction.utils.Utils.generateValidButUnknownPublicKey;
 
 /**
  * Scenarios tested:
@@ -274,7 +276,13 @@ public class SendIT {
 
         final SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sendingParty.getPublicKey());
-        sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
+
+        ExecutionContext executionContext = ExecutionContext.currentContext();
+
+        final String unknownkey =
+                generateValidButUnknownPublicKey(executionContext.getEncryptorType()).encodeToBase64();
+        sendRequest.setTo(unknownkey);
+
         sendRequest.setPayload(transactionData);
 
         final Response response =

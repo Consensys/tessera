@@ -4,8 +4,8 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.service.Service;
 
 import javax.ws.rs.*;
@@ -48,8 +48,7 @@ public class EnclaveResource {
     @Path("default")
     public Response defaultPublicKey() {
         final StreamingOutput streamingOutput = out -> out.write(enclave.defaultPublicKey().getKeyBytes());
-        return Response.ok(streamingOutput)
-                .build();
+        return Response.ok(streamingOutput).build();
     }
 
     @GET
@@ -57,14 +56,10 @@ public class EnclaveResource {
     @Path("forwarding")
     public Response getForwardingKeys() {
 
-        List<String> body = enclave.getForwardingKeys()
-                .stream()
-                .map(PublicKey::encodeToBase64)
-                .collect(Collectors.toList());
+        List<String> body =
+                enclave.getForwardingKeys().stream().map(PublicKey::encodeToBase64).collect(Collectors.toList());
 
-        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE)
-                .build();
-
+        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     @GET
@@ -72,13 +67,10 @@ public class EnclaveResource {
     @Path("public")
     public Response getPublicKeys() {
 
-        List<String> body = enclave.getPublicKeys()
-                .stream()
-                .map(PublicKey::encodeToBase64)
-                .collect(Collectors.toList());
+        List<String> body =
+                enclave.getPublicKeys().stream().map(PublicKey::encodeToBase64).collect(Collectors.toList());
 
-        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE)
-                .build();
+        return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE).build();
     }
 
     @POST
@@ -89,17 +81,14 @@ public class EnclaveResource {
 
         PublicKey senderKey = PublicKey.from(payload.getSenderKey());
 
-        List<PublicKey> recipientPublicKeys = payload.getRecipientPublicKeys()
-                .stream()
-                .map(PublicKey::from)
-                .collect(Collectors.toList());
+        List<PublicKey> recipientPublicKeys =
+                payload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
 
         EncodedPayload outcome = enclave.encryptPayload(payload.getData(), senderKey, recipientPublicKeys);
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
-        return Response.ok(streamingOutput)
-                .build();
+        return Response.ok(streamingOutput).build();
     }
 
     @POST
@@ -113,8 +102,8 @@ public class EnclaveResource {
         Nonce nonce = new Nonce(enclaveRawPayload.getNonce());
         PublicKey from = PublicKey.from(enclaveRawPayload.getFrom());
 
-        List<PublicKey> recipientPublicKeys = enclaveRawPayload.getRecipientPublicKeys().stream()
-                .map(PublicKey::from).collect(Collectors.toList());
+        List<PublicKey> recipientPublicKeys =
+                enclaveRawPayload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
 
         RawTransaction rawTransaction = new RawTransaction(encryptedPayload, encryptedKey, nonce, from);
 
@@ -122,8 +111,7 @@ public class EnclaveResource {
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
-        return Response.ok(streamingOutput)
-                .build();
+        return Response.ok(streamingOutput).build();
     }
 
     @POST
@@ -132,7 +120,8 @@ public class EnclaveResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Response encryptRawPayload(EnclavePayload payload) {
 
-        RawTransaction rawTransaction = enclave.encryptRawPayload(payload.getData(), PublicKey.from(payload.getSenderKey()));
+        RawTransaction rawTransaction =
+                enclave.encryptRawPayload(payload.getData(), PublicKey.from(payload.getSenderKey()));
 
         EnclaveRawPayload enclaveRawPayload = new EnclaveRawPayload();
         enclaveRawPayload.setFrom(rawTransaction.getFrom().getKeyBytes());
@@ -141,7 +130,6 @@ public class EnclaveResource {
         enclaveRawPayload.setEncryptedKey(rawTransaction.getEncryptedKey());
 
         return Response.ok(enclaveRawPayload).build();
-
     }
 
     @POST
@@ -151,15 +139,13 @@ public class EnclaveResource {
     public Response unencryptTransaction(EnclaveUnencryptPayload enclaveUnencryptPayload) {
 
         EncodedPayload payload = payloadEncoder.decode(enclaveUnencryptPayload.getData());
-        PublicKey providedKey = Optional.ofNullable(enclaveUnencryptPayload.getProvidedKey())
-            .map(PublicKey::from)
-            .orElse(null);
+        PublicKey providedKey =
+                Optional.ofNullable(enclaveUnencryptPayload.getProvidedKey()).map(PublicKey::from).orElse(null);
 
         byte[] response = enclave.unencryptTransaction(payload, providedKey);
 
         final StreamingOutput streamingOutput = out -> out.write(response);
         return Response.ok(streamingOutput).build();
-
     }
 
     @POST
@@ -175,7 +161,5 @@ public class EnclaveResource {
 
         final StreamingOutput streamingOutput = out -> out.write(response);
         return Response.ok(streamingOutput).build();
-
     }
-
 }

@@ -27,6 +27,7 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import static org.assertj.core.api.Assertions.assertThat;
+import suite.ExecutionContext;
 
 public class RawSteps implements En {
 
@@ -182,12 +183,18 @@ public class RawSteps implements En {
                 () -> {
                     Party sender = getSender(senderHolder);
 
+                    ExecutionContext executionContext = ExecutionContext.currentContext();
+                    String unknown =
+                            transaction.utils.Utils.generateValidButUnknownPublicKey(
+                                            executionContext.getEncryptorType())
+                                    .encodeToBase64();
+
                     final Response response =
                             sender.getRestClientWebTarget()
                                     .path("sendraw")
                                     .request()
                                     .header(SENDER, sender.getPublicKey())
-                                    .header(RECIPIENTS, "8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=")
+                                    .header(RECIPIENTS, unknown)
                                     .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
                     assertThat(response).isNotNull();

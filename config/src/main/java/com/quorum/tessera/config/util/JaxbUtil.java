@@ -23,30 +23,32 @@ import javax.xml.transform.stream.StreamResult;
 
 public final class JaxbUtil {
 
-    public static final Class[] JAXB_CLASSES = new Class[]{
-        Config.class,
-        KeyDataConfig.class,
-        PrivateKeyData.class,
-        ArgonOptions.class,
-        JdbcConfig.class,
-        KeyData.class,
-        Peer.class,
-        PrivateKeyType.class,
-        ServerConfig.class,
-        DeprecatedServerConfig.class,
-        SslAuthenticationMode.class,
-        SslConfig.class,
-        SslTrustMode.class
-    };
+    public static final Class[] JAXB_CLASSES =
+            new Class[] {
+                EncryptorConfig.class,
+                EncryptorType.class,
+                Config.class,
+                KeyDataConfig.class,
+                PrivateKeyData.class,
+                ArgonOptions.class,
+                JdbcConfig.class,
+                KeyData.class,
+                Peer.class,
+                PrivateKeyType.class,
+                ServerConfig.class,
+                DeprecatedServerConfig.class,
+                SslAuthenticationMode.class,
+                SslConfig.class,
+                SslTrustMode.class,
+                ConfigProperties.class
+            };
 
-    private JaxbUtil() {
-    }
+    private JaxbUtil() {}
 
     public static <T> T unmarshal(InputStream inputStream, Class<T> type) {
 
         try {
-            return UnmarshallerBuilder.create()
-                    .build().unmarshal(new StreamSource(inputStream), type).getValue();
+            return UnmarshallerBuilder.create().build().unmarshal(new StreamSource(inputStream), type).getValue();
         } catch (JAXBException ex) {
             throw new ConfigException(ex);
         }
@@ -54,8 +56,7 @@ public final class JaxbUtil {
 
     public static void marshal(Object object, OutputStream outputStream) {
         try {
-            MarshallerBuilder.create().build()
-                    .marshal(object, outputStream);
+            MarshallerBuilder.create().build().marshal(object, outputStream);
         } catch (Throwable ex) {
             Optional<ConstraintViolationException> validationException = unwrapConstraintViolationException(ex);
             if (validationException.isPresent()) {
@@ -63,15 +64,11 @@ public final class JaxbUtil {
             }
             throw new ConfigException(ex);
         }
-
     }
 
     public static void marshalWithNoValidation(Object object, OutputStream outputStream) {
         try {
-            MarshallerBuilder.create()
-                    .withoutBeanValidation()
-                    .build()
-                    .marshal(object, outputStream);
+            MarshallerBuilder.create().withoutBeanValidation().build().marshal(object, outputStream);
 
         } catch (JAXBException ex) {
             throw new ConfigException(ex);
@@ -79,21 +76,23 @@ public final class JaxbUtil {
     }
 
     public static String marshalToString(Object object) {
-        return IOCallback.execute(() -> {
-            try (OutputStream out = new ByteArrayOutputStream()) {
-                marshal(object, out);
-                return out.toString();
-            }
-        });
+        return IOCallback.execute(
+                () -> {
+                    try (OutputStream out = new ByteArrayOutputStream()) {
+                        marshal(object, out);
+                        return out.toString();
+                    }
+                });
     }
 
     public static String marshalToStringNoValidation(Object object) {
-        return IOCallback.execute(() -> {
-            try (OutputStream out = new ByteArrayOutputStream()) {
-                marshalWithNoValidation(object, out);
-                return out.toString();
-            }
-        });
+        return IOCallback.execute(
+                () -> {
+                    try (OutputStream out = new ByteArrayOutputStream()) {
+                        marshalWithNoValidation(object, out);
+                        return out.toString();
+                    }
+                });
     }
 
     protected static Optional<ConstraintViolationException> unwrapConstraintViolationException(Throwable ex) {
@@ -106,47 +105,40 @@ public final class JaxbUtil {
 
     public static void marshalMasked(Config object, OutputStream outputStream) {
 
-        XmlProcessingCallback.execute(() -> {
+        XmlProcessingCallback.execute(
+                () -> {
+                    Marshaller marshaller =
+                            MarshallerBuilder.create().withXmlMediaType().withoutBeanValidation().build();
 
-            Marshaller marshaller = MarshallerBuilder.create()
-                    .withXmlMediaType()
-                    .withoutBeanValidation()
-                    .build();
+                    String xmlData;
+                    try (StringWriter writer = new StringWriter()) {
+                        marshaller.marshal(object, writer);
+                        xmlData = writer.toString();
+                    }
 
-            String xmlData;
-            try (StringWriter writer = new StringWriter()) {
-                marshaller.marshal(object, writer);
-                xmlData = writer.toString();
-            }
+                    StreamSource xmlSource = new StreamSource(new StringReader(xmlData));
+                    try (StringWriter writer = new StringWriter()) {
+                        StreamResult xmlResult = new StreamResult(writer);
+                        createMaskingXslTransformer().transform(xmlSource, xmlResult);
+                        writer.flush();
 
-            StreamSource xmlSource = new StreamSource(new StringReader(xmlData));
-            try (StringWriter writer = new StringWriter()) {
-                StreamResult xmlResult = new StreamResult(writer);
-                createMaskingXslTransformer().transform(xmlSource, xmlResult);
-                writer.flush();
+                        Unmarshaller unmarshaller =
+                                UnmarshallerBuilder.create().withXmlMediaType().withoutBeanValidation().build();
 
-                Unmarshaller unmarshaller = UnmarshallerBuilder.create()
-                        .withXmlMediaType()
-                        .withoutBeanValidation()
-                        .build();
+                        Config masked = (Config) unmarshaller.unmarshal(new StringReader(writer.toString()));
 
-                Config masked = (Config) unmarshaller.unmarshal(new StringReader(writer.toString()));
-
-                marshalWithNoValidation(masked, outputStream);
-                return null;
-            }
-
-        });
-
+                        marshalWithNoValidation(masked, outputStream);
+                        return null;
+                    }
+                });
     }
 
     private static Transformer createMaskingXslTransformer() {
-        return XmlProcessingCallback.execute(() -> {
-            try (InputStream inputStream = JaxbUtil.class.getResourceAsStream("/xsl/mask-config.xsl")) {
-                return TransformerFactory.newInstance().newTransformer(new StreamSource(inputStream));
-            }
-        });
-
+        return XmlProcessingCallback.execute(
+                () -> {
+                    try (InputStream inputStream = JaxbUtil.class.getResourceAsStream("/xsl/mask-config.xsl")) {
+                        return TransformerFactory.newInstance().newTransformer(new StreamSource(inputStream));
+                    }
+                });
     }
-
 }

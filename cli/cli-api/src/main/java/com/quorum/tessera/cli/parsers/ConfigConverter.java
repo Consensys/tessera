@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 
 public class ConfigConverter implements CommandLine.ITypeConverter<Config> {
 
@@ -24,7 +23,7 @@ public class ConfigConverter implements CommandLine.ITypeConverter<Config> {
         }
 
         try (InputStream in = Files.newInputStream(path)) {
-            return configFactory.create(in, Collections.emptyList());
+            return configFactory.create(in);
         }
     }
 }

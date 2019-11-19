@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.quorum.tessera.config.CommunicationType.REST;
+import com.quorum.tessera.config.EncryptorType;
 import static suite.SocketType.HTTP;
 
 @TestSuite.SuiteClasses({StressSendIT.class})
@@ -23,7 +24,9 @@ public class StressRestSuite {
     public static List<ProcessConfiguration> configurations() {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
 
-        configurations.add(new ProcessConfiguration(DBType.H2, REST, HTTP, EnclaveType.LOCAL, false, ""));
+        configurations.add(
+                new ProcessConfiguration(
+                        DBType.H2, REST, HTTP, EnclaveType.LOCAL, false, "", false, EncryptorType.NACL));
 
         return configurations;
     }
