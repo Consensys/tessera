@@ -3,8 +3,7 @@ package com.quorum.tessera.config.keypairs;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.constraints.ValidBase64;
-import com.quorum.tessera.config.keys.KeyEncryptorFactory;
-import com.quorum.tessera.nacl.NaclException;
+import com.quorum.tessera.encryption.EncryptorException;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -14,6 +13,8 @@ import javax.xml.bind.annotation.XmlElement;
 import java.util.Objects;
 
 import static com.quorum.tessera.config.PrivateKeyType.UNLOCKED;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import javax.xml.bind.annotation.XmlTransient;
 
 public class InlineKeypair implements ConfigKeyPair {
 
@@ -30,9 +31,12 @@ public class InlineKeypair implements ConfigKeyPair {
 
     private String cachedPassword;
 
-    public InlineKeypair(final String publicKey, final KeyDataConfig privateKeyConfig) {
+    @XmlTransient private KeyEncryptor keyEncryptor;
+
+    public InlineKeypair(final String publicKey, final KeyDataConfig privateKeyConfig, KeyEncryptor keyEncryptor) {
         this.publicKey = publicKey;
         this.privateKeyConfig = privateKeyConfig;
+        this.keyEncryptor = keyEncryptor;
     }
 
     public KeyDataConfig getPrivateKeyConfig() {
@@ -62,8 +66,8 @@ public class InlineKeypair implements ConfigKeyPair {
         if (this.cachedValue == null || !Objects.equals(this.cachedPassword, this.password)) {
             if (password != null) {
                 try {
-                    this.cachedValue = KeyEncryptorFactory.create().decryptPrivateKey(pkd, password).encodeToBase64();
-                } catch (final NaclException ex) {
+                    this.cachedValue = keyEncryptor.decryptPrivateKey(pkd, password).encodeToBase64();
+                } catch (final EncryptorException ex) {
                     this.cachedValue = "NACL_FAILURE";
                 }
             }

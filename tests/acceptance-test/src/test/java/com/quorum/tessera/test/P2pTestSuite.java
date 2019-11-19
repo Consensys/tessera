@@ -1,6 +1,7 @@
 package com.quorum.tessera.test;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.EncryptorType;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import suite.*;
@@ -17,15 +18,22 @@ public class P2pTestSuite {
     @Parameterized.Parameters
     public static List<ProcessConfiguration> configurations() {
         return Stream.of(DBType.values())
-                .map(
-                        value ->
-                                new ProcessConfiguration(
-                                        value,
-                                        CommunicationType.REST,
-                                        SocketType.HTTP,
-                                        EnclaveType.LOCAL,
-                                        false,
-                                        "p2p"))
+                .flatMap(
+                        value -> {
+                            return Stream.of(EncryptorType.values())
+                                    .map(
+                                            et -> {
+                                                return new ProcessConfiguration(
+                                                        value,
+                                                        CommunicationType.REST,
+                                                        SocketType.HTTP,
+                                                        EnclaveType.LOCAL,
+                                                        false,
+                                                        "p2p",
+                                                        false,
+                                                        et);
+                                            });
+                        })
                 .collect(Collectors.toList());
     }
 }

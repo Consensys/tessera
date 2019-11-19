@@ -7,7 +7,7 @@ import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.nacl.NaclFacade;
+import com.quorum.tessera.encryption.Encryptor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,20 +26,20 @@ public class AzureVaultKeyGeneratorTest {
     private final PublicKey pub = PublicKey.from(pubStr.getBytes());
     private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
 
-    private NaclFacade naclFacade;
+    private Encryptor encryptor;
     private KeyVaultService keyVaultService;
     private AzureVaultKeyGenerator azureVaultKeyGenerator;
 
     @Before
     public void setUp() {
-        this.naclFacade = mock(NaclFacade.class);
+        this.encryptor = mock(Encryptor.class);
         this.keyVaultService = mock(KeyVaultService.class);
 
         final KeyPair keyPair = new KeyPair(pub, priv);
 
-        when(naclFacade.generateNewKeys()).thenReturn(keyPair);
+        when(encryptor.generateNewKeys()).thenReturn(keyPair);
 
-        azureVaultKeyGenerator = new AzureVaultKeyGenerator(naclFacade, keyVaultService);
+        azureVaultKeyGenerator = new AzureVaultKeyGenerator(encryptor, keyVaultService);
     }
 
     @Test
@@ -60,7 +60,9 @@ public class AzureVaultKeyGeneratorTest {
         AzureSetSecretData expectedDataPub = new AzureSetSecretData(pubVaultId, pub.encodeToBase64());
         AzureSetSecretData expectedDataPriv = new AzureSetSecretData(privVaultId, priv.encodeToBase64());
 
-        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+        assertThat(capturedArgs)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
 
         verifyNoMoreInteractions(keyVaultService);
 
@@ -88,7 +90,9 @@ public class AzureVaultKeyGeneratorTest {
         AzureSetSecretData expectedDataPub = new AzureSetSecretData(pubVaultId, pub.encodeToBase64());
         AzureSetSecretData expectedDataPriv = new AzureSetSecretData(privVaultId, priv.encodeToBase64());
 
-        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+        assertThat(capturedArgs)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
 
         verifyNoMoreInteractions(keyVaultService);
     }
@@ -107,7 +111,9 @@ public class AzureVaultKeyGeneratorTest {
         AzureSetSecretData expectedDataPub = new AzureSetSecretData("Pub", pub.encodeToBase64());
         AzureSetSecretData expectedDataPriv = new AzureSetSecretData("Key", priv.encodeToBase64());
 
-        assertThat(capturedArgs).usingRecursiveFieldByFieldElementComparator().containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+        assertThat(capturedArgs)
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
 
         verifyNoMoreInteractions(keyVaultService);
     }
@@ -125,14 +131,12 @@ public class AzureVaultKeyGeneratorTest {
     public void exceptionThrownIfDisallowedCharactersUsedInVaultId() {
         final String invalidId = "/tmp/abc@+";
 
-        final Throwable throwable = catchThrowable(
-            () -> azureVaultKeyGenerator.generate(invalidId, null, null)
-        );
+        final Throwable throwable = catchThrowable(() -> azureVaultKeyGenerator.generate(invalidId, null, null));
 
         assertThat(throwable).isInstanceOf(UnsupportedCharsetException.class);
-        assertThat(throwable).hasMessageContaining(
-            "Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters"
-        );
+        assertThat(throwable)
+                .hasMessageContaining(
+                        "Generated key ID for Azure Key Vault can contain only 0-9, a-z, A-Z and - characters");
     }
 
     @Test

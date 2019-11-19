@@ -1,5 +1,6 @@
-package com.quorum.tessera.nacl;
+package com.quorum.tessera.encryption;
 
+import com.quorum.tessera.encryption.KeyException;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 

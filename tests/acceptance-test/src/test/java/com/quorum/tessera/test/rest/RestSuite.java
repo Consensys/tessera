@@ -1,7 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.test.CucumberRawIT;
-import com.quorum.tessera.test.CucumberRestIT;
 import com.quorum.tessera.test.DBType;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -14,6 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.quorum.tessera.config.CommunicationType.REST;
+import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.test.CucumberRawIT;
+import com.quorum.tessera.test.CucumberRestIT;
 import static suite.SocketType.HTTP;
 
 @TestSuite.SuiteClasses({
@@ -38,10 +39,13 @@ public class RestSuite {
     @Parameterized.Parameters
     public static List<ProcessConfiguration> configurations() {
         final List<ProcessConfiguration> configurations = new ArrayList<>();
-
         for (final DBType database : DBType.values()) {
             for (final EnclaveType enclaveType : EnclaveType.values()) {
-                configurations.add(new ProcessConfiguration(database, REST, HTTP, enclaveType, false, ""));
+                for (EncryptorType encryptorType : EncryptorType.values()) {
+                    configurations.add(
+                            new ProcessConfiguration(
+                                    database, REST, HTTP, enclaveType, false, "", false, encryptorType));
+                }
             }
         }
 

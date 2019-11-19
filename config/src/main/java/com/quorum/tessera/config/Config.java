@@ -57,6 +57,8 @@ public class Config extends ConfigItem {
 
     @XmlElement private FeatureToggles features = new FeatureToggles();
 
+    @XmlElement private EncryptorConfig encryptor;
+
     @Deprecated
     public Config(
             final JdbcConfig jdbcConfig,
@@ -192,5 +194,13 @@ public class Config extends ConfigItem {
 
     public void setFeatures(final FeatureToggles features) {
         this.features = features;
+    }
+
+    public EncryptorConfig getEncryptor() {
+        return encryptor;
+    }
+
+    public void setEncryptor(EncryptorConfig encryptor) {
+        this.encryptor = encryptor;
     }
 }

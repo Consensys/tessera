@@ -1,4 +1,4 @@
-package com.quorum.tessera.nacl;
+package com.quorum.tessera.encryption;
 
 /**
  * An exception type that is when a generic exception occurring with key
