@@ -1,22 +1,22 @@
-package com.quorum.tessera.nacl;
+package com.quorum.tessera.encryption;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
 
-public class NaclExceptionTest {
+public class EncryptorExceptionTest {
 
     @Test
     public void createInstance() {
         final String message = "HELLOW";
-        final NaclException exception = new NaclException(message);
+        final EncryptorException exception = new EncryptorException(message);
 
         assertThat(exception).hasNoCause().hasMessage(message);
     }
 
     @Test
     public void createInstanceWithNullMessage() {
-        final NaclException exception = new NaclException(null);
+        final EncryptorException exception = new EncryptorException(null);
 
         assertThat(exception).hasNoCause();
         assertThat(exception.getMessage()).isNull();

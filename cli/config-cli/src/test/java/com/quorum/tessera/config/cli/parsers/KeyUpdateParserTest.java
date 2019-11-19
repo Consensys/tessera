@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.passwords.PasswordReader;
@@ -31,11 +31,15 @@ public class KeyUpdateParserTest {
 
     private Options options;
 
+    private KeyEncryptor keyEncryptor;
+
     @Before
     public void init() {
         this.passwordReader = mock(PasswordReader.class);
         when(passwordReader.requestUserPassword()).thenReturn("newPassword");
-        this.parser = new KeyUpdateParser(KeyEncryptorFactory.create(), passwordReader);
+
+        this.keyEncryptor = mock(KeyEncryptor.class);
+        this.parser = new KeyUpdateParser(keyEncryptor, passwordReader);
 
         this.options = new Options();
 
@@ -50,11 +54,10 @@ public class KeyUpdateParserTest {
         this.options.addOption(Option.builder().longOpt("keys.keyData.privateKeyPath").hasArg().build());
     }
 
-    //Argon Option tests
-
+    // Argon Option tests
     @Test
     public void noArgonOptionsGivenHasDefaults() throws ParseException {
-        final CommandLine commandLine = new DefaultParser().parse(options, new String[]{});
+        final CommandLine commandLine = new DefaultParser().parse(options, new String[] {});
 
         final ArgonOptions argonOptions = KeyUpdateParser.argonOptions(commandLine);
 
@@ -66,12 +69,13 @@ public class KeyUpdateParserTest {
 
     @Test
     public void argonOptionsGivenHasOverrides() throws ParseException {
-        final String[] args = new String[]{
-            "--keys.keyData.config.data.aopts.algorithm", "d",
-            "--keys.keyData.config.data.aopts.memory", "100",
-            "--keys.keyData.config.data.aopts.iterations", "100",
-            "--keys.keyData.config.data.aopts.parallelism", "100"
-        };
+        final String[] args =
+                new String[] {
+                    "--keys.keyData.config.data.aopts.algorithm", "d",
+                    "--keys.keyData.config.data.aopts.memory", "100",
+                    "--keys.keyData.config.data.aopts.iterations", "100",
+                    "--keys.keyData.config.data.aopts.parallelism", "100"
+                };
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final ArgonOptions argonOptions = KeyUpdateParser.argonOptions(commandLine);
@@ -82,10 +86,10 @@ public class KeyUpdateParserTest {
         assertThat(argonOptions.getIterations()).isEqualTo(100);
     }
 
-    //Password reading tests
+    // Password reading tests
     @Test
     public void inlinePasswordParsed() throws ParseException, IOException {
-        final String[] args = new String[]{"--keys.passwords", "pass"};
+        final String[] args = new String[] {"--keys.passwords", "pass"};
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final List<String> passwords = KeyUpdateParser.passwords(commandLine);
@@ -98,7 +102,7 @@ public class KeyUpdateParserTest {
         final Path passwordFile = Files.createTempFile("passwords", ".txt");
         Files.write(passwordFile, "passwordInsideFile\nsecondPassword".getBytes());
 
-        final String[] args = new String[]{"--keys.passwordFile", passwordFile.toAbsolutePath().toString()};
+        final String[] args = new String[] {"--keys.passwordFile", passwordFile.toAbsolutePath().toString()};
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final List<String> passwords = KeyUpdateParser.passwords(commandLine);
@@ -108,7 +112,7 @@ public class KeyUpdateParserTest {
 
     @Test
     public void passwordFileThrowsErrorIfCantBeRead() throws ParseException {
-        final String[] args = new String[]{"--keys.passwordFile", "/tmp/passwords.txt"};
+        final String[] args = new String[] {"--keys.passwordFile", "/tmp/passwords.txt"};
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final Throwable throwable = catchThrowable(() -> KeyUpdateParser.passwords(commandLine));
@@ -118,7 +122,7 @@ public class KeyUpdateParserTest {
 
     @Test
     public void emptyListGivenForNoPasswords() throws ParseException, IOException {
-        final String[] args = new String[]{};
+        final String[] args = new String[] {};
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final List<String> passwords = KeyUpdateParser.passwords(commandLine);
@@ -126,22 +130,22 @@ public class KeyUpdateParserTest {
         assertThat(passwords).isNotNull().isEmpty();
     }
 
-    //key file tests
+    // key file tests
     @Test
     public void noPrivateKeyGivenThrowsError() throws ParseException {
-        final String[] args = new String[]{};
+        final String[] args = new String[] {};
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final Throwable throwable = catchThrowable(() -> KeyUpdateParser.privateKeyPath(commandLine));
 
         assertThat(throwable)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Private key path cannot be null when updating key password");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Private key path cannot be null when updating key password");
     }
 
     @Test
     public void cantReadPrivateKeyThrowsError() throws ParseException {
-        final String[] args = new String[]{"--keys.keyData.privateKeyPath", "/tmp/nonexisting.txt"};
+        final String[] args = new String[] {"--keys.keyData.privateKeyPath", "/tmp/nonexisting.txt"};
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final Throwable throwable = catchThrowable(() -> KeyUpdateParser.privateKeyPath(commandLine));
@@ -153,7 +157,7 @@ public class KeyUpdateParserTest {
     public void privateKeyExistsReturnsPath() throws ParseException, IOException {
         final Path key = Files.createTempFile("key", ".key");
 
-        final String[] args = new String[]{"--keys.keyData.privateKeyPath", key.toString()};
+        final String[] args = new String[] {"--keys.keyData.privateKeyPath", key.toString()};
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final Path path = KeyUpdateParser.privateKeyPath(commandLine);
@@ -161,13 +165,13 @@ public class KeyUpdateParserTest {
         assertThat(path).isEqualTo(key);
     }
 
-    //key fetching tests
+    // key fetching tests
     @Test
     public void unlockedKeyReturnedProperly() {
-        final KeyDataConfig kdc = new KeyDataConfig(
-            new PrivateKeyData("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", null, null, null, null),
-            PrivateKeyType.UNLOCKED
-        );
+        final KeyDataConfig kdc =
+                new KeyDataConfig(
+                        new PrivateKeyData("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", null, null, null, null),
+                        PrivateKeyType.UNLOCKED);
 
         final PrivateKey key = this.parser.getExistingKey(kdc, emptyList());
 
@@ -179,64 +183,70 @@ public class KeyUpdateParserTest {
     @Test
     public void lockedKeyFailsWithNoPasswordsMatching() {
 
-        final KeyDataConfig kdc = new KeyDataConfig(
-            new PrivateKeyData(
-                null,
-                "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
-                "JoPVq9G6NdOb+Ugv+HnUeA==",
-                "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
-                new ArgonOptions("id", 1, 1024, 1)
-            ),
-            PrivateKeyType.LOCKED
-        );
+        final KeyDataConfig kdc =
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                                "JoPVq9G6NdOb+Ugv+HnUeA==",
+                                "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
+                                new ArgonOptions("id", 1, 1024, 1)),
+                        PrivateKeyType.LOCKED);
 
         final Throwable throwable = catchThrowable(() -> this.parser.getExistingKey(kdc, singletonList("wrong")));
 
         assertThat(throwable)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Locked key but no valid password given");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Locked key but no valid password given");
     }
 
     @Test
     public void lockedKeySucceedsWithPasswordsMatching() {
-        final KeyDataConfig kdc = new KeyDataConfig(
-            new PrivateKeyData(
-                null,
-                "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
-                "JoPVq9G6NdOb+Ugv+HnUeA==",
-                "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
-                new ArgonOptions("id", 1, 1024, 1)
-            ),
-            PrivateKeyType.LOCKED
-        );
+        PrivateKeyData privateKeyData =
+                new PrivateKeyData(
+                        null,
+                        "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                        "JoPVq9G6NdOb+Ugv+HnUeA==",
+                        "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
+                        new ArgonOptions("id", 1, 1024, 1));
 
-        final PrivateKey key = this.parser.getExistingKey(kdc, singletonList("testpassword"));
+        final KeyDataConfig kdc =
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                                "JoPVq9G6NdOb+Ugv+HnUeA==",
+                                "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
+                                new ArgonOptions("id", 1, 1024, 1)),
+                        PrivateKeyType.LOCKED);
 
-        String encodedKeyValue = Base64.getEncoder().encodeToString(key.getKeyBytes());
+        PrivateKey privateKey = mock(PrivateKey.class);
+        when(privateKey.getKeyBytes()).thenReturn("SUCCESS".getBytes());
+        when(keyEncryptor.decryptPrivateKey(privateKeyData, "testpassword")).thenReturn(privateKey);
 
-        assertThat(encodedKeyValue).isEqualTo("gZ+NvhPTi3MDaGNVvQLtlT83oEtsr2DlXww3zXnJ7mU=");
+        final PrivateKey result = this.parser.getExistingKey(kdc, singletonList("testpassword"));
+
+        assertThat(result.getKeyBytes()).isEqualTo("SUCCESS".getBytes());
     }
 
     @Test
     public void lockedKeySucceedsWithAtleastOnePasswordsMatching() {
-        final KeyDataConfig kdc = new KeyDataConfig(
-            new PrivateKeyData(
-                null,
-                "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
-                "JoPVq9G6NdOb+Ugv+HnUeA==",
-                "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
-                new ArgonOptions("id", 1, 1024, 1)
-            ),
-            PrivateKeyType.LOCKED
-        );
+
+        PrivateKeyData privateKeyData = mock(PrivateKeyData.class);
+
+        final KeyDataConfig kdc = new KeyDataConfig(privateKeyData, PrivateKeyType.LOCKED);
+
+        PrivateKey privateKey = mock(PrivateKey.class);
+        when(privateKey.getKeyBytes()).thenReturn("SUCCESS".getBytes());
+
+        when(keyEncryptor.decryptPrivateKey(privateKeyData, "wrong")).thenReturn(null);
+        when(keyEncryptor.decryptPrivateKey(privateKeyData, "testpassword")).thenReturn(privateKey);
 
         final PrivateKey key = this.parser.getExistingKey(kdc, Arrays.asList("wrong", "testpassword"));
 
         assertThat(key).isNotNull();
 
-        String encodedKeyValue = Base64.getEncoder().encodeToString(key.getKeyBytes());
-
-        assertThat(encodedKeyValue).isEqualTo("gZ+NvhPTi3MDaGNVvQLtlT83oEtsr2DlXww3zXnJ7mU=");
+        assertThat(key.getKeyBytes()).isEqualTo("SUCCESS".getBytes());
     }
 
     @Test
@@ -244,7 +254,7 @@ public class KeyUpdateParserTest {
         final Path key = Files.createTempFile("key", ".key");
         Files.write(key, "BAD JSON DATA".getBytes());
 
-        final String[] args = new String[]{"--keys.keyData.privateKeyPath", key.toString()};
+        final String[] args = new String[] {"--keys.keyData.privateKeyPath", key.toString()};
         final CommandLine commandLine = new DefaultParser().parse(options, args);
 
         final Throwable throwable = catchThrowable(() -> this.parser.parse(commandLine));
@@ -254,22 +264,30 @@ public class KeyUpdateParserTest {
 
     @Test
     public void keyGetsUpdated() throws IOException, ParseException {
-        final KeyDataConfig startingKey = JaxbUtil.unmarshal(
-            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
-        );
+        final KeyDataConfig startingKey =
+                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
 
         final Path key = Files.createTempFile("key", ".key");
         Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
 
-        final String[] args = new String[]{
-            "--keys.keyData.privateKeyPath", key.toString(),
-            "--keys.passwords", "testpassword",
-            "--keys.keyData.config.data.aopts.algorithm", "id",
-            "--keys.keyData.config.data.aopts.memory", "2048",
-            "--keys.keyData.config.data.aopts.iterations", "1",
-            "--keys.keyData.config.data.aopts.parallelism", "1"
-        };
+        final String[] args =
+                new String[] {
+                    "--keys.keyData.privateKeyPath", key.toString(),
+                    "--keys.passwords", "testpassword",
+                    "--keys.keyData.config.data.aopts.algorithm", "id",
+                    "--keys.keyData.config.data.aopts.memory", "2048",
+                    "--keys.keyData.config.data.aopts.iterations", "1",
+                    "--keys.keyData.config.data.aopts.parallelism", "1"
+                };
         final CommandLine commandLine = new DefaultParser().parse(options, args);
+
+        PrivateKey privatekey = mock(PrivateKey.class);
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), anyString())).thenReturn(privatekey);
+
+        PrivateKeyData privateKeyData = mock(PrivateKeyData.class);
+
+        when(keyEncryptor.encryptPrivateKey(any(PrivateKey.class), anyString(), any(ArgonOptions.class)))
+                .thenReturn(privateKeyData);
 
         this.parser.parse(commandLine);
 
@@ -282,24 +300,28 @@ public class KeyUpdateParserTest {
 
     @Test
     public void keyGetsUpdatedToNoPassword() throws IOException, ParseException {
-        final KeyDataConfig startingKey = JaxbUtil.unmarshal(
-            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
-        );
+        final KeyDataConfig startingKey =
+                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
 
         when(passwordReader.requestUserPassword()).thenReturn("");
 
         final Path key = Files.createTempFile("key", ".key");
         Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
 
-        final String[] args = new String[]{
-            "--keys.keyData.privateKeyPath", key.toString(),
-            "--keys.passwords", "testpassword",
-            "--keys.keyData.config.data.aopts.algorithm", "id",
-            "--keys.keyData.config.data.aopts.memory", "2048",
-            "--keys.keyData.config.data.aopts.iterations", "1",
-            "--keys.keyData.config.data.aopts.parallelism", "1"
-        };
+        final String[] args =
+                new String[] {
+                    "--keys.keyData.privateKeyPath", key.toString(),
+                    "--keys.passwords", "testpassword",
+                    "--keys.keyData.config.data.aopts.algorithm", "id",
+                    "--keys.keyData.config.data.aopts.memory", "2048",
+                    "--keys.keyData.config.data.aopts.iterations", "1",
+                    "--keys.keyData.config.data.aopts.parallelism", "1"
+                };
         final CommandLine commandLine = new DefaultParser().parse(options, args);
+
+        byte[] privateKeyData = "SOME PRIVATE DATA".getBytes();
+        PrivateKey privateKey = PrivateKey.from(privateKeyData);
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), anyString())).thenReturn(privateKey);
 
         this.parser.parse(commandLine);
 
@@ -308,7 +330,7 @@ public class KeyUpdateParserTest {
         assertThat(endingKey.getSbox()).isNotEqualTo(startingKey.getSbox());
         assertThat(endingKey.getSnonce()).isNotEqualTo(startingKey.getSnonce());
         assertThat(endingKey.getAsalt()).isNotEqualTo(startingKey.getAsalt());
-        assertThat(endingKey.getPrivateKeyData().getValue()).isEqualTo("gZ+NvhPTi3MDaGNVvQLtlT83oEtsr2DlXww3zXnJ7mU=");
+        assertThat(endingKey.getPrivateKeyData().getValue())
+                .isEqualTo(Base64.getEncoder().encodeToString(privateKeyData));
     }
-
 }

@@ -2,7 +2,7 @@ package com.quorum.tessera.nacl.kalium;
 
 import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.Nonce;
 import org.abstractj.kalium.NaCl;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,10 +33,10 @@ public class KaliumIT {
 
         final SharedKey sharedKey = kalium.computeSharedKey(keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
 
-        final SharedKey secondSharedKey = kalium.computeSharedKey(keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
+        final SharedKey secondSharedKey =
+                kalium.computeSharedKey(keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
 
         assertThat(sharedKey).isEqualTo(secondSharedKey);
-
     }
 
     @Test
@@ -62,8 +62,10 @@ public class KaliumIT {
         final byte[] payloadBytes = payload.getBytes(UTF_8);
         final Nonce nonce = kalium.randomNonce();
 
-        final byte[] encryptedPayload = kalium.seal(payloadBytes, nonce, keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
-        final byte[] decryptedPayload = kalium.open(encryptedPayload, nonce, keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
+        final byte[] encryptedPayload =
+                kalium.seal(payloadBytes, nonce, keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
+        final byte[] decryptedPayload =
+                kalium.open(encryptedPayload, nonce, keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
 
         final String decryptedMessage = new String(decryptedPayload, UTF_8);
 
@@ -85,5 +87,4 @@ public class KaliumIT {
         final String decryptedMessage = new String(decryptedPayload, UTF_8);
         assertThat(decryptedMessage).isEqualTo(payload);
     }
-
 }

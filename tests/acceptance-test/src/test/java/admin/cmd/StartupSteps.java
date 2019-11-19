@@ -1,6 +1,7 @@
 package admin.cmd;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.util.ElUtil;
 import cucumber.api.java8.En;
@@ -44,6 +45,7 @@ public class StartupSteps implements En {
                     Path configFile = ElUtil.createTempFileFromTemplate(url, params);
                     Party party = new Party("", configFile.toUri().toURL(), "X");
                     Config config = party.getConfig();
+                    JaxbUtil.marshalWithNoValidation(config, System.out);
                     assertThat(emptyKeyFile).exists();
 
                     partyHolder.add(party);
@@ -65,6 +67,7 @@ public class StartupSteps implements En {
                     assertThat(results).hasSize(1);
                     ExecutionResult result = results.get(0);
                     assertThat(result.getExitCode()).isNotEqualTo(0);
+
                     assertThat(result.getOutput()).hasSize(2);
 
                     assertThat(result.getOutput())

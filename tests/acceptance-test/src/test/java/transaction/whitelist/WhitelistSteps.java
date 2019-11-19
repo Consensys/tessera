@@ -4,6 +4,8 @@ import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import config.ConfigBuilder;
@@ -56,6 +58,7 @@ public class WhitelistSteps implements En {
                                         .with(DBType.H2)
                                         .with(EnclaveType.LOCAL)
                                         .with(SocketType.HTTP)
+                                        .with(EncryptorType.NACL)
                                         .build();
 
                         ConfigBuilder whiteListConfigBuilder =
@@ -66,6 +69,12 @@ public class WhitelistSteps implements En {
                                         .withExecutionContext(executionContext)
                                         .withP2pPort(port)
                                         .withPeer("http://localhost:7000")
+                                        .withEncryptorConfig(
+                                                new EncryptorConfig() {
+                                                    {
+                                                        setType(EncryptorType.NACL);
+                                                    }
+                                                })
                                         .withKeys(
                                                 "WxsJ4souK0mptNx1UGw6hb1WNNIbPhLPvW9GoaXau3Q=",
                                                 "YbOOFA4mwSSdGH6aFfGl2M7N1aiPOj5nHpD7GzJKSiA=");
@@ -148,7 +157,7 @@ public class WhitelistSteps implements En {
 
                         responseHolder.add(response);
                     });
-          
+
             Then(
                     "the response code is UNAUTHORIZED",
                     () -> assertThat(responseHolder.get(0).getStatus()).isEqualTo(401));
