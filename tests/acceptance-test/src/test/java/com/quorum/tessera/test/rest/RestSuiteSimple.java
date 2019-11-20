@@ -1,5 +1,6 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.CucumberRawIT;
 import com.quorum.tessera.test.CucumberRestIT;
 import com.quorum.tessera.test.DBType;
@@ -33,5 +34,6 @@ import static suite.SocketType.HTTP;
         enclaveType = LOCAL,
         admin = false,
         prefix = "",
-        socketType = HTTP)
+        socketType = HTTP,
+        encryptorType = EncryptorType.NACL)
 public class RestSuiteSimple {}
