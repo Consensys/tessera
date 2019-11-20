@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SslConfig {
+public class SslConfig extends ConfigItem {
 
     @NotNull
     @XmlElement(required = true)
@@ -32,8 +32,7 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path serverTlsCertificatePath;
 
-    @XmlElement
-    private String serverKeyStorePassword;
+    @XmlElement private String serverKeyStorePassword;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -43,11 +42,9 @@ public class SslConfig {
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private List<Path> serverTrustCertificates;
 
-    @XmlElement
-    private String serverTrustStorePassword;
+    @XmlElement private String serverTrustStorePassword;
 
-    @XmlElement
-    private SslTrustMode serverTrustMode;
+    @XmlElement private SslTrustMode serverTrustMode;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -61,8 +58,7 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path clientTlsCertificatePath;
 
-    @XmlElement
-    private String clientKeyStorePassword;
+    @XmlElement private String clientKeyStorePassword;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -72,11 +68,9 @@ public class SslConfig {
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private List<Path> clientTrustCertificates;
 
-    @XmlElement
-    private String clientTrustStorePassword;
+    @XmlElement private String clientTrustStorePassword;
 
-    @XmlElement
-    private SslTrustMode clientTrustMode;
+    @XmlElement private SslTrustMode clientTrustMode;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -86,11 +80,9 @@ public class SslConfig {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path knownServersFile;
 
-    @XmlElement
-    private String environmentVariablePrefix;
+    @XmlElement private String environmentVariablePrefix;
 
-    @XmlElement
-    private SslConfigType sslConfigType;
+    @XmlElement private SslConfigType sslConfigType;
 
     public SslConfig(
             SslAuthenticationMode tls,
@@ -113,8 +105,7 @@ public class SslConfig {
             Path serverTlsCertificatePath,
             Path clientTlsKeyPath,
             Path clientTlsCertificatePath,
-            String environmentVariablePrefix
-    ) {
+            String environmentVariablePrefix) {
 
         this.tls = tls;
         this.generateKeyStoreIfNotExisted = generateKeyStoreIfNotExisted;
@@ -139,9 +130,7 @@ public class SslConfig {
         this.environmentVariablePrefix = environmentVariablePrefix;
     }
 
-    public SslConfig() {
-
-    }
+    public SslConfig() {}
 
     public SslAuthenticationMode getTls() {
         return tls;

@@ -2,6 +2,8 @@ package com.quorum.tessera.config.cli.parsers;
 
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.config.ArgonOptions;
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.cli.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.key.generation.KeyGenerator;
@@ -13,6 +15,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +28,14 @@ import static org.mockito.Mockito.*;
 
 public class KeyGenerationParserTest {
 
-    private KeyGenerationParser parser = new KeyGenerationParser();
+    private KeyGenerationParser parser =
+            new KeyGenerationParser(
+                    new EncryptorConfig() {
+                        {
+                            setType(EncryptorType.NACL);
+                            setProperties(Collections.emptyMap());
+                        }
+                    });
 
     private CommandLine commandLine = mock(CommandLine.class);
 
@@ -217,7 +227,8 @@ public class KeyGenerationParserTest {
         Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
 
         assertThat(ex).isInstanceOf(CliException.class);
-        assertThat(ex.getMessage()).isEqualTo("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
+        assertThat(ex.getMessage())
+                .isEqualTo("At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
     }
 
     @Test
@@ -364,5 +375,4 @@ public class KeyGenerationParserTest {
         verify(commandLine, times(1)).getOptionValue("keygenvaulttruststore");
         verify(commandLine, times(1)).getOptionValue("keygenvaultsecretengine");
     }
-
 }

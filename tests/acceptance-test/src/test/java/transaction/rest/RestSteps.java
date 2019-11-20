@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import suite.ExecutionContext;
 
 public class RestSteps implements En {
 
@@ -79,7 +80,11 @@ public class RestSteps implements En {
 
                     final SendRequest sendRequest = new SendRequest();
                     sendRequest.setFrom(sender.getPublicKey());
-                    sendRequest.setTo("8SjRHlUBe4hAmTk3KDeJ96RhN+s10xRrHDrxEi1O5W0=");
+                    ExecutionContext executionContext = ExecutionContext.currentContext();
+                    String unknown =
+                            Utils.generateValidButUnknownPublicKey(executionContext.getEncryptorType())
+                                    .encodeToBase64();
+                    sendRequest.setTo(unknown);
                     sendRequest.setPayload(txnData);
 
                     final Response response =

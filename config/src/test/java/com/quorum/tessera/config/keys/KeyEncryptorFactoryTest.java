@@ -1,5 +1,7 @@
 package com.quorum.tessera.config.keys;
 
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,12 +9,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class KeyEncryptorFactoryTest {
 
     @Test
-    public void keyEncryptorIsntNull() {
+    public void newFactory() {
 
-        final KeyEncryptor keyEncryptor = KeyEncryptorFactory.create();
+        final KeyEncryptorFactory keyEncryptorFactory = KeyEncryptorFactory.newFactory();
 
-        assertThat(keyEncryptor).isNotNull();
-
+        assertThat(keyEncryptorFactory).isNotNull();
     }
 
+    @Test
+    public void create() {
+        final KeyEncryptorFactory keyEncryptorFactory = new KeyEncryptorFactoryImpl();
+
+        EncryptorConfig encryptorConfig = new EncryptorConfig();
+        encryptorConfig.setType(EncryptorType.NACL);
+
+        KeyEncryptor result = keyEncryptorFactory.create(encryptorConfig);
+
+        assertThat(result).isNotNull().isExactlyInstanceOf(KeyEncryptorImpl.class);
+    }
 }
