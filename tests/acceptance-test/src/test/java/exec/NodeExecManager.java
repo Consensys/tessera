@@ -8,7 +8,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -53,6 +55,7 @@ public class NodeExecManager implements ExecManager {
                 new ExecArgsBuilder()
                         .withJvmArg("-Ddebug=true")
                         .withJvmArg("-Dnode.number=" + nodeId)
+                        .withStartScriptOrJarFile(nodeServerJar)
                         .withMainClass(Main.class)
                         .withPidFile(pid)
                         .withConfigFile(configDescriptor.getPath())
@@ -83,7 +86,24 @@ public class NodeExecManager implements ExecManager {
 
         LOGGER.info("Exec : {}", String.join(" ", args));
 
-        final Process process = ExecUtils.start(args, executorService);
+        String javaOpts =
+                "-Dnode.number="
+                        .concat(nodeId)
+                        .concat(" ")
+                        .concat("-Dlogback.configurationFile=")
+                        .concat(logbackConfigFile.toString());
+
+        LOGGER.info("EXT DIR : {}", System.getProperty("jdbc.dir"));
+        if (System.getProperties().containsKey("jdbc.dir")) {
+            javaOpts += " -Djava.ext.dirs=" + System.getProperty("jdbc.dir");
+        }
+
+        Map<String, String> env = new HashMap<>();
+        env.put("JAVA_OPTS", javaOpts);
+
+        LOGGER.debug("Set env JAVA_OPTS {}", javaOpts);
+
+        final Process process = ExecUtils.start(args, executorService, env);
 
         List<ServerStatusCheckExecutor> serverStatusCheckList =
                 configDescriptor.getConfig().getServerConfigs().stream()

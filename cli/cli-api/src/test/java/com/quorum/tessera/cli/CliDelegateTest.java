@@ -1,6 +1,7 @@
 package com.quorum.tessera.cli;
 
 import com.quorum.tessera.config.Config;
+import java.util.NoSuchElementException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,6 +18,7 @@ public class CliDelegateTest {
 
     @Test
     public void adminCliOptionCreatesAdminInstance() throws Exception {
+
         MockCliAdapter.setType(CliType.ADMIN);
         int status = 111;
         MockCliAdapter.setResult(new CliResult(status, true, null));
@@ -77,6 +79,9 @@ public class CliDelegateTest {
 
     @Test
     public void exceptionFromCommandBubblesUp() {
+        System.setProperty("tessera.cli.type", CliType.ADMIN.name());
+        MockCliAdapter.setType(CliType.ADMIN);
+        MockSubcommandCliAdapter.setType(CliType.ADMIN);
         final Exception exception = new Exception();
         MockSubcommandCliAdapter.setExceptionToBeThrown(exception);
 
@@ -85,5 +90,32 @@ public class CliDelegateTest {
         assertThat(throwable).isSameAs(exception);
 
         MockSubcommandCliAdapter.setExceptionToBeThrown(null);
+        MockSubcommandCliAdapter.setType(null);
+        System.clearProperty("tessera.cli.type");
+    }
+
+    @Test
+    public void noArgsDefaultsTonConfigCli() throws Exception {
+        MockCliAdapter.setType(CliType.CONFIG);
+        CliResult result = instance.execute();
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test(expected = NoSuchElementException.class)
+    public void unknownType() throws Exception {
+        MockCliAdapter.setType(CliType.ENCLAVE);
+        MockSubcommandCliAdapter.setType(CliType.ENCLAVE);
+        CliResult result = instance.execute();
+    }
+
+    @Test
+    public void filterEnclaveFromSubcommand() throws Exception {
+        MockSubcommandCliAdapter.setType(CliType.ENCLAVE);
+        MockCliAdapter.setType(CliType.CONFIG);
+        final CliResult expected = new CliResult(1, true, null);
+        assertThat(instance.execute("some-subcommand", "help")).isEqualToComparingFieldByField(expected);
+        MockSubcommandCliAdapter.setType(null);
+        MockCliAdapter.setType(null);
     }
 }

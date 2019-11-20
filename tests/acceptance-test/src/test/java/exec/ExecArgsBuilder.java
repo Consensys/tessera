@@ -22,7 +22,9 @@ public class ExecArgsBuilder {
     private Class mainClass;
 
     private Path executableJarFile;
-    
+
+    private Path startScript;
+
     private final Map<String, String> argList = new HashMap<>();
 
     private final List<String> jvmArgList = new ArrayList<>();
@@ -53,12 +55,32 @@ public class ExecArgsBuilder {
         this.mainClass = mainClass;
         return this;
     }
-    
-    public ExecArgsBuilder withExecutableJarFile(Path executableJarFile) {
+
+    public ExecArgsBuilder withStartScriptOrJarFile(Path file) {
+        if (file.toFile().getName().toLowerCase().endsWith(".jar")) {
+            return withClassPathItem(file);
+        } else {
+            return withStartScript(file);
+        }
+    }
+
+    public ExecArgsBuilder withStartScriptOrExecutableJarFile(Path file) {
+        if (file.toFile().getName().toLowerCase().endsWith(".jar")) {
+            return withExecutableJarFile(file);
+        } else {
+            return withStartScript(file);
+        }
+    }
+
+    private ExecArgsBuilder withExecutableJarFile(Path executableJarFile) {
         this.executableJarFile = executableJarFile;
         return this;
     }
 
+    private ExecArgsBuilder withStartScript(Path startScript) {
+        this.startScript = startScript;
+        return this;
+    }
 
     public ExecArgsBuilder withArg(String name) {
         argList.put(name, null);
@@ -78,25 +100,30 @@ public class ExecArgsBuilder {
     public List<String> build() {
 
         List<String> tokens = new ArrayList<>();
-        tokens.add("java");
 
-        jvmArgList.forEach(tokens::add);
+        if (startScript == null) {
+            tokens.add("java");
+            jvmArgList.forEach(tokens::add);
+            if (!classpathItems.isEmpty()) {
+                tokens.add("-cp");
 
-        if (!classpathItems.isEmpty()) {
-            tokens.add("-cp");
+                String classpathStr =
+                        classpathItems.stream()
+                                .map(Path::toAbsolutePath)
+                                .map(Path::toString)
+                                .collect(Collectors.joining(File.pathSeparator));
+                tokens.add(classpathStr);
+            }
 
-            String classpathStr = classpathItems.stream()
-                    .map(Path::toAbsolutePath)
-                    .map(Path::toString)
-                    .collect(Collectors.joining(File.pathSeparator));
-            tokens.add(classpathStr);
-        }
-        
-        if(executableJarFile != null) {
-            tokens.add("-jar");
-            tokens.add(executableJarFile.toAbsolutePath().toString());
+            if (executableJarFile != null) {
+                tokens.add("-jar");
+                tokens.add(executableJarFile.toAbsolutePath().toString());
+            } else {
+                tokens.add(mainClass.getName());
+            }
+
         } else {
-            tokens.add(mainClass.getName());
+            tokens.add(startScript.toAbsolutePath().toString());
         }
 
         tokens.add("-configfile");
@@ -107,28 +134,29 @@ public class ExecArgsBuilder {
             tokens.add(pidFile.toAbsolutePath().toString());
         }
 
-        argList.entrySet().forEach(e -> {
-            tokens.add(e.getKey());
-            if (Objects.nonNull(e.getValue())) {
-                tokens.add(e.getValue());
-            }
-        });
+        argList.entrySet()
+                .forEach(
+                        e -> {
+                            tokens.add(e.getKey());
+                            if (Objects.nonNull(e.getValue())) {
+                                tokens.add(e.getValue());
+                            }
+                        });
 
         return tokens;
     }
 
     public static void main(String[] args) throws Exception {
-        List<String> argz = new ExecArgsBuilder()
-                .withConfigFile(Paths.get("myconfig.json"))
-                .withMainClass(Object.class)
-                .withJvmArg("-Dsomething=something")
-                .withClassPathItem(Paths.get("/some.jar"))
-                .withClassPathItem(Paths.get("/someother.jar"))
-                .withArg("-jdbc.autoCreateTables", "true")
-                .build();
+        List<String> argz =
+                new ExecArgsBuilder()
+                        .withConfigFile(Paths.get("myconfig.json"))
+                        .withStartScript(Paths.get("ping"))
+                        .withJvmArg("-Dsomething=something")
+                        .withClassPathItem(Paths.get("/some.jar"))
+                        .withClassPathItem(Paths.get("/someother.jar"))
+                        .withArg("-jdbc.autoCreateTables", "true")
+                        .build();
 
         System.out.println(String.join(" ", argz));
-
     }
-
 }

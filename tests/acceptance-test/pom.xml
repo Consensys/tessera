@@ -206,7 +206,7 @@
                     <includes>
                         <include>CucumberFileKeyGenerationIT</include>
                         <include>AdminRestSuite</include>
-                        <include>RestSuite</include>
+                        <include>RestSuiteHttp*</include>
                         <include>RestSuiteUnixH2</include>
                         <include>CucumberWhitelistIT</include>
                         <include>ConfigMigrationIT</include>

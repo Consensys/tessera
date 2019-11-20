@@ -162,7 +162,14 @@ subprojects {
             paddedCell()
         }
     }
+    jacocoTestReport {
+        reports {
+            xml.enabled false
+            csv.enabled false
+            html.enabled true
+        }
 
+    }
     jacocoTestCoverageVerification {
 
 
@@ -246,6 +253,7 @@ subprojects {
             exclude '**/*IT.class'
         }
 
+    jacocoTestCoverageVerification.dependsOn jacocoTestReport
         check.dependsOn spotlessCheck,jacocoTestCoverageVerification
 
     }

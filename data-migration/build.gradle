@@ -6,7 +6,7 @@ plugins {
 
 application {
     mainClassName = 'com.quorum.tessera.data.migration.Main'
-
+    applicationDefaultJvmArgs = ['-Dtessera.cli.type=DATA_MIGRATION']
 }
 
 dependencies {

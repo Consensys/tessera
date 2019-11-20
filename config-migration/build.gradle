@@ -1,3 +1,13 @@
+plugins {
+    id 'application'
+
+}
+
+application {
+    mainClassName = 'com.quorum.tessera.config.migration.Main'
+    applicationDefaultJvmArgs = ['-Dtessera.cli.type=CONFIG_MIGRATION']
+}
+
 
 dependencies {
     implementation 'info.picocli:picocli:4.0.4'
