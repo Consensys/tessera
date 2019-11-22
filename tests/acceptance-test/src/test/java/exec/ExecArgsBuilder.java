@@ -4,11 +4,7 @@ import com.quorum.tessera.config.Config;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ExecArgsBuilder {
@@ -25,7 +21,7 @@ public class ExecArgsBuilder {
 
     private Path startScript;
 
-    private final Map<String, String> argList = new HashMap<>();
+    private final Map<String, String> argList = new LinkedHashMap<>();
 
     private final List<String> jvmArgList = new ArrayList<>();
 
