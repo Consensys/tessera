@@ -1,5 +1,6 @@
-package com.quorum.tessera.nacl;
+package com.quorum.tessera.encryption;
 
+import com.quorum.tessera.encryption.Nonce;
 import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;

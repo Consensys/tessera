@@ -68,4 +68,19 @@ public class ServerConfigValidatorTest {
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(anyString());
     }
+
+    @Test
+    public void allowCorsOnlyInThirdPartyServer() {
+
+        serverConfig.setApp(AppType.P2P);
+
+        CrossDomainConfig cors = new CrossDomainConfig();
+        cors.setAllowCredentials(true);
+
+        serverConfig.setCrossDomainConfig(cors);
+
+        assertThat(validator.isValid(serverConfig, cvc)).isFalse();
+        verify(cvc).disableDefaultConstraintViolation();
+        verify(cvc).buildConstraintViolationWithTemplate(anyString());
+    }
 }

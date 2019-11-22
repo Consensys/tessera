@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.List;
+import javax.xml.bind.annotation.XmlTransient;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyConfiguration extends ConfigItem {
@@ -23,7 +24,7 @@ public class KeyConfiguration extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path passwordFile;
 
-    private List<String> passwords;
+    @XmlTransient private List<String> passwords;
 
     @Valid
     @NotNull

@@ -5,12 +5,16 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.cli.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
+import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.test.util.ElUtil;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -18,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -38,23 +41,23 @@ public class DefaultCliAdapterTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultCliAdapterTest.class);
 
-    private DefaultCliAdapter cliDelegate;
+    private DefaultCliAdapter cliAdapter;
 
     @Before
     public void setUp() {
         MockKeyGeneratorFactory.reset();
-        this.cliDelegate = new DefaultCliAdapter();
+        this.cliAdapter = new DefaultCliAdapter();
     }
 
     @Test
     public void getType() {
-        assertThat(cliDelegate.getType()).isEqualTo(CliType.CONFIG);
+        assertThat(cliAdapter.getType()).isEqualTo(CliType.CONFIG);
     }
 
     @Test
     public void help() throws Exception {
 
-        final CliResult result = cliDelegate.execute("help");
+        final CliResult result = cliAdapter.execute("help");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
@@ -64,8 +67,8 @@ public class DefaultCliAdapterTest {
 
     @Test
     public void helpViaCall() throws Exception {
-        cliDelegate.setAllParameters(new String[] {"help"});
-        final CliResult result = cliDelegate.call();
+        cliAdapter.setAllParameters(new String[] {"help"});
+        final CliResult result = cliAdapter.call();
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
@@ -76,7 +79,7 @@ public class DefaultCliAdapterTest {
     @Test
     public void noArgsPrintsHelp() throws Exception {
 
-        final CliResult result = cliDelegate.execute();
+        final CliResult result = cliAdapter.execute();
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
@@ -88,7 +91,7 @@ public class DefaultCliAdapterTest {
     public void withValidConfig() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString());
+        CliResult result = cliAdapter.execute("-configfile", configFile.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -96,14 +99,9 @@ public class DefaultCliAdapterTest {
         assertThat(result.isSuppressStartup()).isFalse();
     }
 
-    @Test(expected = FileNotFoundException.class)
-    public void callApiVersionWithConfigFileDoesNotExist() throws Exception {
-        cliDelegate.execute("-configfile", "bogus.json");
-    }
-
     @Test(expected = CliException.class)
     public void processArgsMissing() throws Exception {
-        cliDelegate.execute("-configfile");
+        cliAdapter.execute("-configfile");
     }
 
     @Test
@@ -112,19 +110,17 @@ public class DefaultCliAdapterTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/missing-config.json"));
 
         try {
-            cliDelegate.execute("-configfile", configFile.toString());
+            cliAdapter.execute("-configfile", configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations()).isNotEmpty();
-
         }
-
     }
 
     @Test
     public void keygenWithConfig() throws Exception {
 
-        KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
         Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
         Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
@@ -132,7 +128,11 @@ public class DefaultCliAdapterTest {
         Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
 
-        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+        when(keyDataConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
@@ -142,12 +142,9 @@ public class DefaultCliAdapterTest {
 
         Path configFilePath = ElUtil.createTempFileFromTemplate(getClass().getResource("/keygen-sample.json"), params);
 
-        CliResult result = cliDelegate.execute(
-            "-keygen",
-            "-filename",
-            UUID.randomUUID().toString(),
-            "-configfile",
-            configFilePath.toString());
+        CliResult result =
+                cliAdapter.execute(
+                        "-keygen", "-filename", UUID.randomUUID().toString(), "-configfile", configFilePath.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -156,24 +153,22 @@ public class DefaultCliAdapterTest {
 
         verify(keyGenerator).generate(anyString(), eq(null), eq(null));
         verifyNoMoreInteractions(keyGenerator);
-
     }
 
     @Test
     public void keygenThenExit() throws Exception {
 
-        final CliResult result = cliDelegate.execute("-keygen");
+        final CliResult result = cliAdapter.execute("-keygen", "--encryptor.type", "NACL");
 
         assertThat(result).isNotNull();
         assertThat(result.isSuppressStartup()).isTrue();
-
     }
 
     @Test
     public void fileNameWithoutKeygenArgThenExit() throws Exception {
 
         try {
-            cliDelegate.execute("-filename");
+            cliAdapter.execute("-filename");
             failBecauseExceptionWasNotThrown(CliException.class);
         } catch (CliException ex) {
             assertThat(ex).hasMessage("Missing argument for option: filename");
@@ -183,17 +178,16 @@ public class DefaultCliAdapterTest {
     @Test
     public void outputWithoutKeygenOrConfig() {
 
-        final Throwable throwable = catchThrowable(() -> cliDelegate.execute("-output","bogus"));
+        final Throwable throwable = catchThrowable(() -> cliAdapter.execute("-output", "bogus"));
         assertThat(throwable)
-            .isInstanceOf(CliException.class)
-            .hasMessage("One or more: -configfile or -keygen or -updatepassword options are required.");
-
+                .isInstanceOf(CliException.class)
+                .hasMessage("One or more: -configfile or -keygen or -updatepassword options are required.");
     }
 
     @Test
     public void output() throws Exception {
 
-        KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
         Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
         Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
@@ -201,7 +195,15 @@ public class DefaultCliAdapterTest {
         Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
 
-        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        InlineKeypair inlineKeypair = mock(InlineKeypair.class);
+
+        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+        when(keyDataConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+        when(inlineKeypair.getPrivateKeyConfig()).thenReturn(keyDataConfig);
+
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
         Path generatedKey = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
@@ -218,28 +220,26 @@ public class DefaultCliAdapterTest {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
 
-        CliResult result = cliDelegate.execute(
-            "-keygen", keyConfigPath.toString(),
-            "-filename", tempKeyFile.toAbsolutePath().toString(),
-            "-output", generatedKey.toFile().getPath(),
-            "-configfile", configFile.toString()
-        );
+        CliResult result =
+                cliAdapter.execute(
+                        "-keygen", keyConfigPath.toString(),
+                        "-filename", tempKeyFile.toAbsolutePath().toString(),
+                        "-output", generatedKey.toFile().getPath(),
+                        "-configfile", configFile.toString());
 
         assertThat(result).isNotNull();
         assertThat(Files.exists(generatedKey)).isTrue();
 
         try {
-            cliDelegate.execute(
-                "-keygen", keyConfigPath.toString(),
-                "-filename", UUID.randomUUID().toString(),
-                "-output", generatedKey.toFile().getPath(),
-                "-configfile", configFile.toString()
-            );
+            cliAdapter.execute(
+                    "-keygen", keyConfigPath.toString(),
+                    "-filename", UUID.randomUUID().toString(),
+                    "-output", generatedKey.toFile().getPath(),
+                    "-configfile", configFile.toString());
             failBecauseExceptionWasNotThrown(Exception.class);
         } catch (Exception ex) {
             assertThat(ex).isInstanceOf(FileAlreadyExistsException.class);
         }
-
     }
 
     @Test
@@ -247,42 +247,33 @@ public class DefaultCliAdapterTest {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        CliResult result = cliDelegate.execute(
-            "-configfile",
-            configFile.toString(),
-            "-jdbc.username",
-            "somename"
-        );
+        CliResult result = cliAdapter.execute("-configfile", configFile.toString(), "-jdbc.username", "somename");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
         assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
-
     }
 
-    @Test
+    @Ignore
     public void withInvalidPath() throws Exception {
-        //unixSocketPath
+        // unixSocketPath
         Map<String, Object> params = new HashMap<>();
         params.put("publicKeyPath", "BOGUS.bogus");
         params.put("privateKeyPath", "BOGUS.bogus");
 
-        Path configFile = ElUtil.createTempFileFromTemplate(
-            getClass().getResource("/sample-config-invalidpath.json"), params);
+        Path configFile =
+                ElUtil.createTempFileFromTemplate(getClass().getResource("/sample-config-invalidpath.json"), params);
 
         try {
-            cliDelegate.execute(
-                "-configfile",
-                configFile.toString());
+            cliAdapter.execute("-configfile", configFile.toString());
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations())
-                .hasSize(2)
-                .extracting("messageTemplate")
-                .containsExactly("File does not exist", "File does not exist");
+                    .hasSize(1)
+                    .extracting("messageTemplate")
+                    .containsExactly("{UnsupportedKeyPair.message}");
         }
-
     }
 
     @Test
@@ -295,17 +286,19 @@ public class DefaultCliAdapterTest {
         configFile.toFile().deleteOnExit();
         Files.write(configFile, "{}".getBytes());
         try {
-            CliResult result = cliDelegate.execute(
-                "-configfile",
-                configFile.toString(),
-                "--unixSocketFile",
-                unixSocketFile.toString()
-            );
+            CliResult result =
+                    cliAdapter.execute(
+                            "-configfile",
+                            configFile.toString(),
+                            "--unixSocketFile",
+                            unixSocketFile.toString(),
+                            "--encryptor.type",
+                            "NACL");
 
             assertThat(result).isNotNull();
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
-            ex.getConstraintViolations().forEach(v -> LOGGER.info("{}",v));
+            ex.getConstraintViolations().forEach(v -> LOGGER.info("{}", v));
         }
     }
 
@@ -315,42 +308,38 @@ public class DefaultCliAdapterTest {
         String alwaysSendToKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-
-        CliResult result = cliDelegate.execute(
-            "-configfile",
-            configFile.toString(),
-            "-alwaysSendTo",
-            alwaysSendToKey
-        );
-
+        CliResult result = null;
+        try {
+            result = cliAdapter.execute("-configfile", configFile.toString(), "-alwaysSendTo", alwaysSendToKey);
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        }
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getAlwaysSendTo()).hasSize(2);
-        assertThat(result.getConfig().get().getAlwaysSendTo()).containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",alwaysSendToKey);
-
+        assertThat(result.getConfig().get().getAlwaysSendTo())
+                .containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", alwaysSendToKey);
     }
 
     @Test
-    public void overridePeers() throws Exception{
+    public void overridePeers() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        CliResult result = cliDelegate.execute(
-            "-configfile",
-            configFile.toString(),
-            "-peer.url",
-            "anotherpeer",
-            "-peer.url",
-            "yetanotherpeer"
-        );
+        CliResult result =
+                cliAdapter.execute(
+                        "-configfile",
+                        configFile.toString(),
+                        "-peer.url",
+                        "anotherpeer",
+                        "-peer.url",
+                        "yetanotherpeer");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getPeers()).hasSize(4);
-        assertThat(result.getConfig().get().getPeers().stream()
-            .map(Peer::getUrl))
-            .containsExactlyInAnyOrder("anotherpeer","yetanotherpeer","http://bogus1.com","http://bogus2.com");
-
+        assertThat(result.getConfig().get().getPeers().stream().map(Peer::getUrl))
+                .containsExactlyInAnyOrder("anotherpeer", "yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
     }
 
     @Test
@@ -358,24 +347,23 @@ public class DefaultCliAdapterTest {
         MockKeyGeneratorFactory.reset();
 
         final InputStream oldIn = System.in;
-        final InputStream inputStream = new ByteArrayInputStream(
-            (System.lineSeparator() + System.lineSeparator()).getBytes()
-        );
+        final InputStream inputStream =
+                new ByteArrayInputStream((System.lineSeparator() + System.lineSeparator()).getBytes());
         System.setIn(inputStream);
 
-        final KeyDataConfig startingKey = JaxbUtil.unmarshal(
-            getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class
-        );
+        final KeyDataConfig startingKey =
+                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
 
         final Path key = Files.createTempFile("key", ".key");
         Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
 
-        final CliResult result = cliDelegate.execute(
-            "-updatepassword",
-            "--keys.keyData.privateKeyPath", key.toString(),
-            "--keys.passwords", "testpassword",
-            "-keygen"
-        );
+        final CliResult result =
+                cliAdapter.execute(
+                        "-updatepassword",
+                        "--keys.keyData.privateKeyPath",
+                        key.toString(),
+                        "--keys.passwords",
+                        "testpassword");
 
         assertThat(result).isNotNull();
 
@@ -385,7 +373,7 @@ public class DefaultCliAdapterTest {
 
     @Test
     public void suppressStartupForKeygenOption() throws Exception {
-        final CliResult cliResult = cliDelegate.execute("-keygen");
+        final CliResult cliResult = cliAdapter.execute("-keygen", "--encryptor.type", "NACL");
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
     }
@@ -399,12 +387,12 @@ public class DefaultCliAdapterTest {
         Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
 
-        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath);
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, null);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
         final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        final CliResult cliResult = cliDelegate.execute("-keygen", "-configfile", configFile.toString());
+        final CliResult cliResult = cliAdapter.execute("-keygen", "-configfile", configFile.toString());
 
         assertThat(cliResult.isSuppressStartup()).isFalse();
     }
@@ -412,15 +400,23 @@ public class DefaultCliAdapterTest {
     @Test
     public void suppressStartupForKeygenAndVaultUrlAndConfigfileOptions() throws Exception {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-        final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""));
+
+        final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""), null);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
         final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         final String vaultUrl = "https://test.vault.azure.net";
 
-        final CliResult cliResult = cliDelegate.execute("-keygen", "-keygenvaulttype", "AZURE", "-keygenvaulturl", vaultUrl, "-configfile", configFile.toString());
+        final CliResult cliResult =
+                cliAdapter.execute(
+                        "-keygen",
+                        "-keygenvaulttype",
+                        "AZURE",
+                        "-keygenvaulturl",
+                        vaultUrl,
+                        "-configfile",
+                        configFile.toString());
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
     }
-
 }

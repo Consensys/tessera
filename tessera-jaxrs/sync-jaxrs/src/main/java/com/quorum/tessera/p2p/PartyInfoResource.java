@@ -83,7 +83,7 @@ public class PartyInfoResource {
     @POST
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @ApiOperation(value = "Request public key/url of other nodes", produces = "public keylist/url")
+    @ApiOperation(value = "Request public key/url of other nodes")
     @ApiResponses({@ApiResponse(code = 200, message = "Encoded PartyInfo Data", response = byte[].class)})
     public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
 
@@ -163,7 +163,7 @@ public class PartyInfoResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Fetch network/peer information", produces = "public list of peers/publickey mappings")
+    @ApiOperation(value = "Fetch network/peer information")
     @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network information", response = PartyInfo.class)})
     public Response getPartyInfo() {
 

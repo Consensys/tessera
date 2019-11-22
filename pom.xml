@@ -722,6 +722,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>encryption-ec</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
                 <version>${jersey.version}</version>
@@ -1045,12 +1051,6 @@
                 <artifactId>grpc-testing</artifactId>
                 <version>${grpc.version}</version>
                 <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>24.1.1-jre</version>
             </dependency>
 
             <dependency>

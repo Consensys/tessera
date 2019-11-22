@@ -1,6 +1,7 @@
 package suite;
 
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
 
 import java.lang.annotation.*;
@@ -18,6 +19,8 @@ public @interface ProcessConfig {
 
     CommunicationType communicationType();
 
+    String p2pCommunicationType() default "NONE";
+
     SocketType socketType();
 
     EnclaveType enclaveType() default EnclaveType.LOCAL;
@@ -25,4 +28,8 @@ public @interface ProcessConfig {
     boolean admin() default false;
 
     String prefix() default "";
+
+    boolean p2pSsl() default false;
+
+    EncryptorType encryptorType();
 }
