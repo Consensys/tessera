@@ -166,7 +166,6 @@ public class OverrideUtilTest {
                         "server.influxConfig.sslConfig.sslConfigType",
                         "features.enableRemoteKeyValidation",
                         "encryptor.type",
-                        "features.enableRemoteKeyValidation",
                         "keys.awsKeyVaultConfig.endpoint");
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();

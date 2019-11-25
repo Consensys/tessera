@@ -60,10 +60,13 @@ public class KeyGeneratorFactoryTest {
     }
 
     @Test
-    public void hashicorpVaultKeyGeneratorWhenAwsConfigProvided() {
+    public void awsVaultKeyGeneratorWhenAwsConfigProvided() {
         final AWSKeyVaultConfig keyVaultConfig = new AWSKeyVaultConfig();
 
-        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig);
+        EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
+        when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
+        when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig);
 
         assertThat(keyGenerator).isNotNull();
         assertThat(keyGenerator).isExactlyInstanceOf(AWSSecretManagerKeyGenerator.class);

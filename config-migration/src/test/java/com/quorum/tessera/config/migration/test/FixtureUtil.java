@@ -83,7 +83,8 @@ public class FixtureUtil {
                                 null,
                                 Collections.emptyList(),
                                 Collections.singletonList(
-                                        new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))),
+                                        new FilesystemKeyPair(
+                                                Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR)),
                                 null,
                                 null,
                                 null));
@@ -121,7 +122,8 @@ public class FixtureUtil {
                                 null,
                                 Collections.emptyList(),
                                 Collections.singletonList(
-                                        new FilesystemKeyPair(Paths.get("public"), Paths.get("private"))),
+                                        new FilesystemKeyPair(
+                                                Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR)),
                                 null,
                                 null,
                                 null));

@@ -52,7 +52,7 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
                 final KeyVaultService<AWSSetSecretData, AWSGetSecretData> keyVaultService =
                         keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
 
-                return new AWSSecretManagerKeyGenerator(NaclFacadeFactory.newFactory().create(), keyVaultService);
+                return new AWSSecretManagerKeyGenerator(encryptor, keyVaultService);
             } else {
                 keyConfiguration.setHashicorpKeyVaultConfig((HashicorpKeyVaultConfig) keyVaultConfig);
 
@@ -65,7 +65,8 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
             }
         }
 
-        KeyEncryptor keyEncyptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);return new FileKeyGenerator(
-                encryptor, keyEncyptor, PasswordReaderFactory.create());
+        KeyEncryptor keyEncyptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
+        return new FileKeyGenerator(encryptor, keyEncyptor, PasswordReaderFactory.create());
     }
 }

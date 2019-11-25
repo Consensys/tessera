@@ -7,7 +7,7 @@ import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.nacl.NaclFacade;
+import com.quorum.tessera.nacl.jnacl.Jnacl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,20 +30,20 @@ public class AWSSecretManagerKeyGeneratorTest {
     private final PublicKey pub = PublicKey.from(pubStr.getBytes());
     private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
 
-    private NaclFacade naclFacade;
+    private Jnacl jnacl;
     private KeyVaultService keyVaultService;
     private AWSSecretManagerKeyGenerator awsSecretManagerKeyGenerator;
 
     @Before
     public void setUp() {
-        this.naclFacade = mock(NaclFacade.class);
+        this.jnacl = mock(Jnacl.class);
         this.keyVaultService = mock(KeyVaultService.class);
 
         final KeyPair keyPair = new KeyPair(pub, priv);
 
-        when(naclFacade.generateNewKeys()).thenReturn(keyPair);
+        when(jnacl.generateNewKeys()).thenReturn(keyPair);
 
-        awsSecretManagerKeyGenerator = new AWSSecretManagerKeyGenerator(naclFacade, keyVaultService);
+        awsSecretManagerKeyGenerator = new AWSSecretManagerKeyGenerator(jnacl, keyVaultService);
     }
 
     @Test

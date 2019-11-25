@@ -4,10 +4,10 @@ import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.AWSKeyPair;
 import com.quorum.tessera.config.vault.data.AWSGetSecretData;
 import com.quorum.tessera.config.vault.data.AWSSetSecretData;
+import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.Key;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.nacl.NaclFacade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,19 +18,19 @@ import java.nio.file.Paths;
 public class AWSSecretManagerKeyGenerator implements KeyGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(AWSSecretManagerKeyGenerator.class);
 
-    private final NaclFacade nacl;
+    private final Encryptor encryptor;
     private final KeyVaultService<AWSSetSecretData, AWSGetSecretData> keyVaultService;
 
     public AWSSecretManagerKeyGenerator(
-            NaclFacade nacl, KeyVaultService<AWSSetSecretData, AWSGetSecretData> keyVaultService) {
-        this.nacl = nacl;
+            Encryptor encryptor, KeyVaultService<AWSSetSecretData, AWSGetSecretData> keyVaultService) {
 
+        this.encryptor = encryptor;
         this.keyVaultService = keyVaultService;
     }
 
     @Override
     public AWSKeyPair generate(String filename, ArgonOptions encryptionOptions, KeyVaultOptions keyVaultOptions) {
-        final KeyPair keys = this.nacl.generateNewKeys();
+        final KeyPair keys = this.encryptor.generateNewKeys();
 
         final StringBuilder publicId = new StringBuilder();
         final StringBuilder privateId = new StringBuilder();
