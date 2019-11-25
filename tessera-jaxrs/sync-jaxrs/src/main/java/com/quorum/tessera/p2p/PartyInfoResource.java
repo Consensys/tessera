@@ -9,10 +9,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +29,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 
 /** Defines endpoints for requesting node discovery (partyinfo) information */
+@Api
 @Path("/partyinfo")
 public class PartyInfoResource {
 

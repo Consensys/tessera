@@ -1,0 +1,13 @@
+
+dependencies {
+    implementation 'info.picocli:picocli'
+    implementation 'commons-cli:commons-cli:1.4'
+    implementation project(':encryption:encryption-api')
+    implementation project(':config')
+    implementation project(':shared')
+    implementation project(':cli:cli-api')
+    implementation project(':key-generation')
+    runtimeOnly project(':encryption:encryption-jnacl')
+    testImplementation project(':tests:test-util')
+    testImplementation 'org.hibernate:hibernate-validator'
+}

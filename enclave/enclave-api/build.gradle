@@ -1,0 +1,8 @@
+
+dependencies {
+    implementation project(':config')
+    implementation project(':encryption:encryption-api')
+    implementation project(':shared')
+    implementation project(':key-vault:key-vault-api')
+    testImplementation 'org.bouncycastle:bcpkix-jdk15on'
+}

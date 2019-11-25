@@ -15,11 +15,13 @@ import com.quorum.tessera.api.exception.TransactionNotFoundExceptionMapper;
 import com.quorum.tessera.api.exception.WebApplicationExceptionMapper;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.apps.TesseraApp;
+import io.swagger.annotations.Api;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.ws.rs.core.Application;
-
+@Api
 public abstract class TesseraRestApplication extends Application implements TesseraApp {
 
     @Override

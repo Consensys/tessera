@@ -1,0 +1,22 @@
+plugins {
+    id 'application'
+
+}
+
+application {
+    mainClassName = 'com.quorum.tessera.config.migration.Main'
+    applicationDefaultJvmArgs = ['-Dtessera.cli.type=CONFIG_MIGRATION']
+}
+
+
+dependencies {
+    implementation 'info.picocli:picocli:4.0.4'
+    implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+    implementation project(':config')
+    implementation project(':cli:cli-api')
+    implementation project(':shared')
+    implementation "org.hibernate:hibernate-validator"
+    testImplementation project(':tests:test-util')
+}
+
+description = 'config-migration'

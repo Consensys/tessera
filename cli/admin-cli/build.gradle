@@ -1,0 +1,12 @@
+
+dependencies {
+
+    implementation 'info.picocli:picocli:4.0.4'
+    implementation project(':config')
+    implementation project(':shared')
+    implementation project(':cli:cli-api')
+    implementation project(':tessera-jaxrs:jaxrs-client')
+    implementation 'javax.validation:validation-api'
+    implementation 'javax.ws.rs:javax.ws.rs-api'
+    testImplementation project(':tests:test-util')
+}

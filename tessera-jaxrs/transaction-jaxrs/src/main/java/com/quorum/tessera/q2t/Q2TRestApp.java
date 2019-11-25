@@ -5,6 +5,8 @@ import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import io.swagger.annotations.Api;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,6 +17,7 @@ import javax.ws.rs.ApplicationPath;
  * The main application that is submitted to the HTTP server Contains all the service classes created by the service
  * locator
  */
+@Api
 @GlobalFilter
 @ApplicationPath("/")
 public class Q2TRestApp extends TesseraRestApplication {

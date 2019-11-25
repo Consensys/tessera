@@ -1,0 +1,9 @@
+
+dependencies {
+    implementation project(':config')
+    implementation project(':shared')
+    implementation "org.bouncycastle:bcpkix-jdk15on"
+    implementation "org.cryptacular:cryptacular"
+}
+
+description = 'security'

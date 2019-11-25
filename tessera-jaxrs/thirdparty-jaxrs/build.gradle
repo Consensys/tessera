@@ -1,0 +1,96 @@
+plugins {
+    id "com.benjaminsproule.swagger" version "1.0.7"
+}
+
+
+dependencies {
+    implementation project(':config')
+    implementation project(':tessera-core')
+    implementation project(':tessera-partyinfo')
+    implementation project(':encryption:encryption-api')
+    implementation project(':tessera-jaxrs:common-jaxrs')
+    implementation 'io.swagger:swagger-annotations'
+    implementation 'javax.ws.rs:javax.ws.rs-api'
+    implementation project(':tessera-admin')
+
+    testImplementation "org.glassfish.jersey.test-framework:jersey-test-framework-core"
+    testImplementation "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
+    testImplementation 'org.glassfish.jersey.media:jersey-media-json-processing'
+    testImplementation 'org.glassfish.jersey.media:jersey-media-moxy'
+    testImplementation "org.glassfish.jersey.inject:jersey-hk2:2.27"
+
+
+    implementation project(':service-locator:service-locator-api')
+    runtimeOnly project(':service-locator:service-locator-spring')
+    testImplementation project(':test-utils:mock-service-locator')
+}
+
+description = 'thirdparty-jaxrs'
+
+
+swagger {
+
+    apiSource {
+        springmvc = false
+
+        schemes = ['http', 'https']
+        host = 'localhost:8080'
+        basePath = '/'
+        outputFormats = ['json']
+        //attachSwaggerArtifact = true
+
+        locations = ['com.quorum.tessera.thirdparty']
+        info {
+            title = 'Third party resources'
+            version = project.version
+            license {
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                name = 'Apache 2.0'
+            }
+        }
+
+        swaggerDirectory = ''+ project.buildDir +'/resources/main'
+        swaggerFileName = 'thirdpty'
+    }
+
+    apiSource {
+        springmvc = false
+
+        schemes = ['http', 'https']
+        host = 'localhost:8080'
+        basePath = '/'
+        outputFormats = ['json']
+        //attachSwaggerArtifact = true
+
+        locations = ['com.quorum.tessera.thirdparty']
+        info {
+            title = 'Third party resources'
+            version = project.version
+            license {
+                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
+                name = 'Apache 2.0'
+            }
+        }
+
+        swaggerDirectory = ''+ project.buildDir +'/resources/main'
+        templatePath =  ''+ rootProject.rootDir +'/tessera-jaxrs/src/main/swagger/strapdown.html.hbs'
+        outputPath = ''+ project.buildDir +'/resources/main/thirdpty.html'
+        swaggerFileName = 'thirdpty'
+    }
+}
+
+task loaddeps() {
+
+    def urls = []
+    project.configurations.compileClasspath.resolve().flatten().each {
+        urls += it.toURI().toURL()
+    }
+    urls.each {
+        buildscript.classLoader.addURL it
+    }
+
+
+}
+
+generateSwaggerDocumentation.dependsOn(loaddeps)
+jar.dependsOn(generateSwaggerDocumentation)

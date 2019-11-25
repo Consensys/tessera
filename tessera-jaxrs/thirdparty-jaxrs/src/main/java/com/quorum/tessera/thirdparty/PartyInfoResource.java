@@ -2,6 +2,7 @@ package com.quorum.tessera.thirdparty;
 
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -16,6 +17,7 @@ import javax.ws.rs.core.Response;
 
 import static java.util.Objects.requireNonNull;
 
+@Api
 @Path("/partyinfo")
 public class PartyInfoResource {
 

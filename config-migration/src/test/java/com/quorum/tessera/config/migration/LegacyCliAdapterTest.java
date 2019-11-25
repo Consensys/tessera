@@ -45,6 +45,8 @@ public class LegacyCliAdapterTest {
 
     @Before
     public void onSetUp() throws IOException {
+        System.setProperty(CliType.CLI_TYPE_KEY, CliType.CONFIG_MIGRATION.name());
+
         dataDirectory = Files.createTempDirectory("data");
 
         Files.createFile(dataDirectory.resolve("foo.pub"));

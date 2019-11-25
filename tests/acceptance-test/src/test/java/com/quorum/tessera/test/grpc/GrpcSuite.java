@@ -1,38 +1,22 @@
 package com.quorum.tessera.test.grpc;
 
+import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.CucumberGprcIT;
 import com.quorum.tessera.test.DBType;
 import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import suite.EnclaveType;
-import suite.ParameterizedTestSuiteRunnerFactory;
-import suite.ProcessConfiguration;
 import suite.TestSuite;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.quorum.tessera.config.CommunicationType.GRPC;
-import com.quorum.tessera.config.EncryptorType;
-import static suite.SocketType.HTTP;
+import suite.ProcessConfig;
+import suite.SocketType;
 
 @TestSuite.SuiteClasses({SendGrpcIT.class, PartyInfoGrpcIT.class, TesseraGrpcIT.class, CucumberGprcIT.class})
-@RunWith(Parameterized.class)
-@Parameterized.UseParametersRunnerFactory(ParameterizedTestSuiteRunnerFactory.class)
-public class GrpcSuite {
-
-    @Parameterized.Parameters
-    public static List<ProcessConfiguration> configurations() {
-        final List<ProcessConfiguration> configurations = new ArrayList<>();
-
-        for (final DBType database : DBType.values()) {
-            for (EncryptorType encryptorType : EncryptorType.values()) {
-                configurations.add(
-                        new ProcessConfiguration(
-                                database, GRPC, HTTP, EnclaveType.LOCAL, false, "", false, encryptorType));
-            }
-        }
-
-        return configurations;
-    }
-}
+@RunWith(TestSuite.class)
+@ProcessConfig(
+        communicationType = CommunicationType.GRPC,
+        dbType = DBType.H2,
+        enclaveType = EnclaveType.LOCAL,
+        socketType = SocketType.HTTP,
+        encryptorType = EncryptorType.NACL)
+public class GrpcSuite {}
