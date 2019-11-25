@@ -14,7 +14,6 @@ import java.util.List;
 
 import static com.quorum.tessera.config.AppType.P2P;
 import static com.quorum.tessera.config.AppType.Q2T;
-import static com.quorum.tessera.config.CommunicationType.GRPC;
 import static com.quorum.tessera.config.CommunicationType.REST;
 
 @Deprecated
@@ -26,8 +25,6 @@ public class DeprecatedServerConfig extends ConfigItem {
     private String hostName;
 
     @NotNull @XmlElement private Integer port;
-
-    @XmlElement private Integer grpcPort;
 
     @XmlElement private CommunicationType communicationType;
 
@@ -53,14 +50,6 @@ public class DeprecatedServerConfig extends ConfigItem {
 
     public void setPort(Integer port) {
         this.port = port;
-    }
-
-    public Integer getGrpcPort() {
-        return grpcPort;
-    }
-
-    public void setGrpcPort(Integer grpcPort) {
-        this.grpcPort = grpcPort;
     }
 
     public CommunicationType getCommunicationType() {
@@ -106,7 +95,7 @@ public class DeprecatedServerConfig extends ConfigItem {
         final ServerConfig q2tConfig =
                 new ServerConfig(Q2T, true, "unix:" + unixSocketFile, REST, null, server.getInfluxConfig(), null);
 
-        final Integer port = (server.getCommunicationType() == GRPC) ? server.getGrpcPort() : server.getPort();
+        final Integer port = server.getPort();
 
         final ServerConfig p2pConfig =
                 new ServerConfig(
