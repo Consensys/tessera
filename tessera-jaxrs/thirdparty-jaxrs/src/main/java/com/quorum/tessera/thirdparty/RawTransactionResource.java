@@ -4,10 +4,7 @@ import com.quorum.tessera.api.model.StoreRawRequest;
 import com.quorum.tessera.api.model.StoreRawResponse;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.transaction.TransactionManager;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +20,7 @@ import java.util.Objects;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /** Provides endpoints for dealing with raw transactions */
+@Api
 @Path("/")
 public class RawTransactionResource {
 

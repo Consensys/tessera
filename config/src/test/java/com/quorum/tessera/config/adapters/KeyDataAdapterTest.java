@@ -364,11 +364,11 @@ public class KeyDataAdapterTest {
     public void unmarshalInlineKeyPair() throws Exception {
 
         KeyData keyData = mock(KeyData.class);
-
-        Path privateKeyPath = Files.createFile(Paths.get("target", UUID.randomUUID().toString()));
+        String tempDir = System.getProperty("java.io.tmpdir");
+        Path privateKeyPath = Files.createFile(Paths.get(tempDir, UUID.randomUUID().toString()));
         privateKeyPath.toFile().deleteOnExit();
 
-        Path publicKeyPath = Files.createFile(Paths.get("target", UUID.randomUUID().toString()));
+        Path publicKeyPath = Files.createFile(Paths.get(tempDir, UUID.randomUUID().toString()));
         publicKeyPath.toFile().deleteOnExit();
 
         when(keyData.getPrivateKeyPath()).thenReturn(privateKeyPath);

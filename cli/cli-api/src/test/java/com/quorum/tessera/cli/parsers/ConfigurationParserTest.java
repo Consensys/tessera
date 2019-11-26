@@ -153,7 +153,7 @@ public class ConfigurationParserTest {
 
         when(commandLine.hasOption("output")).thenReturn(true);
 
-        Path output = Paths.get("target", UUID.randomUUID().toString() + ".conf");
+        Path output = Paths.get(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString() + ".conf");
 
         when(commandLine.getOptionValue("output")).thenReturn(output.toString());
 
@@ -182,7 +182,9 @@ public class ConfigurationParserTest {
 
         when(commandLine.hasOption("output")).thenReturn(true);
 
-        Path output = Paths.get("target", UUID.randomUUID().toString() + ".conf");
+        String tempDir = System.getProperty("java.io.tmpdir");
+
+        Path output = Paths.get(tempDir, UUID.randomUUID().toString() + ".conf");
 
         when(commandLine.getOptionValue("output")).thenReturn(output.toString());
 

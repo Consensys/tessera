@@ -15,27 +15,15 @@ import org.junit.runners.model.RunnerBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TestSuite extends Suite {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestSuite.class);
-
-    private ProcessConfiguration testConfig;
-
     public TestSuite(Class<?> klass, RunnerBuilder builder) throws InitializationError {
         super(klass, builder);
-    }
-
-    public void withConfiguration(final ProcessConfiguration parameterizedConfig) {
-        this.testConfig = parameterizedConfig;
     }
 
     @Override
@@ -44,46 +32,22 @@ public class TestSuite extends Suite {
         final List<ExecManager> executors = new ArrayList<>();
         try {
 
-            if (testConfig == null) {
-
-                final ProcessConfig annotatedConfig =
-                        Arrays.stream(getRunnerAnnotations())
-                                .filter(ProcessConfig.class::isInstance)
-                                .map(ProcessConfig.class::cast)
-                                .findAny()
-                                .orElseThrow(() -> new AssertionError("No Test config found"));
-
-                com.quorum.tessera.config.CommunicationType p2pCommType =
-                        Optional.of(annotatedConfig.p2pCommunicationType())
-                                .filter(v -> !Objects.equals("NONE", v))
-                                .map(com.quorum.tessera.config.CommunicationType::valueOf)
-                                .orElse(annotatedConfig.communicationType());
-
-                this.testConfig =
-                        new ProcessConfiguration(
-                                annotatedConfig.dbType(),
-                                annotatedConfig.communicationType(),
-                                annotatedConfig.socketType(),
-                                annotatedConfig.enclaveType(),
-                                annotatedConfig.admin(),
-                                annotatedConfig.prefix(),
-                                annotatedConfig.p2pSsl(),
-                                annotatedConfig.encryptorType());
-
-                this.testConfig.setP2pCommunicationType(p2pCommType);
-            }
+            final ProcessConfig annotatedConfig =
+                    Arrays.stream(getRunnerAnnotations())
+                            .filter(ProcessConfig.class::isInstance)
+                            .map(ProcessConfig.class::cast)
+                            .findAny()
+                            .orElseThrow(() -> new AssertionError("No Test config found"));
 
             ExecutionContext executionContext =
                     ExecutionContext.Builder.create()
-                            .with(testConfig.getCommunicationType())
-                            .with(testConfig.getDbType())
-                            .with(testConfig.getSocketType())
-                            .with(testConfig.getEnclaveType())
-                            .withP2pCommunicationType(testConfig.getP2pCommunicationType())
-                            .withAdmin(testConfig.isAdmin())
-                            .prefix(testConfig.getPrefix())
-                            .withP2pSsl(testConfig.isP2pSsl())
-                            .with(testConfig.getEncryptorType())
+                            .with(annotatedConfig.communicationType())
+                            .with(annotatedConfig.dbType())
+                            .with(annotatedConfig.socketType())
+                            .with(annotatedConfig.enclaveType())
+                            .withAdmin(annotatedConfig.admin())
+                            .with(annotatedConfig.encryptorType())
+                            .prefix(annotatedConfig.prefix())
                             .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
@@ -98,7 +62,7 @@ public class TestSuite extends Suite {
             }
 
             String nodeId = NodeId.generate(executionContext);
-            DatabaseServer databaseServer = testConfig.getDbType().createDatabaseServer(nodeId);
+            DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
             databaseServer.start();
 
             SetupDatabase setupDatabase = new SetupDatabase(executionContext);
@@ -112,7 +76,7 @@ public class TestSuite extends Suite {
                                 executors.add(exec);
                             });
 
-            PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getP2pCommunicationType());
+            PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getCommunicationType());
 
             CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
             ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -121,19 +85,17 @@ public class TestSuite extends Suite {
                         while (!partyInfoChecker.hasSynced()) {
                             try {
                                 Thread.sleep(1000L);
-                                LOGGER.info("Failed to sync retrying");
                             } catch (InterruptedException ex) {
                             }
                         }
-                        LOGGER.info("All nodes have synced party info");
                         partyInfoSyncLatch.countDown();
                     });
 
             if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
-                Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
+
+                Description de = getDescription();
                 notifier.fireTestFailure(new Failure(de, new IllegalStateException("Unable to sync party info nodes")));
             }
-
             executorService.shutdown();
 
             super.run(notifier);
@@ -145,10 +107,19 @@ public class TestSuite extends Suite {
                 databaseServer.stop();
             }
         } catch (Throwable ex) {
-            Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
+            Description de = getDescription();
             notifier.fireTestFailure(new Failure(de, ex));
         } finally {
             executors.forEach(ExecManager::stop);
         }
     }
+
+    //    @Override
+    //    public Description getDescription() {
+    //        String s = NodeId.generate(ExecutionContext.currentContext());
+    //
+    //        ExecutionContext executionContext = ExecutionContext.currentContext();
+    //
+    //        return Description.createTestDescription(getTestClass().getJavaClass(),s);
+    //    }
 }

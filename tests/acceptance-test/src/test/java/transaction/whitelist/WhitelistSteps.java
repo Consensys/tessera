@@ -82,7 +82,7 @@ public class WhitelistSteps implements En {
                         Config whiteListConfig = whiteListConfigBuilder.build();
                         whiteListConfig.setUseWhiteList(true);
 
-                        Path configFile = Paths.get("target").resolve("white-list-config.json");
+                        Path configFile = Paths.get(System.getProperty("java.io.tmpdir")).resolve("white-list-config.json");
 
                         try (OutputStream out = Files.newOutputStream(configFile)) {
                             JaxbUtil.marshalWithNoValidation(whiteListConfig, out);
