@@ -39,4 +39,5 @@ public class UnsupportedKeyPairTest {
         assertThat(keyPair.getAzureVaultPrivateKeyVersion()).isEqualTo("privVer");
         
     }
+
 }

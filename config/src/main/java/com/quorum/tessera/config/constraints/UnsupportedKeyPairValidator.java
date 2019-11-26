@@ -15,31 +15,31 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired.message}")
                     .addConstraintViolation();
-        } 
+        }
         else if (isIncompleteInlineKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothInlineKeysRequired.message}")
                     .addConstraintViolation();
-        } 
+        }
         else if (isIncompleteAzureVaultKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}")
                     .addConstraintViolation();
-        } 
+        }
         else if (isIncompleteHashicorpVaultKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}")
                     .addConstraintViolation();
-        } 
+        }
         else if (isIncompleteAWSVaultKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAWSKeysRequired.message}")
                 .addConstraintViolation();
-        } 
+        }
         else if (isIncompleteFilesystemKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothFilesystemKeysRequired.message}")
-                    .addConstraintViolation();
+                .addConstraintViolation();
         }
 
         return false;

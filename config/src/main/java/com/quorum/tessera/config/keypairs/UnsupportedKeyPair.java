@@ -11,13 +11,13 @@ import java.nio.file.Path;
 @ValidUnsupportedKeyPair
 public class UnsupportedKeyPair implements ConfigKeyPair {
 
-    @XmlElement 
+    @XmlElement
     private KeyDataConfig config;
 
-    @XmlElement 
+    @XmlElement
     private String privateKey;
 
-    @XmlElement 
+    @XmlElement
     private String publicKey;
 
     @XmlElement
@@ -28,37 +28,37 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path publicKeyPath;
 
-    @XmlElement 
+    @XmlElement
     private String azureVaultPublicKeyId;
 
-    @XmlElement 
+    @XmlElement
     private String azureVaultPrivateKeyId;
 
-    @XmlElement 
+    @XmlElement
     private String azureVaultPublicKeyVersion;
 
-    @XmlElement 
+    @XmlElement
     private String azureVaultPrivateKeyVersion;
 
-    @XmlElement 
+    @XmlElement
     private String hashicorpVaultPublicKeyId;
 
-    @XmlElement 
+    @XmlElement
     private String hashicorpVaultPrivateKeyId;
 
-    @XmlElement 
+    @XmlElement
     private String hashicorpVaultSecretEngineName;
 
-    @XmlElement 
+    @XmlElement
     private String hashicorpVaultSecretName;
 
-    @XmlElement 
+    @XmlElement
     private String hashicorpVaultSecretVersion;
 
-    @XmlElement 
+    @XmlElement
     private String awsSecretsManagerPublicKeyId;
 
-    @XmlElement 
+    @XmlElement
     private String awsSecretsManagerPrivateKeyId;
 
     public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion, String awsSecretsManagerPublicKeyId, String awsSecretsManagerPrivateKeyId) {
@@ -81,7 +81,7 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     }
 
     public UnsupportedKeyPair() {
-        
+
     }
 
     @Override
