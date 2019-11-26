@@ -145,8 +145,7 @@ public class ValidationTest {
 
         final ConfigKeyPair keyPair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
 
-        final KeyConfiguration keyConfiguration =
-                new KeyConfiguration(null, null, singletonList(keyPair), null, null, null);
+        final KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null, null);
 
         final Set<ConstraintViolation<KeyConfiguration>> violations = validator.validate(keyConfiguration);
         assertThat(violations).hasSize(2);

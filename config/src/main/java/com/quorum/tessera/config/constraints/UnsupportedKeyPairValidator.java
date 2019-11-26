@@ -15,23 +15,28 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothDirectKeysRequired.message}")
                     .addConstraintViolation();
-        } else if (isIncompleteInlineKeyPair(keyPair)) {
+        } 
+        else if (isIncompleteInlineKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothInlineKeysRequired.message}")
                     .addConstraintViolation();
-        } else if (isIncompleteAzureVaultKeyPair(keyPair)) {
+        } 
+        else if (isIncompleteAzureVaultKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAzureKeysRequired.message}")
                     .addConstraintViolation();
-        } else if (isIncompleteHashicorpVaultKeyPair(keyPair)) {
+        } 
+        else if (isIncompleteHashicorpVaultKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.allHashicorpKeyDataRequired.message}")
                     .addConstraintViolation();
-        } else if (isIncompleteAWSVaultKeyPair(keyPair)) {
+        } 
+        else if (isIncompleteAWSVaultKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothAWSKeysRequired.message}")
-                    .addConstraintViolation();
-        } else if (isIncompleteFilesystemKeyPair(keyPair)) {
+                .addConstraintViolation();
+        } 
+        else if (isIncompleteFilesystemKeyPair(keyPair)) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate("{UnsupportedKeyPair.bothFilesystemKeysRequired.message}")
                     .addConstraintViolation();
@@ -53,11 +58,7 @@ public class UnsupportedKeyPairValidator implements ConstraintValidator<ValidUns
     }
 
     private boolean isIncompleteHashicorpVaultKeyPair(UnsupportedKeyPair keyPair) {
-        return isIncomplete(
-                keyPair.getHashicorpVaultPublicKeyId(),
-                keyPair.getHashicorpVaultPrivateKeyId(),
-                keyPair.getHashicorpVaultSecretEngineName(),
-                keyPair.getHashicorpVaultSecretName());
+        return isIncomplete(keyPair.getHashicorpVaultPublicKeyId(), keyPair.getHashicorpVaultPrivateKeyId(), keyPair.getHashicorpVaultSecretEngineName(), keyPair.getHashicorpVaultSecretName());
     }
 
     private boolean isIncompleteAWSVaultKeyPair(UnsupportedKeyPair keyPair) {
