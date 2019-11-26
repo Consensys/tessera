@@ -1,12 +1,13 @@
 plugins {
-    id 'application'
-
+    //id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'java'
 }
 
-application {
-    mainClassName = 'com.quorum.tessera.config.migration.Main'
-    applicationDefaultJvmArgs = ['-Dtessera.cli.type=CONFIG_MIGRATION']
-}
+//application {
+//    mainClassName = 'com.quorum.tessera.config.migration.Main'
+//    applicationDefaultJvmArgs = ['-Dtessera.cli.type=CONFIG_MIGRATION']
+//}
 
 
 dependencies {
@@ -20,3 +21,11 @@ dependencies {
 }
 
 description = 'config-migration'
+
+
+shadowJar {
+    classifier = 'cli'
+    mergeServiceFiles()
+}
+
+build.dependsOn shadowJar

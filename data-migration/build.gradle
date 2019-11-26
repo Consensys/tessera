@@ -1,13 +1,14 @@
 
 plugins {
-    id 'application'
-
+    //id 'application'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'java'
 }
 
-application {
-    mainClassName = 'com.quorum.tessera.data.migration.Main'
-    applicationDefaultJvmArgs = ['-Dtessera.cli.type=DATA_MIGRATION']
-}
+//application {
+//    mainClassName = 'com.quorum.tessera.data.migration.Main'
+//    applicationDefaultJvmArgs = ['-Dtessera.cli.type=DATA_MIGRATION']
+//}
 
 dependencies {
     implementation 'info.picocli:picocli'
@@ -32,7 +33,10 @@ task unzipDdl(type:Copy) {
     into outputDir
 }
 
+shadowJar {
+    classifier = 'cli'
+    mergeServiceFiles()
+}
 
 processResources.dependsOn unzipDdl
-
-
+build.dependsOn shadowJar
