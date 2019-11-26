@@ -84,7 +84,7 @@ public class KeyData extends ConfigItem {
     }
 
     public KeyData() {
-  
+
     }
 
     public String getPrivateKey() {
