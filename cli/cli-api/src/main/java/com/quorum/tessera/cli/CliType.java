@@ -5,5 +5,7 @@ public enum CliType {
     ADMIN,
     ENCLAVE,
     CONFIG_MIGRATION,
-    DATA_MIGRATION
+    DATA_MIGRATION;
+
+    public static final String CLI_TYPE_KEY = "tessera.cli.type";
 }

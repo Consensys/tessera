@@ -4,10 +4,10 @@ import com.quorum.tessera.argon2.Argon2;
 import com.quorum.tessera.argon2.ArgonResult;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.encryption.Encryptor;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.nacl.NaclFacade;
-import com.quorum.tessera.nacl.Nonce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,10 +18,9 @@ import java.util.Objects;
 
 /**
  * An implementation of {@link KeyEncryptor} that uses Argon2
- * <p>
- * The password is hashed using the generated/provided salt to generate a 32
- * byte hash This hash is then used as the symmetric key to encrypt the private
- * key
+ *
+ * <p>The password is hashed using the generated/provided salt to generate a 32 byte hash This hash is then used as the
+ * symmetric key to encrypt the private key
  */
 public class KeyEncryptorImpl implements KeyEncryptor {
 
@@ -29,7 +28,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
     private final Argon2 argon2;
 
-    private final NaclFacade nacl;
+    private final Encryptor encryptor;
 
     private final Base64.Decoder decoder = Base64.getDecoder();
 
@@ -37,13 +36,14 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
     private final SecureRandom secureRandom = new SecureRandom();
 
-    public KeyEncryptorImpl(final Argon2 argon2, final NaclFacade nacl) {
+    public KeyEncryptorImpl(final Argon2 argon2, final Encryptor encryptor) {
         this.argon2 = Objects.requireNonNull(argon2);
-        this.nacl = Objects.requireNonNull(nacl);
+        this.encryptor = Objects.requireNonNull(encryptor);
     }
 
     @Override
-    public PrivateKeyData encryptPrivateKey(final PrivateKey privateKey, final String password, final ArgonOptions argonOptions) {
+    public PrivateKeyData encryptPrivateKey(
+            final PrivateKey privateKey, final String password, final ArgonOptions argonOptions) {
 
         LOGGER.info("Encrypting a private key");
 
@@ -59,24 +59,23 @@ public class KeyEncryptorImpl implements KeyEncryptor {
         if (argonOptions == null) {
             argonResult = this.argon2.hash(password, salt);
         } else {
-            argonResult = this.argon2.hash(
-                    new com.quorum.tessera.argon2.ArgonOptions(
-                            argonOptions.getAlgorithm(),
-                            argonOptions.getIterations(),
-                            argonOptions.getMemory(),
-                            argonOptions.getParallelism()
-                    ),
-                    password,
-                    salt
-            );
+            argonResult =
+                    this.argon2.hash(
+                            new com.quorum.tessera.argon2.ArgonOptions(
+                                    argonOptions.getAlgorithm(),
+                                    argonOptions.getIterations(),
+                                    argonOptions.getMemory(),
+                                    argonOptions.getParallelism()),
+                            password,
+                            salt);
         }
 
-        final Nonce nonce = this.nacl.randomNonce();
+        final Nonce nonce = this.encryptor.randomNonce();
         LOGGER.debug("Generated the random nonce {}", nonce);
 
-        final byte[] encryptedKey = this.nacl.sealAfterPrecomputation(
-                privateKey.getKeyBytes(), nonce, SharedKey.from(argonResult.getHash())
-        );
+        final byte[] encryptedKey =
+                this.encryptor.sealAfterPrecomputation(
+                        privateKey.getKeyBytes(), nonce, SharedKey.from(argonResult.getHash()));
 
         LOGGER.info("Private key encrypted");
 
@@ -93,9 +92,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
                         argonResult.getOptions().getAlgorithm(),
                         argonResult.getOptions().getIterations(),
                         argonResult.getOptions().getMemory(),
-                        argonResult.getOptions().getParallelism()
-                )
-        );
+                        argonResult.getOptions().getParallelism()));
     }
 
     @Override
@@ -106,22 +103,21 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
         final byte[] salt = this.decoder.decode(privateKey.getAsalt());
 
-        final ArgonResult argonResult = this.argon2.hash(
-                new com.quorum.tessera.argon2.ArgonOptions(
-                        privateKey.getArgonOptions().getAlgorithm(),
-                        privateKey.getArgonOptions().getIterations(),
-                        privateKey.getArgonOptions().getMemory(),
-                        privateKey.getArgonOptions().getParallelism()
-                ),
-                password,
-                salt
-        );
+        final ArgonResult argonResult =
+                this.argon2.hash(
+                        new com.quorum.tessera.argon2.ArgonOptions(
+                                privateKey.getArgonOptions().getAlgorithm(),
+                                privateKey.getArgonOptions().getIterations(),
+                                privateKey.getArgonOptions().getMemory(),
+                                privateKey.getArgonOptions().getParallelism()),
+                        password,
+                        salt);
 
-        final byte[] originalKey = this.nacl.openAfterPrecomputation(
-                this.decoder.decode(privateKey.getSbox()),
-                new Nonce(this.decoder.decode(privateKey.getSnonce())),
-                SharedKey.from(argonResult.getHash())
-        );
+        final byte[] originalKey =
+                this.encryptor.openAfterPrecomputation(
+                        this.decoder.decode(privateKey.getSbox()),
+                        new Nonce(this.decoder.decode(privateKey.getSnonce())),
+                        SharedKey.from(argonResult.getHash()));
 
         PrivateKey outcome = PrivateKey.from(originalKey);
 
@@ -130,5 +126,4 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
         return outcome;
     }
-
 }

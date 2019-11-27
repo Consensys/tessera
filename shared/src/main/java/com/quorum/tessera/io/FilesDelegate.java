@@ -12,11 +12,9 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * <p>
- *  Delegates calls to nio Files functions unchecking IOExceptions
- *  and providing a means of mocking file system interactions.
- * </p>
- * 
+ * Delegates calls to nio Files functions unchecking IOExceptions and providing a means of mocking file system
+ * interactions.
+ *
  * @see java.nio.file.Files
  */
 public interface FilesDelegate {
@@ -58,8 +56,10 @@ public interface FilesDelegate {
     }
 
     static FilesDelegate create() {
-        return ServiceLoaderUtil.load(FilesDelegate.class).orElse(new FilesDelegate() {
-        });
+        return ServiceLoaderUtil.load(FilesDelegate.class).orElse(new FilesDelegate() {});
     }
 
+    default Path write(Path path, Iterable<? extends CharSequence> lines, OpenOption... options) {
+        return IOCallback.execute(() -> Files.write(path, lines, options));
+    }
 }

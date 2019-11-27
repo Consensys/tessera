@@ -1,8 +1,8 @@
 package com.quorum.tessera.data;
 
 import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.Nonce;
 
 import javax.persistence.*;
 import java.io.Serializable;

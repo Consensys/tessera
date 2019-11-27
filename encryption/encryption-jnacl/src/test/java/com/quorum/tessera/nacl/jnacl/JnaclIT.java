@@ -2,7 +2,7 @@ package com.quorum.tessera.nacl.jnacl;
 
 import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.Nonce;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,7 +35,6 @@ public class JnaclIT {
         final SharedKey secondSharedKey = jnacl.computeSharedKey(keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
 
         assertThat(sharedKey).isEqualTo(secondSharedKey);
-
     }
 
     @Test
@@ -61,8 +60,10 @@ public class JnaclIT {
         final byte[] payloadBytes = payload.getBytes(UTF_8);
         final Nonce nonce = jnacl.randomNonce();
 
-        final byte[] encryptedPayload = jnacl.seal(payloadBytes, nonce, keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
-        final byte[] decryptedPayload = jnacl.open(encryptedPayload, nonce, keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
+        final byte[] encryptedPayload =
+                jnacl.seal(payloadBytes, nonce, keypairOne.getPublicKey(), keypairTwo.getPrivateKey());
+        final byte[] decryptedPayload =
+                jnacl.open(encryptedPayload, nonce, keypairTwo.getPublicKey(), keypairOne.getPrivateKey());
 
         final String decryptedMessage = new String(decryptedPayload, UTF_8);
 
@@ -84,5 +85,4 @@ public class JnaclIT {
         final String decryptedMessage = new String(decryptedPayload, UTF_8);
         assertThat(decryptedMessage).isEqualTo(payload);
     }
-
 }

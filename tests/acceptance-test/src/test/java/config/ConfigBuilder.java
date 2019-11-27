@@ -3,6 +3,7 @@ package config;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 
@@ -14,6 +15,33 @@ import suite.ExecutionContext;
 import suite.SocketType;
 
 public class ConfigBuilder {
+
+    private final SslConfig sslConfig =
+            new SslConfig(
+                    SslAuthenticationMode.STRICT,
+                    false,
+                    Paths.get(getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
+                    "testtest",
+                    Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+                    "testtest",
+                    SslTrustMode.CA,
+                    Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile())
+                            .toAbsolutePath(),
+                    "testtest",
+                    Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+                    "testtest",
+                    SslTrustMode.CA,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
+
+    private EncryptorConfig encryptorConfig;
 
     private Integer q2tPort;
 
@@ -94,6 +122,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder withEncryptorConfig(EncryptorConfig encryptorConfig) {
+        this.encryptorConfig = encryptorConfig;
+        return this;
+    }
+
     public ConfigBuilder withExecutionContext(ExecutionContext executionContext) {
         this.executionContext = executionContext;
         return this;
@@ -105,8 +138,13 @@ public class ConfigBuilder {
     }
 
     public Config build() {
-        final Config config = new Config();
 
+        Objects.requireNonNull(encryptorConfig, "no encryptorConfig defined");
+
+        KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
+        final Config config = new Config();
+        config.setEncryptor(encryptorConfig);
         JdbcConfig jdbcConfig = new JdbcConfig();
         jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeId, nodeNumber));
         jdbcConfig.setUsername("sa");

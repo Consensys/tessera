@@ -5,10 +5,7 @@ import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.transaction.TransactionManager;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +27,7 @@ import static javax.ws.rs.core.MediaType.*;
  * <p>- creating new transactions and distributing them - deleting transactions - fetching transactions - resending old
  * transactions
  */
+@Api
 @Path("/")
 public class TransactionResource {
 

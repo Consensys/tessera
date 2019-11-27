@@ -4,7 +4,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.reflect.ReflectCallback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -23,27 +24,30 @@ public interface OverrideUtil {
 
     Logger LOGGER = LoggerFactory.getLogger(OverrideUtil.class);
 
-    List<Class> SIMPLE_TYPES = Collections.unmodifiableList(
-            Arrays.asList(String.class, Path.class, Integer.class, Boolean.class, Long.class));
+    List<Class> SIMPLE_TYPES =
+            Collections.unmodifiableList(
+                    Arrays.asList(String.class, Path.class, Integer.class, Boolean.class, Long.class));
 
-    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP = Collections.unmodifiableMap(new HashMap<Class<?>, Class<?>>() {
-        {
-            put(Boolean.TYPE, Boolean.class);
-            put(Byte.TYPE, Byte.class);
-            put(Character.TYPE, Character.class);
-            put(Short.TYPE, Short.class);
-            put(Integer.TYPE, Integer.class);
-            put(Long.TYPE, Long.class);
-            put(Double.TYPE, Double.class);
-            put(Float.TYPE, Float.class);
-            put(Void.TYPE, Void.TYPE);
-        }
-    });
+    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP =
+            Collections.unmodifiableMap(
+                    new HashMap<Class<?>, Class<?>>() {
+                        {
+                            put(Boolean.TYPE, Boolean.class);
+                            put(Byte.TYPE, Byte.class);
+                            put(Character.TYPE, Character.class);
+                            put(Short.TYPE, Short.class);
+                            put(Integer.TYPE, Integer.class);
+                            put(Long.TYPE, Long.class);
+                            put(Double.TYPE, Double.class);
+                            put(Float.TYPE, Float.class);
+                            put(Void.TYPE, Void.TYPE);
+                        }
+                    });
 
     static Map<String, Class> buildConfigOptions() {
         final Map<String, Class> fields = fields(null, Config.class);
 
-        //add key overrides separately as they cannot be determined from the type directly
+        // add key overrides separately as they cannot be determined from the type directly
         fields.put("keys.keyData.privateKeyPath", Path.class);
         fields.put("keys.keyData.config.data.aopts.parallelism", String.class);
         fields.put("keys.keyData.config.data.aopts.memory", String.class);
@@ -68,8 +72,9 @@ public interface OverrideUtil {
                 .map(ParameterizedType.class::cast)
                 .map(pt -> pt.getActualTypeArguments()[0])
                 .map(Type::getTypeName)
-                .map(n -> ReflectCallback.execute(() -> Class.forName(n))).findAny().get();
-
+                .map(n -> ReflectCallback.execute(() -> Class.forName(n)))
+                .findAny()
+                .get();
     }
 
     static boolean isSimple(Field field) {
@@ -95,9 +100,7 @@ public interface OverrideUtil {
 
     static Map<String, Class> fields(String prefix, Class type) {
 
-        String amendedPrefix = Optional.ofNullable(prefix)
-                .map(s -> s.concat("."))
-                .orElse("");
+        String amendedPrefix = Optional.ofNullable(prefix).map(s -> s.concat(".")).orElse("");
 
         Map<String, Class> list = new HashMap<>();
         for (Field field : type.getDeclaredFields()) {
@@ -126,7 +129,6 @@ public interface OverrideUtil {
         }
 
         return list;
-
     }
 
     static <T> Class<T[]> toArrayType(Class<T> t) {
@@ -142,13 +144,16 @@ public interface OverrideUtil {
      */
     static void setValue(Object root, String path, String... value) {
 
-        if(root == null) {
+        if (root == null) {
             return;
         }
 
         final ListIterator<String> pathTokens = Arrays.asList(path.split("\\.")).listIterator();
 
         final Class rootType = root.getClass();
+        if (rootType.isAnonymousClass()) {
+            return;
+        }
 
         while (pathTokens.hasNext()) {
 
@@ -162,13 +167,11 @@ public interface OverrideUtil {
 
                 final Class genericType = resolveCollectionParameter(field.getGenericType());
 
-                List list = (List) Optional.ofNullable(getValue(root, field))
-                        .orElse(new ArrayList<>());
+                List list = (List) Optional.ofNullable(getValue(root, field)).orElse(new ArrayList<>());
                 if (isSimple(genericType)) {
 
-                    List convertedValues = (List) Stream.of(value)
-                            .map(v -> convertTo(genericType, v))
-                            .collect(Collectors.toList());
+                    List convertedValues =
+                            (List) Stream.of(value).map(v -> convertTo(genericType, v)).collect(Collectors.toList());
 
                     List merged = new ArrayList(list);
                     merged.addAll(convertedValues);
@@ -182,7 +185,7 @@ public interface OverrideUtil {
                     String nestedPath = builder.stream().collect(Collectors.joining("."));
 
                     final Object[] newList;
-                    if(ADDITIVE_COLLECTION_FIELDS.contains(field.getName())) {
+                    if (ADDITIVE_COLLECTION_FIELDS.contains(field.getName())) {
                         newList = new Object[value.length];
                     } else {
                         newList = Arrays.copyOf(list.toArray(), value.length);
@@ -191,8 +194,7 @@ public interface OverrideUtil {
                     for (int i = 0; i < value.length; i++) {
                         final String v = value[i];
 
-                        final Object nestedObject = Optional.ofNullable(newList[i])
-                                .orElse(createInstance(genericType));
+                        final Object nestedObject = Optional.ofNullable(newList[i]).orElse(createInstance(genericType));
 
                         initialiseNestedObjects(nestedObject);
 
@@ -200,12 +202,11 @@ public interface OverrideUtil {
                         newList[i] = nestedObject;
                     }
                     List merged = new ArrayList();
-                    if(ADDITIVE_COLLECTION_FIELDS.contains(field.getName())) {
+                    if (ADDITIVE_COLLECTION_FIELDS.contains(field.getName())) {
                         merged.addAll(list);
                     }
                     merged.addAll(Arrays.asList(newList));
                     setValue(root, field, merged);
-
                 }
 
             } else if (isSimple(fieldType)) {
@@ -223,52 +224,66 @@ public interface OverrideUtil {
 
                 setValue(root, field, nestedObject);
             }
-
         }
-
     }
 
     static <T> T getOrCreate(Object from, Field field) {
         T value = getValue(from, field);
-        return Optional.ofNullable(value)
-                .orElse((T) createInstance(field.getType()));
+        return Optional.ofNullable(value).orElse((T) createInstance(field.getType()));
     }
 
     static <T> T getValue(Object from, Field field) {
-        return ReflectCallback.execute(() -> {
-            return (T) field.get(from);
-        });
+        return ReflectCallback.execute(
+                () -> {
+                    return (T) field.get(from);
+                });
     }
 
     static void setValue(Object obj, Field field, Object value) {
-        ReflectCallback.execute(() -> {
-            field.set(obj, value);
-            return null;
-        });
+        ReflectCallback.execute(
+                () -> {
+                    field.set(obj, value);
+                    return null;
+                });
     }
 
     static Field resolveField(Class type, String name) {
         LOGGER.debug("Resolving {}#{}", type, name);
 
+        Predicate<Field> isJaxbElement = f -> f.isAnnotationPresent(XmlElement.class);
+        Predicate<Field> isJaxbAttribute = f -> f.isAnnotationPresent(XmlAttribute.class);
+
+        Predicate<Field> matchJaxbElementName = f -> f.getAnnotation(XmlElement.class).name().equals(name);
+        Predicate<Field> matchJaxbAttributeName = f -> f.getAnnotation(XmlAttribute.class).name().equals(name);
+
         return Stream.of(type.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(XmlElement.class))
-                .filter(f -> f.getAnnotation(XmlElement.class).name().equals(name))
+                .filter(isJaxbElement.and(matchJaxbElementName).or(isJaxbAttribute.and(matchJaxbAttributeName)))
+                .peek(f -> LOGGER.debug("Found field {} for type {}", f, type))
                 .findAny()
-                .orElseGet(() -> ReflectCallback.execute(() -> type.getDeclaredField(name)));
+                .orElseGet(
+                        () -> {
+                            return ReflectCallback.execute(
+                                    () -> {
+                                        LOGGER.debug("Find {} for type {}", name, type);
+                                        Field field = type.getDeclaredField(name);
+                                        LOGGER.debug("Found {} for type {}", name, type);
+                                        return field;
+                                    });
+                        });
     }
 
     static <T> T createInstance(Class<T> type) {
 
-        if(type.isInterface()) {
+        if (type.isInterface()) {
             return null;
         }
 
-        return ReflectCallback.execute(() -> {
-            final T instance = type.newInstance();
-            initialiseNestedObjects(instance);
-            return instance;
-        });
-
+        return ReflectCallback.execute(
+                () -> {
+                    final T instance = type.newInstance();
+                    initialiseNestedObjects(instance);
+                    return instance;
+                });
     }
 
     static Class classForName(String classname) {
@@ -279,30 +294,29 @@ public interface OverrideUtil {
         if (obj == null) {
             return;
         }
-        ReflectCallback.execute(() -> {
-            Class type = obj.getClass();
-            Field[] fields = type.getDeclaredFields();
+        ReflectCallback.execute(
+                () -> {
+                    Class type = obj.getClass();
+                    Field[] fields = type.getDeclaredFields();
 
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Class fieldType = field.getType();
-                if (isSimple(fieldType)) {
-                    continue;
-                }
+                    for (Field field : fields) {
+                        field.setAccessible(true);
+                        Class fieldType = field.getType();
+                        if (isSimple(fieldType)) {
+                            continue;
+                        }
 
-                if (Collection.class.isAssignableFrom(fieldType)) {
-                    setValue(obj, field, new ArrayList<>());
-                    continue;
-                }
+                        if (Collection.class.isAssignableFrom(fieldType)) {
+                            setValue(obj, field, new ArrayList<>());
+                            continue;
+                        }
 
-                Object nestedObject = createInstance(fieldType);
-                initialiseNestedObjects(nestedObject);
-                setValue(obj, field, nestedObject);
-
-            }
-            return null;
-        });
-
+                        Object nestedObject = createInstance(fieldType);
+                        initialiseNestedObjects(nestedObject);
+                        setValue(obj, field, nestedObject);
+                    }
+                    return null;
+                });
     }
 
     static <T> T convertTo(Class<T> type, String value) {
@@ -334,7 +348,5 @@ public interface OverrideUtil {
                 .map(m -> ReflectCallback.execute(() -> m.invoke(null, value)))
                 .map(type::cast)
                 .get();
-
     }
-
 }

@@ -5,8 +5,8 @@ import com.quorum.tessera.enclave.EnclaveException;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.Nonce;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.service.Service.Status;
 import org.glassfish.jersey.test.JerseyTest;
@@ -46,7 +46,6 @@ public class RestfulEnclaveClientTest {
         jersey.setUp();
 
         enclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri());
-
     }
 
     @After
@@ -67,7 +66,6 @@ public class RestfulEnclaveClientTest {
         assertThat(result).isEqualTo(key);
 
         verify(enclave).defaultPublicKey();
-
     }
 
     @Test
@@ -82,7 +80,6 @@ public class RestfulEnclaveClientTest {
         assertThat(result).containsExactly(key);
 
         verify(enclave).getPublicKeys();
-
     }
 
     @Test
@@ -97,7 +94,6 @@ public class RestfulEnclaveClientTest {
         assertThat(result).containsExactly(key);
 
         verify(enclave).getForwardingKeys();
-
     }
 
     @Test
@@ -110,8 +106,7 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayload = Fixtures.createSample();
 
-        when(enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys))
-            .thenReturn(encodedPayload);
+        when(enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys)).thenReturn(encodedPayload);
 
         EncodedPayload result = enclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
 
@@ -123,7 +118,6 @@ public class RestfulEnclaveClientTest {
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
         verify(enclave).encryptPayload(message, senderPublicKey, recipientPublicKeys);
-
     }
 
     @Test
@@ -143,8 +137,7 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayload = Fixtures.createSample();
 
-        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class)))
-            .thenReturn(encodedPayload);
+        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class))).thenReturn(encodedPayload);
 
         EncodedPayload result = enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys);
 
@@ -156,7 +149,6 @@ public class RestfulEnclaveClientTest {
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
         verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class));
-
     }
 
     @Test
@@ -179,7 +171,6 @@ public class RestfulEnclaveClientTest {
         assertThat(result).isEqualTo(rawTransaction);
 
         verify(enclave).encryptRawPayload(message, senderPublicKey);
-
     }
 
     @Test
@@ -191,15 +182,13 @@ public class RestfulEnclaveClientTest {
 
         byte[] outcome = "SUCCESS".getBytes();
 
-        when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-            .thenReturn(outcome);
+        when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(outcome);
 
         byte[] result = enclaveClient.unencryptTransaction(payload, providedKey);
 
         assertThat(result).isEqualTo(outcome);
 
         verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
-
     }
 
     @Test
@@ -218,15 +207,12 @@ public class RestfulEnclaveClientTest {
         assertThat(result).isEqualTo(outcome);
 
         verify(enclave).createNewRecipientBox(any(EncodedPayload.class), any(PublicKey.class));
-
     }
 
     @Test
     public void statusStarted() {
-        when(enclave.status())
-            .thenReturn(Service.Status.STARTED);
-        assertThat(enclaveClient.status())
-            .isEqualTo(Service.Status.STARTED);
+        when(enclave.status()).thenReturn(Service.Status.STARTED);
+        assertThat(enclaveClient.status()).isEqualTo(Service.Status.STARTED);
 
         verify(enclave).status();
     }
@@ -234,10 +220,8 @@ public class RestfulEnclaveClientTest {
     @Test
     public void statusStopped() {
 
-        when(enclave.status())
-            .thenThrow(RuntimeException.class);
-        assertThat(enclaveClient.status())
-            .isEqualTo(Service.Status.STOPPED);
+        when(enclave.status()).thenThrow(RuntimeException.class);
+        assertThat(enclaveClient.status()).isEqualTo(Service.Status.STOPPED);
         verify(enclave).status();
     }
 
@@ -248,34 +232,28 @@ public class RestfulEnclaveClientTest {
 
         Future<?> future = mock(Future.class);
 
-        doReturn(future)
-            .when(executorService).submit(any(Callable.class));
-        
-        doThrow(TimeoutException.class)
-            .when(future).get(anyLong(), any(TimeUnit.class));
+        doReturn(future).when(executorService).submit(any(Callable.class));
 
-        RestfulEnclaveClient restfulEnclaveClient = new RestfulEnclaveClient(jersey.client(), jersey.target().getUri(), executorService);
+        doThrow(TimeoutException.class).when(future).get(anyLong(), any(TimeUnit.class));
+
+        RestfulEnclaveClient restfulEnclaveClient =
+                new RestfulEnclaveClient(jersey.client(), jersey.target().getUri(), executorService);
 
         Status result = restfulEnclaveClient.status();
 
-        assertThat(result)
-            .isEqualTo(Service.Status.STOPPED);
-
+        assertThat(result).isEqualTo(Service.Status.STOPPED);
     }
 
     @Test
     public void remoteEncalveReturnsError() {
 
-        when(enclave.defaultPublicKey())
-            .thenThrow(new RuntimeException());
+        when(enclave.defaultPublicKey()).thenThrow(new RuntimeException());
 
         try {
             enclaveClient.defaultPublicKey();
             failBecauseExceptionWasNotThrown(EnclaveException.class);
         } catch (EnclaveException ex) {
             verify(enclave).defaultPublicKey();
-
         }
-
     }
 }

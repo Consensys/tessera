@@ -22,14 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 public class TestSuite extends Suite {
 
-    private ProcessConfiguration testConfig;
-
     public TestSuite(Class<?> klass, RunnerBuilder builder) throws InitializationError {
         super(klass, builder);
-    }
-
-    public void withConfiguration(final ProcessConfiguration parameterizedConfig) {
-        this.testConfig = parameterizedConfig;
     }
 
     @Override
@@ -38,32 +32,22 @@ public class TestSuite extends Suite {
         final List<ExecManager> executors = new ArrayList<>();
         try {
 
-            if (testConfig == null) {
-                final ProcessConfig annotatedConfig =
-                        Arrays.stream(getRunnerAnnotations())
-                                .filter(ProcessConfig.class::isInstance)
-                                .map(ProcessConfig.class::cast)
-                                .findAny()
-                                .orElseThrow(() -> new AssertionError("No Test config found"));
-
-                this.testConfig =
-                        new ProcessConfiguration(
-                                annotatedConfig.dbType(),
-                                annotatedConfig.communicationType(),
-                                annotatedConfig.socketType(),
-                                annotatedConfig.enclaveType(),
-                                annotatedConfig.admin(),
-                                annotatedConfig.prefix());
-            }
+            final ProcessConfig annotatedConfig =
+                    Arrays.stream(getRunnerAnnotations())
+                            .filter(ProcessConfig.class::isInstance)
+                            .map(ProcessConfig.class::cast)
+                            .findAny()
+                            .orElseThrow(() -> new AssertionError("No Test config found"));
 
             ExecutionContext executionContext =
                     ExecutionContext.Builder.create()
-                            .with(testConfig.getCommunicationType())
-                            .with(testConfig.getDbType())
-                            .with(testConfig.getSocketType())
-                            .with(testConfig.getEnclaveType())
-                            .withAdmin(testConfig.isAdmin())
-                            .prefix(testConfig.getPrefix())
+                            .with(annotatedConfig.communicationType())
+                            .with(annotatedConfig.dbType())
+                            .with(annotatedConfig.socketType())
+                            .with(annotatedConfig.enclaveType())
+                            .withAdmin(annotatedConfig.admin())
+                            .with(annotatedConfig.encryptorType())
+                            .prefix(annotatedConfig.prefix())
                             .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
@@ -78,7 +62,7 @@ public class TestSuite extends Suite {
             }
 
             String nodeId = NodeId.generate(executionContext);
-            DatabaseServer databaseServer = testConfig.getDbType().createDatabaseServer(nodeId);
+            DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
             databaseServer.start();
 
             SetupDatabase setupDatabase = new SetupDatabase(executionContext);
@@ -108,7 +92,8 @@ public class TestSuite extends Suite {
                     });
 
             if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
-                Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
+
+                Description de = getDescription();
                 notifier.fireTestFailure(new Failure(de, new IllegalStateException("Unable to sync party info nodes")));
             }
             executorService.shutdown();
@@ -122,10 +107,19 @@ public class TestSuite extends Suite {
                 databaseServer.stop();
             }
         } catch (Throwable ex) {
-            Description de = Description.createSuiteDescription(getTestClass().getJavaClass());
+            Description de = getDescription();
             notifier.fireTestFailure(new Failure(de, ex));
         } finally {
             executors.forEach(ExecManager::stop);
         }
     }
+
+    //    @Override
+    //    public Description getDescription() {
+    //        String s = NodeId.generate(ExecutionContext.currentContext());
+    //
+    //        ExecutionContext executionContext = ExecutionContext.currentContext();
+    //
+    //        return Description.createTestDescription(getTestClass().getJavaClass(),s);
+    //    }
 }

@@ -17,6 +17,7 @@
         <module>encryption-api</module>
         <module>encryption-jnacl</module>
         <module>encryption-kalium</module>
+        <module>encryption-ec</module>
     </modules>
 
 </project>

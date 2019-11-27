@@ -52,6 +52,7 @@
                                 <mainClass>com.quorum.tessera.launcher.Main</mainClass>
                                 <manifestEntries>
                                     <Tessera-Version>${project.version}</Tessera-Version>
+                                    <Specification-Version>${project.version}</Specification-Version>
                                 </manifestEntries>
                             </transformer>
 

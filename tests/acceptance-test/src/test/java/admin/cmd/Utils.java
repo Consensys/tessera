@@ -22,14 +22,16 @@ public class Utils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
+
+
     public static ExecutionResult start(Party party) throws IOException, InterruptedException {
 
-        List<String> args = new ExecArgsBuilder()
-                .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
-                .withExecutableJarFile(Paths.get(jarPath))
-                .withConfigFile(party.getConfigFilePath())
-                .build();
-
+        List<String> args =
+                new ExecArgsBuilder()
+                        .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
+                        .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+                        .withConfigFile(party.getConfigFilePath())
+                        .build();
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -41,61 +43,64 @@ public class Utils {
 
         ExecutionResult executionResult = new ExecutionResult();
 
-        executorService.submit(() -> {
+        executorService.submit(
+                () -> {
+                    try (BufferedReader reader =
+                            Stream.of(process.getInputStream())
+                                    .map(InputStreamReader::new)
+                                    .map(BufferedReader::new)
+                                    .findAny()
+                                    .get()) {
 
-            try(BufferedReader reader = Stream.of(process.getInputStream())
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new)
-                    .findAny().get()){
+                        String line = null;
+                        while ((line = reader.readLine()) != null) {
+                            System.out.println(line);
+                            LOGGER.info(line);
+                            executionResult.addOutputLine(line);
+                        }
 
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                    LOGGER.info(line);
-                    executionResult.addOutputLine(line);
-                }
+                    } catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
+                });
 
-            } catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-            }
-        });
+        executorService.submit(
+                () -> {
+                    try (BufferedReader reader =
+                            Stream.of(process.getErrorStream())
+                                    .map(InputStreamReader::new)
+                                    .map(BufferedReader::new)
+                                    .findAny()
+                                    .get()) {
 
-        executorService.submit(() -> {
+                        String line = null;
+                        while ((line = reader.readLine()) != null) {
+                            LOGGER.error(line);
+                            executionResult.addErrorLine(line);
+                        }
 
-            try(BufferedReader reader = Stream.of(process.getErrorStream())
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new)
-                    .findAny().get()){
-
-                String line = null;
-                while ((line = reader.readLine()) != null) {
-                    LOGGER.error(line);
-                    executionResult.addErrorLine(line);
-                }
-
-            } catch (IOException ex) {
-                throw new UncheckedIOException(ex);
-            }
-        });
+                    } catch (IOException ex) {
+                        throw new UncheckedIOException(ex);
+                    }
+                });
 
         executionResult.setExitCode(process.waitFor());
 
         return executionResult;
-
     }
 
     public static int addPeer(Party party, String url) throws IOException, InterruptedException {
 
-        List<String> args =
-                Arrays.asList(
-                        "java",
-                        "-jar",
-                        jarPath,
-                        "admin",
-                        "-addpeer",
-                        url,
-                        "-configfile",
-                        party.getConfigFilePath().toAbsolutePath().toString());
+        List<String> args = new ExecArgsBuilder()
+            .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
+            .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+            .withConfigFile(party.getConfigFilePath())
+            .withArg("admin")
+            .withArg("-addpeer",url)
+            .withArg("-configfile",party.getConfigFilePath().toAbsolutePath().toString())
+            .build();
+
+
 
         LOGGER.info("exec : {}", String.join(" ", args));
         ProcessBuilder processBuilder = new ProcessBuilder(args);
@@ -103,15 +108,14 @@ public class Utils {
 
         Process process = processBuilder.start();
 
-        Collection<StreamConsumer> streamConsumers = Arrays.asList(
-                new StreamConsumer(process.getErrorStream(), true),
-                new StreamConsumer(process.getInputStream(), false)
-        );
+        Collection<StreamConsumer> streamConsumers =
+                Arrays.asList(
+                        new StreamConsumer(process.getErrorStream(), true),
+                        new StreamConsumer(process.getInputStream(), false));
 
         Executors.newCachedThreadPool().invokeAll(streamConsumers);
 
         return process.waitFor();
-
     }
 
     static class StreamConsumer implements Callable<Void> {
@@ -128,11 +132,8 @@ public class Utils {
         @Override
         public Void call() throws Exception {
 
-            try(BufferedReader reader = Stream.of(inputStream)
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new)
-                    .findAny()
-                    .get()){
+            try (BufferedReader reader =
+                    Stream.of(inputStream).map(InputStreamReader::new).map(BufferedReader::new).findAny().get()) {
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {
@@ -141,13 +142,9 @@ public class Utils {
                     } else {
                         LOGGER.info(line);
                     }
-
                 }
                 return null;
             }
-
         }
-
     }
-
 }

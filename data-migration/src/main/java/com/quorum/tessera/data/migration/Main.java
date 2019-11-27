@@ -2,6 +2,7 @@ package com.quorum.tessera.data.migration;
 
 import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 
 import java.util.Arrays;
 
@@ -12,6 +13,8 @@ public class Main {
     }
 
     public static void main(final String... args) {
+
+        System.setProperty(CliType.CLI_TYPE_KEY,CliType.DATA_MIGRATION.name());
 
         try {
             final CliResult cliResult = CliDelegate.instance().execute(args);

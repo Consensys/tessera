@@ -1,5 +1,6 @@
 package com.quorum.tessera.api.common;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import io.swagger.annotations.ApiOperation;
@@ -13,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** Provides endpoints about the health status of this node */
+@Api
 @Path("/upcheck")
 public class UpCheckResource {
 

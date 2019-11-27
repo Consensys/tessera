@@ -1,0 +1,20 @@
+
+dependencies {
+
+    implementation 'javax.transaction:javax.transaction-api'
+    implementation project(':encryption:encryption-api')
+    implementation project(':shared')
+    implementation project(':config')
+    implementation project(':enclave:enclave-api')
+
+    implementation 'io.swagger:swagger-annotations'
+    implementation project(':tessera-admin')
+    implementation project(':tessera-data')
+    implementation 'org.apache.commons:commons-lang3'
+
+    implementation project(':service-locator:service-locator-api')
+    runtimeOnly project(':service-locator:service-locator-spring')
+    testImplementation project(':test-utils:mock-service-locator')
+}
+
+
