@@ -26,6 +26,11 @@ jobs:
       script: &build_with_unittests
         - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
 
+    - name: "Gradle Build"
+      jdk:  oraclejdk8
+      script:
+        - ./gradlew build || travis_terminate 1
+
     - name: "Unit Tests Java 11"
       jdk:  oraclejdk11
       install: *build_no_checks

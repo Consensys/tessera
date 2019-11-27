@@ -1,0 +1,7 @@
+
+dependencies {
+    implementation project(':shared')
+    implementation project(':config')
+    implementation project(':encryption:encryption-api')
+    implementation project(':enclave:enclave-api')
+}

@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.After;
 
 public class EnclaveCliAdapterTest {
 
@@ -22,7 +23,13 @@ public class EnclaveCliAdapterTest {
 
     @Before
     public void onSetUp() {
+        System.setProperty(CliType.CLI_TYPE_KEY, CliType.ENCLAVE.name());
         this.systemErrOutput.clearLog();
+    }
+
+    @After
+    public void onTearDown() {
+        System.clearProperty(CliType.CLI_TYPE_KEY);
     }
 
     @Test

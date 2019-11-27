@@ -1,6 +1,6 @@
 package com.quorum.tessera.nacl.kalium;
 
-import com.quorum.tessera.nacl.NaclFacade;
+import com.quorum.tessera.encryption.Encryptor;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,9 +11,8 @@ public class KaliumFactoryTest {
 
     @Test
     public void createInstance() {
-        final NaclFacade result = this.kaliumFactory.create();
+        final Encryptor result = this.kaliumFactory.create();
 
         assertThat(result).isNotNull().isExactlyInstanceOf(Kalium.class);
     }
-
 }

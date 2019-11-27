@@ -1,0 +1,7 @@
+
+dependencies {
+    implementation 'info.picocli:picocli'
+    implementation project(':cli:cli-api')
+    implementation project(':shared')
+    implementation project(':config')
+}

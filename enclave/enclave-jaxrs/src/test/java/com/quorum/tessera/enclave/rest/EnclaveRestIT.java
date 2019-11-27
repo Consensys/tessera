@@ -2,6 +2,7 @@ package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
@@ -31,7 +32,7 @@ public class EnclaveRestIT {
 
     @Before
     public void setUp() throws Exception {
-
+        System.setProperty(CliType.CLI_TYPE_KEY, CliType.ENCLAVE.name());
         URL url = EnclaveRestIT.class.getResource("/sample-config.json");
 
         CliResult cliResult = CliDelegate.INSTANCE.execute("-configfile", url.getFile());

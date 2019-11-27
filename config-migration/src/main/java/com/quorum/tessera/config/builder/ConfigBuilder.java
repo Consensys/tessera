@@ -283,6 +283,13 @@ public class ConfigBuilder {
 
         final Config config = new Config();
         config.setServerConfigs(Arrays.asList(q2tConfig, p2pConfig));
+        config.setEncryptor(
+                new EncryptorConfig() {
+                    {
+                        setType(EncryptorType.NACL);
+                    }
+                });
+
         config.setJdbcConfig(jdbcConfig);
         config.setPeers(peerList);
         config.setAlwaysSendTo(forwardingKeys);

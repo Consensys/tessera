@@ -10,6 +10,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.client.Client;
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
  * The main application that is submitted to the HTTP server Contains all the service classes created by the service
  * locator
  */
+@Api
 @GlobalFilter
 @ApplicationPath("/")
 public class P2PRestApp extends TesseraRestApplication {

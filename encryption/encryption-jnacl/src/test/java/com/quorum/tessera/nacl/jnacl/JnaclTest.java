@@ -1,8 +1,8 @@
 package com.quorum.tessera.nacl.jnacl;
 
 import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.nacl.NaclException;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.EncryptorException;
+import com.quorum.tessera.encryption.Nonce;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -63,73 +63,67 @@ public class JnaclTest {
     @Test
     public void computingSharedKeyThrowsExceptionOnFailure() {
         doReturn(-1)
-            .when(this.secretBox)
-            .cryptoBoxBeforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
+                .when(this.secretBox)
+                .cryptoBoxBeforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.computeSharedKey(publicKey, privateKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("JNacl could not compute the shared key");
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("JNacl could not compute the shared key");
 
-        verify(this.secretBox).cryptoBoxBeforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
+        verify(this.secretBox)
+                .cryptoBoxBeforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
     }
 
     @Test
     public void sealUsingKeysThrowsExceptionOnFailure() {
 
-        final Throwable kaclEx = catchThrowable(
-            () -> this.jnacl.seal(message, nonce, publicKey, PrivateKey.from(new byte[]{}))
-        );
+        final Throwable kaclEx =
+                catchThrowable(() -> this.jnacl.seal(message, nonce, publicKey, PrivateKey.from(new byte[] {})));
 
-        assertThat(kaclEx)
-            .isInstanceOf(NaclException.class)
-            .hasMessage("Private key too short");
-
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("Private key too short");
     }
 
     @Test
     public void openUsingKeysThrowsExceptionOnFailure() {
-        final Throwable kaclEx = catchThrowable(
-            () -> this.jnacl.open(message, nonce, publicKey, PrivateKey.from(new byte[]{}))
-        );
+        final Throwable kaclEx =
+                catchThrowable(() -> this.jnacl.open(message, nonce, publicKey, PrivateKey.from(new byte[] {})));
 
-        assertThat(kaclEx)
-            .isInstanceOf(NaclException.class)
-            .hasMessage("Private key too short");
-
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("Private key too short");
     }
 
     @Test
     public void sealUsingSharedkeyThrowsExceptionOnFailure() {
         doReturn(-1)
-            .when(this.secretBox)
-            .cryptoBoxAfternm(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
-            );
+                .when(this.secretBox)
+                .cryptoBoxAfternm(
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes()));
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.sealAfterPrecomputation(message, nonce, sharedKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("jnacl could not seal the payload using the shared key");
+        assertThat(kaclEx)
+                .isInstanceOf(EncryptorException.class)
+                .hasMessage("jnacl could not seal the payload using the shared key");
 
-        verify(this.secretBox).cryptoBoxAfternm(
-            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
-        );
+        verify(this.secretBox)
+                .cryptoBoxAfternm(any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class));
     }
 
     @Test
     public void openUsingSharedkeyThrowsExceptionOnFailure() {
         doReturn(-1)
-            .when(this.secretBox)
-            .cryptoBoxOpenAfternm(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
-            );
+                .when(this.secretBox)
+                .cryptoBoxOpenAfternm(
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes()));
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.openAfterPrecomputation(message, nonce, sharedKey));
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("jnacl could not open the payload using the shared key");
+        assertThat(kaclEx)
+                .isInstanceOf(EncryptorException.class)
+                .hasMessage("jnacl could not open the payload using the shared key");
 
-        verify(this.secretBox).cryptoBoxOpenAfternm(
-            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
-        );
+        verify(this.secretBox)
+                .cryptoBoxOpenAfternm(
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class));
     }
 
     @Test
@@ -141,13 +135,13 @@ public class JnaclTest {
 
     @Test
     public void generatingNewKeysThrowsExceptionOnFailure() {
-        doReturn(-1)
-            .when(this.secretBox)
-            .cryptoBoxKeypair(any(byte[].class), any(byte[].class));
+        doReturn(-1).when(this.secretBox).cryptoBoxKeypair(any(byte[].class), any(byte[].class));
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.generateNewKeys());
 
-        assertThat(kaclEx).isInstanceOf(NaclException.class).hasMessage("jnacl could not generate a new public/private keypair");
+        assertThat(kaclEx)
+                .isInstanceOf(EncryptorException.class)
+                .hasMessage("jnacl could not generate a new public/private keypair");
 
         verify(this.secretBox).cryptoBoxKeypair(any(byte[].class), any(byte[].class));
     }
@@ -155,19 +149,15 @@ public class JnaclTest {
     @Test
     public void computeSharedKeySodiumReturnsSuccess() {
 
-        doReturn(1)
-            .when(this.secretBox)
-            .cryptoBoxBeforenm(any(byte[].class), any(byte[].class), any(byte[].class));
+        doReturn(1).when(this.secretBox).cryptoBoxBeforenm(any(byte[].class), any(byte[].class), any(byte[].class));
 
         final SharedKey result = this.jnacl.computeSharedKey(publicKey, privateKey);
 
         assertThat(result).isNotNull();
 
-        assertThat(result.getKeyBytes())
-            .isEqualTo(new byte[crypto_secretbox_BEFORENMBYTES]);
+        assertThat(result.getKeyBytes()).isEqualTo(new byte[crypto_secretbox_BEFORENMBYTES]);
 
         verify(this.secretBox).cryptoBoxBeforenm(any(byte[].class), any(byte[].class), any(byte[].class));
-
     }
 
     @Test
@@ -184,24 +174,22 @@ public class JnaclTest {
         assertThat(result.getPrivateKey().getKeyBytes()).hasSize(32);
 
         verify(this.secretBox).cryptoBoxKeypair(any(byte[].class), any(byte[].class));
-
     }
 
     @Test
     public void sealAfterPrecomputationSodiumReturnsSuccess() {
 
         doReturn(1)
-            .when(this.secretBox)
-            .cryptoBoxAfternm(
-                any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
-            );
+                .when(this.secretBox)
+                .cryptoBoxAfternm(
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes()));
 
         final byte[] result = this.jnacl.sealAfterPrecomputation(message, nonce, sharedKey);
 
         assertThat(result).isNotEmpty();
 
         verify(this.secretBox)
-            .cryptoBoxAfternm(any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class));
+                .cryptoBoxAfternm(any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class));
     }
 
     @Test
@@ -210,18 +198,17 @@ public class JnaclTest {
         final byte[] data = new byte[100];
 
         doReturn(1)
-            .when(this.secretBox)
-            .cryptoBoxOpenAfternm(
-                any(byte[].class), eq(data), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes())
-            );
+                .when(this.secretBox)
+                .cryptoBoxOpenAfternm(
+                        any(byte[].class), eq(data), anyInt(), any(byte[].class), eq(sharedKey.getKeyBytes()));
 
         final byte[] results = this.jnacl.openAfterPrecomputation(data, nonce, sharedKey);
 
         assertThat(results).isNotEmpty();
 
-        verify(this.secretBox).cryptoBoxOpenAfternm(
-            any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class)
-        );
+        verify(this.secretBox)
+                .cryptoBoxOpenAfternm(
+                        any(byte[].class), any(byte[].class), anyInt(), any(byte[].class), any(byte[].class));
     }
 
     @Test
@@ -240,7 +227,6 @@ public class JnaclTest {
         final byte[] results = this.jnacl.seal(message, nonce, publicKey, privateKey);
 
         assertThat(results).isNotEmpty();
-
     }
 
     @Test
@@ -251,5 +237,4 @@ public class JnaclTest {
 
         assertThat(key.getKeyBytes()).hasSize(expectedKeysize);
     }
-
 }

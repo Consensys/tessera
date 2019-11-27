@@ -34,6 +34,7 @@ public class CmdLineExecutorTest {
 
     @Before
     public void onSetup() throws Exception {
+        System.setProperty(CliType.CLI_TYPE_KEY,CliType.DATA_MIGRATION.name());
         systemErrRule.clearLog();
         systemOutRule.clearLog();
         this.outputPath = Files.createTempFile(testName.getMethodName(), ".db");

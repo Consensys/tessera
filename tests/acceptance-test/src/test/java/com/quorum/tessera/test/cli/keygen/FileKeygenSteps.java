@@ -1,12 +1,16 @@
 package com.quorum.tessera.test.cli.keygen;
 
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
+import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.nacl.NaclFacade;
-import com.quorum.tessera.nacl.NaclFacadeFactory;
+import com.quorum.tessera.encryption.Encryptor;
 import cucumber.api.java8.En;
 
 import java.nio.file.Files;
@@ -17,6 +21,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FileKeygenSteps implements En {
 
@@ -25,11 +31,7 @@ public class FileKeygenSteps implements En {
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     // this is used to check the generated keys against, to produce the SharedKey
-    private final KeyPair knownGoodKeypair =
-            new KeyPair(
-                    PublicKey.from(DECODER.decode("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")),
-                    PrivateKey.from(DECODER.decode("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")));
-
+    // private final KeyPair knownGoodKeypair = transaction.utils.Utils.getEncryptor().generateNewKeys();
     private Path buildDir;
 
     private String password;
@@ -58,7 +60,15 @@ public class FileKeygenSteps implements En {
 
                     final Path applicationJar = Paths.get(appPath);
 
-                    this.args = new ArrayList<>(Arrays.asList("java", "-jar", applicationJar.toString(), "-keygen"));
+                    this.args =
+                            new ArrayList<>(
+                                    Arrays.asList(
+                                            "java",
+                                            "-jar",
+                                            applicationJar.toString(),
+                                            "-keygen",
+                                            "--encryptor.type",
+                                            "NACL"));
                 });
 
         Given("no file exists at {string}", (String path) -> Files.deleteIfExists(Paths.get(path)));
@@ -70,7 +80,9 @@ public class FileKeygenSteps implements En {
         // here to explicitly state we are doing nothing
         Given("no file path is provided", () -> {});
 
-        Given("a file path of {string}", (String path) -> this.args.addAll(Arrays.asList("-filename", path)));
+        Given(
+                "a file path of {string}",
+                (String path) -> this.args.addAll(Arrays.asList("-filename", path, "--encryptor.type", "NACL")));
 
         When(
                 "new keys are generated",
@@ -106,14 +118,33 @@ public class FileKeygenSteps implements En {
         And(
                 "the generated keys are valid",
                 () -> {
+                    final Encryptor naclFacade = transaction.utils.Utils.getEncryptor(EncryptorType.NACL);
+                    KeyPair knownGoodKeypair = naclFacade.generateNewKeys();
+
+                    InlineKeypair inlineKeypair = mock(InlineKeypair.class);
+
+                    String encodedPublicKey = knownGoodKeypair.getPublicKey().encodeToBase64();
+                    String encodedPrivateKey = knownGoodKeypair.getPrivateKey().encodeToBase64();
+
+                    when(inlineKeypair.getPublicKey()).thenReturn(encodedPublicKey);
+                    when(inlineKeypair.getPrivateKey()).thenReturn(encodedPrivateKey);
+
+                    KeyEncryptor keyEncryptor =
+                            KeyEncryptorFactory.newFactory()
+                                    .create(
+                                            new EncryptorConfig() {
+                                                {
+                                                    setType(EncryptorType.NACL);
+                                                }
+                                            });
+
                     final FilesystemKeyPair generatedKeys =
-                            new FilesystemKeyPair(this.publicKeyPath, this.privateKeyPath);
+                            new FilesystemKeyPair(this.publicKeyPath, this.privateKeyPath, keyEncryptor);
                     generatedKeys.withPassword(this.password);
 
                     final PublicKey publicKey = PublicKey.from(DECODER.decode(generatedKeys.getPublicKey()));
                     final PrivateKey privateKey = PrivateKey.from(DECODER.decode(generatedKeys.getPrivateKey()));
 
-                    final NaclFacade naclFacade = NaclFacadeFactory.newFactory().create();
                     final SharedKey firstKey = naclFacade.computeSharedKey(publicKey, knownGoodKeypair.getPrivateKey());
                     final SharedKey secondKey =
                             naclFacade.computeSharedKey(knownGoodKeypair.getPublicKey(), privateKey);

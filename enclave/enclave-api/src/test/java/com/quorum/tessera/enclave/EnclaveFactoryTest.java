@@ -11,6 +11,9 @@ import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class EnclaveFactoryTest {
 
@@ -29,6 +32,12 @@ public class EnclaveFactoryTest {
     @Test
     public void createRemote() {
         final Config config = new Config();
+        config.setEncryptor(
+                new EncryptorConfig() {
+                    {
+                        setType(EncryptorType.NACL);
+                    }
+                });
 
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setEnabled(true);
@@ -46,39 +55,56 @@ public class EnclaveFactoryTest {
     @Test
     public void dontCreateRemoteWhenNoEnclaveServer() {
 
-        Stream.of(AppType.values()).filter(t -> t != AppType.ENCLAVE).forEach(t -> {
+        Stream.of(AppType.values())
+                .filter(t -> t != AppType.ENCLAVE)
+                .forEach(
+                        t -> {
+                            final Config config = new Config();
+                            config.setEncryptor(
+                                    new EncryptorConfig() {
+                                        {
+                                            setType(EncryptorType.NACL);
+                                        }
+                                    });
 
-            final Config config = new Config();
+                            ServerConfig serverConfig = new ServerConfig();
+                            serverConfig.setApp(t);
+                            serverConfig.setCommunicationType(CommunicationType.REST);
+                            serverConfig.setServerAddress("http://bogus:9898");
 
-            ServerConfig serverConfig = new ServerConfig();
-            serverConfig.setApp(t);
-            serverConfig.setCommunicationType(CommunicationType.REST);
-            serverConfig.setServerAddress("http://bogus:9898");
+                            config.setServerConfigs(singletonList(serverConfig));
 
-            config.setServerConfigs(singletonList(serverConfig));
+                            KeyConfiguration keyConfiguration = new KeyConfiguration();
+                            ConfigKeyPair pair =
+                                    new DirectKeyPair(
+                                            "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                                            "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+                            keyConfiguration.setKeyData(singletonList(pair));
+                            config.setKeys(keyConfiguration);
 
-            KeyConfiguration keyConfiguration = new KeyConfiguration();
-            ConfigKeyPair pair = new DirectKeyPair("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
-            keyConfiguration.setKeyData(singletonList(pair));
-            config.setKeys(keyConfiguration);
+                            config.setAlwaysSendTo(new ArrayList<>());
 
-            config.setAlwaysSendTo(new ArrayList<>());
+                            Enclave result = enclaveFactory.create(config);
 
-            Enclave result = enclaveFactory.create(config);
-
-            assertThat(result).isInstanceOf(EnclaveImpl.class);
-
-        });
-
+                            assertThat(result).isInstanceOf(EnclaveImpl.class);
+                        });
     }
 
     @Test
     public void createLocal() {
 
         Config config = new Config();
+        config.setEncryptor(
+                new EncryptorConfig() {
+                    {
+                        setType(EncryptorType.NACL);
+                    }
+                });
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
-        ConfigKeyPair pair = new DirectKeyPair("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        ConfigKeyPair pair =
+                new DirectKeyPair(
+                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         keyConfiguration.setKeyData(singletonList(pair));
         config.setKeys(keyConfiguration);
 
@@ -87,16 +113,23 @@ public class EnclaveFactoryTest {
         Enclave result = enclaveFactory.create(config);
 
         assertThat(result).isInstanceOf(EnclaveImpl.class);
-
     }
 
     @Test
     public void createLocalExplicitly() {
 
         Config config = new Config();
+        config.setEncryptor(
+                new EncryptorConfig() {
+                    {
+                        setType(EncryptorType.NACL);
+                    }
+                });
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
-        ConfigKeyPair pair = new DirectKeyPair("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        ConfigKeyPair pair =
+                new DirectKeyPair(
+                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
         keyConfiguration.setKeyData(singletonList(pair));
         config.setKeys(keyConfiguration);
 
@@ -105,6 +138,19 @@ public class EnclaveFactoryTest {
         Enclave result = enclaveFactory.createLocal(config);
 
         assertThat(result).isInstanceOf(EnclaveImpl.class);
+    }
 
+    @Test
+    public void handleException() {
+        Config config = mock(Config.class);
+        EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
+        when(encryptorConfig.getType()).thenThrow(new RuntimeException("OUCH"));
+        when(config.getEncryptor()).thenReturn(encryptorConfig);
+        try {
+            enclaveFactory.create(config);
+            failBecauseExceptionWasNotThrown(RuntimeException.class);
+        } catch (RuntimeException ex) {
+            assertThat(ex).hasMessage("OUCH");
+        }
     }
 }

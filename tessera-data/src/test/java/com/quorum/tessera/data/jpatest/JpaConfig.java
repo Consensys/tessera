@@ -54,10 +54,10 @@ public abstract class JpaConfig {
                         //  put("eclipselink.logging.level.sql","FINE");
                         // put("eclipselink.logging.parameters","true");
                         put("javax.persistence.schema-generation.database.action", "create");
-                        put("javax.persistence.schema-generation.scripts.action", "create");
-                        put(
-                                "javax.persistence.schema-generation.scripts.create-target",
-                                "target/" + getCreateScriptName());
+//                        put("javax.persistence.schema-generation.scripts.action", "create");
+//                        put(
+//                                "javax.persistence.schema-generation.scripts.create-target",
+//                                "target/" + getCreateScriptName());
                     }
                 });
 
