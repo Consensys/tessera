@@ -26,6 +26,20 @@ description = 'config-migration'
 shadowJar {
     classifier = 'cli'
     mergeServiceFiles()
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+}
+
+
+jar {
+    manifest {
+        attributes 'Tessera-Version': version,
+                "Implementation-Version": version,
+                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
+                'Main-Class' : 'com.quorum.tessera.data.migration.Main'
+
+    }
 }
 
 build.dependsOn shadowJar
