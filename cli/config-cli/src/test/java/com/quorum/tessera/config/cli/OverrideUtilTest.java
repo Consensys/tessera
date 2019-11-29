@@ -31,8 +31,8 @@ public class OverrideUtilTest {
     @Test
     public void buildOptions() {
 
-        final List<String> expected
-                = Arrays.asList(
+        final List<String> expected =
+                Arrays.asList(
                         "version",
                         "jdbc.username",
                         "jdbc.password",
@@ -125,7 +125,6 @@ public class OverrideUtilTest {
                         "server.sslConfig.clientTrustStore",
                         "server.sslConfig.tls",
                         "server.sslConfig.serverTlsCertificatePath",
-                        "server.grpcPort",
                         "server.sslConfig.serverKeyStore",
                         "server.port",
                         "server.sslConfig.generateKeyStoreIfNotExisted",
@@ -223,8 +222,7 @@ public class OverrideUtilTest {
         @XmlElement(name = "some_value")
         String someValue;
 
-        @XmlElement
-        String otherValue;
+        @XmlElement String otherValue;
     }
 
     static class OtherClass {
@@ -422,17 +420,17 @@ public class OverrideUtilTest {
     @Test
     public void setValueWithAnnoClass() throws Exception {
 
-        SomeIFace annon = new SomeIFace() {
-            private String value = "HEllow";
+        SomeIFace annon =
+                new SomeIFace() {
+                    private String value = "HEllow";
 
-            @Override
-            public String getValue() {
-                return value;
-            }
-        };
-        
-        OverrideUtil.setValue(annon, "value", "SOMETHING","SOMETHINGELSE");
+                    @Override
+                    public String getValue() {
+                        return value;
+                    }
+                };
 
+        OverrideUtil.setValue(annon, "value", "SOMETHING", "SOMETHINGELSE");
     }
 
     interface SomeIFace {
