@@ -7,9 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import static picocli.CommandLine.Model.CommandSpec.DEFAULT_COMMAND_NAME;
 
 public enum CliDelegate {
@@ -58,7 +61,6 @@ public enum CliDelegate {
                 adapters.stream()
                         .filter(a -> a.getClass().isAnnotationPresent(CommandLine.Command.class))
                         .filter(isTopLevel)
-                        .filter(a -> a.getType() == cliType)
                         .findFirst()
                         .get();
 
