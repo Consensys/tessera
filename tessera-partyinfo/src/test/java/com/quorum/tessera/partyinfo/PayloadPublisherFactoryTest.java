@@ -36,10 +36,9 @@ public class PayloadPublisherFactoryTest {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.P2P);
         serverConfig.setEnabled(true);
-        serverConfig.setCommunicationType(CommunicationType.GRPC);
+        serverConfig.setCommunicationType(CommunicationType.WEB_SOCKET);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
         PayloadPublisherFactory.newFactory(config);
     }
-
 }
