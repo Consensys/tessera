@@ -10,10 +10,6 @@ plugins {
 //
 //}
 
-
-
-
-
 dependencies {
     compile "com.h2database:h2"
     compile 'org.apache.commons:commons-lang3:3.7'
@@ -46,9 +42,34 @@ dependencies {
 
 }
 
+import com.github.jengelman.gradle.plugins.shadow.transformers.*
 shadowJar {
     classifier = 'app'
+
     mergeServiceFiles()
+    append 'META-INF/spring.handlers'
+    append 'META-INF/spring.schemas'
+    append 'META-INF/spring.tooling'
+    transform(PropertiesFileTransformer) {
+        paths = ['META-INF/spring.factories' ]
+        mergeStrategy = "append"
+    }
+
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+
+}
+
+
+jar {
+    manifest {
+        attributes 'Tessera-Version': version,
+                "Implementation-Version": version,
+                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
+                'Main-Class' : 'com.quorum.tessera.launcher.Main'
+
+    }
 }
 
 build.dependsOn shadowJar

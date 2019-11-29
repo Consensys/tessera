@@ -59,6 +59,20 @@ description = 'enclave-jaxrs'
 shadowJar {
     classifier = 'server'
     mergeServiceFiles()
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+}
+
+
+jar {
+    manifest {
+        attributes 'Tessera-Version': version,
+                "Implementation-Version": version,
+                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
+                'Main-Class' : 'com.quorum.tessera.enclave.rest.Main'
+
+    }
 }
 
 build.dependsOn shadowJar

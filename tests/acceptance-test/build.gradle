@@ -1,14 +1,15 @@
 
+
 dependencies {
+
     testImplementation project(':tessera-core')
     testImplementation project(':security')
     testImplementation project(':tessera-partyinfo')
     testImplementation project(':tessera-dist:tessera-launcher')
- //   testCompile project(':tessera-dist:tessera-app')PartyInfoChecker
 
-    testCompile group: 'com.jpmorgan.quorum', name: 'tessera-app',  classifier: 'app',version: project.version
-    testCompile group: 'com.jpmorgan.quorum', name: 'enclave-jaxrs',  classifier: 'server',version: project.version
-    testCompile group: 'com.jpmorgan.quorum', name: 'config-migration',  classifier: 'cli',version: project.version
+    testCompile project(path: ':tessera-dist:tessera-app', configuration: 'shadow')
+    testImplementation project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
+    testImplementation project(path: ':config-migration', configuration: 'shadow')
 
     testImplementation project(':enclave:enclave-api')
     testImplementation project(':encryption:encryption-api')
@@ -51,15 +52,18 @@ sourceSets {
         }
 }
 
+
+
 test {
 
-    systemProperty 'application.jar',project.configurations.testCompileClasspath.find { it.name.startsWith('tessera-app') }
+    systemProperty 'application.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('tessera-app')}
+
     systemProperty 'enclave.jaxrs.server.jar',project.configurations.testCompileClasspath.find { it.name.startsWith('enclave-jaxrs') }
     systemProperty 'jdbc.hsql.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
     systemProperty 'jdbc.sqlite.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
     systemProperty 'jdbc.dir',"${buildDir}/ext"
 
-    include '**/RestSuiteHttpHSQL.class',
+    include '**/AdminRestSuite.class','**/RestSuiteHttpHSQL.class',
             '**/RestSuiteHttpSqllite.class',
             '**/RestSuiteHttpH2.class',
             '**/RestSuiteHttpH2RemoteEnclave.class',
@@ -69,7 +73,7 @@ test {
             '**/ConfigMigrationIT.class',
             '**/AdminRestSuite.class',
             '**/RestSuiteUnixH2.class',
-            '**/P2pTestSuite.class',
+            '**/P2pTestSuite.class'
             '**/CucumberFileKeyGenerationIT.class'
 
 //    '**/RestSuite.class',
@@ -132,6 +136,8 @@ task copyJdbcJars(type:Copy) {
 }
 
 clean {
+
+
     def buildDir = file('build')
     def targetDir = file('target')
     delete targetDir
@@ -139,8 +145,11 @@ clean {
 }
 
 
-
-
+task list(dependsOn: configurations.compileClasspath) {
+    doLast {
+        println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
+    }
+}
 
 
 test.dependsOn clean,copyJdbcJars,unzipDdl
