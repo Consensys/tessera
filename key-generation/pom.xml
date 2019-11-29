@@ -24,6 +24,10 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>key-vault-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+        </dependency>
 
     </dependencies>
 

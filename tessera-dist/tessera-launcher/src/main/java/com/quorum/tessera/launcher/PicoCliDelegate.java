@@ -5,6 +5,7 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.cli.OverrideUtil;
+import com.quorum.tessera.key.generation.KeyGenCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Model.OptionSpec;
@@ -19,6 +20,7 @@ public class PicoCliDelegate {
         final CommandSpec command = CommandSpec.create();
 
         // TODO(cjh) add options and positional parameters
+
         //        Options options = this.buildBaseOptions();
 
         Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
@@ -41,20 +43,21 @@ public class PicoCliDelegate {
                                     .paramLabel(optionType.getSimpleName())
                                     .type(optionType);
 
-//                    final boolean isCollection = optionType.isArray();
-//                    if (isCollection) {
-//                        optionBuilder
-//                            .type(List.class)
-//                            .auxiliaryTypes(optionType);
-//                    } else {
-//                        optionBuilder
-//                            .type(optionType);
-//                    }
+                    //                    final boolean isCollection = optionType.isArray();
+                    //                    if (isCollection) {
+                    //                        optionBuilder
+                    //                            .type(List.class)
+                    //                            .auxiliaryTypes(optionType);
+                    //                    } else {
+                    //                        optionBuilder
+                    //                            .type(optionType);
+                    //                    }
 
                     command.addOption(optionBuilder.build());
                 });
 
         command.addSubcommand(null, new CommandLine(CommandLine.HelpCommand.class));
+        command.addSubcommand(null, new CommandLine(KeyGenCommand.class));
 
         final CommandLine commandLine = new CommandLine(command);
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();

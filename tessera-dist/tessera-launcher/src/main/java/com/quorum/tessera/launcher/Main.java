@@ -29,7 +29,7 @@ public class Main {
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         try {
-            //            final CliResult cliResult = CliDelegate.instance().execute(args);
+//            final CliResult cliResult = CliDelegate.instance().execute(args);
 
             PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
             final CliResult cliResult = picoCliDelegate.execute(args);
