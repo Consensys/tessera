@@ -28,6 +28,10 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>cli-api</artifactId>
+        </dependency>
 
     </dependencies>
 

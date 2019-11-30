@@ -1,10 +1,13 @@
 package com.quorum.tessera.key.generation;
 
+import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyVaultType;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 @CommandLine.Command(
     name = "keygen",
@@ -18,7 +21,18 @@ import java.util.List;
     abbreviateSynopsis = true,
     subcommands = {CommandLine.HelpCommand.class}
 )
-public class KeyGenCommand {
+public class KeyGenCommand implements Callable<CliResult> {
+//    // Doesn't work :(
+//    @CommandLine.ParentCommand
+//    public TesseraCommand parent;
+
+    //TODO(cjh) do something about the duplication of the configfile option in each relevant command
+    @CommandLine.Option(
+        names = {"--configfile", "-configfile"},
+        description = "Path to node configuration file"
+    )
+    public Config config;
+
     // TODO(cjh) raise CLI usage wording changes as separate change
 
     @CommandLine.Option(
@@ -70,4 +84,24 @@ public class KeyGenCommand {
     )
     public Path hashicorpTlsTruststore;
 
+    @Override
+    public CliResult call() throws Exception {
+//        final Object configObj = Optional
+//            .ofNullable(parent.findOption("-configfile"))
+//            .map(CommandLine.Model.OptionSpec::getValue)
+//            .orElse(null);
+//
+//        final Config config;
+//
+//        if (configObj != null) {
+//            if (configObj.getClass() != Config.class) {
+//                throw new RuntimeException("converted -configfile option is not of type Config");
+//            }
+//            config = (Config) configObj;
+//        }
+
+
+
+        return null;
+    }
 }
