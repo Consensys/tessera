@@ -2,41 +2,42 @@
 
 dependencies {
 
-    testImplementation project(':tessera-core')
-    testImplementation project(':security')
-    testImplementation project(':tessera-partyinfo')
-    testImplementation project(':tessera-dist:tessera-launcher')
+    testCompile project(':tessera-core')
+    testCompile project(':security')
+    testCompile project(':tessera-partyinfo')
+    testCompile project(':tessera-dist:tessera-launcher')
 
     testCompile project(path: ':tessera-dist:tessera-app', configuration: 'shadow')
-    testImplementation project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
-    testImplementation project(path: ':config-migration', configuration: 'shadow')
+    testCompile project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
+    testCompile project(path: ':config-migration', configuration: 'shadow')
 
-    testImplementation project(':enclave:enclave-api')
-    testImplementation project(':encryption:encryption-api')
-    testImplementation project(':tessera-jaxrs:common-jaxrs')
-    testImplementation project(':tessera-jaxrs:jaxrs-client')
-    testImplementation project(':shared')
-    testImplementation project(':config')
-    testImplementation project(':tests:test-util')
+    testCompile project(':enclave:enclave-api')
+    testCompile project(':encryption:encryption-api')
+    testCompile project(':tessera-jaxrs:common-jaxrs')
+    testCompile project(':tessera-jaxrs:jaxrs-client')
+    testCompile project(':shared')
+    testCompile project(':config')
+    testCompile project(':tests:test-util')
 
-    testImplementation project(':ddls')
+    testCompile project(':ddls')
 
-    testImplementation "org.slf4j:slf4j-api:1.7.5"
-    testImplementation "ch.qos.logback:logback-classic:1.2.3"
-    testImplementation "ch.qos.logback:logback-core:1.2.3"
-    testImplementation "org.slf4j:jcl-over-slf4j:1.7.5"
-    testImplementation "org.slf4j:jul-to-slf4j:1.7.5"
+    testCompile "org.slf4j:slf4j-api:1.7.5"
+    testRuntimeOnly "ch.qos.logback:logback-classic:1.2.3"
+    testRuntimeOnly "ch.qos.logback:logback-core:1.2.3"
+    testRuntimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
+    testRuntimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
 
-    testImplementation 'io.cucumber:cucumber-junit:4.0.1'
-    testImplementation 'io.cucumber:cucumber-java8:4.0.1'
+    testCompile 'io.cucumber:cucumber-junit:4.0.1'
+    testCompile 'io.cucumber:cucumber-java8:4.0.1'
+
     testCompile 'org.xerial:sqlite-jdbc:3.23.1'
     testCompile 'org.hsqldb:hsqldb:2.4.1'
-    testImplementation 'com.github.tomakehurst:wiremock-jre8:2.24.1'
-    testImplementation 'javax.ws.rs:javax.ws.rs-api:2.1'
-    testImplementation 'org.assertj:assertj-core:3.9.1'
-    testImplementation 'javax.ws.rs:javax.ws.rs-api:2.1'
-    testImplementation 'com.github.jnr:jnr-unixsocket:0.22'
-    testImplementation 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
+    testCompile 'com.github.tomakehurst:wiremock-jre8:2.24.1'
+    testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
+    testCompile 'org.assertj:assertj-core:3.9.1'
+    testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
+    testCompile 'com.github.jnr:jnr-unixsocket:0.22'
+    testCompile 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
 }
 
 sourceSets {

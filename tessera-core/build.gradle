@@ -1,27 +1,32 @@
 dependencies {
-    implementation project(':tessera-data')
-    implementation 'io.swagger:swagger-annotations:1.5.4'
-    implementation 'javax.validation:validation-api:2.0.1.Final'
-    implementation project(':enclave:enclave-api')
-    implementation project(':shared')
-    implementation project(':tessera-partyinfo')
-    implementation project(':tessera-admin')
-    implementation project(':config')
-    implementation project(':key-vault:key-vault-api')
-    implementation 'javax.transaction:javax.transaction-api:1.3'
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.61'
-    implementation project(':encryption:encryption-api')
+    compile project(':tessera-data')
+    compile 'io.swagger:swagger-annotations:1.5.4'
+    compile 'javax.validation:validation-api:2.0.1.Final'
+    compile project(':enclave:enclave-api')
+    compile project(':shared')
+    compile project(':tessera-partyinfo')
+    compile project(':tessera-admin')
+    compile project(':config')
+    compile project(':key-vault:key-vault-api')
+
+    compile 'javax.transaction:javax.transaction-api:1.3'
+
+    compile 'org.bouncycastle:bcpkix-jdk15on:1.61'
+    compile project(':encryption:encryption-api')
+
     runtimeOnly 'org.springframework:spring-orm:5.1.2.RELEASE'
-    testImplementation 'org.springframework:spring-test:5.1.2.RELEASE'
-    testImplementation project(':cli:cli-api')
+
+    testCompile 'org.springframework:spring-test:5.1.2.RELEASE'
+    testCompile project(':cli:cli-api')
     testImplementation project(':test-utils:mock-service-locator')
     compileOnly 'javax.inject:javax.inject:1'
     testImplementation 'javax.inject:javax.inject:1'
     testImplementation "javax.persistence:javax.persistence-api:2.2"
     testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3"
+
     implementation "org.hibernate:hibernate-validator:6.0.2.Final"
 
-    implementation project(':service-locator:service-locator-api')
+    compile project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
 

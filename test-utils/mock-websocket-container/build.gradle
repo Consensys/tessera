@@ -1,6 +1,6 @@
 
 dependencies {
 
-    implementation 'org.mockito:mockito-core'
+    compile 'org.mockito:mockito-core'
     compileOnly 'javax:javaee-api'
 }

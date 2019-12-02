@@ -11,11 +11,11 @@ plugins {
 
 
 dependencies {
-    implementation 'info.picocli:picocli:4.0.4'
-    implementation 'com.moandjiezana.toml:toml4j:0.7.2'
-    implementation project(':config')
-    implementation project(':cli:cli-api')
-    implementation project(':shared')
+    compile 'info.picocli:picocli:4.0.4'
+    compile 'com.moandjiezana.toml:toml4j:0.7.2'
+    compile project(':config')
+    compile project(':cli:cli-api')
+    compile project(':shared')
     implementation "org.hibernate:hibernate-validator"
     testImplementation project(':tests:test-util')
 }
