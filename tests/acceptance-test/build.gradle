@@ -38,10 +38,6 @@ sourceSets {
         test {
             java {
                 srcDir 'src/test/java'
-                exclude '**/grpc/**'
-                exclude '**/Grpc*.java'
-
-
             }
             resources {
                 srcDir 'src/test/resources'
