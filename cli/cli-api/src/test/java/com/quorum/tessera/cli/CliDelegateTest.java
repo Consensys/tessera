@@ -18,12 +18,14 @@ public class CliDelegateTest {
     public void setUp() {
         MockCliAdapter.reset();
         MockSubcommandCliAdapter.reset();
+        MockAdminSubcommandCliAdapter.reset();
     }
 
     @After
     public void onTearDown() {
         MockCliAdapter.reset();
         MockSubcommandCliAdapter.reset();
+        MockAdminSubcommandCliAdapter.reset();
     }
 
     @Test
@@ -33,10 +35,10 @@ public class CliDelegateTest {
 
     @Test
     public void adminCliOptionCreatesAdminInstance() throws Exception {
+        MockCliAdapter.setType(CliType.CONFIG);
 
-        MockCliAdapter.setType(CliType.ADMIN);
         int status = 111;
-        MockCliAdapter.setResult(new CliResult(status, true, null));
+        MockAdminSubcommandCliAdapter.setResult(new CliResult(status, true, null));
 
         CliResult result = instance.execute("admin", "-configfile", "/path/to/file");
 
