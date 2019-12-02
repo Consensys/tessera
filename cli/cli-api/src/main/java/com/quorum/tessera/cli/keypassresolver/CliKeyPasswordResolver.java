@@ -91,7 +91,8 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
         if (isLocked) {
             int currentAttemptNumber = MAX_PASSWORD_ATTEMPTS;
             while (currentAttemptNumber > 0) {
-                if (Objects.nonNull(keyPair.getPassword()) && !keyPair.getPassword().isEmpty()
+                if (Objects.isNull(keyPair.getPassword())
+                        || keyPair.getPassword().isEmpty()
                         || keyPair.getPrivateKey() == null
                         || keyPair.getPrivateKey().contains("NACL_FAILURE")) {
 
