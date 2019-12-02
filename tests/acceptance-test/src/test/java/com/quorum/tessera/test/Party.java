@@ -111,10 +111,6 @@ public class Party {
         return getRestClient().target(serverConfig.getServerUri());
     }
 
-    // FIXME:
-    public Integer getGrpcPort() {
-        return config.getP2PServerConfig().getServerUri().getPort();
-    }
 
     public String getAlias() {
         return alias;

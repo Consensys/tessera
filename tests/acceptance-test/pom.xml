@@ -205,7 +205,6 @@
                         <include>CucumberWhitelistIT</include>
                         <include>ConfigMigrationIT</include>
                         <include>P2pTestSuite</include>
-                        <include>GrpcSuite</include>
                         <include>SendWithRemoteEnclaveReconnectIT</include>
                     </includes>
                 </configuration>
