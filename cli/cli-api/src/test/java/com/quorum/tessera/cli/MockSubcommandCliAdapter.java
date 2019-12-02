@@ -34,6 +34,12 @@ public class MockSubcommandCliAdapter implements CliAdapter, Callable<CliResult>
         MockSubcommandCliAdapter.exceptionToBeThrown = exceptionToBeThrown;
     }
 
+    public static void reset() {
+        t = null;
+        r = null;
+        exceptionToBeThrown = null;
+    }
+
     @Override
     public CliType getType() {
         return t;

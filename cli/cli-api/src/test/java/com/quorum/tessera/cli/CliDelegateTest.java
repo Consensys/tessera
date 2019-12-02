@@ -1,8 +1,11 @@
 package com.quorum.tessera.cli;
 
 import com.quorum.tessera.config.Config;
-import java.util.NoSuchElementException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
+import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -10,6 +13,18 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 public class CliDelegateTest {
 
     private final CliDelegate instance = CliDelegate.INSTANCE;
+
+    @Before
+    public void setUp() {
+        MockCliAdapter.reset();
+        MockSubcommandCliAdapter.reset();
+    }
+
+    @After
+    public void onTearDown() {
+        MockCliAdapter.reset();
+        MockSubcommandCliAdapter.reset();
+    }
 
     @Test
     public void createInstance() {
@@ -62,7 +77,10 @@ public class CliDelegateTest {
 
     // PicoCLI tests
     @Test
-    public void nonnullResultReturnsResult() throws Exception {
+    public void nonNullResultIsReturned() throws Exception {
+        MockCliAdapter.setType(CliType.CONFIG);
+        MockSubcommandCliAdapter.setType(CliType.ADMIN);
+
         final CliResult result = new CliResult(0, true, null);
         MockSubcommandCliAdapter.setResult(result);
 
@@ -71,7 +89,16 @@ public class CliDelegateTest {
 
     @Test
     public void helpOptionGivenReturnsSuccessCliResult() throws Exception {
-        MockSubcommandCliAdapter.setResult(null);
+        MockCliAdapter.setType(CliType.CONFIG);
+
+        final CliResult expected = new CliResult(0, true, null);
+        assertThat(instance.execute("help")).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void helpOptionGivenOnSubcommandReturnsSuccessCliResult() throws Exception {
+        MockCliAdapter.setType(CliType.CONFIG);
+        MockSubcommandCliAdapter.setType(CliType.ADMIN);
 
         final CliResult expected = new CliResult(0, true, null);
         assertThat(instance.execute("some-subcommand", "help")).isEqualToComparingFieldByField(expected);
@@ -111,11 +138,12 @@ public class CliDelegateTest {
 
     @Test
     public void filterEnclaveFromSubcommand() throws Exception {
-        MockSubcommandCliAdapter.setType(CliType.ENCLAVE);
         MockCliAdapter.setType(CliType.CONFIG);
-        final CliResult expected = new CliResult(1, true, null);
+        MockSubcommandCliAdapter.setType(CliType.ENCLAVE);
+
+        // some-subcommand is not recognised as an option because the subcommand has been filtered due to its ENCLAVE type.  Therefore, the standard help cli result should be expected
+        final CliResult expected = new CliResult(0, true, null);
+
         assertThat(instance.execute("some-subcommand", "help")).isEqualToComparingFieldByField(expected);
-        MockSubcommandCliAdapter.setType(null);
-        MockCliAdapter.setType(null);
     }
 }
