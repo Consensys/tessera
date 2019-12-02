@@ -7,7 +7,6 @@
     },
     "server": {
         "port": 8081,
-        "grpcPort": 50501,
         "communicationType": "REST",
         "hostName": "http://proxy-address",
         "bindingAddress": "http://localhost:9001",
