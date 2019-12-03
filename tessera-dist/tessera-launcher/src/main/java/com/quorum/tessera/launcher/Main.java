@@ -81,7 +81,8 @@ public class Main {
 
             System.exit(5);
         } catch (final Throwable ex) {
-            Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
+//            Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
+            ex.printStackTrace();
             System.exit(2);
         }
     }

@@ -9,13 +9,18 @@ import com.quorum.tessera.config.cli.KeyUpdateCommandFactory;
 import com.quorum.tessera.config.cli.OverrideUtil;
 import com.quorum.tessera.key.generation.KeyGenCommand;
 import com.quorum.tessera.key.generation.TesseraCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
 import picocli.CommandLine.Model.OptionSpec;
 
+import java.util.List;
 import java.util.Map;
 
 public class PicoCliDelegate {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);
+
     public CliResult execute(String[] args) throws Exception {
         final CommandSpec command = CommandSpec.forAnnotatedObject(TesseraCommand.class);
 
@@ -29,16 +34,6 @@ public class PicoCliDelegate {
                             OptionSpec.builder(String.format("--%s", optionName))
                                     .paramLabel(optionType.getSimpleName())
                                     .type(optionType);
-
-                    //                    final boolean isCollection = optionType.isArray();
-                    //                    if (isCollection) {
-                    //                        optionBuilder
-                    //                            .type(List.class)
-                    //                            .auxiliaryTypes(optionType);
-                    //                    } else {
-                    //                        optionBuilder
-                    //                            .type(optionType);
-                    //                    }
 
                     command.addOption(optionBuilder.build());
                 });
@@ -58,7 +53,77 @@ public class PicoCliDelegate {
                 .setExecutionExceptionHandler(mapper)
                 .setParameterExceptionHandler(mapper);
 
-        commandLine.execute(args);
+        final CommandLine.ParseResult parseResult;
+        try {
+            parseResult = commandLine.parseArgs(args);
+        } catch (CommandLine.ParameterException ex) {
+            // TODO(cjh) this is ripped from commandLine.execute(...) - check whether it is sufficient
+            try {
+                int exitCode = commandLine.getParameterExceptionHandler().handleParseException(ex, args);
+                return new CliResult(exitCode, true, null);
+            } catch (Exception e) {
+                throw e;
+            }
+        }
+
+        if (CommandLine.printHelpIfRequested(parseResult)) {
+            return new CliResult(0, true, null);
+        }
+
+        if (!parseResult.hasSubcommand()) {
+            // the node is being started
+            if (parseResult.originalArgs().size() == 0) {
+                System.out.println("no options were provided"); // TODO(cjh) delete
+                commandLine.execute("help");
+            } else {
+                System.out.println("at least one option was provided"); // TODO(cjh) delete
+                List<CommandLine.Model.ArgSpec> parsedArgs = parseResult.matchedArgs();
+
+                final Config config;
+
+                // start with any config read from the file
+                if (parseResult.hasMatchedOption("configfile")) {
+                    config = parseResult.matchedOption("configfile").getValue();
+                } else {
+                    config = new Config();
+                }
+
+                parsedArgs.forEach(
+                    parsedArg -> {
+                        // unnamed/positional CLI flags are ignored
+                        if (!parsedArg.isOption()) {
+                            return;
+                        }
+
+                        OptionSpec parsedOption = (OptionSpec) parsedArg;
+
+                        // configfile CLI option is ignored as it was already parsed
+                        // TODO(cjh) improve, checks all names for all provided options
+                        for (String name : parsedOption.names()) {
+                            if ("--configfile".equals(name)) {
+                                return;
+                            }
+                        }
+
+                        String optionName = parsedOption.longestName().replaceFirst("^--", "");
+                        String[] values = parsedOption.stringValues().toArray(new String[0]);
+//                        List<Object> values = parsedOption.typedValues(); // TODO(cjh) better to use this?
+
+                        LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
+                        OverrideUtil.setValue(config, optionName, values);
+                        LOGGER.debug("Set : {} with value(s) {}", optionName, values);
+                    });
+
+                System.out.println("all args parsed"); // TODO(cjh) delete
+                System.out.println("keys count = " + config.getKeys().getKeyData().size());
+                System.out.println("useWhiteList = " + config.isUseWhiteList());
+            }
+//            System.out.println(cmd);
+        } else {
+            // there is a subcommand
+
+            parseResult.subcommand();
+        }
 
         // if an exception occurred, throw it to to the upper levels where it gets handled
         if (mapper.getThrown() != null) {
