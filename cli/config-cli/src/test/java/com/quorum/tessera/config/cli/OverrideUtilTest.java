@@ -86,6 +86,7 @@ public class OverrideUtilTest {
                         "serverConfigs.influxConfig.sslConfig.environmentVariablePrefix",
                         "serverConfigs.influxConfig.sslConfig.sslConfigType",
                         "serverConfigs.influxConfig.sslConfig.knownServersFile",
+                        "serverConfigs.influxConfig.sslConfig.excludeCipherSuites",
                         "serverConfigs.sslConfig.serverTrustStore",
                         "serverConfigs.sslConfig.knownClientsFile",
                         "serverConfigs.sslConfig.serverTrustCertificates",
@@ -112,6 +113,7 @@ public class OverrideUtilTest {
                         "serverConfigs.sslConfig.knownServersFile",
                         "serverConfigs.sslConfig.environmentVariablePrefix",
                         "serverConfigs.sslConfig.sslConfigType",
+                        "serverConfigs.sslConfig.excludeCipherSuites",
                         "server.hostName",
                         "server.sslConfig.knownServersFile",
                         "server.sslConfig.clientTrustStorePassword",
@@ -138,6 +140,7 @@ public class OverrideUtilTest {
                         "server.sslConfig.serverKeyStorePassword",
                         "server.sslConfig.environmentVariablePrefix",
                         "server.sslConfig.sslConfigType",
+                        "server.sslConfig.excludeCipherSuites",
                         "server.influxConfig.serverAddress",
                         "server.influxConfig.dbName",
                         "server.influxConfig.pushIntervalInSecs",
@@ -163,6 +166,7 @@ public class OverrideUtilTest {
                         "server.influxConfig.sslConfig.generateKeyStoreIfNotExisted",
                         "server.influxConfig.sslConfig.serverKeyStorePassword",
                         "server.influxConfig.sslConfig.sslConfigType",
+                        "server.influxConfig.sslConfig.excludeCipherSuites",
                         "features.enableRemoteKeyValidation",
                         "encryptor.type");
 
