@@ -3,6 +3,8 @@ package com.quorum.tessera.key.generation;
 import com.quorum.tessera.config.Config;
 import picocli.CommandLine;
 
+import java.nio.file.Path;
+
 @CommandLine.Command(
     headerHeading = "Usage:%n%n",
     header = "Tessera private transaction manager for Quorum",
@@ -20,5 +22,11 @@ public class TesseraCommand {
         description = "Path to node configuration file"
     )
     public Config config;
+
+    @CommandLine.Option(
+        names = {"--pidfile", "-pidfile"},
+        description = "the path to write the PID to"
+    )
+    public Path pidFilePath;
 
 }

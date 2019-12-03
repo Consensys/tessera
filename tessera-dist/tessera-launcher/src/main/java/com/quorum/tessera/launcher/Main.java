@@ -1,5 +1,6 @@
 package com.quorum.tessera.launcher;
 
+import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.AppType;
@@ -33,6 +34,7 @@ public class Main {
 
             PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
             final CliResult cliResult = picoCliDelegate.execute(args);
+            CliDelegate.instance().setConfig(cliResult.getConfig().orElse(null));
 
             if (cliResult.isSuppressStartup()) {
                 System.exit(0);
@@ -81,8 +83,7 @@ public class Main {
 
             System.exit(5);
         } catch (final Throwable ex) {
-//            Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
-            ex.printStackTrace();
+            Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
             System.exit(2);
         }
     }

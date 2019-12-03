@@ -7,9 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import static picocli.CommandLine.Model.CommandSpec.DEFAULT_COMMAND_NAME;
 
 public enum CliDelegate {
@@ -31,6 +34,10 @@ public enum CliDelegate {
         return Optional.ofNullable(config)
                 .orElseThrow(
                         () -> new IllegalStateException("Execute must be invoked before attempting to fetch config"));
+    }
+
+    public void setConfig(Config config) {
+        this.config = config;
     }
 
     public CliResult execute(String... args) throws Exception {
