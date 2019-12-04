@@ -6,12 +6,12 @@ import java.util.concurrent.Callable;
 
 /**
  * This is a command that is intended to not be a <main class> command, and gets attached as a subcommand to other CLI
- * adapters.
+ * adapters.  Its setup mimics that of the AdminCliAdapter subcommand and should be used in cases where testing CLI args containing "admin" are handled correctly.
  */
-@CommandLine.Command(name = "some-subcommand")
-public class MockSubcommandCliAdapter implements CliAdapter, Callable<CliResult> {
+@CommandLine.Command(name = "admin")
+public class MockAdminSubcommandCliAdapter implements CliAdapter, Callable<CliResult> {
 
-    private static CliType t;
+    private static final CliType t = CliType.ADMIN;
 
     private static CliResult r;
 
@@ -20,22 +20,17 @@ public class MockSubcommandCliAdapter implements CliAdapter, Callable<CliResult>
     @CommandLine.Option(names = "help", usageHelp = true)
     private boolean isHelpRequested;
 
-    @picocli.CommandLine.Unmatched private String[] allParameters = new String[0];
-
-    public static void setType(CliType type) {
-        t = type;
-    }
+    @CommandLine.Unmatched private String[] allParameters = new String[0];
 
     public static void setResult(CliResult result) {
         r = result;
     }
 
     public static void setExceptionToBeThrown(final Exception exceptionToBeThrown) {
-        MockSubcommandCliAdapter.exceptionToBeThrown = exceptionToBeThrown;
+        MockAdminSubcommandCliAdapter.exceptionToBeThrown = exceptionToBeThrown;
     }
 
     public static void reset() {
-        t = null;
         r = null;
         exceptionToBeThrown = null;
     }

@@ -1,5 +1,6 @@
 package com.quorum.tessera.thirdparty;
 
+import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
@@ -20,9 +21,12 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
 
     private final PartyInfoService partyInfoService;
 
+    private final ConfigService configService;
+
     public ThirdPartyRestApp() {
         final ServiceFactory serviceFactory = ServiceFactory.create();
         this.partyInfoService = serviceFactory.partyInfoService();
+        this.configService = serviceFactory.configService();
     }
 
     @Override
@@ -31,8 +35,10 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
         final RawTransactionResource rawTransactionResource = new RawTransactionResource();
         final PartyInfoResource partyInfoResource = new PartyInfoResource(partyInfoService);
+        final KeyResource keyResource = new KeyResource(configService);
 
-        return Stream.of(iPWhitelistFilter, rawTransactionResource, partyInfoResource).collect(Collectors.toSet());
+        return Stream.of(iPWhitelistFilter, rawTransactionResource, partyInfoResource, keyResource)
+                .collect(Collectors.toSet());
     }
 
     @Override
