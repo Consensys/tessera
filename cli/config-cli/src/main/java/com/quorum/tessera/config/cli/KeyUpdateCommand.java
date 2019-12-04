@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.parsers.EncryptorOptions;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
@@ -15,7 +16,9 @@ import picocli.CommandLine;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -71,23 +74,8 @@ public class KeyUpdateCommand implements Callable<CliResult> {
             description = "Path to node configuration file")
     public Config config;
 
-    // TODO(cjh) default value using enum instead of hardcoding
-    @CommandLine.Option(
-            names = {"--encryptor.type"},
-            defaultValue = "NACL")
-    public EncryptorType encryptorType;
-
-    @CommandLine.Option(names = {"--encryptor.symmetricCipher"})
-    public String encryptorSymmetricCipher;
-
-    @CommandLine.Option(names = {"--encryptor.ellipticCurve"})
-    public String encryptorEllipticCurve;
-
-    @CommandLine.Option(names = {"--encryptor.nonceLength"})
-    public String encryptorNonceLength;
-
-    @CommandLine.Option(names = {"--encryptor.sharedKeyLength"})
-    public String encryptorSharedKeyLength;
+    @CommandLine.Mixin
+    public EncryptorOptions encryptorOptions;
 
     private KeyEncryptorFactory keyEncryptorFactory;
 
@@ -107,22 +95,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         if (Optional.ofNullable(config).map(Config::getEncryptor).isPresent()) {
             encryptorConfig = config.getEncryptor();
         } else {
-            encryptorConfig = new EncryptorConfig();
-            encryptorConfig.setType(encryptorType);
-
-            if (encryptorType == EncryptorType.EC) {
-                Map<String, String> properties = new HashMap<>();
-
-                Optional.ofNullable(encryptorSymmetricCipher).ifPresent(v -> properties.put("symmetricCipher", v));
-
-                Optional.ofNullable(encryptorEllipticCurve).ifPresent(v -> properties.put("ellipticCurve", v));
-
-                Optional.ofNullable(encryptorNonceLength).ifPresent(v -> properties.put("nonceLength", v));
-
-                Optional.ofNullable(encryptorSharedKeyLength).ifPresent(v -> properties.put("sharedKeyLength", v));
-
-                encryptorConfig.setProperties(properties);
-            }
+            encryptorConfig = encryptorOptions.parseEncryptorConfig();
         }
 
         this.keyEncryptor = keyEncryptorFactory.create(encryptorConfig);

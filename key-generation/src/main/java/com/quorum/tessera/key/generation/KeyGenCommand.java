@@ -1,12 +1,20 @@
 package com.quorum.tessera.key.generation;
 
+import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyVaultType;
+import com.quorum.tessera.cli.parsers.EncryptorOptions;
+import com.quorum.tessera.config.*;
 import picocli.CommandLine;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
@@ -22,16 +30,10 @@ import java.util.concurrent.Callable;
     subcommands = {CommandLine.HelpCommand.class}
 )
 public class KeyGenCommand implements Callable<CliResult> {
-//    // Doesn't work :(
-//    @CommandLine.ParentCommand
-//    public TesseraCommand parent;
+    private final KeyGeneratorFactory factory = KeyGeneratorFactory.newFactory();
 
-    //TODO(cjh) do something about the duplication of the configfile option in each relevant command
-    @CommandLine.Option(
-        names = {"--configfile", "-configfile"},
-        description = "Path to node configuration file"
-    )
-    public Config config;
+    private final Validator validator =
+        Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
     // TODO(cjh) raise CLI usage wording changes as separate change
 
@@ -41,11 +43,12 @@ public class KeyGenCommand implements Callable<CliResult> {
     )
     public List<String> output;
 
+    // TODO(cjh) review description and name
     @CommandLine.Option(
         names = {"--encryptionconfig", "-keygenconfig"},
         description = "File containing Argon2 encryption config used to secure the new private key"
     )
-    public Path encryptionConfig;
+    public ArgonOptions encryptionConfig;
 
     @CommandLine.Option(
         names = {"--vault.type", "-keygenvaulttype"},
@@ -84,24 +87,80 @@ public class KeyGenCommand implements Callable<CliResult> {
     )
     public Path hashicorpTlsTruststore;
 
+    //TODO(cjh) do something about the duplication of the configfile option in each relevant command
+    @CommandLine.Option(
+        names = {"--configfile", "-configfile"},
+        description = "Path to node configuration file"
+    )
+    public Config config;
+
+    @CommandLine.Mixin
+    public EncryptorOptions encryptorOptions;
+
     @Override
     public CliResult call() throws Exception {
-//        final Object configObj = Optional
-//            .ofNullable(parent.findOption("-configfile"))
-//            .map(CommandLine.Model.OptionSpec::getValue)
-//            .orElse(null);
-//
-//        final Config config;
-//
-//        if (configObj != null) {
-//            if (configObj.getClass() != Config.class) {
-//                throw new RuntimeException("converted -configfile option is not of type Config");
-//            }
-//            config = (Config) configObj;
-//        }
+        final EncryptorConfig encryptorConfig;
 
+        if (Optional.ofNullable(config).map(Config::getEncryptor).isPresent()) {
+            encryptorConfig = config.getEncryptor();
+        } else {
+            encryptorConfig = encryptorOptions.parseEncryptorConfig();
+        }
 
+        final KeyVaultOptions keyVaultOptions = this.keyVaultOptions().orElse(null);
+        final KeyVaultConfig keyVaultConfig = this.keyVaultConfig().orElse(null);
 
-        return null;
+        final KeyGenerator generator = factory.create(keyVaultConfig, encryptorConfig);
+
+        output.forEach(
+            name -> generator.generate(name, encryptionConfig, keyVaultOptions)
+        );
+
+        return new CliResult(0, true, null);
+    }
+
+    private Optional<KeyVaultOptions> keyVaultOptions() {
+        if (Objects.isNull(hashicorpSecretEnginePath)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(new KeyVaultOptions(hashicorpSecretEnginePath));
+    }
+
+    private Optional<KeyVaultConfig> keyVaultConfig() {
+        if (Objects.isNull(vaultType) && Objects.isNull(vaultUrl)) {
+            return Optional.empty();
+        }
+
+        final KeyVaultConfig keyVaultConfig;
+
+        if (vaultType.equals(KeyVaultType.AZURE)) {
+            keyVaultConfig = new AzureKeyVaultConfig(vaultUrl);
+
+            Set<ConstraintViolation<AzureKeyVaultConfig>> violations =
+                validator.validate((AzureKeyVaultConfig) keyVaultConfig);
+
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+        } else {
+            if (output.size() == 0) {
+                throw new CliException(
+                    "At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
+            }
+
+            keyVaultConfig =
+                new HashicorpKeyVaultConfig(
+                    vaultUrl, hashicorpApprolePath, hashicorpTlsKeystore, hashicorpTlsTruststore);
+
+            Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations =
+                validator.validate((HashicorpKeyVaultConfig) keyVaultConfig);
+
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+        }
+
+        return Optional.of(keyVaultConfig);
     }
 }

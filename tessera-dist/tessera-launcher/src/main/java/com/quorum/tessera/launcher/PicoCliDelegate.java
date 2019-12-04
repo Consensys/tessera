@@ -5,7 +5,9 @@ import com.quorum.tessera.cli.CLIExceptionCapturer;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
+import com.quorum.tessera.cli.parsers.ArgonOptionsConverter;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
+import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.cli.KeyUpdateCommand;
 import com.quorum.tessera.config.cli.KeyUpdateCommandFactory;
@@ -82,6 +84,7 @@ public class PicoCliDelegate {
         final CommandLine commandLine = new CommandLine(command);
         commandLine
                 .registerConverter(Config.class, new ConfigConverter())
+                .registerConverter(ArgonOptions.class, new ArgonOptionsConverter())
                 .setSeparator(" ")
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .setExecutionExceptionHandler(mapper)
@@ -107,66 +110,16 @@ public class PicoCliDelegate {
 
         if (!parseResult.hasSubcommand()) {
             // the node is being started
-            if (parseResult.originalArgs().size() == 0) {
-                System.out.println("no options were provided"); // TODO(cjh) delete
+            final Config config;
+            try {
+                config = getConfigFromCLI(parseResult);
+            } catch (NoTesseraCmdArgsException e) {
                 commandLine.execute("help");
-            } else {
-                System.out.println("at least one option was provided"); // TODO(cjh) delete
-                List<CommandLine.Model.ArgSpec> parsedArgs = parseResult.matchedArgs();
-
-                final Config config;
-
-                // start with any config read from the file
-                if (parseResult.hasMatchedOption("configfile")) {
-                    config = parseResult.matchedOption("configfile").getValue();
-                } else {
-                    config = new Config();
-                }
-
-                // apply CLI overrides
-                parsedArgs.forEach(
-                    parsedArg -> {
-                        // positional (i.e. unnamed) CLI flags are ignored
-                        if (!parsedArg.isOption()) {
-                            return;
-                        }
-
-                        OptionSpec parsedOption = (OptionSpec) parsedArg;
-
-                        // configfile CLI option is ignored as it was already parsed
-                        // pidfile CLI option is ignored as it is parsed later
-                        // TODO(cjh) improve, checks all names for all provided options
-                        for (String name : parsedOption.names()) {
-                            if ("--configfile".equals(name) || "--pidfile".equals(name)) {
-                                return;
-                            }
-                        }
-
-                        String optionName = parsedOption.longestName().replaceFirst("^--", "");
-                        String[] values = parsedOption.stringValues().toArray(new String[0]);
-
-                        LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
-                        OverrideUtil.setValue(config, optionName, values);
-                        LOGGER.debug("Set : {} with value(s) {}", optionName, values);
-                    });
-
-                System.out.println("all args parsed"); // TODO(cjh) delete
-                System.out.println("keys count = " + config.getKeys().getKeyData().size());
-                System.out.println("useWhiteList = " + config.isUseWhiteList());
-
-                keyPasswordResolver.resolveKeyPasswords(config);
-
-                final Set<ConstraintViolation<Config>> violations = validator.validate(config);
-                if (!violations.isEmpty()) {
-                    throw new ConstraintViolationException(violations);
-                }
-
-                if (parseResult.hasMatchedOption("pidfile")) {
-                    createPidFile(parseResult.matchedOption("pidfile").getValue());
-                }
-
-                return new CliResult(0, false, config);
+                return new CliResult(1, true, null);
             }
+
+            return new CliResult(0, false, config);
+
         } else {
             // there is a subcommand
             CommandLine.ParseResult subParseResult = parseResult.subcommand();
@@ -176,9 +129,11 @@ public class PicoCliDelegate {
             String[] subArgs = new String[subCmdAndArgs.length - 1];
             System.arraycopy(subCmdAndArgs, 1, subArgs, 0, subArgs.length);
 
+            // TODO(cjh) account for the aliases, e.g. -updatepassword
             if ("keyupdate".equals(subCmd)) {
                 keyUpdateCommandLine.execute(subArgs);
             } else if ("keygen".equals(subCmd)) {
+                // TODO(cjh) document the change of behaviour meaning node cannot start after keygen
                 keyGenCommandLine.execute(subArgs);
             }
 
@@ -189,6 +144,68 @@ public class PicoCliDelegate {
         }
 
         return new CliResult(1, true, null);
+    }
+
+    private Config getConfigFromCLI(CommandLine.ParseResult parseResult) throws Exception {
+        List<CommandLine.Model.ArgSpec> parsedArgs = parseResult.matchedArgs();
+
+        if (parsedArgs.size() == 0) {
+            System.out.println("no options were provided"); // TODO(cjh) delete
+            throw new NoTesseraCmdArgsException();
+        }
+
+        System.out.println("at least one option was provided"); // TODO(cjh) delete
+
+        final Config config;
+
+        // start with any config read from the file
+        if (parseResult.hasMatchedOption("configfile")) {
+            config = parseResult.matchedOption("configfile").getValue();
+        } else {
+            config = new Config();
+        }
+
+        // apply CLI overrides
+        parsedArgs.forEach(
+            parsedArg -> {
+                // positional (i.e. unnamed) CLI flags are ignored
+                if (!parsedArg.isOption()) {
+                    return;
+                }
+
+                OptionSpec parsedOption = (OptionSpec) parsedArg;
+
+                // configfile CLI option is ignored as it was already parsed
+                // pidfile CLI option is ignored as it is parsed later
+                // TODO(cjh) improve, checks all names for all provided options
+                for (String name : parsedOption.names()) {
+                    if ("--configfile".equals(name) || "--pidfile".equals(name)) {
+                        return;
+                    }
+                }
+
+                String optionName = parsedOption.longestName().replaceFirst("^--", "");
+                String[] values = parsedOption.stringValues().toArray(new String[0]);
+
+                LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
+                OverrideUtil.setValue(config, optionName, values);
+                LOGGER.debug("Set : {} with value(s) {}", optionName, values);
+            });
+
+        System.out.println("all args parsed"); // TODO(cjh) delete
+
+        keyPasswordResolver.resolveKeyPasswords(config);
+
+        final Set<ConstraintViolation<Config>> violations = validator.validate(config);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
+        }
+
+        if (parseResult.hasMatchedOption("pidfile")) {
+            createPidFile(parseResult.matchedOption("pidfile").getValue());
+        }
+
+        return config;
     }
 
     private void createPidFile(Path pidFilePath) throws Exception {
