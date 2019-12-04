@@ -57,6 +57,8 @@
         <project.scm.id>github</project.scm.id>
         <asm.version>7.0</asm.version>
         <jasypt.version>1.9.3</jasypt.version>
+        <awssdk.version>2.10.25</awssdk.version>
+        <hibernate-validator.version>6.0.2.Final</hibernate-validator.version>
     </properties>
 
     <build>
@@ -814,10 +816,9 @@
             </dependency>
 
             <dependency>
-                <groupId>org.hibernate</groupId>
+                <groupId>org.hibernate.validator</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>6.0.2.Final</version>
-                <scope>runtime</scope>
+                <version>${hibernate-validator.version}</version>
             </dependency>
 
             <dependency>
@@ -1336,6 +1337,11 @@
                 <version>${jasypt.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>secretsmanager</artifactId>
+                <version>${awssdk.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

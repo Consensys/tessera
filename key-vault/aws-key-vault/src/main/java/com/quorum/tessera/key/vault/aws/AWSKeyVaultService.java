@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundExce
 public class AWSKeyVaultService implements KeyVaultService<AWSSetSecretData, AWSGetSecretData> {
     private final SecretsManagerClient secretsManager;
 
-    public AWSKeyVaultService(SecretsManagerClient secretsManager) {
+    AWSKeyVaultService(SecretsManagerClient secretsManager) {
         this.secretsManager = secretsManager;
     }
 

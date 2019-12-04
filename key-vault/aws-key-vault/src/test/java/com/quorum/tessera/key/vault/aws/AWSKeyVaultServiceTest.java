@@ -50,14 +50,12 @@ public class AWSKeyVaultServiceTest {
 
     @Test
     public void getSecretThrowsExceptionIfSecretReturnedIsNull() {
-        AWSKeyVaultService awsKeyVaultService = new AWSKeyVaultService(secretsManager);
-
         String secretName = "secret";
 
         AWSGetSecretData getSecretData = mock(AWSGetSecretData.class);
         when(getSecretData.getSecretName()).thenReturn(secretName);
 
-        Throwable throwable = catchThrowable(() -> awsKeyVaultService.getSecret(getSecretData));
+        Throwable throwable = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
         assertThat(throwable).isInstanceOf(VaultSecretNotFoundException.class);
         assertThat(throwable)
@@ -66,8 +64,6 @@ public class AWSKeyVaultServiceTest {
 
     @Test
     public void getSecretThrowsExceptionIfKeyNotFoundInVault() {
-        AWSKeyVaultService awsKeyVaultService = new AWSKeyVaultService(secretsManager);
-
         String secretName = "secret";
 
         AWSGetSecretData getSecretData = mock(AWSGetSecretData.class);
@@ -76,7 +72,7 @@ public class AWSKeyVaultServiceTest {
         when(secretsManager.getSecretValue(Mockito.any(GetSecretValueRequest.class)))
                 .thenThrow(ResourceNotFoundException.builder().build());
 
-        Throwable throwable = catchThrowable(() -> awsKeyVaultService.getSecret(getSecretData));
+        Throwable throwable = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
         assertThat(throwable).isInstanceOf(VaultSecretNotFoundException.class);
         assertThat(throwable)
@@ -85,8 +81,6 @@ public class AWSKeyVaultServiceTest {
 
     @Test
     public void getSecretThrowsExceptionIfAWSException() {
-        AWSKeyVaultService awsKeyVaultService = new AWSKeyVaultService(secretsManager);
-
         String secretName = "secret";
 
         AWSGetSecretData getSecretData = mock(AWSGetSecretData.class);
@@ -95,7 +89,7 @@ public class AWSKeyVaultServiceTest {
         when(secretsManager.getSecretValue(Mockito.any(GetSecretValueRequest.class)))
                 .thenThrow(InvalidParameterException.builder().build());
 
-        Throwable throwable = catchThrowable(() -> awsKeyVaultService.getSecret(getSecretData));
+        Throwable throwable = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
         assertThat(throwable).isInstanceOf(AWSSecretsManagerException.class);
     }

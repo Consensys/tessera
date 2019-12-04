@@ -52,6 +52,7 @@ public class OverrideUtilTest {
                         "keys.hashicorpKeyVaultConfig.tlsKeyStorePath",
                         "keys.hashicorpKeyVaultConfig.tlsTrustStorePath",
                         "keys.hashicorpKeyVaultConfig.url",
+                        "keys.awsKeyVaultConfig.endpoint",
                         "alwaysSendTo",
                         "unixSocketFile",
                         "useWhiteList",
@@ -165,8 +166,7 @@ public class OverrideUtilTest {
                         "server.influxConfig.sslConfig.serverKeyStorePassword",
                         "server.influxConfig.sslConfig.sslConfigType",
                         "features.enableRemoteKeyValidation",
-                        "encryptor.type",
-                        "keys.awsKeyVaultConfig.endpoint");
+                        "encryptor.type");
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();
 
