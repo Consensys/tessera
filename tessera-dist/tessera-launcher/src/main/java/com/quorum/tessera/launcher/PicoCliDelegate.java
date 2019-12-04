@@ -125,17 +125,11 @@ public class PicoCliDelegate {
             CommandLine.ParseResult subParseResult = parseResult.subcommand();
 
             String[] subCmdAndArgs = subParseResult.originalArgs().toArray(new String[0]);
-            String subCmd = subCmdAndArgs[0];
             String[] subArgs = new String[subCmdAndArgs.length - 1];
             System.arraycopy(subCmdAndArgs, 1, subArgs, 0, subArgs.length);
 
-            // TODO(cjh) account for the aliases, e.g. -updatepassword
-            if ("keyupdate".equals(subCmd)) {
-                keyUpdateCommandLine.execute(subArgs);
-            } else if ("keygen".equals(subCmd)) {
-                // TODO(cjh) document the change of behaviour meaning node cannot start after keygen
-                keyGenCommandLine.execute(subArgs);
-            }
+            // TODO(cjh) document the change of behaviour meaning node cannot start after keygen
+            subParseResult.asCommandLineList().get(0).execute(subArgs);
 
             // if an exception occurred, throw it to to the upper levels where it gets handled
             if (mapper.getThrown() != null) {
