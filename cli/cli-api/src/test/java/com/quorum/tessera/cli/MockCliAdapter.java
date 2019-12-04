@@ -9,6 +9,9 @@ import java.util.concurrent.Callable;
 @CommandLine.Command
 public class MockCliAdapter implements CliAdapter, Callable<CliResult> {
 
+    @CommandLine.Option(names = "help", usageHelp = true)
+    private boolean isHelpRequested;
+
     private static CliType t;
 
     private static CliResult r;
@@ -21,6 +24,11 @@ public class MockCliAdapter implements CliAdapter, Callable<CliResult> {
 
     public static void setResult(CliResult result) {
         r = result;
+    }
+
+    public static void reset() {
+        t = null;
+        r = null;
     }
 
     @Override

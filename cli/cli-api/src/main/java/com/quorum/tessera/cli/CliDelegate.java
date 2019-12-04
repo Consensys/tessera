@@ -42,13 +42,6 @@ public enum CliDelegate {
 
     public CliResult execute(String... args) throws Exception {
 
-        if (args.length > 0) {
-            String firstArg = args[0];
-            if ("admin".equalsIgnoreCase(firstArg)) {
-                System.setProperty(CliType.CLI_TYPE_KEY, CliType.ADMIN.name());
-            }
-        }
-
         final List<CliAdapter> adapters = ServiceLoaderUtil.loadAll(CliAdapter.class).collect(Collectors.toList());
 
         LOGGER.debug("Loaded adapters {}", adapters);

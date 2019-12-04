@@ -28,12 +28,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>tessera-grpc-dist</artifactId>
-            <classifier>${tesssra.app.classifer}</classifier>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
@@ -211,7 +205,6 @@
                         <include>CucumberWhitelistIT</include>
                         <include>ConfigMigrationIT</include>
                         <include>P2pTestSuite</include>
-                        <include>GrpcSuite</include>
                         <include>SendWithRemoteEnclaveReconnectIT</include>
                     </includes>
                 </configuration>
@@ -315,28 +308,6 @@
             </build>
         </profile>
 
-        <profile>
-            <id>grpc-acceptance-tests</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <application.jar>${com.jpmorgan.quorum:tessera-grpc-dist:jar:app}</application.jar>
-                                <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
-                                <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
-                            </systemPropertyVariables>
-                            <rerunFailingTestsCount>0</rerunFailingTestsCount>
-                            <includes>
-                                <include>GrpcSuite</include>
-                            </includes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
 
         <profile>
             <id>simple-acceptance-tests</id>

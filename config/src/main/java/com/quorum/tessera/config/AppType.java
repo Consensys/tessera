@@ -7,9 +7,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public enum AppType {
-    P2P(CommunicationType.REST, CommunicationType.GRPC),
+    P2P(CommunicationType.REST),
 
-    Q2T(CommunicationType.REST, CommunicationType.GRPC),
+    Q2T(CommunicationType.REST),
 
     @XmlEnumValue("ThirdParty")
     THIRD_PARTY(CommunicationType.REST),
