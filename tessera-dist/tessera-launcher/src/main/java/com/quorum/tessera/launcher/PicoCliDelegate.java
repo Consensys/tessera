@@ -68,14 +68,18 @@ public class PicoCliDelegate {
                     command.addOption(optionBuilder.build());
                 });
 
-        command.addSubcommand(null, new CommandLine(CommandLine.HelpCommand.class));
-        command.addSubcommand(null, new CommandLine(KeyGenCommand.class));
+        final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
+
+        CommandLine keyGenCommandLine = new CommandLine(KeyGenCommand.class);
 
         final CommandLine.IFactory keyUpdateCommandFactory = new KeyUpdateCommandFactory();
-        command.addSubcommand(null, new CommandLine(KeyUpdateCommand.class, keyUpdateCommandFactory));
+        CommandLine keyUpdateCommandLine = new CommandLine(KeyUpdateCommand.class, keyUpdateCommandFactory);
+
+        command.addSubcommand(null, new CommandLine(CommandLine.HelpCommand.class));
+        command.addSubcommand(null, keyGenCommandLine);
+        command.addSubcommand(null, keyUpdateCommandLine);
 
         final CommandLine commandLine = new CommandLine(command);
-        final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
         commandLine
                 .registerConverter(Config.class, new ConfigConverter())
                 .setSeparator(" ")
@@ -88,6 +92,7 @@ public class PicoCliDelegate {
             parseResult = commandLine.parseArgs(args);
         } catch (CommandLine.ParameterException ex) {
 //             TODO(cjh) this is ripped from commandLine.execute(...) - check whether it is sufficient, or if it can be replaced by using the mapper
+            // exception mapper can't be used here as we haven't called commandLine.execute()
             try {
                 int exitCode = commandLine.getParameterExceptionHandler().handleParseException(ex, args);
                 return new CliResult(exitCode, true, null);
@@ -164,15 +169,23 @@ public class PicoCliDelegate {
             }
         } else {
             // there is a subcommand
+            CommandLine.ParseResult subParseResult = parseResult.subcommand();
 
-            parseResult.subcommand();
+            String[] subCmdAndArgs = subParseResult.originalArgs().toArray(new String[0]);
+            String subCmd = subCmdAndArgs[0];
+            String[] subArgs = new String[subCmdAndArgs.length - 1];
+            System.arraycopy(subCmdAndArgs, 1, subArgs, 0, subArgs.length);
 
-            // TODO(cjh)
-        }
+            if ("keyupdate".equals(subCmd)) {
+                keyUpdateCommandLine.execute(subArgs);
+            } else if ("keygen".equals(subCmd)) {
+                keyGenCommandLine.execute(subArgs);
+            }
 
-        // if an exception occurred, throw it to to the upper levels where it gets handled
-        if (mapper.getThrown() != null) {
-            throw mapper.getThrown();
+            // if an exception occurred, throw it to to the upper levels where it gets handled
+            if (mapper.getThrown() != null) {
+                throw mapper.getThrown();
+            }
         }
 
         return new CliResult(1, true, null);
