@@ -145,6 +145,13 @@ public class KeyGenerationParser implements Parser<List<ConfigKeyPair>> {
             }
         } else {
             keyVaultConfig = new AWSKeyVaultConfig(keyVaultUrl);
+            
+            Set<ConstraintViolation<AWSKeyVaultConfig>> violations =
+                validator.validate((AWSKeyVaultConfig) keyVaultConfig);
+
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
         } 
 
         return Optional.of(keyVaultConfig);

@@ -143,6 +143,14 @@ public class KeyData extends ConfigItem {
         return hashicorpVaultSecretVersion;
     }
 
+    public String getAwsSecretsManagerPublicKeyId() {
+        return awsSecretsManagerPublicKeyId;
+    }
+
+    public String getAwsSecretsManagerPrivateKeyId() {
+        return awsSecretsManagerPrivateKeyId;
+    }
+
     public void setConfig(KeyDataConfig config) {
         this.config = config;
     }
@@ -199,16 +207,8 @@ public class KeyData extends ConfigItem {
         this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
     }
 
-    public String getAwsSecretsManagerPublicKeyId() {
-        return awsSecretsManagerPublicKeyId;
-    }
-
     public void setAwsSecretsManagerPublicKeyId(String awsSecretsManagerPublicKeyId) {
         this.awsSecretsManagerPublicKeyId = awsSecretsManagerPublicKeyId;
-    }
-
-    public String getAwsSecretsManagerPrivateKeyId() {
-        return awsSecretsManagerPrivateKeyId;
     }
 
     public void setAwsSecretsManagerPrivateKeyId(String awsSecretsManagerPrivateKeyId) {
