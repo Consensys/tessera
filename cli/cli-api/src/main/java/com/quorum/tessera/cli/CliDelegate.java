@@ -7,9 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
 import static picocli.CommandLine.Model.CommandSpec.DEFAULT_COMMAND_NAME;
 
 public enum CliDelegate {
@@ -34,13 +37,6 @@ public enum CliDelegate {
     }
 
     public CliResult execute(String... args) throws Exception {
-
-        if (args.length > 0) {
-            String firstArg = args[0];
-            if ("admin".equalsIgnoreCase(firstArg)) {
-                System.setProperty(CliType.CLI_TYPE_KEY, CliType.ADMIN.name());
-            }
-        }
 
         final List<CliAdapter> adapters = ServiceLoaderUtil.loadAll(CliAdapter.class).collect(Collectors.toList());
 
