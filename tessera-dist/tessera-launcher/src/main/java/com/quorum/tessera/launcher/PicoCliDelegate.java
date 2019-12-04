@@ -56,7 +56,6 @@ public class PicoCliDelegate {
     public CliResult execute(String[] args) throws Exception {
         final CommandSpec command = CommandSpec.forAnnotatedObject(TesseraCommand.class);
 
-        // TODO(cjh) add options and positional parameters
         // TODO(cjh) most usage options have empty lines between them, but not all.  Need to remove the empty lines.
         // add config override options, dynamically generated from the config object
         Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
@@ -151,11 +150,8 @@ public class PicoCliDelegate {
         List<CommandLine.Model.ArgSpec> parsedArgs = parseResult.matchedArgs();
 
         if (parsedArgs.size() == 0) {
-            System.out.println("no options were provided"); // TODO(cjh) delete
             throw new NoTesseraCmdArgsException();
         }
-
-        System.out.println("at least one option was provided"); // TODO(cjh) delete
 
         final Config config;
 
@@ -192,8 +188,6 @@ public class PicoCliDelegate {
                 OverrideUtil.setValue(config, optionName, values);
                 LOGGER.debug("Set : {} with value(s) {}", optionName, values);
             });
-
-        System.out.println("all args parsed"); // TODO(cjh) delete
 
         keyPasswordResolver.resolveKeyPasswords(config);
 

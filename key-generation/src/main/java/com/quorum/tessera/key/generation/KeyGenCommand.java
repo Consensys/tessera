@@ -52,7 +52,7 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @CommandLine.Option(
         names = {"--vault.type", "-keygenvaulttype"},
-        description = "Specify the key vault provider the generated key is to be saved in.  If not set, the key will be encrypted and stored on the local filesystem"
+        description = "Specify the key vault provider the generated key is to be saved in.  If not set, the key will be encrypted and stored on the local filesystem.  Valid values: ${COMPLETION-CANDIDATES})"
     )
     //TODO(cjh) get possible enum values to show in the usage
     public KeyVaultType vaultType;

@@ -6,14 +6,14 @@ import picocli.CommandLine;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class EncryptorOptions {
 
-    // TODO(cjh) default value using enum instead of hardcoding
     @CommandLine.Option(
-        names = {"--encryptor.type"},
-        defaultValue = "NACL")
+            names = {"--encryptor.type"},
+            description = "Valid values: ${COMPLETION-CANDIDATES}")
     public EncryptorType type;
 
     @CommandLine.Option(names = {"--encryptor.symmetricCipher"})
@@ -30,6 +30,12 @@ public class EncryptorOptions {
 
     public EncryptorConfig parseEncryptorConfig() {
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
+
+        // we set the default here instead of in the option annotation as enum values cannot be used in annotationss
+        if (Objects.isNull(type)) {
+            type = EncryptorType.NACL;
+        }
+
         encryptorConfig.setType(type);
 
         if (type == EncryptorType.EC) {
@@ -45,5 +51,4 @@ public class EncryptorOptions {
 
         return encryptorConfig;
     }
-
 }
