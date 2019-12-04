@@ -125,6 +125,13 @@ public class PicoCliDelegate {
             CommandLine.ParseResult subParseResult = parseResult.subcommand();
 
             String[] subCmdAndArgs = subParseResult.originalArgs().toArray(new String[0]);
+
+            // print help as no args provided
+            if (subCmdAndArgs.length == 1) {
+                subParseResult.asCommandLineList().get(0).execute("help");
+                return new CliResult(0, true, null);
+            }
+
             String[] subArgs = new String[subCmdAndArgs.length - 1];
             System.arraycopy(subCmdAndArgs, 1, subArgs, 0, subArgs.length);
 
