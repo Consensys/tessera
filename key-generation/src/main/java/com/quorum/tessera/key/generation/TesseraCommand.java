@@ -6,6 +6,7 @@ import picocli.CommandLine;
 import java.nio.file.Path;
 
 @CommandLine.Command(
+    name = "tessera",
     headerHeading = "Usage:%n%n",
     header = "Tessera private transaction manager for Quorum",
     synopsisHeading = "%n",
