@@ -87,7 +87,7 @@ public class PicoCliDelegate {
         try {
             parseResult = commandLine.parseArgs(args);
         } catch (CommandLine.ParameterException ex) {
-            // TODO(cjh) this is ripped from commandLine.execute(...) - check whether it is sufficient
+//             TODO(cjh) this is ripped from commandLine.execute(...) - check whether it is sufficient, or if it can be replaced by using the mapper
             try {
                 int exitCode = commandLine.getParameterExceptionHandler().handleParseException(ex, args);
                 return new CliResult(exitCode, true, null);
@@ -118,9 +118,10 @@ public class PicoCliDelegate {
                     config = new Config();
                 }
 
+                // apply CLI overrides
                 parsedArgs.forEach(
                     parsedArg -> {
-                        // unnamed/positional CLI flags are ignored
+                        // positional (i.e. unnamed) CLI flags are ignored
                         if (!parsedArg.isOption()) {
                             return;
                         }
@@ -138,7 +139,6 @@ public class PicoCliDelegate {
 
                         String optionName = parsedOption.longestName().replaceFirst("^--", "");
                         String[] values = parsedOption.stringValues().toArray(new String[0]);
-//                        List<Object> values = parsedOption.typedValues(); // TODO(cjh) better to use this?
 
                         LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
                         OverrideUtil.setValue(config, optionName, values);
@@ -174,51 +174,6 @@ public class PicoCliDelegate {
         if (mapper.getThrown() != null) {
             throw mapper.getThrown();
         }
-
-        //        try {
-        //            CommandLine.ParseResult pr = commandLine.parseArgs(args);
-        //            if (CommandLine.printHelpIfRequested(pr)) {
-        //                return new CliResult(0, true, null);
-        //            }
-        //
-        //            if (pr.hasSubcommand()) {
-        //                CommandLine.ParseResult subPr = pr.subcommand();
-        //                CommandSpec subCommand = subPr.commandSpec();
-        //
-        //                List<String> matchedStr = new ArrayList<>();
-        //                List<CommandLine.Model.ArgSpec> matchedArgs = subPr.matchedArgs();
-        //
-        //                matchedArgs
-        //                    .stream()
-        //                    .map(CommandLine.Model.ArgSpec::originalStringValues)
-        //                    .forEachOrdered(matchedStr::addAll);
-        //
-        ////                List<CommandLine> commands = subPr.asCommandLineList();
-        ////                if (commands.size() != 1) {
-        ////                    throw new RuntimeException("at the moment exactly 1 subcommand has to be specified");
-        ////                }
-        ////
-        ////                commands.get(0).execute();
-        //
-        //                List<String> originalArgs = subPr.originalArgs();
-        //
-        //                if ("keygen".equals(subCommand.name())) {
-        //                    System.out.println("name = " + subCommand.name());
-        //                    keyGenCommandLine.execute(originalArgs.toArray(new String[0]));
-        //                }
-        //            }
-
-        //            int count = pr.matchedOptionValue('c', 1);
-        //            List<File> files = pr.matchedPositionalValue(0, Collections.<File>emptyList());
-        //            for (File f : files) {
-        //                for (int i = 0; i < count; i++) {
-        //                    System.out.printf("%d: %s%n", i, f);
-        //                }
-        //            }
-        //        } catch (CommandLine.ParameterException invalidInput) {
-        //            System.err.println(invalidInput.getMessage());
-        //            invalidInput.getCommandLine().usage(System.err);
-        //        }
 
         return new CliResult(1, true, null);
     }
