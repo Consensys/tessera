@@ -29,5 +29,11 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config-cli</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>pico-cli</artifactId>
+            <version>0.11-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

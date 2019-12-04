@@ -1,4 +1,4 @@
-package com.quorum.tessera.key.generation;
+package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.config.Config;
 import picocli.CommandLine;

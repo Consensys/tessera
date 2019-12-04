@@ -1,9 +1,11 @@
-package com.quorum.tessera.key.generation;
+package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.cli.parsers.EncryptorOptions;
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.key.generation.KeyGenerator;
+import com.quorum.tessera.key.generation.KeyGeneratorFactory;
+import com.quorum.tessera.key.generation.KeyVaultOptions;
 import picocli.CommandLine;
 
 import javax.validation.ConstraintViolation;

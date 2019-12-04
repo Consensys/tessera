@@ -1,4 +1,4 @@
-package com.quorum.tessera.config.cli;
+package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.passwords.PasswordReader;

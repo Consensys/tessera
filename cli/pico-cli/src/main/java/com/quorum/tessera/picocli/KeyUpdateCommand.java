@@ -1,7 +1,6 @@
-package com.quorum.tessera.config.cli;
+package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.cli.parsers.EncryptorOptions;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;

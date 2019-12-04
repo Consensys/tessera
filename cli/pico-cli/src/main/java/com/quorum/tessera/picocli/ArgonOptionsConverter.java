@@ -1,4 +1,4 @@
-package com.quorum.tessera.cli.parsers;
+package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.util.JaxbUtil;

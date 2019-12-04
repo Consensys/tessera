@@ -7,6 +7,7 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.apps.TesseraAppFactory;
+import com.quorum.tessera.picocli.PicoCliDelegate;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -30,7 +31,7 @@ public class Main {
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         try {
-//            final CliResult cliResult = CliDelegate.instance().execute(args);
+            //            final CliResult cliResult = CliDelegate.instance().execute(args);
 
             PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
             final CliResult cliResult = picoCliDelegate.execute(args);

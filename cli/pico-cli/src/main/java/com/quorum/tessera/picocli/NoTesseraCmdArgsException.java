@@ -1,4 +1,4 @@
-package com.quorum.tessera.launcher;
+package com.quorum.tessera.picocli;
 
 public class NoTesseraCmdArgsException extends RuntimeException {
 
