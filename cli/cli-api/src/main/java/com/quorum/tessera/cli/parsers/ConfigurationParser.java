@@ -32,7 +32,7 @@ public class ConfigurationParser implements Parser<Config> {
     protected static final Set<PosixFilePermission> NEW_PASSWORD_FILE_PERMS =
             Stream.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE).collect(Collectors.toSet());
 
-    protected static final String passwordsMessage = "Unable to update config with newly generated keys as \"passwords\" field no longer supported.  Use \"passwordFile\" instead.";
+    protected static final String passwordsMessage = "Configfile must contain \"passwordFile\" field. The \"passwords\" field is no longer supported.";
 
     private final List<ConfigKeyPair> newlyGeneratedKeys;
 
@@ -68,6 +68,9 @@ public class ConfigurationParser implements Parser<Config> {
                 if (!newlyGeneratedKeys.isEmpty()) {
                     if (config.getKeys() == null) {
                         config.setKeys(new KeyConfiguration());
+                        config.getKeys().setKeyData(new ArrayList<>());
+                    }
+                    if (config.getKeys().getKeyData() == null) {
                         config.getKeys().setKeyData(new ArrayList<>());
                     }
                     doPasswordStuff(config);
