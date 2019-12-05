@@ -84,6 +84,8 @@ public class SslConfig extends ConfigItem {
 
     @XmlElement private SslConfigType sslConfigType;
 
+    @XmlElement private String[] excludeCipherSuites;
+
     public SslConfig(
             SslAuthenticationMode tls,
             boolean generateKeyStoreIfNotExisted,
@@ -306,5 +308,13 @@ public class SslConfig extends ConfigItem {
 
     public void setSslConfigType(SslConfigType sslConfigType) {
         this.sslConfigType = sslConfigType;
+    }
+
+    public String[] getExcludeCipherSuites() {
+        return excludeCipherSuites;
+    }
+
+    public void setExcludeCipherSuites(String[] excludeCipherSuites) {
+        this.excludeCipherSuites = excludeCipherSuites;
     }
 }

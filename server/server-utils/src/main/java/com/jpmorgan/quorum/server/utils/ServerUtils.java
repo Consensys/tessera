@@ -4,6 +4,7 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.Objects;
 import javax.net.ssl.SSLContext;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -46,6 +47,11 @@ public class ServerUtils {
             sslContextFactory.setSslContext(sslContext);
             sslContextFactory.setNeedClientAuth(true);
             sslContextFactory.setRenegotiationAllowed(false);
+
+            final String[] excludedCipherSuites = serverConfig.getSslConfig().getExcludeCipherSuites();
+            if (Objects.nonNull(excludedCipherSuites)) {
+                sslContextFactory.addExcludeCipherSuites(excludedCipherSuites);
+            }
             ServerConnector connector =
                     new ServerConnector(
                             server,
