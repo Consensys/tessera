@@ -1,6 +1,7 @@
 package com.quorum.tessera.cli.parsers;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.ConfigFileStore;
@@ -13,24 +14,25 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import static java.nio.file.StandardOpenOption.APPEND;
-import java.util.List;
-import java.util.Objects;
-
-import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 public class ConfigurationParser implements Parser<Config> {
 
     protected static final Set<PosixFilePermission> NEW_PASSWORD_FILE_PERMS =
             Stream.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE).collect(Collectors.toSet());
+
+    protected static final String passwordsMessage = "Unable to update config with newly generated keys as \"passwords\" field no longer supported.  Use \"passwordFile\" instead.";
 
     private final List<ConfigKeyPair> newlyGeneratedKeys;
 
@@ -56,7 +58,7 @@ public class ConfigurationParser implements Parser<Config> {
         if (commandLine.hasOption("configfile") && !isGeneratingWithKeyVault) {
             final Path path = Paths.get(commandLine.getOptionValue("configfile"));
 
-            if (!Files.exists(path)) {
+            if (!filesDelegate.exists(path)) {
                 throw new FileNotFoundException(String.format("%s not found.", path));
             }
 
@@ -84,12 +86,12 @@ public class ConfigurationParser implements Parser<Config> {
         return config;
     }
 
-    private static void output(CommandLine commandLine, Config config) throws IOException {
+    private void output(CommandLine commandLine, Config config) throws IOException {
 
         if (commandLine.hasOption("output")) {
             final Path outputConfigFile = Paths.get(commandLine.getOptionValue("output"));
 
-            try (OutputStream out = Files.newOutputStream(outputConfigFile, CREATE_NEW)) {
+            try (OutputStream out = filesDelegate.newOutputStream(outputConfigFile, CREATE_NEW)) {
                 JaxbUtil.marshal(config, out);
             }
         } else {
@@ -107,35 +109,21 @@ public class ConfigurationParser implements Parser<Config> {
         }
     }
 
-    public Config doPasswordStuff(Config config) {
-
+    public Config doPasswordStuff(Config config) throws ConfigException {
         final List<String> newPasswords =
-                newlyGeneratedKeys.stream().map(ConfigKeyPair::getPassword).collect(Collectors.toList());
+            newlyGeneratedKeys.stream().map(ConfigKeyPair::getPassword).collect(Collectors.toList());
 
-        if (config.getKeys().getPasswords() != null) {
-            config.getKeys().getPasswords().addAll(newPasswords);
-            return config;
-        }
+        boolean hasNewPasswords = newPasswords.stream().anyMatch(p -> Objects.nonNull(p) && !p.isEmpty());
+        boolean isUsingPasswordFile = Objects.nonNull(config.getKeys().getPasswordFile());
 
-        if (config.getKeys().getPasswordFile() != null) {
+        if (hasNewPasswords) {
+            if (!isUsingPasswordFile) {
+                throw new ConfigException(new RuntimeException(passwordsMessage));
+            }
+
             Path passwordFile = config.getKeys().getPasswordFile();
             createFile(passwordFile);
             filesDelegate.write(passwordFile, newPasswords, APPEND);
-            return config;
-        }
-
-        /*
-         * Populate transient list of passwords that is consumed by KeyPasswordResolver
-         */
-        if (newPasswords.stream().anyMatch(Objects::nonNull) && config.getKeys().getKeyData() != null) {
-
-            final List<String> existingPasswords =
-                    config.getKeys().getKeyData().stream().map(k -> "").collect(Collectors.toList());
-
-            existingPasswords.addAll(newPasswords);
-            config.getKeys().setPasswords(existingPasswords);
-
-            return config;
         }
 
         return config;

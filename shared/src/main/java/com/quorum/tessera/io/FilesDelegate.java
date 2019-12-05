@@ -1,7 +1,9 @@
 package com.quorum.tessera.io;
 
 import com.quorum.tessera.ServiceLoaderUtil;
+
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.OpenOption;
@@ -33,6 +35,10 @@ public interface FilesDelegate {
 
     default InputStream newInputStream(Path path, OpenOption... options) {
         return IOCallback.execute(() -> Files.newInputStream(path, options));
+    }
+
+    default OutputStream newOutputStream(Path path, OpenOption... options) {
+        return IOCallback.execute(() -> Files.newOutputStream(path, options));
     }
 
     default boolean exists(Path path, LinkOption... options) {

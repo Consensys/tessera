@@ -1,7 +1,7 @@
 package com.quorum.tessera.cli.parsers;
 
-import static com.quorum.tessera.cli.parsers.ConfigurationParser.NEW_PASSWORD_FILE_PERMS;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
@@ -10,17 +10,20 @@ import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.UUID;
+import java.util.*;
 
+import static com.quorum.tessera.cli.parsers.ConfigurationParser.NEW_PASSWORD_FILE_PERMS;
+import static com.quorum.tessera.cli.parsers.ConfigurationParser.passwordsMessage;
 import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import static com.quorum.tessera.test.util.ElUtil.createTempFileFromTemplate;
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
@@ -28,19 +31,23 @@ import static org.mockito.Mockito.*;
 public class ConfigurationParserTest {
 
     private CommandLine commandLine;
+    private FilesDelegate filesDelegate;
 
     @Before
     public void setUp() {
         commandLine = mock(CommandLine.class);
+        filesDelegate = mock(FilesDelegate.class);
     }
 
     @Test
     public void noConfigfileOptionThenDoNothing() throws Exception {
         when(commandLine.hasOption("configfile")).thenReturn(false);
-        ConfigurationParser configParser = new ConfigurationParser(Collections.EMPTY_LIST);
+        ConfigurationParser configParser = new ConfigurationParser(Collections.EMPTY_LIST, filesDelegate);
         Config result = configParser.parse(commandLine);
 
         assertThat(result).isNull();
+
+        verifyNoMoreInteractions(filesDelegate);
     }
 
     @Test
@@ -135,11 +142,23 @@ public class ConfigurationParserTest {
 
         ConfigKeyPair newKey = new DirectKeyPair("pub", "priv");
 
-        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey));
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+        FilesDelegate fd = new FilesDelegate() {};
+        InputStream in = fd.newInputStream(configFile);
+
+        when(filesDelegate.exists(configFile)).thenReturn(true);
+        when(filesDelegate.newInputStream(configFile)).thenReturn(in);
+
+        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey), filesDelegate);
         Config result = configParser.parse(commandLine);
 
+        in.close();
         assertThat(result).isNotNull();
         assertThat(result.getKeys().getKeyData()).contains(newKey);
+
+        verify(filesDelegate).exists(configFile);
+        verify(filesDelegate).newInputStream(configFile);
+        verifyNoMoreInteractions(filesDelegate);
     }
 
     @Test
@@ -159,15 +178,32 @@ public class ConfigurationParserTest {
 
         ConfigKeyPair newKey = new DirectKeyPair("pub", "priv");
 
-        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey));
+        FilesDelegate filesDelegate = mock(FilesDelegate.class);
+        FilesDelegate fd = new FilesDelegate() {};
+        InputStream in = fd.newInputStream(configFile);
+
+        when(filesDelegate.exists(configFile)).thenReturn(true);
+        when(filesDelegate.newInputStream(configFile)).thenReturn(in);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        when(filesDelegate.newOutputStream(output, CREATE_NEW)).thenReturn(os);
+
+        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey), filesDelegate);
 
         Config result = configParser.parse(commandLine);
+
+        in.close();
 
         assertThat(result).isNotNull();
         assertThat(result.getKeys().getKeyData()).contains(newKey);
 
-        assertThat(output).exists();
-        output.toFile().deleteOnExit();
+        verify(filesDelegate).exists(configFile);
+        verify(filesDelegate).newInputStream(configFile);
+        verify(filesDelegate).newOutputStream(output, CREATE_NEW);
+        verifyNoMoreInteractions(filesDelegate);
+
+        byte[] bytesOut = os.toByteArray();
+        assertThat(bytesOut).isNotEmpty();
     }
 
     @Test
@@ -202,6 +238,198 @@ public class ConfigurationParserTest {
     }
 
     @Test
+    public void withNewPasswordProtectedKeysAndPasswordsListInConfigThrowsException() throws Exception {
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        configFile.toFile().deleteOnExit();
+
+        when(commandLine.hasOption("configfile")).thenReturn(true);
+        when(commandLine.getOptionValue("configfile")).thenReturn(configFile.toString());
+
+        when(commandLine.hasOption("output")).thenReturn(true);
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+
+        Path output = Paths.get(tempDir, UUID.randomUUID().toString() + ".conf");
+
+        when(commandLine.getOptionValue("output")).thenReturn(output.toString());
+
+        FilesDelegate fd = new FilesDelegate() {};
+        InputStream in = fd.newInputStream(configFile);
+
+        when(filesDelegate.exists(configFile)).thenReturn(true);
+        when(filesDelegate.newInputStream(configFile)).thenReturn(in);
+
+        ConfigKeyPair newKey = mock(ConfigKeyPair.class);
+        when(newKey.getPassword()).thenReturn("A TEST PASSWORD");
+
+        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey), filesDelegate);
+
+        Throwable ex = catchThrowable(() -> configParser.parse(commandLine));
+
+        in.close();
+
+        assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+        assertThat(ex.getMessage()).contains(passwordsMessage);
+
+        verify(filesDelegate).exists(configFile);
+        verify(filesDelegate).newInputStream(configFile);
+        verifyNoMoreInteractions(filesDelegate);
+    }
+
+    @Test
+    public void withNewPasswordProtectedKeysAndNullKeyConfigThrowsException() throws Exception {
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config-no-keyconfig.json"));
+
+        configFile.toFile().deleteOnExit();
+
+        when(commandLine.hasOption("configfile")).thenReturn(true);
+        when(commandLine.getOptionValue("configfile")).thenReturn(configFile.toString());
+
+        when(commandLine.hasOption("output")).thenReturn(true);
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+
+        Path output = Paths.get(tempDir, UUID.randomUUID().toString() + ".conf");
+
+        when(commandLine.getOptionValue("output")).thenReturn(output.toString());
+
+        FilesDelegate fd = new FilesDelegate() {};
+        InputStream in = fd.newInputStream(configFile);
+
+        when(filesDelegate.exists(configFile)).thenReturn(true);
+        when(filesDelegate.newInputStream(configFile)).thenReturn(in);
+
+        ConfigKeyPair newKey = mock(ConfigKeyPair.class);
+        when(newKey.getPassword()).thenReturn("A TEST PASSWORD");
+
+        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey), filesDelegate);
+
+        Throwable ex = catchThrowable(() -> configParser.parse(commandLine));
+
+        in.close();
+
+        assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+        assertThat(ex.getMessage()).contains(passwordsMessage);
+
+        verify(filesDelegate).exists(configFile);
+        verify(filesDelegate).newInputStream(configFile);
+        verifyNoMoreInteractions(filesDelegate);
+    }
+
+    @Test
+    public void withNewPasswordProtectedKeysAndExistingPasswordFileInConfigUpdatesConfigfileAndPasswordFile() throws Exception {
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+        Path passwordFilePath = Files.createTempFile(UUID.randomUUID().toString(), ".pwds");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+        params.put("passwordFilePath", passwordFilePath.toString());
+
+        Path configFile = createTempFileFromTemplate(getClass().getResource("/sample-config-password-file.json"), params);
+
+        configFile.toFile().deleteOnExit();
+
+        when(commandLine.hasOption("configfile")).thenReturn(true);
+        when(commandLine.getOptionValue("configfile")).thenReturn(configFile.toString());
+
+        when(commandLine.hasOption("output")).thenReturn(true);
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+
+        Path output = Paths.get(tempDir, UUID.randomUUID().toString() + ".conf");
+
+        when(commandLine.getOptionValue("output")).thenReturn(output.toString());
+
+        FilesDelegate fd = new FilesDelegate() {};
+        InputStream in = fd.newInputStream(configFile);
+
+        when(filesDelegate.exists(configFile)).thenReturn(true);
+        when(filesDelegate.notExists(passwordFilePath)).thenReturn(false);
+        when(filesDelegate.newInputStream(configFile)).thenReturn(in);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        when(filesDelegate.newOutputStream(output, CREATE_NEW)).thenReturn(os);
+
+        ConfigKeyPair newKey = mock(ConfigKeyPair.class);
+        final String testPassword = "A TEST PASSWORD";
+        when(newKey.getPassword()).thenReturn(testPassword);
+
+        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey), filesDelegate);
+
+        Config result = configParser.parse(commandLine);
+
+        in.close();
+
+        assertThat(result).isNotNull();
+
+        verify(filesDelegate).exists(configFile);
+        verify(filesDelegate).notExists(passwordFilePath);
+        verify(filesDelegate).newInputStream(configFile);
+        verify(filesDelegate).newOutputStream(output, CREATE_NEW);
+        verify(filesDelegate).write(passwordFilePath, Arrays.asList(testPassword), APPEND);
+        verifyNoMoreInteractions(filesDelegate);
+    }
+
+    @Test
+    public void withNewPasswordProtectedKeysAndNonExistingPasswordFileInConfigUpdatesConfigfileAndCreatesPasswordFile() throws Exception {
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+        Path passwordFilePath = Files.createTempFile(UUID.randomUUID().toString(), ".pwds");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+        params.put("passwordFilePath", passwordFilePath.toString());
+
+        Path configFile = createTempFileFromTemplate(getClass().getResource("/sample-config-password-file.json"), params);
+
+        configFile.toFile().deleteOnExit();
+
+        when(commandLine.hasOption("configfile")).thenReturn(true);
+        when(commandLine.getOptionValue("configfile")).thenReturn(configFile.toString());
+
+        when(commandLine.hasOption("output")).thenReturn(true);
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+
+        Path output = Paths.get(tempDir, UUID.randomUUID().toString() + ".conf");
+
+        when(commandLine.getOptionValue("output")).thenReturn(output.toString());
+
+        FilesDelegate fd = new FilesDelegate() {};
+        InputStream in = fd.newInputStream(configFile);
+
+        when(filesDelegate.exists(configFile)).thenReturn(true);
+        when(filesDelegate.notExists(passwordFilePath)).thenReturn(true);
+        when(filesDelegate.newInputStream(configFile)).thenReturn(in);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        when(filesDelegate.newOutputStream(output, CREATE_NEW)).thenReturn(os);
+
+        ConfigKeyPair newKey = mock(ConfigKeyPair.class);
+        final String testPassword = "A TEST PASSWORD";
+        when(newKey.getPassword()).thenReturn(testPassword);
+
+        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey), filesDelegate);
+
+        Config result = configParser.parse(commandLine);
+
+        in.close();
+
+        assertThat(result).isNotNull();
+
+        verify(filesDelegate).exists(configFile);
+        verify(filesDelegate).notExists(passwordFilePath);
+        verify(filesDelegate).createFile(passwordFilePath);
+        verify(filesDelegate).setPosixFilePermissions(passwordFilePath, NEW_PASSWORD_FILE_PERMS);
+        verify(filesDelegate).newInputStream(configFile);
+        verify(filesDelegate).newOutputStream(output, CREATE_NEW);
+        verify(filesDelegate).write(passwordFilePath, Arrays.asList(testPassword), APPEND);
+        verifyNoMoreInteractions(filesDelegate);
+    }
+
+    @Test
     public void doPasswordStuffWithEmptyPasswordsElement() throws Exception {
 
         final String password = "I LOVE SPARROWS!";
@@ -219,11 +447,9 @@ public class ConfigurationParserTest {
         when(keyConfiguration.getPasswords()).thenReturn(new ArrayList<>());
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        Config result = configParser.doPasswordStuff(config);
-        assertThat(result).isSameAs(config);
+        Throwable ex = catchThrowable(() -> configParser.doPasswordStuff(config));
 
-        assertThat(result.getKeys().getPasswords()).containsExactly(password);
-
+        assertThat(ex).isInstanceOf(ConfigException.class);
         verifyZeroInteractions(filesDelegate);
     }
 
@@ -262,7 +488,7 @@ public class ConfigurationParserTest {
         verify(filesDelegate).setPosixFilePermissions(passwordFile, NEW_PASSWORD_FILE_PERMS);
         verify(filesDelegate).createFile(passwordFile);
 
-        verify(filesDelegate).write(passwordFile, Arrays.asList(password), StandardOpenOption.APPEND);
+        verify(filesDelegate).write(passwordFile, Arrays.asList(password), APPEND);
 
         verifyNoMoreInteractions(filesDelegate);
     }
@@ -289,10 +515,9 @@ public class ConfigurationParserTest {
         when(keyConfiguration.getPasswordFile()).thenReturn(null);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        Config result = configParser.doPasswordStuff(config);
-        assertThat(result).isSameAs(config);
+        Throwable ex = catchThrowable(() -> configParser.doPasswordStuff(config));
 
-        verify(keyConfiguration).setPasswords(Arrays.asList(password));
+        assertThat(ex).isInstanceOf(ConfigException.class);
         verifyZeroInteractions(filesDelegate);
     }
 
