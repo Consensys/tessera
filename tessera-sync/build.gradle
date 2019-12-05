@@ -1,18 +1,19 @@
 
 dependencies {
-    implementation project(':shared')
-    implementation project(':tessera-partyinfo')
-    implementation project(':tessera-core')
-    implementation project(':tessera-data')
-    implementation project(':enclave:enclave-api')
-    implementation project(':encryption:encryption-api')
+    compile project(':shared')
+    compile project(':tessera-partyinfo')
+    compile project(':tessera-core')
+    compile project(':tessera-data')
+    compile project(':enclave:enclave-api')
+    compile project(':encryption:encryption-api')
 
-    testImplementation 'org.glassfish.tyrus:tyrus-server:1.14'
-    testImplementation 'org.glassfish.tyrus:tyrus-container-grizzly-server:1.14'
-    testImplementation project(':test-utils:mock-websocket-container')
+    testCompile 'org.glassfish.tyrus:tyrus-server:1.14'
+    testCompile 'org.glassfish.tyrus:tyrus-container-grizzly-server:1.14'
+    testCompile project(':test-utils:mock-websocket-container')
+
     compileOnly 'javax:javaee-api:7.0'
 
-    implementation project(':service-locator:service-locator-api')
+    compile project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
 

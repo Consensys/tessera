@@ -1,5 +1,5 @@
 
 dependencies {
-    compileOnly 'org.mockito:mockito-core'
-    implementation 'javax.ws.rs:javax.ws.rs-api'
+    compile 'org.mockito:mockito-core'
+    compile 'javax.ws.rs:javax.ws.rs-api'
 }
