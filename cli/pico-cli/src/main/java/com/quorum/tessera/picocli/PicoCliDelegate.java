@@ -44,11 +44,11 @@ public class PicoCliDelegate {
         this(ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
     }
 
-    public PicoCliDelegate(final KeyPasswordResolver keyPasswordResolver) {
+    private PicoCliDelegate(final KeyPasswordResolver keyPasswordResolver) {
         this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
     }
 
-    public CliResult execute(String[] args) throws Exception {
+    public CliResult execute(String... args) throws Exception {
         final CommandSpec command = CommandSpec.forAnnotatedObject(TesseraCommand.class);
 
         // TODO(cjh) most usage options have empty lines between them, but not all.  Need to remove the empty lines.
@@ -109,7 +109,7 @@ public class PicoCliDelegate {
                 config = getConfigFromCLI(parseResult);
             } catch (NoTesseraCmdArgsException e) {
                 commandLine.execute("help");
-                return new CliResult(1, true, null);
+                return new CliResult(0, true, null);
             }
 
             return new CliResult(0, false, config);
