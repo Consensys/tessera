@@ -1,7 +1,6 @@
 
 dependencies {
 
-
     compile project(':tessera-jaxrs:jaxrs-client')
     compile project(':tessera-admin')
     compile project(':tessera-core')
@@ -17,7 +16,7 @@ dependencies {
     compile 'javax.persistence:javax.persistence-api'
     compile project(':encryption:encryption-api')
 
-    testCompile 'org.slf4j:jul-to-slf4j'
+    testCompile 'org.slf4j:jul-to-slf4j:1.7.5'
     testCompile 'org.glassfish.jersey.media:jersey-media-json-processing'
     testCompile 'org.glassfish.jersey.media:jersey-media-moxy'
     testCompile 'com.sun.mail:javax.mail:1.6.2'

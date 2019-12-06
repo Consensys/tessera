@@ -6,6 +6,7 @@ dependencies {
     compile project(':tessera-data')
     compile project(':enclave:enclave-api')
     compile project(':encryption:encryption-api')
+    compile 'org.glassfish:javax.json'
 
     testCompile 'org.glassfish.tyrus:tyrus-server:1.14'
     testCompile 'org.glassfish.tyrus:tyrus-container-grizzly-server:1.14'
