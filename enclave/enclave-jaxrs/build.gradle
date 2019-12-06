@@ -11,14 +11,15 @@ plugins {
 
 dependencies {
     compile "org.slf4j:slf4j-api"
-    implementation "org.slf4j:jul-to-slf4j"
+    runtimeOnly "org.slf4j:jul-to-slf4j"
     compile project(':config')
     compile project(':shared')
     compile project(':encryption:encryption-api')
     compile project(':enclave:enclave-api')
     compile project(':enclave:enclave-server')
     compile 'javax.ws.rs:javax.ws.rs-api'
-    compile 'org.apache.commons:commons-lang3:3.7'
+    compile 'org.apache.commons:commons-lang3'
+    compile 'org.glassfish:javax.json'
 
     compile project(':tessera-jaxrs:jaxrs-client')
 

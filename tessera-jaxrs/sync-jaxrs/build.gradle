@@ -17,6 +17,7 @@ dependencies {
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile project(':tessera-jaxrs:common-jaxrs')
     compile project(':tessera-admin')
+    compile 'org.glassfish:javax.json'
 
     testCompile project(':test-utils:mock-jaxrs')
     testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
