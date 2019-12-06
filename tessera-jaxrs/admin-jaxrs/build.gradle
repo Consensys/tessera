@@ -8,30 +8,28 @@ dependencies {
     compile project(':tessera-jaxrs:common-jaxrs')
     compile 'io.swagger:swagger-annotations'
 
-    implementation project(':service-locator:service-locator-api')
+    compile project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
 
-    implementation project(':shared')
-    implementation project(':config')
+    compile project(':shared')
+    compile project(':config')
 
-    implementation project(':tessera-core')
-    implementation project(':tessera-admin')
-    implementation project(':encryption:encryption-api')
-    implementation project(':tessera-partyinfo')
+    compile project(':tessera-core')
+    compile project(':tessera-admin')
+    compile project(':encryption:encryption-api')
+    compile project(':tessera-partyinfo')
     compile 'javax.ws.rs:javax.ws.rs-api'
 
+    testCompile 'org.slf4j:jul-to-slf4j'
+    testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-json-processing'
+    testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-moxy'
+    testRuntimeOnly 'com.sun.mail:javax.mail:1.6.2'
+    testRuntimeOnly 'org.bouncycastle:bcprov-jdk15on'
+    testCompile project(':server:jersey-server')
 
-
-    testImplementation 'org.slf4j:jul-to-slf4j'
-    testImplementation 'org.glassfish.jersey.media:jersey-media-json-processing'
-    testImplementation 'org.glassfish.jersey.media:jersey-media-moxy'
-    testImplementation 'com.sun.mail:javax.mail:1.6.2'
-    testImplementation 'org.bouncycastle:bcprov-jdk15on'
-    testImplementation project(':server:jersey-server')
-
-    testImplementation "org.glassfish.jersey.test-framework:jersey-test-framework-core"
-    testImplementation "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
+    testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
+    testRuntimeOnly "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
 
 }
 

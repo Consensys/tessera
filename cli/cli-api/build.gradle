@@ -1,12 +1,12 @@
 
 dependencies {
-    implementation 'info.picocli:picocli:4.0.4'
-    implementation 'org.apache.commons:commons-lang3:3.7'
-    implementation 'commons-cli:commons-cli:1.4'
-    implementation project(':config')
-    implementation project(':shared')
-    implementation project(':encryption:encryption-api')
-    testImplementation project(':tests:test-util')
+    compile 'info.picocli:picocli:4.0.4'
+    compile 'org.apache.commons:commons-lang3:3.7'
+    compile 'commons-cli:commons-cli:1.4'
+    compile project(':config')
+    compile project(':shared')
+    compile project(':encryption:encryption-api')
+    testCompile project(':tests:test-util')
 }
 
 description = 'cli-api'

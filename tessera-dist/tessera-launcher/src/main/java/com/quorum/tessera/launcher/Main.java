@@ -3,6 +3,7 @@ package com.quorum.tessera.launcher;
 import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
@@ -25,7 +26,7 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static void main(final String... args) throws Exception {
-
+        System.setProperty(CliType.CLI_TYPE_KEY,CliType.CONFIG.name());
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
