@@ -236,26 +236,6 @@ subprojects {
         repositories {
             maven {
 
-                //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-// Destination
-//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-//                    authentication(userName: ossrhUsername, password: ossrhPassword)
-//                }
-//                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-//                    authentication(userName: ossrhUsername, password: ossrhPassword)
-//                }
-
-
-                // change to point to your repo, e.g. http://my.org/repo
-              //  url = "$rootDir/repo"
-//                 url = "https://oss.sonatype.org/content/repositories/snapshots"
-//                credentials {
-//                    username 'melowe'
-//                    password 'b01ng4ge'
-//                }
-
-                // change URLs to point to your repos, e.g. http://my.org/repo
                 def releasesRepoUrl = "$rootDir/repos/releases"
                 def snapshotsRepoUrl = "$rootDir/repos/snapshots"
                 url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
