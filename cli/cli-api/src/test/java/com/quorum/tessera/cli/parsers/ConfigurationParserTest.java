@@ -318,7 +318,8 @@ public class ConfigurationParserTest {
     }
 
     @Test
-    public void withNewPasswordProtectedKeysAndExistingPasswordFileInConfigUpdatesConfigfileAndPasswordFile() throws Exception {
+    public void withNewPasswordProtectedKeysAndConfigExistingPasswordFileInConfigUpdatesConfigfileAndPasswordFile()
+            throws Exception {
 
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         Path passwordFilePath = Files.createTempFile(UUID.randomUUID().toString(), ".pwds");
@@ -327,7 +328,8 @@ public class ConfigurationParserTest {
         params.put("unixSocketPath", unixSocketPath.toString());
         params.put("passwordFilePath", passwordFilePath.toString());
 
-        Path configFile = createTempFileFromTemplate(getClass().getResource("/sample-config-password-file.json"), params);
+        Path configFile =
+                createTempFileFromTemplate(getClass().getResource("/sample-config-password-file.json"), params);
 
         configFile.toFile().deleteOnExit();
 
@@ -373,7 +375,8 @@ public class ConfigurationParserTest {
     }
 
     @Test
-    public void withNewPasswordProtectedKeysAndNonExistingPasswordFileInConfigUpdatesConfigfileAndCreatesPasswordFile() throws Exception {
+    public void withNewPasswordProtectedKeysPasswordFileOnlyInKeyConfigUpdatesConfigfileAndPasswordFile()
+            throws Exception {
 
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         Path passwordFilePath = Files.createTempFile(UUID.randomUUID().toString(), ".pwds");
@@ -382,7 +385,65 @@ public class ConfigurationParserTest {
         params.put("unixSocketPath", unixSocketPath.toString());
         params.put("passwordFilePath", passwordFilePath.toString());
 
-        Path configFile = createTempFileFromTemplate(getClass().getResource("/sample-config-password-file.json"), params);
+        Path configFile =
+                createTempFileFromTemplate(getClass().getResource("/sample-config-password-file-only.json"), params);
+
+        configFile.toFile().deleteOnExit();
+
+        when(commandLine.hasOption("configfile")).thenReturn(true);
+        when(commandLine.getOptionValue("configfile")).thenReturn(configFile.toString());
+
+        when(commandLine.hasOption("output")).thenReturn(true);
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+
+        Path output = Paths.get(tempDir, UUID.randomUUID().toString() + ".conf");
+
+        when(commandLine.getOptionValue("output")).thenReturn(output.toString());
+
+        FilesDelegate fd = new FilesDelegate() {};
+        InputStream in = fd.newInputStream(configFile);
+
+        when(filesDelegate.exists(configFile)).thenReturn(true);
+        when(filesDelegate.notExists(passwordFilePath)).thenReturn(false);
+        when(filesDelegate.newInputStream(configFile)).thenReturn(in);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        when(filesDelegate.newOutputStream(output, CREATE_NEW)).thenReturn(os);
+
+        ConfigKeyPair newKey = mock(ConfigKeyPair.class);
+        final String testPassword = "A TEST PASSWORD";
+        when(newKey.getPassword()).thenReturn(testPassword);
+
+        ConfigurationParser configParser = new ConfigurationParser(Arrays.asList(newKey), filesDelegate);
+
+        Config result = configParser.parse(commandLine);
+
+        in.close();
+
+        assertThat(result).isNotNull();
+
+        verify(filesDelegate).exists(configFile);
+        verify(filesDelegate).notExists(passwordFilePath);
+        verify(filesDelegate).newInputStream(configFile);
+        verify(filesDelegate).newOutputStream(output, CREATE_NEW);
+        verify(filesDelegate).write(passwordFilePath, Arrays.asList(testPassword), APPEND);
+        verifyNoMoreInteractions(filesDelegate);
+    }
+
+    @Test
+    public void withNewPasswordProtectedKeysAndNonExistingPasswordFileInConfigUpdatesConfigfileAndCreatesPasswordFile()
+            throws Exception {
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+        Path passwordFilePath = Files.createTempFile(UUID.randomUUID().toString(), ".pwds");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+        params.put("passwordFilePath", passwordFilePath.toString());
+
+        Path configFile =
+                createTempFileFromTemplate(getClass().getResource("/sample-config-password-file.json"), params);
 
         configFile.toFile().deleteOnExit();
 
