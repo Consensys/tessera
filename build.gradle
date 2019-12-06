@@ -1,14 +1,14 @@
-
 plugins {
     id "org.owasp.dependencycheck" version "5.2.2"
     id 'jacoco'
     id 'com.diffplug.gradle.spotless' version '3.25.0'
+    id 'com.github.ben-manes.versions' version '0.8'
+
 }
 
 allprojects {
     group = 'com.jpmorgan.quorum'
     //version = '0.11-SNAPSHOT'
-
 
 
     plugins.withType(JavaPlugin).whenPluginAdded {
@@ -17,86 +17,83 @@ allprojects {
             constraints {
 
                 compile "org.slf4j:slf4j-api:1.7.5"
-                implementation "ch.qos.logback:logback-classic:1.2.3"
-                implementation "ch.qos.logback:logback-core:1.2.3"
-                implementation "org.slf4j:jcl-over-slf4j:1.7.5"
-                implementation "org.slf4j:jul-to-slf4j:1.7.5"
-                implementation  "org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3"
+                runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
+                runtimeOnly "ch.qos.logback:logback-core:1.2.3"
+                runtimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
+                runtimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
+                runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3"
 
-                implementation "junit:junit:4.12"
-                implementation "org.assertj:assertj-core:3.9.1"
-                implementation "org.mockito:mockito-core:2.23.0"
-                implementation "com.openpojo:openpojo:0.8.10"
-                implementation "com.github.stefanbirkner:system-rules:1.18.0"
-                implementation "nl.jqno.equalsverifier:equalsverifier:3.1.5"
+                testCompile "junit:junit:4.12"
+                testCompile "org.assertj:assertj-core:3.9.1"
+                testCompile "org.mockito:mockito-core:2.23.0"
+                testCompile "com.openpojo:openpojo:0.8.10"
+                testCompile "com.github.stefanbirkner:system-rules:1.18.0"
+                testCompile "nl.jqno.equalsverifier:equalsverifier:3.1.5"
 
-                implementation "de.mkammerer:argon2-jvm:2.5"
-                implementation "javax.validation:validation-api:2.0.1.Final"
-                implementation "javax.ws.rs:javax.ws.rs-api:2.1"
-                implementation "info.picocli:picocli:4.0.4"
-                implementation "org.apache.commons:commons-lang3:3.7"
-                implementation "commons-cli:commons-cli:1.4"
-                implementation "info.picocli:picocli:4.0.4"
-                implementation "org.glassfish:javax.json:1.1.2"
-                implementation "org.jasypt:jasypt:1.9.3"
-                implementation "org.glassfish:javax.el:3.0.1-b10"
-                implementation "org.hibernate:hibernate-validator:6.0.2.Final"
-                implementation "com.moandjiezana.toml:toml4j:0.7.2"
-                implementation "commons-codec:commons-codec:1.6"
-                implementation "commons-io:commons-io:2.6"
-                implementation "org.bouncycastle:bcpkix-jdk15on:1.61"
-                implementation "org.xerial:sqlite-jdbc:3.23.1"
-                implementation "com.h2database:h2:1.4.200"
-                implementation "com.mockrunner:mockrunner-jdbc:2.0.1"
-                implementation "org.glassfish.jersey.inject:jersey-hk2:2.27"
-                implementation "org.glassfish.jersey.media:jersey-media-json-processing:2.27"
-                implementation "org.glassfish.jersey.media:jersey-media-moxy:2.27"
-                implementation "com.sun.mail:javax.mail:1.6.2"
-                implementation "org.glassfish.jersey.test-framework:jersey-test-framework-core:2.27"
-                implementation "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.27"
-                implementation "org.springframework:spring-test:5.1.2.RELEASE"
-                implementation "javax.ws.rs:javax.ws.rs-api:2.1"
-                implementation "org.cryptacular:cryptacular:1.2.2"
-                implementation "eu.neilalexander:jnacl:1.0.0"
-                implementation "javax.ws.rs:javax.ws.rs-api:2.1"
-                implementation "org.eclipse.jetty:jetty-unixsocket:9.4.17.v20190418"
-                implementation "org.glassfish.jersey.core:jersey-client:2.27"
-                implementation "org.eclipse.jetty:jetty-client:9.4.17.v20190418"
-                implementation "org.glassfish.jersey.media:jersey-media-moxy:2.27"
-                implementation "org.glassfish.jersey.core:jersey-server:2.27"
-                implementation "org.glassfish.jersey.ext:jersey-bean-validation:2.27"
-                implementation "org.slf4j:jul-to-slf4j:1.7.5"
-                implementation "org.glassfish.jersey.containers:jersey-container-servlet-core:2.27"
-                implementation "javax.servlet:javax.servlet-api:4.0.1"
-                implementation "com.sun.mail:javax.mail:1.6.2"
-                implementation "org.eclipse.jetty:jetty-servlet:9.4.17.v20190418"
-                implementation "org.glassfish.jersey.inject:jersey-hk2:2.27"
-                implementation "org.glassfish.jersey.core:jersey-common:2.27"
-                implementation "org.eclipse.jetty:jetty-unixsocket:9.4.17.v20190418"
-                implementation "org.eclipse.jetty:jetty-server:9.4.17.v20190418"
-                implementation "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.17.v20190418"
-                implementation "org.springframework:spring-core:5.1.2.RELEASE"
-                implementation "org.springframework:spring-beans:5.1.2.RELEASE"
-                implementation "org.springframework:spring-context:5.1.2.RELEASE"
-                implementation "org.springframework:spring-orm:5.1.2.RELEASE"
-                implementation "io.swagger:swagger-annotations:1.5.4"
-                implementation "javax.transaction:javax.transaction-api:1.3"
-                implementation "org.bouncycastle:bcpkix-jdk15on:1.61"
-                implementation "org.springframework:spring-orm:5.1.2.RELEASE"
-                implementation "org.springframework:spring-test:5.1.2.RELEASE"
-                implementation "javax.inject:javax.inject:1"
-                implementation "org.bouncycastle:bcprov-jdk15on:1.61"
-                implementation "com.h2database:h2:1.4.200"
-                implementation "com.zaxxer:HikariCP:3.2.0"
-                implementation "org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3"
-                implementation "org.eclipse.persistence:org.eclipse.persistence.extension:2.7.3"
-                implementation "org.hsqldb:hsqldb:2.4.1"
-                implementation "org.xerial:sqlite-jdbc:3.23.1"
-                implementation "javax.persistence:javax.persistence-api:2.2"
-                implementation "javax.inject:javax.inject:1"
-                implementation "io.swagger:swagger-annotations:1.5.4"
-                implementation "javax.servlet:javax.servlet-api:4.0.1"
-                implementation "javax:javaee-api:7.0"
+                compile "de.mkammerer:argon2-jvm:2.5"
+                compile "javax.validation:validation-api:2.0.1.Final"
+                compile "javax.ws.rs:javax.ws.rs-api:2.1"
+                compile "info.picocli:picocli:4.0.4"
+                compile "org.apache.commons:commons-lang3:3.7"
+                compile "commons-cli:commons-cli:1.4"
+                compile "org.glassfish:javax.json:1.1.2"
+                compile "org.jasypt:jasypt:1.9.3"
+                compile "org.glassfish:javax.el:3.0.1-b10"
+                compile "org.hibernate:hibernate-validator:6.0.2.Final"
+                compile "com.moandjiezana.toml:toml4j:0.7.2"
+                compile "commons-codec:commons-codec:1.6"
+                compile "commons-io:commons-io:2.6"
+                compile "org.bouncycastle:bcpkix-jdk15on:1.61"
+                compile "org.xerial:sqlite-jdbc:3.23.1"
+                compile "com.h2database:h2:1.4.200"
+                compile "com.mockrunner:mockrunner-jdbc:2.0.1"
+                compile "org.glassfish.jersey.inject:jersey-hk2:2.27"
+                compile "org.glassfish.jersey.media:jersey-media-json-processing:2.27"
+                compile "org.glassfish.jersey.media:jersey-media-moxy:2.27"
+                compile "com.sun.mail:javax.mail:1.6.2"
+                compile "org.glassfish.jersey.test-framework:jersey-test-framework-core:2.27"
+                compile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.27"
+                compile "org.springframework:spring-test:5.1.2.RELEASE"
+                compile "javax.ws.rs:javax.ws.rs-api:2.1"
+                compile "org.cryptacular:cryptacular:1.2.2"
+                compile "eu.neilalexander:jnacl:1.0.0"
+                compile "javax.ws.rs:javax.ws.rs-api:2.1"
+                compile "org.eclipse.jetty:jetty-unixsocket:9.4.17.v20190418"
+                compile "org.glassfish.jersey.core:jersey-client:2.27"
+                compile "org.eclipse.jetty:jetty-client:9.4.17.v20190418"
+                compile "org.glassfish.jersey.media:jersey-media-moxy:2.27"
+                compile "org.glassfish.jersey.core:jersey-server:2.27"
+                compile "org.glassfish.jersey.ext:jersey-bean-validation:2.27"
+
+                compile "org.glassfish.jersey.containers:jersey-container-servlet-core:2.27"
+                compile "javax.servlet:javax.servlet-api:4.0.1"
+                compile "com.sun.mail:javax.mail:1.6.2"
+                compile "org.eclipse.jetty:jetty-servlet:9.4.17.v20190418"
+                compile "org.glassfish.jersey.inject:jersey-hk2:2.27"
+                compile "org.glassfish.jersey.core:jersey-common:2.27"
+                compile "org.eclipse.jetty:jetty-unixsocket:9.4.17.v20190418"
+                compile "org.eclipse.jetty:jetty-server:9.4.17.v20190418"
+                compile "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.17.v20190418"
+                compile "org.springframework:spring-core:5.1.2.RELEASE"
+                compile "org.springframework:spring-beans:5.1.2.RELEASE"
+                compile "org.springframework:spring-context:5.1.2.RELEASE"
+                compile "org.springframework:spring-orm:5.1.2.RELEASE"
+                compile "io.swagger:swagger-annotations:1.5.4"
+                compile "javax.transaction:javax.transaction-api:1.3"
+                compile "org.bouncycastle:bcpkix-jdk15on:1.61"
+                compile "org.springframework:spring-orm:5.1.2.RELEASE"
+                compile "org.springframework:spring-test:5.1.2.RELEASE"
+                compile "javax.inject:javax.inject:1"
+                compile "org.bouncycastle:bcprov-jdk15on:1.61"
+                compile "com.h2database:h2:1.4.200"
+                compile "com.zaxxer:HikariCP:3.2.0"
+                compile "org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3"
+                compile "org.eclipse.persistence:org.eclipse.persistence.extension:2.7.3"
+                compile "org.hsqldb:hsqldb:2.4.1"
+                compile "org.xerial:sqlite-jdbc:3.23.1"
+                compile "javax.persistence:javax.persistence-api:2.2"
+                compile "javax.inject:javax.inject:1"
+                compile "javax:javaee-api:7.0"
 
             }
         }
@@ -110,7 +107,6 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
     apply plugin: 'org.owasp.dependencycheck'
-    apply plugin: 'signing'
 
     repositories {
         mavenLocal()
@@ -120,17 +116,17 @@ subprojects {
     }
 
     dependencies {
-        implementation 'org.slf4j:slf4j-api'
+        compile 'org.slf4j:slf4j-api'
         runtimeOnly 'ch.qos.logback:logback-classic'
         runtimeOnly 'ch.qos.logback:logback-core'
-        implementation 'org.eclipse.persistence:org.eclipse.persistence.moxy'
+        runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
 
-        testImplementation 'junit:junit'
-        testImplementation 'org.assertj:assertj-core'
-        testImplementation 'org.mockito:mockito-core'
-        testImplementation 'com.openpojo:openpojo'
-        testImplementation 'com.github.stefanbirkner:system-rules'
-        testImplementation 'nl.jqno.equalsverifier:equalsverifier'
+        testCompile 'junit:junit'
+        testCompile 'org.assertj:assertj-core'
+        testCompile 'org.mockito:mockito-core'
+        testCompile 'com.openpojo:openpojo'
+        testCompile 'com.github.stefanbirkner:system-rules'
+        testCompile 'nl.jqno.equalsverifier:equalsverifier'
     }
 
     test {
@@ -152,9 +148,9 @@ subprojects {
             target fileTree('**/*.java') {
                 exclude('enclave/enclave-websockets/**/*.java')
             }
-           // indentWithSpaces(4)
+            // indentWithSpaces(4)
             removeUnusedImports()
-           // googleJavaFormat().aosp()
+            // googleJavaFormat().aosp()
         }
         groovyGradle {
             target '*.gradle'
@@ -201,61 +197,110 @@ subprojects {
         }
     }
 
-        sourceSets {
-            main {
-                java {
-                    srcDir 'src/main/java'
-                }
-                resources {
-                    srcDir 'src/main/resources'
-//                include '**/**'
-                    //               include 'META-INF/services/**'
-                }
+    sourceSets {
+        main {
+            java {
+                srcDir 'src/main/java'
             }
-            test {
-                java {
-
-                    srcDir 'src/test/java'
-                    //        include '**/Test.java'
-                    //         exclude '**/*IT'
-
-                }
-                resources {
-                    srcDir 'src/test/resources'
-//                include '**'
-                    //               include 'META-INF/services/**'
-                }
-            }
-
-
-        }
-
-        sourceCompatibility = '1.8'
-
-        configurations.all {
-        }
-
-        publishing {
-            publications {
-                maven(MavenPublication) {
-                    from(components.java)
-                }
+            resources {
+                srcDir 'src/main/resources'
             }
         }
-
-        tasks.withType(JavaCompile) {
-            options.encoding = 'UTF-8'
-        }
-
-
-
         test {
-            exclude '**/*IT.class'
+            java {
+                srcDir 'src/test/java'
+
+            }
+            resources {
+                srcDir 'src/test/resources'
+            }
         }
+    }
+
+    sourceCompatibility = '1.8'
+
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    javadoc {
+        failOnError false
+        if(JavaVersion.current().isJava9Compatible()) {
+            options.addBooleanOption('html5', true)
+        }
+    }
+
+    publishing {
+
+        repositories {
+            maven {
+
+                //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+// Destination
+//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
+//                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
+
+
+                // change to point to your repo, e.g. http://my.org/repo
+              //  url = "$rootDir/repo"
+//                 url = "https://oss.sonatype.org/content/repositories/snapshots"
+//                credentials {
+//                    username 'melowe'
+//                    password 'b01ng4ge'
+//                }
+
+                // change URLs to point to your repos, e.g. http://my.org/repo
+                def releasesRepoUrl = "$rootDir/repos/releases"
+                def snapshotsRepoUrl = "$rootDir/repos/snapshots"
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+            }
+        }
+        publications {
+
+            mavenJava(MavenPublication) {
+                from(components.java)
+                afterEvaluate {
+                }
+            }
+        }
+    }
+
+
+
+    apply plugin: 'signing'
+
+    signing {
+        useGpgCmd()
+        sign publishing.publications.mavenJava
+    }
+
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
+    }
+
+
+    test {
+        exclude '**/*IT.class'
+    }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
-        check.dependsOn spotlessCheck,jacocoTestCoverageVerification
+    check.dependsOn spotlessCheck, jacocoTestCoverageVerification
 
-    }
+}
+
+
+
+
 
 
