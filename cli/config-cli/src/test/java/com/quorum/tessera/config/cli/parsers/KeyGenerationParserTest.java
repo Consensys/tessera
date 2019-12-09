@@ -383,7 +383,7 @@ public class KeyGenerationParserTest {
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AWS");
 
         this.parser.parse(commandLine);
-        
+
         verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
         verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
     }
@@ -398,4 +398,28 @@ public class KeyGenerationParserTest {
         verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
     }
 
+    @Test
+    public void wrongKeygenvaulturlProvidedWhenUsingAwsVaultThrowsException() {
+        when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
+        when(commandLine.hasOption("keygenvaulturl")).thenReturn(true);
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("notAValidURL");
+        when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AWS");
+        when(commandLine.hasOption("filename")).thenReturn(false);
+
+        Throwable ex = catchThrowable(() -> this.parser.parse(commandLine));
+
+        verify(commandLine, times(1)).getOptionValue("keygenvaulttype");
+        verify(commandLine, times(1)).getOptionValue("keygenvaulturl");
+
+        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
+
+        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+
+        assertThat(violations.size()).isEqualTo(1);
+
+        ConstraintViolation violation = violations.iterator().next();
+
+        assertThat(violation.getPropertyPath().toString()).isEqualTo("endpoint");
+        assertThat(violation.getMessage()).isEqualTo("must be a valid URL");
+    }
 }
