@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/jpmorganchase/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/jpmorganchase/tessera)
 
 
-# <img src="TesseraLogo.png" width="150" height="150"/>
+# <img src="https://raw.githubusercontent.com/jpmorganchase/tessera/master/TesseraLogo.png" width="150" height="150"/>
 
 > __Important: Release 0.9 Feature__ <br/>Tessera now supports remote enclaves for increased security. Please refer to the [wiki](https://github.com/jpmorganchase/tessera/wiki/What-is-an-Enclave%3F) for details. 
 
