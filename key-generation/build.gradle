@@ -1,7 +1,7 @@
 
 dependencies {
-    implementation project(':encryption:encryption-api')
-    implementation project(':config')
-    implementation project(':shared')
-    implementation project(':key-vault:key-vault-api')
+    compile project(':encryption:encryption-api')
+    compile project(':config')
+    compile project(':shared')
+    compile project(':key-vault:key-vault-api')
 }
