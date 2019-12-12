@@ -5,5 +5,6 @@ dependencies {
     compile project(':cli:pico-cli')
     compile project(':server:server-api')
     compile project(':tessera-jaxrs:common-jaxrs')
-    compile 'org.apache.commons:commons-lang3:3.7'
+    compile 'org.apache.commons:commons-lang3'
+    compile 'org.glassfish:javax.json'
 }
