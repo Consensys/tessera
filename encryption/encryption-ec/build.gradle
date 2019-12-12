@@ -1,0 +1,7 @@
+dependencies {
+    compile project(':encryption:encryption-api')
+    compile 'org.bouncycastle:bcpkix-jdk15on'
+}
+
+
+description = 'encryption-ec'

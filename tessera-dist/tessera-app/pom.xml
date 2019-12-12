@@ -21,18 +21,6 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>grpc-service</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>grpc-server</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>argon2</artifactId>
         </dependency>
 

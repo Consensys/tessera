@@ -6,6 +6,8 @@ import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.encryption.EncryptorException;
+import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.passwords.PasswordReader;
 import com.quorum.tessera.passwords.PasswordReaderFactory;
 import org.junit.Before;
@@ -17,13 +19,15 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Base64;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class CliKeyPasswordResolverTest {
 
@@ -209,25 +213,62 @@ public class CliKeyPasswordResolverTest {
     public void lockedKeyWithInvalidPasswordRequestsPassword() {
         when(passwordReader.readPasswordFromConsole()).thenReturn("a");
 
+        final String validPassword = "a";
+        final String invalidPassword = "invalidPassword";
+
+        byte[] privateKeyBytes = Base64.getDecoder().decode("w+itzh2vfuGjiGYEVJtqpiJVUmI5vGUK4CzMErxa+GY=");
+        final PrivateKey unlockedKey = PrivateKey.from(privateKeyBytes);
+
         final KeyDataConfig privKeyDataConfig =
-                new KeyDataConfig(
-                        new PrivateKeyData(
-                                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
-                                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
-                                "MIqkFlgR2BWEpx2U0rObGg==",
-                                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
-                                new ArgonOptions("i", 10, 1048576, 4)),
-                        PrivateKeyType.LOCKED);
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
+                    "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
+                    "MIqkFlgR2BWEpx2U0rObGg==",
+                    "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
+                    new ArgonOptions("i", 10, 1048576, 4)),
+                PrivateKeyType.LOCKED);
 
         KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), eq(invalidPassword))).thenThrow(new EncryptorException("decrypt failed"));
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), eq(validPassword))).thenReturn(unlockedKey);
+
         final InlineKeypair keyPair = new InlineKeypair("public", privKeyDataConfig, keyEncryptor);
-        keyPair.withPassword("invalidPassword");
+        keyPair.withPassword(invalidPassword);
 
         this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
 
         assertThat(systemOutRule.getLog())
-                .containsOnlyOnce(
-                        "Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
+            .containsOnlyOnce(
+                "Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
+    }
+
+    @Test
+    public void lockedKeyWithValidPasswordDoesNotRequestPassword() {
+        final String validPassword = "a";
+
+        byte[] privateKeyBytes = Base64.getDecoder().decode("w+itzh2vfuGjiGYEVJtqpiJVUmI5vGUK4CzMErxa+GY=");
+        final PrivateKey unlockedKey = PrivateKey.from(privateKeyBytes);
+
+        final KeyDataConfig privKeyDataConfig =
+            new KeyDataConfig(
+                new PrivateKeyData(
+                    "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
+                    "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
+                    "MIqkFlgR2BWEpx2U0rObGg==",
+                    "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
+                    new ArgonOptions("i", 10, 1048576, 4)),
+                PrivateKeyType.LOCKED);
+
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), eq(validPassword))).thenReturn(unlockedKey);
+
+        final InlineKeypair keyPair = new InlineKeypair("public", privKeyDataConfig, keyEncryptor);
+        keyPair.withPassword(validPassword);
+
+        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
+
+        verifyZeroInteractions(passwordReader);
     }
 
     @Test

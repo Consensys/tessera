@@ -4,6 +4,7 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 import java.net.URI;
 import java.nio.file.Paths;
+import java.util.Objects;
 import javax.net.ssl.SSLContext;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -27,11 +28,11 @@ public class ServerUtils {
 
             UnixSocketConnector connector = new UnixSocketConnector(server, httpConnectionFactory);
             connector.setAcceptQueueSize(128);
-            
+
             String path = Paths.get(serverConfig.getServerUri()).toAbsolutePath().toString();
             connector.setUnixSocket(path);
 
-            server.setConnectors(new Connector[]{connector});
+            server.setConnectors(new Connector[] {connector});
 
             return server;
         }
@@ -40,23 +41,30 @@ public class ServerUtils {
             HttpConfiguration https = new HttpConfiguration();
             https.addCustomizer(new SecureRequestCustomizer());
 
-            SSLContext sslContext = ServerSSLContextFactory.create()
-                    .from(uri.toString(), serverConfig.getSslConfig());
+            SSLContext sslContext = ServerSSLContextFactory.create().from(uri.toString(), serverConfig.getSslConfig());
 
             SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
             sslContextFactory.setSslContext(sslContext);
             sslContextFactory.setNeedClientAuth(true);
-            ServerConnector connector = new ServerConnector(server,
-                    new SslConnectionFactory(sslContextFactory, "http/1.1"),
-                    new HttpConnectionFactory(https));
+            sslContextFactory.setRenegotiationAllowed(false);
+
+            final String[] excludedCipherSuites = serverConfig.getSslConfig().getExcludeCipherSuites();
+            if (Objects.nonNull(excludedCipherSuites)) {
+                sslContextFactory.addExcludeCipherSuites(excludedCipherSuites);
+            }
+            ServerConnector connector =
+                    new ServerConnector(
+                            server,
+                            new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                            new HttpConnectionFactory(https));
             connector.setPort(uri.getPort());
-            server.setConnectors(new Connector[]{connector});
+            server.setConnectors(new Connector[] {connector});
             return server;
         }
 
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(uri.getPort());
-        server.setConnectors(new Connector[]{connector});
+        server.setConnectors(new Connector[] {connector});
 
         return server;
     }

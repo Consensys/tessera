@@ -10,8 +10,9 @@
 # IntelliJ project config
 *.iml
 /**/.idea/
-
+/**/.gradle/
 # Mac files
 .DS_Store
 /config/*.pub
 /config/*.key
+/.gradle/

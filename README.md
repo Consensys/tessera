@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/jpmorganchase/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/jpmorganchase/tessera)
 
 
-# <img src="TesseraLogo.png" width="150" height="150"/>
+# <img src="https://raw.githubusercontent.com/jpmorganchase/tessera/master/TesseraLogo.png" width="150" height="150"/>
 
 > __Important: Release 0.9 Feature__ <br/>Tessera now supports remote enclaves for increased security. Please refer to the [wiki](https://github.com/jpmorganchase/tessera/wiki/What-is-an-Enclave%3F) for details. 
 
@@ -159,6 +159,31 @@ Tessera is the service used to provide Quorum with the ability to support privat
 * The [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
 * [Quorum](https://github.com/jpmorganchase/quorum/) is an Ethereum-based distributed ledger protocol that uses Tessera to provide transaction privacy.
 * Follow the [Quorum Examples](https://github.com/jpmorganchase/quorum-examples) to see Tessera in action in a demo Quorum network.
+
+## Reporting Security Bugs
+Security is part of our commitment to our users. At Quorum we have a close relationship with the security community, we understand the realm, and encourage security researchers to become part of our mission of building secure reliable software. This section explains how to submit security bugs, and what to expect in return.
+
+All security bugs in Quorum and its ecosystem (Tessera, Constellation, Cakeshop, ..etc) should be reported by email to info@goquorum.com. Please use the prefix [security] in your subject. This email is delivered to Quorum security team. Your email will be acknowledged, and you'll receive a more detailed response to your email as soon as possible indicating the next steps in handling your report. After the initial reply to your report, the security team will endeavor to keep you informed of the progress being made towards a fix and full announcement.
+
+If you have not received a reply to your email or you have not heard from the security team please contact any team member through quorum slack security channel. *Please note* that Quorum slack channels are public discussion forum. When escalating to this medium, please do not disclose the details of the issue. Simply state that you're trying to reach a member of the security team.
+
+## Responsible Disclosure Process
+Quorum project uses the following responsible disclosure process:
+
+Once the security report is received it is assigned a primary handler. This person coordinates the fix and release process.
+The issue is confirmed and a list of affected software is determined.
+Code is audited to find any potential similar problems.
+If it is determined, in consultation with the submitter, that a CVE-ID is required, the primary handler will trigger the process.
+Fixes are applied to the public repository and a new release is issued.
+On the date that the fixes are applied, announcements are sent to Quorum-announce.
+At this point you would be able to disclose publicly your finding.
+
+*Note:* This process can take some time. Every effort will be made to handle the security bug in as timely a manner as possible, however it's important that we follow the process described above to ensure that disclosures are handled consistently.
+
+## Receiving Security Updates
+The best way to receive security announcements is to subscribe to the Quorum-announce mailing list/channel. Any messages pertaining to a security issue will be prefixed with [security].
+
+Comments on This Policy If you have any suggestions to improve this policy, please send an email to info@goquorum.com for discussion.
 
 # Getting Help
 Stuck at some step? Have no fear, the help is here <a href="https://clh7rniov2.execute-api.us-east-1.amazonaws.com/Express/" target="_blank" rel="noopener"><img title="Quorum Slack" src="https://clh7rniov2.execute-api.us-east-1.amazonaws.com/Express/badge.svg" alt="Quorum Slack" /></a>

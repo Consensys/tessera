@@ -2,7 +2,6 @@ Feature: Store and forward transactions.
 
     @raw
     @rest
-    @grpc
 	Scenario: Party sends transaction to single recipient
 	Given Sender party A
     And Recipient party B
@@ -13,7 +12,6 @@ Feature: Store and forward transactions.
 
     @raw
     @rest
-    @grpc
 	Scenario: Party sends transaction to multiple recipients 
 	Given Sender party B
     And Recipient parties A,C and D
@@ -50,7 +48,6 @@ Feature: Store and forward transactions.
 	Then an invalid request error is raised 
 
     @raw
-    @grpc
     @rest
     Scenario: Party sends transaction to unknown recipient
 	Given Sender party A

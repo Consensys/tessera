@@ -31,8 +31,8 @@ public class OverrideUtilTest {
     @Test
     public void buildOptions() {
 
-        final List<String> expected
-                = Arrays.asList(
+        final List<String> expected =
+                Arrays.asList(
                         "version",
                         "jdbc.username",
                         "jdbc.password",
@@ -87,6 +87,7 @@ public class OverrideUtilTest {
                         "serverConfigs.influxConfig.sslConfig.environmentVariablePrefix",
                         "serverConfigs.influxConfig.sslConfig.sslConfigType",
                         "serverConfigs.influxConfig.sslConfig.knownServersFile",
+                        "serverConfigs.influxConfig.sslConfig.excludeCipherSuites",
                         "serverConfigs.sslConfig.serverTrustStore",
                         "serverConfigs.sslConfig.knownClientsFile",
                         "serverConfigs.sslConfig.serverTrustCertificates",
@@ -113,6 +114,7 @@ public class OverrideUtilTest {
                         "serverConfigs.sslConfig.knownServersFile",
                         "serverConfigs.sslConfig.environmentVariablePrefix",
                         "serverConfigs.sslConfig.sslConfigType",
+                        "serverConfigs.sslConfig.excludeCipherSuites",
                         "server.hostName",
                         "server.sslConfig.knownServersFile",
                         "server.sslConfig.clientTrustStorePassword",
@@ -126,7 +128,6 @@ public class OverrideUtilTest {
                         "server.sslConfig.clientTrustStore",
                         "server.sslConfig.tls",
                         "server.sslConfig.serverTlsCertificatePath",
-                        "server.grpcPort",
                         "server.sslConfig.serverKeyStore",
                         "server.port",
                         "server.sslConfig.generateKeyStoreIfNotExisted",
@@ -140,6 +141,7 @@ public class OverrideUtilTest {
                         "server.sslConfig.serverKeyStorePassword",
                         "server.sslConfig.environmentVariablePrefix",
                         "server.sslConfig.sslConfigType",
+                        "server.sslConfig.excludeCipherSuites",
                         "server.influxConfig.serverAddress",
                         "server.influxConfig.dbName",
                         "server.influxConfig.pushIntervalInSecs",
@@ -165,6 +167,7 @@ public class OverrideUtilTest {
                         "server.influxConfig.sslConfig.generateKeyStoreIfNotExisted",
                         "server.influxConfig.sslConfig.serverKeyStorePassword",
                         "server.influxConfig.sslConfig.sslConfigType",
+                        "server.influxConfig.sslConfig.excludeCipherSuites",
                         "features.enableRemoteKeyValidation",
                         "encryptor.type");
 
@@ -224,8 +227,7 @@ public class OverrideUtilTest {
         @XmlElement(name = "some_value")
         String someValue;
 
-        @XmlElement
-        String otherValue;
+        @XmlElement String otherValue;
     }
 
     static class OtherClass {
@@ -423,17 +425,17 @@ public class OverrideUtilTest {
     @Test
     public void setValueWithAnnoClass() throws Exception {
 
-        SomeIFace annon = new SomeIFace() {
-            private String value = "HEllow";
+        SomeIFace annon =
+                new SomeIFace() {
+                    private String value = "HEllow";
 
-            @Override
-            public String getValue() {
-                return value;
-            }
-        };
-        
-        OverrideUtil.setValue(annon, "value", "SOMETHING","SOMETHINGELSE");
+                    @Override
+                    public String getValue() {
+                        return value;
+                    }
+                };
 
+        OverrideUtil.setValue(annon, "value", "SOMETHING", "SOMETHINGELSE");
     }
 
     interface SomeIFace {
