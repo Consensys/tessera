@@ -1,0 +1,38 @@
+{
+    "useWhiteList": false,
+    "encryptor": {
+        "type":"NACL"
+    },
+    "server": {
+        "port": 99
+    },
+    "peer": [
+        {
+            "url": "http://bogus1.com"
+        },
+        {
+            "url": "http://bogus2.com"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "privateKey": {
+                    "value": "PRIVATEKEY",
+                    "argonOptions": {
+                        "algorithm": "SHA",
+                        "iterations": 1,
+                        "memory": 256,
+                        "parallelism": 1
+                    }
+                },
+                "publicKey": {
+                    "path": "/somepath"
+                }
+            }
+        ]
+    },
+    "alwaysSendTo": [],
+    "unixSocketFile": "${unixSocketPath}"
+}

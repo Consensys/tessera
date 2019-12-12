@@ -1,0 +1,68 @@
+{
+    "useWhiteList": false,
+    "encryptor": {
+        "type":"NACL"
+    },
+    "jdbc": {
+        "username": "scott",
+        "password": "tiger",
+        "url": "foo:bar"
+    },
+    "serverConfigs": [
+        {
+            "app": "ThirdParty",
+            "enabled": true,
+            "serverAddress": "http://localhost:8090",
+            "communicationType": "REST"
+        },
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverAddress": "unix:/tmp/test.ipc",
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "enabled": true,
+            "serverAddress": "http://localhost:8091",
+            "sslConfig": {
+                "tls": "OFF",
+                "generateKeyStoreIfNotExisted": "false",
+                "serverKeyStore": "./ssl/server1-keystore",
+                "serverKeyStorePassword": "quorum",
+                "serverTrustStore": "./ssl/server-truststore",
+                "serverTrustStorePassword": "quorum",
+                "serverTrustMode": "CA",
+                "clientKeyStore": "./ssl/client1-keystore",
+                "clientKeyStorePassword": "quorum",
+                "clientTrustStore": "./ssl/client-truststore",
+                "clientTrustStorePassword": "quorum",
+                "clientTrustMode": "CA",
+                "knownClientsFile": "./ssl/knownClients1",
+                "knownServersFile": "./ssl/knownServers1"
+            },
+            "communicationType": "REST"
+        }
+    ],
+    "peer": [
+        {
+            "url": "http://bogus1.com"
+        },
+        {
+            "url": "http://bogus2.com"
+        }
+    ],
+    "keys": {
+        "passwords": [],
+        "keyData": [
+            {
+                "publicKeyPath": "${publicKeyPath}",
+                "privateKeyPath": "${privateKeyPath}"
+            }
+        ]
+    },
+    "alwaysSendTo": [
+        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+    ],
+    "unixSocketFile": "tm.ipc"
+}

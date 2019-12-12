@@ -2,15 +2,39 @@ package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
+import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.key.generation.KeyGenerator;
+import com.quorum.tessera.picocli.keys.MockKeyGeneratorFactory;
+import com.quorum.tessera.test.util.ElUtil;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.validation.ConstraintViolationException;
+import java.io.UncheckedIOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 public class PicoCliDelegateTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegateTest.class);
 
     private PicoCliDelegate cliDelegate;
 
@@ -58,4 +82,235 @@ public class PicoCliDelegateTest {
         cliDelegate.execute("-configfile");
     }
 
+    @Test
+    public void withConstraintViolations() throws Exception {
+        Path configFile = createAndPopulatePaths(getClass().getResource("/missing-config.json"));
+
+        try {
+            cliDelegate.execute("-configfile", configFile.toString());
+            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
+        } catch (ConstraintViolationException ex) {
+            assertThat(ex.getConstraintViolations()).isNotEmpty();
+        }
+    }
+
+    @Test
+    public void keygenWithConfig() throws Exception {
+
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+        when(keyDataConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        Path configFilePath = ElUtil.createTempFileFromTemplate(getClass().getResource("/sample-config.json"), params);
+
+        CliResult result =
+                cliDelegate.execute(
+                        "-keygen", "-filename", UUID.randomUUID().toString(), "-configfile", configFilePath.toString());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.getConfig()).isNotNull();
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
+        verifyNoMoreInteractions(keyGenerator);
+    }
+
+    @Test
+    public void keygenThenExit() throws Exception {
+
+        final CliResult result = cliDelegate.execute("-keygen", "--encryptor.type", "NACL");
+
+        assertThat(result).isNotNull();
+        assertThat(result.isSuppressStartup()).isTrue();
+    }
+
+    @Test
+    public void noConfigfileOption() {
+
+        final Throwable throwable = catchThrowable(() -> cliDelegate.execute("--pidfile", "bogus"));
+        assertThat(throwable)
+                .isInstanceOf(CliException.class)
+                .hasMessage("Missing required option '--configfile <config>'");
+    }
+
+    @Test
+    public void output() throws Exception {
+
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+
+        InlineKeypair inlineKeypair = mock(InlineKeypair.class);
+
+        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
+        when(keyDataConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
+        when(inlineKeypair.getPrivateKeyConfig()).thenReturn(keyDataConfig);
+
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
+        Path generatedKey = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
+
+        Files.deleteIfExists(generatedKey);
+        assertThat(Files.exists(generatedKey)).isFalse();
+
+        Path tempKeyFile = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+
+        CliResult result =
+                cliDelegate.execute(
+                        "-keygen",
+                        "-filename",
+                        tempKeyFile.toAbsolutePath().toString(),
+                        "-output",
+                        generatedKey.toFile().getPath(),
+                        "-configfile",
+                        configFile.toString());
+
+        assertThat(result).isNotNull();
+        assertThat(Files.exists(generatedKey)).isTrue();
+
+        try {
+            cliDelegate.execute(
+                    "-keygen",
+                    "-filename",
+                    UUID.randomUUID().toString(),
+                    "-output",
+                    generatedKey.toFile().getPath(),
+                    "-configfile",
+                    configFile.toString());
+            failBecauseExceptionWasNotThrown(Exception.class);
+        } catch (Exception ex) {
+            assertThat(ex).isInstanceOf(UncheckedIOException.class);
+            assertThat(ex.getCause()).isExactlyInstanceOf(FileAlreadyExistsException.class);
+        }
+    }
+
+    @Test
+    public void dynOption() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "--jdbc.username", "somename");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
+        assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
+    }
+
+    @Test
+    public void withInvalidPath() throws Exception {
+        // unixSocketPath
+        Map<String, Object> params = new HashMap<>();
+        params.put("publicKeyPath", "BOGUS.bogus");
+        params.put("privateKeyPath", "BOGUS.bogus");
+
+        Path configFile =
+                ElUtil.createTempFileFromTemplate(getClass().getResource("/sample-config-invalidpath.json"), params);
+
+        try {
+            cliDelegate.execute("-configfile", configFile.toString());
+            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
+        } catch (ConstraintViolationException ex) {
+            assertThat(ex.getConstraintViolations())
+                    .hasSize(2)
+                    .extracting("messageTemplate")
+                    .containsExactly("File does not exist", "File does not exist");
+        }
+    }
+
+    @Test
+    public void withEmptyConfigOverrideAll() throws Exception {
+
+        Path unixSocketFile = Files.createTempFile("unixSocketFile", ".ipc");
+        unixSocketFile.toFile().deleteOnExit();
+
+        Path configFile = Files.createTempFile("withEmptyConfigOverrideAll", ".json");
+        configFile.toFile().deleteOnExit();
+        Files.write(configFile, "{}".getBytes());
+        try {
+            CliResult result =
+                cliDelegate.execute(
+                    "-configfile",
+                    configFile.toString(),
+                    "--unixSocketFile",
+                    unixSocketFile.toString(),
+                    "--encryptor.type",
+                    "NACL");
+
+            assertThat(result).isNotNull();
+            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
+        } catch (ConstraintViolationException ex) {
+            ex.getConstraintViolations().forEach(v -> LOGGER.info("{}", v));
+        }
+    }
+
+    @Test
+    public void overrideAlwaysSendTo() throws Exception {
+
+        String alwaysSendToKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = null;
+        try {
+            result = cliDelegate.execute("-configfile", configFile.toString(), "--alwaysSendTo", alwaysSendToKey);
+        } catch (Exception ex) {
+            fail(ex.getMessage());
+        }
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getAlwaysSendTo()).hasSize(2);
+        assertThat(result.getConfig().get().getAlwaysSendTo())
+            .containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", alwaysSendToKey);
+    }
+
+    @Test
+    public void overridePeers() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        CliResult result =
+            cliDelegate.execute(
+                "-configfile",
+                configFile.toString(),
+                "--peer.url",
+                "anotherpeer",
+                "--peer.url",
+                "yetanotherpeer");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig().get().getPeers()).hasSize(4);
+        assertThat(result.getConfig().get().getPeers().stream().map(Peer::getUrl))
+            .containsExactlyInAnyOrder("anotherpeer", "yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
+    }
 }

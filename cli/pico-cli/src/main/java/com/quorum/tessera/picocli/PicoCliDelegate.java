@@ -2,6 +2,7 @@ package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.cli.CLIExceptionCapturer;
+import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
@@ -32,11 +33,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
+// TODO(cjh) make sure recent changes to old CLI are included where needed
 public class PicoCliDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);
 
     private final Validator validator =
-        Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
+            Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
     private final KeyPasswordResolver keyPasswordResolver;
 
@@ -88,13 +90,14 @@ public class PicoCliDelegate {
         try {
             parseResult = commandLine.parseArgs(args);
         } catch (CommandLine.ParameterException ex) {
-//             TODO(cjh) this is ripped from commandLine.execute(...) - check whether it is sufficient, or if it can be replaced by using the mapper
+            //             TODO(cjh) this is ripped from commandLine.execute(...) - check whether it is sufficient, or
+            // if it can be replaced by using the mapper
             // exception mapper can't be used here as we haven't called commandLine.execute()
             try {
-                int exitCode = commandLine.getParameterExceptionHandler().handleParseException(ex, args);
-                return new CliResult(exitCode, true, null);
+                commandLine.getParameterExceptionHandler().handleParseException(ex, args);
+                throw new CliException(ex.getMessage());
             } catch (Exception e) {
-                throw e;
+                throw new CliException(ex.getMessage());
             }
         }
 
@@ -110,6 +113,8 @@ public class PicoCliDelegate {
             } catch (NoTesseraCmdArgsException e) {
                 commandLine.execute("help");
                 return new CliResult(0, true, null);
+            } catch (NoTesseraConfigfileOptionException e) {
+                throw new CliException("Missing required option '--configfile <config>'");
             }
 
             return new CliResult(0, false, config);
@@ -136,9 +141,9 @@ public class PicoCliDelegate {
             if (mapper.getThrown() != null) {
                 throw mapper.getThrown();
             }
-        }
 
-        return new CliResult(1, true, null);
+            return new CliResult(0, true, null);
+        }
     }
 
     private Config getConfigFromCLI(CommandLine.ParseResult parseResult) throws Exception {
@@ -154,35 +159,35 @@ public class PicoCliDelegate {
         if (parseResult.hasMatchedOption("configfile")) {
             config = parseResult.matchedOption("configfile").getValue();
         } else {
-            config = new Config();
+            throw new NoTesseraConfigfileOptionException();
         }
 
         // apply CLI overrides
         parsedArgs.forEach(
-            parsedArg -> {
-                // positional (i.e. unnamed) CLI flags are ignored
-                if (!parsedArg.isOption()) {
-                    return;
-                }
-
-                OptionSpec parsedOption = (OptionSpec) parsedArg;
-
-                // configfile CLI option is ignored as it was already parsed
-                // pidfile CLI option is ignored as it is parsed later
-                // TODO(cjh) improve, checks all names for all provided options
-                for (String name : parsedOption.names()) {
-                    if ("--configfile".equals(name) || "--pidfile".equals(name)) {
+                parsedArg -> {
+                    // positional (i.e. unnamed) CLI flags are ignored
+                    if (!parsedArg.isOption()) {
                         return;
                     }
-                }
 
-                String optionName = parsedOption.longestName().replaceFirst("^--", "");
-                String[] values = parsedOption.stringValues().toArray(new String[0]);
+                    OptionSpec parsedOption = (OptionSpec) parsedArg;
 
-                LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
-                OverrideUtil.setValue(config, optionName, values);
-                LOGGER.debug("Set : {} with value(s) {}", optionName, values);
-            });
+                    // configfile CLI option is ignored as it was already parsed
+                    // pidfile CLI option is ignored as it is parsed later
+                    // TODO(cjh) improve, checks all names for all provided options
+                    for (String name : parsedOption.names()) {
+                        if ("--configfile".equals(name) || "--pidfile".equals(name)) {
+                            return;
+                        }
+                    }
+
+                    String optionName = parsedOption.longestName().replaceFirst("^--", "");
+                    String[] values = parsedOption.stringValues().toArray(new String[0]);
+
+                    LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
+                    OverrideUtil.setValue(config, optionName, values);
+                    LOGGER.debug("Set : {} with value(s) {}", optionName, values);
+                });
 
         keyPasswordResolver.resolveKeyPasswords(config);
 
@@ -215,5 +220,4 @@ public class PicoCliDelegate {
             stream.write(pid.getBytes(UTF_8));
         }
     }
-
 }
