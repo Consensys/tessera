@@ -23,7 +23,6 @@ public class Main {
     public static void main(String... args) throws Exception {
 
         System.setProperty(CliType.CLI_TYPE_KEY, CliType.ENCLAVE.name());
-
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         CliResult cliResult = CliDelegate.INSTANCE.execute(args);

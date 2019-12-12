@@ -127,12 +127,12 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
                             }
                         });
 
-                keyPasswordResolver.resolveKeyPasswords(config);
-
                 final Set<ConstraintViolation<Config>> violations = validator.validate(config);
                 if (!violations.isEmpty()) {
                     throw new ConstraintViolationException(violations);
                 }
+
+                keyPasswordResolver.resolveKeyPasswords(config);
             }
 
             pidFileMixin.call();

@@ -1,8 +1,8 @@
 
 dependencies {
-    implementation project(':config')
-    implementation project(':encryption:encryption-api')
-    implementation project(':shared')
-    implementation project(':key-vault:key-vault-api')
+    compile project(':config')
+    compile project(':encryption:encryption-api')
+    compile project(':shared')
+    compile project(':key-vault:key-vault-api')
     testImplementation 'org.bouncycastle:bcpkix-jdk15on'
 }

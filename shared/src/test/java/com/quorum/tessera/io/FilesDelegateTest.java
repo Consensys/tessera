@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -65,6 +66,17 @@ public class FilesDelegateTest {
         file.toFile().deleteOnExit();
 
         InputStream result = filesDelegate.newInputStream(file);
+
+        assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void newOutputStream() throws Exception {
+
+        Path file = Files.createTempFile(UUID.randomUUID().toString(), ".txt");
+        file.toFile().deleteOnExit();
+
+        OutputStream result = filesDelegate.newOutputStream(file);
 
         assertThat(result).isNotNull();
     }

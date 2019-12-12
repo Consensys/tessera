@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.ConstraintViolationException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -237,7 +238,8 @@ public class DefaultCliAdapterTest {
                     "-configfile", configFile.toString());
             failBecauseExceptionWasNotThrown(Exception.class);
         } catch (Exception ex) {
-            assertThat(ex).isInstanceOf(FileAlreadyExistsException.class);
+            assertThat(ex).isInstanceOf(UncheckedIOException.class);
+            assertThat(ex.getCause()).isExactlyInstanceOf(FileAlreadyExistsException.class);
         }
     }
 
