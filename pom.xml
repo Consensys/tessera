@@ -57,7 +57,6 @@
         <asm.version>7.0</asm.version>
         <jasypt.version>1.9.3</jasypt.version>
         <awssdk.version>2.10.25</awssdk.version>
-        <hibernate-validator.version>6.0.2.Final</hibernate-validator.version>
     </properties>
 
     <build>
@@ -796,9 +795,10 @@
             </dependency>
 
             <dependency>
-                <groupId>org.hibernate.validator</groupId>
+                <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>${hibernate-validator.version}</version>
+                <version>6.0.2.Final</version>
+                <scope>runtime</scope>
             </dependency>
 
             <dependency>

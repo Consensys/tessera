@@ -13,6 +13,6 @@ Feature: Aws Key Vault support
         Given the mock AWS Secrets Manager server has stubs for the endpoints used to store secrets
         When Tessera keygen is run with the following CLI args and AWS Secrets Manager environment variables
             """
-            -keygen -keygenvaulttype AWS -filename nodeA -keygenvaulturl %s
+            -keygen -keygenvaulttype AWS -filename nodeA,nodeB -keygenvaulturl %s
             """
         Then key pairs nodeA and nodeB will have been added to the AWS Secrets Manager

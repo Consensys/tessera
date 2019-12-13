@@ -82,10 +82,6 @@
                     <groupId>javax.el</groupId>
                     <artifactId>javax.el-api</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.hibernate</groupId>
-                    <artifactId>hibernate-validator</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
 

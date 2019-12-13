@@ -30,13 +30,12 @@ public class AWSSecretManagerKeyGeneratorTest {
     private final PublicKey pub = PublicKey.from(pubStr.getBytes());
     private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
 
-    private Jnacl jnacl;
     private KeyVaultService keyVaultService;
     private AWSSecretManagerKeyGenerator awsSecretManagerKeyGenerator;
 
     @Before
     public void setUp() {
-        this.jnacl = mock(Jnacl.class);
+        final Jnacl jnacl = mock(Jnacl.class);
         this.keyVaultService = mock(KeyVaultService.class);
 
         final KeyPair keyPair = new KeyPair(pub, priv);

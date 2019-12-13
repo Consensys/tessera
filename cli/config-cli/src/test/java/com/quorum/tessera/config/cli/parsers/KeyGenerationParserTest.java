@@ -379,7 +379,7 @@ public class KeyGenerationParserTest {
     @Test
     public void ifAwsVaultTypeProvidedAndEndpointProvidedThenOkay() throws Exception {
         when(commandLine.hasOption("keygenvaulttype")).thenReturn(true);
-        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("http://localhost.com");
+        when(commandLine.getOptionValue("keygenvaulturl")).thenReturn("https://localhost.com");
         when(commandLine.getOptionValue("keygenvaulttype")).thenReturn("AWS");
 
         this.parser.parse(commandLine);
@@ -420,6 +420,5 @@ public class KeyGenerationParserTest {
         ConstraintViolation violation = violations.iterator().next();
 
         assertThat(violation.getPropertyPath().toString()).isEqualTo("endpoint");
-        assertThat(violation.getMessage()).isEqualTo("must be a valid URL");
     }
 }

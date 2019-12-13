@@ -64,8 +64,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate.validator</groupId>
+            <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -78,6 +79,7 @@
             <artifactId>jasypt</artifactId>
         </dependency>
 
+        
     </dependencies>
     <build>
 

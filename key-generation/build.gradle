@@ -1,6 +1,7 @@
 
 dependencies {
     implementation project(':encryption:encryption-api')
+    implementation project(':encryption:encryption-jnacl')
     implementation project(':config')
     implementation project(':shared')
     implementation project(':key-vault:key-vault-api')
