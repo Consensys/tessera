@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -331,11 +332,18 @@ public class OverrideUtilTest {
     }
 
     @Test
+    public void convertToByteArray() {
+        final byte[] result = OverrideUtil.convertTo(byte[].class, "HELLOW");
+        assertThat(result).isEqualTo("HELLOW".getBytes());
+    }
+
+    @Test
     public void setValue() {
         Config config = OverrideUtil.createInstance(Config.class);
 
         OverrideUtil.setValue(config, "jdbc.username", "someuser");
-        OverrideUtil.setValue(config, "peers.url", "snonce1", "snonce2");
+        OverrideUtil.setValue(config, "peers[0].url", "snonce1");
+        OverrideUtil.setValue(config, "peers[1].url", "snonce2");
 
         assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
 
@@ -346,7 +354,8 @@ public class OverrideUtilTest {
     @Test
     public void setValueWithoutAdditions() {
         final OtherClass someList = new OtherClass();
-        OverrideUtil.setValue(someList, "someList.someValue", "password1", "password2");
+        OverrideUtil.setValue(someList, "someList[0].someValue", "password1");
+        OverrideUtil.setValue(someList, "someList[1].someValue", "password2");
         assertThat(someList.someList.get(0).someValue).isEqualTo("password1");
         assertThat(someList.someList.get(1).someValue).isEqualTo("password2");
     }
@@ -379,8 +388,8 @@ public class OverrideUtilTest {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
-        OverrideUtil.setValue(config, "keys.keyData.publicKey", "PUBLICKEY");
-        OverrideUtil.setValue(config, "keys.keyData.privateKey", "PRIVATEKEY");
+        OverrideUtil.setValue(config, "keys[0].keyData.publicKey", "PUBLICKEY");
+        OverrideUtil.setValue(config, "keys[0].keyData.privateKey", "PRIVATEKEY");
         // UNmarshlling to COnfig to
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshalWithNoValidation(config, bout);
@@ -402,7 +411,8 @@ public class OverrideUtilTest {
 
         Config config = OverrideUtil.createInstance(Config.class);
 
-        OverrideUtil.setValue(config, "alwaysSendTo", "ONE", "TWO");
+        OverrideUtil.setValue(config, "alwaysSendTo[0]", "ONE");
+        OverrideUtil.setValue(config, "alwaysSendTo[1]", "TWO");
 
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
             JaxbUtil.marshalWithNoValidation(config, bout);
@@ -416,15 +426,9 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void convertToByteArray() {
-        final byte[] result = OverrideUtil.convertTo(byte[].class, "HELLOW");
-        assertThat(result).isEqualTo("HELLOW".getBytes());
-    }
+    public void setValueWithAnonClassDoesNothing() {
 
-    @Test
-    public void setValueWithAnnoClass() throws Exception {
-
-        SomeIFace annon =
+        SomeIFace anon =
                 new SomeIFace() {
                     private String value = "HEllow";
 
@@ -434,11 +438,271 @@ public class OverrideUtilTest {
                     }
                 };
 
-        OverrideUtil.setValue(annon, "value", "SOMETHING", "SOMETHINGELSE");
+        OverrideUtil.setValue(anon, "value", "SOMETHING");
     }
 
     interface SomeIFace {
 
         String getValue();
     }
+
+    @Test
+    public void setValue_elementOfSimpleCollectionReplaced() {
+        String initialValue = "initial test value";
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+
+        List<String> simpleList = Arrays.asList("element 1", initialValue, "element 3");
+        toOverride.setSimpleList(simpleList);
+
+        OverrideUtil.setValue(toOverride, "simpleList[1]", overriddenValue);
+
+        assertThat(toOverride.getSimpleList()).hasSize(3);
+        assertThat(toOverride.getSimpleList().get(0)).isEqualTo("element 1");
+        assertThat(toOverride.getSimpleList().get(1)).isEqualTo(overriddenValue);
+        assertThat(toOverride.getSimpleList().get(2)).isEqualTo("element 3");
+    }
+
+    @Test
+    public void setValue_propertyOfElementInComplexCollectionReplaced() {
+        int initialValue = 11;
+        int overriddenValue = 20;
+
+        ToOverride toOverride = new ToOverride();
+
+        ToOverride.OtherTestClass otherClass = new ToOverride.OtherTestClass();
+        otherClass.setCount(initialValue);
+
+        List<ToOverride.OtherTestClass> someList = new ArrayList<>();
+        someList.add(otherClass);
+
+        toOverride.setSomeList(someList);
+
+        OverrideUtil.setValue(toOverride, "someList[0].count", Integer.toString(overriddenValue));
+
+        assertThat(toOverride.getSomeList()).hasSize(1);
+        assertThat(toOverride.getSomeList().get(0).getCount()).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_elementOfSimpleCollectionInComplexCollectionReplaced() {
+        String initialValue = "initial test value";
+        String overriddenValue = "updated test value";
+
+        ToOverride toOverride = new ToOverride();
+
+        List<String> otherList = Arrays.asList("some value", initialValue);
+        ToOverride.OtherTestClass otherClass = new ToOverride.OtherTestClass();
+        otherClass.setOtherList(otherList);
+
+        List<ToOverride.OtherTestClass> someList = new ArrayList<>();
+        someList.add(otherClass);
+
+        toOverride.setSomeList(someList);
+
+        OverrideUtil.setValue(toOverride, "someList[0].otherList[1]", overriddenValue);
+
+        assertThat(toOverride.getSomeList()).hasSize(1);
+        assertThat(toOverride.getSomeList().get(0).getOtherList()).hasSize(2);
+        assertThat(toOverride.getSomeList().get(0).getOtherList().get(1)).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_simplePropertyReplaced() {
+        String initialValue = "the initial value";
+        String overriddenValue = "the overridden value";
+
+        ToOverride toOverride = new ToOverride();
+        toOverride.setOtherValue(initialValue);
+
+        OverrideUtil.setValue(toOverride, "otherValue", overriddenValue);
+
+        assertThat(toOverride.getOtherValue()).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_propertyOfComplexPropertyReplaced() {
+        int initialValue = 11;
+        int overriddenValue = 20;
+
+        ToOverride.OtherTestClass complexProperty = new ToOverride.OtherTestClass();
+        complexProperty.setCount(initialValue);
+
+        ToOverride toOverride = new ToOverride();
+        toOverride.setComplexProperty(complexProperty);
+
+        OverrideUtil.setValue(toOverride, "complexProperty.count", Integer.toString(overriddenValue));
+
+        assertThat(toOverride.getComplexProperty()).isNotNull();
+        assertThat(toOverride.getComplexProperty().getCount()).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_simpleCollectionCreated() {
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+
+        OverrideUtil.setValue(toOverride, "simpleList[2]", overriddenValue);
+
+        assertThat(toOverride.getSimpleList()).isNotNull();
+        assertThat(toOverride.getSimpleList()).hasSize(3);
+        assertThat(toOverride.getSimpleList().get(0)).isNull();
+        assertThat(toOverride.getSimpleList().get(1)).isNull();
+        assertThat(toOverride.getSimpleList().get(2)).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_complexCollectionCreated() {
+        int overriddenCount = 11;
+        int otherOverriddenCount = 22;
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+
+        OverrideUtil.setValue(toOverride, "someList[1].count", Integer.toString(overriddenCount));
+        OverrideUtil.setValue(toOverride, "someList[2].count", Integer.toString(otherOverriddenCount));
+        OverrideUtil.setValue(toOverride, "someList[2].strVal", overriddenValue);
+
+        assertThat(toOverride.getSomeList()).isNotNull();
+        assertThat(toOverride.getSomeList()).hasSize(3);
+
+        assertThat(toOverride.getSomeList().get(0)).isNotNull();
+        assertThat(toOverride.getSomeList().get(1)).isNotNull();
+        assertThat(toOverride.getSomeList().get(2)).isNotNull();
+
+        assertThat(toOverride.getSomeList().get(0).getCount()).isZero();
+        assertThat(toOverride.getSomeList().get(0).getStrVal()).isNull();
+        assertThat(toOverride.getSomeList().get(1).getCount()).isEqualTo(overriddenCount);
+        assertThat(toOverride.getSomeList().get(1).getStrVal()).isNull();
+        assertThat(toOverride.getSomeList().get(2).getCount()).isEqualTo(otherOverriddenCount);
+        assertThat(toOverride.getSomeList().get(2).getStrVal()).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_simpleCollectionInComplexCollectionCreated() {
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+
+        OverrideUtil.setValue(toOverride, "someList[0].otherList[1]", overriddenValue);
+
+        assertThat(toOverride.getSomeList()).isNotNull();
+        assertThat(toOverride.getSomeList()).hasSize(1);
+        assertThat(toOverride.getSomeList().get(0)).isNotNull();
+
+        assertThat(toOverride.getSomeList().get(0).getOtherList()).isNotNull();
+        assertThat(toOverride.getSomeList().get(0).getOtherList()).hasSize(2);
+
+        assertThat(toOverride.getSomeList().get(0).getOtherList().get(0)).isNull();
+        assertThat(toOverride.getSomeList().get(0).getOtherList().get(1)).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_nullSimplePropertySet() {
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+
+        OverrideUtil.setValue(toOverride, "otherValue", overriddenValue);
+
+        assertThat(toOverride.getOtherValue()).isNotNull();
+        assertThat(toOverride.getOtherValue()).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_nullPropertyOfComplexPropertySet() {
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+        ToOverride.OtherTestClass complexProperty = new ToOverride.OtherTestClass();
+        toOverride.setComplexProperty(complexProperty);
+
+        OverrideUtil.setValue(toOverride, "complexProperty.strVal", overriddenValue);
+
+        assertThat(toOverride.getComplexProperty()).isNotNull();
+        assertThat(toOverride.getComplexProperty().getStrVal()).isNotNull();
+        assertThat(toOverride.getComplexProperty().getStrVal()).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_simpleCollectionExtended() {
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+        List<String> simpleList = new ArrayList<>();
+        simpleList.add("element1");
+        toOverride.setSimpleList(simpleList);
+
+        assertThat(toOverride.getSimpleList()).hasSize(1);
+
+        OverrideUtil.setValue(toOverride, "simpleList[1]", overriddenValue);
+
+        assertThat(toOverride.getSimpleList()).isNotNull();
+        assertThat(toOverride.getSimpleList()).hasSize(2);
+        assertThat(toOverride.getSimpleList().get(0)).isEqualTo("element1");
+        assertThat(toOverride.getSimpleList().get(1)).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_complexCollectionExtended() {
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+        ToOverride.OtherTestClass otherTestClass = new ToOverride.OtherTestClass();
+        otherTestClass.setStrVal("element1");
+
+        List<ToOverride.OtherTestClass> someList = new ArrayList<>();
+        someList.add(otherTestClass);
+
+        toOverride.setSomeList(someList);
+
+        assertThat(toOverride.getSomeList()).hasSize(1);
+
+        OverrideUtil.setValue(toOverride, "someList[1].strVal", overriddenValue);
+
+        assertThat(toOverride.getSomeList()).isNotNull();
+        assertThat(toOverride.getSomeList()).hasSize(2);
+        assertThat(toOverride.getSomeList().get(0).getStrVal()).isEqualTo("element1");
+        assertThat(toOverride.getSomeList().get(1).getStrVal()).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValue_simpleCollectionInComplexCollectionExtended() {
+        String overriddenValue = "overridden test value";
+
+        ToOverride toOverride = new ToOverride();
+        List<String> otherList = new ArrayList<>();
+        otherList.add("otherElement1");
+
+        ToOverride.OtherTestClass otherTestClass = new ToOverride.OtherTestClass();
+        otherTestClass.setOtherList(otherList);
+
+        List<ToOverride.OtherTestClass> someList = new ArrayList<>();
+        someList.add(otherTestClass);
+
+        toOverride.setSomeList(someList);
+
+        assertThat(toOverride.getSomeList()).hasSize(1);
+        assertThat(toOverride.getSomeList().get(0).getOtherList()).hasSize(1);
+
+        OverrideUtil.setValue(toOverride, "someList[0].otherList[1]", overriddenValue);
+
+        assertThat(toOverride.getSomeList()).isNotNull();
+        assertThat(toOverride.getSomeList()).hasSize(1);
+        assertThat(toOverride.getSomeList().get(0)).isNotNull();
+        assertThat(toOverride.getSomeList().get(0).getOtherList()).hasSize(2);
+
+        assertThat(toOverride.getSomeList().get(0).getOtherList().get(0)).isEqualTo("otherElement1");
+        assertThat(toOverride.getSomeList().get(0).getOtherList().get(1)).isEqualTo(overriddenValue);
+    }
+
+    @Ignore
+    @Test
+    // TODO (cjh) Previously, peer overrides would be appended to any existing peers list.  This has now been disabled so that behaviour is consistent across all options.  It is now possible to overwrite existing peers or append the existing list depending on the position provided when calling the CLI, i.e. --peers[i].  It might be worth introducing an additional mode to always append so that the position doesn't have to be provided in these simpler situations?
+    public void setValue_peersAppended() {
+        assertThat(true).isFalse();
+    }
+
 }

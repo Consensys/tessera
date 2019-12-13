@@ -4,6 +4,8 @@ import com.quorum.tessera.config.Config;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @CommandLine.Command(
         name = "tessera",
@@ -26,4 +28,9 @@ public class TesseraCommand {
             names = {"--pidfile", "-pidfile"},
             description = "the path to write the PID to")
     public Path pidFilePath;
+
+    @CommandLine.Option(names = {"-o", "--override"}, paramLabel = "KEY=VALUE")
+    private Map<String, String> overrides = new LinkedHashMap<>();
+
+    // TODO(cjh) dry run option to print effective config to terminal to allow review of CLI overrides
 }

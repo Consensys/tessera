@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.reflect.ReflectCallback;
 import org.slf4j.Logger;
@@ -15,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,7 +31,7 @@ public interface OverrideUtil {
             Collections.unmodifiableList(
                     Arrays.asList(String.class, Path.class, Integer.class, Boolean.class, Long.class));
 
-    Map<Class<?>, Class<?>> PRIMATIVE_LOOKUP =
+    Map<Class<?>, Class<?>> PRIMITIVE_LOOKUP =
             Collections.unmodifiableMap(
                     new HashMap<Class<?>, Class<?>>() {
                         {
@@ -142,7 +145,7 @@ public interface OverrideUtil {
      * @param path
      * @param value
      */
-    static void setValue(Object root, String path, String... value) {
+    static void setValue(Object root, String path, String value) {
 
         if (root == null) {
             return;
@@ -158,25 +161,55 @@ public interface OverrideUtil {
         while (pathTokens.hasNext()) {
 
             final String token = pathTokens.next();
-            final Field field = resolveField(rootType, token);
+
+            final String target;
+            final String position;
+
+            final String collectionPattern = "^(.*)\\[([0-9].*)\\]$";
+            final Pattern r = Pattern.compile(collectionPattern);
+            final Matcher m = r.matcher(token);
+
+            if (m.matches()) {
+                target = m.group(1);
+                position = m.group(2);
+                LOGGER.debug("Setting {} at position {}", target, position);
+            } else {
+                target = token;
+                position = null;
+            }
+
+            final Field field = resolveField(rootType, target);
             field.setAccessible(true);
 
             final Class fieldType = field.getType();
 
             if (Collection.class.isAssignableFrom(fieldType)) {
+                if (Objects.isNull(position)) {
+                    throw new CliException(path + ": position not provided for Collection parameter override " + token);
+                }
+
+                final int i = Integer.parseInt(position);
 
                 final Class genericType = resolveCollectionParameter(field.getGenericType());
 
                 List list = (List) Optional.ofNullable(getValue(root, field)).orElse(new ArrayList<>());
+
                 if (isSimple(genericType)) {
 
-                    List convertedValues =
-                            (List) Stream.of(value).map(v -> convertTo(genericType, v)).collect(Collectors.toList());
+                    Object convertedValue = convertTo(genericType, value);
 
-                    List merged = new ArrayList(list);
-                    merged.addAll(convertedValues);
+                    List updated = new ArrayList(list);
 
-                    setValue(root, field, merged);
+                    while (updated.size() <= i) {
+                        Class convertedType = PRIMITIVE_LOOKUP.getOrDefault(fieldType, fieldType);
+                        Object emptyValue = convertTo(convertedType, null);
+
+                        updated.add(emptyValue);
+                    }
+
+                    updated.set(i, convertedValue);
+
+                    setValue(root, field, updated);
 
                 } else {
 
@@ -184,34 +217,24 @@ public interface OverrideUtil {
                     pathTokens.forEachRemaining(builder::add);
                     String nestedPath = builder.stream().collect(Collectors.joining("."));
 
-                    final Object[] newList;
-                    if (ADDITIVE_COLLECTION_FIELDS.contains(field.getName())) {
-                        newList = new Object[value.length];
-                    } else {
-                        newList = Arrays.copyOf(list.toArray(), value.length);
+                    while (list.size() <= i) {
+                        final Object newObject = createInstance(genericType);
+                        initialiseNestedObjects(newObject);
+                        list.add(newObject);
                     }
 
-                    for (int i = 0; i < value.length; i++) {
-                        final String v = value[i];
+                    final Object nestedObject = list.get(i);
 
-                        final Object nestedObject = Optional.ofNullable(newList[i]).orElse(createInstance(genericType));
+                    // update the collection's complex object
+                    setValue(nestedObject, nestedPath, value);
 
-                        initialiseNestedObjects(nestedObject);
-
-                        setValue(nestedObject, nestedPath, v);
-                        newList[i] = nestedObject;
-                    }
-                    List merged = new ArrayList();
-                    if (ADDITIVE_COLLECTION_FIELDS.contains(field.getName())) {
-                        merged.addAll(list);
-                    }
-                    merged.addAll(Arrays.asList(newList));
-                    setValue(root, field, merged);
+                    // update the root object with the updated collection
+                    setValue(root, field, list);
                 }
 
             } else if (isSimple(fieldType)) {
-                Class convertedType = PRIMATIVE_LOOKUP.getOrDefault(fieldType, fieldType);
-                Object convertedValue = convertTo(convertedType, value[0]);
+                Class convertedType = PRIMITIVE_LOOKUP.getOrDefault(fieldType, fieldType);
+                Object convertedValue = convertTo(convertedType, value);
                 setValue(root, field, convertedValue);
 
             } else {

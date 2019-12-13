@@ -122,7 +122,7 @@ public class DefaultCliAdapter implements CliAdapter, Callable<CliResult> {
                             if (line.hasOption(optionName)) {
                                 String[] values = line.getOptionValues(optionName);
                                 LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
-                                OverrideUtil.setValue(config, optionName, values);
+//                                OverrideUtil.setValue(config, optionName, values);
                                 LOGGER.debug("Set : {} with value(s) {}", optionName, values);
                             }
                         });

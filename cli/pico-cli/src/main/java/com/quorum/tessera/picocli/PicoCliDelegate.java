@@ -55,16 +55,16 @@ public class PicoCliDelegate {
 
         // TODO(cjh) most usage options have empty lines between them, but not all.  Need to remove the empty lines.
         // add config override options, dynamically generated from the config object
-        Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
-        overrideOptions.forEach(
-                (optionName, optionType) -> {
-                    OptionSpec.Builder optionBuilder =
-                            OptionSpec.builder(String.format("--%s", optionName))
-                                    .paramLabel(optionType.getSimpleName())
-                                    .type(optionType);
-
-                    command.addOption(optionBuilder.build());
-                });
+//        Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
+//        overrideOptions.forEach(
+//                (optionName, optionType) -> {
+//                    OptionSpec.Builder optionBuilder =
+//                            OptionSpec.builder(String.format("--%s", optionName))
+//                                    .paramLabel(optionType.getSimpleName())
+//                                    .type(optionType);
+//
+//                    command.addOption(optionBuilder.build());
+//                });
 
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
 
@@ -162,32 +162,18 @@ public class PicoCliDelegate {
             throw new NoTesseraConfigfileOptionException();
         }
 
-        // apply CLI overrides
-        parsedArgs.forEach(
-                parsedArg -> {
-                    // positional (i.e. unnamed) CLI flags are ignored
-                    if (!parsedArg.isOption()) {
-                        return;
-                    }
+        if (parseResult.hasMatchedOption("override")) {
+            Map<String, String> overrides = parseResult.matchedOption("override").getValue();
 
-                    OptionSpec parsedOption = (OptionSpec) parsedArg;
+            for (String target : overrides.keySet()) {
+                String value = overrides.get(target);
 
-                    // configfile CLI option is ignored as it was already parsed
-                    // pidfile CLI option is ignored as it is parsed later
-                    // TODO(cjh) improve, checks all names for all provided options
-                    for (String name : parsedOption.names()) {
-                        if ("--configfile".equals(name) || "--pidfile".equals(name)) {
-                            return;
-                        }
-                    }
-
-                    String optionName = parsedOption.longestName().replaceFirst("^--", "");
-                    String[] values = parsedOption.stringValues().toArray(new String[0]);
-
-                    LOGGER.debug("Setting : {} with value(s) {}", optionName, values);
-                    OverrideUtil.setValue(config, optionName, values);
-                    LOGGER.debug("Set : {} with value(s) {}", optionName, values);
-                });
+                // apply CLI overrides
+                LOGGER.debug("Setting : {} with value(s) {}", target, value);
+                OverrideUtil.setValue(config, target, value);
+                LOGGER.debug("Set : {} with value(s) {}", target, value);
+            }
+        }
 
         keyPasswordResolver.resolveKeyPasswords(config);
 
