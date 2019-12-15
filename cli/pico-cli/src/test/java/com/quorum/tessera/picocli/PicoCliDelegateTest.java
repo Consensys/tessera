@@ -11,7 +11,9 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.picocli.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.test.util.ElUtil;
+import org.assertj.core.util.Strings;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +123,12 @@ public class PicoCliDelegateTest {
 
         CliResult result =
                 cliDelegate.execute(
-                        "-keygen", "-filename", UUID.randomUUID().toString(), "-configfile", configFilePath.toString());
+                    "-keygen",
+                    "-filename",
+                    UUID.randomUUID().toString(),
+                    "-configfile",
+                    configFilePath.toString()
+                );
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -150,6 +157,8 @@ public class PicoCliDelegateTest {
                 .hasMessage("Missing required option '--configfile <config>'");
     }
 
+    // TODO (cjh) remove ignore once implemented
+    @Ignore
     @Test
     public void output() throws Exception {
 
@@ -219,7 +228,12 @@ public class PicoCliDelegateTest {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "--jdbc.username", "somename");
+        CliResult result = cliDelegate.execute(
+            "-configfile",
+            configFile.toString(),
+            "-o",
+            "jdbc.username=somename"
+        );
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -262,10 +276,11 @@ public class PicoCliDelegateTest {
                 cliDelegate.execute(
                     "-configfile",
                     configFile.toString(),
-                    "--unixSocketFile",
-                    unixSocketFile.toString(),
-                    "--encryptor.type",
-                    "NACL");
+                    "-o",
+                    Strings.join("unixSocketFile=", unixSocketFile.toString()).with(""),
+                    "-o",
+                    "encryptor.type=NACL"
+                );
 
             assertThat(result).isNotNull();
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
@@ -282,7 +297,12 @@ public class PicoCliDelegateTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         CliResult result = null;
         try {
-            result = cliDelegate.execute("-configfile", configFile.toString(), "--alwaysSendTo", alwaysSendToKey);
+            result = cliDelegate.execute(
+                "-configfile",
+                configFile.toString(),
+                "-o",
+                Strings.join("alwaysSendTo[1]=", alwaysSendToKey).with("")
+            );
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
@@ -300,12 +320,9 @@ public class PicoCliDelegateTest {
 
         CliResult result =
             cliDelegate.execute(
-                "-configfile",
-                configFile.toString(),
-                "--peer.url",
-                "anotherpeer",
-                "--peer.url",
-                "yetanotherpeer");
+                "-configfile", configFile.toString(),
+                "-o", "peer[2].url=anotherpeer",
+                "--override", "peer[3].url=yetanotherpeer");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
