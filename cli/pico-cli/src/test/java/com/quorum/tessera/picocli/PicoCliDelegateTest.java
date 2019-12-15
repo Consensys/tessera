@@ -8,6 +8,7 @@ import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.picocli.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.test.util.ElUtil;
@@ -15,14 +16,18 @@ import org.assertj.core.util.Strings;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintViolationException;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -330,4 +335,60 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig().get().getPeers().stream().map(Peer::getUrl))
             .containsExactlyInAnyOrder("anotherpeer", "yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
     }
+
+    @Test
+    public void updatingPasswordsDoesntProcessOtherOptions() throws Exception {
+        MockKeyGeneratorFactory.reset();
+
+        final InputStream oldIn = System.in;
+        final InputStream inputStream =
+            new ByteArrayInputStream((System.lineSeparator() + System.lineSeparator()).getBytes());
+        System.setIn(inputStream);
+
+        final KeyDataConfig startingKey =
+            JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
+
+        final Path key = Files.createTempFile("key", ".key");
+        Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
+
+        final CliResult result =
+            cliDelegate.execute(
+                "-updatepassword",
+                "--keys.keyData.privateKeyPath",
+                key.toString(),
+                "--keys.passwords",
+                "testpassword");
+
+        assertThat(result).isNotNull();
+
+        Mockito.verifyZeroInteractions(MockKeyGeneratorFactory.getMockKeyGenerator());
+        System.setIn(oldIn);
+    }
+
+    @Test
+    public void suppressStartupForKeygenOption() throws Exception {
+        final CliResult cliResult = cliDelegate.execute("-keygen", "--encryptor.type", "NACL");
+
+        assertThat(cliResult.isSuppressStartup()).isTrue();
+    }
+
+    @Test
+    public void suppressStartupForKeygenOptionWithConfigfile() throws Exception {
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, null);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
+        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        final CliResult cliResult = cliDelegate.execute("-keygen", "-configfile", configFile.toString());
+
+        assertThat(cliResult.isSuppressStartup()).isTrue();
+    }
+
 }

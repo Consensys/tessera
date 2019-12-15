@@ -314,103 +314,103 @@ public class DefaultCliAdapterTest {
 //        assertThat(result.getConfig().get().getAlwaysSendTo())
 //                .containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", alwaysSendToKey);
 //    }
-
-    @Test
-    public void overridePeers() throws Exception {
-
-        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-
-        CliResult result =
-                cliAdapter.execute(
-                        "-configfile",
-                        configFile.toString(),
-                        "-peer.url",
-                        "anotherpeer",
-                        "-peer.url",
-                        "yetanotherpeer");
-
-        assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
-        assertThat(result.getConfig().get().getPeers()).hasSize(4);
-        assertThat(result.getConfig().get().getPeers().stream().map(Peer::getUrl))
-                .containsExactlyInAnyOrder("anotherpeer", "yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
-    }
-
-    @Test
-    public void updatingPasswordsDoesntProcessOtherOptions() throws Exception {
-        MockKeyGeneratorFactory.reset();
-
-        final InputStream oldIn = System.in;
-        final InputStream inputStream =
-                new ByteArrayInputStream((System.lineSeparator() + System.lineSeparator()).getBytes());
-        System.setIn(inputStream);
-
-        final KeyDataConfig startingKey =
-                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
-
-        final Path key = Files.createTempFile("key", ".key");
-        Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
-
-        final CliResult result =
-                cliAdapter.execute(
-                        "-updatepassword",
-                        "--keys.keyData.privateKeyPath",
-                        key.toString(),
-                        "--keys.passwords",
-                        "testpassword");
-
-        assertThat(result).isNotNull();
-
-        Mockito.verifyZeroInteractions(MockKeyGeneratorFactory.getMockKeyGenerator());
-        System.setIn(oldIn);
-    }
-
-    @Test
-    public void suppressStartupForKeygenOption() throws Exception {
-        final CliResult cliResult = cliAdapter.execute("-keygen", "--encryptor.type", "NACL");
-
-        assertThat(cliResult.isSuppressStartup()).isTrue();
-    }
-
-    @Test
-    public void allowStartupForKeygenAndConfigfileOptions() throws Exception {
-        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
-
-        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
-        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
-
-        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, null);
-        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
-
-        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-
-        final CliResult cliResult = cliAdapter.execute("-keygen", "-configfile", configFile.toString());
-
-        assertThat(cliResult.isSuppressStartup()).isFalse();
-    }
-
-    @Test
-    public void suppressStartupForKeygenAndVaultUrlAndConfigfileOptions() throws Exception {
-        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-
-        final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""), null);
-        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
-
-        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        final String vaultUrl = "https://test.vault.azure.net";
-
-        final CliResult cliResult =
-                cliAdapter.execute(
-                        "-keygen",
-                        "-keygenvaulttype",
-                        "AZURE",
-                        "-keygenvaulturl",
-                        vaultUrl,
-                        "-configfile",
-                        configFile.toString());
-
-        assertThat(cliResult.isSuppressStartup()).isTrue();
-    }
+//
+//    @Test
+//    public void overridePeers() throws Exception {
+//
+//        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+//
+//        CliResult result =
+//                cliAdapter.execute(
+//                        "-configfile",
+//                        configFile.toString(),
+//                        "-peer.url",
+//                        "anotherpeer",
+//                        "-peer.url",
+//                        "yetanotherpeer");
+//
+//        assertThat(result).isNotNull();
+//        assertThat(result.getConfig()).isPresent();
+//        assertThat(result.getConfig().get().getPeers()).hasSize(4);
+//        assertThat(result.getConfig().get().getPeers().stream().map(Peer::getUrl))
+//                .containsExactlyInAnyOrder("anotherpeer", "yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
+//    }
+//
+//    @Test
+//    public void updatingPasswordsDoesntProcessOtherOptions() throws Exception {
+//        MockKeyGeneratorFactory.reset();
+//
+//        final InputStream oldIn = System.in;
+//        final InputStream inputStream =
+//                new ByteArrayInputStream((System.lineSeparator() + System.lineSeparator()).getBytes());
+//        System.setIn(inputStream);
+//
+//        final KeyDataConfig startingKey =
+//                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
+//
+//        final Path key = Files.createTempFile("key", ".key");
+//        Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
+//
+//        final CliResult result =
+//                cliAdapter.execute(
+//                        "-updatepassword",
+//                        "--keys.keyData.privateKeyPath",
+//                        key.toString(),
+//                        "--keys.passwords",
+//                        "testpassword");
+//
+//        assertThat(result).isNotNull();
+//
+//        Mockito.verifyZeroInteractions(MockKeyGeneratorFactory.getMockKeyGenerator());
+//        System.setIn(oldIn);
+//    }
+//
+//    @Test
+//    public void suppressStartupForKeygenOption() throws Exception {
+//        final CliResult cliResult = cliAdapter.execute("-keygen", "--encryptor.type", "NACL");
+//
+//        assertThat(cliResult.isSuppressStartup()).isTrue();
+//    }
+//
+//    @Test
+//    public void allowStartupForKeygenAndConfigfileOptions() throws Exception {
+//        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+//        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+//        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+//
+//        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+//        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+//
+//        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, null);
+//        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+//
+//        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+//
+//        final CliResult cliResult = cliAdapter.execute("-keygen", "-configfile", configFile.toString());
+//
+//        assertThat(cliResult.isSuppressStartup()).isFalse();
+//    }
+//
+//    @Test
+//    public void suppressStartupForKeygenAndVaultUrlAndConfigfileOptions() throws Exception {
+//        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+//
+//        final FilesystemKeyPair keypair = new FilesystemKeyPair(Paths.get(""), Paths.get(""), null);
+//        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+//
+//        final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+//        final String vaultUrl = "https://test.vault.azure.net";
+//
+//        final CliResult cliResult =
+//                cliAdapter.execute(
+//                        "-keygen",
+//                        "-keygenvaulttype",
+//                        "AZURE",
+//                        "-keygenvaulturl",
+//                        vaultUrl,
+//                        "-configfile",
+//                        configFile.toString());
+//
+//        assertThat(cliResult.isSuppressStartup()).isTrue();
+//    }
 }
