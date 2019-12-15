@@ -9,26 +9,26 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-public class EncryptorOptions {
+class EncryptorOptions {
 
     @CommandLine.Option(
             names = {"--encryptor.type"},
             description = "Valid values: ${COMPLETION-CANDIDATES}")
-    public EncryptorType type;
+    EncryptorType type;
 
     @CommandLine.Option(names = {"--encryptor.symmetricCipher"})
-    public String symmetricCipher;
+    String symmetricCipher;
 
     @CommandLine.Option(names = {"--encryptor.ellipticCurve"})
-    public String ellipticCurve;
+    String ellipticCurve;
 
     @CommandLine.Option(names = {"--encryptor.nonceLength"})
-    public String nonceLength;
+    String nonceLength;
 
     @CommandLine.Option(names = {"--encryptor.sharedKeyLength"})
-    public String sharedKeyLength;
+    String sharedKeyLength;
 
-    public EncryptorConfig parseEncryptorConfig() {
+    EncryptorConfig parseEncryptorConfig() {
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
 
         // we set the default here instead of in the option annotation as enum values cannot be used in annotationss
@@ -36,18 +36,17 @@ public class EncryptorOptions {
             type = EncryptorType.NACL;
         }
 
-        encryptorConfig.setType(type);
-
+        Map<String, String> properties = new HashMap<>();
         if (type == EncryptorType.EC) {
-            Map<String, String> properties = new HashMap<>();
 
             Optional.ofNullable(symmetricCipher).ifPresent(v -> properties.put("symmetricCipher", v));
             Optional.ofNullable(ellipticCurve).ifPresent(v -> properties.put("ellipticCurve", v));
             Optional.ofNullable(nonceLength).ifPresent(v -> properties.put("nonceLength", v));
             Optional.ofNullable(sharedKeyLength).ifPresent(v -> properties.put("sharedKeyLength", v));
-
-            encryptorConfig.setProperties(properties);
         }
+
+        encryptorConfig.setType(type);
+        encryptorConfig.setProperties(properties);
 
         return encryptorConfig;
     }

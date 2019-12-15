@@ -31,7 +31,7 @@ import java.util.concurrent.Callable;
         abbreviateSynopsis = true,
         subcommands = {CommandLine.HelpCommand.class})
 public class KeyGenCommand implements Callable<CliResult> {
-    private final KeyGeneratorFactory factory = KeyGeneratorFactory.newFactory();
+    private KeyGeneratorFactory factory;
 
     private final Validator validator =
             Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
@@ -55,7 +55,6 @@ public class KeyGenCommand implements Callable<CliResult> {
             names = {"--vault.type", "-keygenvaulttype"},
             description =
                     "Specify the key vault provider the generated key is to be saved in.  If not set, the key will be encrypted and stored on the local filesystem.  Valid values: ${COMPLETION-CANDIDATES})")
-    // TODO(cjh) get possible enum values to show in the usage
     public KeyVaultType vaultType;
 
     @CommandLine.Option(
@@ -98,8 +97,12 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @CommandLine.Mixin public EncryptorOptions encryptorOptions;
 
+    KeyGenCommand(KeyGeneratorFactory keyGeneratorFactory) {
+        this.factory = keyGeneratorFactory;
+    }
+
     @Override
-    public CliResult call() throws Exception {
+    public CliResult call() {
         final EncryptorConfig encryptorConfig;
 
         if (Optional.ofNullable(config).map(Config::getEncryptor).isPresent()) {
@@ -113,7 +116,11 @@ public class KeyGenCommand implements Callable<CliResult> {
 
         final KeyGenerator generator = factory.create(keyVaultConfig, encryptorConfig);
 
-        keyOut.forEach(name -> generator.generate(name, encryptionConfig, keyVaultOptions));
+        if (Objects.isNull(keyOut) || keyOut.isEmpty()) {
+            generator.generate("", encryptionConfig, keyVaultOptions);
+        } else {
+            keyOut.forEach(name -> generator.generate(name, encryptionConfig, keyVaultOptions));
+        }
 
         return new CliResult(0, true, null);
     }
@@ -131,6 +138,10 @@ public class KeyGenCommand implements Callable<CliResult> {
             return Optional.empty();
         }
 
+        if (Objects.isNull(vaultType)) {
+            throw new CliException("Key vault type either not provided or not recognised");
+        }
+
         final KeyVaultConfig keyVaultConfig;
 
         if (vaultType.equals(KeyVaultType.AZURE)) {
@@ -143,7 +154,7 @@ public class KeyGenCommand implements Callable<CliResult> {
                 throw new ConstraintViolationException(violations);
             }
         } else {
-            if (keyOut.size() == 0) {
+            if (Objects.isNull(keyOut) || keyOut.isEmpty()) {
                 throw new CliException(
                         "At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
             }

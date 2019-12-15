@@ -322,6 +322,8 @@
                                 <exclude>com/quorum/tessera/enclave/rest/Main*</exclude>
                                 <exclude>com/quorum/tessera/enclave/websockets/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/cli/DefaultCliAdapter*</exclude>
+                                <exclude>com/quorum/tessera/config/cli/parsers/KeyGenerationParser*</exclude>
+                                <exclude>com/quorum/tessera/config/cli/parsers/EncryptorConfigParser*</exclude>
                             </excludes>
 
                             <rules>

@@ -32,7 +32,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-// TODO(cjh) make sure recent changes to old CLI are included where needed
+// TODO(cjh) make sure recent changes to old CLI (e.g. parser behaviour) are included where needed
 public class PicoCliDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);
 
@@ -54,7 +54,8 @@ public class PicoCliDelegate {
 
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
 
-        CommandLine keyGenCommandLine = new CommandLine(KeyGenCommand.class);
+        final CommandLine.IFactory keyGenCommandFactory = new KeyGenCommandFactory();
+        CommandLine keyGenCommandLine = new CommandLine(KeyGenCommand.class, keyGenCommandFactory);
 
         final CommandLine.IFactory keyUpdateCommandFactory = new KeyUpdateCommandFactory();
         CommandLine keyUpdateCommandLine = new CommandLine(KeyUpdateCommand.class, keyUpdateCommandFactory);
