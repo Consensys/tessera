@@ -36,7 +36,13 @@ public class EncryptorConfigParserTest {
     }
 
     @Test
-    public void elipticalCurveNoPropertiesDefined() throws IOException {
+    public void constructor() {
+        parser = new EncryptorConfigParser();
+        assertThat(parser).isNotNull();
+    }
+
+    @Test
+    public void ellipticalCurveNoPropertiesDefined() throws IOException {
         when(commandLine.hasOption("configfile")).thenReturn(false);
 
         when(commandLine.getOptionValue("encryptor.type", EncryptorType.NACL.name()))
@@ -57,7 +63,7 @@ public class EncryptorConfigParserTest {
     }
 
     @Test
-    public void elipticalCurveWithDefinedProperties() throws IOException {
+    public void ellipticalCurveWithDefinedProperties() throws IOException {
 
         when(commandLine.getOptionValue("encryptor.type", EncryptorType.NACL.name()))
                 .thenReturn(EncryptorType.EC.name());
@@ -129,5 +135,29 @@ public class EncryptorConfigParserTest {
         verify(commandLine).hasOption("configfile");
 
         verify(filesDelegate).newInputStream(any(Path.class));
+    }
+
+    @Test
+    public void encryptorConfigFromFile() throws Exception {
+        when(commandLine.getOptionValue("encryptor.type", EncryptorType.NACL.name()))
+                .thenReturn(EncryptorType.NACL.name());
+        when(commandLine.hasOption("configfile")).thenReturn(true);
+        when(commandLine.getOptionValue("configfile")).thenReturn("somepath");
+
+        String jsonConfig = "{\"encryptor\": {\"type\": \"EC\"}}";
+
+        InputStream inputStream = new ByteArrayInputStream(jsonConfig.getBytes());
+        when(filesDelegate.newInputStream(any(Path.class))).thenReturn(inputStream);
+
+        EncryptorConfig result = parser.parse(commandLine);
+
+        assertThat(result.getType()).isEqualTo(EncryptorType.EC);
+
+        verify(commandLine).getOptionValue("encryptor.type", EncryptorType.NACL.name());
+        verify(commandLine).hasOption("configfile");
+        verify(commandLine).getOptionValue("configfile");
+        verify(filesDelegate).newInputStream(any(Path.class));
+
+        verifyNoMoreInteractions(filesDelegate);
     }
 }

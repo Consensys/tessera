@@ -27,7 +27,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -128,12 +127,7 @@ public class PicoCliDelegateTest {
 
         CliResult result =
                 cliDelegate.execute(
-                    "-keygen",
-                    "-filename",
-                    UUID.randomUUID().toString(),
-                    "-configfile",
-                    configFilePath.toString()
-                );
+                        "-keygen", "-filename", UUID.randomUUID().toString(), "-configfile", configFilePath.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -233,12 +227,7 @@ public class PicoCliDelegateTest {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        CliResult result = cliDelegate.execute(
-            "-configfile",
-            configFile.toString(),
-            "-o",
-            "jdbc.username=somename"
-        );
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-o", "jdbc.username=somename");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -278,14 +267,13 @@ public class PicoCliDelegateTest {
         Files.write(configFile, "{}".getBytes());
         try {
             CliResult result =
-                cliDelegate.execute(
-                    "-configfile",
-                    configFile.toString(),
-                    "-o",
-                    Strings.join("unixSocketFile=", unixSocketFile.toString()).with(""),
-                    "-o",
-                    "encryptor.type=NACL"
-                );
+                    cliDelegate.execute(
+                            "-configfile",
+                            configFile.toString(),
+                            "-o",
+                            Strings.join("unixSocketFile=", unixSocketFile.toString()).with(""),
+                            "-o",
+                            "encryptor.type=NACL");
 
             assertThat(result).isNotNull();
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
@@ -302,12 +290,12 @@ public class PicoCliDelegateTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         CliResult result = null;
         try {
-            result = cliDelegate.execute(
-                "-configfile",
-                configFile.toString(),
-                "-o",
-                Strings.join("alwaysSendTo[1]=", alwaysSendToKey).with("")
-            );
+            result =
+                    cliDelegate.execute(
+                            "-configfile",
+                            configFile.toString(),
+                            "-o",
+                            Strings.join("alwaysSendTo[1]=", alwaysSendToKey).with(""));
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
@@ -315,7 +303,7 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getAlwaysSendTo()).hasSize(2);
         assertThat(result.getConfig().get().getAlwaysSendTo())
-            .containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", alwaysSendToKey);
+                .containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", alwaysSendToKey);
     }
 
     @Test
@@ -324,16 +312,16 @@ public class PicoCliDelegateTest {
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
         CliResult result =
-            cliDelegate.execute(
-                "-configfile", configFile.toString(),
-                "-o", "peer[2].url=anotherpeer",
-                "--override", "peer[3].url=yetanotherpeer");
+                cliDelegate.execute(
+                        "-configfile", configFile.toString(),
+                        "-o", "peer[2].url=anotherpeer",
+                        "--override", "peer[3].url=yetanotherpeer");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getPeers()).hasSize(4);
         assertThat(result.getConfig().get().getPeers().stream().map(Peer::getUrl))
-            .containsExactlyInAnyOrder("anotherpeer", "yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
+                .containsExactlyInAnyOrder("anotherpeer", "yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
     }
 
     @Test
@@ -342,22 +330,22 @@ public class PicoCliDelegateTest {
 
         final InputStream oldIn = System.in;
         final InputStream inputStream =
-            new ByteArrayInputStream((System.lineSeparator() + System.lineSeparator()).getBytes());
+                new ByteArrayInputStream((System.lineSeparator() + System.lineSeparator()).getBytes());
         System.setIn(inputStream);
 
         final KeyDataConfig startingKey =
-            JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
+                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
 
         final Path key = Files.createTempFile("key", ".key");
         Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
 
         final CliResult result =
-            cliDelegate.execute(
-                "-updatepassword",
-                "--keys.keyData.privateKeyPath",
-                key.toString(),
-                "--keys.passwords",
-                "testpassword");
+                cliDelegate.execute(
+                        "-updatepassword",
+                        "--keys.keyData.privateKeyPath",
+                        key.toString(),
+                        "--keys.passwords",
+                        "testpassword");
 
         assertThat(result).isNotNull();
 
@@ -390,5 +378,4 @@ public class PicoCliDelegateTest {
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
     }
-
 }

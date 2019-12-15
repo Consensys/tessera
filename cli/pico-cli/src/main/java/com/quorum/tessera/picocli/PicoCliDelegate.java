@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 import picocli.CommandLine.Model.CommandSpec;
-import picocli.CommandLine.Model.OptionSpec;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -52,19 +51,6 @@ public class PicoCliDelegate {
 
     public CliResult execute(String... args) throws Exception {
         final CommandSpec command = CommandSpec.forAnnotatedObject(TesseraCommand.class);
-
-        // TODO(cjh) most usage options have empty lines between them, but not all.  Need to remove the empty lines.
-        // add config override options, dynamically generated from the config object
-//        Map<String, Class> overrideOptions = OverrideUtil.buildConfigOptions();
-//        overrideOptions.forEach(
-//                (optionName, optionType) -> {
-//                    OptionSpec.Builder optionBuilder =
-//                            OptionSpec.builder(String.format("--%s", optionName))
-//                                    .paramLabel(optionType.getSimpleName())
-//                                    .type(optionType);
-//
-//                    command.addOption(optionBuilder.build());
-//                });
 
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
 

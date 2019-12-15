@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.Peer;
@@ -447,13 +448,30 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_elementOfSimpleCollectionReplaced() {
-        String initialValue = "initial test value";
-        String overriddenValue = "overridden test value";
+    public void setValueCollectionButNoPositionProvided() {
+        final String initialValue = "initial test value";
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
 
-        List<String> simpleList = Arrays.asList("element 1", initialValue, "element 3");
+        final List<String> simpleList = Arrays.asList("element 1", initialValue, "element 3");
+        toOverride.setSimpleList(simpleList);
+
+        Throwable ex = catchThrowable(() -> OverrideUtil.setValue(toOverride, "simpleList", overriddenValue));
+
+        assertThat(ex).isNotNull();
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("simpleList: position not provided for Collection parameter override simpleList");
+    }
+
+    @Test
+    public void setValueElementOfSimpleCollectionReplaced() {
+        final String initialValue = "initial test value";
+        final String overriddenValue = "overridden test value";
+
+        final ToOverride toOverride = new ToOverride();
+
+        final List<String> simpleList = Arrays.asList("element 1", initialValue, "element 3");
         toOverride.setSimpleList(simpleList);
 
         OverrideUtil.setValue(toOverride, "simpleList[1]", overriddenValue);
@@ -465,16 +483,16 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_propertyOfElementInComplexCollectionReplaced() {
-        int initialValue = 11;
-        int overriddenValue = 20;
+    public void setValuePropertyOfElementInComplexCollectionReplaced() {
+        final int initialValue = 11;
+        final int overriddenValue = 20;
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
 
-        ToOverride.OtherTestClass otherClass = new ToOverride.OtherTestClass();
+        final ToOverride.OtherTestClass otherClass = new ToOverride.OtherTestClass();
         otherClass.setCount(initialValue);
 
-        List<ToOverride.OtherTestClass> someList = new ArrayList<>();
+        final List<ToOverride.OtherTestClass> someList = new ArrayList<>();
         someList.add(otherClass);
 
         toOverride.setSomeList(someList);
@@ -486,17 +504,17 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_elementOfSimpleCollectionInComplexCollectionReplaced() {
-        String initialValue = "initial test value";
-        String overriddenValue = "updated test value";
+    public void setValueElementOfSimpleCollectionInComplexCollectionReplaced() {
+        final String initialValue = "initial test value";
+        final String overriddenValue = "updated test value";
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
 
-        List<String> otherList = Arrays.asList("some value", initialValue);
-        ToOverride.OtherTestClass otherClass = new ToOverride.OtherTestClass();
+        final List<String> otherList = Arrays.asList("some value", initialValue);
+        final ToOverride.OtherTestClass otherClass = new ToOverride.OtherTestClass();
         otherClass.setOtherList(otherList);
 
-        List<ToOverride.OtherTestClass> someList = new ArrayList<>();
+        final List<ToOverride.OtherTestClass> someList = new ArrayList<>();
         someList.add(otherClass);
 
         toOverride.setSomeList(someList);
@@ -509,11 +527,11 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_simplePropertyReplaced() {
-        String initialValue = "the initial value";
-        String overriddenValue = "the overridden value";
+    public void setValueSimplePropertyReplaced() {
+        final String initialValue = "the initial value";
+        final String overriddenValue = "the overridden value";
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
         toOverride.setOtherValue(initialValue);
 
         OverrideUtil.setValue(toOverride, "otherValue", overriddenValue);
@@ -522,14 +540,14 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_propertyOfComplexPropertyReplaced() {
-        int initialValue = 11;
-        int overriddenValue = 20;
+    public void setValuePropertyOfComplexPropertyReplaced() {
+        final int initialValue = 11;
+        final int overriddenValue = 20;
 
-        ToOverride.OtherTestClass complexProperty = new ToOverride.OtherTestClass();
+        final ToOverride.OtherTestClass complexProperty = new ToOverride.OtherTestClass();
         complexProperty.setCount(initialValue);
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
         toOverride.setComplexProperty(complexProperty);
 
         OverrideUtil.setValue(toOverride, "complexProperty.count", Integer.toString(overriddenValue));
@@ -539,10 +557,10 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_simpleCollectionCreated() {
-        String overriddenValue = "overridden test value";
+    public void setValueSimpleCollectionCreated() {
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
 
         OverrideUtil.setValue(toOverride, "simpleList[2]", overriddenValue);
 
@@ -554,12 +572,12 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_complexCollectionCreated() {
-        int overriddenCount = 11;
-        int otherOverriddenCount = 22;
-        String overriddenValue = "overridden test value";
+    public void setValueComplexCollectionCreated() {
+        final int overriddenCount = 11;
+        final int otherOverriddenCount = 22;
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
 
         OverrideUtil.setValue(toOverride, "someList[1].count", Integer.toString(overriddenCount));
         OverrideUtil.setValue(toOverride, "someList[2].count", Integer.toString(otherOverriddenCount));
@@ -581,10 +599,10 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_simpleCollectionInComplexCollectionCreated() {
-        String overriddenValue = "overridden test value";
+    public void setValueSimpleCollectionInComplexCollectionCreated() {
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
 
         OverrideUtil.setValue(toOverride, "someList[0].otherList[1]", overriddenValue);
 
@@ -600,10 +618,10 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_nullSimplePropertySet() {
-        String overriddenValue = "overridden test value";
+    public void setValueNullSimplePropertySet() {
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
+        final ToOverride toOverride = new ToOverride();
 
         OverrideUtil.setValue(toOverride, "otherValue", overriddenValue);
 
@@ -612,11 +630,11 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_nullPropertyOfComplexPropertySet() {
-        String overriddenValue = "overridden test value";
+    public void setValueNullPropertyOfComplexPropertySet() {
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
-        ToOverride.OtherTestClass complexProperty = new ToOverride.OtherTestClass();
+        final ToOverride toOverride = new ToOverride();
+        final ToOverride.OtherTestClass complexProperty = new ToOverride.OtherTestClass();
         toOverride.setComplexProperty(complexProperty);
 
         OverrideUtil.setValue(toOverride, "complexProperty.strVal", overriddenValue);
@@ -627,11 +645,11 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_simpleCollectionExtended() {
-        String overriddenValue = "overridden test value";
+    public void setValueSimpleCollectionExtended() {
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
-        List<String> simpleList = new ArrayList<>();
+        final ToOverride toOverride = new ToOverride();
+        final List<String> simpleList = new ArrayList<>();
         simpleList.add("element1");
         toOverride.setSimpleList(simpleList);
 
@@ -646,14 +664,14 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_complexCollectionExtended() {
-        String overriddenValue = "overridden test value";
+    public void setValueComplexCollectionExtended() {
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
-        ToOverride.OtherTestClass otherTestClass = new ToOverride.OtherTestClass();
+        final ToOverride toOverride = new ToOverride();
+        final ToOverride.OtherTestClass otherTestClass = new ToOverride.OtherTestClass();
         otherTestClass.setStrVal("element1");
 
-        List<ToOverride.OtherTestClass> someList = new ArrayList<>();
+        final List<ToOverride.OtherTestClass> someList = new ArrayList<>();
         someList.add(otherTestClass);
 
         toOverride.setSomeList(someList);
@@ -669,17 +687,17 @@ public class OverrideUtilTest {
     }
 
     @Test
-    public void setValue_simpleCollectionInComplexCollectionExtended() {
-        String overriddenValue = "overridden test value";
+    public void setValueSimpleCollectionInComplexCollectionExtended() {
+        final String overriddenValue = "overridden test value";
 
-        ToOverride toOverride = new ToOverride();
-        List<String> otherList = new ArrayList<>();
+        final ToOverride toOverride = new ToOverride();
+        final List<String> otherList = new ArrayList<>();
         otherList.add("otherElement1");
 
-        ToOverride.OtherTestClass otherTestClass = new ToOverride.OtherTestClass();
+        final ToOverride.OtherTestClass otherTestClass = new ToOverride.OtherTestClass();
         otherTestClass.setOtherList(otherList);
 
-        List<ToOverride.OtherTestClass> someList = new ArrayList<>();
+        final List<ToOverride.OtherTestClass> someList = new ArrayList<>();
         someList.add(otherTestClass);
 
         toOverride.setSomeList(someList);
@@ -700,9 +718,12 @@ public class OverrideUtilTest {
 
     @Ignore
     @Test
-    // TODO (cjh) Previously, peer overrides would be appended to any existing peers list.  This has now been disabled so that behaviour is consistent across all options.  It is now possible to overwrite existing peers or append the existing list depending on the position provided when calling the CLI, i.e. --peers[i].  It might be worth introducing an additional mode to always append so that the position doesn't have to be provided in these simpler situations?
-    public void setValue_peersAppended() {
+    // TODO (cjh) Previously, peer overrides would be appended to any existing peers list.  This has now been disabled
+    // so that behaviour is consistent across all options.  It is now possible to overwrite existing peers or append the
+    // existing list depending on the position provided when calling the CLI, i.e. --peers[i].  It might be worth
+    // introducing an additional mode to always append so that the position doesn't have to be provided in these simpler
+    // situations?
+    public void setValuePeersAppended() {
         assertThat(true).isFalse();
     }
-
 }

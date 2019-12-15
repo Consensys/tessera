@@ -1,7 +1,7 @@
 
 package com.quorum.tessera.core;
 
-import com.quorum.tessera.cli.CliDelegate;
+import com.quorum.tessera.picocli.PicoCliDelegate;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,7 +29,8 @@ public class CoreIT {
     @BeforeClass
     public static void onSetup() throws Exception {
         String configPath = CoreIT.class.getResource("/config1.json").getPath();
-        CliDelegate.INSTANCE.execute("-configfile",configPath);
+        PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
+        picoCliDelegate.execute("-configfile", configPath);
 }
 
     @Test
