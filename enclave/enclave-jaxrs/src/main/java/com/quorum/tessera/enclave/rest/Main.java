@@ -25,14 +25,14 @@ public class Main {
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        CommandLine commandLine = new CommandLine(new EnclaveCliAdapter());
+        final CommandLine commandLine = new CommandLine(new EnclaveCliAdapter());
         commandLine
-            .registerConverter(Config.class, new ConfigConverter())
-            .setSeparator(" ")
-            .setCaseInsensitiveEnumValuesAllowed(true);
+                .registerConverter(Config.class, new ConfigConverter())
+                .setSeparator(" ")
+                .setCaseInsensitiveEnumValuesAllowed(true);
 
         commandLine.execute(args);
-        CliResult cliResult = commandLine.getExecutionResult();
+        final CliResult cliResult = commandLine.getExecutionResult();
 
         if (!cliResult.getConfig().isPresent()) {
             System.exit(cliResult.getStatus());

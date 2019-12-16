@@ -13,14 +13,14 @@ public class Main {
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty(CliType.CLI_TYPE_KEY, CliType.CONFIG_MIGRATION.name());
         try {
-            CommandLine commandLine = new CommandLine(new LegacyCliAdapter());
+            final CommandLine commandLine = new CommandLine(new LegacyCliAdapter());
             commandLine
                     .registerConverter(Config.class, new ConfigConverter())
                     .setSeparator(" ")
                     .setCaseInsensitiveEnumValuesAllowed(true);
 
             commandLine.execute(args);
-            CliResult cliResult = commandLine.getExecutionResult();
+            final CliResult cliResult = commandLine.getExecutionResult();
 
             System.exit(cliResult.getStatus());
         } catch (final Exception ex) {
