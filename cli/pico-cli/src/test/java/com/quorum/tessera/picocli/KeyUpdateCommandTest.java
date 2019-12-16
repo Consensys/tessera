@@ -56,18 +56,19 @@ public class KeyUpdateCommandTest {
     }
 
     // Argon Option tests
-    // TODO(cjh) re-enable this once the tests have become more integration-based (i.e. I think defaults will only be set when creating a command line object and calling parseArgs or execute
+    // TODO(cjh) re-enable this once the tests have become more integration-based (i.e. I think defaults will only be
+    // set when creating a command line object and calling parseArgs or execute
     @Ignore
     @Test
     public void noArgonOptionsGivenHasDefaults() throws ParseException {
-//        final CommandLine commandLine = new DefaultParser().parse(options, new String[] {});
-//
-//        final ArgonOptions argonOptions = KeyUpdateParser.argonOptions(commandLine);
-//
-//        assertThat(argonOptions.getAlgorithm()).isEqualTo("i");
-//        assertThat(argonOptions.getParallelism()).isEqualTo(4);
-//        assertThat(argonOptions.getMemory()).isEqualTo(1048576);
-//        assertThat(argonOptions.getIterations()).isEqualTo(10);
+        //        final CommandLine commandLine = new DefaultParser().parse(options, new String[] {});
+        //
+        //        final ArgonOptions argonOptions = KeyUpdateParser.argonOptions(commandLine);
+        //
+        //        assertThat(argonOptions.getAlgorithm()).isEqualTo("i");
+        //        assertThat(argonOptions.getParallelism()).isEqualTo(4);
+        //        assertThat(argonOptions.getMemory()).isEqualTo(1048576);
+        //        assertThat(argonOptions.getIterations()).isEqualTo(10);
     }
 
     @Test
@@ -123,17 +124,17 @@ public class KeyUpdateCommandTest {
         assertThat(passwords).isNotNull().isEmpty();
     }
 
-
     // key file tests
-// TODO(cjh) re-enable this once the tests have become more integration-based (i.e. required fields can be tested when creating a command line object and calling parseArgs or execute
+    // TODO(cjh) re-enable this once the tests have become more integration-based (i.e. required fields can be tested
+    // when creating a command line object and calling parseArgs or execute
     @Ignore
     @Test
     public void noPrivateKeyGivenThrowsError() {
-//        final Throwable throwable = catchThrowable(() -> KeyUpdateParser.privateKeyPath(commandLine));
-//
-//        assertThat(throwable)
-//            .isInstanceOf(IllegalArgumentException.class)
-//            .hasMessage("Private key path cannot be null when updating key password");
+        //        final Throwable throwable = catchThrowable(() -> KeyUpdateParser.privateKeyPath(commandLine));
+        //
+        //        assertThat(throwable)
+        //            .isInstanceOf(IllegalArgumentException.class)
+        //            .hasMessage("Private key path cannot be null when updating key password");
     }
 
     @Test
@@ -160,9 +161,9 @@ public class KeyUpdateCommandTest {
     @Test
     public void unlockedKeyReturnedProperly() {
         final KeyDataConfig kdc =
-            new KeyDataConfig(
-                new PrivateKeyData("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", null, null, null, null),
-                PrivateKeyType.UNLOCKED);
+                new KeyDataConfig(
+                        new PrivateKeyData("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", null, null, null, null),
+                        PrivateKeyType.UNLOCKED);
 
         final PrivateKey key = command.getExistingKey(kdc, emptyList());
 
@@ -175,20 +176,20 @@ public class KeyUpdateCommandTest {
     public void lockedKeyFailsWithNoPasswordsMatching() {
 
         final KeyDataConfig kdc =
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
-                    "JoPVq9G6NdOb+Ugv+HnUeA==",
-                    "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
-                    new ArgonOptions("id", 1, 1024, 1)),
-                PrivateKeyType.LOCKED);
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                                "JoPVq9G6NdOb+Ugv+HnUeA==",
+                                "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
+                                new ArgonOptions("id", 1, 1024, 1)),
+                        PrivateKeyType.LOCKED);
 
         final Throwable throwable = catchThrowable(() -> command.getExistingKey(kdc, singletonList("wrong")));
 
         assertThat(throwable)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Locked key but no valid password given");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Locked key but no valid password given");
 
         verify(keyEncryptor).decryptPrivateKey(kdc.getPrivateKeyData(), "wrong");
     }
@@ -196,22 +197,22 @@ public class KeyUpdateCommandTest {
     @Test
     public void lockedKeySucceedsWithPasswordsMatching() {
         PrivateKeyData privateKeyData =
-            new PrivateKeyData(
-                null,
-                "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
-                "JoPVq9G6NdOb+Ugv+HnUeA==",
-                "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
-                new ArgonOptions("id", 1, 1024, 1));
+                new PrivateKeyData(
+                        null,
+                        "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                        "JoPVq9G6NdOb+Ugv+HnUeA==",
+                        "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
+                        new ArgonOptions("id", 1, 1024, 1));
 
         final KeyDataConfig kdc =
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    null,
-                    "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
-                    "JoPVq9G6NdOb+Ugv+HnUeA==",
-                    "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
-                    new ArgonOptions("id", 1, 1024, 1)),
-                PrivateKeyType.LOCKED);
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                null,
+                                "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                                "JoPVq9G6NdOb+Ugv+HnUeA==",
+                                "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw",
+                                new ArgonOptions("id", 1, 1024, 1)),
+                        PrivateKeyType.LOCKED);
 
         PrivateKey privateKey = mock(PrivateKey.class);
         when(privateKey.getKeyBytes()).thenReturn("SUCCESS".getBytes());
@@ -244,7 +245,7 @@ public class KeyUpdateCommandTest {
     @Test
     public void keyGetsUpdated() throws Exception {
         final KeyDataConfig startingKey =
-            JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
+                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
 
         final Path key = Files.createTempFile("key", ".key");
         Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
@@ -261,7 +262,7 @@ public class KeyUpdateCommandTest {
         PrivateKeyData privateKeyData = mock(PrivateKeyData.class);
 
         when(keyEncryptor.encryptPrivateKey(any(PrivateKey.class), anyString(), any(ArgonOptions.class)))
-            .thenReturn(privateKeyData);
+                .thenReturn(privateKeyData);
 
         command.call();
 
@@ -280,7 +281,7 @@ public class KeyUpdateCommandTest {
     @Test
     public void keyGetsUpdatedUsingEncryptorOptions() throws Exception {
         final KeyDataConfig startingKey =
-            JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
+                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
 
         final Path key = Files.createTempFile("key", ".key");
         Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
@@ -297,7 +298,7 @@ public class KeyUpdateCommandTest {
         PrivateKeyData privateKeyData = mock(PrivateKeyData.class);
 
         when(keyEncryptor.encryptPrivateKey(any(PrivateKey.class), anyString(), any(ArgonOptions.class)))
-            .thenReturn(privateKeyData);
+                .thenReturn(privateKeyData);
 
         command.call();
 
@@ -316,7 +317,7 @@ public class KeyUpdateCommandTest {
     @Test
     public void keyGetsUpdatedToNoPassword() throws Exception {
         final KeyDataConfig startingKey =
-            JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
+                JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
 
         when(passwordReader.requestUserPassword()).thenReturn("");
 
@@ -341,7 +342,7 @@ public class KeyUpdateCommandTest {
         assertThat(endingKey.getSnonce()).isNotEqualTo(startingKey.getSnonce());
         assertThat(endingKey.getAsalt()).isNotEqualTo(startingKey.getAsalt());
         assertThat(endingKey.getPrivateKeyData().getValue())
-            .isEqualTo(Base64.getEncoder().encodeToString(privateKeyData));
+                .isEqualTo(Base64.getEncoder().encodeToString(privateKeyData));
 
         verify(keyEncryptorFactory).create(any());
         verify(keyEncryptor).decryptPrivateKey(any(PrivateKeyData.class), anyString());
@@ -366,11 +367,4 @@ public class KeyUpdateCommandTest {
         command.iterations = 100;
         command.parallelism = 100;
     }
-
-
-
-
-
-
-
 }

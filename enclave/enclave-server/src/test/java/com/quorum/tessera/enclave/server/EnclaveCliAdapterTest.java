@@ -1,19 +1,21 @@
 package com.quorum.tessera.enclave.server;
 
-import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
+import com.quorum.tessera.cli.parsers.ConfigConverter;
+import com.quorum.tessera.config.Config;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemErrRule;
 import org.junit.contrib.java.lang.system.SystemOutRule;
+import picocli.CommandLine;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.After;
 
 public class EnclaveCliAdapterTest {
 
@@ -21,10 +23,18 @@ public class EnclaveCliAdapterTest {
 
     @Rule public SystemOutRule systemOutOutput = new SystemOutRule().enableLog();
 
+    private CommandLine commandLine;
+
     @Before
     public void onSetUp() {
         System.setProperty(CliType.CLI_TYPE_KEY, CliType.ENCLAVE.name());
         this.systemErrOutput.clearLog();
+
+        commandLine = new CommandLine(new EnclaveCliAdapter());
+        commandLine
+            .registerConverter(Config.class, new ConfigConverter())
+            .setSeparator(" ")
+            .setCaseInsensitiveEnumValuesAllowed(true);
     }
 
     @After
@@ -38,22 +48,26 @@ public class EnclaveCliAdapterTest {
     }
 
     @Test
-    public void missingConfigurationOutputsErrorMessage() throws Exception {
-        final CliResult result = CliDelegate.instance().execute();
+    public void missingConfigurationOutputsErrorMessage() {
+        commandLine.execute();
+        final CliResult result = commandLine.getExecutionResult();
 
         final String output = systemErrOutput.getLog();
 
-        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
+        assertThat(result).isNull();
+//        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
         assertThat(output).contains("Missing required option '-configfile <config>'");
     }
 
     @Test
-    public void helpOptionOutputsUsageMessage() throws Exception {
-        final CliResult result = CliDelegate.instance().execute("help");
+    public void helpOptionOutputsUsageMessage() {
+        commandLine.execute("help");
+        final CliResult result = commandLine.getExecutionResult();
 
         final String output = systemOutOutput.getLog();
 
-        assertThat(result).isEqualToComparingFieldByField(new CliResult(0, true, null));
+//        assertThat(result).isEqualToComparingFieldByField(new CliResult(0, true, null));
+        assertThat(result).isNull();
         assertThat(output)
                 .contains(
                         "Usage:",
@@ -79,7 +93,8 @@ public class EnclaveCliAdapterTest {
     public void configPassedToResolver() throws Exception {
         final Path inputFile = Paths.get(getClass().getResource("/sample-config.json").toURI());
 
-        final CliResult result = CliDelegate.instance().execute("-configfile", inputFile.toString());
+        commandLine.execute("-configfile", inputFile.toString());
+        final CliResult result = commandLine.getExecutionResult();
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
