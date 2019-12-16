@@ -324,6 +324,7 @@
                                 <exclude>com/quorum/tessera/config/cli/DefaultCliAdapter*</exclude>
                                 <exclude>com/quorum/tessera/config/cli/parsers/KeyGenerationParser*</exclude>
                                 <exclude>com/quorum/tessera/config/cli/parsers/EncryptorConfigParser*</exclude>
+                                <exclude>com/quorum/tessera/config/cli/parsers/KeyUpdateParser*</exclude>
                             </excludes>
 
                             <rules>

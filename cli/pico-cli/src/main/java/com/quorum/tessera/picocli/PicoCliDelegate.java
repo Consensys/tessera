@@ -1,7 +1,6 @@
 package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.cli.CLIExceptionCapturer;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
@@ -52,8 +51,6 @@ public class PicoCliDelegate {
     public CliResult execute(String... args) throws Exception {
         final CommandSpec command = CommandSpec.forAnnotatedObject(TesseraCommand.class);
 
-        final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
-
         final CommandLine.IFactory keyGenCommandFactory = new KeyGenCommandFactory();
         CommandLine keyGenCommandLine = new CommandLine(KeyGenCommand.class, keyGenCommandFactory);
 
@@ -69,9 +66,7 @@ public class PicoCliDelegate {
                 .registerConverter(Config.class, new ConfigConverter())
                 .registerConverter(ArgonOptions.class, new ArgonOptionsConverter())
                 .setSeparator(" ")
-                .setCaseInsensitiveEnumValuesAllowed(true)
-                .setExecutionExceptionHandler(mapper)
-                .setParameterExceptionHandler(mapper);
+                .setCaseInsensitiveEnumValuesAllowed(true);
 
         final CommandLine.ParseResult parseResult;
         try {
@@ -124,11 +119,6 @@ public class PicoCliDelegate {
             // TODO(cjh) document the change of behaviour meaning node cannot start after keygen
             subParseResult.asCommandLineList().get(0).execute(subArgs);
 
-            // if an exception occurred, throw it to to the upper levels where it gets handled
-            if (mapper.getThrown() != null) {
-                throw mapper.getThrown();
-            }
-
             return new CliResult(0, true, null);
         }
     }
@@ -177,10 +167,6 @@ public class PicoCliDelegate {
     }
 
     private void createPidFile(Path pidFilePath) throws Exception {
-        if (pidFilePath == null) {
-            return;
-        }
-
         if (Files.exists(pidFilePath)) {
             LOGGER.info("File already exists {}", pidFilePath);
         } else {

@@ -27,6 +27,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -72,10 +73,63 @@ public class PicoCliDelegateTest {
     }
 
     @Test
+    public void subcommandWithNoArgsPrintsHelp() throws Exception {
+
+        final CliResult result = cliDelegate.execute("keygen");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isTrue();
+    }
+
+    @Test
     public void withValidConfig() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         CliResult result = cliDelegate.execute("-configfile", configFile.toString());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isFalse();
+    }
+
+    @Test
+    public void withValidConfigAndPidfile() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        String tempDir = System.getProperty("java.io.tmpdir");
+        Path pidFilePath = Paths.get(tempDir, UUID.randomUUID().toString());
+
+        assertThat(pidFilePath).doesNotExist();
+
+        CliResult result =
+                cliDelegate.execute("-configfile", configFile.toString(), "-pidfile", pidFilePath.toString());
+
+        assertThat(pidFilePath).exists();
+        pidFilePath.toFile().deleteOnExit();
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isFalse();
+    }
+
+    @Test
+    public void withValidConfigAndPidfileAlreadyExists() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        Path pidFilePath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        pidFilePath.toFile().deleteOnExit();
+
+        assertThat(pidFilePath).exists();
+
+        CliResult result =
+                cliDelegate.execute("-configfile", configFile.toString(), "-pidfile", pidFilePath.toString());
+
+        assertThat(pidFilePath).exists();
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
