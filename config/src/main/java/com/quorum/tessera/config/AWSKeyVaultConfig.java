@@ -11,9 +11,7 @@ public class AWSKeyVaultConfig extends ConfigItem implements KeyVaultConfig {
 
     @Valid
     @XmlAttribute
-    @Pattern(
-            regexp =
-                    "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)")
+    @Pattern(regexp = "^https?://.+$", message = "must be a valid AWS service endpoint URL with scheme")
     private String endpoint;
 
     public AWSKeyVaultConfig(String endpoint) {
