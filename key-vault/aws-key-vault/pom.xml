@@ -19,12 +19,6 @@
         <dependency>
             <groupId>software.amazon.awssdk</groupId>
             <artifactId>secretsmanager</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.typesafe.netty</groupId>
-                    <artifactId>netty-reactive-streams-http</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
