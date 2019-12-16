@@ -1,6 +1,9 @@
 package com.quorum.tessera.config.migration;
 
+import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
+import com.quorum.tessera.cli.parsers.ConfigConverter;
+import com.quorum.tessera.config.Config;
 import picocli.CommandLine;
 
 public class Main {
@@ -10,10 +13,16 @@ public class Main {
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty(CliType.CLI_TYPE_KEY, CliType.CONFIG_MIGRATION.name());
         try {
-            int status = new CommandLine(new LegacyCliAdapter()).execute(args);
+            CommandLine commandLine = new CommandLine(new LegacyCliAdapter());
+            commandLine
+                    .registerConverter(Config.class, new ConfigConverter())
+                    .setSeparator(" ")
+                    .setCaseInsensitiveEnumValuesAllowed(true);
 
-            //            final CliResult result = CliDelegate.instance().execute(args);
-            System.exit(status);
+            commandLine.execute(args);
+            CliResult cliResult = commandLine.getExecutionResult();
+
+            System.exit(cliResult.getStatus());
         } catch (final Exception ex) {
             System.err.println(ex.toString());
             System.exit(1);
