@@ -62,6 +62,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
     @CommandLine.Option(names = "--keys.keyData.config.data.aopts.parallelism", defaultValue = "4")
     public Integer parallelism;
 
+    //TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt/password file
     @CommandLine.Option(names = {"--keys.passwords"})
     public String password;
 
@@ -78,7 +79,8 @@ public class KeyUpdateCommand implements Callable<CliResult> {
 
     private KeyEncryptorFactory keyEncryptorFactory;
 
-    private KeyEncryptor keyEncryptor;
+    // TODO(cjh) is package-private for migrated apache commons CLI tests
+    KeyEncryptor keyEncryptor;
 
     private PasswordReader passwordReader;
 
@@ -131,7 +133,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         return new CliResult(1, true, null);
     }
 
-    private PrivateKey getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {
+    PrivateKey getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {
 
         if (kdc.getType() == PrivateKeyType.UNLOCKED) {
             byte[] privateKeyData = Base64.getDecoder().decode(kdc.getValue().getBytes(UTF_8));
@@ -150,7 +152,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         }
     }
 
-    private Path privateKeyPath() {
+    Path privateKeyPath() {
         ////      TODO(cjh)shouldn't need this as the option should be marked as required - CHECK!
         //        if (privateKeyPath == null) {
         //            throw new IllegalArgumentException("Private key path cannot be null when updating key password");
@@ -163,7 +165,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         return privateKeyPath;
     }
 
-    private List<String> passwords() throws IOException {
+    List<String> passwords() throws IOException {
         if (password != null) {
             return singletonList(password);
         } else if (passwordFile != null) {
@@ -173,7 +175,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         }
     }
 
-    private ArgonOptions argonOptions() {
+    ArgonOptions argonOptions() {
         return new ArgonOptions(
                 algorithm, Integer.valueOf(iterations), Integer.valueOf(memory), Integer.valueOf(parallelism));
     }
