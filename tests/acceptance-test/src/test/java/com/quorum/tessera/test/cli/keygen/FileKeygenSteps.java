@@ -80,9 +80,7 @@ public class FileKeygenSteps implements En {
         // here to explicitly state we are doing nothing
         Given("no file path is provided", () -> {});
 
-        Given(
-                "a file path of {string}",
-                (String path) -> this.args.addAll(Arrays.asList("-filename", path, "--encryptor.type", "NACL")));
+        Given("a file path of {string}", (String path) -> this.args.addAll(Arrays.asList("-filename", path)));
 
         When(
                 "new keys are generated",

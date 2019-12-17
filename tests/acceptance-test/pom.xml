@@ -198,14 +198,14 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
-<!--                        <include>CucumberFileKeyGenerationIT</include>-->
+                        <include>CucumberFileKeyGenerationIT</include>
                         <include>AdminRestSuite</include>
-<!--                        <include>RestSuiteHttp*</include>-->
-<!--                        <include>RestSuiteUnixH2</include>-->
-<!--                        <include>CucumberWhitelistIT</include>-->
-<!--                        <include>ConfigMigrationIT</include>-->
-<!--                        <include>P2pTestSuite</include>-->
-<!--                        <include>SendWithRemoteEnclaveReconnectIT</include>-->
+                        <include>RestSuiteHttp*</include>
+                        <include>RestSuiteUnixH2</include>
+                        <include>CucumberWhitelistIT</include>
+                        <include>ConfigMigrationIT</include>
+                        <include>P2pTestSuite</include>
+                        <include>SendWithRemoteEnclaveReconnectIT</include>
                     </includes>
                 </configuration>
                 <executions>

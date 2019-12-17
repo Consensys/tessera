@@ -40,7 +40,7 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @CommandLine.Option(
             names = {"--keyout", "-filename"},
-            defaultValue = ".",
+            split = ",",
             description =
                     "Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args determines number of key-pairs generated (default = ${DEFAULT-VALUE})")
     public List<String> keyOut;
@@ -90,9 +90,9 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     // TODO(cjh) implement config output
     @CommandLine.Option(
-        names = {"--configout", "-output"},
-        description =
-            "Path to save updated configfile to.  Updated config will be printed to terminal if not provided.  Only valid if --configfile option also provided.")
+            names = {"--configout", "-output"},
+            description =
+                    "Path to save updated configfile to.  Updated config will be printed to terminal if not provided.  Only valid if --configfile option also provided.")
     public List<String> configOut;
 
     @CommandLine.Mixin public EncryptorOptions encryptorOptions;
@@ -101,6 +101,7 @@ public class KeyGenCommand implements Callable<CliResult> {
         this.factory = keyGeneratorFactory;
     }
 
+    // TODO no args prints help, should generate default location keys to keep same behaviour as before
     @Override
     public CliResult call() {
         final EncryptorConfig encryptorConfig;
