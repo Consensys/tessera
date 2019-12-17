@@ -1,6 +1,7 @@
 package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.admin.cli.AdminCliAdapter;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
@@ -58,6 +59,7 @@ public class PicoCliDelegate {
         CommandLine keyUpdateCommandLine = new CommandLine(KeyUpdateCommand.class, keyUpdateCommandFactory);
 
         command.addSubcommand(null, new CommandLine(CommandLine.HelpCommand.class));
+        command.addSubcommand(null, new CommandLine(AdminCliAdapter.class));
         command.addSubcommand(null, keyGenCommandLine);
         command.addSubcommand(null, keyUpdateCommandLine);
 
