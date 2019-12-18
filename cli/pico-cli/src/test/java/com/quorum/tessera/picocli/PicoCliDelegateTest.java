@@ -432,4 +432,12 @@ public class PicoCliDelegateTest {
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
     }
+
+    @Test
+    public void subcommandExceptionIsThrown() {
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-keygen", "-keygenvaulturl", "urlButNoVaultType"));
+
+        assertThat(ex).isNotNull();
+        assertThat(ex).isInstanceOf(CliException.class);
+    }
 }
