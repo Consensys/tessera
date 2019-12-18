@@ -1,5 +1,6 @@
 package com.quorum.tessera.picocli;
 
+import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
@@ -41,15 +42,11 @@ public class KeyUpdateCommand implements Callable<CliResult> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyUpdateCommand.class);
 
-    // TODO(cjh) don't hardcode these options (?)
-
     @CommandLine.Option(names = "--keys.keyData.privateKeyPath", required = true)
     public Path privateKeyPath;
 
-    //    @Pattern(regexp = "^(id|i|d)$")
-    //    @XmlAttribute(name = "variant")
-    // TODO(cjh) validation on the CLI values - the above is the validation applied to the Config ArgonOptions object
-    // fields
+    static String invalidArgonAlgorithmMsg = "Allowed values for --keys.keyData.config.data.aopts.algorithm are 'i', 'd' or 'id'";
+
     @CommandLine.Option(names = "--keys.keyData.config.data.aopts.algorithm", defaultValue = "i")
     public String algorithm;
 
@@ -62,7 +59,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
     @CommandLine.Option(names = "--keys.keyData.config.data.aopts.parallelism", defaultValue = "4")
     public Integer parallelism;
 
-    //TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt/password file
+    //TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt and password file
     @CommandLine.Option(names = {"--keys.passwords"})
     public String password;
 
@@ -153,11 +150,6 @@ public class KeyUpdateCommand implements Callable<CliResult> {
     }
 
     Path privateKeyPath() {
-        ////      TODO(cjh)shouldn't need this as the option should be marked as required - CHECK!
-        //        if (privateKeyPath == null) {
-        //            throw new IllegalArgumentException("Private key path cannot be null when updating key password");
-        //        }
-
         if (Files.notExists(privateKeyPath)) {
             throw new IllegalArgumentException("Private key path must exist when updating key password");
         }
@@ -176,7 +168,11 @@ public class KeyUpdateCommand implements Callable<CliResult> {
     }
 
     ArgonOptions argonOptions() {
-        return new ArgonOptions(
-                algorithm, Integer.valueOf(iterations), Integer.valueOf(memory), Integer.valueOf(parallelism));
+        if ("i".equals(algorithm) || "d".equals(algorithm) || "id".equals(algorithm)) {
+            return new ArgonOptions(
+                    algorithm, Integer.valueOf(iterations), Integer.valueOf(memory), Integer.valueOf(parallelism));
+        }
+
+        throw new CliException(invalidArgonAlgorithmMsg);
     }
 }

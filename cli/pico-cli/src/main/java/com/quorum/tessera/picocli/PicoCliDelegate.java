@@ -33,7 +33,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-// TODO(cjh) make sure recent changes to old CLI (e.g. parser behaviour) are included where needed
 public class PicoCliDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);
 
@@ -79,9 +78,6 @@ public class PicoCliDelegate {
         try {
             parseResult = commandLine.parseArgs(args);
         } catch (CommandLine.ParameterException ex) {
-            //             TODO(cjh) this is ripped from commandLine.execute(...) - check whether it is sufficient, or
-            // if it can be replaced by using the mapper
-            // exception mapper can't be used here as we haven't called commandLine.execute()
             try {
                 commandLine.getParameterExceptionHandler().handleParseException(ex, args);
                 throw new CliException(ex.getMessage());

@@ -31,7 +31,7 @@ class EncryptorOptions {
     EncryptorConfig parseEncryptorConfig() {
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
 
-        // we set the default here instead of in the option annotation as enum values cannot be used in annotationss
+        // we set the default here instead of in the option annotation as enum values cannot be used in annotations
         if (Objects.isNull(type)) {
             type = EncryptorType.NACL;
         }

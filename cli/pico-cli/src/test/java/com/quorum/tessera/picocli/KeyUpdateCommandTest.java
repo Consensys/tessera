@@ -1,5 +1,6 @@
 package com.quorum.tessera.picocli;
 
+import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
@@ -22,8 +23,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -57,7 +57,7 @@ public class KeyUpdateCommandTest {
 
     // Argon Option tests
     // TODO(cjh) re-enable this once the tests have become more integration-based (i.e. I think defaults will only be
-    // set when creating a command line object and calling parseArgs or execute
+    //  set when creating a command line object and calling parseArgs or execute
     @Ignore
     @Test
     public void noArgonOptionsGivenHasDefaults() throws ParseException {
@@ -84,6 +84,28 @@ public class KeyUpdateCommandTest {
         assertThat(argonOptions.getParallelism()).isEqualTo(100);
         assertThat(argonOptions.getMemory()).isEqualTo(100);
         assertThat(argonOptions.getIterations()).isEqualTo(100);
+    }
+
+    @Test
+    public void argonOptionsInvalidTypeThrowsException() {
+        command.memory = 100;
+        command.iterations = 100;
+        command.parallelism = 100;
+
+        command.algorithm = "i";
+        command.argonOptions();
+
+        command.algorithm = "d";
+        command.argonOptions();
+
+        command.algorithm = "id";
+        command.argonOptions();
+
+        command.algorithm = "invalid";
+        Throwable ex = catchThrowable(() -> command.argonOptions());
+
+        assertThat(ex).isInstanceOf(CliException.class);
+        assertThat(ex).hasMessage(KeyUpdateCommand.invalidArgonAlgorithmMsg);
     }
 
     // Password reading tests
@@ -126,7 +148,7 @@ public class KeyUpdateCommandTest {
 
     // key file tests
     // TODO(cjh) re-enable this once the tests have become more integration-based (i.e. required fields can be tested
-    // when creating a command line object and calling parseArgs or execute
+    //  when creating a command line object and calling parseArgs or execute
     @Ignore
     @Test
     public void noPrivateKeyGivenThrowsError() {

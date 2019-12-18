@@ -88,7 +88,7 @@ public class KeyGenCommand implements Callable<CliResult> {
             description = "Path to node configuration file")
     public Config config;
 
-    // TODO(cjh) implement config output
+    // TODO(cjh) implement config output and password file update ?
     @CommandLine.Option(
             names = {"--configout", "-output"},
             description =
