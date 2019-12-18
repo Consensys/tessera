@@ -135,7 +135,7 @@ public class KeyGenCommandTest {
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(encryptorConfig);
 
         command.encryptorOptions = encryptorOptions;
-        command.encryptionConfig = argonOptions;
+        command.argonOptions = argonOptions;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);

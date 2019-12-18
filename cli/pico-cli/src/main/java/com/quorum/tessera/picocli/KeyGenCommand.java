@@ -45,11 +45,10 @@ public class KeyGenCommand implements Callable<CliResult> {
                     "Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args determines number of key-pairs generated (default = ${DEFAULT-VALUE})")
     public List<String> keyOut;
 
-    // TODO(cjh) review description and name
     @CommandLine.Option(
-            names = {"--encryptionconfig", "-keygenconfig"},
-            description = "File containing Argon2 encryption config used to secure the new private key")
-    public ArgonOptions encryptionConfig;
+            names = {"--argonconfig", "-keygenconfig"},
+            description = "File containing Argon2 encryption config used to secure the new private key when storing to the filesystem")
+    public ArgonOptions argonOptions;
 
     @CommandLine.Option(
             names = {"--vault.type", "-keygenvaulttype"},
@@ -82,13 +81,14 @@ public class KeyGenCommand implements Callable<CliResult> {
             description = "Path to JKS truststore for TLS Hashicorp Vault communication")
     public Path hashicorpTlsTruststore;
 
-    // TODO(cjh) do something about the duplication of the configfile option in each relevant command
     @CommandLine.Option(
             names = {"--configfile", "-configfile"},
             description = "Path to node configuration file")
     public Config config;
 
     // TODO(cjh) implement config output and password file update ?
+    //  we've removed the ability to start the node straight away after generating keys.  Not sure if updating configfile
+    //  and password file is something we want to still support or put onus on users to go and update as required
     @CommandLine.Option(
             names = {"--configout", "-output"},
             description =
@@ -101,7 +101,7 @@ public class KeyGenCommand implements Callable<CliResult> {
         this.factory = keyGeneratorFactory;
     }
 
-    // TODO no args prints help, should generate default location keys to keep same behaviour as before
+    // TODO(cjh) no args prints help, should generate default location keys to keep same behaviour as before
     @Override
     public CliResult call() {
         final EncryptorConfig encryptorConfig;
@@ -118,9 +118,9 @@ public class KeyGenCommand implements Callable<CliResult> {
         final KeyGenerator generator = factory.create(keyVaultConfig, encryptorConfig);
 
         if (Objects.isNull(keyOut) || keyOut.isEmpty()) {
-            generator.generate("", encryptionConfig, keyVaultOptions);
+            generator.generate("", argonOptions, keyVaultOptions);
         } else {
-            keyOut.forEach(name -> generator.generate(name, encryptionConfig, keyVaultOptions));
+            keyOut.forEach(name -> generator.generate(name, argonOptions, keyVaultOptions));
         }
 
         return new CliResult(0, true, null);
