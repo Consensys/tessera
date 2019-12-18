@@ -3,10 +3,12 @@ dependencies {
     compile 'info.picocli:picocli'
     compile project(':cli:cli-api')
     compile project(':cli:config-cli')
+    compile project(':cli:admin-cli')
     compile project(':shared')
     compile project(':config')
     compile project(':encryption:encryption-api')
     compile project(':key-generation')
     testCompile project(':tests:test-util')
     compile "org.hibernate:hibernate-validator"
+
 }

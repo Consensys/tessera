@@ -190,7 +190,9 @@ subprojects {
                         'com.quorum.tessera.passwords.PasswordReaderFactory',
                         'com.quorum.tessera.enclave.rest.Main',
                         'com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate',
-                        'com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory'
+                        'com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory',
+                        'com.quorum.tessera.config.cli.parsers.*',
+                        'com.quorum.tessera.config.cli.DefaultCliAdapter'
                 ]
             }
 
