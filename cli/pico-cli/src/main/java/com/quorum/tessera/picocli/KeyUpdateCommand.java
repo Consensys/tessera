@@ -59,7 +59,8 @@ public class KeyUpdateCommand implements Callable<CliResult> {
     @CommandLine.Option(names = "--keys.keyData.config.data.aopts.parallelism", defaultValue = "4")
     public Integer parallelism;
 
-    //TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt and password file
+    //TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt and password file - can be done as
+    // a separate change
     @CommandLine.Option(names = {"--keys.passwords"})
     public String password;
 
@@ -125,9 +126,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         Files.write(keypath, JaxbUtil.marshalToString(updatedKey).getBytes(UTF_8));
         SystemAdapter.INSTANCE.out().println("Private key at " + keypath.toString() + " updated.");
 
-        //        return Optional.empty();
-        // TODO(cjh) compare with existing behaviour
-        return new CliResult(1, true, null);
+        return new CliResult(0, true, null);
     }
 
     PrivateKey getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {

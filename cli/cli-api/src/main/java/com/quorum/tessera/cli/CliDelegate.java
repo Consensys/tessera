@@ -4,6 +4,7 @@ import com.quorum.tessera.config.Config;
 
 import java.util.Optional;
 
+// TODO(cjh) still using CliDelegate as a config store so that config can be injected by spring
 public enum CliDelegate {
     INSTANCE;
 

@@ -36,7 +36,7 @@ public class KeyGenCommand implements Callable<CliResult> {
     private final Validator validator =
             Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
-    // TODO(cjh) raise CLI usage wording changes as separate change
+    // TODO(cjh) changes have been made to CLI option descriptions.  should these be raised as a separate change ?
 
     @CommandLine.Option(
             names = {"--keyout", "-filename"},
@@ -101,7 +101,9 @@ public class KeyGenCommand implements Callable<CliResult> {
         this.factory = keyGeneratorFactory;
     }
 
-    // TODO(cjh) no args prints help, should generate default location keys to keep same behaviour as before
+    // TODO(cjh) 'tessera keygen' with no args prints help.  this is consistent with the other commands' behaviour, but
+    //  previously this would generate keys at the default location '.'.  do we want to reintroduce this or keep
+    //  consistency with the other commands?
     @Override
     public CliResult call() {
         final EncryptorConfig encryptorConfig;

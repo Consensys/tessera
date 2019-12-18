@@ -33,6 +33,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
+// TODO(cjh) clean up cli-api and config-cli modules.  the parser and adapter behaviour should be encapsulated in these commands so are no longer needed
+
 public class PicoCliDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);
 
