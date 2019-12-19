@@ -2,7 +2,7 @@
 dependencies {
     compile project(':config')
     compile project(':cli:cli-api')
-    compile project(':cli:pico-cli')
+    compile project(':cli:config-cli')
     compile project(':server:server-api')
     compile project(':tessera-jaxrs:common-jaxrs')
     compile 'org.apache.commons:commons-lang3'

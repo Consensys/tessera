@@ -5,8 +5,6 @@
     <modules>
         <module>cli-api</module>
         <module>config-cli</module>
-        <module>admin-cli</module>
-        <module>pico-cli</module>
     </modules>
 
     <parent>
