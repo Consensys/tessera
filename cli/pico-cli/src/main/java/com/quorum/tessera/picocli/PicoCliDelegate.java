@@ -1,7 +1,7 @@
 package com.quorum.tessera.picocli;
 
 import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.admin.cli.AdminCliAdapter;
+import com.quorum.tessera.cli.admin.AdminCliAdapter;
 import com.quorum.tessera.cli.CLIExceptionCapturer;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
@@ -33,7 +33,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-// TODO(cjh) clean up cli-api and config-cli modules.  the parser and adapter behaviour should be encapsulated in these commands so are no longer needed
+// TODO(cjh) clean up cli-api and config-cli modules.  the parser and adapter behaviour should be encapsulated in these
+// commands so are no longer needed
 
 public class PicoCliDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);

@@ -2,7 +2,7 @@
 dependencies {
     compile 'info.picocli:picocli:4.0.4'
     compile 'org.apache.commons:commons-lang3:3.7'
-    compile 'commons-cli:commons-cli:1.4'
+    //compile 'commons-cli:commons-cli:1.4'
     compile project(':config')
     compile project(':shared')
     compile project(':encryption:encryption-api')

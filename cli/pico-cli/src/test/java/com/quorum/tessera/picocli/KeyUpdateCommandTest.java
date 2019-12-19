@@ -7,7 +7,6 @@ import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.passwords.PasswordReader;
-import org.apache.commons.cli.ParseException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -60,7 +59,7 @@ public class KeyUpdateCommandTest {
     //  set when creating a command line object and calling parseArgs or execute
     @Ignore
     @Test
-    public void noArgonOptionsGivenHasDefaults() throws ParseException {
+    public void noArgonOptionsGivenHasDefaults() throws Exception {
         //        final CommandLine commandLine = new DefaultParser().parse(options, new String[] {});
         //
         //        final ArgonOptions argonOptions = KeyUpdateParser.argonOptions(commandLine);

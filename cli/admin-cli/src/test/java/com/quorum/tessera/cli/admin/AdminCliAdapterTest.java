@@ -1,4 +1,4 @@
-package com.quorum.tessera.admin.cli;
+package com.quorum.tessera.cli.admin;
 
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;

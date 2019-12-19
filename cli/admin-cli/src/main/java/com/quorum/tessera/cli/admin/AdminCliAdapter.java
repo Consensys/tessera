@@ -1,6 +1,6 @@
-package com.quorum.tessera.admin.cli;
+package com.quorum.tessera.cli.admin;
 
-import com.quorum.tessera.admin.cli.subcommands.AddPeerCommand;
+import com.quorum.tessera.cli.admin.subcommands.AddPeerCommand;
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
