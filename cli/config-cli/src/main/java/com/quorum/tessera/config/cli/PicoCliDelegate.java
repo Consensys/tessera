@@ -172,6 +172,7 @@ public class PicoCliDelegate {
                     if(nextIndex > (unmatched.size() -1)) {
                         break;
                     }
+                    i = nextIndex;
                     final String value = unmatched.get(nextIndex);
                     try {
                         OverrideUtil.setValue(config, name, value);

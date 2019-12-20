@@ -489,4 +489,23 @@ public class PicoCliDelegateTest {
         assertThat(result.isSuppressStartup()).isFalse();
 
     }
+
+    @Test
+    public void withValidConfigAndJdbcOverides() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+        assertThat(result.isSuppressStartup()).isFalse();
+
+        Config config = result.getConfig().get();
+        assertThat(config.getJdbcConfig()).isNotNull();
+        assertThat(config.getJdbcConfig().isAutoCreateTables()).isTrue();
+        assertThat(config.getJdbcConfig().getUrl()).isEqualTo("someurl");
+    }
 }
