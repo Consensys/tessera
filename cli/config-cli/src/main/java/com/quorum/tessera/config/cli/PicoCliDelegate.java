@@ -10,6 +10,7 @@ import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.reflect.ReflectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -23,10 +24,7 @@ import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
@@ -74,7 +72,8 @@ public class PicoCliDelegate {
                 .setSeparator(" ")
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .setExecutionExceptionHandler(mapper)
-                .setParameterExceptionHandler(mapper);
+                .setParameterExceptionHandler(mapper)
+                .setStopAtUnmatched(false);
 
         final CommandLine.ParseResult parseResult;
         try {
@@ -159,6 +158,29 @@ public class PicoCliDelegate {
                 LOGGER.debug("Setting : {} with value(s) {}", target, value);
                 OverrideUtil.setValue(config, target, value);
                 LOGGER.debug("Set : {} with value(s) {}", target, value);
+            }
+        }
+
+        if (Objects.nonNull(parseResult.unmatched())) {
+            List<String> unmatched = new ArrayList<>(parseResult.unmatched());
+
+            for (int i = 0; i < unmatched.size(); i++) {
+                String line = unmatched.get(i);
+                if (line.startsWith("-")) {
+                    final String name = line.replaceFirst("-{1,2}", "");
+                    final int nextIndex = i + 1;
+                    if(nextIndex > (unmatched.size() -1)) {
+                        break;
+                    }
+                    final String value = unmatched.get(nextIndex);
+                    try {
+                        OverrideUtil.setValue(config, name, value);
+                    } catch(ReflectException ex) {
+                        //Ignore error
+                        LOGGER.debug("",ex);
+                        continue;
+                    }
+                }
             }
         }
 

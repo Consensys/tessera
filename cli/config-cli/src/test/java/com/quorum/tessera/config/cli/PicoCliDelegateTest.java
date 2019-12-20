@@ -2,6 +2,7 @@ package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.PrivateKeyType;
@@ -439,5 +440,53 @@ public class PicoCliDelegateTest {
 
         assertThat(ex).isNotNull();
         assertThat(ex).isInstanceOf(CliException.class);
+    }
+
+    @Test
+    public void withValidConfigAndJdbcOveride() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+        assertThat(result.isSuppressStartup()).isFalse();
+
+        Config config = result.getConfig().get();
+        assertThat(config.getJdbcConfig()).isNotNull();
+        assertThat(config.getJdbcConfig().isAutoCreateTables()).isTrue();
+    }
+
+    @Test
+    public void withValidConfigAndUnmatchableDynamicOption() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+        assertThat(result.isSuppressStartup()).isFalse();
+
+    }
+
+    @Test
+    public void withValidConfigAndUnmatchableDynamicOptionWithValue() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus","bogus value");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+        assertThat(result.isSuppressStartup()).isFalse();
+
     }
 }

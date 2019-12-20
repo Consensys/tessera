@@ -5,6 +5,7 @@ import picocli.CommandLine;
 
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @CommandLine.Command(
@@ -33,6 +34,8 @@ public class TesseraCommand {
             names = {"-o", "--override"},
             paramLabel = "KEY=VALUE")
     private Map<String, String> overrides = new LinkedHashMap<>();
+
+    @CommandLine.Unmatched public List<String> unmatchedEntries;
 
     // TODO(cjh) dry run option to print effective config to terminal to allow review of CLI overrides
 }
