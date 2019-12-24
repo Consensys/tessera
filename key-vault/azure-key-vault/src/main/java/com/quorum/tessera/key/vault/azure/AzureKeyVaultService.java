@@ -2,7 +2,7 @@ package com.quorum.tessera.key.vault.azure;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
-import com.quorum.tessera.config.AzureKeyVaultConfig;
+import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.vault.data.AzureGetSecretData;
 import com.quorum.tessera.config.vault.data.AzureSetSecretData;
 import com.quorum.tessera.key.vault.KeyVaultService;
@@ -16,8 +16,12 @@ public class AzureKeyVaultService implements KeyVaultService<AzureSetSecretData,
 
     private AzureKeyVaultClientDelegate azureKeyVaultClientDelegate;
 
-    AzureKeyVaultService(AzureKeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
-        this.vaultUrl = Objects.requireNonNull(keyVaultConfig).getUrl();
+    AzureKeyVaultService(KeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
+        this(keyVaultConfig.getProperty("url").get(),azureKeyVaultClientDelegate);
+    }
+
+    AzureKeyVaultService(String vaultUrl, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
+        this.vaultUrl = Objects.requireNonNull(vaultUrl);
         this.azureKeyVaultClientDelegate = Objects.requireNonNull(azureKeyVaultClientDelegate);
     }
 

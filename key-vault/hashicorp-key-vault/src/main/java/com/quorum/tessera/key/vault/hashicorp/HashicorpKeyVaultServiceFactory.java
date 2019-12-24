@@ -14,8 +14,10 @@ import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.support.ClientOptions;
 import org.springframework.vault.support.SslConfiguration;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -50,15 +52,16 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
             throw new HashicorpCredentialNotSetException("Only one of the " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables to authenticate with Hashicorp Vault using the AppRole method has been set");
         }
 
-        HashicorpKeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
-            .map(KeyConfiguration::getHashicorpKeyVaultConfig)
+        KeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
+            .map(KeyConfiguration::getKeyVaultConfig)
             .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Hashicorp Vault connection but no Vault configuration provided")));
 
         VaultEndpoint vaultEndpoint;
 
         try {
-            vaultEndpoint = VaultEndpoint.from(new URI(keyVaultConfig.getUrl()));
-        } catch (URISyntaxException | IllegalArgumentException e) {
+            URI uri = new URI(keyVaultConfig.getProperty("url").get());
+            vaultEndpoint =  VaultEndpoint.from(uri);
+        } catch (URISyntaxException | NoSuchElementException | IllegalArgumentException e) {
             throw new ConfigException(new RuntimeException("Provided Hashicorp Vault url is incorrectly formatted", e));
         }
 

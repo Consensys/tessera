@@ -168,7 +168,8 @@ public class OverrideUtilTest {
                         "server.influxConfig.sslConfig.sslConfigType",
                         "server.influxConfig.sslConfig.excludeCipherSuites",
                         "features.enableRemoteKeyValidation",
-                        "encryptor.type");
+                        "encryptor.type",
+                        "keys.keyVaultConfig.keyVaultType");
 
         final Map<String, Class> results = OverrideUtil.buildConfigOptions();
 

@@ -25,6 +25,7 @@ public class OpenPojoTest {
 
         final PojoClassFilter[] filters =
                 new PojoClassFilter[] {
+                    pc -> !pc.getClazz().getName().contains(KeyVaultConfigTest.class.getSimpleName()),
                     pc -> !pc.getClazz().isAssignableFrom(ObjectFactory.class),
                     pc -> !pc.getClazz().getName().startsWith(JaxbConfigFactory.class.getName()),
                     pc -> !pc.getClazz().isAssignableFrom(ConfigException.class),

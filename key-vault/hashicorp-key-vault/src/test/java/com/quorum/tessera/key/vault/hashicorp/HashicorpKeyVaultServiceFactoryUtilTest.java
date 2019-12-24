@@ -1,6 +1,6 @@
 package com.quorum.tessera.key.vault.hashicorp;
 
-import com.quorum.tessera.config.HashicorpKeyVaultConfig;
+import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +16,7 @@ import org.springframework.vault.support.SslConfiguration;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.quorum.tessera.config.util.EnvironmentVariables.*;
@@ -35,14 +36,16 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureSslUsesKeyStoreAndTrustStoreIfBothProvided() throws Exception {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
 
         Path path = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
         path.toFile().deleteOnExit();
 
-        when(keyVaultConfig.getTlsKeyStorePath()).thenReturn(path);
-        when(keyVaultConfig.getTlsTrustStorePath()).thenReturn(path);
+        when(keyVaultConfig.hasProperty("tlsKeyStorePath","tlsTrustStorePath")).thenReturn(true);
+
+        when(keyVaultConfig.getProperty("tlsKeyStorePath")).thenReturn(Optional.of(path.toString()));
+        when(keyVaultConfig.getProperty("tlsTrustStorePath")).thenReturn(Optional.of(path.toString()));
 
         SslConfiguration result = util.configureSsl(keyVaultConfig, envProvider);
 
@@ -52,14 +55,17 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureSslUsesTrustStoreOnlyIfProvided() throws Exception {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
 
         Path path = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
         path.toFile().deleteOnExit();
 
-        when(keyVaultConfig.getTlsKeyStorePath()).thenReturn(null);
-        when(keyVaultConfig.getTlsTrustStorePath()).thenReturn(path);
+        when(keyVaultConfig.hasProperty("tlsTrustStorePath")).thenReturn(true);
+        when(keyVaultConfig.hasProperty("tlsKeyStorePath")).thenReturn(false);
+
+        when(keyVaultConfig.getProperty("tlsKeyStorePath")).thenReturn(Optional.empty());
+        when(keyVaultConfig.getProperty("tlsTrustStorePath")).thenReturn(Optional.of(path.toString()));
 
         SslConfiguration result = util.configureSsl(keyVaultConfig, envProvider);
 
@@ -69,11 +75,11 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureSslUsesNoKeyStoresIfNoneProvided() {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
 
-        when(keyVaultConfig.getTlsKeyStorePath()).thenReturn(null);
-        when(keyVaultConfig.getTlsTrustStorePath()).thenReturn(null);
+        when(keyVaultConfig.getProperty("tlsKeyStorePath")).thenReturn(Optional.empty());
+        when(keyVaultConfig.getProperty("tlsTrustStorePath")).thenReturn(Optional.empty());
 
         SslConfiguration result = util.configureSsl(keyVaultConfig, envProvider);
 
@@ -100,7 +106,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureClientAuthenticationIfAllEnvVarsSetThenAppRoleMethod() {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
         ClientHttpRequestFactory clientHttpRequestFactory = mock(ClientHttpRequestFactory.class);
         VaultEndpoint vaultEndpoint = mock(VaultEndpoint.class);
@@ -109,7 +115,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
-        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
+        when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
 
         ClientAuthentication result = util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
 
@@ -118,7 +124,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureClientAuthenticationIfOnlyRoleIdAndSecretIdSetThenAppRoleMethod() {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
         ClientHttpRequestFactory clientHttpRequestFactory = mock(ClientHttpRequestFactory.class);
         VaultEndpoint vaultEndpoint = mock(VaultEndpoint.class);
@@ -127,7 +133,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
-        when(keyVaultConfig.getApprolePath()).thenReturn("somepath");
+        when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("somepath"));
 
         ClientAuthentication result = util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
 
@@ -137,7 +143,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureClientAuthenticationIfOnlyRoleIdSetThenException() {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
         ClientHttpRequestFactory clientHttpRequestFactory = mock(ClientHttpRequestFactory.class);
         VaultEndpoint vaultEndpoint = mock(VaultEndpoint.class);
@@ -154,7 +160,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureClientAuthenticationIfOnlySecretIdSetThenException() {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
         ClientHttpRequestFactory clientHttpRequestFactory = mock(ClientHttpRequestFactory.class);
         VaultEndpoint vaultEndpoint = mock(VaultEndpoint.class);
@@ -171,7 +177,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureClientAuthenticationIfOnlyTokenSetThenTokenMethod() {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
         ClientHttpRequestFactory clientHttpRequestFactory = mock(ClientHttpRequestFactory.class);
         VaultEndpoint vaultEndpoint = mock(VaultEndpoint.class);
@@ -187,7 +193,7 @@ public class HashicorpKeyVaultServiceFactoryUtilTest {
 
     @Test
     public void configureClientAuthenticationIfNoEnvVarSetThenException() {
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
+        KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
         EnvironmentVariableProvider envProvider = mock(EnvironmentVariableProvider.class);
         ClientHttpRequestFactory clientHttpRequestFactory = mock(ClientHttpRequestFactory.class);
         VaultEndpoint vaultEndpoint = mock(VaultEndpoint.class);
