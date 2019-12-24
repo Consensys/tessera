@@ -13,8 +13,6 @@ import org.springframework.vault.core.VaultOperations;
 import org.springframework.vault.core.VaultTemplate;
 import org.springframework.vault.support.ClientOptions;
 import org.springframework.vault.support.SslConfiguration;
-
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
@@ -35,8 +33,10 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
         return this.create(config, envProvider, util);
     }
 
-    //This method should not be called directly. It has been left package-private to enable injection of util during testing
-    KeyVaultService create(Config config, EnvironmentVariableProvider envProvider, HashicorpKeyVaultServiceFactoryUtil util) {
+    // This method should not be called directly. It has been left package-private to enable injection of util during
+    // testing
+    KeyVaultService create(
+            Config config, EnvironmentVariableProvider envProvider, HashicorpKeyVaultServiceFactoryUtil util) {
         Objects.requireNonNull(config);
         Objects.requireNonNull(envProvider);
         Objects.requireNonNull(util);
@@ -45,22 +45,38 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
         final String secretId = envProvider.getEnv(HASHICORP_SECRET_ID);
         final String authToken = envProvider.getEnv(HASHICORP_TOKEN);
 
-        if(roleId == null && secretId == null && authToken == null) {
-            throw new HashicorpCredentialNotSetException("Environment variables must be set to authenticate with Hashicorp Vault.  Set the " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables if using the AppRole authentication method.  Set the " + HASHICORP_TOKEN + " environment variable if using another authentication method.");
-        }
-        else if(isOnlyOneInputNull(roleId, secretId)) {
-            throw new HashicorpCredentialNotSetException("Only one of the " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables to authenticate with Hashicorp Vault using the AppRole method has been set");
+        if (roleId == null && secretId == null && authToken == null) {
+            throw new HashicorpCredentialNotSetException(
+                    "Environment variables must be set to authenticate with Hashicorp Vault.  Set the "
+                            + HASHICORP_ROLE_ID
+                            + " and "
+                            + HASHICORP_SECRET_ID
+                            + " environment variables if using the AppRole authentication method.  Set the "
+                            + HASHICORP_TOKEN
+                            + " environment variable if using another authentication method.");
+        } else if (isOnlyOneInputNull(roleId, secretId)) {
+            throw new HashicorpCredentialNotSetException(
+                    "Only one of the "
+                            + HASHICORP_ROLE_ID
+                            + " and "
+                            + HASHICORP_SECRET_ID
+                            + " environment variables to authenticate with Hashicorp Vault using the AppRole method has been set");
         }
 
-        KeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
-            .map(KeyConfiguration::getKeyVaultConfig)
-            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Hashicorp Vault connection but no Vault configuration provided")));
+        KeyVaultConfig keyVaultConfig =
+                Optional.ofNullable(config.getKeys())
+                        .map(KeyConfiguration::getKeyVaultConfig)
+                        .orElseThrow(
+                                () ->
+                                        new ConfigException(
+                                                new RuntimeException(
+                                                        "Trying to create Hashicorp Vault connection but no Vault configuration provided")));
 
         VaultEndpoint vaultEndpoint;
 
         try {
             URI uri = new URI(keyVaultConfig.getProperty("url").get());
-            vaultEndpoint =  VaultEndpoint.from(uri);
+            vaultEndpoint = VaultEndpoint.from(uri);
         } catch (URISyntaxException | NoSuchElementException | IllegalArgumentException e) {
             throw new ConfigException(new RuntimeException("Provided Hashicorp Vault url is incorrectly formatted", e));
         }
@@ -69,16 +85,17 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
         ClientOptions clientOptions = new ClientOptions();
 
-        ClientHttpRequestFactory clientHttpRequestFactory = util.createClientHttpRequestFactory(clientOptions, sslConfiguration);
+        ClientHttpRequestFactory clientHttpRequestFactory =
+                util.createClientHttpRequestFactory(clientOptions, sslConfiguration);
 
-        ClientAuthentication clientAuthentication = util.configureClientAuthentication(keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
+        ClientAuthentication clientAuthentication =
+                util.configureClientAuthentication(
+                        keyVaultConfig, envProvider, clientHttpRequestFactory, vaultEndpoint);
 
         SessionManager sessionManager = new SimpleSessionManager(clientAuthentication);
         VaultOperations vaultOperations = new VaultTemplate(vaultEndpoint, clientHttpRequestFactory, sessionManager);
 
-        return new HashicorpKeyVaultService(
-            new KeyValueOperationsDelegateFactory(vaultOperations)
-        );
+        return new HashicorpKeyVaultService(new KeyValueOperationsDelegateFactory(vaultOperations));
     }
 
     @Override
