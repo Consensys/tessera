@@ -53,9 +53,9 @@ public class KeyConfiguration extends ConfigItem {
         this.keyData = keyData;
         this.azureKeyVaultConfig = azureKeyVaultConfig;
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
-        if(null != azureKeyVaultConfig) {
+        if (null != azureKeyVaultConfig) {
             this.keyVaultConfig = KeyVaultConfigConverter.convert(azureKeyVaultConfig);
-        } else if(null != hashicorpKeyVaultConfig) {
+        } else if (null != hashicorpKeyVaultConfig) {
             this.keyVaultConfig = KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
         }
     }
@@ -96,14 +96,24 @@ public class KeyConfiguration extends ConfigItem {
 
     public void setAzureKeyVaultConfig(AzureKeyVaultConfig azureKeyVaultConfig) {
         this.azureKeyVaultConfig = azureKeyVaultConfig;
+        this.keyVaultConfig = KeyVaultConfigConverter.convert(azureKeyVaultConfig);
     }
 
     public void setHashicorpKeyVaultConfig(HashicorpKeyVaultConfig hashicorpKeyVaultConfig) {
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
+        this.keyVaultConfig = KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
     }
 
     public DefaultKeyVaultConfig getKeyVaultConfig() {
-        return keyVaultConfig;
+        if (keyVaultConfig != null) {
+            return keyVaultConfig;
+        }
+        if (null != azureKeyVaultConfig) {
+            return KeyVaultConfigConverter.convert(azureKeyVaultConfig);
+        } else if (null != hashicorpKeyVaultConfig) {
+            return KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
+        }
+        return null;
     }
 
     public void setKeyVaultConfig(DefaultKeyVaultConfig keyVaultConfig) {
