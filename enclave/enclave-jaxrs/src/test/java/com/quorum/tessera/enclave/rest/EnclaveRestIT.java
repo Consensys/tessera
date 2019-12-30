@@ -1,17 +1,20 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
+import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.enclave.server.EnclaveCliAdapter;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import picocli.CommandLine;
+
 import java.net.URL;
 import java.util.Set;
 
@@ -35,7 +38,14 @@ public class EnclaveRestIT {
         System.setProperty(CliType.CLI_TYPE_KEY, CliType.ENCLAVE.name());
         URL url = EnclaveRestIT.class.getResource("/sample-config.json");
 
-        CliResult cliResult = CliDelegate.INSTANCE.execute("-configfile", url.getFile());
+        final CommandLine commandLine = new CommandLine(new EnclaveCliAdapter());
+        commandLine
+                .registerConverter(Config.class, new ConfigConverter())
+                .setSeparator(" ")
+                .setCaseInsensitiveEnumValuesAllowed(true);
+
+        commandLine.execute("-configfile", url.getFile());
+        CliResult cliResult = commandLine.getExecutionResult();
 
         EnclaveFactory enclaveFactory = EnclaveFactory.create();
 
