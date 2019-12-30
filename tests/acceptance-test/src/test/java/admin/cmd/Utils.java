@@ -22,8 +22,6 @@ public class Utils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Utils.class);
 
-
-
     public static ExecutionResult start(Party party) throws IOException, InterruptedException {
 
         List<String> args =
@@ -91,16 +89,14 @@ public class Utils {
 
     public static int addPeer(Party party, String url) throws IOException, InterruptedException {
 
-        List<String> args = new ExecArgsBuilder()
-            .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
-            .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
-            .withConfigFile(party.getConfigFilePath())
-            .withArg("admin")
-            .withArg("-addpeer",url)
-            .withArg("-configfile",party.getConfigFilePath().toAbsolutePath().toString())
-            .build();
-
-
+        List<String> args =
+                new ExecArgsBuilder()
+                        .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
+                        .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+                        .withConfigFile(party.getConfigFilePath())
+                        .withSubcommands("admin", "addpeer")
+                        .withArg(url)
+                        .build();
 
         LOGGER.info("exec : {}", String.join(" ", args));
         ProcessBuilder processBuilder = new ProcessBuilder(args);
