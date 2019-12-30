@@ -96,12 +96,10 @@ public class KeyConfiguration extends ConfigItem {
 
     public void setAzureKeyVaultConfig(AzureKeyVaultConfig azureKeyVaultConfig) {
         this.azureKeyVaultConfig = azureKeyVaultConfig;
-        this.keyVaultConfig = KeyVaultConfigConverter.convert(azureKeyVaultConfig);
     }
 
     public void setHashicorpKeyVaultConfig(HashicorpKeyVaultConfig hashicorpKeyVaultConfig) {
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
-        this.keyVaultConfig = KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
     }
 
     public DefaultKeyVaultConfig getKeyVaultConfig() {
