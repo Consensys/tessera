@@ -2,13 +2,15 @@ package com.quorum.tessera.key.vault.azure;
 
 import com.microsoft.azure.keyvault.models.SecretBundle;
 import com.microsoft.azure.keyvault.requests.SetSecretRequest;
-import com.quorum.tessera.config.AzureKeyVaultConfig;
+import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.vault.data.AzureGetSecretData;
 import com.quorum.tessera.config.vault.data.AzureSetSecretData;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -22,13 +24,13 @@ public class AzureKeyVaultServiceTest {
 
     private String vaultUrl = "url";
 
-    private AzureKeyVaultConfig keyVaultConfig;
+    private KeyVaultConfig keyVaultConfig;
 
     @Before
     public void setUp() {
         this.azureKeyVaultClientDelegate = mock(AzureKeyVaultClientDelegate.class);
-        this.keyVaultConfig = mock(AzureKeyVaultConfig.class);
-        when(keyVaultConfig.getUrl()).thenReturn(vaultUrl);
+        this.keyVaultConfig = mock(KeyVaultConfig.class);
+        when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of(vaultUrl));
 
         this.keyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
     }

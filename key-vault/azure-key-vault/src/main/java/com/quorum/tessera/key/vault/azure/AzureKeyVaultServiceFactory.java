@@ -26,8 +26,8 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
             throw new AzureCredentialNotSetException(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
         }
 
-        AzureKeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
-            .map(KeyConfiguration::getAzureKeyVaultConfig)
+        KeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
+            .map(KeyConfiguration::getKeyVaultConfig)
             .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Azure key vault connection but no Azure configuration provided")));
 
         return new AzureKeyVaultService(
