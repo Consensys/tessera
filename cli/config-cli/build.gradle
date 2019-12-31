@@ -1,12 +1,13 @@
 
 dependencies {
-    compile 'info.picocli:picocli'
-    compile 'commons-cli:commons-cli:1.4'
+    compile 'info.picocli:picocli:4.0'
     compile project(':encryption:encryption-api')
     compile project(':config')
     compile project(':shared')
     compile project(':cli:cli-api')
     compile project(':key-generation')
+    compile project(':tessera-jaxrs:jaxrs-client')
+    compile 'javax.ws.rs:javax.ws.rs-api'
 
     runtimeOnly project(':encryption:encryption-jnacl')
 

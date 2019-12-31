@@ -12,17 +12,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 
+@Deprecated
 @XmlAccessorType(XmlAccessType.FIELD)
 public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfig {
 
-    @Valid
-    @NotNull
-    @XmlAttribute
-    private String url;
+    @Valid @NotNull @XmlAttribute private String url;
 
-    @Valid
-    @XmlElement
-    private String approlePath;
+    @Valid @XmlElement private String approlePath;
 
     @Valid
     @ValidPath(checkExists = true, message = "File does not exist")
@@ -43,8 +39,7 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
         this.tlsTrustStorePath = tlsTrustStorePath;
     }
 
-    public HashicorpKeyVaultConfig() {
-    }
+    public HashicorpKeyVaultConfig() {}
 
     public String getUrl() {
         return this.url;
@@ -71,7 +66,7 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
     }
 
     public String getApprolePath() {
-        if(approlePath == null) {
+        if (approlePath == null) {
             return "approle";
         }
         return approlePath;
@@ -85,4 +80,6 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
     public KeyVaultType getKeyVaultType() {
         return KeyVaultType.HASHICORP;
     }
+
+
 }

@@ -23,7 +23,6 @@ dependencies {
     compile project(':tessera-core')
     compile project(':cli:cli-api')
     compile project(':cli:config-cli')
-    compile project(':cli:admin-cli')
     compile project(':tessera-jaxrs:admin-jaxrs')
     compile project(':tessera-jaxrs:sync-jaxrs')
     compile project(':tessera-jaxrs:transaction-jaxrs')

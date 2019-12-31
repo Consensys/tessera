@@ -40,7 +40,8 @@ public final class JaxbUtil {
                 SslAuthenticationMode.class,
                 SslConfig.class,
                 SslTrustMode.class,
-                ConfigProperties.class
+                ConfigProperties.class,
+                DefaultKeyVaultConfig.class
             };
 
     private JaxbUtil() {}

@@ -1,8 +1,8 @@
 package com.quorum.tessera.config.migration;
 
-import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
+import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.builder.KeyDataBuilder;
@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemErrRule;
+import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -30,7 +31,6 @@ import java.util.stream.Stream;
 import static com.quorum.tessera.config.AppType.Q2T;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.mock;
 
 public class LegacyCliAdapterTest {
@@ -39,13 +39,24 @@ public class LegacyCliAdapterTest {
 
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
+    // TODO(cjh) remove this and do all testing through the CommandLine instance
     private final LegacyCliAdapter instance = new LegacyCliAdapter();
+
+    private CommandLine commandLine;
 
     private Path dataDirectory;
 
     @Before
     public void onSetUp() throws IOException {
         System.setProperty(CliType.CLI_TYPE_KEY, CliType.CONFIG_MIGRATION.name());
+
+        commandLine = new CommandLine(new LegacyCliAdapter());
+        commandLine
+                .registerConverter(Config.class, new ConfigConverter())
+                .setSeparator(" ")
+                .setCaseInsensitiveEnumValuesAllowed(true);
+
+        systemErrRule.clearLog();
 
         dataDirectory = Files.createTempDirectory("data");
 
@@ -91,7 +102,8 @@ public class LegacyCliAdapterTest {
         Path configFile = Files.createTempFile("noOptions", ".txt");
         Files.write(configFile, data.getBytes());
 
-        CliResult result = CliDelegate.instance().execute("--tomlfile", configFile.toString());
+        commandLine.execute("--tomlfile", configFile.toString());
+        final CliResult result = commandLine.getExecutionResult();
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -211,7 +223,8 @@ public class LegacyCliAdapterTest {
             "over-known-servers"
         };
 
-        CliResult result = CliDelegate.instance().execute(args);
+        commandLine.execute(args);
+        final CliResult result = commandLine.getExecutionResult();
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -270,7 +283,8 @@ public class LegacyCliAdapterTest {
             "--privatekeys", keysFile.toString()
         };
 
-        CliResult result = CliDelegate.instance().execute(requiredParams);
+        commandLine.execute(requiredParams);
+        final CliResult result = commandLine.getExecutionResult();
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -334,7 +348,8 @@ public class LegacyCliAdapterTest {
             "--privatekeys", "new.key"
         };
 
-        CliResult result = CliDelegate.instance().execute(args);
+        commandLine.execute(args);
+        final CliResult result = commandLine.getExecutionResult();
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -405,7 +420,8 @@ public class LegacyCliAdapterTest {
             "--tomlfile", configFile.toString(), "--url", "http://127.0.0.1:9001", "--port", "9001"
         };
 
-        final CliResult result = CliDelegate.instance().execute(requiredParams);
+        commandLine.execute(requiredParams);
+        final CliResult result = commandLine.getExecutionResult();
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -419,11 +435,11 @@ public class LegacyCliAdapterTest {
 
         String[] requiredParams = {"--tomlfile", configFile.toString(), "--url", "htt://invalidHost", "--port", "9001"};
 
-        final Throwable throwable = catchThrowable(() -> CliDelegate.instance().execute(requiredParams));
+        commandLine.execute(requiredParams);
 
-        assertThat(throwable)
-                .isInstanceOf(RuntimeException.class)
-                .hasMessage("Bad server url given: unknown protocol: htt");
+        final String output = systemErrRule.getLog();
+
+        assertThat(output).contains("Bad server url given: unknown protocol: htt");
     }
 
     @Test
