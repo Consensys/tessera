@@ -1,6 +1,7 @@
 package exec;
 
 import com.quorum.tessera.config.Config;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,6 +13,8 @@ public class ExecArgsBuilder {
     private Config config;
 
     private Path configFile;
+
+    private List<String> subcommands;
 
     private Path pidFile;
 
@@ -78,6 +81,15 @@ public class ExecArgsBuilder {
         return this;
     }
 
+    public ExecArgsBuilder withSubcommands(String subcommand, String... s) {
+        List<String> subcommands = new ArrayList<>();
+        subcommands.add(subcommand);
+        subcommands.addAll(Arrays.asList(s));
+
+        this.subcommands = subcommands;
+        return this;
+    }
+
     public ExecArgsBuilder withArg(String name) {
         argList.put(name, null);
         return this;
@@ -120,6 +132,10 @@ public class ExecArgsBuilder {
 
         } else {
             tokens.add(startScript.toAbsolutePath().toString());
+        }
+
+        if (Objects.nonNull(subcommands)) {
+            tokens.addAll(subcommands);
         }
 
         tokens.add("-configfile");

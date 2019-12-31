@@ -2,6 +2,7 @@ package com.quorum.tessera.cli.parsers;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.config.util.ConfigFileStore;
 import picocli.CommandLine;
 
 import java.io.FileNotFoundException;
@@ -21,6 +22,8 @@ public class ConfigConverter implements CommandLine.ITypeConverter<Config> {
         if (!Files.exists(path)) {
             throw new FileNotFoundException(String.format("%s not found.", path));
         }
+
+        ConfigFileStore.create(path);
 
         try (InputStream in = Files.newInputStream(path)) {
             return configFactory.create(in);

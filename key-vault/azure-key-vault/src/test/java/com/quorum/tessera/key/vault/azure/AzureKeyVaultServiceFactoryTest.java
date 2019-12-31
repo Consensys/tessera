@@ -6,6 +6,8 @@ import com.quorum.tessera.key.vault.KeyVaultService;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
 import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -100,8 +102,9 @@ public class AzureKeyVaultServiceFactoryTest {
     public void envVarsAndKeyVaultConfigProvidedCreatesAzureKeyVaultService() {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        AzureKeyVaultConfig keyVaultConfig = mock(AzureKeyVaultConfig.class);
-        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(keyVaultConfig);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("URL"));
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         KeyVaultService result = azureKeyVaultServiceFactory.create(config, envProvider);
