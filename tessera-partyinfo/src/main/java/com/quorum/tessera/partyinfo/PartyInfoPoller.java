@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Polls every so often to all known nodes for any new discoverable nodes. This keeps all nodes up-to date and
@@ -64,11 +65,12 @@ public class PartyInfoPoller implements Runnable {
      * @param encodedPartyInfo the encoded current party information
      */
     private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
-        try {
-            p2pClient.sendPartyInfo(url, encodedPartyInfo);
-        } catch (final Exception ex) {
-            LOGGER.warn("Error {} when connecting to {}", ex.getMessage(), url);
-            LOGGER.debug(null, ex);
-        }
+        CompletableFuture.runAsync(() -> p2pClient.sendPartyInfo(url, encodedPartyInfo))
+                .exceptionally(
+                        ex -> {
+                            LOGGER.warn("Error {} when connecting to {}", ex.getMessage(), url);
+                            LOGGER.debug(null, ex);
+                            return null;
+                        });
     }
 }
