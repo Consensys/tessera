@@ -9,6 +9,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -84,6 +86,8 @@ public class PartyInfoPollerTest {
         doThrow(UnsupportedOperationException.class).when(p2pClient).sendPartyInfo(TARGET_URL, DATA);
 
         final Throwable throwable = catchThrowable(partyInfoPoller::run);
+
+        assertThat(ForkJoinPool.commonPool().awaitQuiescence(2, TimeUnit.SECONDS)).isTrue();
 
         assertThat(throwable).isNull();
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
