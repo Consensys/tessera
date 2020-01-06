@@ -5,12 +5,11 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -87,11 +86,13 @@ public class PartyInfoPollerTest {
 
         final Throwable throwable = catchThrowable(partyInfoPoller::run);
 
-        assertThat(ForkJoinPool.commonPool().awaitQuiescence(2, TimeUnit.SECONDS)).isTrue();
+        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
 
         assertThat(throwable).isNull();
-        verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
-        verify(p2pClient).sendPartyInfo(TARGET_URL_2, DATA);
+        verify(p2pClient, times(2)).sendPartyInfo(argumentCaptor.capture(), eq(DATA));
+
+        assertThat(argumentCaptor.getAllValues()).containsExactlyInAnyOrder(TARGET_URL, TARGET_URL_2);
+
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoParser).to(partyInfo);
     }
