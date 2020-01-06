@@ -58,6 +58,7 @@ public class KeyConfiguration extends ConfigItem {
         this.azureKeyVaultConfig = azureKeyVaultConfig;
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
         this.awsKeyVaultConfig = awsKeyVaultConfig;
+
         if (null != azureKeyVaultConfig) {
             this.keyVaultConfig = KeyVaultConfigConverter.convert(azureKeyVaultConfig);
         } else if (null != hashicorpKeyVaultConfig) {
@@ -123,6 +124,8 @@ public class KeyConfiguration extends ConfigItem {
             return KeyVaultConfigConverter.convert(azureKeyVaultConfig);
         } else if (null != hashicorpKeyVaultConfig) {
             return KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
+        } else if (null != awsKeyVaultConfig) {
+            return KeyVaultConfigConverter.convert(awsKeyVaultConfig);
         }
         return null;
     }

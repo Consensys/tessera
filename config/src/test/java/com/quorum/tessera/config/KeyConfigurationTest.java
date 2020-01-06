@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class KeyConfigurationTest {
 
     @Test
-    public void loadKeyVaultConfigFromAzureKeyVaultConfig() throws Exception {
+    public void loadKeyVaultConfigFromAzureKeyVaultConfig() {
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         AzureKeyVaultConfig azureKeyVaultConfig = new AzureKeyVaultConfig();
         keyConfiguration.setAzureKeyVaultConfig(azureKeyVaultConfig);
@@ -18,7 +18,7 @@ public class KeyConfigurationTest {
     }
 
     @Test
-    public void loadKeyVaultConfigFromHashicorpKeyVaultConfig() throws Exception {
+    public void loadKeyVaultConfigFromHashicorpKeyVaultConfig() {
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         HashicorpKeyVaultConfig hashicorpKeyVaultConfig = new HashicorpKeyVaultConfig();
         keyConfiguration.setHashicorpKeyVaultConfig(hashicorpKeyVaultConfig);
@@ -29,7 +29,18 @@ public class KeyConfigurationTest {
     }
 
     @Test
-    public void loadKeyVaultConfigFromNoCOnfg() throws Exception {
+    public void loadKeyVaultConfigFromAWSKeyVaultConfig() {
+        KeyConfiguration keyConfiguration = new KeyConfiguration();
+        AWSKeyVaultConfig awsKeyVaultConfig = new AWSKeyVaultConfig();
+        keyConfiguration.setAwsKeyVaultConfig(awsKeyVaultConfig);
+
+        KeyVaultConfig result = keyConfiguration.getKeyVaultConfig();
+        assertThat(result).isNotNull();
+
+    }
+
+    @Test
+    public void loadKeyVaultConfigFromNoConfg() {
         KeyConfiguration keyConfiguration = new KeyConfiguration();
 
         KeyVaultConfig result = keyConfiguration.getKeyVaultConfig();

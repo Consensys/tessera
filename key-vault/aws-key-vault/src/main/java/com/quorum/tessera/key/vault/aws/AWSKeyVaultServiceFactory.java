@@ -1,26 +1,23 @@
 package com.quorum.tessera.key.vault.aws;
 
-import java.net.URI;
-import java.util.Objects;
-import java.util.Optional;
-
-import com.quorum.tessera.config.AWSKeyVaultConfig;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigException;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyVaultType;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClientBuilder;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Objects;
+import java.util.Optional;
+
 public class AWSKeyVaultServiceFactory implements KeyVaultServiceFactory {
     @Override
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
-        AWSKeyVaultConfig keyVaultConfig =
+        KeyVaultConfig keyVaultConfig =
                 Optional.ofNullable(config.getKeys())
-                        .map(KeyConfiguration::getAwsKeyVaultConfig)
+                        .map(KeyConfiguration::getKeyVaultConfig)
                         .orElseThrow(
                                 () ->
                                         new ConfigException(
@@ -35,12 +32,25 @@ public class AWSKeyVaultServiceFactory implements KeyVaultServiceFactory {
         return KeyVaultType.AWS;
     }
 
-    private SecretsManagerClient getAwsSecretsManager(AWSKeyVaultConfig keyVaultConfig) {
+    private SecretsManagerClient getAwsSecretsManager(KeyVaultConfig keyVaultConfig) {
         SecretsManagerClientBuilder secretsManagerClient = SecretsManagerClient.builder();
 
-        if (Objects.nonNull(keyVaultConfig.getEndpoint())) {
-            secretsManagerClient.endpointOverride(URI.create(keyVaultConfig.getEndpoint()));
-        }
+        Optional<String> endpoint = keyVaultConfig.getProperty("endpoint");
+        endpoint.ifPresent(s -> {
+            final URI uri;
+
+            try {
+                uri = new URI(s);
+            } catch (URISyntaxException e) {
+                throw new ConfigException(new RuntimeException("Invalid AWS endpoint URL provided"));
+            }
+
+            if (Objects.isNull(uri.getScheme())) {
+                throw new ConfigException(new RuntimeException("Invalid AWS endpoint URL provided - no scheme"));
+            }
+
+            secretsManagerClient.endpointOverride(uri);
+        });
         return secretsManagerClient.build();
     }
 }
