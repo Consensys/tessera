@@ -36,12 +36,6 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>admin-cli</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>encryption-api</artifactId>
         </dependency>
 

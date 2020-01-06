@@ -11,6 +11,8 @@ import org.springframework.vault.client.VaultEndpoint;
 import org.springframework.vault.support.ClientOptions;
 import org.springframework.vault.support.SslConfiguration;
 
+import java.util.Optional;
+
 import static com.quorum.tessera.config.util.EnvironmentVariables.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
@@ -190,11 +192,11 @@ public class HashicorpKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
-        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
 
-        when(keyVaultConfig.getUrl()).thenReturn("noschemeurl");
-        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
+        when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("noschemeurl"));
+        when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
 
         setUpUtilMocks(keyVaultConfig);
 
@@ -213,11 +215,11 @@ public class HashicorpKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
-        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://malformedurl:-1"));
+        when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
 
-        when(keyVaultConfig.getUrl()).thenReturn("http://malformedurl:-1");
-        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
 
         setUpUtilMocks(keyVaultConfig);
 
@@ -227,7 +229,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         assertThat(ex.getMessage()).contains("Provided Hashicorp Vault url is incorrectly formatted");
     }
 
-    private void setUpUtilMocks(HashicorpKeyVaultConfig keyVaultConfig) {
+    private void setUpUtilMocks(KeyVaultConfig keyVaultConfig) {
         SslConfiguration sslConfiguration = mock(SslConfiguration.class);
         when(keyVaultServiceFactoryUtil.configureSsl(keyVaultConfig, envProvider)).thenReturn(sslConfiguration);
 
@@ -255,11 +257,11 @@ public class HashicorpKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
-        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
 
-        when(keyVaultConfig.getUrl()).thenReturn("http://someurl");
-        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
+        when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://someurl"));
+        when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
 
         setUpUtilMocks(keyVaultConfig);
 
@@ -277,11 +279,11 @@ public class HashicorpKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        HashicorpKeyVaultConfig keyVaultConfig = mock(HashicorpKeyVaultConfig.class);
-        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(keyVaultConfig);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
 
-        when(keyVaultConfig.getUrl()).thenReturn("http://someurl");
-        when(keyVaultConfig.getApprolePath()).thenReturn("approle");
+        when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://someurl"));
+        when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
 
         setUpUtilMocks(keyVaultConfig);
 

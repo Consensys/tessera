@@ -276,7 +276,7 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIsIgnoredIfToggleDisabled() {
+    public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIfToggleDisabled() {
         // setup services
         final FeatureToggles featureToggles = new FeatureToggles();
         featureToggles.setEnableRemoteKeyValidation(false);
@@ -305,6 +305,7 @@ public class PartyInfoServiceTest {
         assertThat(updatedInfo.getRecipients()).hasSize(1).containsExactly(new Recipient(testKey, uri));
         verify(partyInfoStore, times(2)).getPartyInfo();
         verify(configService).featureToggles();
+        verify(configService).isDisablePeerDiscovery();
     }
 
     @Test

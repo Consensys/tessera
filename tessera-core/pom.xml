@@ -12,8 +12,8 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-data</artifactId>
-        </dependency> 
-        
+        </dependency>
+
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
@@ -67,7 +67,7 @@
             <artifactId>spring-orm</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
@@ -86,14 +86,14 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>mock-service-locator</artifactId>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-        
+
     </dependencies>
     <name>tessera-core</name>
 </project>

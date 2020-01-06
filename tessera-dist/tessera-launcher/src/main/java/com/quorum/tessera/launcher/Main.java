@@ -8,6 +8,7 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.apps.TesseraAppFactory;
+import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -26,12 +27,14 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static void main(final String... args) throws Exception {
-        System.setProperty(CliType.CLI_TYPE_KEY,CliType.CONFIG.name());
+        System.setProperty(CliType.CLI_TYPE_KEY, CliType.CONFIG.name());
         System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         try {
-            final CliResult cliResult = CliDelegate.instance().execute(args);
+            PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
+            final CliResult cliResult = picoCliDelegate.execute(args);
+            CliDelegate.instance().setConfig(cliResult.getConfig().orElse(null));
 
             if (cliResult.isSuppressStartup()) {
                 System.exit(0);
