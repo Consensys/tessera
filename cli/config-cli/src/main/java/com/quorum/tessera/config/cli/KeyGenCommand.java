@@ -158,7 +158,7 @@ public class KeyGenCommand implements Callable<CliResult> {
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }
-        } else {
+        } else if(vaultType.equals(KeyVaultType.HASHICORP)) {
             if (Objects.isNull(keyOut) || keyOut.isEmpty()) {
                 throw new CliException(
                         "At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
@@ -170,6 +170,15 @@ public class KeyGenCommand implements Callable<CliResult> {
 
             Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations =
                     validator.validate((HashicorpKeyVaultConfig) keyVaultConfig);
+
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+        } else {
+            keyVaultConfig = new AWSKeyVaultConfig(vaultUrl);
+
+            Set<ConstraintViolation<AWSKeyVaultConfig>> violations =
+                validator.validate((AWSKeyVaultConfig) keyVaultConfig);
 
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
