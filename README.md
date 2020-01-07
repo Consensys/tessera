@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/jpmorganchase/tessera.svg?branch=master)](https://travis-ci.org/jpmorganchase/tessera)
 [![codecov](https://codecov.io/gh/jpmorganchase/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/jpmorganchase/tessera)
+![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/quorumengineering/tessera)
+![Docker Pulls](https://img.shields.io/docker/pulls/quorumengineering/tessera)
 
 
 # <img src="https://raw.githubusercontent.com/jpmorganchase/tessera/master/TesseraLogo.png" width="150" height="150"/>
