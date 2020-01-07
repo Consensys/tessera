@@ -6,6 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * Polls every so often to all known nodes for any new discoverable nodes. This keeps all nodes up-to date and
@@ -21,15 +24,21 @@ public class PartyInfoPoller implements Runnable {
 
     private final P2pClient p2pClient;
 
+    private final Executor executor;
+
     public PartyInfoPoller(final PartyInfoService partyInfoService, final P2pClient p2pClient) {
-        this(partyInfoService, PartyInfoParser.create(), p2pClient);
+        this(partyInfoService, PartyInfoParser.create(), p2pClient, Executors.newFixedThreadPool(20));
     }
 
     public PartyInfoPoller(
-            final PartyInfoService partyInfoService, final PartyInfoParser partyInfoParser, final P2pClient p2pClient) {
+            final PartyInfoService partyInfoService,
+            final PartyInfoParser partyInfoParser,
+            final P2pClient p2pClient,
+            final Executor executor) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
         this.p2pClient = Objects.requireNonNull(p2pClient);
+        this.executor = Objects.requireNonNull(executor);
     }
 
     /**
@@ -64,11 +73,12 @@ public class PartyInfoPoller implements Runnable {
      * @param encodedPartyInfo the encoded current party information
      */
     private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
-        try {
-            p2pClient.sendPartyInfo(url, encodedPartyInfo);
-        } catch (final Exception ex) {
-            LOGGER.warn("Error {} when connecting to {}", ex.getMessage(), url);
-            LOGGER.debug(null, ex);
-        }
+        CompletableFuture.runAsync(() -> p2pClient.sendPartyInfo(url, encodedPartyInfo), executor)
+                .exceptionally(
+                        ex -> {
+                            LOGGER.warn("Error {} when connecting to {}", ex.getMessage(), url);
+                            LOGGER.debug(null, ex);
+                            return null;
+                        });
     }
 }
