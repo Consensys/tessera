@@ -61,7 +61,7 @@ public class AWSKeyVaultServiceFactoryTest {
     public void nullKeyVaultConfigurationThrowsException() {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(keyConfiguration.getAwsKeyVaultConfig()).thenReturn(null);
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(null);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         Throwable ex = catchThrowable(() -> awsKeyVaultServiceFactory.create(config, envProvider));

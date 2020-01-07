@@ -2,7 +2,6 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.KeyDataAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidKeyVaultConfig;
 import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 
@@ -36,28 +35,23 @@ public class KeyConfiguration extends ConfigItem {
     @XmlJavaTypeAdapter(KeyDataAdapter.class)
     private List<@Valid ConfigKeyPair> keyData;
 
-    @ValidKeyVaultConfig @XmlElement private DefaultKeyVaultConfig keyVaultConfig;
+    @Valid @XmlElement private DefaultKeyVaultConfig keyVaultConfig;
 
     @Valid @XmlElement private AzureKeyVaultConfig azureKeyVaultConfig;
 
     @Valid @XmlElement private HashicorpKeyVaultConfig hashicorpKeyVaultConfig;
-
-    // TODO(cjh) shall we not include this if the Azure and Hashicorp are deprecated?
-    @Valid @XmlElement private AWSKeyVaultConfig awsKeyVaultConfig;
 
     public KeyConfiguration(
             final Path passwordFile,
             final List<String> passwords,
             final List<ConfigKeyPair> keyData,
             final AzureKeyVaultConfig azureKeyVaultConfig,
-            final HashicorpKeyVaultConfig hashicorpKeyVaultConfig,
-            final AWSKeyVaultConfig awsKeyVaultConfig) {
+            final HashicorpKeyVaultConfig hashicorpKeyVaultConfig) {
         this.passwordFile = passwordFile;
         this.passwords = passwords;
         this.keyData = keyData;
         this.azureKeyVaultConfig = azureKeyVaultConfig;
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
-        this.awsKeyVaultConfig = awsKeyVaultConfig;
 
         if (null != azureKeyVaultConfig) {
             this.keyVaultConfig = KeyVaultConfigConverter.convert(azureKeyVaultConfig);
@@ -88,10 +82,6 @@ public class KeyConfiguration extends ConfigItem {
         return hashicorpKeyVaultConfig;
     }
 
-    public AWSKeyVaultConfig getAwsKeyVaultConfig() {
-        return this.awsKeyVaultConfig;
-    }
-
     public void setPasswordFile(Path passwordFile) {
         this.passwordFile = passwordFile;
     }
@@ -112,10 +102,6 @@ public class KeyConfiguration extends ConfigItem {
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
     }
 
-    public void setAwsKeyVaultConfig(AWSKeyVaultConfig awsKeyVaultConfig) {
-        this.awsKeyVaultConfig = awsKeyVaultConfig;
-    }
-
     public DefaultKeyVaultConfig getKeyVaultConfig() {
         if (keyVaultConfig != null) {
             return keyVaultConfig;
@@ -124,8 +110,6 @@ public class KeyConfiguration extends ConfigItem {
             return KeyVaultConfigConverter.convert(azureKeyVaultConfig);
         } else if (null != hashicorpKeyVaultConfig) {
             return KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
-        } else if (null != awsKeyVaultConfig) {
-            return KeyVaultConfigConverter.convert(awsKeyVaultConfig);
         }
         return null;
     }

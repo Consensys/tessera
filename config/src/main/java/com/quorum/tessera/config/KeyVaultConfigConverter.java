@@ -25,27 +25,18 @@ public interface KeyVaultConfigConverter {
         config.setProperty("approlePath", hashicorpKeyVaultConfig.getApprolePath());
 
         Optional.ofNullable(hashicorpKeyVaultConfig.getTlsKeyStorePath())
-            .map(Objects::toString)
-            .ifPresent(v -> {
-                config.setProperty("tlsKeyStorePath", v);
-            });
+                .map(Objects::toString)
+                .ifPresent(
+                        v -> {
+                            config.setProperty("tlsKeyStorePath", v);
+                        });
 
         Optional.ofNullable(hashicorpKeyVaultConfig.getTlsTrustStorePath())
-            .map(Objects::toString)
-            .ifPresent(v -> {
-                config.setProperty("tlsTrustStorePath", v);
-            });
-
-        return config;
-    }
-
-    /*
-   TODO: Remove these when AWSKeyVaultConfig is removed
-    */
-    static DefaultKeyVaultConfig convert(AWSKeyVaultConfig awsKeyVaultConfig) {
-        DefaultKeyVaultConfig config = new DefaultKeyVaultConfig();
-        config.setKeyVaultType(awsKeyVaultConfig.getKeyVaultType());
-        config.setProperty("endpoint", awsKeyVaultConfig.getEndpoint());
+                .map(Objects::toString)
+                .ifPresent(
+                        v -> {
+                            config.setProperty("tlsTrustStorePath", v);
+                        });
 
         return config;
     }

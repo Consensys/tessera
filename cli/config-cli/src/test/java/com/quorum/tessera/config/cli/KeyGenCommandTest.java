@@ -481,14 +481,18 @@ public class KeyGenCommandTest {
 
     @Test
     public void validAWSKeyVaultConfig() {
-        final KeyVaultConfig keyVaultConfig = new AWSKeyVaultConfig("https://someurl.com");
+        String endpointUrl = "https://someurl.com";
+
+        final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+        keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
+        keyVaultConfig.setProperty("endpoint", endpointUrl);
 
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
         command.encryptorOptions = encryptorOptions;
         command.vaultType = KeyVaultType.AWS;
-        command.vaultUrl = "https://someurl.com";
+        command.vaultUrl = endpointUrl;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -506,7 +510,8 @@ public class KeyGenCommandTest {
 
     @Test
     public void validAWSKeyVaultConfigNoVaultUrl() {
-        final KeyVaultConfig keyVaultConfig = new AWSKeyVaultConfig();
+        final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+        keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
 
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
@@ -550,7 +555,6 @@ public class KeyGenCommandTest {
 
         ConstraintViolation violation = violations.iterator().next();
 
-        assertThat(violation.getPropertyPath().toString()).isEqualTo("endpoint");
         assertThat(violation.getMessage()).isEqualTo("must be a valid AWS service endpoint URL with scheme");
 
         verify(encryptorOptions).parseEncryptorConfig();

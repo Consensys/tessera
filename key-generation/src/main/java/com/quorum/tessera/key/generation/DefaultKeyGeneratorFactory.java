@@ -45,7 +45,11 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
                 return new AzureVaultKeyGenerator(encryptor, keyVaultService);
 
             } else if (keyVaultConfig.getKeyVaultType().equals(KeyVaultType.AWS)) {
-                keyConfiguration.setAwsKeyVaultConfig((AWSKeyVaultConfig) keyVaultConfig);
+                if (!(keyVaultConfig instanceof DefaultKeyVaultConfig)) {
+                    throw new IllegalArgumentException("AWS key vault config not instance of DefaultKeyVaultConfig");
+                }
+
+                keyConfiguration.setKeyVaultConfig((DefaultKeyVaultConfig) keyVaultConfig);
 
                 config.setKeys(keyConfiguration);
 

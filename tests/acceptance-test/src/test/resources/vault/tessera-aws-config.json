@@ -26,8 +26,11 @@
     ],
     "keys": {
         "passwords": [],
-        "awsKeyVaultConfig":{
-            "endpoint": "${awsSecretsManagerEndpoint}"
+        "keyVaultConfig": {
+            "keyVaultType": "AWS",
+            "properties": {
+                "endpoint": "${awsSecretsManagerEndpoint}"
+            }
         },
         "keyData": [
             {

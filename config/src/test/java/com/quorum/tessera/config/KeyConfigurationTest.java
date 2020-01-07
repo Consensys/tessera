@@ -13,8 +13,6 @@ public class KeyConfigurationTest {
 
         KeyVaultConfig result = keyConfiguration.getKeyVaultConfig();
         assertThat(result).isNotNull();
-
-
     }
 
     @Test
@@ -25,18 +23,6 @@ public class KeyConfigurationTest {
 
         KeyVaultConfig result = keyConfiguration.getKeyVaultConfig();
         assertThat(result).isNotNull();
-
-    }
-
-    @Test
-    public void loadKeyVaultConfigFromAWSKeyVaultConfig() {
-        KeyConfiguration keyConfiguration = new KeyConfiguration();
-        AWSKeyVaultConfig awsKeyVaultConfig = new AWSKeyVaultConfig();
-        keyConfiguration.setAwsKeyVaultConfig(awsKeyVaultConfig);
-
-        KeyVaultConfig result = keyConfiguration.getKeyVaultConfig();
-        assertThat(result).isNotNull();
-
     }
 
     @Test
@@ -45,8 +31,5 @@ public class KeyConfigurationTest {
 
         KeyVaultConfig result = keyConfiguration.getKeyVaultConfig();
         assertThat(result).isNull();
-
     }
-
-
 }
