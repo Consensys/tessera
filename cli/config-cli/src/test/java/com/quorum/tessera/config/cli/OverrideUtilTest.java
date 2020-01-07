@@ -54,7 +54,6 @@ public class OverrideUtilTest {
                         "keys.hashicorpKeyVaultConfig.tlsKeyStorePath",
                         "keys.hashicorpKeyVaultConfig.tlsTrustStorePath",
                         "keys.hashicorpKeyVaultConfig.url",
-                        "keys.awsKeyVaultConfig.endpoint",
                         "alwaysSendTo",
                         "unixSocketFile",
                         "useWhiteList",

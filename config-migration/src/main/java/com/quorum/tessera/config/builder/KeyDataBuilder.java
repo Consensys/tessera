@@ -92,6 +92,6 @@ public class KeyDataBuilder {
             privateKeyPasswordFilePath = null;
         }
 
-        return new KeyConfiguration(privateKeyPasswordFilePath, null, keyData, null, null, null);
+        return new KeyConfiguration(privateKeyPasswordFilePath, null, keyData, null, null);
     }
 }
