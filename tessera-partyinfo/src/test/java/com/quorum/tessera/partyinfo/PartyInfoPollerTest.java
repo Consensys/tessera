@@ -5,10 +5,12 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
@@ -34,15 +36,25 @@ public class PartyInfoPollerTest {
 
     private P2pClient p2pClient;
 
+    private Executor executor;
+
     @Before
     public void setUp() {
         this.partyInfoService = mock(PartyInfoService.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.p2pClient = mock(P2pClient.class);
+        this.executor = mock(Executor.class);
+
+        doAnswer(
+            (InvocationOnMock invocation) -> {
+                ((Runnable) invocation.getArguments()[0]).run();
+                return null;
+            }
+        ).when(executor).execute(any(Runnable.class));
 
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
 
-        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, p2pClient);
+        this.partyInfoPoller = new PartyInfoPoller(partyInfoService, partyInfoParser, p2pClient, executor);
     }
 
     @After
@@ -86,6 +98,7 @@ public class PartyInfoPollerTest {
         final Throwable throwable = catchThrowable(partyInfoPoller::run);
 
         assertThat(throwable).isNull();
+
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
         verify(p2pClient).sendPartyInfo(TARGET_URL_2, DATA);
         verify(partyInfoService).getPartyInfo();
