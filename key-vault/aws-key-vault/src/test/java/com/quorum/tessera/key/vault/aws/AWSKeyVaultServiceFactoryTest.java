@@ -3,6 +3,7 @@ package com.quorum.tessera.key.vault.aws;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.key.vault.KeyVaultService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,6 +30,14 @@ public class AWSKeyVaultServiceFactoryTest {
         this.config = mock(Config.class);
         this.envProvider = mock(EnvironmentVariableProvider.class);
         this.awsKeyVaultServiceFactory = new AWSKeyVaultServiceFactory();
+
+        // required by the AWS SDK
+        System.setProperty("aws.region", "a-region");
+    }
+
+    @After
+    public void tearDown() {
+        System.clearProperty("aws.region");
     }
 
     @Test(expected = NullPointerException.class)

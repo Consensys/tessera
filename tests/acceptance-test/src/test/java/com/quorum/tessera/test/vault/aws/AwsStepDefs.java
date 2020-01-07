@@ -54,13 +54,13 @@ public class AwsStepDefs implements En {
 
     public AwsStepDefs() {
 
-        //        Before(
-        //            () -> {
-        //                // only needed when running outside of maven build process
-        //                System.setProperty(
-        //                    "application.jar",
-        //                    "path/to/tessera-app-VERSION.jar");
-        //            });
+        Before(
+                () -> {
+                    //                        // only needed when running outside of maven build process
+                    //                        System.setProperty(
+                    //                            "application.jar",
+                    //                            "path/to/tessera-app-VERSION.jar");
+                });
 
         After(
                 () -> {
@@ -146,6 +146,9 @@ public class AwsStepDefs implements En {
                                             "-Djavax.net.ssl.trustStorePassword=testtest",
                                             "-Dspring.profiles.active=disable-unixsocket",
                                             "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+                                            "-Daws.region=a-region",
+                                            "-Daws.accessKeyId=an-id",
+                                            "-Daws.secretAccessKey=a-key",
                                             "-Ddebug=true",
                                             "-jar",
                                             jarfile,
@@ -220,6 +223,9 @@ public class AwsStepDefs implements En {
                                     "-Dspring.profiles.active=disable-unixsocket",
                                     "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
                                     "-Ddebug=true",
+                                    "-Daws.region=a-region",
+                                    "-Daws.accessKeyId=an-id",
+                                    "-Daws.secretAccessKey=a-key",
                                     "-jar",
                                     jarfile));
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
