@@ -12,9 +12,24 @@ import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.quorum.tessera.config.util.EnvironmentVariables.AWS_ACCESS_KEY_ID;
+import static com.quorum.tessera.config.util.EnvironmentVariables.AWS_SECRET_ACCESS_KEY;
+
 public class AWSKeyVaultServiceFactory implements KeyVaultServiceFactory {
     @Override
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
+        String accessKeyID = envProvider.getEnv(AWS_ACCESS_KEY_ID);
+        String secretAccessKey = envProvider.getEnv(AWS_SECRET_ACCESS_KEY);
+
+        if ((accessKeyID != null && secretAccessKey == null) || (secretAccessKey != null && accessKeyID == null)) {
+            throw new IncompleteAWSCredentialsException(
+                    "If using environment variables, both "
+                            + AWS_ACCESS_KEY_ID
+                            + " and "
+                            + AWS_SECRET_ACCESS_KEY
+                            + " must be set");
+        }
+
         KeyVaultConfig keyVaultConfig =
                 Optional.ofNullable(config.getKeys())
                         .map(KeyConfiguration::getKeyVaultConfig)
@@ -36,21 +51,23 @@ public class AWSKeyVaultServiceFactory implements KeyVaultServiceFactory {
         SecretsManagerClientBuilder secretsManagerClient = SecretsManagerClient.builder();
 
         Optional<String> endpoint = keyVaultConfig.getProperty("endpoint");
-        endpoint.ifPresent(s -> {
-            final URI uri;
+        endpoint.ifPresent(
+                s -> {
+                    final URI uri;
 
-            try {
-                uri = new URI(s);
-            } catch (URISyntaxException e) {
-                throw new ConfigException(new RuntimeException("Invalid AWS endpoint URL provided"));
-            }
+                    try {
+                        uri = new URI(s);
+                    } catch (URISyntaxException e) {
+                        throw new ConfigException(new RuntimeException("Invalid AWS endpoint URL provided"));
+                    }
 
-            if (Objects.isNull(uri.getScheme())) {
-                throw new ConfigException(new RuntimeException("Invalid AWS endpoint URL provided - no scheme"));
-            }
+                    if (Objects.isNull(uri.getScheme())) {
+                        throw new ConfigException(
+                                new RuntimeException("Invalid AWS endpoint URL provided - no scheme"));
+                    }
 
-            secretsManagerClient.endpointOverride(uri);
-        });
+                    secretsManagerClient.endpointOverride(uri);
+                });
         return secretsManagerClient.build();
     }
 }

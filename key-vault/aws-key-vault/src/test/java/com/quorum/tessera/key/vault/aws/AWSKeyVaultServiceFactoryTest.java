@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import java.util.Optional;
 
+import static com.quorum.tessera.config.util.EnvironmentVariables.AWS_ACCESS_KEY_ID;
+import static com.quorum.tessera.config.util.EnvironmentVariables.AWS_SECRET_ACCESS_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -58,6 +60,38 @@ public class AWSKeyVaultServiceFactoryTest {
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
         assertThat(ex.getMessage())
                 .contains("Trying to create AWS Secrets Manager connection but no configuration provided");
+    }
+
+    @Test
+    public void onlyAWSAccessKeyIDEnvVarProvidedThrowsException() {
+        Config config = mock(Config.class);
+
+        when(envProvider.getEnv(AWS_ACCESS_KEY_ID)).thenReturn("id");
+        Throwable ex = catchThrowable(() -> awsKeyVaultServiceFactory.create(config, envProvider));
+        assertThat(ex).isInstanceOf(IncompleteAWSCredentialsException.class);
+        assertThat(ex)
+                .hasMessageContaining(
+                        "If using environment variables, both "
+                                + AWS_ACCESS_KEY_ID
+                                + " and "
+                                + AWS_SECRET_ACCESS_KEY
+                                + " must be set");
+    }
+
+    @Test
+    public void onlyAWSSecretAccessKeyEnvVarProvidedThrowsException() {
+        Config config = mock(Config.class);
+
+        when(envProvider.getEnv(AWS_SECRET_ACCESS_KEY)).thenReturn("secret");
+        Throwable ex = catchThrowable(() -> awsKeyVaultServiceFactory.create(config, envProvider));
+        assertThat(ex).isInstanceOf(IncompleteAWSCredentialsException.class);
+        assertThat(ex)
+                .hasMessageContaining(
+                        "If using environment variables, both "
+                                + AWS_ACCESS_KEY_ID
+                                + " and "
+                                + AWS_SECRET_ACCESS_KEY
+                                + " must be set");
     }
 
     @Test
