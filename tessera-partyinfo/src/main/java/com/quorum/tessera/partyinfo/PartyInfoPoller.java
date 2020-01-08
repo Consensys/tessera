@@ -27,7 +27,7 @@ public class PartyInfoPoller implements Runnable {
     private final Executor executor;
 
     public PartyInfoPoller(final PartyInfoService partyInfoService, final P2pClient p2pClient) {
-        this(partyInfoService, PartyInfoParser.create(), p2pClient, Executors.newFixedThreadPool(20));
+        this(partyInfoService, PartyInfoParser.create(), p2pClient, Executors.newCachedThreadPool());
     }
 
     public PartyInfoPoller(
