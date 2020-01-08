@@ -26,7 +26,7 @@ public class KeyConfigurationTest {
     }
 
     @Test
-    public void loadKeyVaultConfigFromNoConfg() {
+    public void loadKeyVaultConfigFromNoConfig() {
         KeyConfiguration keyConfiguration = new KeyConfiguration();
 
         KeyVaultConfig result = keyConfiguration.getKeyVaultConfig();
