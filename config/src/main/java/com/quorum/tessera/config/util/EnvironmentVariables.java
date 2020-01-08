@@ -14,6 +14,10 @@ public final class EnvironmentVariables {
 
     public static final String AZURE_CLIENT_SECRET = "AZURE_CLIENT_SECRET";
 
+    public static final String AWS_ACCESS_KEY_ID = "AWS_ACCESS_KEY_ID";
+
+    public static final String AWS_SECRET_ACCESS_KEY = "AWS_SECRET_ACCESS_KEY";
+
     public static final String HASHICORP_ROLE_ID = "HASHICORP_ROLE_ID";
 
     public static final String HASHICORP_SECRET_ID = "HASHICORP_SECRET_ID";

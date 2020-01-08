@@ -87,7 +87,24 @@ public class KeyPairConverterTest {
         assertThat(result).hasSize(1);
 
         KeyPair resultKeyPair = result.iterator().next();
-        KeyPair expected = new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
+        KeyPair expected =
+                new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
+
+        assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    // Uses com.quorum.tessera.keypairconverter.MockAwsKeyVaultServiceFactory
+    public void convertSingleAwsVaultKeyPair() {
+        final AWSKeyPair keyPair = new AWSKeyPair("pub", "priv");
+
+        Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
+
+        assertThat(result).hasSize(1);
+
+        KeyPair resultKeyPair = result.iterator().next();
+        KeyPair expected =
+                new KeyPair(PublicKey.from(decodeBase64("publicSecret")), PrivateKey.from(decodeBase64("privSecret")));
 
         assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
     }

@@ -2,7 +2,6 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.KeyDataAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
-import com.quorum.tessera.config.constraints.ValidKeyVaultConfig;
 import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 
@@ -36,7 +35,7 @@ public class KeyConfiguration extends ConfigItem {
     @XmlJavaTypeAdapter(KeyDataAdapter.class)
     private List<@Valid ConfigKeyPair> keyData;
 
-    @ValidKeyVaultConfig @XmlElement private DefaultKeyVaultConfig keyVaultConfig;
+    @Valid @XmlElement private DefaultKeyVaultConfig keyVaultConfig;
 
     @Valid @XmlElement private AzureKeyVaultConfig azureKeyVaultConfig;
 
@@ -53,6 +52,7 @@ public class KeyConfiguration extends ConfigItem {
         this.keyData = keyData;
         this.azureKeyVaultConfig = azureKeyVaultConfig;
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
+
         if (null != azureKeyVaultConfig) {
             this.keyVaultConfig = KeyVaultConfigConverter.convert(azureKeyVaultConfig);
         } else if (null != hashicorpKeyVaultConfig) {

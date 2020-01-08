@@ -1,0 +1,6 @@
+
+dependencies {
+    implementation project(':config')
+    implementation 'software.amazon.awssdk:secretsmanager:2.10.25'
+    implementation project(':key-vault:key-vault-api')
+}
