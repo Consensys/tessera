@@ -1,15 +1,13 @@
 package com.quorum.tessera.key.generation;
 
-import com.quorum.tessera.config.AWSKeyVaultConfig;
-import com.quorum.tessera.config.AzureKeyVaultConfig;
-import com.quorum.tessera.config.EncryptorConfig;
-import com.quorum.tessera.config.EncryptorType;
-import com.quorum.tessera.config.HashicorpKeyVaultConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
-import java.util.Collections;
 import org.junit.Test;
 
+import java.util.Collections;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -61,14 +59,31 @@ public class KeyGeneratorFactoryTest {
 
     @Test
     public void awsVaultKeyGeneratorWhenAwsConfigProvided() {
-        final AWSKeyVaultConfig keyVaultConfig = new AWSKeyVaultConfig();
+        final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+        keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
 
         EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
         when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
         when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
+
         final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig);
 
         assertThat(keyGenerator).isNotNull();
         assertThat(keyGenerator).isExactlyInstanceOf(AWSSecretManagerKeyGenerator.class);
+    }
+
+    @Test
+    public void awsVaultKeyGeneratorWhenNonDefaultKeyVaultConfig() {
+        final KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AWS);
+
+        EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
+        when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
+        when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
+
+        final Throwable ex =
+                catchThrowable(() -> KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig));
+
+        assertThat(ex).isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -32,12 +32,6 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>admin-cli</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>encryption-api</artifactId>
         </dependency>
 
@@ -154,30 +148,6 @@
             <artifactId>aws-key-vault</artifactId>
             <scope>runtime</scope>
             <exclusions>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-codec</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-codec-http</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-transport</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-handler</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-common</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
-                    <artifactId>netty-buffer</artifactId>
-                </exclusion>
                 <exclusion>
                     <groupId>commons-logging</groupId>
                     <artifactId>commons-logging</artifactId>

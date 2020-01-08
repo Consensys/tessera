@@ -35,25 +35,29 @@ public class KeyConfiguration extends ConfigItem {
     @XmlJavaTypeAdapter(KeyDataAdapter.class)
     private List<@Valid ConfigKeyPair> keyData;
 
+    @Valid @XmlElement private DefaultKeyVaultConfig keyVaultConfig;
+
     @Valid @XmlElement private AzureKeyVaultConfig azureKeyVaultConfig;
 
     @Valid @XmlElement private HashicorpKeyVaultConfig hashicorpKeyVaultConfig;
-
-    @Valid @XmlElement private AWSKeyVaultConfig awsKeyVaultConfig;
 
     public KeyConfiguration(
             final Path passwordFile,
             final List<String> passwords,
             final List<ConfigKeyPair> keyData,
             final AzureKeyVaultConfig azureKeyVaultConfig,
-            final HashicorpKeyVaultConfig hashicorpKeyVaultConfig,
-            final AWSKeyVaultConfig awsKeyVaultConfig) {
+            final HashicorpKeyVaultConfig hashicorpKeyVaultConfig) {
         this.passwordFile = passwordFile;
         this.passwords = passwords;
         this.keyData = keyData;
         this.azureKeyVaultConfig = azureKeyVaultConfig;
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
-        this.awsKeyVaultConfig = awsKeyVaultConfig;
+
+        if (null != azureKeyVaultConfig) {
+            this.keyVaultConfig = KeyVaultConfigConverter.convert(azureKeyVaultConfig);
+        } else if (null != hashicorpKeyVaultConfig) {
+            this.keyVaultConfig = KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
+        }
     }
 
     public KeyConfiguration() {}
@@ -78,10 +82,6 @@ public class KeyConfiguration extends ConfigItem {
         return hashicorpKeyVaultConfig;
     }
 
-    public AWSKeyVaultConfig getAwsKeyVaultConfig() {
-        return this.awsKeyVaultConfig;
-    }
-
     public void setPasswordFile(Path passwordFile) {
         this.passwordFile = passwordFile;
     }
@@ -102,7 +102,19 @@ public class KeyConfiguration extends ConfigItem {
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
     }
 
-    public void setAwsKeyVaultConfig(AWSKeyVaultConfig awsKeyVaultConfig) {
-        this.awsKeyVaultConfig = awsKeyVaultConfig;
+    public DefaultKeyVaultConfig getKeyVaultConfig() {
+        if (keyVaultConfig != null) {
+            return keyVaultConfig;
+        }
+        if (null != azureKeyVaultConfig) {
+            return KeyVaultConfigConverter.convert(azureKeyVaultConfig);
+        } else if (null != hashicorpKeyVaultConfig) {
+            return KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
+        }
+        return null;
+    }
+
+    public void setKeyVaultConfig(DefaultKeyVaultConfig keyVaultConfig) {
+        this.keyVaultConfig = keyVaultConfig;
     }
 }

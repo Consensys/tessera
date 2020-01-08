@@ -79,7 +79,7 @@
             <artifactId>jasypt</artifactId>
         </dependency>
 
-        
+
     </dependencies>
     <build>
 

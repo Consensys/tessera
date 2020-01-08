@@ -56,6 +56,7 @@
         <project.scm.id>github</project.scm.id>
         <asm.version>7.0</asm.version>
         <jasypt.version>1.9.3</jasypt.version>
+        <picocli.version>4.0.4</picocli.version>
         <awssdk.version>2.10.25</awssdk.version>
     </properties>
 
@@ -518,12 +519,6 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>admin-cli</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>security</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
@@ -698,6 +693,24 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-data</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>grpc-server</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>grpc</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>grpc-api</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
 
@@ -976,12 +989,6 @@
             </dependency>
 
             <dependency>
-                <groupId>commons-cli</groupId>
-                <artifactId>commons-cli</artifactId>
-                <version>1.4</version>
-            </dependency>
-
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
                 <version>3.7</version>
@@ -993,14 +1000,12 @@
                 <version>1.2.2</version>
             </dependency>
 
-
             <dependency>
                 <groupId>com.github.stefanbirkner</groupId>
                 <artifactId>system-rules</artifactId>
                 <version>1.18.0</version>
             </dependency>
 
-         
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
@@ -1056,18 +1061,21 @@
                 <version>${jetty.version}</version>
                 <type>jar</type>
             </dependency>
+
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-client</artifactId>
                 <version>${jetty.version}</version>
                 <type>jar</type>
             </dependency>
+
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-servlet</artifactId>
                 <version>${jetty.version}</version>
                 <type>jar</type>
             </dependency>
+
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-unixsocket</artifactId>
@@ -1099,7 +1107,6 @@
                 <artifactId>javax-websocket-client-impl</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
-
 
             <dependency>
                 <groupId>com.github.jnr</groupId>
@@ -1138,14 +1145,12 @@
                 <classifier>native</classifier>
             </dependency>
 
-
             <dependency>
                 <groupId>org.glassfish.grizzly</groupId>
                 <artifactId>grizzly-http-server</artifactId>
                 <version>2.4.3.1</version>
                 <scope>test</scope>
             </dependency>
-
 
             <!-- keyvault deps -->
 
@@ -1178,7 +1183,6 @@
                 <artifactId>joda-time</artifactId>
                 <version>2.7</version>
             </dependency>
-
 
             <dependency>
                 <groupId>commons-codec</groupId>
@@ -1264,7 +1268,6 @@
                 <version>${asm.version}</version>
             </dependency>
 
-
             <dependency>
                 <groupId>org.jasypt</groupId>
                 <artifactId>jasypt</artifactId>
@@ -1272,9 +1275,36 @@
             </dependency>
 
             <dependency>
+                <groupId>info.picocli</groupId>
+                <artifactId>picocli</artifactId>
+                <version>${picocli.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>software.amazon.awssdk</groupId>
                 <artifactId>secretsmanager</artifactId>
                 <version>${awssdk.version}</version>
+            </dependency>
+
+            <!-- to resolve dependency convergence issue within software.amazon.awssdk:secretsmanager -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>4.1.42.Final</version>
+            </dependency>
+
+            <!-- to resolve dependency convergence issue within software.amazon.awssdk:secretsmanager -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>4.1.42.Final</version>
+            </dependency>
+
+            <!-- to address dependency convergence between com.github.tomakehurst:wiremock-jre8 and software.amazon.awssdk:secretsmanager -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.9</version>
             </dependency>
 
         </dependencies>
@@ -1313,7 +1343,7 @@
             <artifactId>system-rules</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
@@ -1350,8 +1380,6 @@
             <artifactId>equalsverifier</artifactId>
             <scope>test</scope>
         </dependency>
-
-
 
     </dependencies>
 

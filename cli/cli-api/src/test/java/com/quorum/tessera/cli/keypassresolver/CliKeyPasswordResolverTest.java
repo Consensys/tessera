@@ -60,7 +60,7 @@ public class CliKeyPasswordResolverTest {
 
         // null paths since we won't actually be reading them
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, emptyList(), singletonList(keypair), null, null, null);
+        final KeyConfiguration keyConfig = new KeyConfiguration(null, emptyList(), singletonList(keypair), null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -79,7 +79,7 @@ public class CliKeyPasswordResolverTest {
 
         // null paths since we won't actually be reading them
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, null, singletonList(keypair), null, null, null);
+        final KeyConfiguration keyConfig = new KeyConfiguration(null, null, singletonList(keypair), null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -100,7 +100,7 @@ public class CliKeyPasswordResolverTest {
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
         final KeyConfiguration keyConfig =
                 new KeyConfiguration(
-                        null, singletonList("passwordsAssignedToKeys"), singletonList(keypair), null, null, null);
+                        null, singletonList("passwordsAssignedToKeys"), singletonList(keypair), null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -117,7 +117,7 @@ public class CliKeyPasswordResolverTest {
         final Path passes = Files.createTempDirectory("testdirectory").resolve("nonexistantfile.txt");
 
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null, null);
+        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 
@@ -135,7 +135,7 @@ public class CliKeyPasswordResolverTest {
         Files.write(passes, "q".getBytes());
 
         final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null, null);
+        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
         final Config config = new Config();
         config.setKeys(keyConfig);
 

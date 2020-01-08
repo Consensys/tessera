@@ -1,7 +1,5 @@
-
 package com.quorum.tessera.core;
 
-import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -19,9 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ContextConfiguration(locations = "classpath:tessera-core-spring.xml")
 public class CoreIT {
 
-
-    @Inject
-    private TransactionManager transactionManager;
+    @Inject private TransactionManager transactionManager;
 
     @PersistenceContext(unitName = "tessera")
     private EntityManager entityManager;
@@ -29,13 +25,14 @@ public class CoreIT {
     @BeforeClass
     public static void onSetup() throws Exception {
         String configPath = CoreIT.class.getResource("/config1.json").getPath();
-        CliDelegate.INSTANCE.execute("-configfile",configPath);
-}
+        // TODO(cjh) introduces a circular dependency between jaxrs-client module and picocli module
+        //        PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
+        //        picoCliDelegate.execute("-configfile", configPath);
+    }
 
     @Test
     public void doStuff() throws Exception {
         assertThat(transactionManager).isNotNull();
         assertThat(entityManager).isNotNull();
     }
-
 }

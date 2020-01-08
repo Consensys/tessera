@@ -16,8 +16,14 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>jaxrs-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>key-generation</artifactId>
         </dependency>
+
     </dependencies>
 
     <profiles>
