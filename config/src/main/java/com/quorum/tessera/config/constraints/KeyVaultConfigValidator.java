@@ -66,6 +66,19 @@ public class KeyVaultConfigValidator implements ConstraintValidator<ValidKeyVaul
             }
         }
 
+        if (keyVaultType == KeyVaultType.AWS) {
+
+            if (keyVaultConfig.getProperties().containsKey("endpoint")) {
+                if (!keyVaultConfig.getProperties().get("endpoint").matches("^https?://.+$")) {
+                    constraintValidatorContext.disableDefaultConstraintViolation();
+                    constraintValidatorContext
+                        .buildConstraintViolationWithTemplate("must be a valid AWS service endpoint URL with scheme")
+                        .addConstraintViolation();
+                    outcomes.add(Boolean.FALSE);
+                }
+            }
+        }
+
         return outcomes.stream().allMatch(Boolean::booleanValue);
     }
 }

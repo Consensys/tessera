@@ -57,6 +57,7 @@
         <asm.version>7.0</asm.version>
         <jasypt.version>1.9.3</jasypt.version>
         <picocli.version>4.0.4</picocli.version>
+        <awssdk.version>2.10.25</awssdk.version>
     </properties>
 
     <build>
@@ -516,7 +517,6 @@
                 <version>0.11-SNAPSHOT</version>
             </dependency>
 
-
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>security</artifactId>
@@ -651,6 +651,12 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>azure-key-vault</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>aws-key-vault</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
 
@@ -1272,6 +1278,33 @@
                 <groupId>info.picocli</groupId>
                 <artifactId>picocli</artifactId>
                 <version>${picocli.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>secretsmanager</artifactId>
+                <version>${awssdk.version}</version>
+            </dependency>
+
+            <!-- to resolve dependency convergence issue within software.amazon.awssdk:secretsmanager -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>4.1.42.Final</version>
+            </dependency>
+
+            <!-- to resolve dependency convergence issue within software.amazon.awssdk:secretsmanager -->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec-http</artifactId>
+                <version>4.1.42.Final</version>
+            </dependency>
+
+            <!-- to address dependency convergence between com.github.tomakehurst:wiremock-jre8 and software.amazon.awssdk:secretsmanager -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpclient</artifactId>
+                <version>4.5.9</version>
             </dependency>
 
         </dependencies>

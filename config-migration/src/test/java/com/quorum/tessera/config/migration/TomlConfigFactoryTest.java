@@ -141,7 +141,8 @@ public class TomlConfigFactoryTest {
     @Test
     public void ifPublicKeyListIsEmptyThenKeyConfigurationIsAllNulls() throws IOException {
         try (InputStream configData = getClass().getResourceAsStream("/sample-with-only-private-keys.conf")) {
-            final Throwable throwable = catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
+            final Throwable throwable =
+                    catchThrowable(() -> tomlConfigFactory.createKeyDataBuilder(configData).build());
 
             assertThat(throwable).isInstanceOf(ConfigException.class).hasCauseExactlyInstanceOf(RuntimeException.class);
 

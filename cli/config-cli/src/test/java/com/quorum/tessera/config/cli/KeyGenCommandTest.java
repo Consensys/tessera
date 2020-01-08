@@ -442,7 +442,7 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void hashicorpTlsPathsDontExistThrowsException() throws Exception {
+    public void hashicorpTlsPathsDontExistThrowsException() {
         final String vaultUrl = "someurl";
         final String approlePath = "someapprole";
         final Path nonExistentPath = Paths.get(UUID.randomUUID().toString());
@@ -477,6 +477,88 @@ public class KeyGenCommandTest {
         // verify the correct config is used
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+    }
+
+    @Test
+    public void validAWSKeyVaultConfig() {
+        String endpointUrl = "https://someurl.com";
+
+        final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+        keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
+        keyVaultConfig.setProperty("endpoint", endpointUrl);
+
+        final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
+        when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
+
+        command.encryptorOptions = encryptorOptions;
+        command.vaultType = KeyVaultType.AWS;
+        command.vaultUrl = endpointUrl;
+
+        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+        CliResult result = command.call();
+
+        // verify the correct config is used
+        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), isNull());
+        assertThat(result).isEqualToComparingFieldByField(wantResult);
+
+        verify(keyGenerator).generate(anyString(), any(), any());
+        verify(encryptorOptions).parseEncryptorConfig();
+        verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+    }
+
+    @Test
+    public void validAWSKeyVaultConfigNoVaultUrl() {
+        final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+        keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
+
+        final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
+        when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
+
+        command.encryptorOptions = encryptorOptions;
+        command.vaultType = KeyVaultType.AWS;
+
+        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+        CliResult result = command.call();
+
+        // verify the correct config is used
+        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), isNull());
+        assertThat(result).isEqualToComparingFieldByField(wantResult);
+
+        verify(keyGenerator).generate(anyString(), any(), any());
+        verify(encryptorOptions).parseEncryptorConfig();
+        verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+    }
+
+    @Test
+    public void invalidAWSKeyVaultConfigThrowsException() {
+        final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
+        when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
+
+        command.encryptorOptions = encryptorOptions;
+        command.vaultType = KeyVaultType.AWS;
+        command.vaultUrl = "not a valid url";
+
+        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+        Throwable ex = catchThrowable(() -> command.call());
+
+        assertThat(ex).isInstanceOf(ConstraintViolationException.class);
+
+        Set<ConstraintViolation<?>> violations = ((ConstraintViolationException) ex).getConstraintViolations();
+
+        assertThat(violations.size()).isEqualTo(1);
+
+        ConstraintViolation violation = violations.iterator().next();
+
+        assertThat(violation.getMessage()).isEqualTo("must be a valid AWS service endpoint URL with scheme");
+
+        verify(encryptorOptions).parseEncryptorConfig();
+        verifyNoMoreInteractions(encryptorOptions);
     }
 
     @Test

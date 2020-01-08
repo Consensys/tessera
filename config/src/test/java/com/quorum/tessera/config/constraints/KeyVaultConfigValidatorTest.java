@@ -68,7 +68,7 @@ public class KeyVaultConfigValidatorTest {
     }
 
     @Test
-    public void validHahicorpConfig() throws Exception {
+    public void validHashicorpConfig() throws Exception {
 
         Path somePath = Files.createTempFile(UUID.randomUUID().toString(), ".txt");
         somePath.toFile().deleteOnExit();
@@ -82,7 +82,7 @@ public class KeyVaultConfigValidatorTest {
     }
 
     @Test
-    public void invalidHahicorpConfig() throws Exception {
+    public void invalidHashicorpConfig() {
 
         Path somePath = mock(Path.class);
 
@@ -91,6 +91,32 @@ public class KeyVaultConfigValidatorTest {
 
         config.setProperty("tlsKeyStorePath", somePath.toString());
         config.setProperty("tlsTrustStorePath", somePath.toString());
+
+        assertThat(keyVaultConfigValidator.isValid(config, context)).isFalse();
+    }
+
+    @Test
+    public void validAWSConfig() {
+        DefaultKeyVaultConfig config = new DefaultKeyVaultConfig();
+        config.setKeyVaultType(KeyVaultType.AWS);
+        config.setProperty("endpoint", "http://someurl");
+
+        assertThat(keyVaultConfigValidator.isValid(config, context)).isTrue();
+    }
+
+    @Test
+    public void validAWSConfigNoEndpoint() {
+        DefaultKeyVaultConfig config = new DefaultKeyVaultConfig();
+        config.setKeyVaultType(KeyVaultType.AWS);
+
+        assertThat(keyVaultConfigValidator.isValid(config, context)).isTrue();
+    }
+
+    @Test
+    public void invalidAWSConfig() {
+        DefaultKeyVaultConfig config = new DefaultKeyVaultConfig();
+        config.setKeyVaultType(KeyVaultType.AWS);
+        config.setProperty("endpoint", "noscheme");
 
         assertThat(keyVaultConfigValidator.isValid(config, context)).isFalse();
     }

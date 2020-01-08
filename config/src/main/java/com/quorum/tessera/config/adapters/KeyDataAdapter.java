@@ -59,13 +59,19 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
                     keyData.getHashicorpVaultSecretVersion());
         }
 
-        // case 5, the keys are provided inside a file
+        // case 5, the AWS Secrets Manager data is provided
+        if (keyData.getAwsSecretsManagerPublicKeyId() != null && keyData.getAwsSecretsManagerPrivateKeyId() != null) {
+            return new AWSKeyPair(
+                    keyData.getAwsSecretsManagerPublicKeyId(), keyData.getAwsSecretsManagerPrivateKeyId());
+        }
+
+        // case 6, the keys are provided inside a file
         if (keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
             final KeyEncryptor keyEncryptor = keyEncryptorHolder.getKeyEncryptor().get();
             return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath(), keyEncryptor);
         }
 
-        // case 6, the key config specified is invalid
+        // case 7, the key config specified is invalid
         return new UnsupportedKeyPair(
                 keyData.getConfig(),
                 keyData.getPrivateKey(),
@@ -80,7 +86,9 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
                 keyData.getHashicorpVaultPrivateKeyId(),
                 keyData.getHashicorpVaultSecretEngineName(),
                 keyData.getHashicorpVaultSecretName(),
-                keyData.getHashicorpVaultSecretVersion());
+                keyData.getHashicorpVaultSecretVersion(),
+                keyData.getAwsSecretsManagerPublicKeyId(),
+                keyData.getAwsSecretsManagerPrivateKeyId());
     }
 
     @Override
@@ -128,6 +136,14 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
             return keyData;
         }
 
+        if (keyPair instanceof AWSKeyPair) {
+            AWSKeyPair kp = (AWSKeyPair) keyPair;
+
+            keyData.setAwsSecretsManagerPublicKeyId(kp.getPublicKeyId());
+            keyData.setAwsSecretsManagerPrivateKeyId(kp.getPrivateKeyId());
+            return keyData;
+        }
+
         if (keyPair instanceof FilesystemKeyPair) {
             FilesystemKeyPair kp = (FilesystemKeyPair) keyPair;
 
@@ -152,7 +168,9 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
                     kp.getHashicorpVaultPublicKeyId(),
                     kp.getHashicorpVaultSecretEngineName(),
                     kp.getHashicorpVaultSecretName(),
-                    kp.getHashicorpVaultSecretVersion());
+                    kp.getHashicorpVaultSecretVersion(),
+                    kp.getAwsSecretsManagerPublicKeyId(),
+                    kp.getAwsSecretsManagerPrivateKeyId());
         }
 
         throw new UnsupportedOperationException("The keypair type " + keyPair.getClass() + " is not allowed");

@@ -108,13 +108,26 @@ public class KeyDataAdapterTest {
     }
 
     @Test
+    public void marshallAWSKeys() {
+        final AWSKeyPair keyPair = new AWSKeyPair("pubId", "privId");
+
+        final KeyData expected = new KeyData();
+        expected.setAwsSecretsManagerPublicKeyId("pubId");
+        expected.setAwsSecretsManagerPrivateKeyId("privId");
+
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
     public void marshallUnsupportedKeys() {
         final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         final Path path = mock(Path.class);
         // set a random selection of values that are not sufficient to make a complete key pair of any type
         final UnsupportedKeyPair keyPair =
                 new UnsupportedKeyPair(
-                        keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null);
+                        keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null, null, null);
 
         final KeyData expected = new KeyData();
         expected.setConfig(keyDataConfig);
@@ -224,6 +237,16 @@ public class KeyDataAdapterTest {
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+    }
+
+    @Test
+    public void unmarshallingAWSKeysGivesCorrectKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAwsSecretsManagerPublicKeyId("pubId");
+        input.setAwsSecretsManagerPrivateKeyId("privId");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(AWSKeyPair.class);
     }
 
     @Test

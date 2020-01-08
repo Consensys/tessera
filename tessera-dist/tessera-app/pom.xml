@@ -144,6 +144,18 @@
         </dependency>
 
         <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>aws-key-vault</artifactId>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-json-processing</artifactId>
             <scope>runtime</scope>
