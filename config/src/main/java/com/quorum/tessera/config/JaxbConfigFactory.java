@@ -3,18 +3,19 @@ package com.quorum.tessera.config;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 
-import java.io.InputStream;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class JaxbConfigFactory implements ConfigFactory {
 
     private final KeyEncryptorFactory keyEncryptorFactory;
+
+    private static final EncryptorConfig DEFAULT_ENCRYPTOR_CONFIG = defaultEncryptorConfig();
 
     protected JaxbConfigFactory(KeyEncryptorFactory keyEncryptorFactory) {
         this.keyEncryptorFactory = keyEncryptorFactory;
@@ -23,13 +24,6 @@ public class JaxbConfigFactory implements ConfigFactory {
     public JaxbConfigFactory() {
         this(KeyEncryptorFactory.newFactory());
     }
-
-    private static final EncryptorConfig DEFAULT_ENCRYPTOR_CONFIG =
-            new EncryptorConfig() {
-                {
-                    setType(EncryptorType.NACL);
-                }
-            };
 
     @Override
     public Config create(final InputStream configData) {
@@ -53,5 +47,11 @@ public class JaxbConfigFactory implements ConfigFactory {
         config.setEncryptor(encryptorConfig);
 
         return config;
+    }
+
+    private static EncryptorConfig defaultEncryptorConfig() {
+        final EncryptorConfig encryptorConfig = new EncryptorConfig();
+        encryptorConfig.setType(EncryptorType.NACL);
+        return encryptorConfig;
     }
 }
