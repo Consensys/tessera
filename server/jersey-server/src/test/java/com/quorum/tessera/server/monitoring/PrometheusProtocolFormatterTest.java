@@ -34,7 +34,9 @@ public class PrometheusProtocolFormatterTest {
 
     @Test
     public void singleArgResourceResponseCorrectlyFormatted() {
-        mockMetrics.add(new MBeanResourceMetric("POST->resend(ResendRequest)#8ca0a760", "RequestRate[requestsPerSeconds]", "1.3"));
+        mockMetrics.add(
+                new MBeanResourceMetric(
+                        "POST->resend(ResendRequest)#8ca0a760", "RequestRate[requestsPerSeconds]", "1.3"));
 
         AppType type = AppType.P2P;
 
@@ -56,7 +58,8 @@ public class PrometheusProtocolFormatterTest {
 
     @Test
     public void multipleArgResourceResponseCorrectlyFormatted() {
-        mockMetrics.add(new MBeanResourceMetric("GET->receiveRaw(String;String)#fc8f8357", "AverageTime[ms]_total", "5.2"));
+        mockMetrics.add(
+                new MBeanResourceMetric("GET->receiveRaw(String;String)#fc8f8357", "AverageTime[ms]_total", "5.2"));
 
         AppType type = AppType.P2P;
 
@@ -68,12 +71,16 @@ public class PrometheusProtocolFormatterTest {
     @Test
     public void multipleMetricsResponseCorrectlyFormatted() {
         mockMetrics.add(new MBeanResourceMetric("GET->upCheck()#a10a4f8d", "AverageTime[ms]_total", "100"));
-        mockMetrics.add(new MBeanResourceMetric("POST->resend(ResendRequest)#8ca0a760", "RequestRate[requestsPerSeconds]", "1.3"));
+        mockMetrics.add(
+                new MBeanResourceMetric(
+                        "POST->resend(ResendRequest)#8ca0a760", "RequestRate[requestsPerSeconds]", "1.3"));
 
         AppType type = AppType.P2P;
 
-        String expectedResponse = "tessera_P2P_GET_upCheck_AverageTime_ms 100" + "\n" +
-            "tessera_P2P_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
+        String expectedResponse =
+                "tessera_P2P_GET_upCheck_AverageTime_ms 100"
+                        + "\n"
+                        + "tessera_P2P_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
 
         assertThat(protocolFormatter.format(mockMetrics, type)).isEqualTo(expectedResponse);
     }

@@ -30,5 +30,4 @@ public class DefaultExceptionMapperTest {
         assertThat(result.getStatus()).isEqualTo(500);
         assertThat(result.getEntity()).isEqualTo("Ouch");
     }
-
 }

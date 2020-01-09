@@ -17,7 +17,7 @@ public class AzureKeyVaultService implements KeyVaultService<AzureSetSecretData,
     private AzureKeyVaultClientDelegate azureKeyVaultClientDelegate;
 
     AzureKeyVaultService(KeyVaultConfig keyVaultConfig, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
-        this(keyVaultConfig.getProperty("url").get(),azureKeyVaultClientDelegate);
+        this(keyVaultConfig.getProperty("url").get(), azureKeyVaultClientDelegate);
     }
 
     AzureKeyVaultService(String vaultUrl, AzureKeyVaultClientDelegate azureKeyVaultClientDelegate) {
@@ -30,13 +30,19 @@ public class AzureKeyVaultService implements KeyVaultService<AzureSetSecretData,
         SecretBundle secretBundle;
 
         if (azureGetSecretData.getSecretVersion() != null) {
-            secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, azureGetSecretData.getSecretName(), azureGetSecretData.getSecretVersion());
+            secretBundle =
+                    azureKeyVaultClientDelegate.getSecret(
+                            vaultUrl, azureGetSecretData.getSecretName(), azureGetSecretData.getSecretVersion());
         } else {
             secretBundle = azureKeyVaultClientDelegate.getSecret(vaultUrl, azureGetSecretData.getSecretName());
         }
 
         if (secretBundle == null) {
-            throw new VaultSecretNotFoundException("Azure Key Vault secret " + azureGetSecretData.getSecretName() + " was not found in vault " + vaultUrl);
+            throw new VaultSecretNotFoundException(
+                    "Azure Key Vault secret "
+                            + azureGetSecretData.getSecretName()
+                            + " was not found in vault "
+                            + vaultUrl);
         }
 
         return secretBundle.value();
@@ -44,7 +50,10 @@ public class AzureKeyVaultService implements KeyVaultService<AzureSetSecretData,
 
     @Override
     public Object setSecret(AzureSetSecretData azureSetSecretData) {
-        SetSecretRequest setSecretRequest = new SetSecretRequest.Builder(vaultUrl, azureSetSecretData.getSecretName(), azureSetSecretData.getSecret()).build();
+        SetSecretRequest setSecretRequest =
+                new SetSecretRequest.Builder(
+                                vaultUrl, azureSetSecretData.getSecretName(), azureSetSecretData.getSecret())
+                        .build();
 
         return this.azureKeyVaultClientDelegate.setSecret(setSecretRequest);
     }

@@ -20,5 +20,4 @@ public class StoreTypeTest {
     public void sqliteType() {
         assertThat(StoreType.SQLITE.getLoader()).isInstanceOf(SqliteLoader.class);
     }
-
 }

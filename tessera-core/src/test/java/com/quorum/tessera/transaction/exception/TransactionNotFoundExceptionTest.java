@@ -13,7 +13,5 @@ public class TransactionNotFoundExceptionTest {
         final TransactionNotFoundException testException = new TransactionNotFoundException(message);
 
         Assertions.assertThat(testException.getMessage()).isEqualTo(message);
-
     }
-
 }

@@ -77,7 +77,8 @@ public class ConfigBuilderTest {
         builder.build();
 
         assertThat(systemErrRule.getLog())
-            .isEqualTo("Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n");
+                .isEqualTo(
+                        "Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n");
     }
 
     @Test

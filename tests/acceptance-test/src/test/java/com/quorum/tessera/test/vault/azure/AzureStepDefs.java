@@ -62,13 +62,14 @@ public class AzureStepDefs implements En {
 
     public AzureStepDefs() {
 
-//                Before(
-//                    () -> {
-//                        // only needed when running outside of maven build process
-//                        System.setProperty(
-//                            "application.jar",
-//                            "/Users/chrishounsom/jpmc-tessera/tessera-dist/tessera-app/target/tessera-app-0.11-SNAPSHOT-app.jar");
-//                    });
+        //                Before(
+        //                    () -> {
+        //                        // only needed when running outside of maven build process
+        //                        System.setProperty(
+        //                            "application.jar",
+        //
+        // "/Users/chrishounsom/jpmc-tessera/tessera-dist/tessera-app/target/tessera-app-0.11-SNAPSHOT-app.jar");
+        //                    });
 
         After(
                 () -> {

@@ -127,7 +127,22 @@ public class KeyDataAdapterTest {
         // set a random selection of values that are not sufficient to make a complete key pair of any type
         final UnsupportedKeyPair keyPair =
                 new UnsupportedKeyPair(
-                        keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null, null, null);
+                        keyDataConfig,
+                        "priv",
+                        null,
+                        path,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null);
 
         final KeyData expected = new KeyData();
         expected.setConfig(keyDataConfig);

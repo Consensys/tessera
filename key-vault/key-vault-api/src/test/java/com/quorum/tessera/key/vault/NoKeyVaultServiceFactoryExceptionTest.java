@@ -13,5 +13,4 @@ public class NoKeyVaultServiceFactoryExceptionTest {
 
         assertThat(exception).hasMessage(msg);
     }
-
 }

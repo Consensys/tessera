@@ -1,11 +1,9 @@
-
 package com.quorum.tessera.enclave.rest;
 
-
 public class EnclaveUnencryptPayload {
-    
+
     private byte[] data;
-    
+
     private byte[] providedKey;
 
     public byte[] getData() {
@@ -23,7 +21,4 @@ public class EnclaveUnencryptPayload {
     public void setProvidedKey(byte[] providedKey) {
         this.providedKey = providedKey;
     }
-    
-    
-    
 }

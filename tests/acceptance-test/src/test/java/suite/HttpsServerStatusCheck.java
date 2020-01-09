@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class HttpsServerStatusCheck implements ServerStatusCheck {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpsServerStatusCheck.class);
-    
+
     private final URL url;
 
     private final SslConfig sslConfig;
@@ -28,15 +28,14 @@ public class HttpsServerStatusCheck implements ServerStatusCheck {
         HttpsURLConnection httpsConnection = null;
         try {
             httpsConnection = (HttpsURLConnection) url.openConnection();
-            SSLContext sslContext = new ClientSSLContextFactoryImpl()
-                .from(url.toString(), sslConfig);
+            SSLContext sslContext = new ClientSSLContextFactoryImpl().from(url.toString(), sslConfig);
             httpsConnection.setSSLSocketFactory(sslContext.getSocketFactory());
 
             httpsConnection.connect();
 
             return true;
         } catch (IOException ex) {
-            LOGGER.warn("url: {}, message: {}",url,ex.getMessage());
+            LOGGER.warn("url: {}, message: {}", url, ex.getMessage());
             LOGGER.debug(null, ex);
             return false;
         } finally {
@@ -44,12 +43,10 @@ public class HttpsServerStatusCheck implements ServerStatusCheck {
                 httpsConnection.disconnect();
             }
         }
-
     }
 
     @Override
     public String toString() {
         return "HttpsServerStatusCheck{" + "url=" + url + '}';
     }
-
 }

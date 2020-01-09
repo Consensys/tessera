@@ -42,7 +42,8 @@ public class EllipticalCurveEncryptor implements Encryptor {
         this(symmetricCipher, ellipticCurve, 24, 32);
     }
 
-    public EllipticalCurveEncryptor(final String symmetricCipher, final String ellipticCurve, int nonceLength, int sharedKeyLength) {
+    public EllipticalCurveEncryptor(
+            final String symmetricCipher, final String ellipticCurve, int nonceLength, int sharedKeyLength) {
         this.nonceLength = nonceLength;
         this.sharedKeyLength = sharedKeyLength;
         this.symmetricCipher = symmetricCipher;
@@ -63,12 +64,13 @@ public class EllipticalCurveEncryptor implements Encryptor {
         try {
             KeyAgreement keyAgreement = KeyAgreement.getInstance("ECDH");
 
-            java.security.PrivateKey privKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKey.getKeyBytes()));
+            java.security.PrivateKey privKey =
+                    keyFactory.generatePrivate(new PKCS8EncodedKeySpec(privateKey.getKeyBytes()));
 
             keyAgreement.init(privKey);
 
-            LOGGER.info("Encode public key {}",publicKey.encodeToBase64());
-            
+            LOGGER.info("Encode public key {}", publicKey.encodeToBase64());
+
             X509EncodedKeySpec encodedKeySpec = new X509EncodedKeySpec(publicKey.getKeyBytes());
 
             java.security.PublicKey pubKey = keyFactory.generatePublic(encodedKeySpec);
@@ -174,5 +176,4 @@ public class EllipticalCurveEncryptor implements Encryptor {
     private byte[] keyToBytes(java.security.PrivateKey privateKey) {
         return privateKey.getEncoded();
     }
-
 }

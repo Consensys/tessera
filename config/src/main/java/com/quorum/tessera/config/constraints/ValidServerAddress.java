@@ -20,9 +20,9 @@ import javax.validation.Payload;
 public @interface ValidServerAddress {
 
     boolean isBindingAddress() default false;
-    
-    String[] supportedSchemes() default {"unix","http","https"};
-    
+
+    String[] supportedSchemes() default {"unix", "http", "https"};
+
     String message() default "{ValidServerAddress.message}";
 
     Class<?>[] groups() default {};

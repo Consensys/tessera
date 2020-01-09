@@ -26,7 +26,7 @@ public class DefaultKeyVaultConfigTest {
     public void doStuff() {
         DefaultKeyVaultConfig defaultKeyVaultConfig = new DefaultKeyVaultConfig();
         defaultKeyVaultConfig.setKeyVaultType(KeyVaultType.HASHICORP);
-        defaultKeyVaultConfig.setProperty("url","someurl");
+        defaultKeyVaultConfig.setProperty("url", "someurl");
         JaxbUtil.marshalWithNoValidation(defaultKeyVaultConfig, System.out);
     }
 }

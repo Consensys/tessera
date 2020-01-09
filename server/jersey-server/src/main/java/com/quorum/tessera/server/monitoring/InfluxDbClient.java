@@ -44,26 +44,22 @@ public class InfluxDbClient {
 
         ClientBuilder clientBuilder = ClientBuilder.newBuilder();
 
-        if(influxConfig.isSsl()) {
+        if (influxConfig.isSsl()) {
             final SSLContextFactory sslContextFactory = ClientSSLContextFactory.create();
-            final SSLContext sslContext = sslContextFactory.from(
-                influxConfig.getServerUri().toString(),
-                influxConfig.getSslConfig()
-            );
+            final SSLContext sslContext =
+                    sslContextFactory.from(influxConfig.getServerUri().toString(), influxConfig.getSslConfig());
 
             clientBuilder.sslContext(sslContext);
         }
 
         Client client = clientBuilder.build();
 
-        WebTarget influxTarget = client
-            .target(influxConfig.getServerAddress())
-            .path("write")
-            .queryParam("db", influxConfig.getDbName());
+        WebTarget influxTarget =
+                client.target(influxConfig.getServerAddress()).path("write").queryParam("db", influxConfig.getDbName());
 
         return influxTarget
-            .request(MediaType.TEXT_PLAIN)
-            .accept(MediaType.TEXT_PLAIN)
-            .post(Entity.text(formattedMetrics));
+                .request(MediaType.TEXT_PLAIN)
+                .accept(MediaType.TEXT_PLAIN)
+                .post(Entity.text(formattedMetrics));
     }
 }

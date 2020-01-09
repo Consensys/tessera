@@ -20,5 +20,4 @@ public @interface ValidPositiveInteger {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }

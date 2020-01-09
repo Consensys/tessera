@@ -7,17 +7,13 @@ class ToOverride {
     @XmlElement(name = "some_value")
     private String someValue;
 
-    @XmlElement
-    private String otherValue;
+    @XmlElement private String otherValue;
 
-    @XmlElement
-    private OtherTestClass complexProperty;
+    @XmlElement private OtherTestClass complexProperty;
 
-    @XmlElement
-    private List<OtherTestClass> someList;
+    @XmlElement private List<OtherTestClass> someList;
 
-    @XmlElement
-    private List<String> simpleList;
+    @XmlElement private List<String> simpleList;
 
     String getSomeValue() {
         return someValue;
@@ -60,14 +56,11 @@ class ToOverride {
     }
 
     static class OtherTestClass {
-        @XmlElement
-        private int count;
+        @XmlElement private int count;
 
-        @XmlElement
-        private String strVal;
+        @XmlElement private String strVal;
 
-        @XmlElement
-        private List<String> otherList;
+        @XmlElement private List<String> otherList;
 
         int getCount() {
             return count;

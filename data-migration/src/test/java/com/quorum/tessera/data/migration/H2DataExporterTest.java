@@ -39,13 +39,13 @@ public class H2DataExporterTest {
         final String connectionString = "jdbc:h2:" + outputPath;
 
         try (Connection conn = DriverManager.getConnection(connectionString);
-             ResultSet rs = conn.prepareStatement(QUERY).executeQuery()) {
+                ResultSet rs = conn.prepareStatement(QUERY).executeQuery()) {
 
             final ResultSetMetaData metaData = rs.getMetaData();
-            final List<String> columnNames = IntStream
-                .range(1, metaData.getColumnCount() + 1)
-                .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
-                .collect(Collectors.toList());
+            final List<String> columnNames =
+                    IntStream.range(1, metaData.getColumnCount() + 1)
+                            .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
+                            .collect(Collectors.toList());
 
             assertThat(columnNames).containsExactlyInAnyOrder("HASH", "ENCODED_PAYLOAD", "TIMESTAMP");
 
@@ -53,9 +53,7 @@ public class H2DataExporterTest {
                 assertThat(rs.getBytes("HASH")).isEqualTo("HASH".getBytes());
                 assertThat(rs.getBytes("ENCODED_PAYLOAD")).isEqualTo("VALUE".getBytes());
             }
-
         }
-
     }
 
     @Test
@@ -73,13 +71,13 @@ public class H2DataExporterTest {
         final String connectionString = "jdbc:h2:" + outputPath;
 
         try (Connection conn = DriverManager.getConnection(connectionString, username, password);
-             ResultSet rs = conn.prepareStatement(QUERY).executeQuery()) {
+                ResultSet rs = conn.prepareStatement(QUERY).executeQuery()) {
 
             final ResultSetMetaData metaData = rs.getMetaData();
-            final List<String> columnNames = IntStream
-                .range(1, metaData.getColumnCount() + 1)
-                .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
-                .collect(Collectors.toList());
+            final List<String> columnNames =
+                    IntStream.range(1, metaData.getColumnCount() + 1)
+                            .mapToObj(i -> JdbcCallback.execute(() -> metaData.getColumnName(i)))
+                            .collect(Collectors.toList());
 
             assertThat(columnNames).containsExactlyInAnyOrder("HASH", "ENCODED_PAYLOAD", "TIMESTAMP");
 
@@ -87,9 +85,7 @@ public class H2DataExporterTest {
                 assertThat(rs.getBytes("HASH")).isEqualTo("HASH".getBytes());
                 assertThat(rs.getBytes("ENCODED_PAYLOAD")).isEqualTo("VALUE".getBytes());
             }
-
         }
-
     }
 
     @Test
@@ -109,5 +105,4 @@ public class H2DataExporterTest {
 
         assertThat(throwable).isInstanceOf(JdbcSQLInvalidAuthorizationSpecException.class);
     }
-
 }

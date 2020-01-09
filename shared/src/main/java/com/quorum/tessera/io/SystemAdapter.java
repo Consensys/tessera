@@ -6,8 +6,7 @@ import java.io.PrintStream;
 
 public interface SystemAdapter {
 
-    SystemAdapter INSTANCE = ServiceLoaderUtil.load(SystemAdapter.class).orElse(new SystemAdapter() {
-    });
+    SystemAdapter INSTANCE = ServiceLoaderUtil.load(SystemAdapter.class).orElse(new SystemAdapter() {});
 
     default PrintStream out() {
         return System.out;
@@ -16,5 +15,4 @@ public interface SystemAdapter {
     default PrintStream err() {
         return System.err;
     }
-
 }

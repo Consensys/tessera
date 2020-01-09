@@ -88,6 +88,5 @@ public class EncryptorTest {
         public SharedKey createSingleKey() {
             return SharedKey.from("createSingleKey".getBytes());
         }
-
     }
 }

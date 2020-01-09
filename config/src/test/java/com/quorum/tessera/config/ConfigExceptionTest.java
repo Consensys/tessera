@@ -9,9 +9,7 @@ public class ConfigExceptionTest {
     public void constructWithCause() {
         Throwable cause = new Exception("OUCH");
         ConfigException configException = new ConfigException(cause);
-        
+
         assertThat(configException).hasCause(cause);
-        
     }
-    
 }

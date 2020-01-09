@@ -7,7 +7,6 @@ import com.quorum.tessera.partyinfo.PayloadPublisher;
 import com.quorum.tessera.partyinfo.PayloadPublisherFactory;
 import javax.ws.rs.client.Client;
 
-
 public class RestPayloadPublisherFactory implements PayloadPublisherFactory {
 
     @Override
@@ -21,5 +20,4 @@ public class RestPayloadPublisherFactory implements PayloadPublisherFactory {
     public CommunicationType communicationType() {
         return CommunicationType.REST;
     }
-    
 }

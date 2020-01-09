@@ -1,4 +1,3 @@
-
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.config.CommunicationType;
@@ -18,5 +17,4 @@ public class MockP2pClientFactory implements P2pClientFactory {
     public CommunicationType communicationType() {
         return CommunicationType.REST;
     }
-
 }

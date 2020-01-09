@@ -80,6 +80,4 @@ public class HashicorpKeyVaultConfig extends ConfigItem implements KeyVaultConfi
     public KeyVaultType getKeyVaultType() {
         return KeyVaultType.HASHICORP;
     }
-
-
 }

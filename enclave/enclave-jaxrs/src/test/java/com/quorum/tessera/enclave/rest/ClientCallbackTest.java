@@ -13,22 +13,17 @@ public class ClientCallbackTest {
     public void handleConnectivityIssue() {
 
         ClientCallback callback = mock(ClientCallback.class);
-        when(callback.doExecute())
-            .thenThrow(new ProcessingException(new ConnectException("OUCH")));
+        when(callback.doExecute()).thenThrow(new ProcessingException(new ConnectException("OUCH")));
 
         ClientCallback.execute(callback);
-
     }
 
     @Test(expected = ProcessingException.class)
     public void handleNonConnectivityIssue() {
 
         ClientCallback callback = mock(ClientCallback.class);
-        when(callback.doExecute())
-            .thenThrow(new ProcessingException(new Exception("OUCH")));
+        when(callback.doExecute()).thenThrow(new ProcessingException(new Exception("OUCH")));
 
         ClientCallback.execute(callback);
-
     }
-
 }

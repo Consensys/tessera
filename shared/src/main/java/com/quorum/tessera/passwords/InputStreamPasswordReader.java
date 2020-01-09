@@ -21,5 +21,4 @@ public class InputStreamPasswordReader implements PasswordReader {
             return "";
         }
     }
-
 }

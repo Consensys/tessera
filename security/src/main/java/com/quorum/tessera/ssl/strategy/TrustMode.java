@@ -10,103 +10,88 @@ import java.security.GeneralSecurityException;
 import java.util.Optional;
 
 public enum TrustMode {
-
     NONE {
         @Override
-        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, OperatorCreationException, IOException {
-            return SSLContextBuilder
-                .createBuilder(
-                    properties.getAddress(),
-                    properties.getKeyStore(),
-                    properties.getKeyStorePassword(),
-                    properties.getTrustStore(),
-                    properties.getTrustStorePassword())
-                .fromPemFiles(
-                    properties.getKey(),
-                    properties.getCertificate(),
-                    properties.getTrustedCertificates())
-                .forAllCertificates()
-                .build();
+        public SSLContext createSSLContext(SSLContextProperties properties)
+                throws GeneralSecurityException, OperatorCreationException, IOException {
+            return SSLContextBuilder.createBuilder(
+                            properties.getAddress(),
+                            properties.getKeyStore(),
+                            properties.getKeyStorePassword(),
+                            properties.getTrustStore(),
+                            properties.getTrustStorePassword())
+                    .fromPemFiles(properties.getKey(), properties.getCertificate(), properties.getTrustedCertificates())
+                    .forAllCertificates()
+                    .build();
         }
     },
 
     WHITELIST {
         @Override
-        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
-            return SSLContextBuilder
-                .createBuilder(
-                    properties.getAddress(),
-                    properties.getKeyStore(),
-                    properties.getKeyStorePassword(),
-                    properties.getTrustStore(),
-                    properties.getTrustStorePassword())
-                .fromPemFiles(
-                    properties.getKey(),
-                    properties.getCertificate(),
-                    properties.getTrustedCertificates())
-                .forWhiteList(properties.getKnownHosts())
-                .build();
+        public SSLContext createSSLContext(SSLContextProperties properties)
+                throws GeneralSecurityException, IOException, OperatorCreationException {
+            return SSLContextBuilder.createBuilder(
+                            properties.getAddress(),
+                            properties.getKeyStore(),
+                            properties.getKeyStorePassword(),
+                            properties.getTrustStore(),
+                            properties.getTrustStorePassword())
+                    .fromPemFiles(properties.getKey(), properties.getCertificate(), properties.getTrustedCertificates())
+                    .forWhiteList(properties.getKnownHosts())
+                    .build();
         }
     },
 
     TOFU {
         @Override
-        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
-            return SSLContextBuilder
-                .createBuilder(
-                    properties.getAddress(),
-                    properties.getKeyStore(),
-                    properties.getKeyStorePassword(),
-                    properties.getTrustStore(),
-                    properties.getTrustStorePassword())
-                .fromPemFiles(
-                    properties.getKey(),
-                    properties.getCertificate(),
-                    properties.getTrustedCertificates())
-                .forTrustOnFirstUse(properties.getKnownHosts())
-                .build();
+        public SSLContext createSSLContext(SSLContextProperties properties)
+                throws GeneralSecurityException, IOException, OperatorCreationException {
+            return SSLContextBuilder.createBuilder(
+                            properties.getAddress(),
+                            properties.getKeyStore(),
+                            properties.getKeyStorePassword(),
+                            properties.getTrustStore(),
+                            properties.getTrustStorePassword())
+                    .fromPemFiles(properties.getKey(), properties.getCertificate(), properties.getTrustedCertificates())
+                    .forTrustOnFirstUse(properties.getKnownHosts())
+                    .build();
         }
     },
 
     CA {
         @Override
-        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
-            return SSLContextBuilder
-                .createBuilder(
-                    properties.getAddress(),
-                    properties.getKeyStore(),
-                    properties.getKeyStorePassword(),
-                    properties.getTrustStore(),
-                    properties.getTrustStorePassword())
-                .fromPemFiles(
-                    properties.getKey(),
-                    properties.getCertificate(),
-                    properties.getTrustedCertificates())
-                .forCASignedCertificates()
-                .build();
+        public SSLContext createSSLContext(SSLContextProperties properties)
+                throws GeneralSecurityException, IOException, OperatorCreationException {
+            return SSLContextBuilder.createBuilder(
+                            properties.getAddress(),
+                            properties.getKeyStore(),
+                            properties.getKeyStorePassword(),
+                            properties.getTrustStore(),
+                            properties.getTrustStorePassword())
+                    .fromPemFiles(properties.getKey(), properties.getCertificate(), properties.getTrustedCertificates())
+                    .forCASignedCertificates()
+                    .build();
         }
     },
 
     CA_OR_TOFU {
         @Override
-        public SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException {
-            return SSLContextBuilder
-                .createBuilder(
-                    properties.getAddress(),
-                    properties.getKeyStore(),
-                    properties.getKeyStorePassword(),
-                    properties.getTrustStore(),
-                    properties.getTrustStorePassword())
-                .fromPemFiles(
-                    properties.getKey(),
-                    properties.getCertificate(),
-                    properties.getTrustedCertificates())
-                .forCAOrTOFU(properties.getKnownHosts())
-                .build();
+        public SSLContext createSSLContext(SSLContextProperties properties)
+                throws GeneralSecurityException, IOException, OperatorCreationException {
+            return SSLContextBuilder.createBuilder(
+                            properties.getAddress(),
+                            properties.getKeyStore(),
+                            properties.getKeyStorePassword(),
+                            properties.getTrustStore(),
+                            properties.getTrustStorePassword())
+                    .fromPemFiles(properties.getKey(), properties.getCertificate(), properties.getTrustedCertificates())
+                    .forCAOrTOFU(properties.getKnownHosts())
+                    .build();
         }
     };
 
-    public abstract SSLContext createSSLContext(SSLContextProperties properties) throws GeneralSecurityException, IOException, OperatorCreationException;
+    public abstract SSLContext createSSLContext(SSLContextProperties properties)
+            throws GeneralSecurityException, IOException, OperatorCreationException;
 
     public static Optional<TrustMode> getValueIfPresent(String value) {
         try {

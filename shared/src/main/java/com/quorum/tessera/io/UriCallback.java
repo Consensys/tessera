@@ -22,5 +22,4 @@ public interface UriCallback<T> {
             throw new UncheckedIOException(new IOException(ex));
         }
     }
-
 }

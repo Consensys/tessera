@@ -11,14 +11,14 @@ public class Base64Validator implements ConstraintValidator<ValidBase64, String>
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext cvc) {
-        if(Objects.isNull(value)) {
+        if (Objects.isNull(value)) {
             return true;
         }
 
-        if(value.startsWith(NACL_FAILURE_TOKEN)) {
+        if (value.startsWith(NACL_FAILURE_TOKEN)) {
             return true;
         }
-        
+
         try {
             Base64.getDecoder().decode(value);
             return true;
@@ -26,5 +26,4 @@ public class Base64Validator implements ConstraintValidator<ValidBase64, String>
             return false;
         }
     }
-
 }

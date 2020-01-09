@@ -42,7 +42,7 @@ public class JerseyUnixSocketConnector implements Connector {
         String unixFilePath = Paths.get(unixfile).toFile().getAbsolutePath();
 
         httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixFilePath), null);
-        try{
+        try {
             httpClient.start();
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -52,12 +52,11 @@ public class JerseyUnixSocketConnector implements Connector {
     @Override
     public ClientResponse apply(ClientRequest request) {
 
-        try{
+        try {
             return doApply(request);
         } catch (Exception ex) {
             throw new ProcessingException(ex);
         }
-
     }
 
     private ClientResponse doApply(ClientRequest request) throws Exception {
@@ -68,40 +67,36 @@ public class JerseyUnixSocketConnector implements Connector {
         Path basePath = Paths.get(unixfile);
 
         if (originalUri.getScheme().startsWith("unix")) {
-            
-            String path = originalUri.getRawPath()
-                    .replaceFirst(basePath.toString(), "");
 
-            LOGGER.trace("Extracted path {} from {}",path, originalUri.getRawPath());
+            String path = originalUri.getRawPath().replaceFirst(basePath.toString(), "");
 
-            uri = UriBuilder.fromUri(originalUri)
-                    .replacePath(path)
-                    .scheme("http")
-                    .port(99)
-                    .host("localhost")
-                    .build();
-                        
+            LOGGER.trace("Extracted path {} from {}", path, originalUri.getRawPath());
+
+            uri = UriBuilder.fromUri(originalUri).replacePath(path).scheme("http").port(99).host("localhost").build();
+
             LOGGER.trace("Created psuedo uri {} for originalUri {}", uri, originalUri);
         } else {
             uri = originalUri;
         }
 
-        Request clientRequest = httpClient.newRequest(uri)
-                .method(httpMethod);
+        Request clientRequest = httpClient.newRequest(uri).method(httpMethod);
 
         MultivaluedMap<String, Object> headers = request.getHeaders();
 
-        headers.keySet().stream().forEach(name -> {
-            headers.get(name).forEach(value -> {
-                clientRequest.header(name, Objects.toString(value));
-            });
-
-        });
+        headers.keySet().stream()
+                .forEach(
+                        name -> {
+                            headers.get(name)
+                                    .forEach(
+                                            value -> {
+                                                clientRequest.header(name, Objects.toString(value));
+                                            });
+                        });
 
         if (request.hasEntity()) {
             final long length = request.getLengthLong();
 
-            try (ByteArrayOutputStream bout = new ByteArrayOutputStream()){
+            try (ByteArrayOutputStream bout = new ByteArrayOutputStream()) {
 
                 request.setStreamProvider((int contentLength) -> bout);
                 request.writeEntity();
@@ -109,7 +104,6 @@ public class JerseyUnixSocketConnector implements Connector {
                 ContentProvider content = new BytesContentProvider(bout.toByteArray());
                 clientRequest.content(content);
             }
-
         }
         final ContentResponse contentResponse = clientRequest.send();
 
@@ -122,19 +116,19 @@ public class JerseyUnixSocketConnector implements Connector {
 
         ClientResponse response = new ClientResponse(status, request);
         contentResponse.getHeaders().stream()
-                .forEach(header -> {
-                    response.headers(header.getName(), (Object[]) header.getValues());
-                });
+                .forEach(
+                        header -> {
+                            response.headers(header.getName(), (Object[]) header.getValues());
+                        });
 
         response.setEntityStream(new ByteArrayInputStream(contentResponse.getContent()));
         return response;
-
     }
 
     @Override
     public Future<?> apply(final ClientRequest request, final AsyncConnectorCallback callback) {
 
-        try{
+        try {
             callback.response(doApply(request));
         } catch (IOException ex) {
             callback.failure(new ProcessingException(ex));
@@ -152,11 +146,10 @@ public class JerseyUnixSocketConnector implements Connector {
 
     @Override
     public void close() {
-        try{
+        try {
             httpClient.stop();
         } catch (Exception ex) {
 
         }
     }
-
 }

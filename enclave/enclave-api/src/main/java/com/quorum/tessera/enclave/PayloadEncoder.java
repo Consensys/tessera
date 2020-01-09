@@ -2,10 +2,7 @@ package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.PublicKey;
 
-/**
- * Encodes and decodes a {@link EncodedPayload} to and from its binary
- * representation
- */
+/** Encodes and decodes a {@link EncodedPayload} to and from its binary representation */
 public interface PayloadEncoder {
 
     /**
@@ -24,12 +21,11 @@ public interface PayloadEncoder {
      */
     EncodedPayload decode(byte[] input);
 
-
     /**
-     * Strips a payload of any data that isn't relevant to the given recipient
-     * Used to format a payload before it is sent to the target node
+     * Strips a payload of any data that isn't relevant to the given recipient Used to format a payload before it is
+     * sent to the target node
      *
-     * @param input     the full payload from which data needs to be stripped
+     * @param input the full payload from which data needs to be stripped
      * @param recipient the recipient to retain information about
      * @return a payload which contains a subset of data from the input, which is relevant to the recipient
      */
@@ -38,5 +34,4 @@ public interface PayloadEncoder {
     static PayloadEncoder create() {
         return new PayloadEncoderImpl();
     }
-
 }

@@ -27,18 +27,18 @@ public class MetricsResource {
         MetricsEnquirer metricsEnquirer = new MetricsEnquirer(mbs);
         final StringBuilder formattedMetrics = new StringBuilder();
 
-        // TODO Each app server has a /metrics endpoint but currently each endpoint returns the metrics for all servers.  Would be better to lock this down e.g. <p2puri>/metrics only returns the p2p metrics
+        // TODO Each app server has a /metrics endpoint but currently each endpoint returns the metrics for all servers.
+        //  Would be better to lock this down e.g. <p2puri>/metrics only returns the p2p metrics
         for (AppType type : AppType.values()) {
             List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(type);
             PrometheusProtocolFormatter formatter = new PrometheusProtocolFormatter();
 
-            formattedMetrics.append(formatter.format(metrics, type))
-                            .append("\n");
+            formattedMetrics.append(formatter.format(metrics, type)).append("\n");
         }
 
         return Response.status(Response.Status.OK)
-            .header("Content-Type", TEXT_PLAIN)
-            .entity(formattedMetrics.toString().trim())
-            .build();
+                .header("Content-Type", TEXT_PLAIN)
+                .entity(formattedMetrics.toString().trim())
+                .build();
     }
 }

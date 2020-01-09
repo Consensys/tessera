@@ -15,9 +15,9 @@ public class KeyManagerTest {
 
     private static final PublicKey PUBLIC_KEY = PublicKey.from("publicKey".getBytes());
 
-     private static final PrivateKey PRIVATE_KEY = PrivateKey.from("privateKey".getBytes());
+    private static final PrivateKey PRIVATE_KEY = PrivateKey.from("privateKey".getBytes());
 
-     private static final PublicKey FORWARDING_KEY = PublicKey.from("forwardingKey".getBytes());
+    private static final PublicKey FORWARDING_KEY = PublicKey.from("forwardingKey".getBytes());
 
     private KeyManager keyManager;
 
@@ -31,7 +31,7 @@ public class KeyManagerTest {
 
     @Test
     public void initialisedWithNoKeysThrowsError() {
-        //throws error because there is no default key
+        // throws error because there is no default key
         final Throwable throwable = catchThrowable(() -> new KeyManagerImpl(emptyList(), emptyList()));
 
         assertThat(throwable).isInstanceOf(NoSuchElementException.class);
@@ -50,9 +50,8 @@ public class KeyManagerTest {
         final Throwable throwable = catchThrowable(() -> this.keyManager.getPublicKeyForPrivateKey(unknownKey));
 
         assertThat(throwable)
-            .isInstanceOf(KeyNotFoundException.class)
-            .hasMessage("Private key dW5rbm93bktleQ== not found when searching for public key");
-
+                .isInstanceOf(KeyNotFoundException.class)
+                .hasMessage("Private key dW5rbm93bktleQ== not found when searching for public key");
     }
 
     @Test
@@ -68,8 +67,8 @@ public class KeyManagerTest {
         final Throwable throwable = catchThrowable(() -> this.keyManager.getPrivateKeyForPublicKey(unknownKey));
 
         assertThat(throwable)
-            .isInstanceOf(KeyNotFoundException.class)
-            .hasMessage("Public key dW5rbm93bktleQ== not found when searching for private key");
+                .isInstanceOf(KeyNotFoundException.class)
+                .hasMessage("Public key dW5rbm93bktleQ== not found when searching for private key");
     }
 
     @Test
@@ -82,14 +81,12 @@ public class KeyManagerTest {
 
     @Test
     public void defaultKeyIsPopulated() {
-        //the key manager is already set up with a keypair, so just check that
+        // the key manager is already set up with a keypair, so just check that
         assertThat(this.keyManager.defaultPublicKey()).isEqualTo(PUBLIC_KEY);
     }
 
     @Test
     public void forwardingKeysContainsOnlyOneKey() {
-        assertThat(this.keyManager.getForwardingKeys()).hasSize(1)
-                .containsExactlyInAnyOrder(FORWARDING_KEY);
+        assertThat(this.keyManager.getForwardingKeys()).hasSize(1).containsExactlyInAnyOrder(FORWARDING_KEY);
     }
-
 }

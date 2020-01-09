@@ -9,5 +9,4 @@ public interface StoreLoader {
     void load(Path input) throws IOException, SQLException;
 
     DataEntry nextEntry() throws IOException, SQLException;
-
 }

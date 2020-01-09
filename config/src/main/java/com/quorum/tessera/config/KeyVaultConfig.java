@@ -14,8 +14,7 @@ public interface KeyVaultConfig {
     }
 
     default boolean hasProperty(String... name) {
-        return Stream.of(name)
-            .allMatch(n -> getProperties().containsKey(n));
+        return Stream.of(name).allMatch(n -> getProperties().containsKey(n));
     }
 
     default Optional<String> getProperty(String name) {
@@ -25,5 +24,4 @@ public interface KeyVaultConfig {
     static KeyVaultConfig create() {
         return new DefaultKeyVaultConfig();
     }
-
 }

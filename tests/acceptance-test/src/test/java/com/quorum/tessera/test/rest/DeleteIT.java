@@ -21,13 +21,12 @@ public class DeleteIT {
 
     @Test
     public void deleteTransactionThatExists() throws Exception {
-        //setup (sending in a tx)
+        // setup (sending in a tx)
 
         Party sender = partyHelper.getParties().findAny().get();
 
-        Party recipient = partyHelper.getParties()
-                .filter(p -> !p.getPublicKey().equals(sender.getPublicKey()))
-                .findAny().get();
+        Party recipient =
+                partyHelper.getParties().filter(p -> !p.getPublicKey().equals(sender.getPublicKey())).findAny().get();
 
         RestUtils utils = new RestUtils();
         byte[] txnData = utils.createTransactionData();
@@ -39,25 +38,20 @@ public class DeleteIT {
 
         final String encodedHash = URLEncoder.encode(sendResponse.getKey(), UTF_8.toString());
 
-        try(PreparedStatement statement = sender.getDatabaseConnection().prepareStatement(COUNT_ALL)) {
+        try (PreparedStatement statement = sender.getDatabaseConnection().prepareStatement(COUNT_ALL)) {
             statement.setBytes(1, Base64.getDecoder().decode(sendResponse.getKey()));
-            try(ResultSet rs = statement.executeQuery()) {
+            try (ResultSet rs = statement.executeQuery()) {
                 assertThat(rs.next()).isTrue();
                 assertThat(rs.getLong(1)).isEqualTo(1);
             }
         }
 
-        //delete it
-        final Response resp = sender.getRestClientWebTarget()
-                .path("transaction")
-                .path(encodedHash)
-                .request()
-                .delete();
+        // delete it
+        final Response resp = sender.getRestClientWebTarget().path("transaction").path(encodedHash).request().delete();
 
-        //validate result
+        // validate result
         assertThat(resp).isNotNull();
         assertThat(resp.getStatus()).isEqualTo(204);
-
     }
 
     @Test
@@ -65,20 +59,13 @@ public class DeleteIT {
 
         final String madeupHash = Base64.getUrlEncoder().encodeToString("madeup".getBytes());
 
-
         Party party = partyHelper.getParties().findAny().get();
 
-        final Response response = party.getRestClientWebTarget()
-                .path("transaction")
-                .path(madeupHash)
-                .request()
-                .buildDelete()
-                .invoke();
+        final Response response =
+                party.getRestClientWebTarget().path("transaction").path(madeupHash).request().buildDelete().invoke();
 
-        //validate result
+        // validate result
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(404);
-
     }
-
 }

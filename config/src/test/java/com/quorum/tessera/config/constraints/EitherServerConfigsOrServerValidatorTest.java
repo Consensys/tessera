@@ -28,8 +28,10 @@ public class EitherServerConfigsOrServerValidatorTest {
         eitherServerConfigsOrServerValidator = new EitherServerConfigsOrServerValidator();
 
         constraintContext = mock(ConstraintValidatorContext.class);
-        ConstraintViolationBuilder constraintViolationBuilder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
-        when(constraintContext.buildConstraintViolationWithTemplate(anyString())).thenReturn(constraintViolationBuilder);
+        ConstraintViolationBuilder constraintViolationBuilder =
+                mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        when(constraintContext.buildConstraintViolationWithTemplate(anyString()))
+                .thenReturn(constraintViolationBuilder);
     }
 
     @After
@@ -93,5 +95,4 @@ public class EitherServerConfigsOrServerValidatorTest {
 
         assertThat(outcome).isTrue();
     }
-
 }

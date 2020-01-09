@@ -11,18 +11,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class RestPayloadPublisherFactoryTest {
-    
+
     private RestPayloadPublisherFactory factory;
-    
+
     @Before
     public void onSetUp() {
         factory = new RestPayloadPublisherFactory();
         assertThat(factory.communicationType()).isEqualTo(CommunicationType.REST);
     }
-    
+
     @Test
     public void create() {
-        
+
         final Config config = new Config();
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setEnabled(true);
@@ -34,5 +34,4 @@ public class RestPayloadPublisherFactoryTest {
         PayloadPublisher payloadPublisher = factory.create(config);
         assertThat(payloadPublisher).isExactlyInstanceOf(RestPayloadPublisher.class);
     }
-    
 }

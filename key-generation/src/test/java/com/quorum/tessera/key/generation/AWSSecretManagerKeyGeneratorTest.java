@@ -91,8 +91,8 @@ public class AWSSecretManagerKeyGeneratorTest {
         AWSSetSecretData expectedDataPriv = new AWSSetSecretData(privVaultId, priv.encodeToBase64());
 
         assertThat(capturedArgs)
-            .usingRecursiveFieldByFieldElementComparator()
-            .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
 
         verifyNoMoreInteractions(keyVaultService);
     }
@@ -112,8 +112,8 @@ public class AWSSecretManagerKeyGeneratorTest {
         AWSSetSecretData expectedDataPriv = new AWSSetSecretData("Key", priv.encodeToBase64());
 
         assertThat(capturedArgs)
-            .usingRecursiveFieldByFieldElementComparator()
-            .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
 
         verifyNoMoreInteractions(keyVaultService);
     }

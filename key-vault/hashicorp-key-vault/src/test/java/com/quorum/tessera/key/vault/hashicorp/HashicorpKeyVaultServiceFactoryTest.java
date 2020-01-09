@@ -29,9 +29,21 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
     private HashicorpKeyVaultServiceFactoryUtil keyVaultServiceFactoryUtil;
 
-    private String noCredentialsExceptionMsg = "Environment variables must be set to authenticate with Hashicorp Vault.  Set the " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables if using the AppRole authentication method.  Set the " + HASHICORP_TOKEN + " environment variable if using another authentication method.";
+    private String noCredentialsExceptionMsg =
+            "Environment variables must be set to authenticate with Hashicorp Vault.  Set the "
+                    + HASHICORP_ROLE_ID
+                    + " and "
+                    + HASHICORP_SECRET_ID
+                    + " environment variables if using the AppRole authentication method.  Set the "
+                    + HASHICORP_TOKEN
+                    + " environment variable if using another authentication method.";
 
-    private String approleCredentialsExceptionMsg = "Only one of the " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables to authenticate with Hashicorp Vault using the AppRole method has been set";
+    private String approleCredentialsExceptionMsg =
+            "Only one of the "
+                    + HASHICORP_ROLE_ID
+                    + " and "
+                    + HASHICORP_SECRET_ID
+                    + " environment variables to authenticate with Hashicorp Vault using the AppRole method has been set";
 
     @Before
     public void setUp() {
@@ -122,7 +134,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn(null);
 
-        //Exception unrelated to env vars will be thrown
+        // Exception unrelated to env vars will be thrown
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isNotInstanceOf(HashicorpCredentialNotSetException.class);
@@ -134,7 +146,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn(null);
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
-        //Exception unrelated to env vars will be thrown
+        // Exception unrelated to env vars will be thrown
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isNotInstanceOf(HashicorpCredentialNotSetException.class);
@@ -146,7 +158,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(HASHICORP_SECRET_ID)).thenReturn("secret-id");
         when(envProvider.getEnv(HASHICORP_TOKEN)).thenReturn("token");
 
-        //Exception unrelated to env vars will be thrown
+        // Exception unrelated to env vars will be thrown
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isNotInstanceOf(HashicorpCredentialNotSetException.class);
@@ -163,7 +175,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(ConfigException.class);
-        assertThat(ex).hasMessageContaining("Trying to create Hashicorp Vault connection but no Vault configuration provided");
+        assertThat(ex)
+                .hasMessageContaining(
+                        "Trying to create Hashicorp Vault connection but no Vault configuration provided");
     }
 
     @Test
@@ -180,7 +194,9 @@ public class HashicorpKeyVaultServiceFactoryTest {
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(ConfigException.class);
-        assertThat(ex).hasMessageContaining("Trying to create Hashicorp Vault connection but no Vault configuration provided");
+        assertThat(ex)
+                .hasMessageContaining(
+                        "Trying to create Hashicorp Vault connection but no Vault configuration provided");
     }
 
     @Test
@@ -200,7 +216,8 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         setUpUtilMocks(keyVaultConfig);
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil));
+        Throwable ex =
+                catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil));
 
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
         assertThat(ex.getMessage()).contains("Provided Hashicorp Vault url is incorrectly formatted");
@@ -223,7 +240,8 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         setUpUtilMocks(keyVaultConfig);
 
-        Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil));
+        Throwable ex =
+                catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider, keyVaultServiceFactoryUtil));
 
         assertThat(ex).isExactlyInstanceOf(ConfigException.class);
         assertThat(ex.getMessage()).contains("Provided Hashicorp Vault url is incorrectly formatted");
@@ -234,18 +252,13 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(keyVaultServiceFactoryUtil.configureSsl(keyVaultConfig, envProvider)).thenReturn(sslConfiguration);
 
         ClientHttpRequestFactory clientHttpRequestFactory = mock(ClientHttpRequestFactory.class);
-        when(keyVaultServiceFactoryUtil.createClientHttpRequestFactory(
-            any(ClientOptions.class),
-            eq(sslConfiguration))
-        ).thenReturn(clientHttpRequestFactory);
+        when(keyVaultServiceFactoryUtil.createClientHttpRequestFactory(any(ClientOptions.class), eq(sslConfiguration)))
+                .thenReturn(clientHttpRequestFactory);
 
         ClientAuthentication clientAuthentication = mock(ClientAuthentication.class);
         when(keyVaultServiceFactoryUtil.configureClientAuthentication(
-            eq(keyVaultConfig),
-            eq(envProvider),
-            eq(clientHttpRequestFactory),
-            any(VaultEndpoint.class))
-        ).thenReturn(clientAuthentication);
+                        eq(keyVaultConfig), eq(envProvider), eq(clientHttpRequestFactory), any(VaultEndpoint.class)))
+                .thenReturn(clientAuthentication);
     }
 
     @Test
@@ -291,5 +304,4 @@ public class HashicorpKeyVaultServiceFactoryTest {
 
         assertThat(result).isInstanceOf(HashicorpKeyVaultService.class);
     }
-
 }

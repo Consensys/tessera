@@ -18,7 +18,6 @@ public interface URLNormalizer {
     }
 
     static URLNormalizer create() {
-        return new URLNormalizer() {
-        };
+        return new URLNormalizer() {};
     }
 }

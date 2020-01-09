@@ -126,6 +126,8 @@ public class HashicorpKeyVaultServiceTest {
         Throwable ex = catchThrowable(() -> keyVaultService.setSecret(setSecretData));
 
         assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
-        assertThat(ex.getMessage()).isEqualTo("Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");
+        assertThat(ex.getMessage())
+                .isEqualTo(
+                        "Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");
     }
 }

@@ -8,5 +8,4 @@ import static java.lang.annotation.ElementType.TYPE;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(TYPE)
-public @interface Default {
-}
+public @interface Default {}

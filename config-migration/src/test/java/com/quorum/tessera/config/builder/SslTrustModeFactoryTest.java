@@ -34,6 +34,5 @@ public class SslTrustModeFactoryTest {
     public void resolveSslTrustModeForCaOrTofu() {
         SslTrustMode result = SslTrustModeFactory.resolveByLegacyValue("ca-or-tofu");
         assertThat(result).isEqualTo(SslTrustMode.CA_OR_TOFU);
-
     }
 }

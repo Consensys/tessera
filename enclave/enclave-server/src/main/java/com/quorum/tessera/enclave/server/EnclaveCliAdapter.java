@@ -21,9 +21,10 @@ import java.util.concurrent.Callable;
         parameterListHeading = "%nParameters:%n",
         optionListHeading = "%nOptions:%n",
         header = "Run a standalone enclave to perform encryption/decryption operations",
-        description = "Run a standalone enclave, which will perform encryption/decryption operations " +
-            "for a transaction manager. This means that the transaction manager does not perform any of the " +
-            "operations inside its own process, shielding the user from potential attacks.")
+        description =
+                "Run a standalone enclave, which will perform encryption/decryption operations "
+                        + "for a transaction manager. This means that the transaction manager does not perform any of the "
+                        + "operations inside its own process, shielding the user from potential attacks.")
 public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
 
     @CommandLine.Option(names = "help", usageHelp = true, description = "display this help message")

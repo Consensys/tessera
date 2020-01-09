@@ -25,7 +25,7 @@ import static com.quorum.tessera.config.util.EnvironmentVariables.*;
 class HashicorpKeyVaultServiceFactoryUtil {
 
     SslConfiguration configureSsl(KeyVaultConfig keyVaultConfig, EnvironmentVariableProvider envProvider) {
-        if(keyVaultConfig.hasProperty("tlsKeyStorePath","tlsTrustStorePath")) {
+        if (keyVaultConfig.hasProperty("tlsKeyStorePath", "tlsTrustStorePath")) {
 
             Path tlsKeyStorePath = keyVaultConfig.getProperty("tlsKeyStorePath").map(Paths::get).get();
             Path tlsTrustStorePath = keyVaultConfig.getProperty("tlsTrustStorePath").map(Paths::get).get();
@@ -33,15 +33,13 @@ class HashicorpKeyVaultServiceFactoryUtil {
             Resource clientKeyStore = new FileSystemResource(tlsKeyStorePath.toFile());
             Resource clientTrustStore = new FileSystemResource(tlsTrustStorePath.toFile());
 
-            SslConfiguration.KeyStoreConfiguration keyStoreConfiguration = SslConfiguration.KeyStoreConfiguration.of(
-                clientKeyStore,
-                envProvider.getEnvAsCharArray(HASHICORP_CLIENT_KEYSTORE_PWD)
-            );
+            SslConfiguration.KeyStoreConfiguration keyStoreConfiguration =
+                    SslConfiguration.KeyStoreConfiguration.of(
+                            clientKeyStore, envProvider.getEnvAsCharArray(HASHICORP_CLIENT_KEYSTORE_PWD));
 
-            SslConfiguration.KeyStoreConfiguration trustStoreConfiguration = SslConfiguration.KeyStoreConfiguration.of(
-                clientTrustStore,
-                envProvider.getEnvAsCharArray(HASHICORP_CLIENT_TRUSTSTORE_PWD)
-            );
+            SslConfiguration.KeyStoreConfiguration trustStoreConfiguration =
+                    SslConfiguration.KeyStoreConfiguration.of(
+                            clientTrustStore, envProvider.getEnvAsCharArray(HASHICORP_CLIENT_TRUSTSTORE_PWD));
 
             return new SslConfiguration(keyStoreConfiguration, trustStoreConfiguration);
 
@@ -50,30 +48,37 @@ class HashicorpKeyVaultServiceFactoryUtil {
             Path tlsTrustStorePath = keyVaultConfig.getProperty("tlsTrustStorePath").map(Paths::get).get();
             Resource clientTrustStore = new FileSystemResource(tlsTrustStorePath.toFile());
 
-            return SslConfiguration.forTrustStore(clientTrustStore, envProvider.getEnvAsCharArray(HASHICORP_CLIENT_TRUSTSTORE_PWD));
+            return SslConfiguration.forTrustStore(
+                    clientTrustStore, envProvider.getEnvAsCharArray(HASHICORP_CLIENT_TRUSTSTORE_PWD));
 
         } else {
             return SslConfiguration.unconfigured();
         }
     }
 
-    ClientHttpRequestFactory createClientHttpRequestFactory(ClientOptions clientOptions, SslConfiguration sslConfiguration) {
+    ClientHttpRequestFactory createClientHttpRequestFactory(
+            ClientOptions clientOptions, SslConfiguration sslConfiguration) {
         return ClientHttpRequestFactoryFactory.create(clientOptions, sslConfiguration);
     }
 
-    ClientAuthentication configureClientAuthentication(KeyVaultConfig keyVaultConfig, EnvironmentVariableProvider envProvider, ClientHttpRequestFactory clientHttpRequestFactory, VaultEndpoint vaultEndpoint) {
+    ClientAuthentication configureClientAuthentication(
+            KeyVaultConfig keyVaultConfig,
+            EnvironmentVariableProvider envProvider,
+            ClientHttpRequestFactory clientHttpRequestFactory,
+            VaultEndpoint vaultEndpoint) {
 
         final String roleId = envProvider.getEnv(HASHICORP_ROLE_ID);
         final String secretId = envProvider.getEnv(HASHICORP_SECRET_ID);
         final String authToken = envProvider.getEnv(HASHICORP_TOKEN);
 
-        if(roleId != null && secretId != null) {
+        if (roleId != null && secretId != null) {
 
-            AppRoleAuthenticationOptions appRoleAuthenticationOptions = AppRoleAuthenticationOptions.builder()
-                .path(keyVaultConfig.getProperty("approlePath").get())
-                .roleId(AppRoleAuthenticationOptions.RoleId.provided(roleId))
-                .secretId(AppRoleAuthenticationOptions.SecretId.provided(secretId))
-                .build();
+            AppRoleAuthenticationOptions appRoleAuthenticationOptions =
+                    AppRoleAuthenticationOptions.builder()
+                            .path(keyVaultConfig.getProperty("approlePath").get())
+                            .roleId(AppRoleAuthenticationOptions.RoleId.provided(roleId))
+                            .secretId(AppRoleAuthenticationOptions.SecretId.provided(secretId))
+                            .build();
 
             RestOperations restOperations = VaultClients.createRestTemplate(vaultEndpoint, clientHttpRequestFactory);
 
@@ -81,11 +86,23 @@ class HashicorpKeyVaultServiceFactoryUtil {
 
         } else if (Objects.isNull(roleId) != Objects.isNull(secretId)) {
 
-            throw new HashicorpCredentialNotSetException("Both " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables must be set to use the AppRole authentication method");
+            throw new HashicorpCredentialNotSetException(
+                    "Both "
+                            + HASHICORP_ROLE_ID
+                            + " and "
+                            + HASHICORP_SECRET_ID
+                            + " environment variables must be set to use the AppRole authentication method");
 
-        } else if (authToken == null){
+        } else if (authToken == null) {
 
-            throw new HashicorpCredentialNotSetException("Both " + HASHICORP_ROLE_ID + " and " + HASHICORP_SECRET_ID + " environment variables must be set to use the AppRole authentication method.  Alternatively set " + HASHICORP_TOKEN + " to authenticate using the Token method");
+            throw new HashicorpCredentialNotSetException(
+                    "Both "
+                            + HASHICORP_ROLE_ID
+                            + " and "
+                            + HASHICORP_SECRET_ID
+                            + " environment variables must be set to use the AppRole authentication method.  Alternatively set "
+                            + HASHICORP_TOKEN
+                            + " to authenticate using the Token method");
         }
 
         return new TokenAuthentication(authToken);

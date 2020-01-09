@@ -20,7 +20,7 @@ public class RestfulEnclaveClientFactoryTest {
         final ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.ENCLAVE);
         serverConfig.setCommunicationType(CommunicationType.REST);
-        
+
         serverConfig.setServerAddress("http://bogushost:99");
         List<ServerConfig> serverConfigs = Arrays.asList(serverConfig);
         config.setServerConfigs(serverConfigs);
@@ -28,7 +28,6 @@ public class RestfulEnclaveClientFactoryTest {
         EnclaveClient result = restfulEnclaveClientFactory.create(config);
 
         assertThat(result).isNotNull();
-
     }
 
     @Test(expected = java.util.NoSuchElementException.class)
@@ -42,7 +41,6 @@ public class RestfulEnclaveClientFactoryTest {
         config.setServerConfigs(serverConfigs);
 
         restfulEnclaveClientFactory.create(config);
-
     }
 
     @Test(expected = java.util.NoSuchElementException.class)
@@ -56,6 +54,5 @@ public class RestfulEnclaveClientFactoryTest {
         config.setServerConfigs(serverConfigs);
 
         restfulEnclaveClientFactory.create(config);
-
     }
 }

@@ -1,6 +1,4 @@
-
 package com.jpmorgan.quorum.encryption.ec;
-
 
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.EncryptorFactory;
@@ -17,12 +15,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class EllipticalCurveEncryptorTest {
-private static final Logger LOGGER = LoggerFactory.getLogger(EllipticalCurveEncryptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EllipticalCurveEncryptor.class);
 
     private final EncryptorFactory facadeFactory = new EllipticalCurveEncryptorFactory();
-    
+
     private final EllipticalCurveEncryptor encryptor = (EllipticalCurveEncryptor) facadeFactory.create();
 
     @Test
@@ -34,8 +31,7 @@ private static final Logger LOGGER = LoggerFactory.getLogger(EllipticalCurveEncr
         assertEquals(sharedPub1Priv2, sharedPriv1Pub2);
         LOGGER.info("SharedKey: {}", sharedPriv1Pub2.encodeToBase64());
     }
- 
-    
+
     @Test(expected = RuntimeException.class)
     public void computeSharedKeyWithInvalidKeys() {
         encryptor.computeSharedKey(PublicKey.from("garbage".getBytes()), PrivateKey.from("garbage".getBytes()));

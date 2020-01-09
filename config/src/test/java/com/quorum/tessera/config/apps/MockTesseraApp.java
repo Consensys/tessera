@@ -1,9 +1,7 @@
-
 package com.quorum.tessera.config.apps;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-
 
 public class MockTesseraApp implements TesseraApp {
 
@@ -16,5 +14,4 @@ public class MockTesseraApp implements TesseraApp {
     public AppType getAppType() {
         return AppType.P2P;
     }
-    
 }

@@ -26,5 +26,4 @@ public interface IOCallback<T> {
             throw new UncheckedIOException(ex);
         }
     }
-
 }

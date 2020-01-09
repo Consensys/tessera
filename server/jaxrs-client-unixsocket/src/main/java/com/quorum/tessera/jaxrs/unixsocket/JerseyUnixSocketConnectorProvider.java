@@ -14,5 +14,4 @@ public class JerseyUnixSocketConnectorProvider implements ConnectorProvider {
         URI unixfile = (URI) runtimeConfig.getProperty("unixfile");
         return new JerseyUnixSocketConnector(unixfile);
     }
-
 }

@@ -31,5 +31,4 @@ public interface EncryptorFactory {
                 .findAny()
                 .orElse(ServiceLoaderUtil.load(EncryptorFactory.class).get());
     }
-
 }

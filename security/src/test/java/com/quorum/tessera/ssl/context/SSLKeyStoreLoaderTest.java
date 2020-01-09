@@ -18,8 +18,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 public class SSLKeyStoreLoaderTest {
 
-    @Rule
-    public TemporaryFolder tmpDir = new TemporaryFolder();
+    @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
 
     private Path key;
 
@@ -40,10 +39,8 @@ public class SSLKeyStoreLoaderTest {
         try {
             SSLKeyStoreLoader.fromPemKeyFile(invalidPemFile, cert);
             failBecauseExceptionWasNotThrown(Exception.class);
-        }
-        catch (Exception ex) {
-            assertThat(ex).isInstanceOf(KeyStoreException.class)
-                .hasMessageContaining("NO PRIVATE KEY FOUND IN FILE");
+        } catch (Exception ex) {
+            assertThat(ex).isInstanceOf(KeyStoreException.class).hasMessageContaining("NO PRIVATE KEY FOUND IN FILE");
         }
     }
 
@@ -52,11 +49,10 @@ public class SSLKeyStoreLoaderTest {
         try {
             SSLKeyStoreLoader.fromPemKeyFile(key, invalidPemFile);
             failBecauseExceptionWasNotThrown(Exception.class);
-        }
-        catch (Exception ex) {
-            assertThat(ex).isInstanceOf(CertificateException.class)
-                .hasMessageContaining("NO CERTIFICATE FOUND IN FILE");
+        } catch (Exception ex) {
+            assertThat(ex)
+                    .isInstanceOf(CertificateException.class)
+                    .hasMessageContaining("NO CERTIFICATE FOUND IN FILE");
         }
     }
-
 }

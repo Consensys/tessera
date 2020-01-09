@@ -16,9 +16,7 @@ public class MockAzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
         KeyVaultService mock = mock(KeyVaultService.class);
 
-        when(mock.getSecret(any(AzureGetSecretData.class)))
-            .thenReturn("publicSecret")
-            .thenReturn("privSecret");
+        when(mock.getSecret(any(AzureGetSecretData.class))).thenReturn("publicSecret").thenReturn("privSecret");
 
         return mock;
     }
@@ -28,4 +26,3 @@ public class MockAzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
         return KeyVaultType.AZURE;
     }
 }
-

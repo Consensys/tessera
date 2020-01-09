@@ -18,5 +18,4 @@ public interface ReflectCallback<T> {
             throw new ReflectException(ex);
         }
     }
-
 }

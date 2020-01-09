@@ -28,34 +28,24 @@ public class RestUtils {
 
     public Response sendRaw(Party sender, byte[] transactionData, Set<Party> recipients) {
         return sendRaw(sender, transactionData, recipients.toArray(new Party[0]));
-
     }
 
     public Response sendRaw(Party sender, byte[] transactionData, Party... recipients) {
 
         Objects.requireNonNull(sender);
 
-        String recipientString = Stream.of(recipients)
-            .map(Party::getPublicKey)
-            .collect(Collectors.joining(","));
+        String recipientString = Stream.of(recipients).map(Party::getPublicKey).collect(Collectors.joining(","));
 
+        LOGGER.debug("Sending txn  to {}", recipientString);
 
-        LOGGER.debug("Sending txn  to {}",recipientString);
-        
-        Invocation.Builder invocationBuilder = sender.getRestClientWebTarget()
-            .path("sendraw")
-            .request()
-            .header(SENDER, sender.getPublicKey());
-
-
-
+        Invocation.Builder invocationBuilder =
+                sender.getRestClientWebTarget().path("sendraw").request().header(SENDER, sender.getPublicKey());
 
         Optional.of(recipientString)
-            .filter(s -> !Objects.equals("", s))
-            .ifPresent(s -> invocationBuilder.header(RECIPIENTS, s));
+                .filter(s -> !Objects.equals("", s))
+                .ifPresent(s -> invocationBuilder.header(RECIPIENTS, s));
 
-        return invocationBuilder
-            .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
+        return invocationBuilder.post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
     }
 
     public Stream<Response> findTransaction(String transactionId, Party... party) {
@@ -63,11 +53,10 @@ public class RestUtils {
         String encodedId = urlEncode(transactionId);
 
         return Stream.of(party)
-            .map(Party::getRestClientWebTarget)
-            .map(target -> target.path("transaction"))
-            .map(target -> target.path(encodedId))
-            .map(target -> target.request().get());
-
+                .map(Party::getRestClientWebTarget)
+                .map(target -> target.path("transaction"))
+                .map(target -> target.path(encodedId))
+                .map(target -> target.request().get());
     }
 
     static String urlEncode(String data) {
@@ -88,25 +77,26 @@ public class RestUtils {
 
     public SendResponse sendRequestAssertSuccess(Party sender, byte[] transactionData, Party... recipients) {
 
-        String[] recipientArray = Stream.of(recipients)
-            .map(Party::getPublicKey)
-            .collect(Collectors.toList())
-            .toArray(new String[recipients.length]);
+        String[] recipientArray =
+                Stream.of(recipients)
+                        .map(Party::getPublicKey)
+                        .collect(Collectors.toList())
+                        .toArray(new String[recipients.length]);
 
         final SendRequest sendRequest = new SendRequest();
         sendRequest.setFrom(sender.getPublicKey());
         sendRequest.setTo(recipientArray);
         sendRequest.setPayload(transactionData);
 
-        final Response response = sender.getRestClientWebTarget()
-            .path("send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        final Response response =
+                sender.getRestClientWebTarget()
+                        .path("send")
+                        .request()
+                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
         return response.readEntity(SendResponse.class);
-
     }
 
     public Stream<Response> findTransaction(String transactionKey, Set<Party> recipients) {
@@ -118,10 +108,11 @@ public class RestUtils {
     }
 
     public Response send(Party sender, byte[] transactionData, Party... recipients) {
-        String[] recipientArray = Stream.of(recipients)
-            .map(Party::getPublicKey)
-            .collect(Collectors.toList())
-            .toArray(new String[recipients.length]);
+        String[] recipientArray =
+                Stream.of(recipients)
+                        .map(Party::getPublicKey)
+                        .collect(Collectors.toList())
+                        .toArray(new String[recipients.length]);
 
         final SendRequest sendRequest = new SendRequest();
 
@@ -130,10 +121,9 @@ public class RestUtils {
         sendRequest.setPayload(transactionData);
 
         return sender.getRestClientWebTarget()
-            .path("send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
+                .path("send")
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
     }
 
     private static final String C11N_TO = "c11n-to";
@@ -142,14 +132,14 @@ public class RestUtils {
 
     public Response receiveRaw(String transactionKey, Party party, Party... recipients) {
         return party.getRestClientWebTarget()
-            .path("receiveraw")
-            .request()
-            .header(C11N_KEY, transactionKey)
-            
-            .header(C11N_TO, Stream.concat(Stream.of(recipients),Stream.of(party))
-                .map(Party::getPublicKey)
-                .collect(Collectors.joining(",")))
-            .get();
-
+                .path("receiveraw")
+                .request()
+                .header(C11N_KEY, transactionKey)
+                .header(
+                        C11N_TO,
+                        Stream.concat(Stream.of(recipients), Stream.of(party))
+                                .map(Party::getPublicKey)
+                                .collect(Collectors.joining(",")))
+                .get();
     }
 }

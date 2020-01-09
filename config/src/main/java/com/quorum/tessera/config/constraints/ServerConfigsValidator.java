@@ -14,10 +14,10 @@ public class ServerConfigsValidator implements ConstraintValidator<ValidServerCo
 
     @Override
     public boolean isValid(List<ServerConfig> serverConfigs, ConstraintValidatorContext constraintContext) {
-        if(serverConfigs == null) {
+        if (serverConfigs == null) {
             return true;
         }
-        
+
         int p2PEnabledConfigsCount = 0;
         int q2TEnabledConfigsCount = 0;
 
@@ -37,16 +37,18 @@ public class ServerConfigsValidator implements ConstraintValidator<ValidServerCo
         if (p2PEnabledConfigsCount != 1) {
             LOGGER.debug("Only one P2P server must be configured and enabled.");
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("Only one P2P server must be configured and enabled.")
-                .addConstraintViolation();
+            constraintContext
+                    .buildConstraintViolationWithTemplate("Only one P2P server must be configured and enabled.")
+                    .addConstraintViolation();
             return false;
         }
 
         if (q2TEnabledConfigsCount == 0) {
             LOGGER.debug("At least one Q2T server must be configured and enabled.");
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("At least one Q2T server must be configured and enabled.")
-                .addConstraintViolation();
+            constraintContext
+                    .buildConstraintViolationWithTemplate("At least one Q2T server must be configured and enabled.")
+                    .addConstraintViolation();
             return false;
         }
 

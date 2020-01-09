@@ -36,11 +36,10 @@ public class JnaclSecretBoxTest {
 
     @Test
     public void sharedKeyFailsIfOutputTooSmall() {
-        final byte[] sharedKey = new byte[crypto_secretbox_BEFORENMBYTES-1];
+        final byte[] sharedKey = new byte[crypto_secretbox_BEFORENMBYTES - 1];
 
-        final Throwable throwable = catchThrowable(
-            () -> this.secretBox.cryptoBoxBeforenm(sharedKey, publicKey, privateKey)
-        );
+        final Throwable throwable =
+                catchThrowable(() -> this.secretBox.cryptoBoxBeforenm(sharedKey, publicKey, privateKey));
 
         assertThat(throwable).isInstanceOf(ArrayIndexOutOfBoundsException.class);
     }
@@ -49,11 +48,11 @@ public class JnaclSecretBoxTest {
     public void sharedKeyFailsIfPublicKeyTooSmall() {
         final byte[] sharedKey = new byte[crypto_secretbox_BEFORENMBYTES];
 
-        final Throwable throwable = catchThrowable(
-            () -> this.secretBox.cryptoBoxBeforenm(
-                sharedKey, Arrays.copyOf(publicKey, publicKey.length-1), privateKey
-            )
-        );
+        final Throwable throwable =
+                catchThrowable(
+                        () ->
+                                this.secretBox.cryptoBoxBeforenm(
+                                        sharedKey, Arrays.copyOf(publicKey, publicKey.length - 1), privateKey));
 
         assertThat(throwable).isInstanceOf(ArrayIndexOutOfBoundsException.class);
     }
@@ -62,11 +61,11 @@ public class JnaclSecretBoxTest {
     public void sharedKeyFailsIfPrivateKeyTooSmall() {
         final byte[] sharedKey = new byte[crypto_secretbox_BEFORENMBYTES];
 
-        final Throwable throwable = catchThrowable(
-            () -> this.secretBox.cryptoBoxBeforenm(
-                sharedKey, publicKey, Arrays.copyOf(privateKey, privateKey.length-1)
-            )
-        );
+        final Throwable throwable =
+                catchThrowable(
+                        () ->
+                                this.secretBox.cryptoBoxBeforenm(
+                                        sharedKey, publicKey, Arrays.copyOf(privateKey, privateKey.length - 1)));
 
         assertThat(throwable).isInstanceOf(ArrayIndexOutOfBoundsException.class);
     }
@@ -74,17 +73,14 @@ public class JnaclSecretBoxTest {
     @Test
     public void sealingMessageUsingSymmetricKeyFailsIfMessageIsLessThanRequiredLength() {
 
-        final int success = this.secretBox
-            .cryptoBoxAfternm(new byte[0], new byte[0], 0, new byte[0], new byte[0]);
+        final int success = this.secretBox.cryptoBoxAfternm(new byte[0], new byte[0], 0, new byte[0], new byte[0]);
 
         assertThat(success).isEqualTo(-1);
-
     }
 
     @Test
     public void sealingMessageUsingSymmetricKeySucceeds() {
-        final int success = this.secretBox
-            .cryptoBoxAfternm(new byte[32], new byte[32], 32, new byte[24], new byte[32]);
+        final int success = this.secretBox.cryptoBoxAfternm(new byte[32], new byte[32], 32, new byte[24], new byte[32]);
 
         assertThat(success).isEqualTo(0);
     }
@@ -102,51 +98,46 @@ public class JnaclSecretBoxTest {
     @Test
     public void generatingNewsKeysFailsIfPublicKeyTooSmall() {
 
-        final byte[] publicKey = new byte[crypto_secretbox_PUBLICKEYBYTES-1];
+        final byte[] publicKey = new byte[crypto_secretbox_PUBLICKEYBYTES - 1];
         final byte[] privateKey = new byte[crypto_secretbox_SECRETKEYBYTES];
 
         final Throwable throwable = catchThrowable(() -> this.secretBox.cryptoBoxKeypair(publicKey, privateKey));
 
         assertThat(throwable).isInstanceOf(ArrayIndexOutOfBoundsException.class);
-
     }
 
     @Test
     public void generatingNewsKeysFailsIfPrivateKeyTooSmall() {
 
         final byte[] publicKey = new byte[crypto_secretbox_PUBLICKEYBYTES];
-        final byte[] privateKey = new byte[crypto_secretbox_SECRETKEYBYTES-1];
+        final byte[] privateKey = new byte[crypto_secretbox_SECRETKEYBYTES - 1];
 
         final Throwable throwable = catchThrowable(() -> this.secretBox.cryptoBoxKeypair(publicKey, privateKey));
 
         assertThat(throwable).isInstanceOf(ArrayIndexOutOfBoundsException.class);
-
     }
 
     @Test
     public void openingBoxFailsIfInputLengthTooSmall() {
 
-        final int success = this.secretBox
-            .cryptoBoxOpenAfternm(new byte[0], new byte[0], 0, new byte[0], new byte[0]);
+        final int success = this.secretBox.cryptoBoxOpenAfternm(new byte[0], new byte[0], 0, new byte[0], new byte[0]);
 
         assertThat(success).isEqualTo(-1);
-
     }
 
     @Test
     public void openingFailsIfInputsAreInvalid() {
 
-        final int success = this.secretBox
-            .cryptoBoxOpenAfternm(new byte[32], new byte[32], 32, new byte[24], new byte[32]);
+        final int success =
+                this.secretBox.cryptoBoxOpenAfternm(new byte[32], new byte[32], 32, new byte[24], new byte[32]);
 
         assertThat(success).isEqualTo(-1);
-
     }
 
     @Test
     public void openingSucceedsIfInputsAreValid() {
 
-        //setup
+        // setup
         final byte[] sharedKey = new byte[crypto_secretbox_BEFORENMBYTES];
         this.secretBox.cryptoBoxBeforenm(sharedKey, publicKey, privateKey);
 
@@ -156,13 +147,10 @@ public class JnaclSecretBoxTest {
         final byte[] cipherText = new byte[33];
         this.secretBox.cryptoBoxAfternm(cipherText, message, 33, nonce, sharedKey);
 
-        //make the call
-        final int success = this.secretBox
-            .cryptoBoxOpenAfternm(new byte[33], cipherText, 33, nonce, sharedKey);
+        // make the call
+        final int success = this.secretBox.cryptoBoxOpenAfternm(new byte[33], cipherText, 33, nonce, sharedKey);
 
-        //check result
+        // check result
         assertThat(success).isEqualTo(0);
-
     }
-
 }

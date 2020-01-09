@@ -46,11 +46,12 @@ public class PartyInfoPollerTest {
         this.executor = mock(Executor.class);
 
         doAnswer(
-            (InvocationOnMock invocation) -> {
-                ((Runnable) invocation.getArguments()[0]).run();
-                return null;
-            }
-        ).when(executor).execute(any(Runnable.class));
+                        (InvocationOnMock invocation) -> {
+                            ((Runnable) invocation.getArguments()[0]).run();
+                            return null;
+                        })
+                .when(executor)
+                .execute(any(Runnable.class));
 
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
 

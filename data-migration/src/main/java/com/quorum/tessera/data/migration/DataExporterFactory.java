@@ -11,5 +11,4 @@ public interface DataExporterFactory {
 
         throw new UnsupportedOperationException("" + exportType);
     }
-
 }

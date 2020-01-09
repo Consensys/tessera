@@ -5,10 +5,7 @@ import javax.net.ssl.X509TrustManager;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-/**
- * If the certificate is trusted by one of the given trust managers,
- * the connection will be accepted.
- */
+/** If the certificate is trusted by one of the given trust managers, the connection will be accepted. */
 public class CompositeTrustManager extends AbstractTrustManager {
 
     private TrustManager[] trustManagers;
@@ -24,9 +21,8 @@ public class CompositeTrustManager extends AbstractTrustManager {
                 X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
                 x509TrustManager.checkClientTrusted(clientCertificates, authType);
                 return;
-            }
-            catch(CertificateException ex) {
-                //Ignore and move on to the next trust manager
+            } catch (CertificateException ex) {
+                // Ignore and move on to the next trust manager
             }
         }
         throw new CertificateException("Certificate is not trusted by any of the trust managers");
@@ -39,9 +35,8 @@ public class CompositeTrustManager extends AbstractTrustManager {
                 final X509TrustManager x509TrustManager = (X509TrustManager) trustManager;
                 x509TrustManager.checkServerTrusted(serverCertificates, authType);
                 return;
-            }
-            catch (CertificateException ex) {
-                //Ignore and move on to the next trust manager
+            } catch (CertificateException ex) {
+                // Ignore and move on to the next trust manager
             }
         }
         throw new CertificateException("Certificate is not trusted by any of the trust managers");
@@ -51,5 +46,4 @@ public class CompositeTrustManager extends AbstractTrustManager {
     public X509Certificate[] getAcceptedIssuers() {
         return new X509Certificate[0];
     }
-
 }

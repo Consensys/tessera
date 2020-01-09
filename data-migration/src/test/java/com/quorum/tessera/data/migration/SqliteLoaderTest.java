@@ -39,7 +39,7 @@ public class SqliteLoaderTest {
 
         this.dbfilePath = Files.createTempFile("sample", ".db");
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + dbfilePath);
-             Statement statement = conn.createStatement()) {
+                Statement statement = conn.createStatement()) {
 
             statement.execute(CREATE_TABLE);
 
@@ -61,9 +61,9 @@ public class SqliteLoaderTest {
 
         final Throwable throwable = catchThrowable(() -> loader.load(randomFile));
         assertThat(throwable)
-            .isNotNull()
-            .isInstanceOf(SQLiteException.class)
-            .hasMessageContaining("[SQLITE_ERROR] SQL error or missing database (no such table: payload)");
+                .isNotNull()
+                .isInstanceOf(SQLiteException.class)
+                .hasMessageContaining("[SQLITE_ERROR] SQL error or missing database (no such table: payload)");
     }
 
     @Test
@@ -72,9 +72,9 @@ public class SqliteLoaderTest {
 
         final Throwable throwable = catchThrowable(() -> loader.load(randomFile));
         assertThat(throwable)
-            .isNotNull()
-            .isInstanceOf(SQLiteException.class)
-            .hasMessageContaining("[SQLITE_ERROR] SQL error or missing database (no such table: payload)");
+                .isNotNull()
+                .isInstanceOf(SQLiteException.class)
+                .hasMessageContaining("[SQLITE_ERROR] SQL error or missing database (no such table: payload)");
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SqliteLoaderTest {
     public void nextReturnsEntryWhenResultsAreLeft() throws SQLException {
         this.loader.load(dbfilePath);
 
-        //There should be 10 results left in the database
+        // There should be 10 results left in the database
         final DataEntry next = this.loader.nextEntry();
 
         assertThat(next).isNotNull();
@@ -102,7 +102,7 @@ public class SqliteLoaderTest {
             this.loader.nextEntry();
         }
 
-        //There should be 0 results left in the database
+        // There should be 0 results left in the database
         final DataEntry next = this.loader.nextEntry();
 
         assertThat(next).isNull();
@@ -115,13 +115,9 @@ public class SqliteLoaderTest {
 
         DataEntry next;
         while ((next = this.loader.nextEntry()) != null) {
-            results.put(
-                new String(next.getKey()),
-                new String(IOUtils.toByteArray(next.getValue()))
-            );
+            results.put(new String(next.getKey()), new String(IOUtils.toByteArray(next.getValue())));
         }
 
         assertThat(results).containsAllEntriesOf(fixtures);
     }
-
 }

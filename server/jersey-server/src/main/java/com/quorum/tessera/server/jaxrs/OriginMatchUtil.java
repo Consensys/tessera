@@ -12,16 +12,17 @@ public class OriginMatchUtil {
     private final Predicate<String> wildcardMatch = s -> s.equals("*");
 
     public OriginMatchUtil(List<String> tokens) {
-        this.tokens = tokens.stream()
-            .map(String::toLowerCase)
-            .map(s -> ("\\Q" + s + "\\E"))
-            .map(s -> s.replace("*", "\\E.*\\Q"))
-            .collect(Collectors.toList());
+        this.tokens =
+                tokens.stream()
+                        .map(String::toLowerCase)
+                        .map(s -> ("\\Q" + s + "\\E"))
+                        .map(s -> s.replace("*", "\\E.*\\Q"))
+                        .collect(Collectors.toList());
     }
 
     public boolean matches(String origin) {
-        
-        if(Objects.isNull(origin) || Objects.equals("", origin)) {
+
+        if (Objects.isNull(origin) || Objects.equals("", origin)) {
             return false;
         }
 
@@ -30,5 +31,4 @@ public class OriginMatchUtil {
 
         return tokens.stream().anyMatch(matchingCritera);
     }
-
 }

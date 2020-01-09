@@ -8,9 +8,8 @@ import javax.validation.constraints.Size;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * Contains information for retrieving a decrypting payload such as the message
- * hash and the public key to decrypt with
- *
+ * <p>Contains information for retrieving a decrypting payload such as the message hash and the public key to decrypt
+ * with
  */
 @ApiModel
 public class ReceiveRequest {
@@ -40,5 +39,4 @@ public class ReceiveRequest {
     public void setTo(final String to) {
         this.to = to;
     }
-
 }

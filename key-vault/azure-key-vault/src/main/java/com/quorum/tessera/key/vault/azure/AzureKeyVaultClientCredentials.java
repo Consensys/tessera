@@ -39,11 +39,12 @@ public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
 
     @Override
     public String doAuthenticate(String authorization, String resource, String scope) {
-        if(clientId == null || clientSecret == null) {
-            throw new AzureCredentialNotSetException(AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
+        if (clientId == null || clientSecret == null) {
+            throw new AzureCredentialNotSetException(
+                    AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
         }
         try {
-            if(Objects.isNull(authenticationContext)) {
+            if (Objects.isNull(authenticationContext)) {
                 this.authenticationContext = new AuthenticationContext(authorization, false, executorService);
             }
             ClientCredential credential = new ClientCredential(clientId, clientSecret);
@@ -52,7 +53,7 @@ public class AzureKeyVaultClientCredentials extends KeyVaultCredentials {
 
         } catch (ExecutionException | MalformedURLException ex) {
             throw new RuntimeException(ex);
-        } catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
             LOGGER.warn("Key vault executor executorService interrupted");
             throw new RuntimeException(ex);
         }

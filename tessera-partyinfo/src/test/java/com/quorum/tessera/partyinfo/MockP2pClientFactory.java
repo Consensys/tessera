@@ -1,11 +1,10 @@
-
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import static org.mockito.Mockito.mock;
 
-public class MockP2pClientFactory implements P2pClientFactory{
+public class MockP2pClientFactory implements P2pClientFactory {
 
     @Override
     public P2pClient create(Config config) {
@@ -16,5 +15,4 @@ public class MockP2pClientFactory implements P2pClientFactory{
     public CommunicationType communicationType() {
         return CommunicationType.REST;
     }
-    
 }

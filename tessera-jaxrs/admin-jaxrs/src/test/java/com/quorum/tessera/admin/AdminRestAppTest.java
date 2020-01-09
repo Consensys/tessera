@@ -33,7 +33,7 @@ public class AdminRestAppTest {
     public void setUp() throws Exception {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
-        
+
         this.serviceLocator = (MockServiceLocator) ServiceLocator.create();
 
         services = new HashSet<>();

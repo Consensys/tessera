@@ -31,7 +31,7 @@ public class KeyExceptionTest {
         assertThat(exception).hasNoCause();
         assertThat(exception.getMessage()).isNull();
     }
-    
+
     @Test
     public void createInstanceNullCause() {
         final String message = "HELLOW";

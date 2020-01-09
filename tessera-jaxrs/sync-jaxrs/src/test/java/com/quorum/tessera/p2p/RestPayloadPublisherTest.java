@@ -39,10 +39,13 @@ public class RestPayloadPublisherTest {
 
         List<javax.ws.rs.client.Entity> postedEntities = new ArrayList<>();
 
-        doAnswer((invocation) -> {
-            postedEntities.add(invocation.getArgument(0));
-            return Response.ok().build();
-        }).when(invocationBuilder).post(any(javax.ws.rs.client.Entity.class));
+        doAnswer(
+                        (invocation) -> {
+                            postedEntities.add(invocation.getArgument(0));
+                            return Response.ok().build();
+                        })
+                .when(invocationBuilder)
+                .post(any(javax.ws.rs.client.Entity.class));
 
         String targetUrl = "http://someplace.com";
 
@@ -69,10 +72,13 @@ public class RestPayloadPublisherTest {
 
         List<javax.ws.rs.client.Entity> postedEntities = new ArrayList<>();
 
-        doAnswer((invocation) -> {
-            postedEntities.add(invocation.getArgument(0));
-            return Response.created(URI.create("http://location")).build();
-        }).when(invocationBuilder).post(any(javax.ws.rs.client.Entity.class));
+        doAnswer(
+                        (invocation) -> {
+                            postedEntities.add(invocation.getArgument(0));
+                            return Response.created(URI.create("http://location")).build();
+                        })
+                .when(invocationBuilder)
+                .post(any(javax.ws.rs.client.Entity.class));
 
         String targetUrl = "http://someplace.com";
 
@@ -97,9 +103,12 @@ public class RestPayloadPublisherTest {
 
         Invocation.Builder invocationBuilder = mockClient.getWebTarget().getMockInvocationBuilder();
 
-        doAnswer((invocation) -> {
-            return Response.serverError().build();
-        }).when(invocationBuilder).post(any(javax.ws.rs.client.Entity.class));
+        doAnswer(
+                        (invocation) -> {
+                            return Response.serverError().build();
+                        })
+                .when(invocationBuilder)
+                .post(any(javax.ws.rs.client.Entity.class));
 
         String targetUrl = "http://someplace.com";
 
@@ -114,6 +123,5 @@ public class RestPayloadPublisherTest {
             verify(encoder).encode(encodedPayload);
             verify(invocationBuilder).post(any(javax.ws.rs.client.Entity.class));
         }
-
     }
 }

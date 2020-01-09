@@ -169,16 +169,16 @@ public class PicoCliDelegate {
                 if (line.startsWith("-")) {
                     final String name = line.replaceFirst("-{1,2}", "");
                     final int nextIndex = i + 1;
-                    if(nextIndex > (unmatched.size() -1)) {
+                    if (nextIndex > (unmatched.size() - 1)) {
                         break;
                     }
                     i = nextIndex;
                     final String value = unmatched.get(nextIndex);
                     try {
                         OverrideUtil.setValue(config, name, value);
-                    } catch(ReflectException ex) {
-                        //Ignore error
-                        LOGGER.debug("",ex);
+                    } catch (ReflectException ex) {
+                        // Ignore error
+                        LOGGER.debug("", ex);
                         continue;
                     }
                 }

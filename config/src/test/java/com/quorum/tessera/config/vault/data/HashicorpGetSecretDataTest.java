@@ -27,5 +27,4 @@ public class HashicorpGetSecretDataTest {
     public void getType() {
         assertThat(getSecretData.getType()).isEqualTo(KeyVaultType.HASHICORP);
     }
-
 }

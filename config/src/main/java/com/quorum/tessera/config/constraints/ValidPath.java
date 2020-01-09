@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
 
-@Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE,TYPE_PARAMETER, TYPE_USE})
+@Target({FIELD, METHOD, PARAMETER, ANNOTATION_TYPE, TYPE_PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = PathValidator.class)
 @Documented
@@ -19,9 +19,8 @@ public @interface ValidPath {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-    
+
     boolean checkExists() default false;
-    
+
     boolean checkCanCreate() default false;
-    
 }

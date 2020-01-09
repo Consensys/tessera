@@ -6,16 +6,14 @@ import java.nio.file.Path;
 import java.util.Optional;
 import suite.NodeAlias;
 
-
 public class ConfigDescriptor {
-    
+
     private final NodeAlias alias;
     private final Path path;
     private final Config config;
     private final Config enclaveConfig;
     private final Path enclavePath;
-    
-    
+
     public ConfigDescriptor(NodeAlias alias, Path path, Config config, Config enclaveConfig, Path enclavePath) {
         this.alias = alias;
         this.path = path;
@@ -55,5 +53,4 @@ public class ConfigDescriptor {
             return config.getKeys().getKeyData().get(0);
         }
     }
-    
 }

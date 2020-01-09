@@ -20,8 +20,7 @@ public class ConfigSecretReaderTest {
     @Rule
     public final org.junit.contrib.java.lang.system.EnvironmentVariables envVariables = new EnvironmentVariables();
 
-    @Rule
-    public TemporaryFolder tempDir = new TemporaryFolder();
+    @Rule public TemporaryFolder tempDir = new TemporaryFolder();
 
     @Before
     public void setUp() {
@@ -69,12 +68,9 @@ public class ConfigSecretReaderTest {
         final File tempFile = tempDir.newFile("key.secret");
         tempFile.setReadable(false);
 
-
-        envVariables.set(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH,
-            tempFile.getAbsolutePath());
+        envVariables.set(
+                com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH, tempFile.getAbsolutePath());
 
         assertThat(ConfigSecretReader.readSecretFromFile()).isEmpty();
-
-
     }
 }

@@ -43,7 +43,7 @@ public class PartyInfoResourceTest {
     public void getPartyInfoKeys() {
 
         final String partyInfoJson =
-            "{\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
+                "{\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
 
         final Party partyWithoutTimestamp = new Party("http://localhost:9006/");
         final Party partyWithTimestamp = new Party("http://localhost:9005/");

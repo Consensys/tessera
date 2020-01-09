@@ -34,5 +34,4 @@ public class HashicorpSetSecretData implements SetSecretData {
     public KeyVaultType getType() {
         return KeyVaultType.HASHICORP;
     }
-
 }

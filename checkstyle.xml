@@ -7,7 +7,7 @@
         <property name="fileExtensions" value="java"/>
     </module>
     <module name="FileTabCharacter"/>
-    
+
     <module name="SuppressionFilter">
         <property name="file" value="${checkstyle.suppressions.file}" />
     </module>
@@ -100,7 +100,7 @@
         <module name="OperatorWrap">
             <property name="option" value="eol"/>
 
-            <property name="tokens" value="TYPE_EXTENSION_AND, SR, BSR, SL, BXOR, BOR, BAND"/>
+            <property name="tokens" value="TYPE_EXTENSION_AND, SR, BSR, SL, BXOR, BAND"/>
             <property name="tokens" value="SR_ASSIGN, BSR_ASSIGN, SL_ASSIGN, BXOR_ASSIGN, BOR_ASSIGN, BAND_ASSIGN"/>
 
             <!--<property name="tokens" value="PLUS"/>--> <!-- TODO: uncomment -->

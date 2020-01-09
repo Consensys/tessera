@@ -8,10 +8,9 @@ public class CliTypeTest {
 
     @Test
     public void values() {
-        for(CliType t : CliType.values()) {
+        for (CliType t : CliType.values()) {
             assertThat(t).isNotNull();
             assertThat(CliType.valueOf(t.name())).isSameAs(t);
         }
     }
-
 }

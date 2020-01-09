@@ -5,5 +5,4 @@ public class TesseraSecurityException extends RuntimeException {
     public TesseraSecurityException(final Throwable cause) {
         super(cause);
     }
-    
 }

@@ -11,8 +11,7 @@ public class PrivateKeyTypeAdapterTest {
 
     private PrivateKeyTypeAdapter adapter;
 
-    public PrivateKeyTypeAdapterTest() {
-    }
+    public PrivateKeyTypeAdapterTest() {}
 
     @Before
     public void setUp() {
@@ -20,9 +19,7 @@ public class PrivateKeyTypeAdapterTest {
     }
 
     @After
-    public void tearDown() {
-
-    }
+    public void tearDown() {}
 
     @Test
     public void marshalLocked() {

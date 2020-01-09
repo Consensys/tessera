@@ -60,7 +60,5 @@ public class KeyTest {
         BogusKey(byte[] keyBytes) {
             super(keyBytes);
         }
-
     }
-
 }

@@ -23,20 +23,21 @@ public class IOCallbackTest {
         IOCallback.execute(() -> Files.deleteIfExists(path));
 
         assertThat(path).doesNotExist();
-
     }
 
     @Test
     public void doSomeIoStuffThatThrowsAnIoException() {
         final IOException ioException = new IOException("OUCH");
 
-        final Path path = mock(Path.class, iom -> {
-            throw ioException;
-        });
+        final Path path =
+                mock(
+                        Path.class,
+                        iom -> {
+                            throw ioException;
+                        });
 
         final Throwable throwable = catchThrowable(() -> IOCallback.execute(path::isAbsolute));
 
         assertThat(throwable).isNotNull().isInstanceOf(UncheckedIOException.class).hasCause(ioException);
     }
-
 }

@@ -18,8 +18,7 @@ import static org.mockito.Mockito.when;
 
 public class MetricsEnquirerTest {
 
-    @Mock
-    private MBeanServer mBeanServer;
+    @Mock private MBeanServer mBeanServer;
 
     private MetricsEnquirer metricsEnquirer;
 
@@ -35,17 +34,23 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void metricNameDoesNotEndWithTotalSoIsNotIncluded() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void metricNameDoesNotEndWithTotalSoIsNotIncluded()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
         AppType appType = AppType.P2P;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.api.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 
         String attributeName = "name";
-        MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
+        MBeanAttributeInfo[] mBeanAttributes = {
+            new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)
+        };
         MBeanInfo mBeanInfo = new MBeanInfo(null, null, mBeanAttributes, null, null, null);
 
         when(mBeanServer.getMBeanInfo(mBeanName)).thenReturn(mBeanInfo);
@@ -57,17 +62,23 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void oneMBeanOneMetricP2PApp() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void oneMBeanOneMetricP2PApp()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
         AppType appType = AppType.P2P;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 
         String attributeName = "name_total";
-        MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
+        MBeanAttributeInfo[] mBeanAttributes = {
+            new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)
+        };
         MBeanInfo mBeanInfo = new MBeanInfo(null, null, mBeanAttributes, null, null, null);
 
         when(mBeanServer.getMBeanInfo(mBeanName)).thenReturn(mBeanInfo);
@@ -80,17 +91,23 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void oneMBeanOneMetricQ2TApp() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void oneMBeanOneMetricQ2TApp()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
         AppType appType = AppType.Q2T;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=Q2TRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=Q2TRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 
         String attributeName = "name_total";
-        MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
+        MBeanAttributeInfo[] mBeanAttributes = {
+            new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)
+        };
         MBeanInfo mBeanInfo = new MBeanInfo(null, null, mBeanAttributes, null, null, null);
 
         when(mBeanServer.getMBeanInfo(mBeanName)).thenReturn(mBeanInfo);
@@ -103,17 +120,23 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void oneMBeanOneMetricAdminApp() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void oneMBeanOneMetricAdminApp()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
         AppType appType = AppType.ADMIN;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=AdminRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=AdminRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 
         String attributeName = "name_total";
-        MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
+        MBeanAttributeInfo[] mBeanAttributes = {
+            new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)
+        };
         MBeanInfo mBeanInfo = new MBeanInfo(null, null, mBeanAttributes, null, null, null);
 
         when(mBeanServer.getMBeanInfo(mBeanName)).thenReturn(mBeanInfo);
@@ -126,17 +149,23 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void oneMBeanOneMetricThirdPartyApp() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void oneMBeanOneMetricThirdPartyApp()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
         AppType appType = AppType.THIRD_PARTY;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=ThirdPartyRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=ThirdPartyRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 
         String attributeName = "name_total";
-        MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
+        MBeanAttributeInfo[] mBeanAttributes = {
+            new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)
+        };
         MBeanInfo mBeanInfo = new MBeanInfo(null, null, mBeanAttributes, null, null, null);
 
         when(mBeanServer.getMBeanInfo(mBeanName)).thenReturn(mBeanInfo);
@@ -149,17 +178,23 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void oneMBeanOneMetricEnclaveApp() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void oneMBeanOneMetricEnclaveApp()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
         AppType appType = AppType.ENCLAVE;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=EnclaveApplication,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=EnclaveApplication,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 
         String attributeName = "name_total";
-        MBeanAttributeInfo[] mBeanAttributes = {new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)};
+        MBeanAttributeInfo[] mBeanAttributes = {
+            new MBeanAttributeInfo(attributeName, "type", "desc", true, false, false)
+        };
         MBeanInfo mBeanInfo = new MBeanInfo(null, null, mBeanAttributes, null, null, null);
 
         when(mBeanServer.getMBeanInfo(mBeanName)).thenReturn(mBeanInfo);
@@ -181,12 +216,16 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void oneMBeanMultipleMetricsSomeNotAddedAsDoNotEndWithTotal() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void oneMBeanMultipleMetricsSomeNotAddedAsDoNotEndWithTotal()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName = new ObjectName("domain", "key", "value");
         names.add(mBeanName);
 
         AppType appType = AppType.P2P;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 
@@ -211,14 +250,18 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void multipleMBeansOneMetricEach() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void multipleMBeansOneMetricEach()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName1 = new ObjectName("domain1", "key1", "value1");
         ObjectName mBeanName2 = new ObjectName("domain2", "key2", "value2");
         names.add(mBeanName1);
         names.add(mBeanName2);
 
         AppType appType = AppType.P2P;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 
@@ -247,14 +290,18 @@ public class MetricsEnquirerTest {
     }
 
     @Test
-    public void multipleMBeansSomeMetricsNotAddedAsDoNotEndWithTotal() throws MalformedObjectNameException, IntrospectionException, ReflectionException, AttributeNotFoundException, MBeanException, InstanceNotFoundException {
+    public void multipleMBeansSomeMetricsNotAddedAsDoNotEndWithTotal()
+            throws MalformedObjectNameException, IntrospectionException, ReflectionException,
+                    AttributeNotFoundException, MBeanException, InstanceNotFoundException {
         ObjectName mBeanName1 = new ObjectName("domain1", "key1", "value1");
         ObjectName mBeanName2 = new ObjectName("domain2", "key2", "value2");
         names.add(mBeanName1);
         names.add(mBeanName2);
 
         AppType appType = AppType.P2P;
-        ObjectName objName = new ObjectName("org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
+        ObjectName objName =
+                new ObjectName(
+                        "org.glassfish.jersey:type=P2PRestApp,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*");
 
         when(mBeanServer.queryNames(objName, null)).thenReturn(names);
 

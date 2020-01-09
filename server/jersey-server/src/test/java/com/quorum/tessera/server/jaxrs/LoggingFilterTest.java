@@ -16,8 +16,7 @@ public class LoggingFilterTest {
 
     private LoggingFilter loggingFilter;
 
-    public LoggingFilterTest() {
-    }
+    public LoggingFilterTest() {}
 
     @Before
     public void setUp() {
@@ -33,9 +32,8 @@ public class LoggingFilterTest {
     public void filterRequest() {
         ContainerRequestContext request = mock(ContainerRequestContext.class);
         loggingFilter.filter(request);
-        //Very silly test 
+        // Very silly test
         assertThat(loggingFilter).isNotNull();
-
     }
 
     @Test
@@ -44,10 +42,9 @@ public class LoggingFilterTest {
         ContainerResponseContext response = mock(ContainerResponseContext.class);
         Response.StatusType statusInfo = mock(Response.StatusType.class);
         when(response.getStatusInfo()).thenReturn(statusInfo);
-        loggingFilter.filter(request,response);
-        
-        //Very silly test 
-        assertThat(loggingFilter).isNotNull();
+        loggingFilter.filter(request, response);
 
+        // Very silly test
+        assertThat(loggingFilter).isNotNull();
     }
 }

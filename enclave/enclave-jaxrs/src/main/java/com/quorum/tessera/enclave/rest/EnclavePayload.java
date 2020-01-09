@@ -40,5 +40,4 @@ public class EnclavePayload implements Serializable {
     public void setRecipientPublicKeys(List<byte[]> recipientPublicKeys) {
         this.recipientPublicKeys = recipientPublicKeys;
     }
-
 }

@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlMimeType;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * Used when a new transaction is to be created where this node is the sender
+ * <p>Used when a new transaction is to be created where this node is the sender
  */
 @ApiModel
 public class SendSignedRequest {

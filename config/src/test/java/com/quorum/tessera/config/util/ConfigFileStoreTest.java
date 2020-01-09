@@ -37,19 +37,17 @@ public class ConfigFileStoreTest {
     public void getReturnsSameInstance() {
         assertThat(ConfigFileStore.get()).isSameAs(configFileStore);
     }
-    
+
     @Test
     public void save() throws IOException {
-        
+
         Config config = new Config();
         config.setJdbcConfig(new JdbcConfig());
         config.getJdbcConfig().setUsername("JUNIT");
         configFileStore.save(config);
 
         Config result = JaxbUtil.unmarshal(Files.newInputStream(path), Config.class);
-        
-        assertThat(result.getJdbcConfig().getUsername()).isEqualTo("JUNIT");
-        
-    }
 
+        assertThat(result.getJdbcConfig().getUsername()).isEqualTo("JUNIT");
+    }
 }

@@ -1,6 +1,5 @@
 package com.jpmorgan.quorum.encryption.ec;
 
-
 import org.junit.Before;
 import org.junit.Test;
 

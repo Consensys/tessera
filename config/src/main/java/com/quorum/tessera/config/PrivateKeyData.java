@@ -10,14 +10,11 @@ public class PrivateKeyData extends ConfigItem {
     @XmlElement(name = "bytes")
     private String value;
 
-    @XmlElement
-    private String snonce;
+    @XmlElement private String snonce;
 
-    @XmlElement
-    private String asalt;
+    @XmlElement private String asalt;
 
-    @XmlElement
-    private String sbox;
+    @XmlElement private String sbox;
 
     @XmlElement(name = "aopts")
     private ArgonOptions argonOptions;
@@ -30,8 +27,7 @@ public class PrivateKeyData extends ConfigItem {
         this.argonOptions = argonOptions;
     }
 
-    public PrivateKeyData() {
-    }
+    public PrivateKeyData() {}
 
     public String getValue() {
         return value;
@@ -72,5 +68,4 @@ public class PrivateKeyData extends ConfigItem {
     public void setArgonOptions(ArgonOptions argonOptions) {
         this.argonOptions = argonOptions;
     }
-
 }

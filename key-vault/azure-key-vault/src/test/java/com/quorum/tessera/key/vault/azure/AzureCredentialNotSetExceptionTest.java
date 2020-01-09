@@ -13,5 +13,4 @@ public class AzureCredentialNotSetExceptionTest {
 
         assertThat(exception).hasMessage(msg);
     }
-
 }

@@ -1,8 +1,7 @@
 package com.quorum.tessera.config.util.jaxb;
 
 public enum MediaType {
-    
-    XML("application/xml"), 
+    XML("application/xml"),
     JSON("application/json");
 
     private final String value;

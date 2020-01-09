@@ -7,7 +7,8 @@ import java.io.PrintWriter;
 // This method usually returns an exit code for a given exception whilst parsing and handling commandline args
 // however, we have a different system in place to do this.
 // So here a dummy exit code is returned with access to the exception thrown
-public class CLIExceptionCapturer implements CommandLine.IExecutionExceptionHandler, CommandLine.IParameterExceptionHandler {
+public class CLIExceptionCapturer
+        implements CommandLine.IExecutionExceptionHandler, CommandLine.IParameterExceptionHandler {
 
     private Exception thrown;
 

@@ -22,7 +22,6 @@ public class ValidContentValidatorTest {
         ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
         assertThat(validator.isValid(null, context)).isTrue();
-
     }
 
     @Test
@@ -38,7 +37,6 @@ public class ValidContentValidatorTest {
         assertThat(path).doesNotExist();
 
         assertThat(validator.isValid(path, context)).isTrue();
-
     }
 
     @Test
@@ -55,7 +53,6 @@ public class ValidContentValidatorTest {
         assertThat(path).exists();
 
         assertThat(validator.isValid(path, context)).isTrue();
-
     }
 
     @Test
@@ -74,7 +71,6 @@ public class ValidContentValidatorTest {
         assertThat(path).exists();
 
         assertThat(validator.isValid(path, context)).isFalse();
-
     }
 
     @Test
@@ -94,7 +90,6 @@ public class ValidContentValidatorTest {
         assertThat(path).exists();
 
         assertThat(validator.isValid(path, context)).isTrue();
-
     }
 
     @Test
@@ -109,14 +104,13 @@ public class ValidContentValidatorTest {
         final ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
         Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Files.write(path, Arrays.asList("SOMEDATA","SOMEMOREDATA"));
-        
+        Files.write(path, Arrays.asList("SOMEDATA", "SOMEMOREDATA"));
+
         assertThat(path).exists();
 
         assertThat(validator.isValid(path, context)).isFalse();
-
     }
-    
+
     @Test
     public void emptyLine() throws Exception {
         ValidContentValidator validator = new ValidContentValidator();
@@ -130,11 +124,9 @@ public class ValidContentValidatorTest {
 
         Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
         Files.write(path, Arrays.asList(""));
-        
+
         assertThat(path).exists();
 
         assertThat(validator.isValid(path, context)).isFalse();
-
     }
-
 }

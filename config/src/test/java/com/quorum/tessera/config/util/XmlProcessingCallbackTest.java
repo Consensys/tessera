@@ -13,30 +13,32 @@ public class XmlProcessingCallbackTest {
     public void execute() {
         XmlProcessingCallback<String> callback = () -> "HELLO";
         assertThat(XmlProcessingCallback.execute(callback)).isEqualTo("HELLO");
-
     }
 
     @Test(expected = ConfigException.class)
     public void executeThrowsIOException() {
-        XmlProcessingCallback callback = () -> {
-            throw new IOException();
-        };
+        XmlProcessingCallback callback =
+                () -> {
+                    throw new IOException();
+                };
         XmlProcessingCallback.execute(callback);
     }
 
     @Test(expected = ConfigException.class)
     public void executeThrowsJAXBException() {
-        XmlProcessingCallback callback = () -> {
-            throw new JAXBException("");
-        };
+        XmlProcessingCallback callback =
+                () -> {
+                    throw new JAXBException("");
+                };
         XmlProcessingCallback.execute(callback);
     }
 
     @Test(expected = ConfigException.class)
     public void executeThrowsTransformerException() {
-        XmlProcessingCallback callback = () -> {
-            throw new TransformerException("");
-        };
+        XmlProcessingCallback callback =
+                () -> {
+                    throw new TransformerException("");
+                };
         XmlProcessingCallback.execute(callback);
     }
 }

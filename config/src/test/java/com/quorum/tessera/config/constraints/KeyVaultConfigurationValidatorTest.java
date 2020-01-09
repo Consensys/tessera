@@ -26,7 +26,8 @@ public class KeyVaultConfigurationValidatorTest {
     public void setUp() {
         context = mock(ConstraintValidatorContext.class);
 
-        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        ConstraintValidatorContext.ConstraintViolationBuilder builder =
+                mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
         when(context.buildConstraintViolationWithTemplate(any(String.class))).thenReturn(builder);
 
         validator = new KeyVaultConfigurationValidator();
@@ -338,5 +339,4 @@ public class KeyVaultConfigurationValidatorTest {
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
         verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}");
     }
-
 }

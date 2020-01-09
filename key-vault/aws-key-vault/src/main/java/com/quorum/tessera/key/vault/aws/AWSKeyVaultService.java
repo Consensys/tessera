@@ -22,9 +22,7 @@ public class AWSKeyVaultService implements KeyVaultService<AWSSetSecretData, AWS
     @Override
     public String getSecret(AWSGetSecretData getSecretData) {
         GetSecretValueRequest getSecretValueRequest =
-                GetSecretValueRequest.builder()
-                        .secretId(getSecretData.getSecretName())
-                        .build();
+                GetSecretValueRequest.builder().secretId(getSecretData.getSecretName()).build();
         GetSecretValueResponse secretValueResponse;
 
         try {

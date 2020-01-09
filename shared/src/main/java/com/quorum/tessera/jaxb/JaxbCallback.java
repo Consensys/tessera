@@ -15,5 +15,4 @@ public interface JaxbCallback<T> {
             throw new DataBindingException(ex);
         }
     }
-
 }

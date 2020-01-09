@@ -21,5 +21,4 @@ public class EncryptorExceptionTest {
         assertThat(exception).hasNoCause();
         assertThat(exception.getMessage()).isNull();
     }
-
 }

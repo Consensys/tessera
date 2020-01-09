@@ -54,7 +54,6 @@ public class UnixSocketFileSystemProviderTest {
 
         URI u = URI.create("file:/bogus.ipc");
         verify(delegate).newFileSystem(u, env);
-
     }
 
     @Test
@@ -63,7 +62,6 @@ public class UnixSocketFileSystemProviderTest {
         provider.getFileSystem(uri);
         URI u = URI.create("file:/bogus.ipc");
         verify(delegate).getFileSystem(u);
-
     }
 
     @Test
@@ -73,5 +71,4 @@ public class UnixSocketFileSystemProviderTest {
         URI u = URI.create("file:/bogus.ipc");
         verify(delegate).getPath(u);
     }
-
 }

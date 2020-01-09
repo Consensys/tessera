@@ -1,7 +1,6 @@
 package com.quorum.tessera.data.migration;
 
 public enum StoreType {
-
     BDB(new BdbDumpFile()),
     DIR(new DirectoryStoreFile()),
     SQLITE(new SqliteLoader());
@@ -15,5 +14,4 @@ public enum StoreType {
     public StoreLoader getLoader() {
         return this.loader;
     }
-
 }

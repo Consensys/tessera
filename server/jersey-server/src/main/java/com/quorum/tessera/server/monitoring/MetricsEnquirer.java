@@ -23,11 +23,15 @@ public class MetricsEnquirer {
         try {
             mBeanNames = getTesseraResourceMBeanNames(appType);
 
-            for(ObjectName mBeanName : mBeanNames) {
+            for (ObjectName mBeanName : mBeanNames) {
                 List<MBeanMetric> temp;
                 try {
                     temp = getMetricsForMBean(mBeanName);
-                } catch (AttributeNotFoundException | MBeanException | InstanceNotFoundException | ReflectionException | IntrospectionException e) {
+                } catch (AttributeNotFoundException
+                        | MBeanException
+                        | InstanceNotFoundException
+                        | ReflectionException
+                        | IntrospectionException e) {
                     throw new RuntimeException(e);
                 }
                 mBeanMetrics.addAll(temp);
@@ -42,7 +46,7 @@ public class MetricsEnquirer {
 
     private Set<ObjectName> getTesseraResourceMBeanNames(AppType appType) throws MalformedObjectNameException {
         final String type;
-        switch(appType) {
+        switch (appType) {
             case P2P:
                 type = "P2PRestApp";
                 break;
@@ -62,19 +66,24 @@ public class MetricsEnquirer {
                 throw new MonitoringNotSupportedException(appType);
         }
 
-        String pattern = String.format("org.glassfish.jersey:type=%s,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*", type);
+        String pattern =
+                String.format(
+                        "org.glassfish.jersey:type=%s,subType=Resources,resource=com.quorum.tessera.*,executionTimes=RequestTimes,detail=methods,method=*",
+                        type);
         return Collections.unmodifiableSet(this.mBeanServer.queryNames(new ObjectName(pattern), null));
     }
 
-    private List<MBeanMetric> getMetricsForMBean(ObjectName mBeanName) throws AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException, IntrospectionException {
+    private List<MBeanMetric> getMetricsForMBean(ObjectName mBeanName)
+            throws AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException,
+                    IntrospectionException {
         List<MBeanMetric> mBeanMetrics = new ArrayList<>();
 
         MBeanAttributeInfo[] mBeanAttributes = this.mBeanServer.getMBeanInfo(mBeanName).getAttributes();
 
-        for(MBeanAttributeInfo mBeanAttribute : mBeanAttributes) {
+        for (MBeanAttributeInfo mBeanAttribute : mBeanAttributes) {
             String attributeName = mBeanAttribute.getName();
 
-            if(attributeName.endsWith("total")) {
+            if (attributeName.endsWith("total")) {
                 String resourceMethod = mBeanName.getKeyProperty("method");
                 String value = mBeanServer.getAttribute(mBeanName, attributeName).toString();
                 MBeanResourceMetric metric = new MBeanResourceMetric(resourceMethod, attributeName, value);

@@ -6,7 +6,8 @@ import java.util.concurrent.Callable;
 
 /**
  * This is a command that is intended to not be a <main class> command, and gets attached as a subcommand to other CLI
- * adapters.  Its setup mimics that of the AdminCliAdapter subcommand and should be used in cases where testing CLI args containing "admin" are handled correctly.
+ * adapters. Its setup mimics that of the AdminCliAdapter subcommand and should be used in cases where testing CLI args
+ * containing "admin" are handled correctly.
  */
 @CommandLine.Command(name = "admin")
 public class MockAdminSubcommandCliAdapter implements CliAdapter, Callable<CliResult> {

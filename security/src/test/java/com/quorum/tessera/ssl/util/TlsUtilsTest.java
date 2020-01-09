@@ -21,7 +21,9 @@ public class TlsUtilsTest {
     private static final String ALIAS = "tessera";
 
     @Test
-    public void testGenerateKeys() throws OperatorCreationException, InvalidKeyException, NoSuchAlgorithmException, IOException, SignatureException, NoSuchProviderException, CertificateException, KeyStoreException {
+    public void testGenerateKeys()
+            throws OperatorCreationException, InvalidKeyException, NoSuchAlgorithmException, IOException,
+                    SignatureException, NoSuchProviderException, CertificateException, KeyStoreException {
 
         final Path privateKeyFile = Files.createTempFile("privatekey", ".tmp");
         Files.deleteIfExists(privateKeyFile);
@@ -32,7 +34,7 @@ public class TlsUtilsTest {
 
         assertThat(Files.exists(privateKeyFile)).isTrue();
 
-        //Read keystore from created file
+        // Read keystore from created file
         final KeyStore keyStore = KeyStore.getInstance("JKS");
 
         try (InputStream in = Files.newInputStream(privateKeyFile)) {
@@ -46,9 +48,12 @@ public class TlsUtilsTest {
         assertThat(certificate).isNotNull();
         assertThat(certificate).isInstanceOf(X509Certificate.class);
         assertThat(((X509Certificate) certificate))
-            .extracting("info").isNotNull()
-            .extracting("issuer").isNotNull()
-            .extracting("names").size().isEqualTo(1);
-
+                .extracting("info")
+                .isNotNull()
+                .extracting("issuer")
+                .isNotNull()
+                .extracting("names")
+                .size()
+                .isEqualTo(1);
     }
 }

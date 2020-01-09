@@ -410,7 +410,7 @@ public class HashicorpStepDefs implements En {
                     createTempTesseraConfig();
 
                     final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
-                   // JaxbUtil.marshalWithNoValidation(config, System.out);
+                    // JaxbUtil.marshalWithNoValidation(config, System.out);
                     assertThat(config).isNotNull();
                 });
 

@@ -472,14 +472,13 @@ public class PicoCliDelegateTest {
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.isSuppressStartup()).isFalse();
-
     }
 
     @Test
     public void withValidConfigAndUnmatchableDynamicOptionWithValue() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus","bogus value");
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus", "bogus value");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -487,14 +486,15 @@ public class PicoCliDelegateTest {
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.isSuppressStartup()).isFalse();
-
     }
 
     @Test
     public void withValidConfigAndJdbcOverides() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
+        CliResult result =
+                cliDelegate.execute(
+                        "-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();

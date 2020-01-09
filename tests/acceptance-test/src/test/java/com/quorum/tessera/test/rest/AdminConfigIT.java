@@ -24,32 +24,27 @@ public class AdminConfigIT {
 
         Party party = partyHelper.getParties().findAny().get();
 
-        String url = "http://"+ UUID.randomUUID().toString().replaceAll("-", "");
+        String url = "http://" + UUID.randomUUID().toString().replaceAll("-", "");
 
         Peer peer = new Peer(url);
 
-        Response response = client.target(party.getAdminUri())
-            .path("config")
-            .path("peers")
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON)
-            .put(Entity.entity(peer, MediaType.APPLICATION_JSON));
-
+        Response response =
+                client.target(party.getAdminUri())
+                        .path("config")
+                        .path("peers")
+                        .request(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON)
+                        .put(Entity.entity(peer, MediaType.APPLICATION_JSON));
 
         assertThat(response.getStatus()).isEqualTo(201);
 
         URI location = response.getLocation();
 
-        Response queryResponse = client.target(location)
-            .request(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON).get();
+        Response queryResponse =
+                client.target(location).request(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON).get();
 
         assertThat(queryResponse.getStatus()).isEqualTo(200);
 
         assertThat(queryResponse.readEntity(Peer.class)).isEqualTo(peer);
-
-
     }
-
-
 }

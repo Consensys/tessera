@@ -14,7 +14,8 @@ public class HashicorpSetSecretDataTest {
 
     @Before
     public void setUp() {
-        this.setSecretData = new HashicorpSetSecretData("secret", "secretName", Collections.singletonMap("name", "value"));
+        this.setSecretData =
+                new HashicorpSetSecretData("secret", "secretName", Collections.singletonMap("name", "value"));
     }
 
     @Test
@@ -28,5 +29,4 @@ public class HashicorpSetSecretDataTest {
     public void getType() {
         assertThat(setSecretData.getType()).isEqualTo(KeyVaultType.HASHICORP);
     }
-
 }

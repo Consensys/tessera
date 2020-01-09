@@ -28,5 +28,4 @@ public @interface ValidBase64 {
     @interface List {
         ValidBase64[] value();
     }
-
 }

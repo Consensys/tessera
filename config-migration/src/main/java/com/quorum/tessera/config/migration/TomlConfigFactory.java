@@ -32,16 +32,18 @@ public class TomlConfigFactory {
         Toml toml = new Toml().read(configData);
         toml.toMap().forEach((key, value) -> LOGGER.debug("Found entry in toml file : {} {}", key, value));
 
-        final String urlWithoutPort = Optional
-            .ofNullable(toml.getString("url"))
-            .map(url -> {
-                try {
-                    return new URL(url);
-                } catch (final MalformedURLException e) {
-                    throw new RuntimeException("Bad server url given: " + e.getMessage());
-                }
-            }).map(uri -> uri.getProtocol() + "://" + uri.getHost())
-            .orElse(null);
+        final String urlWithoutPort =
+                Optional.ofNullable(toml.getString("url"))
+                        .map(
+                                url -> {
+                                    try {
+                                        return new URL(url);
+                                    } catch (final MalformedURLException e) {
+                                        throw new RuntimeException("Bad server url given: " + e.getMessage());
+                                    }
+                                })
+                        .map(uri -> uri.getProtocol() + "://" + uri.getHost())
+                        .orElse(null);
 
         final Integer port = Optional.ofNullable(toml.getLong("port")).map(Long::intValue).orElse(0);
 
@@ -73,17 +75,18 @@ public class TomlConfigFactory {
         final Optional<List<String>> tlsclientchainnames = Optional.of(toml.getList("tlsclientchain", emptyList()));
         final Optional<String> tlsknownservers = Optional.ofNullable(toml.getString("tlsknownservers"));
 
-        ConfigBuilder configBuilder = ConfigBuilder.create()
-            .serverPort(port)
-            .serverHostname(urlWithoutPort)
-            .unixSocketFile(socket)
-            .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
-            .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
-            .sslClientTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsclienttrust))
-            .peers(othernodes)
-            .alwaysSendTo(alwaysSendToKeyPaths)
-            .useWhiteList(useWhiteList)
-            .workdir(workdir);
+        ConfigBuilder configBuilder =
+                ConfigBuilder.create()
+                        .serverPort(port)
+                        .serverHostname(urlWithoutPort)
+                        .unixSocketFile(socket)
+                        .sslAuthenticationMode(SslAuthenticationMode.valueOf(tls))
+                        .sslServerTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsservertrust))
+                        .sslClientTrustMode(SslTrustModeFactory.resolveByLegacyValue(tlsclienttrust))
+                        .peers(othernodes)
+                        .alwaysSendTo(alwaysSendToKeyPaths)
+                        .useWhiteList(useWhiteList)
+                        .workdir(workdir);
 
         tlsserverkey.ifPresent(configBuilder::sslServerTlsKeyPath);
         tlsservercert.ifPresent(configBuilder::sslServerTlsCertificatePath);
@@ -95,8 +98,8 @@ public class TomlConfigFactory {
         tlsknownservers.ifPresent(configBuilder::sslKnownServersFile);
 
         Optional.ofNullable(storage)
-            .map(JdbcConfigFactory::fromLegacyStorageString)
-            .ifPresent(configBuilder::jdbcConfig);
+                .map(JdbcConfigFactory::fromLegacyStorageString)
+                .ifPresent(configBuilder::jdbcConfig);
 
         return configBuilder;
     }
@@ -113,9 +116,9 @@ public class TomlConfigFactory {
         final String workdir = toml.getString("workdir");
 
         return KeyDataBuilder.create()
-            .withPublicKeys(publicKeyList)
-            .withPrivateKeys(privateKeyList)
-            .withPrivateKeyPasswordFile(pwd)
-            .withWorkingDirectory(workdir);
+                .withPublicKeys(publicKeyList)
+                .withPrivateKeys(privateKeyList)
+                .withPrivateKeyPasswordFile(pwd)
+                .withWorkingDirectory(workdir);
     }
 }

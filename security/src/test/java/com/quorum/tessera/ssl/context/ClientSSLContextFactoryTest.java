@@ -46,10 +46,9 @@ public class ClientSSLContextFactoryTest {
         when(config.getClientTrustStorePassword()).thenReturn("password");
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        SSLContext result = ClientSSLContextFactory.create().from("localhost",config);
+        SSLContext result = ClientSSLContextFactory.create().from("localhost", config);
 
         assertThat(result).isNotNull();
-
     }
 
     @Test
@@ -63,14 +62,21 @@ public class ClientSSLContextFactoryTest {
         when(config.getClientKeyStorePassword()).thenReturn("password");
         when(config.getKnownServersFile()).thenReturn(null);
 
-        SSLContext result = ClientSSLContextFactory.create().from("localhost",config);
+        SSLContext result = ClientSSLContextFactory.create().from("localhost", config);
 
-        assertThat(result).isNotNull()
-            .extracting("contextSpi").isNotNull()
-            .extracting("trustManager").isNotNull()
-            .extracting("tm").isNotNull()
-            .hasAtLeastOneElementOfType(TrustOnFirstUseManager.class)
-            .extracting("knownHostsFile").asList().first().isEqualTo(Paths.get("knownServers"));
+        assertThat(result)
+                .isNotNull()
+                .extracting("contextSpi")
+                .isNotNull()
+                .extracting("trustManager")
+                .isNotNull()
+                .extracting("tm")
+                .isNotNull()
+                .hasAtLeastOneElementOfType(TrustOnFirstUseManager.class)
+                .extracting("knownHostsFile")
+                .asList()
+                .first()
+                .isEqualTo(Paths.get("knownServers"));
     }
 
     @Test
@@ -152,7 +158,8 @@ public class ClientSSLContextFactoryTest {
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(configVal);
         when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
         String result = factory.getClientKeyStorePassword(sslConfig);
 
@@ -171,7 +178,8 @@ public class ClientSSLContextFactoryTest {
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(null);
         when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
         String result = factory.getClientKeyStorePassword(sslConfig);
 
@@ -191,7 +199,8 @@ public class ClientSSLContextFactoryTest {
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(configVal);
         when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
         String result = factory.getClientKeyStorePassword(sslConfig);
 
@@ -243,7 +252,8 @@ public class ClientSSLContextFactoryTest {
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(null);
         when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(password);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(password);
 
         String result = factory.getClientTrustStorePassword(sslConfig);
 
@@ -280,7 +290,8 @@ public class ClientSSLContextFactoryTest {
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(configVal);
         when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
         String result = factory.getClientTrustStorePassword(sslConfig);
 
@@ -299,7 +310,8 @@ public class ClientSSLContextFactoryTest {
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(null);
         when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
         String result = factory.getClientTrustStorePassword(sslConfig);
 
@@ -319,7 +331,8 @@ public class ClientSSLContextFactoryTest {
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(configVal);
         when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
         String result = factory.getClientTrustStorePassword(sslConfig);
 
@@ -340,7 +353,6 @@ public class ClientSSLContextFactoryTest {
         when(config.getClientTrustStorePassword()).thenReturn("password");
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        ClientSSLContextFactory.create().from("localhost",config);
-
+        ClientSSLContextFactory.create().from("localhost", config);
     }
 }

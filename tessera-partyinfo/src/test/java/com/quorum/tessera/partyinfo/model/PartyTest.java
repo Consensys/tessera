@@ -12,7 +12,6 @@ public class PartyTest {
         final Party party = new Party("someurl");
 
         assertThat(party.toString()).contains("someurl");
-
     }
 
     @Test
@@ -20,5 +19,4 @@ public class PartyTest {
         final Party party = new Party("http://someurl.com");
         assertThat(party.getUrl()).isEqualTo("http://someurl.com/");
     }
-
 }

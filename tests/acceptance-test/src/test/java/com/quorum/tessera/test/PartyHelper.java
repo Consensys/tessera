@@ -23,11 +23,9 @@ public interface PartyHelper {
                 .filter(p -> p.getPublicKey().equals(publicKey))
                 .findAny()
                 .orElseThrow(() -> new RuntimeException("No party found with publicKey " + publicKey));
-
     }
 
     static PartyHelper create() {
         return new DefaultPartyHelper();
     }
-
 }

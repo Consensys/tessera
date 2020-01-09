@@ -1,13 +1,10 @@
-
 package com.quorum.tessera.config.keys;
 
 import java.util.Optional;
 
-
 public enum KeyEncryptorHolder {
-    
     INSTANCE;
-    
+
     private KeyEncryptor keyEncryptor;
 
     public Optional<KeyEncryptor> getKeyEncryptor() {
@@ -17,5 +14,4 @@ public enum KeyEncryptorHolder {
     public void setKeyEncryptor(KeyEncryptor keyEncryptor) {
         this.keyEncryptor = keyEncryptor;
     }
-
 }

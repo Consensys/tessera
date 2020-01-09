@@ -5,5 +5,4 @@ public class VaultSecretNotFoundException extends RuntimeException {
     public VaultSecretNotFoundException(String message) {
         super(message);
     }
-
 }

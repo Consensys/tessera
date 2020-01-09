@@ -60,5 +60,4 @@ public class KeyValueOperationsDelegateTest {
 
         assertThat(result).isEqualTo(metadata);
     }
-
 }

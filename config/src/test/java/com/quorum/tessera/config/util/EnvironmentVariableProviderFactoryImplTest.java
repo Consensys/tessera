@@ -12,5 +12,4 @@ public class EnvironmentVariableProviderFactoryImplTest {
 
         assertThat(factory.create()).isExactlyInstanceOf(EnvironmentVariableProvider.class);
     }
-
 }

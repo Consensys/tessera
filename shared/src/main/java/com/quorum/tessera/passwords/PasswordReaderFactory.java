@@ -8,12 +8,10 @@ public class PasswordReaderFactory {
 
         final Console console = System.console();
 
-        if(console == null) {
+        if (console == null) {
             return new InputStreamPasswordReader(System.in);
         } else {
             return new ConsolePasswordReader(console);
         }
-
     }
-
 }

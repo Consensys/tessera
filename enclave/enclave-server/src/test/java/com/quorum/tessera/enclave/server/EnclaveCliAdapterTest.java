@@ -32,9 +32,9 @@ public class EnclaveCliAdapterTest {
 
         commandLine = new CommandLine(new EnclaveCliAdapter());
         commandLine
-            .registerConverter(Config.class, new ConfigConverter())
-            .setSeparator(" ")
-            .setCaseInsensitiveEnumValuesAllowed(true);
+                .registerConverter(Config.class, new ConfigConverter())
+                .setSeparator(" ")
+                .setCaseInsensitiveEnumValuesAllowed(true);
     }
 
     @After
@@ -55,7 +55,7 @@ public class EnclaveCliAdapterTest {
         final String output = systemErrOutput.getLog();
 
         assertThat(result).isNull();
-//        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
+        //        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
         assertThat(output).contains("Missing required option '-configfile <config>'");
     }
 
@@ -66,7 +66,7 @@ public class EnclaveCliAdapterTest {
 
         final String output = systemOutOutput.getLog();
 
-//        assertThat(result).isEqualToComparingFieldByField(new CliResult(0, true, null));
+        //        assertThat(result).isEqualToComparingFieldByField(new CliResult(0, true, null));
         assertThat(result).isNull();
         assertThat(output)
                 .contains(

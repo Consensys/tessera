@@ -72,8 +72,8 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
             if (!this.validateKeysToUrls(existingPartyInfo, partyInfo)) {
                 LOGGER.warn(
-                        "Attempt is being made to update existing key with new url. " +
-                            "Please switch on remote key validation to avoid a security breach.");
+                        "Attempt is being made to update existing key with new url. "
+                                + "Please switch on remote key validation to avoid a security breach.");
             }
         }
 

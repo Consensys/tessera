@@ -4,10 +4,8 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/**
- * Converts a String to a Path object for JAXB de/serialisation
- */
-public class PathAdapter extends XmlAdapter<String,Path> {
+/** Converts a String to a Path object for JAXB de/serialisation */
+public class PathAdapter extends XmlAdapter<String, Path> {
 
     @Override
     public Path unmarshal(final String input) {
@@ -18,5 +16,4 @@ public class PathAdapter extends XmlAdapter<String,Path> {
     public String marshal(final Path input) {
         return (input == null) ? null : input.toAbsolutePath().toString();
     }
-
 }

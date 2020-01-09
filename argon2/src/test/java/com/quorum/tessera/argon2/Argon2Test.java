@@ -61,8 +61,8 @@ public class Argon2Test {
         final Throwable throwable = catchThrowable(() -> this.argon2.hash(invalidOptions, "password", salt));
 
         assertThat(throwable)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Invalid Argon2 algorithm invalid");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Invalid Argon2 algorithm invalid");
     }
 
     @Test
@@ -77,7 +77,6 @@ public class Argon2Test {
         final ArgonResult hashTwo = argon2.hash(TEST_OPTIONS, "password", saltTwo);
 
         assertThat(hashOne.getHash()).isNotEqualTo(hashTwo.getHash());
-
     }
 
     @Test
@@ -91,7 +90,6 @@ public class Argon2Test {
         final ArgonResult hashTwo = argon2.hash(TEST_OPTIONS, "password", saltTwo);
 
         assertThat(hashOne.getHash()).isEqualTo(hashTwo.getHash());
-
     }
 
     @Test
@@ -105,7 +103,5 @@ public class Argon2Test {
         final ArgonResult hashOne = argon2.hash(options, "password", saltOne);
 
         assertThat(hashOne.getOptions().getAlgorithm()).isEqualTo(options.getAlgorithm());
-
     }
-
 }

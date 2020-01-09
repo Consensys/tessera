@@ -15,7 +15,6 @@ public class JdbcConfigFactoryTest {
         assertThat(jdbcConfig.getUrl()).isEqualTo("jdbc:sqlite:somepath");
         assertThat(jdbcConfig.getUsername()).isNull();
         assertThat(jdbcConfig.getPassword()).isNull();
-
     }
 
     @Test
@@ -26,7 +25,6 @@ public class JdbcConfigFactoryTest {
         assertThat(jdbcConfig.getUrl()).isEqualTo("jdbc:h2:mem:tessera");
         assertThat(jdbcConfig.getUsername()).isNull();
         assertThat(jdbcConfig.getPassword()).isNull();
-
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -42,10 +40,9 @@ public class JdbcConfigFactoryTest {
         assertThat(jdbcConfig.getUsername()).isNull();
         assertThat(jdbcConfig.getPassword()).isNull();
     }
-    
+
     @Test(expected = UnsupportedOperationException.class)
     public void unknownIsNotSupported() {
         JdbcConfigFactory.fromLegacyStorageString("unknown");
     }
-
 }

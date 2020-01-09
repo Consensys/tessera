@@ -15,20 +15,17 @@ public class KeyPairTest {
     public void differentPublicKeysAreNotEqual() {
         final KeyPair keyPair = new KeyPair(TEST_KEY, PRIVATE_KEY);
 
-        assertThat(keyPair).isNotEqualTo(
-            new KeyPair(PublicKey.from("other".getBytes(UTF_8)), PRIVATE_KEY)
-        );
+        assertThat(keyPair).isNotEqualTo(new KeyPair(PublicKey.from("other".getBytes(UTF_8)), PRIVATE_KEY));
     }
 
     @Test
     public void equalHashCodeTest() {
         final KeyPair keyPair = new KeyPair(TEST_KEY, PRIVATE_KEY);
 
-        assertThat(keyPair).isEqualTo(new KeyPair(TEST_KEY, PRIVATE_KEY))
+        assertThat(keyPair)
+                .isEqualTo(new KeyPair(TEST_KEY, PRIVATE_KEY))
                 .hasSameHashCodeAs(new KeyPair(TEST_KEY, PRIVATE_KEY));
-
     }
-
 
     @Test
     public void getters() {
@@ -37,5 +34,4 @@ public class KeyPairTest {
         assertThat(keyPair.getPrivateKey()).isSameAs(PRIVATE_KEY);
         assertThat(keyPair.getPublicKey()).isSameAs(TEST_KEY);
     }
-
 }

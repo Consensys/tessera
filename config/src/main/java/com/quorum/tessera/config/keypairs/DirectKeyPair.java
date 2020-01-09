@@ -37,13 +37,12 @@ public class DirectKeyPair implements ConfigKeyPair {
 
     @Override
     public void withPassword(final String password) {
-        //no need to keep a password for this key type
+        // no need to keep a password for this key type
     }
 
     @Override
     public String getPassword() {
-        //no password to return
+        // no password to return
         return "";
     }
-
 }

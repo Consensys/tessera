@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * Contains information that is used to delete a transaction
+ * <p>Contains information that is used to delete a transaction
  */
 @ApiModel
 public class DeleteRequest {
@@ -25,5 +25,4 @@ public class DeleteRequest {
     public void setKey(final String key) {
         this.key = key;
     }
-
 }

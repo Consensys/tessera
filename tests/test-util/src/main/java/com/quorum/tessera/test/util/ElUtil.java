@@ -24,14 +24,15 @@ public class ElUtil {
 
     public static InputStream process(InputStream inputStream, Map<String, ?> parameters) {
 
-        String data = Stream.of(inputStream)
-                .map(InputStreamReader::new)
-                .map(BufferedReader::new)
-                .flatMap(BufferedReader::lines).collect(Collectors.joining(System.lineSeparator()));
+        String data =
+                Stream.of(inputStream)
+                        .map(InputStreamReader::new)
+                        .map(BufferedReader::new)
+                        .flatMap(BufferedReader::lines)
+                        .collect(Collectors.joining(System.lineSeparator()));
         String result = process(data, parameters);
 
         return new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8));
-
     }
 
     public static String process(String data, Map<String, ?> parameters) {
@@ -40,20 +41,21 @@ public class ElUtil {
         parameters.entrySet().forEach(e -> eLProcessor.defineBean(e.getKey(), e.getValue()));
 
         ELContext eLContext = eLProcessor.getELManager().getELContext();
-        ValueExpression valueExpression = ExpressionFactory.newInstance()
-                .createValueExpression(eLContext, data, String.class);
+        ValueExpression valueExpression =
+                ExpressionFactory.newInstance().createValueExpression(eLContext, data, String.class);
         return (String) valueExpression.getValue(eLContext);
     }
 
     public static Path createTempFileFromTemplate(URL template, Map<String, ?> parameters) {
-        
+
         try (InputStream in = process(template.openStream(), parameters)) {
 
-            String data = Stream.of(in)
-                    .map(InputStreamReader::new)
-                    .map(BufferedReader::new)
-                    .flatMap(BufferedReader::lines)
-                    .collect(Collectors.joining(System.lineSeparator()));
+            String data =
+                    Stream.of(in)
+                            .map(InputStreamReader::new)
+                            .map(BufferedReader::new)
+                            .flatMap(BufferedReader::lines)
+                            .collect(Collectors.joining(System.lineSeparator()));
 
             Path file = Files.createTempFile(UUID.randomUUID().toString(), ".txt");
             file.toFile().deleteOnExit();
@@ -75,7 +77,7 @@ public class ElUtil {
 
         return ElUtil.createTempFileFromTemplate(template, params);
     }
-    
+
     public static Path createAndPopulatePaths(Path template) throws IOException {
 
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");

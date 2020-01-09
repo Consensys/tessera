@@ -16,20 +16,15 @@ public class NonceTest {
     public void pojo() {
         EqualsVerifier.configure().suppress(STRICT_INHERITANCE).forClass(Nonce.class).verify();
 
-        ValidatorBuilder.create()
-            .with(new GetterTester())
-            .build()
-            .validate(PojoClassFactory.getPojoClass(Nonce.class));
-
+        ValidatorBuilder.create().with(new GetterTester()).build().validate(PojoClassFactory.getPojoClass(Nonce.class));
     }
 
     @Test
     public void toStringGivesCorrectOutput() {
-        final Nonce nonce = new Nonce(new byte[]{5, 6, 7});
+        final Nonce nonce = new Nonce(new byte[] {5, 6, 7});
 
         final String toString = nonce.toString();
 
         assertThat(toString).isEqualTo("[5, 6, 7]");
     }
-
 }

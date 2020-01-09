@@ -18,37 +18,32 @@ import static org.mockito.Mockito.doThrow;
 
 public class CompositeTrustManagerTest {
 
-    @Mock
-    X509TrustManager x509TrustManager;
+    @Mock X509TrustManager x509TrustManager;
 
-    @Mock
-    TrustOnFirstUseManager trustOnFirstUseManager;
+    @Mock TrustOnFirstUseManager trustOnFirstUseManager;
 
-    @Mock
-    X509Certificate certificate;
+    @Mock X509Certificate certificate;
 
     private CompositeTrustManager trustManager;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        trustManager = new CompositeTrustManager(new TrustManager[]{
-            x509TrustManager, trustOnFirstUseManager
-        });
+        trustManager = new CompositeTrustManager(new TrustManager[] {x509TrustManager, trustOnFirstUseManager});
     }
 
     @Test
     public void testCheckServerTrustedByCA() throws CertificateException {
         doNothing().when(x509TrustManager).checkServerTrusted(any(), any());
         doThrow(new CertificateException("TOFU FAILED")).when(trustOnFirstUseManager).checkServerTrusted(any(), any());
-        trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
+        trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "s");
     }
 
     @Test
     public void testCheckServerTrustedByTOFU() throws CertificateException {
         doNothing().when(trustOnFirstUseManager).checkServerTrusted(any(), any());
         doThrow(new CertificateException("CA FAILED")).when(x509TrustManager).checkServerTrusted(any(), any());
-        trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
+        trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "s");
     }
 
     @Test
@@ -56,10 +51,9 @@ public class CompositeTrustManagerTest {
         doThrow(new CertificateException("TOFU FAILED")).when(trustOnFirstUseManager).checkServerTrusted(any(), any());
         doThrow(new CertificateException("CA FAILED")).when(x509TrustManager).checkServerTrusted(any(), any());
         try {
-            trustManager.checkServerTrusted(new X509Certificate[]{certificate}, "s");
+            trustManager.checkServerTrusted(new X509Certificate[] {certificate}, "s");
             failBecauseExceptionWasNotThrown(Exception.class);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             assertThat(ex).isInstanceOf(CertificateException.class);
         }
     }
@@ -68,14 +62,14 @@ public class CompositeTrustManagerTest {
     public void testCheckClientTrustedByCA() throws CertificateException {
         doNothing().when(x509TrustManager).checkClientTrusted(any(), any());
         doThrow(new CertificateException("TOFU FAILED")).when(trustOnFirstUseManager).checkClientTrusted(any(), any());
-        trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
+        trustManager.checkClientTrusted(new X509Certificate[] {certificate}, "s");
     }
 
     @Test
     public void testCheckClientTrustedByTOFU() throws CertificateException {
         doNothing().when(trustOnFirstUseManager).checkClientTrusted(any(), any());
         doThrow(new CertificateException("CA FAILED")).when(x509TrustManager).checkClientTrusted(any(), any());
-        trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
+        trustManager.checkClientTrusted(new X509Certificate[] {certificate}, "s");
     }
 
     @Test
@@ -83,10 +77,9 @@ public class CompositeTrustManagerTest {
         doThrow(new CertificateException("TOFU FAILED")).when(trustOnFirstUseManager).checkClientTrusted(any(), any());
         doThrow(new CertificateException("CA FAILED")).when(x509TrustManager).checkClientTrusted(any(), any());
         try {
-            trustManager.checkClientTrusted(new X509Certificate[]{certificate}, "s");
+            trustManager.checkClientTrusted(new X509Certificate[] {certificate}, "s");
             failBecauseExceptionWasNotThrown(Exception.class);
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             assertThat(ex).isInstanceOf(CertificateException.class);
         }
     }
@@ -95,5 +88,4 @@ public class CompositeTrustManagerTest {
     public void testGetAcceptIssuers() {
         assertThat(trustManager.getAcceptedIssuers()).isEmpty();
     }
-
 }

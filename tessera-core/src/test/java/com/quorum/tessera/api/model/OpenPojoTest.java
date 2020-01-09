@@ -10,25 +10,20 @@ import org.junit.Test;
 
 public class OpenPojoTest {
 
-    public OpenPojoTest() {
-    }
-
-
+    public OpenPojoTest() {}
 
     @Test
     public void executeOpenPojoValidations() {
 
-        Validator pojoValidator = ValidatorBuilder.create()
-                .with(new GetterMustExistRule())
-                .with(new SetterMustExistRule())
-                .with(new SetterTester())
-                .with(new GetterTester())
-                .build();
+        Validator pojoValidator =
+                ValidatorBuilder.create()
+                        .with(new GetterMustExistRule())
+                        .with(new SetterMustExistRule())
+                        .with(new SetterTester())
+                        .with(new GetterTester())
+                        .build();
 
-        pojoValidator.validate(getClass().getPackage().getName(),
-            (pc) -> !pc.getClazz().isAssignableFrom(StoreRawRequest.class));
-
+        pojoValidator.validate(
+                getClass().getPackage().getName(), (pc) -> !pc.getClazz().isAssignableFrom(StoreRawRequest.class));
     }
-
-    
 }

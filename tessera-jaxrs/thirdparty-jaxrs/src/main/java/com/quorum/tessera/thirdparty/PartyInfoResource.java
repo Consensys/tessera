@@ -38,18 +38,10 @@ public class PartyInfoResource {
 
         final JsonArrayBuilder recipientBuilder = Json.createArrayBuilder();
         current.getRecipients().stream()
-                .map(
-                        recipient ->
-                                Json.createObjectBuilder()
-                                        .add("key", recipient.getKey().encodeToBase64())
-                                        .build())
+                .map(recipient -> Json.createObjectBuilder().add("key", recipient.getKey().encodeToBase64()).build())
                 .forEach(recipientBuilder::add);
 
-        final String output =
-                Json.createObjectBuilder()
-                        .add("keys", recipientBuilder.build())
-                        .build()
-                        .toString();
+        final String output = Json.createObjectBuilder().add("keys", recipientBuilder.build()).build().toString();
 
         return Response.status(Response.Status.OK).entity(output).build();
     }

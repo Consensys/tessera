@@ -220,17 +220,18 @@ public class CliKeyPasswordResolverTest {
         final PrivateKey unlockedKey = PrivateKey.from(privateKeyBytes);
 
         final KeyDataConfig privKeyDataConfig =
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
-                    "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
-                    "MIqkFlgR2BWEpx2U0rObGg==",
-                    "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
-                    new ArgonOptions("i", 10, 1048576, 4)),
-                PrivateKeyType.LOCKED);
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
+                                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
+                                "MIqkFlgR2BWEpx2U0rObGg==",
+                                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
+                                new ArgonOptions("i", 10, 1048576, 4)),
+                        PrivateKeyType.LOCKED);
 
         KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
-        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), eq(invalidPassword))).thenThrow(new EncryptorException("decrypt failed"));
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), eq(invalidPassword)))
+                .thenThrow(new EncryptorException("decrypt failed"));
         when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), eq(validPassword))).thenReturn(unlockedKey);
 
         final InlineKeypair keyPair = new InlineKeypair("public", privKeyDataConfig, keyEncryptor);
@@ -239,8 +240,8 @@ public class CliKeyPasswordResolverTest {
         this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
 
         assertThat(systemOutRule.getLog())
-            .containsOnlyOnce(
-                "Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
+                .containsOnlyOnce(
+                        "Password for key[0] missing or invalid.\nAttempt 1 of 2. Enter a password for the key");
     }
 
     @Test
@@ -251,14 +252,14 @@ public class CliKeyPasswordResolverTest {
         final PrivateKey unlockedKey = PrivateKey.from(privateKeyBytes);
 
         final KeyDataConfig privKeyDataConfig =
-            new KeyDataConfig(
-                new PrivateKeyData(
-                    "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
-                    "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
-                    "MIqkFlgR2BWEpx2U0rObGg==",
-                    "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
-                    new ArgonOptions("i", 10, 1048576, 4)),
-                PrivateKeyType.LOCKED);
+                new KeyDataConfig(
+                        new PrivateKeyData(
+                                "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=",
+                                "yb7M8aRJzgxoJM2NecAPcmSVWDW1tRjv",
+                                "MIqkFlgR2BWEpx2U0rObGg==",
+                                "Gtvp1t6XZEiFVyaE/LHiP1+yvOIBBoiOL+bKeqcKgpiNt4j1oDDoqCC47UJpmQRC",
+                                new ArgonOptions("i", 10, 1048576, 4)),
+                        PrivateKeyType.LOCKED);
 
         KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
         when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), eq(validPassword))).thenReturn(unlockedKey);

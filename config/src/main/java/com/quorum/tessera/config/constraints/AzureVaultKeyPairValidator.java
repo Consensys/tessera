@@ -16,5 +16,4 @@ public class AzureVaultKeyPairValidator implements ConstraintValidator<ValidAzur
 
         return Objects.isNull(keypair.getPublicKeyVersion()) == Objects.isNull(keypair.getPrivateKeyVersion());
     }
-
 }
