@@ -94,7 +94,7 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallHashicorpKeys() {
         final HashicorpVaultKeyPair keyPair =
-                new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
+                new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", 0);
 
         final KeyData expected = new KeyData();
         expected.setHashicorpVaultPublicKeyId("pubId");
