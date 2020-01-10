@@ -303,7 +303,7 @@ public class KeyDataAdapterTest {
         input.setHashicorpVaultSecretEngineName("secretEngine");
         input.setHashicorpVaultSecretName("secretName");
 
-        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", null);
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", 0);
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
