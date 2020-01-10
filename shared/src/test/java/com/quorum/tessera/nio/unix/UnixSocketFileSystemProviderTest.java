@@ -5,14 +5,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class UnixSocketFileSystemProviderTest {
@@ -73,5 +76,48 @@ public class UnixSocketFileSystemProviderTest {
         URI u = URI.create("file:/bogus.ipc");
         verify(delegate).getPath(u);
     }
+
+
+    @Test
+    public void getRelativePathUsingDot() {
+
+        URI uri = URI.create("unix:./bogus.ipc");
+
+        provider.getPath(uri);
+
+        Path currentRelativePath = Paths.get("");
+        String s = currentRelativePath.toAbsolutePath().toString();
+
+        URI u = URI.create("file:./bogus.ipc".replaceFirst("\\.",s));
+        verify(delegate).getPath(u);
+    }
+
+    @Test
+    public void getRelativePathNotUsingDot() {
+
+        URI uri = URI.create("unix:bogus.ipc");
+
+        provider.getPath(uri);
+
+        Path currentRelativePath = Paths.get("");
+        String s = currentRelativePath.toAbsolutePath().toString();
+
+        URI u = URI.create(String.format("file:%s/bogus.ipc",s));
+        verify(delegate).getPath(u);
+    }
+
+    @Test
+    public void getInavlidPathUsingDoubleDots() {
+
+        final URI uri = URI.create("unix:../bogus.ipc");
+        try {
+            provider.getPath(uri);
+            failBecauseExceptionWasNotThrown(UncheckedIOException.class);
+        } catch (UncheckedIOException ex) {
+            assertThat(ex.getCause()).isExactlyInstanceOf(IOException.class);
+            assertThat(ex.getCause().getCause()).isExactlyInstanceOf(URISyntaxException.class);
+        }
+    }
+
 
 }
