@@ -55,10 +55,18 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
                 && keyData.getHashicorpVaultSecretEngineName() != null
                 && keyData.getHashicorpVaultSecretName() != null) {
 
-            Integer hashicorpVaultSecretVersion = Optional.of(keyData)
-                .map(KeyData::getHashicorpVaultSecretVersion)
-                .filter(Pattern.compile("^\\d*$").asPredicate())
-                .map(Integer::parseInt).orElse(0);
+            Integer hashicorpVaultSecretVersion;
+
+            Optional<String> hashicorpVaultSecretVersionStr = Optional.of(keyData)
+                .map(KeyData::getHashicorpVaultSecretVersion);
+
+            if (hashicorpVaultSecretVersionStr.isPresent()) {
+                hashicorpVaultSecretVersion = hashicorpVaultSecretVersionStr
+                    .filter(Pattern.compile("^\\d*$").asPredicate())
+                    .map(Integer::parseInt).orElse(-1);
+            } else {
+                hashicorpVaultSecretVersion = null;
+            }
 
             return new HashicorpVaultKeyPair(
                     keyData.getHashicorpVaultPublicKeyId(),
