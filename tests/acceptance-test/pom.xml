@@ -97,7 +97,7 @@
         <dependency>
             <groupId>com.github.tomakehurst</groupId>
             <artifactId>wiremock-jre8</artifactId>
-            <version>2.24.1</version>
+            <version>2.25.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -294,6 +294,9 @@
 
         <profile>
             <id>azure-vault-acceptance-tests</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -311,6 +314,9 @@
 
         <profile>
             <id>aws-vault-acceptance-tests</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
