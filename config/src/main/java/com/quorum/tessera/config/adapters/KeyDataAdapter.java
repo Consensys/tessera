@@ -57,7 +57,7 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
             Integer hashicorpVaultSecretVersion = Optional.of(keyData)
                 .map(KeyData::getHashicorpVaultSecretVersion)
-                .filter(Pattern.compile("^d*$").asPredicate())
+                .filter(Pattern.compile("^\\d*$").asPredicate())
                 .map(Integer::parseInt).orElse(0);
 
             return new HashicorpVaultKeyPair(

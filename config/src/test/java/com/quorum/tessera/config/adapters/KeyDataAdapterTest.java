@@ -234,9 +234,13 @@ public class KeyDataAdapterTest {
         input.setHashicorpVaultPrivateKeyId("privId");
         input.setHashicorpVaultSecretEngineName("secretEngine");
         input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("10");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", 10);
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
     }
 
     @Test
