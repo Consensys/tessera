@@ -1,8 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
-import com.quorum.tessera.config.AzureKeyVaultConfig;
-import com.quorum.tessera.config.HashicorpKeyVaultConfig;
-import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +24,8 @@ public class KeyVaultConfigurationValidatorTest {
     public void setUp() {
         context = mock(ConstraintValidatorContext.class);
 
-        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        ConstraintValidatorContext.ConstraintViolationBuilder builder =
+                mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
         when(context.buildConstraintViolationWithTemplate(any(String.class))).thenReturn(builder);
 
         validator = new KeyVaultConfigurationValidator();
@@ -339,4 +338,55 @@ public class KeyVaultConfigurationValidatorTest {
         verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}");
     }
 
+    @Test
+    public void noAzureConfigWithAzureDefaultKeyVaultConfigIsValid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
+
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
+    }
+
+    @Test
+    public void noAzureConfigWithHashicorpDefaultKeyVaultConfigIsInvalid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        AzureVaultKeyPair keyPair = mock(AzureVaultKeyPair.class);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
+
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isFalse();
+    }
+
+    @Test
+    public void noHashicorpConfigWithHashicorpDefaultKeyVaultConfigIsValid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        HashicorpVaultKeyPair keyPair = mock(HashicorpVaultKeyPair.class);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
+
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
+    }
+
+    @Test
+    public void noHashicorpConfigWithAzureDefaultKeyVaultConfigIsInvalid() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        HashicorpVaultKeyPair keyPair = mock(HashicorpVaultKeyPair.class);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
+
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
+        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isFalse();
+    }
 }
