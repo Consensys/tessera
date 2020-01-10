@@ -103,15 +103,15 @@
         
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
-            <artifactId>jersey-test-framework-provider-jetty</artifactId>
+            <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
             <scope>test</scope>
             <type>jar</type>
-            <exclusions>
+<!--            <exclusions>
                 <exclusion>
                     <groupId>org.eclipse.jetty</groupId>
                     <artifactId>jetty-util</artifactId>
                 </exclusion>
-            </exclusions>
+            </exclusions>-->
         </dependency>
         
     </dependencies>
