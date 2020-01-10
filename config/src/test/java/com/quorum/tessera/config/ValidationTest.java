@@ -287,7 +287,7 @@ public class ValidationTest {
         keyConfiguration.setKeyData(singletonList(keyPair));
 
         HashicorpKeyVaultConfig hashicorpConfig = new HashicorpKeyVaultConfig();
-        keyConfiguration.setHashicorpKeyVaultConfig(hashicorpConfig);
+        keyConfiguration.addKeyVaultConfig(hashicorpConfig);
 
         Config config = new Config();
         config.setKeys(keyConfiguration);
@@ -306,7 +306,6 @@ public class ValidationTest {
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
-        keyConfiguration.setHashicorpKeyVaultConfig(null);
 
         Config config = new Config();
         config.setKeys(keyConfiguration);
@@ -325,10 +324,9 @@ public class ValidationTest {
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
-        keyConfiguration.setHashicorpKeyVaultConfig(null);
 
         AzureKeyVaultConfig azureConfig = new AzureKeyVaultConfig();
-        keyConfiguration.setAzureKeyVaultConfig(azureConfig);
+        keyConfiguration.addKeyVaultConfig(azureConfig);
 
         Config config = new Config();
         config.setKeys(keyConfiguration);

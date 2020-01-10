@@ -25,7 +25,7 @@ public class KeyVaultConfigurationValidator
 
         boolean hasAzureKeyVaultConfig =
                 keyConfiguration.getAzureKeyVaultConfig() != null
-                        || Optional.ofNullable(keyConfiguration.getKeyVaultConfig())
+                        || Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE))
                                 .filter((c) -> c.getKeyVaultType().equals(KeyVaultType.AZURE))
                                 .isPresent();
 
@@ -42,7 +42,7 @@ public class KeyVaultConfigurationValidator
 
         boolean hasHashicorpKeyVaultConfig =
                 keyConfiguration.getHashicorpKeyVaultConfig() != null
-                        || Optional.ofNullable(keyConfiguration.getKeyVaultConfig())
+                        || Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP))
                                 .filter((c) -> c.getKeyVaultType().equals(KeyVaultType.HASHICORP))
                                 .isPresent();
 

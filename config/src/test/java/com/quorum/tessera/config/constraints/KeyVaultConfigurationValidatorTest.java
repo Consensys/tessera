@@ -346,7 +346,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -359,7 +359,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
     }
@@ -372,7 +372,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -385,7 +385,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(keyVaultConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
     }
