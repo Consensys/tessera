@@ -159,6 +159,11 @@ public interface OverrideUtil {
             return;
         }
 
+        if (Map.class.isAssignableFrom(rootType)) {
+            Map.class.cast(root).put(path,value);
+            return;
+        }
+
         while (pathTokens.hasNext()) {
 
             final String token = pathTokens.next();
@@ -298,6 +303,10 @@ public interface OverrideUtil {
 
     static <T> T createInstance(Class<T> type) {
 
+        if (Map.class.isAssignableFrom(type)) {
+            return (T) new LinkedHashMap<>();
+        }
+
         if (type.isInterface()) {
             return null;
         }
@@ -332,6 +341,10 @@ public interface OverrideUtil {
 
                         if (Collection.class.isAssignableFrom(fieldType)) {
                             setValue(obj, field, new ArrayList<>());
+                            continue;
+                        }
+
+                        if (Map.class.isAssignableFrom(fieldType)) {
                             continue;
                         }
 
