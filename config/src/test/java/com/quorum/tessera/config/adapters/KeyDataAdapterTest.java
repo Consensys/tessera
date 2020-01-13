@@ -94,7 +94,7 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallHashicorpKeys() {
         final HashicorpVaultKeyPair keyPair =
-                new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
+                new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", 0);
 
         final KeyData expected = new KeyData();
         expected.setHashicorpVaultPublicKeyId("pubId");
@@ -108,13 +108,26 @@ public class KeyDataAdapterTest {
     }
 
     @Test
+    public void marshallAWSKeys() {
+        final AWSKeyPair keyPair = new AWSKeyPair("pubId", "privId");
+
+        final KeyData expected = new KeyData();
+        expected.setAwsSecretsManagerPublicKeyId("pubId");
+        expected.setAwsSecretsManagerPrivateKeyId("privId");
+
+        final KeyData result = adapter.marshal(keyPair);
+
+        assertThat(result).isEqualTo(expected);
+    }
+
+    @Test
     public void marshallUnsupportedKeys() {
         final KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
         final Path path = mock(Path.class);
         // set a random selection of values that are not sufficient to make a complete key pair of any type
         final UnsupportedKeyPair keyPair =
                 new UnsupportedKeyPair(
-                        keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null);
+                        keyDataConfig, "priv", null, path, null, null, null, null, null, null, null, null, null, null, null, null);
 
         final KeyData expected = new KeyData();
         expected.setConfig(keyDataConfig);
@@ -221,9 +234,90 @@ public class KeyDataAdapterTest {
         input.setHashicorpVaultPrivateKeyId("privId");
         input.setHashicorpVaultSecretEngineName("secretEngine");
         input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("10");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", 10);
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingHashicorpKeysGivesCorrectVersion() {
+        final KeyData input = new KeyData();
+
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("10");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", 10);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingHashicorpKeysGivesCorrectVersionNegative() {
+        final KeyData input = new KeyData();
+
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("-10");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", -1);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingHashicorpKeysGivesCorrectVersionNonInteger() {
+        final KeyData input = new KeyData();
+
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("1.1");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", -1);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingHashicorpKeysGivesCorrectVersionNull() {
+        final KeyData input = new KeyData();
+
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", 0);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingAWSKeysGivesCorrectKeyPair() {
+        final KeyData input = new KeyData();
+        input.setAwsSecretsManagerPublicKeyId("pubId");
+        input.setAwsSecretsManagerPrivateKeyId("privId");
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(AWSKeyPair.class);
     }
 
     @Test
