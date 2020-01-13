@@ -11,6 +11,7 @@ import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.Configuration;
 
 /**
@@ -61,6 +62,14 @@ public class ClientFactory {
      */
     public Client buildFrom(final ServerConfig config) {
 
+        final ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+
+        if (config.getSyncInterval() != null) {
+            final long timeout = Math.round(Math.ceil(config.getSyncInterval() * 0.75));
+            clientBuilder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
+            clientBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS);
+        }
+
         if (config.isUnixSocket()) {
             Configuration clientConfig = createUnixServerSocketConfig();
             URI unixfile = config.getServerUri();
@@ -69,9 +78,9 @@ public class ClientFactory {
         } else if (config.isSsl()) {
             final SSLContext sslContext =
                     sslContextFactory.from(config.getServerUri().toString(), config.getSslConfig());
-            return ClientBuilder.newBuilder().sslContext(sslContext).build();
+            return clientBuilder.sslContext(sslContext).build();
         } else {
-            return ClientBuilder.newClient();
+            return clientBuilder.build();
         }
     }
 }

@@ -10,9 +10,11 @@ import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
+import javax.ws.rs.client.WebTarget;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -39,6 +41,7 @@ public class ClientFactoryTest {
 
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(serverConfig.isSsl()).thenReturn(false);
+        when(serverConfig.getSyncInterval()).thenReturn(null);
 
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
@@ -52,13 +55,17 @@ public class ClientFactoryTest {
         when(serverConfig.isSsl()).thenReturn(true);
         when(serverConfig.getServerUri()).thenReturn(new URI("https://localhost:8080"));
         when(serverConfig.getSslConfig()).thenReturn(sslConfig);
+        when(serverConfig.getSyncInterval()).thenReturn(20000);
 
         SSLContext sslContext = mock(SSLContext.class);
         when(sslContextFactory.from(serverConfig.getServerUri().toString(), sslConfig)).thenReturn(sslContext);
 
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
+        Map clientProperties = client.target(serverConfig.getServerUri()).getConfiguration().getProperties();
 
+        assertThat(clientProperties.get("jersey.config.client.readTimeout")).isEqualTo(15000);
+        assertThat(clientProperties.get("jersey.config.client.connectTimeout")).isEqualTo(15000);
         verify(sslContextFactory).from(serverConfig.getServerUri().toString(), sslConfig);
     }
 
