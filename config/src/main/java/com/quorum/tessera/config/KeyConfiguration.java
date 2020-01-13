@@ -57,7 +57,9 @@ public class KeyConfiguration extends ConfigItem {
 
         if (null != azureKeyVaultConfig) {
             addKeyVaultConfig(azureKeyVaultConfig);
-        } else if (null != hashicorpKeyVaultConfig) {
+        }
+
+        if (null != hashicorpKeyVaultConfig) {
             addKeyVaultConfig(hashicorpKeyVaultConfig);
         }
     }

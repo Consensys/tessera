@@ -2,6 +2,8 @@ package com.quorum.tessera.config;
 
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class KeyConfigurationTest {
@@ -24,6 +26,17 @@ public class KeyConfigurationTest {
 
         KeyVaultConfig result = keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP);
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void loadBothKeyVaultConfigsFromConstructor() {
+        AzureKeyVaultConfig azureKeyVaultConfig = new AzureKeyVaultConfig();
+        HashicorpKeyVaultConfig hashicorpKeyVaultConfig = new HashicorpKeyVaultConfig();
+
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, null, azureKeyVaultConfig, hashicorpKeyVaultConfig);
+        List<DefaultKeyVaultConfig> result = keyConfiguration.getKeyVaultConfigs();
+        assertThat(result).hasSize(2);
+        assertThat(result).flatExtracting(DefaultKeyVaultConfig::getKeyVaultType).containsExactlyInAnyOrder(KeyVaultType.AZURE, KeyVaultType.HASHICORP);
     }
 
     @Test
