@@ -43,7 +43,7 @@
             <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
         </constructor-arg>
         <constructor-arg ref="partyInfoPoller"/>
-        <constructor-arg value="#{ config.getP2PServerConfig().getSyncInterval() != null ? config.getP2PServerConfig().getSyncInterval() : 2000}"/>
+        <constructor-arg value="#{ config.getP2PServerConfig().getSyncInterval() != null ? config.getP2PServerConfig().getSyncInterval() : 5000}"/>
         <constructor-arg value="5000"/>
     </bean>
 
