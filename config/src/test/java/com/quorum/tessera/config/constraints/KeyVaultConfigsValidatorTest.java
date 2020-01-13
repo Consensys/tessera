@@ -1,8 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
-import com.quorum.tessera.config.DefaultKeyVaultConfig;
-import com.quorum.tessera.config.KeyVaultType;
-import org.assertj.core.util.Strings;
+import com.quorum.tessera.config.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,7 +31,11 @@ public class KeyVaultConfigsValidatorTest {
         assertThat(result).isTrue();
 
         List<DefaultKeyVaultConfig> configs = Collections.emptyList();
-        result = validator.isValid(configs, constraintValidatorContext);
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
+
+        result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isTrue();
     }
 
@@ -44,7 +46,10 @@ public class KeyVaultConfigsValidatorTest {
 
         List<DefaultKeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
 
-        boolean result = validator.isValid(configs, constraintValidatorContext);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
+
+        boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isTrue();
     }
 
@@ -55,7 +60,10 @@ public class KeyVaultConfigsValidatorTest {
 
         List<DefaultKeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
 
-        boolean result = validator.isValid(configs, constraintValidatorContext);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
+
+        boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isTrue();
     }
 
@@ -66,7 +74,10 @@ public class KeyVaultConfigsValidatorTest {
 
         List<DefaultKeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
 
-        boolean result = validator.isValid(configs, constraintValidatorContext);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
+
+        boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isTrue();
     }
 
@@ -83,7 +94,10 @@ public class KeyVaultConfigsValidatorTest {
 
         List<DefaultKeyVaultConfig> configs = Arrays.asList(azure, hashicorp, aws);
 
-        boolean result = validator.isValid(configs, constraintValidatorContext);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
+
+        boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isTrue();
     }
 
@@ -114,14 +128,44 @@ public class KeyVaultConfigsValidatorTest {
 
         List<DefaultKeyVaultConfig> configs = Arrays.asList(azure, hashicorp, aws, azure2, hashicorp2, aws2);
 
-        boolean result = validator.isValid(configs, constraintValidatorContext);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
+
+        boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isFalse();
 
-        verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("AZURE {ValidKeyVaultConfigs.message}");
+        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AZURE {ValidKeyVaultConfigs.message}");
         verify(constraintValidatorContext)
                 .buildConstraintViolationWithTemplate("HASHICORP {ValidKeyVaultConfigs.message}");
+        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AWS {ValidKeyVaultConfigs.message}");
+    }
+
+    @Test
+    public void sameKeyVaultConfigTypesInBothDeprecatedAndGenericInvalid() {
+        when(constraintValidatorContext.buildConstraintViolationWithTemplate(anyString()))
+                .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+
+        DefaultKeyVaultConfig azureGeneric = mock(DefaultKeyVaultConfig.class);
+        when(azureGeneric.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
+
+        DefaultKeyVaultConfig hashicorpGeneric = mock(DefaultKeyVaultConfig.class);
+        when(hashicorpGeneric.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
+
+        AzureKeyVaultConfig azureDeprecated = mock(AzureKeyVaultConfig.class);
+        HashicorpKeyVaultConfig hashicorpDeprecated = mock(HashicorpKeyVaultConfig.class);
+
+        List<DefaultKeyVaultConfig> configs = Arrays.asList(azureGeneric, hashicorpGeneric);
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
+
+        when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(azureDeprecated);
+        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(hashicorpDeprecated);
+
+        boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
+        assertThat(result).isFalse();
+        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AZURE {ValidKeyVaultConfigs.message}");
         verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("AWS {ValidKeyVaultConfigs.message}");
+                .buildConstraintViolationWithTemplate("HASHICORP {ValidKeyVaultConfigs.message}");
     }
 }

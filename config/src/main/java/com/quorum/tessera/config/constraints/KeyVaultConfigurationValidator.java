@@ -21,53 +21,50 @@ public class KeyVaultConfigurationValidator
             return true;
         }
 
+        boolean result = true;
+
         boolean isUsingAzureVaultKeys =
                 keyConfiguration.getKeyData().stream().anyMatch(keyPair -> keyPair instanceof AzureVaultKeyPair);
 
         boolean hasAzureKeyVaultConfig =
-                keyConfiguration.getAzureKeyVaultConfig() != null
-                        || Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE))
-                                .filter((c) -> c.getKeyVaultType().equals(KeyVaultType.AZURE))
-                                .isPresent();
+                Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).isPresent();
 
         if (isUsingAzureVaultKeys && !hasAzureKeyVaultConfig) {
             cvc.disableDefaultConstraintViolation();
             cvc.buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}")
                     .addConstraintViolation();
 
-            return false;
+            result = false;
         }
 
         boolean isUsingHashicorpVaultKeys =
                 keyConfiguration.getKeyData().stream().anyMatch(keyPair -> keyPair instanceof HashicorpVaultKeyPair);
 
         boolean hasHashicorpKeyVaultConfig =
-                keyConfiguration.getHashicorpKeyVaultConfig() != null
-                        || Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP))
-                                .filter((c) -> c.getKeyVaultType().equals(KeyVaultType.HASHICORP))
-                                .isPresent();
+                Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).isPresent();
 
         if (isUsingHashicorpVaultKeys && !hasHashicorpKeyVaultConfig) {
             cvc.disableDefaultConstraintViolation();
             cvc.buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.hashicorp.message}")
                     .addConstraintViolation();
 
-            return false;
+            result = false;
         }
 
         boolean isUsingAWSVaultKeys =
-            keyConfiguration.getKeyData().stream().anyMatch(keyPair -> keyPair instanceof AWSKeyPair);
+                keyConfiguration.getKeyData().stream().anyMatch(keyPair -> keyPair instanceof AWSKeyPair);
 
-        boolean hasAWSKeyVaultConfig = Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).isPresent();
+        boolean hasAWSKeyVaultConfig =
+                Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).isPresent();
 
         if (isUsingAWSVaultKeys && !hasAWSKeyVaultConfig) {
             cvc.disableDefaultConstraintViolation();
             cvc.buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.aws.message}")
-                .addConstraintViolation();
+                    .addConstraintViolation();
 
-            return false;
+            result = false;
         }
 
-        return true;
+        return result;
     }
 }

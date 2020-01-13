@@ -175,8 +175,6 @@ public class HashicorpKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(null);
-
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(ConfigException.class);

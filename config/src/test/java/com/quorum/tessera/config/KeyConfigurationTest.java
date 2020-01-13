@@ -33,10 +33,13 @@ public class KeyConfigurationTest {
         AzureKeyVaultConfig azureKeyVaultConfig = new AzureKeyVaultConfig();
         HashicorpKeyVaultConfig hashicorpKeyVaultConfig = new HashicorpKeyVaultConfig();
 
-        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, null, azureKeyVaultConfig, hashicorpKeyVaultConfig);
+        KeyConfiguration keyConfiguration =
+                new KeyConfiguration(null, null, null, azureKeyVaultConfig, hashicorpKeyVaultConfig);
         List<DefaultKeyVaultConfig> result = keyConfiguration.getKeyVaultConfigs();
         assertThat(result).hasSize(2);
-        assertThat(result).flatExtracting(DefaultKeyVaultConfig::getKeyVaultType).containsExactlyInAnyOrder(KeyVaultType.AZURE, KeyVaultType.HASHICORP);
+        assertThat(result)
+                .flatExtracting(DefaultKeyVaultConfig::getKeyVaultType)
+                .containsExactlyInAnyOrder(KeyVaultType.AZURE, KeyVaultType.HASHICORP);
     }
 
     @Test
@@ -45,6 +48,21 @@ public class KeyConfigurationTest {
 
         KeyVaultConfig result = keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE);
         assertThat(result).isNull();
+    }
+
+    @Test
+    public void loadKeyVaultConfigFromDeprecatedTypes() {
+        AzureKeyVaultConfig azureKeyVaultConfig = new AzureKeyVaultConfig();
+        HashicorpKeyVaultConfig hashicorpKeyVaultConfig = new HashicorpKeyVaultConfig();
+
+        KeyConfiguration keyConfiguration =
+                new KeyConfiguration(null, null, null, azureKeyVaultConfig, hashicorpKeyVaultConfig);
+
+        DefaultKeyVaultConfig azureResult = keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE);
+        assertThat(azureResult).isNotNull();
+
+        DefaultKeyVaultConfig hashicorpResult = keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP);
+        assertThat(hashicorpResult).isNotNull();
     }
 
     @Test
