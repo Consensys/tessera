@@ -1,8 +1,8 @@
 package com.quorum.tessera.config.keypairs;
 
-import com.quorum.tessera.config.constraints.ValidPositiveInteger;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import javax.xml.bind.annotation.XmlElement;
 
 public class HashicorpVaultKeyPair implements ConfigKeyPair {
@@ -23,11 +23,11 @@ public class HashicorpVaultKeyPair implements ConfigKeyPair {
     @XmlElement
     private String secretName;
 
-    @ValidPositiveInteger
+    @PositiveOrZero(message = "{ValidPositiveInteger.message}")
     @XmlElement
-    private String secretVersion;
+    private Integer secretVersion;
 
-    public HashicorpVaultKeyPair(String publicKeyId, String privateKeyId, String secretEngineName, String secretName, String secretVersion) {
+    public HashicorpVaultKeyPair(String publicKeyId, String privateKeyId, String secretEngineName, String secretName, Integer secretVersion) {
         this.publicKeyId = publicKeyId;
         this.privateKeyId = privateKeyId;
         this.secretEngineName = secretEngineName;
@@ -51,17 +51,10 @@ public class HashicorpVaultKeyPair implements ConfigKeyPair {
         return secretName;
     }
 
-    public String getSecretVersion() {
+    public Integer getSecretVersion() {
         return secretVersion;
     }
 
-    public Integer getSecretVersionAsInt() {
-        if(secretVersion == null) {
-            return 0;
-        } else {
-            return Integer.parseInt(secretVersion);
-        }
-    }
 
     @Override
     public String getPublicKey() {

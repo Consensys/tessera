@@ -7,6 +7,9 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
@@ -51,12 +54,26 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
                 && keyData.getHashicorpVaultPrivateKeyId() != null
                 && keyData.getHashicorpVaultSecretEngineName() != null
                 && keyData.getHashicorpVaultSecretName() != null) {
+
+            Integer hashicorpVaultSecretVersion;
+
+            Optional<String> hashicorpVaultSecretVersionStr = Optional.of(keyData)
+                .map(KeyData::getHashicorpVaultSecretVersion);
+
+            if (hashicorpVaultSecretVersionStr.isPresent()) {
+                hashicorpVaultSecretVersion = hashicorpVaultSecretVersionStr
+                    .filter(Pattern.compile("^\\d*$").asPredicate())
+                    .map(Integer::parseInt).orElse(-1);
+            } else {
+                hashicorpVaultSecretVersion = 0;
+            }
+
             return new HashicorpVaultKeyPair(
                     keyData.getHashicorpVaultPublicKeyId(),
                     keyData.getHashicorpVaultPrivateKeyId(),
                     keyData.getHashicorpVaultSecretEngineName(),
                     keyData.getHashicorpVaultSecretName(),
-                    keyData.getHashicorpVaultSecretVersion());
+                    hashicorpVaultSecretVersion);
         }
 
         // case 5, the AWS Secrets Manager data is provided
