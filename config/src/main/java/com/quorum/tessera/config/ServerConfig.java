@@ -19,29 +19,22 @@ public class ServerConfig extends ConfigItem {
     @XmlElement(required = true)
     private AppType app;
 
-    //TODO: Remove this nobody asked for it
+    // TODO: Remove this nobody asked for it
     @Deprecated
     @NotNull
     @XmlElement(required = true)
     private boolean enabled;
 
-    @XmlElement
-    private CommunicationType communicationType;
+    @XmlElement private CommunicationType communicationType;
 
-    @Valid
-    @XmlElement
-    @ValidSsl
-    private SslConfig sslConfig;
+    @Valid @XmlElement @ValidSsl private SslConfig sslConfig;
 
-    @Valid
-    @XmlElement
-    private InfluxConfig influxConfig;
+    @Valid @XmlElement private InfluxConfig influxConfig;
 
     @ValidServerAddress(
             message = "Binding Address is invalid",
             isBindingAddress = true,
-            supportedSchemes = {"http", "https"}
-    )
+            supportedSchemes = {"http", "https"})
     @XmlElement
     private String bindingAddress;
 
@@ -53,7 +46,10 @@ public class ServerConfig extends ConfigItem {
     @XmlElement(name = "cors")
     private CrossDomainConfig crossDomainConfig;
 
-    public ServerConfig(final AppType app,
+    @XmlElement private Integer syncInterval;
+
+    public ServerConfig(
+            final AppType app,
             final boolean enabled,
             final String serverAddress,
             final CommunicationType communicationType,
@@ -69,9 +65,7 @@ public class ServerConfig extends ConfigItem {
         this.bindingAddress = bindingAddress;
     }
 
-    public ServerConfig() {
-
-    }
+    public ServerConfig() {}
 
     public String getBindingAddress() {
         return this.bindingAddress == null ? this.serverAddress : this.bindingAddress;
@@ -105,13 +99,13 @@ public class ServerConfig extends ConfigItem {
         this.app = app;
     }
 
-    //TODO: Remove this nobody asked for it
+    // TODO: Remove this nobody asked for it
     @Deprecated
     public boolean isEnabled() {
         return enabled;
     }
 
-    //TODO: Remove this nobody asked for it
+    // TODO: Remove this nobody asked for it
     @Deprecated
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -165,4 +159,11 @@ public class ServerConfig extends ConfigItem {
         this.crossDomainConfig = crossDomainConfig;
     }
 
+    public Integer getSyncInterval() {
+        return syncInterval;
+    }
+
+    public void setSyncInterval(Integer syncInterval) {
+        this.syncInterval = syncInterval;
+    }
 }
