@@ -4,13 +4,13 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
+import org.glassfish.jersey.client.ClientProperties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -64,8 +64,8 @@ public class ClientFactoryTest {
         assertThat(client).isNotNull();
         Map clientProperties = client.target(serverConfig.getServerUri()).getConfiguration().getProperties();
 
-        assertThat(clientProperties.get("jersey.config.client.readTimeout")).isEqualTo(15000);
-        assertThat(clientProperties.get("jersey.config.client.connectTimeout")).isEqualTo(15000);
+        assertThat(clientProperties.get(ClientProperties.READ_TIMEOUT)).isEqualTo(15000);
+        assertThat(clientProperties.get(ClientProperties.CONNECT_TIMEOUT)).isEqualTo(15000);
         verify(sslContextFactory).from(serverConfig.getServerUri().toString(), sslConfig);
     }
 
