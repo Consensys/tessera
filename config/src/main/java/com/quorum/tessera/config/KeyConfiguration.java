@@ -91,6 +91,14 @@ public class KeyConfiguration extends ConfigItem {
     }
 
     public DefaultKeyVaultConfig getKeyVaultConfig(KeyVaultType type) {
+        if (KeyVaultType.AZURE.equals(type) && azureKeyVaultConfig != null) {
+            return KeyVaultConfigConverter.convert(azureKeyVaultConfig);
+        }
+
+        if (KeyVaultType.HASHICORP.equals(type) && hashicorpKeyVaultConfig != null) {
+            return KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
+        }
+
         if (keyVaultConfigs == null) {
             return null;
         }
