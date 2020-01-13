@@ -2,6 +2,7 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultType;
+import com.quorum.tessera.config.keypairs.AWSKeyPair;
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
 
@@ -50,6 +51,19 @@ public class KeyVaultConfigurationValidator
             cvc.disableDefaultConstraintViolation();
             cvc.buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.hashicorp.message}")
                     .addConstraintViolation();
+
+            return false;
+        }
+
+        boolean isUsingAWSVaultKeys =
+            keyConfiguration.getKeyData().stream().anyMatch(keyPair -> keyPair instanceof AWSKeyPair);
+
+        boolean hasAWSKeyVaultConfig = Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).isPresent();
+
+        if (isUsingAWSVaultKeys && !hasAWSKeyVaultConfig) {
+            cvc.disableDefaultConstraintViolation();
+            cvc.buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.aws.message}")
+                .addConstraintViolation();
 
             return false;
         }
