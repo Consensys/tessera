@@ -294,9 +294,6 @@
 
         <profile>
             <id>azure-vault-acceptance-tests</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -314,9 +311,6 @@
 
         <profile>
             <id>aws-vault-acceptance-tests</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <build>
                 <plugins>
                     <plugin>
