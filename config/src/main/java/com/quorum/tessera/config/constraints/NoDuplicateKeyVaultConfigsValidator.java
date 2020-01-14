@@ -9,12 +9,13 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.HashMap;
 import java.util.Map;
 
-public class KeyVaultConfigsValidator implements ConstraintValidator<ValidKeyVaultConfigs, KeyConfiguration> {
+public class NoDuplicateKeyVaultConfigsValidator
+        implements ConstraintValidator<NoDuplicateKeyVaultConfigs, KeyConfiguration> {
 
-    private ValidKeyVaultConfigs config;
+    private NoDuplicateKeyVaultConfigs config;
 
     @Override
-    public void initialize(ValidKeyVaultConfigs config) {
+    public void initialize(NoDuplicateKeyVaultConfigs config) {
         this.config = config;
     }
 
@@ -39,7 +40,9 @@ public class KeyVaultConfigsValidator implements ConstraintValidator<ValidKeyVau
 
         for (KeyVaultConfig c : keyConfiguration.getKeyVaultConfigs()) {
             final KeyVaultType t = c.getKeyVaultType();
-            if (typeCount.containsKey(t)) {
+            if (t == null) {
+                continue;
+            } else if (typeCount.containsKey(t)) {
                 typeCount.put(t, typeCount.get(t) + 1);
             } else {
                 typeCount.put(t, 0);
@@ -50,12 +53,10 @@ public class KeyVaultConfigsValidator implements ConstraintValidator<ValidKeyVau
 
         for (Map.Entry<KeyVaultType, Integer> entry : typeCount.entrySet()) {
             if (entry.getValue() > 0) {
-                String message = "More than one KeyVaultConfig with type " + entry.getKey().toString();
-
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
                         .buildConstraintViolationWithTemplate(
-                                String.join(" ", entry.getKey().toString(), "{ValidKeyVaultConfigs.message}"))
+                                String.join(" ", entry.getKey().toString(), constraintValidatorContext.getDefaultConstraintMessageTemplate()))
                         .addConstraintViolation();
 
                 result = false;

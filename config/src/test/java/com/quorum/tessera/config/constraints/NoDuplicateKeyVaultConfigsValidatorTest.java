@@ -12,14 +12,14 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class KeyVaultConfigsValidatorTest {
+public class NoDuplicateKeyVaultConfigsValidatorTest {
     private ConstraintValidatorContext constraintValidatorContext;
 
-    private KeyVaultConfigsValidator validator;
+    private NoDuplicateKeyVaultConfigsValidator validator;
 
     @Before
     public void setUp() {
-        validator = new KeyVaultConfigsValidator();
+        validator = new NoDuplicateKeyVaultConfigsValidator();
         constraintValidatorContext = mock(ConstraintValidatorContext.class);
     }
 
@@ -106,6 +106,9 @@ public class KeyVaultConfigsValidatorTest {
         ConstraintValidatorContext.ConstraintViolationBuilder builder =
                 mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
 
+        String defaultMessageTemplate = "DEFAULT_MESSAGE_TEMPLATE";
+        when(constraintValidatorContext.getDefaultConstraintMessageTemplate()).thenReturn(defaultMessageTemplate);
+
         when(constraintValidatorContext.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
 
         DefaultKeyVaultConfig azure = mock(DefaultKeyVaultConfig.class);
@@ -134,16 +137,21 @@ public class KeyVaultConfigsValidatorTest {
         boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isFalse();
 
-        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AZURE {ValidKeyVaultConfigs.message}");
         verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("HASHICORP {ValidKeyVaultConfigs.message}");
-        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AWS {ValidKeyVaultConfigs.message}");
+                .buildConstraintViolationWithTemplate("AZURE " + defaultMessageTemplate);
+        verify(constraintValidatorContext)
+                .buildConstraintViolationWithTemplate("HASHICORP " + defaultMessageTemplate);
+        verify(constraintValidatorContext)
+                .buildConstraintViolationWithTemplate("AWS " + defaultMessageTemplate);
     }
 
     @Test
     public void sameKeyVaultConfigTypesInBothDeprecatedAndGenericInvalid() {
         when(constraintValidatorContext.buildConstraintViolationWithTemplate(anyString()))
                 .thenReturn(mock(ConstraintValidatorContext.ConstraintViolationBuilder.class));
+
+        String defaultMessageTemplate = "DEFAULT_MESSAGE_TEMPLATE";
+        when(constraintValidatorContext.getDefaultConstraintMessageTemplate()).thenReturn(defaultMessageTemplate);
 
         DefaultKeyVaultConfig azureGeneric = mock(DefaultKeyVaultConfig.class);
         when(azureGeneric.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
@@ -164,8 +172,20 @@ public class KeyVaultConfigsValidatorTest {
 
         boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isFalse();
-        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AZURE {ValidKeyVaultConfigs.message}");
         verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("HASHICORP {ValidKeyVaultConfigs.message}");
+                .buildConstraintViolationWithTemplate("AZURE " + defaultMessageTemplate);
+        verify(constraintValidatorContext)
+                .buildConstraintViolationWithTemplate("HASHICORP " + defaultMessageTemplate);
+    }
+
+    @Test
+    public void nullKeyVaultConfigTypeIsHandled() {
+        KeyConfiguration keyConfiguration = new KeyConfiguration();
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(null);
+
+        keyConfiguration.addKeyVaultConfig(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, constraintValidatorContext)).isTrue();
     }
 }

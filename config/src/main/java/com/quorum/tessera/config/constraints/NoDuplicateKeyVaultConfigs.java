@@ -11,10 +11,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({FIELD, PARAMETER, ANNOTATION_TYPE, TYPE})
 @Retention(RUNTIME)
-@Constraint(validatedBy = KeyVaultConfigsValidator.class)
+@Constraint(validatedBy = NoDuplicateKeyVaultConfigsValidator.class)
 @Documented
-public @interface ValidKeyVaultConfigs {
-    String message() default "{ValidKeyVaultConfigs.message}";
+public @interface NoDuplicateKeyVaultConfigs {
+    String message() default "{NoDuplicateKeyVaultConfigs.message}";
 
     Class<?>[] groups() default {};
 
