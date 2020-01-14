@@ -33,7 +33,7 @@ public class IPWhitelistFilterTest {
 
         this.containerRequestContext = mock(ContainerRequestContext.class);
         final UriInfo uriInfo = mock(UriInfo.class);
-        when(uriInfo.getBaseUri()).thenReturn( URI.create("otherhost"));
+        when(uriInfo.getBaseUri()).thenReturn(URI.create("otherhost"));
         when(containerRequestContext.getUriInfo()).thenReturn(uriInfo);
 
         this.configService = mock(ConfigService.class);
@@ -41,7 +41,6 @@ public class IPWhitelistFilterTest {
         Peer peer = new Peer("http://whitelistedHost:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
         when(configService.isDisablePeerDiscovery()).thenReturn(false);
-
     }
 
     @After
@@ -58,7 +57,7 @@ public class IPWhitelistFilterTest {
         when(configService.isDisablePeerDiscovery()).thenReturn(true);
 
         Peer peer = mock(Peer.class);
-        when(peer.getUrl()).thenReturn(String.format("http://%s:8080",validHostName));
+        when(peer.getUrl()).thenReturn(String.format("http://%s:8080", validHostName));
         when(configService.getPeers()).thenReturn(Arrays.asList(peer));
 
         IPWhitelistFilter filter = new IPWhitelistFilter(configService);
@@ -93,18 +92,20 @@ public class IPWhitelistFilterTest {
         filter.setHttpServletRequest(request);
 
         List<Response> responses = new ArrayList<>();
-        doAnswer(invocation -> {
-            responses.add(invocation.getArgument(0));
-            return null;
-        }).when(containerRequestContext).abortWith(any(Response.class));
+        doAnswer(
+                        invocation -> {
+                            responses.add(invocation.getArgument(0));
+                            return null;
+                        })
+                .when(containerRequestContext)
+                .abortWith(any(Response.class));
 
         filter.filter(containerRequestContext);
 
         verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
 
-        verify(containerRequestContext)
-            .abortWith(any(Response.class));
+        verify(containerRequestContext).abortWith(any(Response.class));
 
         assertThat(responses).hasSize(1);
         Response response = responses.get(0);
@@ -116,10 +117,7 @@ public class IPWhitelistFilterTest {
         verify(containerRequestContext).getUriInfo();
 
         verifyNoMoreInteractions(request);
-
     }
-
-
 
     @Test
     public void unixsocketRequestsIgnored() {
@@ -168,6 +166,5 @@ public class IPWhitelistFilterTest {
 
         verifyNoMoreInteractions(configService);
         verifyZeroInteractions(containerRequestContext);
-
     }
 }
