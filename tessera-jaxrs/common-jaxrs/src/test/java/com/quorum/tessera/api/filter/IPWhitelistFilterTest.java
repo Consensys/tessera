@@ -51,16 +51,16 @@ public class IPWhitelistFilterTest {
     }
 
     @Test
-    public void autoDiscoveryEnabledAndHostInPeersList() {
+    public void autoDiscoveryDisabledAndHostInPeersList() {
 
-        String validHostName = "someotherhost";
+        final String validHostName = "someotherhost";
 
         when(configService.isDisablePeerDiscovery()).thenReturn(true);
 
         Peer peer = mock(Peer.class);
         when(peer.getUrl()).thenReturn(String.format("http://%s:8080",validHostName));
-
         when(configService.getPeers()).thenReturn(Arrays.asList(peer));
+
         IPWhitelistFilter filter = new IPWhitelistFilter(configService);
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
@@ -75,12 +75,11 @@ public class IPWhitelistFilterTest {
         verify(configService).isDisablePeerDiscovery();
         verify(configService).getPeers();
         verify(containerRequestContext).getUriInfo();
-
         verifyNoMoreInteractions(request);
     }
 
     @Test
-    public void autoDiscoveryEnabledAndHostNotInPeersList() {
+    public void autoDiscoveryDisabledAndHostNotInPeersList() {
 
         when(configService.isDisablePeerDiscovery()).thenReturn(true);
         when(configService.getPeers()).thenReturn(EMPTY_LIST);
