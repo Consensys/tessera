@@ -104,7 +104,7 @@ public class AzureKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("URL"));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.of(keyVaultConfig));
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         KeyVaultService result = azureKeyVaultServiceFactory.create(config, envProvider);

@@ -6,8 +6,11 @@ import com.quorum.tessera.config.KeyVaultType;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class NoDuplicateKeyVaultConfigsValidator
         implements ConstraintValidator<NoDuplicateKeyVaultConfigs, KeyConfiguration> {
@@ -28,41 +31,33 @@ public class NoDuplicateKeyVaultConfigsValidator
             return true;
         }
 
-        HashMap<KeyVaultType, Integer> typeCount = new HashMap<>();
 
-        if (keyConfiguration.getAzureKeyVaultConfig() != null) {
-            typeCount.put(KeyVaultType.AZURE, 0);
-        }
+        final List<KeyVaultConfig> legacyConfigs = new ArrayList<>();
+        legacyConfigs.add(keyConfiguration.getHashicorpKeyVaultConfig());
+        legacyConfigs.add(keyConfiguration.getAzureKeyVaultConfig());
 
-        if (keyConfiguration.getHashicorpKeyVaultConfig() != null) {
-            typeCount.put(KeyVaultType.HASHICORP, 0);
-        }
+        List<KeyVaultConfig> configs = keyConfiguration.getKeyVaultConfigs().stream()
+            .map(KeyVaultConfig.class::cast).collect(Collectors.toList());
+        configs.addAll(legacyConfigs);
+        
+        final Map<KeyVaultType, Integer> typeCount = configs.stream()
+            .filter(Objects::nonNull)
+            .collect(Collectors.toMap(e -> e.getKeyVaultType(),v -> 1, (l, r) -> l + 1));
 
-        for (KeyVaultConfig c : keyConfiguration.getKeyVaultConfigs()) {
-            final KeyVaultType t = c.getKeyVaultType();
-            if (t == null) {
-                continue;
-            } else if (typeCount.containsKey(t)) {
-                typeCount.put(t, typeCount.get(t) + 1);
-            } else {
-                typeCount.put(t, 0);
-            }
-        }
+        List<String> constraintMessages = typeCount.entrySet().stream()
+            .filter(e -> e.getValue() > 1)
+            .map(e -> e.getKey().name())
+            .map(s -> String.join(" ",s,constraintValidatorContext.getDefaultConstraintMessageTemplate()))
+            .collect(Collectors.toList());
 
-        boolean result = true;
-
-        for (Map.Entry<KeyVaultType, Integer> entry : typeCount.entrySet()) {
-            if (entry.getValue() > 0) {
+            constraintMessages.forEach(message -> {
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
-                        .buildConstraintViolationWithTemplate(
-                                String.join(" ", entry.getKey().toString(), constraintValidatorContext.getDefaultConstraintMessageTemplate()))
-                        .addConstraintViolation();
+                    .buildConstraintViolationWithTemplate(message)
+                    .addConstraintViolation();
+            });
 
-                result = false;
-            }
-        }
+            return constraintMessages.isEmpty();
 
-        return result;
     }
 }

@@ -319,8 +319,7 @@ public class ValidationTest {
 
     @Test
     public void hashicorpKeyPairProvidedWithAzureKeyVaultConfigCreatesViolation() {
-        HashicorpVaultKeyPair keyPair =
-                new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName", null);
+        HashicorpVaultKeyPair keyPair = mock(HashicorpVaultKeyPair.class);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));

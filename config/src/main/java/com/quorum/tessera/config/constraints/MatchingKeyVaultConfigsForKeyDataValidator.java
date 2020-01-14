@@ -2,13 +2,12 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultType;
-import com.quorum.tessera.config.keypairs.AWSKeyPair;
-import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
-import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class MatchingKeyVaultConfigsForKeyDataValidator
         implements ConstraintValidator<MatchingKeyVaultConfigsForKeyData, KeyConfiguration> {
@@ -21,50 +20,25 @@ public class MatchingKeyVaultConfigsForKeyDataValidator
             return true;
         }
 
-        boolean result = true;
+        List<Boolean> outcomes = Stream.of(KeyVaultType.values()).map(k -> {
 
-        boolean isUsingAzureVaultKeys =
-                keyConfiguration.getKeyData().stream().anyMatch(keyPair -> keyPair instanceof AzureVaultKeyPair);
+            boolean isUsingKeyVaultType = keyConfiguration.getKeyData().stream()
+                .anyMatch(v -> k.getKeyPairType().isInstance(v));
 
-        boolean hasAzureKeyVaultConfig =
-                Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).isPresent();
+            boolean hasKeyVaultConfig = keyConfiguration.getKeyVaultConfig(k).isPresent();
 
-        if (isUsingAzureVaultKeys && !hasAzureKeyVaultConfig) {
-            cvc.disableDefaultConstraintViolation();
-            cvc.buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.azure.message}")
+            if (isUsingKeyVaultType && !hasKeyVaultConfig) {
+                cvc.disableDefaultConstraintViolation();
+                String messageKey = String.format("{MatchingKeyVaultConfigsForKeyData.%s.message}",k.name().toLowerCase());
+                cvc.buildConstraintViolationWithTemplate(messageKey)
                     .addConstraintViolation();
+                return false;
+            }
 
-            result = false;
-        }
+            return true;
+        }).collect(Collectors.toList());
 
-        boolean isUsingHashicorpVaultKeys =
-                keyConfiguration.getKeyData().stream().anyMatch(keyPair -> keyPair instanceof HashicorpVaultKeyPair);
+        return outcomes.stream().allMatch(v -> v);
 
-        boolean hasHashicorpKeyVaultConfig =
-                Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).isPresent();
-
-        if (isUsingHashicorpVaultKeys && !hasHashicorpKeyVaultConfig) {
-            cvc.disableDefaultConstraintViolation();
-            cvc.buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}")
-                    .addConstraintViolation();
-
-            result = false;
-        }
-
-        boolean isUsingAWSVaultKeys =
-                keyConfiguration.getKeyData().stream().anyMatch(keyPair -> keyPair instanceof AWSKeyPair);
-
-        boolean hasAWSKeyVaultConfig =
-                Optional.ofNullable(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).isPresent();
-
-        if (isUsingAWSVaultKeys && !hasAWSKeyVaultConfig) {
-            cvc.disableDefaultConstraintViolation();
-            cvc.buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.aws.message}")
-                    .addConstraintViolation();
-
-            result = false;
-        }
-
-        return result;
     }
 }

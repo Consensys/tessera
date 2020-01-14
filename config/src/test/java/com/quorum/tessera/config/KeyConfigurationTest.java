@@ -3,6 +3,7 @@ package com.quorum.tessera.config;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,7 +15,7 @@ public class KeyConfigurationTest {
         AzureKeyVaultConfig azureKeyVaultConfig = new AzureKeyVaultConfig();
         keyConfiguration.addKeyVaultConfig(azureKeyVaultConfig);
 
-        KeyVaultConfig result = keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE);
+        KeyVaultConfig result = keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE).get();
         assertThat(result).isNotNull();
     }
 
@@ -24,7 +25,7 @@ public class KeyConfigurationTest {
         HashicorpKeyVaultConfig hashicorpKeyVaultConfig = new HashicorpKeyVaultConfig();
         keyConfiguration.addKeyVaultConfig(hashicorpKeyVaultConfig);
 
-        KeyVaultConfig result = keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP);
+        KeyVaultConfig result = keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP).get();
         assertThat(result).isNotNull();
     }
 
@@ -46,8 +47,8 @@ public class KeyConfigurationTest {
     public void loadKeyVaultConfigFromNoConfig() {
         KeyConfiguration keyConfiguration = new KeyConfiguration();
 
-        KeyVaultConfig result = keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE);
-        assertThat(result).isNull();
+        Optional<DefaultKeyVaultConfig> result = keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE);
+        assertThat(result).isNotPresent();
     }
 
     @Test
@@ -58,10 +59,10 @@ public class KeyConfigurationTest {
         KeyConfiguration keyConfiguration =
                 new KeyConfiguration(null, null, null, azureKeyVaultConfig, hashicorpKeyVaultConfig);
 
-        DefaultKeyVaultConfig azureResult = keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE);
+        DefaultKeyVaultConfig azureResult = keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE).get();
         assertThat(azureResult).isNotNull();
 
-        DefaultKeyVaultConfig hashicorpResult = keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP);
+        DefaultKeyVaultConfig hashicorpResult = keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP).get();
         assertThat(hashicorpResult).isNotNull();
     }
 
@@ -69,7 +70,7 @@ public class KeyConfigurationTest {
     public void loadKeyVaultConfigWithNullType() {
         KeyConfiguration keyConfiguration = new KeyConfiguration();
 
-        assertThat(keyConfiguration.getKeyVaultConfig(null)).isNull();
+        assertThat(keyConfiguration.getKeyVaultConfig(null)).isNotPresent();
     }
 
     @Test

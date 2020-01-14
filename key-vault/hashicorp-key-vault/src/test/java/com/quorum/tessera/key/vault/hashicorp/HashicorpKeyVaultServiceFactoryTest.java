@@ -191,7 +191,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("noschemeurl"));
         when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
@@ -217,7 +217,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://malformedurl:-1"));
         when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
 
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         setUpUtilMocks(keyVaultConfig);
 
@@ -256,7 +256,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://someurl"));
         when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
@@ -278,7 +278,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://someurl"));
         when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));

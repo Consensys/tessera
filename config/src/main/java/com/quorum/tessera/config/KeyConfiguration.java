@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyConfiguration extends ConfigItem {
@@ -89,24 +90,26 @@ public class KeyConfiguration extends ConfigItem {
         return keyVaultConfigs;
     }
 
-    public DefaultKeyVaultConfig getKeyVaultConfig(KeyVaultType type) {
+    public Optional<DefaultKeyVaultConfig> getKeyVaultConfig(KeyVaultType type) {
         if (type == null) {
-            return null;
+            return Optional.empty();
         }
 
         if (KeyVaultType.AZURE.equals(type) && azureKeyVaultConfig != null) {
-            return KeyVaultConfigConverter.convert(azureKeyVaultConfig);
+            return Optional.of(KeyVaultConfigConverter.convert(azureKeyVaultConfig));
         }
 
         if (KeyVaultType.HASHICORP.equals(type) && hashicorpKeyVaultConfig != null) {
-            return KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
+            return Optional.of(KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig));
         }
 
         if (keyVaultConfigs == null) {
-            return null;
+            return Optional.empty();
         }
 
-        return keyVaultConfigs.stream().filter(c -> type.equals(c.getKeyVaultType())).findFirst().orElse(null);
+        return keyVaultConfigs.stream()
+            .filter(c -> type.equals(c.getKeyVaultType()))
+            .findFirst();
     }
 
     public void setPasswordFile(Path passwordFile) {

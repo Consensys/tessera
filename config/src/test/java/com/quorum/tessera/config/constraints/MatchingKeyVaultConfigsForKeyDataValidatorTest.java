@@ -6,10 +6,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.validation.ConstraintValidatorContext;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +41,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -59,7 +56,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -74,7 +71,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -180,7 +177,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -195,7 +192,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -210,7 +207,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -222,7 +219,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -237,7 +234,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
 
         when(keyConfiguration.getKeyData()).thenReturn(keyPairs);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -347,7 +344,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -360,7 +357,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
     }
@@ -373,7 +370,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isTrue();
     }
@@ -386,7 +383,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
 
         when(keyConfiguration.getKeyData()).thenReturn(Collections.singletonList(keyPair));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.of(keyVaultConfig));
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
     }
@@ -403,7 +400,7 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
         verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.azure.message}");
-        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
         verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.aws.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 }

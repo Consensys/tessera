@@ -61,7 +61,7 @@ public class AWSKeyVaultServiceFactoryTest {
     public void nullKeyVaultConfigurationThrowsException() {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(null);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(Optional.empty());
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         Throwable ex = catchThrowable(() -> awsKeyVaultServiceFactory.create(config, envProvider));
@@ -109,7 +109,7 @@ public class AWSKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
         when(keyVaultConfig.getProperty("endpoint")).thenReturn(Optional.of("http://URL"));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(Optional.of(keyVaultConfig));
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         KeyVaultService result = awsKeyVaultServiceFactory.create(config, envProvider);
@@ -122,7 +122,7 @@ public class AWSKeyVaultServiceFactoryTest {
         when(envProvider.getEnv(anyString())).thenReturn("envVar");
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(Optional.of(keyVaultConfig));
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         KeyVaultService result = awsKeyVaultServiceFactory.create(config, envProvider);
@@ -136,7 +136,7 @@ public class AWSKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
         when(keyVaultConfig.getProperty("endpoint")).thenReturn(Optional.of("\\invalid"));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(Optional.of(keyVaultConfig));
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         Throwable ex = catchThrowable(() -> awsKeyVaultServiceFactory.create(config, envProvider));
@@ -151,7 +151,7 @@ public class AWSKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
         when(keyVaultConfig.getProperty("endpoint")).thenReturn(Optional.of("noscheme"));
-        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AWS)).thenReturn(Optional.of(keyVaultConfig));
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         Throwable ex = catchThrowable(() -> awsKeyVaultServiceFactory.create(config, envProvider));

@@ -160,7 +160,10 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         when(hashicorpGeneric.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
         AzureKeyVaultConfig azureDeprecated = mock(AzureKeyVaultConfig.class);
+        when(azureDeprecated.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
+
         HashicorpKeyVaultConfig hashicorpDeprecated = mock(HashicorpKeyVaultConfig.class);
+        when(hashicorpDeprecated.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
         List<DefaultKeyVaultConfig> configs = Arrays.asList(azureGeneric, hashicorpGeneric);
 
@@ -171,6 +174,7 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(hashicorpDeprecated);
 
         boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
+
         assertThat(result).isFalse();
         verify(constraintValidatorContext)
                 .buildConstraintViolationWithTemplate("AZURE " + defaultMessageTemplate);
