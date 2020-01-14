@@ -31,7 +31,7 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
 
     private final ConfigService configService;
 
-    private boolean disablePeerDiscovery;
+    private final boolean enablePeerDiscovery;
 
     private HttpServletRequest httpServletRequest;
 
@@ -41,7 +41,7 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
 
     protected IPWhitelistFilter(ConfigService configService) {
         this.configService = configService;
-        this.disablePeerDiscovery = configService.isDisablePeerDiscovery();
+        this.enablePeerDiscovery = !configService.isDisablePeerDiscovery();
     }
 
     /**
@@ -54,7 +54,7 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
     @Override
     public void filter(final ContainerRequestContext requestContext) {
 
-        if (!disablePeerDiscovery) {
+        if (enablePeerDiscovery) {
             LOGGER.debug("Peer discovery enabled. no whitelist filtering required.");
             return;
         }
