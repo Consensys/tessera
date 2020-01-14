@@ -55,7 +55,13 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     @XmlElement
     private String hashicorpVaultSecretVersion;
 
-    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion) {
+    @XmlElement
+    private String awsSecretsManagerPublicKeyId;
+
+    @XmlElement
+    private String awsSecretsManagerPrivateKeyId;
+
+    public UnsupportedKeyPair(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion, String awsSecretsManagerPublicKeyId, String awsSecretsManagerPrivateKeyId) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -70,6 +76,8 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
         this.hashicorpVaultSecretEngineName = hashicorpVaultSecretEngineName;
         this.hashicorpVaultSecretName = hashicorpVaultSecretName;
         this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
+        this.awsSecretsManagerPublicKeyId = awsSecretsManagerPublicKeyId;
+        this.awsSecretsManagerPrivateKeyId = awsSecretsManagerPrivateKeyId;
     }
 
     public UnsupportedKeyPair() {
@@ -198,5 +206,21 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
 
     public void setHashicorpVaultSecretVersion(String hashicorpVaultSecretVersion) {
         this.hashicorpVaultSecretVersion = hashicorpVaultSecretVersion;
+    }
+
+    public String getAwsSecretsManagerPublicKeyId() {
+        return awsSecretsManagerPublicKeyId;
+    }
+
+    public void setAwsSecretsManagerPublicKeyId(String awsSecretsManagerPublicKeyId) {
+        this.awsSecretsManagerPublicKeyId = awsSecretsManagerPublicKeyId;
+    }
+
+    public String getAwsSecretsManagerPrivateKeyId() {
+        return awsSecretsManagerPrivateKeyId;
+    }
+
+    public void setAwsSecretsManagerPrivateKeyId(String awsSecretsManagerPrivateKeyId) {
+        this.awsSecretsManagerPrivateKeyId = awsSecretsManagerPrivateKeyId;
     }
 }

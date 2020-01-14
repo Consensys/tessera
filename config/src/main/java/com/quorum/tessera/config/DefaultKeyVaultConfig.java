@@ -1,6 +1,7 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.MapAdapter;
+import com.quorum.tessera.config.constraints.ValidKeyVaultConfig;
 
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
@@ -9,13 +10,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+@ValidKeyVaultConfig
 @XmlType(name = "keyVaultConfig")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DefaultKeyVaultConfig extends ConfigItem implements KeyVaultConfig {
 
-    @NotNull
-    @XmlAttribute
-    private KeyVaultType keyVaultType;
+    @NotNull @XmlAttribute private KeyVaultType keyVaultType;
 
     @XmlJavaTypeAdapter(MapAdapter.class)
     @XmlElement

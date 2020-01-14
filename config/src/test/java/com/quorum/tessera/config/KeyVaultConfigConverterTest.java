@@ -21,7 +21,6 @@ public class KeyVaultConfigConverterTest {
         assertThat(result.getProperties().get("url")).isEqualTo("SomeUrl");
     }
 
-
     @Test
     public void convertHashicorp() {
         HashicorpKeyVaultConfig hashicorpKeyVaultConfig = new HashicorpKeyVaultConfig();
@@ -33,12 +32,10 @@ public class KeyVaultConfigConverterTest {
         DefaultKeyVaultConfig result = KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
 
         assertThat(result.getKeyVaultType()).isEqualTo(KeyVaultType.HASHICORP);
-        assertThat(result.getProperties()).containsKeys("url","tlsKeyStorePath","tlsTrustStorePath");
+        assertThat(result.getProperties()).containsKeys("url", "tlsKeyStorePath", "tlsTrustStorePath");
         assertThat(result.getProperties().get("url")).isEqualTo(hashicorpKeyVaultConfig.getUrl());
         assertThat(result.getProperties().get("tlsTrustStorePath")).isEqualTo(path.toString());
         assertThat(result.getProperties().get("tlsKeyStorePath")).isEqualTo(path.toString());
         assertThat(result.getProperties().get("approlePath")).isEqualTo(hashicorpKeyVaultConfig.getApprolePath());
     }
-
-
 }

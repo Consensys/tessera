@@ -1,10 +1,7 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.cli.CliException;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.SslAuthenticationMode;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,18 +15,15 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.Assertions.*;
 
 public class OverrideUtilTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OverrideUtilTest.class);
 
+    // TODO(cjh) can we remove this now we've got rid of apache commons-cli?
     @Test
     public void buildOptions() {
 
@@ -266,6 +260,13 @@ public class OverrideUtilTest {
     public void createInstance() {
         Peer result = OverrideUtil.createInstance(Peer.class);
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    public void createInstanceMapCreatesLinkedHashMap() {
+        Map<Object, Object> result = OverrideUtil.createInstance(Map.class);
+        assertThat(result).isNotNull();
+        assertThat(result).isExactlyInstanceOf(LinkedHashMap.class);
     }
 
     @Test
@@ -716,6 +717,46 @@ public class OverrideUtilTest {
 
         assertThat(toOverride.getSomeList().get(0).getOtherList().get(0)).isEqualTo("otherElement1");
         assertThat(toOverride.getSomeList().get(0).getOtherList().get(1)).isEqualTo(overriddenValue);
+    }
+
+    @Test
+    public void setValueMapPropertyAdded() {
+        final HashMap<String, String> toOverride = new HashMap<>();
+
+        OverrideUtil.setValue(toOverride, "property", "value");
+
+        assertThat(toOverride).hasSize(1);
+        assertThat(toOverride).contains(entry("property", "value"));
+    }
+
+    @Test
+    public void setValueMapPeriodSeparatedPropertyAdded() {
+        final HashMap<String, String> toOverride = new HashMap<>();
+
+        OverrideUtil.setValue(toOverride, "property.subproperty", "value");
+
+        assertThat(toOverride).hasSize(1);
+        assertThat(toOverride).contains(entry("property.subproperty", "value"));
+    }
+
+    @Test
+    public void setValueMapPropertyReplaced() {
+        final HashMap<String, String> toOverride = new HashMap<>();
+        toOverride.put("property", "initial value");
+
+        assertThat(toOverride).hasSize(1);
+        assertThat(toOverride).contains(entry("property", "initial value"));
+
+        OverrideUtil.setValue(toOverride, "property", "updated value");
+
+        assertThat(toOverride).hasSize(1);
+        assertThat(toOverride).contains(entry("property", "updated value"));
+    }
+
+    @Test
+    public void mapsAreNullByDefault() {
+        Config config = OverrideUtil.createInstance(Config.class);
+        assertThat(config.getEncryptor().getProperties()).isNull();
     }
 
     @Ignore
