@@ -66,6 +66,13 @@ public class KeyConfigurationTest {
     }
 
     @Test
+    public void loadKeyVaultConfigWithNullType() {
+        KeyConfiguration keyConfiguration = new KeyConfiguration();
+
+        assertThat(keyConfiguration.getKeyVaultConfig(null)).isNull();
+    }
+
+    @Test
     public void addMultipleKeyVaultConfigs() {
         KeyConfiguration keyConfiguration = new KeyConfiguration();
 

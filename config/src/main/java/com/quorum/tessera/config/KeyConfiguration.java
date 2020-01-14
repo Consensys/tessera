@@ -90,6 +90,10 @@ public class KeyConfiguration extends ConfigItem {
     }
 
     public DefaultKeyVaultConfig getKeyVaultConfig(KeyVaultType type) {
+        if (type == null) {
+            return null;
+        }
+
         if (KeyVaultType.AZURE.equals(type) && azureKeyVaultConfig != null) {
             return KeyVaultConfigConverter.convert(azureKeyVaultConfig);
         }
@@ -102,7 +106,7 @@ public class KeyConfiguration extends ConfigItem {
             return null;
         }
 
-        return keyVaultConfigs.stream().filter(c -> c.getKeyVaultType().equals(type)).findFirst().orElse(null);
+        return keyVaultConfigs.stream().filter(c -> type.equals(c.getKeyVaultType())).findFirst().orElse(null);
     }
 
     public void setPasswordFile(Path passwordFile) {
@@ -122,9 +126,9 @@ public class KeyConfiguration extends ConfigItem {
             keyVaultConfigs = new ArrayList<>();
         }
 
-        if (keyVaultConfig.getKeyVaultType().equals(KeyVaultType.AZURE)) {
+        if (KeyVaultType.AZURE.equals(keyVaultConfig.getKeyVaultType())) {
             keyVaultConfigs.add(KeyVaultConfigConverter.convert((AzureKeyVaultConfig) keyVaultConfig));
-        } else if (keyVaultConfig.getKeyVaultType().equals(KeyVaultType.HASHICORP)) {
+        } else if (KeyVaultType.HASHICORP.equals(keyVaultConfig.getKeyVaultType())) {
             keyVaultConfigs.add(KeyVaultConfigConverter.convert((HashicorpKeyVaultConfig) keyVaultConfig));
         } else {
             keyVaultConfigs.add((DefaultKeyVaultConfig) keyVaultConfig);
