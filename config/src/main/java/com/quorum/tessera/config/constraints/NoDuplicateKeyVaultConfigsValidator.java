@@ -39,25 +39,23 @@ public class NoDuplicateKeyVaultConfigsValidator
         List<KeyVaultConfig> configs = keyConfiguration.getKeyVaultConfigs().stream()
             .map(KeyVaultConfig.class::cast).collect(Collectors.toList());
         configs.addAll(legacyConfigs);
-        
+
         final Map<KeyVaultType, Integer> typeCount = configs.stream()
             .filter(Objects::nonNull)
             .collect(Collectors.toMap(e -> e.getKeyVaultType(),v -> 1, (l, r) -> l + 1));
 
-        List<String> constraintMessages = typeCount.entrySet().stream()
+        typeCount.entrySet().stream()
             .filter(e -> e.getValue() > 1)
             .map(e -> e.getKey().name())
-            .map(s -> String.join(" ",s,constraintValidatorContext.getDefaultConstraintMessageTemplate()))
-            .collect(Collectors.toList());
-
-            constraintMessages.forEach(message -> {
+            .forEach(s -> {
+                String message = String.join(" ",s,constraintValidatorContext.getDefaultConstraintMessageTemplate());
                 constraintValidatorContext.disableDefaultConstraintViolation();
                 constraintValidatorContext
                     .buildConstraintViolationWithTemplate(message)
                     .addConstraintViolation();
             });
 
-            return constraintMessages.isEmpty();
+            return typeCount.values().stream().allMatch(v -> v == 1);
 
     }
 }
