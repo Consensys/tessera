@@ -94,7 +94,7 @@ public class KeyDataAdapterTest {
     @Test
     public void marshallHashicorpKeys() {
         final HashicorpVaultKeyPair keyPair =
-                new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", "0");
+                new HashicorpVaultKeyPair("pubId", "privId", "secretEngineName", "secretName", 0);
 
         final KeyData expected = new KeyData();
         expected.setHashicorpVaultPublicKeyId("pubId");
@@ -234,9 +234,80 @@ public class KeyDataAdapterTest {
         input.setHashicorpVaultPrivateKeyId("privId");
         input.setHashicorpVaultSecretEngineName("secretEngine");
         input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("10");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", 10);
 
         final ConfigKeyPair result = this.adapter.unmarshal(input);
         assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingHashicorpKeysGivesCorrectVersion() {
+        final KeyData input = new KeyData();
+
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("10");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", 10);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingHashicorpKeysGivesCorrectVersionNegative() {
+        final KeyData input = new KeyData();
+
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("-10");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", -1);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingHashicorpKeysGivesCorrectVersionNonInteger() {
+        final KeyData input = new KeyData();
+
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
+        input.setHashicorpVaultSecretVersion("1.1");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", -1);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
+    }
+
+    @Test
+    public void unmarshallingHashicorpKeysGivesCorrectVersionNull() {
+        final KeyData input = new KeyData();
+
+        input.setHashicorpVaultPublicKeyId("pubId");
+        input.setHashicorpVaultPrivateKeyId("privId");
+        input.setHashicorpVaultSecretEngineName("secretEngine");
+        input.setHashicorpVaultSecretName("secretName");
+
+        HashicorpVaultKeyPair expected = new HashicorpVaultKeyPair("pubId", "privId", "secretEngine", "secretName", 0);
+
+        final ConfigKeyPair result = this.adapter.unmarshal(input);
+        assertThat(result).isInstanceOf(HashicorpVaultKeyPair.class);
+        assertThat(result).isEqualToComparingFieldByField(expected);
     }
 
     @Test
