@@ -276,7 +276,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.azure.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{MatchingKeyVaultConfigsForKeyData.azure.message}");
     }
 
     @Test
@@ -296,7 +296,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.azure.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{MatchingKeyVaultConfigsForKeyData.azure.message}");
     }
 
     @Test
@@ -314,7 +314,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.hashicorp.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 
     @Test
@@ -335,7 +335,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.hashicorp.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 
     @Test

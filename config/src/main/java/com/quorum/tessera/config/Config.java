@@ -37,7 +37,7 @@ public class Config extends ConfigItem {
     @Valid
     @XmlElement(required = true)
     @ValidKeyConfiguration
-    @ValidKeyVaultConfiguration
+    @MatchingKeyVaultConfigsForKeyData
     @NoDuplicateKeyVaultConfigs
     private KeyConfiguration keys;
 

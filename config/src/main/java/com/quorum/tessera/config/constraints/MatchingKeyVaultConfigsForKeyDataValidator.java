@@ -10,8 +10,8 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Optional;
 
-public class KeyVaultConfigurationValidator
-        implements ConstraintValidator<ValidKeyVaultConfiguration, KeyConfiguration> {
+public class MatchingKeyVaultConfigsForKeyDataValidator
+        implements ConstraintValidator<MatchingKeyVaultConfigsForKeyData, KeyConfiguration> {
 
     @Override
     public boolean isValid(KeyConfiguration keyConfiguration, ConstraintValidatorContext cvc) {
@@ -31,7 +31,7 @@ public class KeyVaultConfigurationValidator
 
         if (isUsingAzureVaultKeys && !hasAzureKeyVaultConfig) {
             cvc.disableDefaultConstraintViolation();
-            cvc.buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}")
+            cvc.buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.azure.message}")
                     .addConstraintViolation();
 
             result = false;
@@ -45,7 +45,7 @@ public class KeyVaultConfigurationValidator
 
         if (isUsingHashicorpVaultKeys && !hasHashicorpKeyVaultConfig) {
             cvc.disableDefaultConstraintViolation();
-            cvc.buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.hashicorp.message}")
+            cvc.buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}")
                     .addConstraintViolation();
 
             result = false;
@@ -59,7 +59,7 @@ public class KeyVaultConfigurationValidator
 
         if (isUsingAWSVaultKeys && !hasAWSKeyVaultConfig) {
             cvc.disableDefaultConstraintViolation();
-            cvc.buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.aws.message}")
+            cvc.buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.aws.message}")
                     .addConstraintViolation();
 
             result = false;

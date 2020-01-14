@@ -15,11 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-public class KeyVaultConfigurationValidatorTest {
+public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
 
     private ConstraintValidatorContext context;
 
-    private KeyVaultConfigurationValidator validator;
+    private MatchingKeyVaultConfigsForKeyDataValidator validator;
 
     @Before
     public void setUp() {
@@ -29,7 +29,7 @@ public class KeyVaultConfigurationValidatorTest {
                 mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
         when(context.buildConstraintViolationWithTemplate(any(String.class))).thenReturn(builder);
 
-        validator = new KeyVaultConfigurationValidator();
+        validator = new MatchingKeyVaultConfigsForKeyDataValidator();
     }
 
     @Test
@@ -115,7 +115,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.azure.message}");
     }
 
     @Test
@@ -130,7 +130,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.azure.message}");
     }
 
     @Test
@@ -145,7 +145,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.azure.message}");
     }
 
     @Test
@@ -251,7 +251,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.hashicorp.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 
     @Test
@@ -266,7 +266,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.hashicorp.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 
     @Test
@@ -281,7 +281,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(null);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.hashicorp.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 
     @Test
@@ -321,7 +321,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(azureConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.hashicorp.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 
     @Test
@@ -336,7 +336,7 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(hashicorpConfig);
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.azure.message}");
     }
 
     @Test
@@ -402,8 +402,8 @@ public class KeyVaultConfigurationValidatorTest {
         when(keyConfiguration.getKeyData()).thenReturn(Arrays.asList(azure, hashicorp, aws));
 
         assertThat(validator.isValid(keyConfiguration, context)).isFalse();
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.azure.message}");
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.hashicorp.message}");
-        verify(context).buildConstraintViolationWithTemplate("{ValidKeyVaultConfiguration.aws.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.azure.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
+        verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.aws.message}");
     }
 }
