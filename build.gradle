@@ -6,6 +6,8 @@ plugins {
 
 }
 
+def jettyVersion = "9.4.25.v20191220"
+
 allprojects {
     group = 'com.jpmorgan.quorum'
     //version = '0.11-SNAPSHOT'
@@ -68,12 +70,13 @@ allprojects {
                 compile "org.glassfish.jersey.containers:jersey-container-servlet-core:2.27"
                 compile "javax.servlet:javax.servlet-api:4.0.1"
                 compile "com.sun.mail:javax.mail:1.6.2"
-                compile "org.eclipse.jetty:jetty-servlet:9.4.17.v20190418"
+
+                compile "org.eclipse.jetty:jetty-servlet:"+ jettyVersion
                 compile "org.glassfish.jersey.inject:jersey-hk2:2.27"
                 compile "org.glassfish.jersey.core:jersey-common:2.27"
-                compile "org.eclipse.jetty:jetty-unixsocket:9.4.17.v20190418"
-                compile "org.eclipse.jetty:jetty-server:9.4.17.v20190418"
-                compile "org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.17.v20190418"
+                compile "org.eclipse.jetty:jetty-unixsocket:"+ jettyVersion
+                compile "org.eclipse.jetty:jetty-server:"+ jettyVersion
+                compile "org.eclipse.jetty.websocket:javax-websocket-server-impl:"+ jettyVersion
                 compile "org.springframework:spring-core:5.1.2.RELEASE"
                 compile "org.springframework:spring-beans:5.1.2.RELEASE"
                 compile "org.springframework:spring-context:5.1.2.RELEASE"

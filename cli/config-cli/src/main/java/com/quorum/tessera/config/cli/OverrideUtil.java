@@ -48,19 +48,6 @@ public interface OverrideUtil {
                         }
                     });
 
-    static Map<String, Class> buildConfigOptions() {
-        final Map<String, Class> fields = fields(null, Config.class);
-
-        // add key overrides separately as they cannot be determined from the type directly
-        fields.put("keys.keyData.privateKeyPath", Path.class);
-        fields.put("keys.keyData.config.data.aopts.parallelism", String.class);
-        fields.put("keys.keyData.config.data.aopts.memory", String.class);
-        fields.put("keys.keyData.config.data.aopts.iterations", String.class);
-        fields.put("keys.keyData.config.data.aopts.algorithm", String.class);
-
-        return fields;
-    }
-
     static String resolveName(Field field) {
         if (!field.isAnnotationPresent(XmlElement.class)) {
             return field.getName();
