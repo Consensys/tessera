@@ -20,25 +20,25 @@ public class MatchingKeyVaultConfigsForKeyDataValidator
             return true;
         }
 
-        List<Boolean> outcomes = Stream.of(KeyVaultType.values()).map(k -> {
+        List<Boolean> outcomes =
+                Stream.of(KeyVaultType.values())
+                        .filter(
+                                k ->
+                                        keyConfiguration.getKeyData().stream()
+                                                .anyMatch(kd -> k.getKeyPairType().isInstance(kd)))
+                        .filter(k -> !keyConfiguration.getKeyVaultConfig(k).isPresent())
+                        .map(
+                                k -> {
+                                    cvc.disableDefaultConstraintViolation();
+                                    String messageKey =
+                                            String.format(
+                                                    "{MatchingKeyVaultConfigsForKeyData.%s.message}",
+                                                    k.name().toLowerCase());
+                                    cvc.buildConstraintViolationWithTemplate(messageKey).addConstraintViolation();
+                                    return false;
+                                })
+                        .collect(Collectors.toList());
 
-            boolean isUsingKeyVaultType = keyConfiguration.getKeyData().stream()
-                .anyMatch(v -> k.getKeyPairType().isInstance(v));
-
-            boolean hasKeyVaultConfig = keyConfiguration.getKeyVaultConfig(k).isPresent();
-
-            if (isUsingKeyVaultType && !hasKeyVaultConfig) {
-                cvc.disableDefaultConstraintViolation();
-                String messageKey = String.format("{MatchingKeyVaultConfigsForKeyData.%s.message}",k.name().toLowerCase());
-                cvc.buildConstraintViolationWithTemplate(messageKey)
-                    .addConstraintViolation();
-                return false;
-            }
-
-            return true;
-        }).collect(Collectors.toList());
-
-        return outcomes.stream().allMatch(v -> v);
-
+        return outcomes.isEmpty();
     }
 }
