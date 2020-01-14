@@ -40,17 +40,7 @@ public class ConfigServiceTest {
         verifyNoMoreInteractions(config, configFileStore);
     }
 
-    @Test
-    public void isUseWhileList() {
-        when(config.isUseWhiteList()).thenReturn(false);
 
-        assertThat(configService.isUseWhiteList()).isFalse();
-
-        when(config.isUseWhiteList()).thenReturn(true);
-        assertThat(configService.isUseWhiteList()).isTrue();
-
-        verify(config, times(2)).isUseWhiteList();
-    }
 
     @Test
     public void addPeer() {

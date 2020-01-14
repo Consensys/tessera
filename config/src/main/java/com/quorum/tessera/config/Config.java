@@ -49,7 +49,9 @@ public class Config extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path unixSocketFile;
 
-    @XmlAttribute private boolean useWhiteList;
+    @Deprecated
+    @XmlAttribute
+    private Boolean useWhiteList;
 
     @XmlAttribute private boolean disablePeerDiscovery;
 
@@ -59,25 +61,6 @@ public class Config extends ConfigItem {
 
     @XmlElement private EncryptorConfig encryptor;
 
-    @Deprecated
-    public Config(
-            final JdbcConfig jdbcConfig,
-            final List<ServerConfig> serverConfigs,
-            final List<Peer> peers,
-            final KeyConfiguration keyConfiguration,
-            final List<String> alwaysSendTo,
-            final Path unixSocketFile,
-            final boolean useWhiteList,
-            final boolean disablePeerDiscovery) {
-        this.jdbcConfig = jdbcConfig;
-        this.serverConfigs = serverConfigs;
-        this.peers = peers;
-        this.keys = keyConfiguration;
-        this.alwaysSendTo = alwaysSendTo;
-        this.unixSocketFile = unixSocketFile;
-        this.useWhiteList = useWhiteList;
-        this.disablePeerDiscovery = disablePeerDiscovery;
-    }
 
     public Config() {}
 
@@ -117,8 +100,12 @@ public class Config extends ConfigItem {
         return this.alwaysSendTo;
     }
 
-    public boolean isUseWhiteList() {
-        return this.useWhiteList;
+    @Deprecated
+    /**
+     * @deprecated use isDisablePeerDiscovery()
+     */
+    public Boolean isUseWhiteList() {
+        return useWhiteList;
     }
 
     public boolean isDisablePeerDiscovery() {
@@ -176,8 +163,9 @@ public class Config extends ConfigItem {
         this.unixSocketFile = unixSocketFile;
     }
 
-    public void setUseWhiteList(boolean useWhiteList) {
+    public void setUseWhiteList(Boolean useWhiteList) {
         this.useWhiteList = useWhiteList;
+        setDisablePeerDiscovery(useWhiteList);
     }
 
     public void setDisablePeerDiscovery(boolean disablePeerDiscovery) {

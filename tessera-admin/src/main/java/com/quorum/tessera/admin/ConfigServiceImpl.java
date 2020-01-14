@@ -38,11 +38,6 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
-    public boolean isUseWhiteList() {
-        return config.isUseWhiteList();
-    }
-
-    @Override
     public boolean isDisablePeerDiscovery() {
         return config.isDisablePeerDiscovery();
     }

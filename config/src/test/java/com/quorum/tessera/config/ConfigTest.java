@@ -17,7 +17,7 @@ public class ConfigTest {
 
     @Test
     public void createWithNullArgs() {
-        Config config = new Config(null, null, null, null, null, null, false, false);
+        Config config = new Config();
         assertThat(config).isNotNull();
     }
 
@@ -92,5 +92,15 @@ public class ConfigTest {
     public void version() {
         Config config = new Config();
         assertThat(config.getVersion()).isSameAs(Version.getVersion());
+    }
+
+    @Test
+    public void useWhiteListDisabledAutoDiscovery() {
+        Config config = new Config();
+        assertThat(config.isDisablePeerDiscovery()).isFalse();
+        assertThat(config.isUseWhiteList()).isNull();
+        config.setUseWhiteList(true);
+        assertThat(config.isDisablePeerDiscovery()).isTrue();
+        assertThat(config.isUseWhiteList()).isTrue();
     }
 }

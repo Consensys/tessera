@@ -296,8 +296,9 @@ public class OverrideUtilTest {
     @Test
     public void initialiseNestedObjects() {
 
-        Config config = new Config(null, null, null, null, null, null, true, true);
-
+        Config config = new Config();
+        config.setDisablePeerDiscovery(true);
+        config.setUseWhiteList(true);
         OverrideUtil.initialiseNestedObjects(config);
 
         LOGGER.debug(JaxbUtil.marshalToStringNoValidation(config));

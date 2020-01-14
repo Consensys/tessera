@@ -14,8 +14,6 @@ public interface ConfigService {
 
     List<Peer> getPeers();
 
-    boolean isUseWhiteList();
-
     boolean isDisablePeerDiscovery();
 
     URI getServerUri();

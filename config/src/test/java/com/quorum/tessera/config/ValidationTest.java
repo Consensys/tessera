@@ -110,7 +110,9 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = singletonList("BOGUS");
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false, false);
+        Config config = new Config();
+
+        config.setAlwaysSendTo(alwaysSendTo);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -128,7 +130,8 @@ public class ValidationTest {
 
         List<String> alwaysSendTo = singletonList(value);
 
-        Config config = new Config(null, null, null, null, alwaysSendTo, null, false, false);
+        Config config = new Config();
+        config.setAlwaysSendTo(alwaysSendTo);
 
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "alwaysSendTo");
 
@@ -270,8 +273,8 @@ public class ValidationTest {
     public void azureKeyPairProvidedWithoutKeyVaultConfigCreatesViolation() {
         AzureVaultKeyPair keyPair = new AzureVaultKeyPair("publicVauldId", "privateVaultId", null, null);
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null);
-        Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
-
+        Config config = new Config();
+        config.setKeys(keyConfiguration);
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
         assertThat(violations).hasSize(1);
 
@@ -345,8 +348,8 @@ public class ValidationTest {
         DirectKeyPair keyPair = new DirectKeyPair("pub", "priv");
 
         KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, singletonList(keyPair), null, null);
-        Config config = new Config(null, null, null, keyConfiguration, null, null, false, false);
-
+        Config config = new Config();
+        config.setKeys(keyConfiguration);
         Set<ConstraintViolation<Config>> violations = validator.validateProperty(config, "keys");
         assertThat(violations).hasSize(0);
     }
