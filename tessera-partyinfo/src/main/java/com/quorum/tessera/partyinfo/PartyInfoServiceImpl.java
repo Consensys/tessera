@@ -12,6 +12,7 @@ import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -128,22 +129,28 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             return;
         }
 
-        final Recipient retrievedRecipientFromStore =
+        final List<Recipient> retrievedRecipientsFromStore =
                 partyInfoStore.getPartyInfo().getRecipients().stream()
                         .filter(recipient -> recipientKey.equals(recipient.getKey()))
-                        .findAny()
-                        .orElseThrow(
-                                () ->
-                                        new KeyNotFoundException(
-                                                "Recipient not found for key: " + recipientKey.encodeToBase64()));
+                        .collect(Collectors.toList());
 
-        final String targetUrl = retrievedRecipientFromStore.getUrl();
+        if(retrievedRecipientsFromStore.isEmpty()) {
+            throw new KeyNotFoundException(
+                "Recipient not found for key: " + recipientKey.encodeToBase64());
 
-        LOGGER.info("Publishing message to {}", targetUrl);
+        }
 
-        payloadPublisher.publishPayload(payload, targetUrl);
+        retrievedRecipientsFromStore.forEach(retrievedRecipientFromStore -> {
+            final String targetUrl = retrievedRecipientFromStore.getUrl();
 
-        LOGGER.info("Published to {}", targetUrl);
+            LOGGER.info("Publishing message to {}", targetUrl);
+
+            payloadPublisher.publishPayload(payload, targetUrl);
+
+            LOGGER.info("Published to {}", targetUrl);
+        });
+
+
     }
 
     boolean validateKeysToUrls(final PartyInfo existingPartyInfo, final PartyInfo newPartyInfo) {

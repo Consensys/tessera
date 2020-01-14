@@ -29,7 +29,7 @@ public class IPWhitelistFilterTest {
     private ConfigService configService;
 
     @Before
-    public void onSetUp()  {
+    public void onSetUp() {
 
         this.containerRequestContext = mock(ContainerRequestContext.class);
         final UriInfo uriInfo = mock(UriInfo.class);
@@ -83,7 +83,6 @@ public class IPWhitelistFilterTest {
 
         when(configService.isDisablePeerDiscovery()).thenReturn(true);
         when(configService.getPeers()).thenReturn(EMPTY_LIST);
-
 
         IPWhitelistFilter filter = new IPWhitelistFilter(configService);
 
