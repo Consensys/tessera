@@ -19,8 +19,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * If peer discovery is enable, applies a filter to all endpoints that only allows certain IP address
- * and host names to get access to the HTTP endpoints
+ * If peer discovery is enabled, a filter to all endpoints that only allows certain IP address
+ * and host names to get access to the HTTP endpoints is applied.
  *
  * @see Config#isDisablePeerDiscovery()
  */
