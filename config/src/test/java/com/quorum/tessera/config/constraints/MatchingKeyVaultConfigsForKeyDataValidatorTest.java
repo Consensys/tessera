@@ -403,4 +403,12 @@ public class MatchingKeyVaultConfigsForKeyDataValidatorTest {
         verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.aws.message}");
         verify(context).buildConstraintViolationWithTemplate("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
+
+    @Test
+    public void noKeyDataIsHandled() {
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyData()).thenReturn(null);
+
+        assertThat(validator.isValid(keyConfiguration, context)).isTrue();
+    }
 }

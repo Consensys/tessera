@@ -192,4 +192,16 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
 
         assertThat(validator.isValid(keyConfiguration, constraintValidatorContext)).isTrue();
     }
+
+    @Test
+    public void multipleNullKeyVaultConfigTypesIsHandled() {
+        KeyConfiguration keyConfiguration = new KeyConfiguration();
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(null);
+
+        keyConfiguration.addKeyVaultConfig(keyVaultConfig);
+        keyConfiguration.addKeyVaultConfig(keyVaultConfig);
+
+        assertThat(validator.isValid(keyConfiguration, constraintValidatorContext)).isTrue();
+    }
 }

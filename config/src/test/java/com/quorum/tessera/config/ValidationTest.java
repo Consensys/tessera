@@ -420,4 +420,22 @@ public class ValidationTest {
             assertThat(validresult).isEmpty();
         }
     }
+
+    @Test
+    public void keyVaultConfigsWithNoPropertiesIsValid() {
+        final Config config = new Config();
+        final KeyConfiguration keyConfiguration = new KeyConfiguration();
+        final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+
+        final List<ConfigKeyPair> keyData = new ArrayList<>();
+        keyData.add(new DirectKeyPair("pub", "priv"));
+        keyConfiguration.setKeyData(keyData);
+
+        keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
+        keyConfiguration.addKeyVaultConfig(keyVaultConfig);
+        config.setKeys(keyConfiguration);
+
+        assertThat(validator.validateProperty(config, "keys")).isEmpty();
+        assertThat(validator.validate(keyConfiguration)).isEmpty();
+    }
 }
