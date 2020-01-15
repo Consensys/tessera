@@ -175,8 +175,6 @@ public class HashicorpKeyVaultServiceFactoryTest {
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
 
-        when(keyConfiguration.getHashicorpKeyVaultConfig()).thenReturn(null);
-
         Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
         assertThat(ex).isInstanceOf(ConfigException.class);
@@ -193,7 +191,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("noschemeurl"));
         when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
@@ -219,7 +217,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://malformedurl:-1"));
         when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
 
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         setUpUtilMocks(keyVaultConfig);
 
@@ -258,7 +256,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://someurl"));
         when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));
@@ -280,7 +278,7 @@ public class HashicorpKeyVaultServiceFactoryTest {
         when(config.getKeys()).thenReturn(keyConfiguration);
 
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
-        when(keyConfiguration.getKeyVaultConfig()).thenReturn(keyVaultConfig);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.HASHICORP)).thenReturn(Optional.of(keyVaultConfig));
 
         when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://someurl"));
         when(keyVaultConfig.getProperty("approlePath")).thenReturn(Optional.of("approle"));

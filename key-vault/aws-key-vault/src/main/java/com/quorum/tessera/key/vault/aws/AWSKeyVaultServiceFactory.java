@@ -32,7 +32,7 @@ public class AWSKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
         KeyVaultConfig keyVaultConfig =
                 Optional.ofNullable(config.getKeys())
-                        .map(KeyConfiguration::getKeyVaultConfig)
+                        .flatMap(k -> k.getKeyVaultConfig(KeyVaultType.AWS))
                         .orElseThrow(
                                 () ->
                                         new ConfigException(
