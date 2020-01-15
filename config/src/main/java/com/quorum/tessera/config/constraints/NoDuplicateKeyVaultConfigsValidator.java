@@ -42,6 +42,7 @@ public class NoDuplicateKeyVaultConfigsValidator
 
         final Map<KeyVaultType, Integer> typeCount = configs.stream()
             .filter(Objects::nonNull)
+            .filter(c -> Objects.nonNull(c.getKeyVaultType()))
             .collect(Collectors.toMap(e -> e.getKeyVaultType(),v -> 1, (l, r) -> l + 1));
 
         typeCount.entrySet().stream()
