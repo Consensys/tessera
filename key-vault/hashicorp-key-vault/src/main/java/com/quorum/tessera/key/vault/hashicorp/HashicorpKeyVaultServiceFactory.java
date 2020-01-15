@@ -65,7 +65,7 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
 
         KeyVaultConfig keyVaultConfig =
                 Optional.ofNullable(config.getKeys())
-                        .map(KeyConfiguration::getKeyVaultConfig)
+                        .flatMap(k -> k.getKeyVaultConfig(KeyVaultType.HASHICORP))
                         .orElseThrow(
                                 () ->
                                         new ConfigException(
