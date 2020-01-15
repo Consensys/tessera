@@ -31,7 +31,6 @@ public class NoDuplicateKeyVaultConfigsValidator
             return true;
         }
 
-
         final List<KeyVaultConfig> legacyConfigs = new ArrayList<>();
         legacyConfigs.add(keyConfiguration.getHashicorpKeyVaultConfig());
         legacyConfigs.add(keyConfiguration.getAzureKeyVaultConfig());

@@ -4,6 +4,7 @@ import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import org.junit.Test;
 
+import javax.validation.ConstraintValidatorContext;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -419,5 +420,23 @@ public class ValidationTest {
             Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
             assertThat(validresult).isEmpty();
         }
+    }
+
+    @Test
+    public void keyVaultConfigsWithNoPropertiesIsValid() {
+        Config config = new Config();
+        KeyConfiguration keyConfiguration = new KeyConfiguration();
+        DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+
+        List<ConfigKeyPair> keyData = new ArrayList<>();
+        keyData.add(new DirectKeyPair("pub", "priv"));
+        keyConfiguration.setKeyData(keyData);
+
+        keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
+        keyConfiguration.addKeyVaultConfig(keyVaultConfig);
+        config.setKeys(keyConfiguration);
+
+        assertThat(validator.validateProperty(config, "keys")).isEmpty();
+        assertThat(validator.validate(keyConfiguration)).isEmpty();
     }
 }
