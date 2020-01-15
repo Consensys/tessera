@@ -4,7 +4,6 @@ import com.quorum.tessera.config.adapters.KeyDataAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -16,6 +15,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyConfiguration extends ConfigItem {
@@ -37,7 +37,7 @@ public class KeyConfiguration extends ConfigItem {
     @XmlJavaTypeAdapter(KeyDataAdapter.class)
     private List<@Valid ConfigKeyPair> keyData;
 
-    @Valid @XmlElement private List<DefaultKeyVaultConfig> keyVaultConfigs;
+   @XmlElement private List<@Valid DefaultKeyVaultConfig> keyVaultConfigs;
 
     @Valid @XmlElement private AzureKeyVaultConfig azureKeyVaultConfig;
 
@@ -129,12 +129,14 @@ public class KeyConfiguration extends ConfigItem {
             keyVaultConfigs = new ArrayList<>();
         }
 
-        if (KeyVaultType.AZURE.equals(keyVaultConfig.getKeyVaultType())) {
-            keyVaultConfigs.add(KeyVaultConfigConverter.convert((AzureKeyVaultConfig) keyVaultConfig));
-        } else if (KeyVaultType.HASHICORP.equals(keyVaultConfig.getKeyVaultType())) {
-            keyVaultConfigs.add(KeyVaultConfigConverter.convert((HashicorpKeyVaultConfig) keyVaultConfig));
+        final DefaultKeyVaultConfig typedKeyVaultConfig;
+        if (AzureKeyVaultConfig.class.isInstance(keyVaultConfig)) {
+            typedKeyVaultConfig = KeyVaultConfigConverter.convert(AzureKeyVaultConfig.class.cast(keyVaultConfig));
+        } else if (HashicorpKeyVaultConfig.class.isInstance(keyVaultConfig)) {
+            typedKeyVaultConfig = KeyVaultConfigConverter.convert(HashicorpKeyVaultConfig.class.cast(keyVaultConfig));
         } else {
-            keyVaultConfigs.add((DefaultKeyVaultConfig) keyVaultConfig);
+            typedKeyVaultConfig = DefaultKeyVaultConfig.class.cast(keyVaultConfig);
         }
+        keyVaultConfigs.add(typedKeyVaultConfig);
     }
 }
