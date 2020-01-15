@@ -4,7 +4,6 @@ import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import org.junit.Test;
 
-import javax.validation.ConstraintValidatorContext;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -424,11 +423,11 @@ public class ValidationTest {
 
     @Test
     public void keyVaultConfigsWithNoPropertiesIsValid() {
-        Config config = new Config();
-        KeyConfiguration keyConfiguration = new KeyConfiguration();
-        DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+        final Config config = new Config();
+        final KeyConfiguration keyConfiguration = new KeyConfiguration();
+        final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
 
-        List<ConfigKeyPair> keyData = new ArrayList<>();
+        final List<ConfigKeyPair> keyData = new ArrayList<>();
         keyData.add(new DirectKeyPair("pub", "priv"));
         keyConfiguration.setKeyData(keyData);
 
