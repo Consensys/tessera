@@ -279,7 +279,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.azure.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{MatchingKeyVaultConfigsForKeyData.azure.message}");
     }
 
     @Test
@@ -290,7 +290,7 @@ public class ValidationTest {
         keyConfiguration.setKeyData(singletonList(keyPair));
 
         HashicorpKeyVaultConfig hashicorpConfig = new HashicorpKeyVaultConfig();
-        keyConfiguration.setHashicorpKeyVaultConfig(hashicorpConfig);
+        keyConfiguration.addKeyVaultConfig(hashicorpConfig);
 
         Config config = new Config();
         config.setKeys(keyConfiguration);
@@ -299,7 +299,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.azure.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{MatchingKeyVaultConfigsForKeyData.azure.message}");
     }
 
     @Test
@@ -309,7 +309,6 @@ public class ValidationTest {
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
-        keyConfiguration.setHashicorpKeyVaultConfig(null);
 
         Config config = new Config();
         config.setKeys(keyConfiguration);
@@ -318,20 +317,18 @@ public class ValidationTest {
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.hashicorp.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 
     @Test
     public void hashicorpKeyPairProvidedWithAzureKeyVaultConfigCreatesViolation() {
-        HashicorpVaultKeyPair keyPair =
-                new HashicorpVaultKeyPair("pubId", "privdId", "secretEngine", "secretName", null);
+        HashicorpVaultKeyPair keyPair = mock(HashicorpVaultKeyPair.class);
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         keyConfiguration.setKeyData(singletonList(keyPair));
-        keyConfiguration.setHashicorpKeyVaultConfig(null);
 
         AzureKeyVaultConfig azureConfig = new AzureKeyVaultConfig();
-        keyConfiguration.setAzureKeyVaultConfig(azureConfig);
+        keyConfiguration.addKeyVaultConfig(azureConfig);
 
         Config config = new Config();
         config.setKeys(keyConfiguration);
@@ -340,7 +337,7 @@ public class ValidationTest {
         assertThat(violations).hasSize(1);
 
         ConstraintViolation<Config> violation = violations.iterator().next();
-        assertThat(violation.getMessageTemplate()).isEqualTo("{ValidKeyVaultConfiguration.hashicorp.message}");
+        assertThat(violation.getMessageTemplate()).isEqualTo("{MatchingKeyVaultConfigsForKeyData.hashicorp.message}");
     }
 
     @Test
@@ -425,5 +422,23 @@ public class ValidationTest {
             Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
             assertThat(validresult).isEmpty();
         }
+    }
+
+    @Test
+    public void keyVaultConfigsWithNoPropertiesIsValid() {
+        final Config config = new Config();
+        final KeyConfiguration keyConfiguration = new KeyConfiguration();
+        final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
+
+        final List<ConfigKeyPair> keyData = new ArrayList<>();
+        keyData.add(new DirectKeyPair("pub", "priv"));
+        keyConfiguration.setKeyData(keyData);
+
+        keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
+        keyConfiguration.addKeyVaultConfig(keyVaultConfig);
+        config.setKeys(keyConfiguration);
+
+        assertThat(validator.validateProperty(config, "keys")).isEmpty();
+        assertThat(validator.validate(keyConfiguration)).isEmpty();
     }
 }
