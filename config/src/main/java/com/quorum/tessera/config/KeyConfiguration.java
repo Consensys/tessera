@@ -4,7 +4,6 @@ import com.quorum.tessera.config.adapters.KeyDataAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidPath;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -13,7 +12,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyConfiguration extends ConfigItem {
@@ -35,7 +36,7 @@ public class KeyConfiguration extends ConfigItem {
     @XmlJavaTypeAdapter(KeyDataAdapter.class)
     private List<@Valid ConfigKeyPair> keyData;
 
-    @Valid @XmlElement private DefaultKeyVaultConfig keyVaultConfig;
+   @XmlElement private List<@Valid DefaultKeyVaultConfig> keyVaultConfigs;
 
     @Valid @XmlElement private AzureKeyVaultConfig azureKeyVaultConfig;
 
@@ -54,9 +55,11 @@ public class KeyConfiguration extends ConfigItem {
         this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
 
         if (null != azureKeyVaultConfig) {
-            this.keyVaultConfig = KeyVaultConfigConverter.convert(azureKeyVaultConfig);
-        } else if (null != hashicorpKeyVaultConfig) {
-            this.keyVaultConfig = KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
+            addKeyVaultConfig(azureKeyVaultConfig);
+        }
+
+        if (null != hashicorpKeyVaultConfig) {
+            addKeyVaultConfig(hashicorpKeyVaultConfig);
         }
     }
 
@@ -82,6 +85,32 @@ public class KeyConfiguration extends ConfigItem {
         return hashicorpKeyVaultConfig;
     }
 
+    public List<DefaultKeyVaultConfig> getKeyVaultConfigs() {
+        return keyVaultConfigs;
+    }
+
+    public Optional<DefaultKeyVaultConfig> getKeyVaultConfig(KeyVaultType type) {
+        if (type == null) {
+            return Optional.empty();
+        }
+
+        if (KeyVaultType.AZURE.equals(type) && azureKeyVaultConfig != null) {
+            return Optional.of(KeyVaultConfigConverter.convert(azureKeyVaultConfig));
+        }
+
+        if (KeyVaultType.HASHICORP.equals(type) && hashicorpKeyVaultConfig != null) {
+            return Optional.of(KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig));
+        }
+
+        if (keyVaultConfigs == null) {
+            return Optional.empty();
+        }
+
+        return keyVaultConfigs.stream()
+            .filter(c -> type.equals(c.getKeyVaultType()))
+            .findFirst();
+    }
+
     public void setPasswordFile(Path passwordFile) {
         this.passwordFile = passwordFile;
     }
@@ -94,27 +123,19 @@ public class KeyConfiguration extends ConfigItem {
         this.keyData = keyData;
     }
 
-    public void setAzureKeyVaultConfig(AzureKeyVaultConfig azureKeyVaultConfig) {
-        this.azureKeyVaultConfig = azureKeyVaultConfig;
-    }
-
-    public void setHashicorpKeyVaultConfig(HashicorpKeyVaultConfig hashicorpKeyVaultConfig) {
-        this.hashicorpKeyVaultConfig = hashicorpKeyVaultConfig;
-    }
-
-    public DefaultKeyVaultConfig getKeyVaultConfig() {
-        if (keyVaultConfig != null) {
-            return keyVaultConfig;
+    public void addKeyVaultConfig(KeyVaultConfig keyVaultConfig) {
+        if (keyVaultConfigs == null) {
+            keyVaultConfigs = new ArrayList<>();
         }
-        if (null != azureKeyVaultConfig) {
-            return KeyVaultConfigConverter.convert(azureKeyVaultConfig);
-        } else if (null != hashicorpKeyVaultConfig) {
-            return KeyVaultConfigConverter.convert(hashicorpKeyVaultConfig);
-        }
-        return null;
-    }
 
-    public void setKeyVaultConfig(DefaultKeyVaultConfig keyVaultConfig) {
-        this.keyVaultConfig = keyVaultConfig;
+        final DefaultKeyVaultConfig typedKeyVaultConfig;
+        if (AzureKeyVaultConfig.class.isInstance(keyVaultConfig)) {
+            typedKeyVaultConfig = KeyVaultConfigConverter.convert(AzureKeyVaultConfig.class.cast(keyVaultConfig));
+        } else if (HashicorpKeyVaultConfig.class.isInstance(keyVaultConfig)) {
+            typedKeyVaultConfig = KeyVaultConfigConverter.convert(HashicorpKeyVaultConfig.class.cast(keyVaultConfig));
+        } else {
+            typedKeyVaultConfig = DefaultKeyVaultConfig.class.cast(keyVaultConfig);
+        }
+        keyVaultConfigs.add(typedKeyVaultConfig);
     }
 }

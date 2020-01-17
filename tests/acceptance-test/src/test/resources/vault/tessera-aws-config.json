@@ -26,12 +26,14 @@
     ],
     "keys": {
         "passwords": [],
-        "keyVaultConfig": {
-            "keyVaultType": "AWS",
-            "properties": {
-                "endpoint": "${awsSecretsManagerEndpoint}"
+        "keyVaultConfigs": [
+            {
+                "keyVaultType": "AWS",
+                "properties": {
+                    "endpoint": "${awsSecretsManagerEndpoint}"
+                }
             }
-        },
+        ],
         "keyData": [
             {
                 "awsSecretsManagerPublicKeyId": "secretIdPub",

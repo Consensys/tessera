@@ -23,159 +23,45 @@ public class OverrideUtilTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OverrideUtilTest.class);
 
-    // TODO(cjh) can we remove this now we've got rid of apache commons-cli?
     @Test
-    public void buildOptions() {
+    public void fieldsPrimitive() {
+        class PrimitiveBox {
+            int i;
+        }
 
-        final List<String> expected =
-                Arrays.asList(
-                        "version",
-                        "jdbc.username",
-                        "jdbc.password",
-                        "jdbc.url",
-                        "jdbc.autoCreateTables",
-                        "jdbc.fetchSize",
-                        "peer.url",
-                        "keys.passwordFile",
-                        "keys.passwords",
-                        "keys.keyData.config.data.aopts.algorithm",
-                        "keys.keyData.config.data.aopts.iterations",
-                        "keys.keyData.config.data.aopts.memory",
-                        "keys.keyData.config.data.aopts.parallelism",
-                        "keys.keyData.privateKeyPath",
-                        "keys.azureKeyVaultConfig.url",
-                        "keys.hashicorpKeyVaultConfig.approlePath",
-                        "keys.hashicorpKeyVaultConfig.tlsKeyStorePath",
-                        "keys.hashicorpKeyVaultConfig.tlsTrustStorePath",
-                        "keys.hashicorpKeyVaultConfig.url",
-                        "alwaysSendTo",
-                        "unixSocketFile",
-                        "useWhiteList",
-                        "disablePeerDiscovery",
-                        "serverConfigs.serverAddress",
-                        "serverConfigs.cors.allowedOrigins",
-                        "serverConfigs.cors.allowCredentials",
-                        "serverConfigs.cors.allowedHeaders",
-                        "serverConfigs.cors.allowedMethods",
-                        "serverConfigs.influxConfig.dbName",
-                        "serverConfigs.influxConfig.serverAddress",
-                        "serverConfigs.influxConfig.pushIntervalInSecs",
-                        "serverConfigs.influxConfig.sslConfig.serverTrustStore",
-                        "serverConfigs.influxConfig.sslConfig.clientTrustCertificates",
-                        "serverConfigs.influxConfig.sslConfig.serverKeyStorePassword",
-                        "serverConfigs.influxConfig.sslConfig.clientKeyStorePassword",
-                        "serverConfigs.influxConfig.sslConfig.serverTrustCertificates",
-                        "serverConfigs.influxConfig.sslConfig.clientTlsKeyPath",
-                        "serverConfigs.influxConfig.sslConfig.clientTrustStorePassword",
-                        "serverConfigs.influxConfig.sslConfig.serverKeyStore",
-                        "serverConfigs.influxConfig.sslConfig.serverTrustStorePassword",
-                        "serverConfigs.influxConfig.sslConfig.clientKeyStore",
-                        "serverConfigs.influxConfig.sslConfig.generateKeyStoreIfNotExisted",
-                        "serverConfigs.influxConfig.sslConfig.serverTlsKeyPath",
-                        "serverConfigs.influxConfig.sslConfig.clientTlsCertificatePath",
-                        "serverConfigs.influxConfig.sslConfig.serverTlsCertificatePath",
-                        "serverConfigs.influxConfig.sslConfig.clientTrustMode",
-                        "serverConfigs.influxConfig.sslConfig.knownClientsFile",
-                        "serverConfigs.influxConfig.sslConfig.serverTrustMode",
-                        "serverConfigs.influxConfig.sslConfig.tls",
-                        "serverConfigs.influxConfig.sslConfig.clientTrustStore",
-                        "serverConfigs.influxConfig.sslConfig.environmentVariablePrefix",
-                        "serverConfigs.influxConfig.sslConfig.sslConfigType",
-                        "serverConfigs.influxConfig.sslConfig.knownServersFile",
-                        "serverConfigs.influxConfig.sslConfig.excludeCipherSuites",
-                        "serverConfigs.sslConfig.serverTrustStore",
-                        "serverConfigs.sslConfig.knownClientsFile",
-                        "serverConfigs.sslConfig.serverTrustCertificates",
-                        "serverConfigs.sslConfig.clientTrustCertificates",
-                        "serverConfigs.sslConfig.clientTrustStorePassword",
-                        "serverConfigs.sslConfig.generateKeyStoreIfNotExisted",
-                        "serverConfigs.bindingAddress",
-                        "serverConfigs.sslConfig.serverKeyStore",
-                        "serverConfigs.sslConfig.serverTrustStorePassword",
-                        "serverConfigs.sslConfig.serverKeyStorePassword",
-                        "serverConfigs.sslConfig.clientTrustMode",
-                        "serverConfigs.sslConfig.clientKeyStorePassword",
-                        "serverConfigs.communicationType",
-                        "serverConfigs.sslConfig.clientTlsCertificatePath",
-                        "serverConfigs.sslConfig.serverTlsKeyPath",
-                        "serverConfigs.sslConfig.clientKeyStore",
-                        "serverConfigs.sslConfig.serverTrustMode",
-                        "serverConfigs.sslConfig.clientTlsKeyPath",
-                        "serverConfigs.app",
-                        "serverConfigs.sslConfig.clientTrustStore",
-                        "serverConfigs.enabled",
-                        "serverConfigs.sslConfig.serverTlsCertificatePath",
-                        "serverConfigs.sslConfig.tls",
-                        "serverConfigs.sslConfig.knownServersFile",
-                        "serverConfigs.sslConfig.environmentVariablePrefix",
-                        "serverConfigs.sslConfig.sslConfigType",
-                        "serverConfigs.sslConfig.excludeCipherSuites",
-                        "serverConfigs.syncInterval",
-                        "server.hostName",
-                        "server.sslConfig.knownServersFile",
-                        "server.sslConfig.clientTrustStorePassword",
-                        "server.sslConfig.clientKeyStorePassword",
-                        "server.sslConfig.clientTlsKeyPath",
-                        "server.sslConfig.clientTrustCertificates",
-                        "server.sslConfig.knownClientsFile",
-                        "server.communicationType",
-                        "server.sslConfig.serverTrustStorePassword",
-                        "server.sslConfig.serverTrustCertificates",
-                        "server.sslConfig.clientTrustStore",
-                        "server.sslConfig.tls",
-                        "server.sslConfig.serverTlsCertificatePath",
-                        "server.sslConfig.serverKeyStore",
-                        "server.port",
-                        "server.sslConfig.generateKeyStoreIfNotExisted",
-                        "server.sslConfig.clientTlsCertificatePath",
-                        "server.sslConfig.serverTlsKeyPath",
-                        "server.sslConfig.serverTrustStore",
-                        "server.bindingAddress",
-                        "server.sslConfig.serverTrustMode",
-                        "server.sslConfig.clientKeyStore",
-                        "server.sslConfig.clientTrustMode",
-                        "server.sslConfig.serverKeyStorePassword",
-                        "server.sslConfig.environmentVariablePrefix",
-                        "server.sslConfig.sslConfigType",
-                        "server.sslConfig.excludeCipherSuites",
-                        "server.influxConfig.serverAddress",
-                        "server.influxConfig.dbName",
-                        "server.influxConfig.pushIntervalInSecs",
-                        "server.influxConfig.sslConfig.serverTrustMode",
-                        "server.influxConfig.sslConfig.clientTrustStore",
-                        "server.influxConfig.sslConfig.environmentVariablePrefix",
-                        "server.influxConfig.sslConfig.clientTlsKeyPath",
-                        "server.influxConfig.sslConfig.clientTrustMode",
-                        "server.influxConfig.sslConfig.serverKeyStore",
-                        "server.influxConfig.sslConfig.serverTlsKeyPath",
-                        "server.influxConfig.sslConfig.serverTrustCertificates",
-                        "server.influxConfig.sslConfig.knownClientsFile",
-                        "server.influxConfig.sslConfig.serverTrustStorePassword",
-                        "server.influxConfig.sslConfig.serverTrustStore",
-                        "server.influxConfig.sslConfig.clientTrustStorePassword",
-                        "server.influxConfig.sslConfig.clientTlsCertificatePath",
-                        "server.influxConfig.sslConfig.serverTlsCertificatePath",
-                        "server.influxConfig.sslConfig.clientKeyStorePassword",
-                        "server.influxConfig.sslConfig.knownServersFile",
-                        "server.influxConfig.sslConfig.tls",
-                        "server.influxConfig.sslConfig.clientTrustCertificates",
-                        "server.influxConfig.sslConfig.clientKeyStore",
-                        "server.influxConfig.sslConfig.generateKeyStoreIfNotExisted",
-                        "server.influxConfig.sslConfig.serverKeyStorePassword",
-                        "server.influxConfig.sslConfig.sslConfigType",
-                        "server.influxConfig.sslConfig.excludeCipherSuites",
-                        "features.enableRemoteKeyValidation",
-                        "encryptor.type",
-                        "keys.keyVaultConfig.keyVaultType");
-
-        final Map<String, Class> results = OverrideUtil.buildConfigOptions();
-
-        assertThat(results.keySet())
+        Map<String, Class> result = OverrideUtil.fields("primitive", PrimitiveBox.class);
+        assertThat(result.keySet())
                 .filteredOn(s -> !s.contains("$jacocoData"))
-                .containsExactlyInAnyOrderElementsOf(expected);
+                .containsExactlyInAnyOrder("primitive.i");
 
-        assertThat(results.get("serverConfigs.sslConfig.knownClientsFile")).isEqualTo(Path.class);
-        assertThat(results.get("keys.passwords")).isEqualTo(String[].class);
+        assertThat(result.get("primitive.i")).isEqualTo(int.class);
+    }
+
+    @Test
+    public void fieldsCollection() {
+        class SimpleBox {
+            String s;
+            Path p;
+        }
+        class CollectionBox {
+            List<String> simple;
+            List<SimpleBox> complex;
+        }
+
+        Map<String, Class> result = OverrideUtil.fields("collection", CollectionBox.class);
+        assertThat(result.keySet())
+                .filteredOn(s -> !s.contains("$jacocoData"))
+                .containsExactlyInAnyOrder("collection.simple", "collection.complex.s", "collection.complex.p");
+
+        assertThat(result.get("collection.simple")).isEqualTo(String[].class);
+        assertThat(result.get("collection.complex.s")).isEqualTo(String.class);
+        assertThat(result.get("collection.complex.p")).isEqualTo(Path.class);
+    }
+
+    @Test
+    public void fieldsConfig() {
+        Map<String, Class> fields = OverrideUtil.fields(null, Config.class);
+        assertThat(fields).isNotEmpty();
     }
 
     @Test

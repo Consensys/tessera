@@ -3,6 +3,8 @@ package com.quorum.tessera.jaxrs.client;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.reflect.ReflectCallback;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
+import com.quorum.tessera.config.util.IntervalPropertyHelper;
+
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
@@ -64,11 +66,10 @@ public class ClientFactory {
 
         final ClientBuilder clientBuilder = ClientBuilder.newBuilder();
 
-        if (config.getSyncInterval() != null) {
-            final long timeout = Math.round(Math.ceil(config.getSyncInterval() * 0.75));
-            clientBuilder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
-            clientBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS);
-        }
+        final long pollInterval = new IntervalPropertyHelper(config.getProperties()).partyInfoInterval();
+        final long timeout = Math.round(Math.ceil(pollInterval * 0.75));
+        clientBuilder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
+        clientBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS);
 
         if (config.isUnixSocket()) {
             Configuration clientConfig = createUnixServerSocketConfig();

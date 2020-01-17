@@ -14,6 +14,8 @@ import javax.ws.rs.client.Client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
@@ -41,7 +43,7 @@ public class ClientFactoryTest {
 
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(serverConfig.isSsl()).thenReturn(false);
-        when(serverConfig.getSyncInterval()).thenReturn(null);
+        when(serverConfig.getProperties()).thenReturn(Collections.emptyMap());
 
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
@@ -55,7 +57,9 @@ public class ClientFactoryTest {
         when(serverConfig.isSsl()).thenReturn(true);
         when(serverConfig.getServerUri()).thenReturn(new URI("https://localhost:8080"));
         when(serverConfig.getSslConfig()).thenReturn(sslConfig);
-        when(serverConfig.getSyncInterval()).thenReturn(20000);
+        Map<String, String> props = new HashMap<>();
+        props.put("partyInfoInterval", "20000");
+        when(serverConfig.getProperties()).thenReturn(props);
 
         SSLContext sslContext = mock(SSLContext.class);
         when(sslContextFactory.from(serverConfig.getServerUri().toString(), sslConfig)).thenReturn(sslContext);
