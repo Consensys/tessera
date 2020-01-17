@@ -36,8 +36,6 @@ public class KeyGenCommand implements Callable<CliResult> {
     private final Validator validator =
             Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
-    // TODO(cjh) changes have been made to CLI option descriptions.  should these be raised as a separate change ?
-
     @CommandLine.Option(
             names = {"--keyout", "-filename"},
             split = ",",
@@ -89,7 +87,7 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     // TODO(cjh) implement config output and password file update ?
     //  we've removed the ability to start the node straight away after generating keys.  Not sure if updating
-    // configfile
+    //  configfile
     //  and password file is something we want to still support or put onus on users to go and update as required
     @CommandLine.Option(
             names = {"--configout", "-output"},

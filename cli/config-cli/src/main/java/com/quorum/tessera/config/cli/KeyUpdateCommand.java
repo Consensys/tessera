@@ -61,8 +61,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
     public Integer parallelism;
 
     // TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt and password file - can be done
-    // as
-    // a separate change
+    //  as a separate change
     @CommandLine.Option(names = {"--keys.passwords"})
     public String password;
 
