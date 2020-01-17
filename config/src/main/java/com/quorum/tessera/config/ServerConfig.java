@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.adapters.MapAdapter;
 import com.quorum.tessera.config.constraints.ValidServerAddress;
 import com.quorum.tessera.config.constraints.ValidSsl;
 
@@ -8,8 +9,11 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -46,7 +50,9 @@ public class ServerConfig extends ConfigItem {
     @XmlElement(name = "cors")
     private CrossDomainConfig crossDomainConfig;
 
-    @XmlElement private Integer syncInterval;
+    @XmlJavaTypeAdapter(MapAdapter.class)
+    @XmlElement
+    private Map<String, String> properties = Collections.emptyMap();
 
     public ServerConfig(
             final AppType app,
@@ -159,11 +165,11 @@ public class ServerConfig extends ConfigItem {
         this.crossDomainConfig = crossDomainConfig;
     }
 
-    public Integer getSyncInterval() {
-        return syncInterval;
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
-    public void setSyncInterval(Integer syncInterval) {
-        this.syncInterval = syncInterval;
+    public void setProperties(Map<String, String> properties) {
+        this.properties = properties;
     }
 }

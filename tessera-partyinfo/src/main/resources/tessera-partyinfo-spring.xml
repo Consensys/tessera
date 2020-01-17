@@ -38,12 +38,16 @@
         <constructor-arg ref="p2pClient"/>
     </bean>
 
+    <bean name="propertyHelper" class="com.quorum.tessera.util.IntervalPropertyHelper">
+        <constructor-arg value="#{config.getP2PServerConfig().getProperties()}"/>
+    </bean>
+
     <bean name="partyInfoPollExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
         <constructor-arg>
             <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
         </constructor-arg>
         <constructor-arg ref="partyInfoPoller"/>
-        <constructor-arg value="#{ config.getP2PServerConfig().getSyncInterval() != null ? config.getP2PServerConfig().getSyncInterval() : 5000}"/>
+        <constructor-arg value="#{propertyHelper.partyInfoInterval()}"/>
         <constructor-arg value="5000"/>
     </bean>
 
@@ -57,7 +61,6 @@
         <constructor-arg ref="enclave" />
         <constructor-arg ref="partyInfoStore" />
         <constructor-arg ref="configService" />
-
     </bean>
 
     <bean name="enclaveKeySynchroniserExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
@@ -65,7 +68,7 @@
             <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
         </constructor-arg>
         <constructor-arg ref="enclaveKeySynchroniser"/>
-        <constructor-arg value="2000"/>
+        <constructor-arg value="#{propertyHelper.enclaveKeySyncInterval()}"/>
         <constructor-arg value="5000"/>
     </bean>
 
@@ -91,7 +94,7 @@
                 <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
             </constructor-arg>
             <constructor-arg ref="syncPoller"/>
-            <constructor-arg value="60000"/>
+            <constructor-arg value="#{propertyHelper.syncInterval()}"/>
             <constructor-arg value="5000"/>
         </bean>
     </beans>
