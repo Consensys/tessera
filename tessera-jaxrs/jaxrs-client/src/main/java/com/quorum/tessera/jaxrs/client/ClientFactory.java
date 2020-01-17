@@ -3,6 +3,8 @@ package com.quorum.tessera.jaxrs.client;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.reflect.ReflectCallback;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
+import com.quorum.tessera.config.util.IntervalPropertyHelper;
+
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.Arrays;
@@ -11,6 +13,7 @@ import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.Configuration;
 
 /**
@@ -61,6 +64,13 @@ public class ClientFactory {
      */
     public Client buildFrom(final ServerConfig config) {
 
+        final ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+
+        final long pollInterval = new IntervalPropertyHelper(config.getProperties()).partyInfoInterval();
+        final long timeout = Math.round(Math.ceil(pollInterval * 0.75));
+        clientBuilder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
+        clientBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS);
+
         if (config.isUnixSocket()) {
             Configuration clientConfig = createUnixServerSocketConfig();
             URI unixfile = config.getServerUri();
@@ -69,9 +79,9 @@ public class ClientFactory {
         } else if (config.isSsl()) {
             final SSLContext sslContext =
                     sslContextFactory.from(config.getServerUri().toString(), config.getSslConfig());
-            return ClientBuilder.newBuilder().sslContext(sslContext).build();
+            return clientBuilder.sslContext(sslContext).build();
         } else {
-            return ClientBuilder.newClient();
+            return clientBuilder.build();
         }
     }
 }
