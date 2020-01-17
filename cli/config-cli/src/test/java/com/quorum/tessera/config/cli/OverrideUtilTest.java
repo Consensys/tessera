@@ -110,7 +110,6 @@ public class OverrideUtilTest {
                         "serverConfigs.sslConfig.environmentVariablePrefix",
                         "serverConfigs.sslConfig.sslConfigType",
                         "serverConfigs.sslConfig.excludeCipherSuites",
-                        "serverConfigs.syncInterval",
                         "server.hostName",
                         "server.sslConfig.knownServersFile",
                         "server.sslConfig.clientTrustStorePassword",

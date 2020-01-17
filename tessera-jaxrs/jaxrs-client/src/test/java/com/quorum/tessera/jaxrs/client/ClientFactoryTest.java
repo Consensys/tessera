@@ -14,6 +14,7 @@ import javax.ws.rs.client.Client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public class ClientFactoryTest {
 
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(serverConfig.isSsl()).thenReturn(false);
-        //        when(serverConfig.getSyncInterval()).thenReturn(null);
+        when(serverConfig.getProperties()).thenReturn(Collections.emptyMap());
 
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
