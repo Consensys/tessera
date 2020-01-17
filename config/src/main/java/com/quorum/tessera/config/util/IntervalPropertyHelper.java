@@ -1,4 +1,4 @@
-package com.quorum.tessera.util;
+package com.quorum.tessera.config.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

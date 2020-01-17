@@ -3,7 +3,7 @@ package com.quorum.tessera.jaxrs.client;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.reflect.ReflectCallback;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
-import com.quorum.tessera.util.IntervalPropertyHelper;
+import com.quorum.tessera.config.util.IntervalPropertyHelper;
 
 import java.lang.reflect.Method;
 import java.net.URI;

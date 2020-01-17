@@ -38,7 +38,7 @@
         <constructor-arg ref="p2pClient"/>
     </bean>
 
-    <bean name="propertyHelper" class="com.quorum.tessera.util.IntervalPropertyHelper">
+    <bean name="propertyHelper" class="com.quorum.tessera.config.util.IntervalPropertyHelper">
         <constructor-arg value="#{config.getP2PServerConfig().getProperties()}"/>
     </bean>
 
