@@ -13,6 +13,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -75,6 +76,23 @@ public class KeyGenCommandTest {
         verify(encryptorOptions).parseEncryptorConfig();
         verify(keyGenerator).generate(anyString(), any(), any());
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+    }
+
+    @Test
+    public void usesDefaultEncryptorIfNoneInConfigOrCLI() throws Exception {
+        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+        CliResult result = command.call();
+
+        // verify the correct config is used
+        ArgumentCaptor<EncryptorConfig> arg = ArgumentCaptor.forClass(EncryptorConfig.class);
+        verify(keyGeneratorFactory).create(eq(null), arg.capture());
+        EncryptorConfig gotEncryptorConfig = arg.getValue();
+        assertThat(gotEncryptorConfig).isEqualToComparingFieldByField(EncryptorConfig.getDefault());
+
+        assertThat(result).isEqualToComparingFieldByField(wantResult);
+        verify(keyGenerator).generate(anyString(), any(), any());
     }
 
     @Test

@@ -108,8 +108,10 @@ public class KeyGenCommand implements Callable<CliResult> {
                 .map(Config::getEncryptor)
                 .isPresent()) {
             encryptorConfig = fileUpdateOptions.config.getEncryptor();
-        } else {
+        } else if (Objects.nonNull(encryptorOptions)) {
             encryptorConfig = encryptorOptions.parseEncryptorConfig();
+        } else {
+            encryptorConfig = EncryptorConfig.getDefault();
         }
 
         final KeyVaultOptions keyVaultOptions = this.keyVaultOptions().orElse(null);
