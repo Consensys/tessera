@@ -39,6 +39,7 @@ public class KeyGenCommand implements Callable<CliResult> {
     @CommandLine.Option(
             names = {"--keyout", "-filename"},
             split = ",",
+            arity = "0..1",
             description =
                     "Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args determines number of key-pairs generated (default = ${DEFAULT-VALUE})")
     public List<String> keyOut;
@@ -101,9 +102,6 @@ public class KeyGenCommand implements Callable<CliResult> {
         this.factory = keyGeneratorFactory;
     }
 
-    // TODO(cjh) 'tessera keygen' with no args prints help.  this is consistent with the other commands' behaviour, but
-    //  previously this would generate keys at the default location '.'.  do we want to reintroduce this or keep
-    //  consistency with the other commands?
     @Override
     public CliResult call() {
         final EncryptorConfig encryptorConfig;
