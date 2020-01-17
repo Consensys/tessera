@@ -4,33 +4,12 @@ import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 public class KeyDataUtil {
 
-    private static final Validator VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
-
-    public  static ConfigKeyPair unmarshalAndValidate(final KeyData keyData, final KeyEncryptor keyEncryptor) {
-
-        ConfigKeyPair unmarshalled = unmarshal(keyData,keyEncryptor);
-
-        Set<ConstraintViolation<ConfigKeyPair>> violations = VALIDATOR.validate(unmarshalled);
-        if(!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-
-
-
-        return unmarshalled;
-
-    }
 
     public static ConfigKeyPair unmarshal(final KeyData keyData, final KeyEncryptor keyEncryptor) {
 

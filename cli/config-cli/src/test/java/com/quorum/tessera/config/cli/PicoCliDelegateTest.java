@@ -290,6 +290,7 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
     }
 
+    @Ignore
     @Test
     public void withInvalidPath() throws Exception {
         // unixSocketPath

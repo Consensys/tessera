@@ -1,8 +1,6 @@
 package config;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
@@ -229,10 +227,18 @@ public class ConfigBuilder {
 
         config.setKeys(new KeyConfiguration());
 
-        final List<ConfigKeyPair> pairs =
+        final List<KeyData> pairs =
                 keys.entrySet().stream()
-                        .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
+                      //  .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
+                        .map(e -> {
+                            KeyData keyData = new KeyData();
+                            keyData.setPublicKey(e.getKey());
+                            keyData.setPrivateKey(e.getValue());
+                            return keyData;
+                        })
                         .collect(Collectors.toList());
+
+
 
         config.getKeys().setKeyData(pairs);
 

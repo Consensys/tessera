@@ -1,11 +1,6 @@
 package exec;
 
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import config.ConfigDescriptor;
 import java.io.OutputStream;
@@ -133,13 +128,13 @@ public class EnclaveExecManager implements ExecManager {
         enclaveConfig.setServerConfigs(Arrays.asList(serverConfig));
 
         enclaveConfig.setKeys(new KeyConfiguration());
+        KeyData keyPairData = new KeyData();
+        keyPairData.setPublicKey("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        keyPairData.setPrivateKey("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+
         enclaveConfig
                 .getKeys()
-                .setKeyData(
-                        Arrays.asList(
-                                new DirectKeyPair(
-                                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
-                                        "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")));
+                .setKeyData(Arrays.asList(keyPairData));
 
         Path configFile = Paths.get("target", UUID.randomUUID().toString() + ".json");
 

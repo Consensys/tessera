@@ -1,9 +1,6 @@
 package com.quorum.tessera.test.migration.config;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import cucumber.api.java8.En;
 
@@ -24,14 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigMigrationSteps implements En {
 
-    public static final KeyEncryptor KEY_ENCRYPTOR =
-            KeyEncryptorFactory.newFactory()
-                    .create(
-                            new EncryptorConfig() {
-                                {
-                                    setType(EncryptorType.NACL);
-                                }
-                            });
+
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -125,12 +115,13 @@ public class ConfigMigrationSteps implements En {
 
                     final KeyConfiguration keys = new KeyConfiguration();
 
-                    keys.setKeyData(
-                            singletonList(
-                                    new FilesystemKeyPair(
-                                            Paths.get("data", "foo.pub").toAbsolutePath(),
-                                            Paths.get("data", "foo.key").toAbsolutePath(),
-                                            KEY_ENCRYPTOR)));
+
+                    KeyData keyData = new KeyData();
+                    keyData.setPrivateKeyPath(Paths.get("data", "foo.key").toAbsolutePath());
+                    keyData.setPublicKeyPath( Paths.get("data", "foo.pub").toAbsolutePath());
+
+
+                    keys.setKeyData(singletonList(keyData));
                     keys.setPasswordFile(Paths.get("data", "passwords").toAbsolutePath());
 
                     final JdbcConfig jdbcConfig = new JdbcConfig();

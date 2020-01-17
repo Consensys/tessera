@@ -1,5 +1,9 @@
 package com.quorum.tessera.test;
 
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
@@ -288,12 +292,16 @@ public class PeerToPeerIT {
                                 Collectors.toMap(
                                         o -> o.getString("key"), o -> removeTrailingSlash(o.getString("url"))));
 
+        EncryptorConfig encryptorConfig = partyHelper.getParties().findFirst().map(Party::getConfig).map(Config::getEncryptor).get();
+        KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
         List<String> keyz =
                 partyHelper
                         .getParties()
                         .map(Party::getConfig)
                         .map(Config::getKeys)
                         .flatMap(k -> k.getKeyData().stream())
+                    .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
                         .map(ConfigKeyPair::getPublicKey)
                         .collect(Collectors.toList());
 
