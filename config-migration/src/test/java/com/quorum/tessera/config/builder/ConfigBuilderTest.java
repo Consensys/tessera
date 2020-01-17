@@ -1,11 +1,12 @@
 package com.quorum.tessera.config.builder;
 
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
+import com.quorum.tessera.config.util.KeyDataUtil;
+import com.quorum.tessera.encryption.Key;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemErrRule;
@@ -18,7 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigBuilderTest {
 
-    @Rule public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
+    @Rule
+    public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
 
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
@@ -35,11 +37,22 @@ public class ConfigBuilderTest {
         assertThat(result).isNotNull();
 
         final ServerConfig unixServer =
-                result.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
+            result.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
         assertThat(unixServer.getServerAddress()).isEqualTo("unix:" + Paths.get("somepath.ipc").toAbsolutePath());
 
         assertThat(result.getKeys().getKeyData()).hasSize(1);
-        final ConfigKeyPair keyData = result.getKeys().getKeyData().get(0);
+
+        KeyEncryptorFactory keyEncryptorFactory = KeyEncryptorFactory.newFactory();
+        KeyEncryptor keyEncryptor = keyEncryptorFactory.create(new EncryptorConfig() {{
+            setType(EncryptorType.NACL);
+        }});
+
+        final ConfigKeyPair keyData = result.getKeys().getKeyData()
+            .stream()
+            .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
+            .findFirst()
+            .get();
+
         assertThat(keyData).isNotNull().extracting("privateKeyPath").containsExactly(Paths.get("private"));
         assertThat(keyData).isNotNull().extracting("publicKeyPath").containsExactly(Paths.get("public"));
 

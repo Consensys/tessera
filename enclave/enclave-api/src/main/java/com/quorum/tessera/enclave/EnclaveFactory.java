@@ -5,8 +5,10 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyManagerImpl;
 import com.quorum.tessera.encryption.KeyPair;
@@ -15,6 +17,8 @@ import com.quorum.tessera.encryption.EncryptorFactory;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import org.slf4j.LoggerFactory;
 
 /** Creates {@link Enclave} instances, which may point to remote services or local, in-app instances. */
@@ -25,15 +29,19 @@ public interface EnclaveFactory {
     }
 
     static Enclave createServer(Config config) {
-
-        final KeyPairConverter keyPairConverter = new KeyPairConverter(config, new EnvironmentVariableProvider());
-        final Collection<KeyPair> keys = keyPairConverter.convert(config.getKeys().getKeyData());
-
-        final Collection<PublicKey> forwardKeys = keyPairConverter.convert(config.getAlwaysSendTo());
-
         EncryptorConfig encryptorConfig = config.getEncryptor();
         EncryptorFactory encryptorFactory = EncryptorFactory.newFactory(encryptorConfig.getType().name());
         Encryptor encryptor = encryptorFactory.create(encryptorConfig.getProperties());
+        KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
+        final KeyPairConverter keyPairConverter = new KeyPairConverter(config, new EnvironmentVariableProvider());
+        final Collection<KeyPair> keys = keyPairConverter
+            .convert(config.getKeys().getKeyData().stream()
+                .map(kd -> KeyDataUtil.unmarshal(kd,keyEncryptor))
+                .collect(Collectors.toList()));
+
+        final Collection<PublicKey> forwardKeys = keyPairConverter.convert(config.getAlwaysSendTo());
+
 
         return new EnclaveImpl(encryptor, new KeyManagerImpl(keys, forwardKeys));
     }

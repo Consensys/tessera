@@ -3,7 +3,10 @@ package com.quorum.tessera.config.cli.keys;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.passwords.PasswordReader;
 import org.junit.Before;
 import org.junit.Test;
@@ -67,7 +70,9 @@ public class KeyReadingTest {
         assertThat(config).isNotNull();
         assertThat(config.getKeys()).isNotNull();
         assertThat(config.getKeys().getKeyData()).isNotNull().hasSize(1);
-        ConfigKeyPair keyPair = config.getKeys().getKeyData().get(0);
+
+        KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(config.getEncryptor());
+        ConfigKeyPair keyPair = KeyDataUtil.unmarshal(config.getKeys().getKeyData().get(0),keyEncryptor);
         assertThat(keyPair.getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         assertThat(keyPair.getPrivateKey()).isEqualTo("gZ+NvhPTi3MDaGNVvQLtlT83oEtsr2DlXww3zXnJ7mU=");
     }

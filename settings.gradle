@@ -90,4 +90,5 @@ project(':tessera-jaxrs:common-jaxrs').projectDir = file('tessera-jaxrs/common-j
 project(':tessera-jaxrs:thirdparty-jaxrs').projectDir = file('tessera-jaxrs/thirdparty-jaxrs')
 project(':tessera-jaxrs:sync-jaxrs').projectDir = file('tessera-jaxrs/sync-jaxrs')
 project(':tessera-jaxrs:jaxrs-client').projectDir = file('tessera-jaxrs/jaxrs-client')
+include 'tessera-context'
 

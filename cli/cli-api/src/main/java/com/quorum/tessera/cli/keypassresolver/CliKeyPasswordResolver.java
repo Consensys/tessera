@@ -1,11 +1,15 @@
 package com.quorum.tessera.cli.keypassresolver;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.io.SystemAdapter;
 import com.quorum.tessera.passwords.PasswordReader;
 import com.quorum.tessera.passwords.PasswordReaderFactory;
@@ -16,6 +20,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CliKeyPasswordResolver implements KeyPasswordResolver {
@@ -54,17 +59,28 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
             }
         }
 
+        EncryptorConfig encryptorConfig = config.getEncryptor();
+        KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
+        List<ConfigKeyPair> keyPairs = input.getKeyData().stream()
+            .map(d -> KeyDataUtil.unmarshal(d,keyEncryptor))
+            .collect(Collectors.toList());
+
         IntStream.range(0, input.getKeyData().size())
                 .forEachOrdered(
                         i -> {
                             if (i < allPasswords.size()) {
-                                input.getKeyData().get(i).withPassword(allPasswords.get(i));
+                                keyPairs
+                                    .get(i)
+                                    .withPassword(allPasswords.get(i));
                             }
                         });
 
         // decrypt the keys, either using provided passwords or read from CLI
+
+
         IntStream.range(0, input.getKeyData().size())
-                .forEachOrdered(keyNumber -> getSingleKeyPassword(keyNumber, input.getKeyData().get(keyNumber)));
+                .forEachOrdered(keyNumber -> getSingleKeyPassword(keyNumber, KeyDataUtil.unmarshal(input.getKeyData().get(keyNumber),keyEncryptor)));
     }
 
     // TODO: make private

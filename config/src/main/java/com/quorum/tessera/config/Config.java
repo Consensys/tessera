@@ -2,6 +2,7 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.*;
+import com.quorum.tessera.config.constraints.groups.KeyValidationGroup;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -37,7 +38,7 @@ public class Config extends ConfigItem {
     @Valid
     @XmlElement(required = true)
     @ValidKeyConfiguration
-    @MatchingKeyVaultConfigsForKeyData
+    @MatchingKeyVaultConfigsForKeyData(groups = KeyValidationGroup.class)
     @NoDuplicateKeyVaultConfigs
     private KeyConfiguration keys;
 

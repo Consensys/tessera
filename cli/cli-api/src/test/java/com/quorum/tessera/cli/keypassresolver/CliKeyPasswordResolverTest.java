@@ -15,14 +15,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemOutRule;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Base64;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,6 +31,7 @@ public class CliKeyPasswordResolverTest {
     private PasswordReader passwordReader;
 
     private CliKeyPasswordResolver cliKeyPasswordResolver;
+
 
     @Before
     public void init() {
@@ -55,96 +51,7 @@ public class CliKeyPasswordResolverTest {
         assertThat(obj).isInstanceOf(PasswordReaderFactory.create().getClass());
     }
 
-    @Test
-    public void emptyPasswordsReturnsSameKeys() {
 
-        // null paths since we won't actually be reading them
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, emptyList(), singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliKeyPasswordResolver.resolveKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-
-        // passwords are always non-null, set to empty string if not present or not needed
-        assertThat(returned.getPassword()).isNull();
-        assertThat(returned).isSameAs(keypair);
-    }
-
-    @Test
-    public void noPasswordsReturnsSameKeys() {
-
-        // null paths since we won't actually be reading them
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(null, null, singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliKeyPasswordResolver.resolveKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-
-        // passwords are always non-null, set to empty string if not present or not needed
-        assertThat(returned.getPassword()).isNull();
-        assertThat(returned).isSameAs(keypair);
-    }
-
-    @Test
-    public void passwordsAssignedToKeys() {
-
-        // null paths since we won't actually be reading them
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig =
-                new KeyConfiguration(
-                        null, singletonList("passwordsAssignedToKeys"), singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliKeyPasswordResolver.resolveKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-        assertThat(returned.getPassword()).isEqualTo("passwordsAssignedToKeys");
-    }
-
-    @Test
-    public void unreadablePasswordFileGivesNoPasswords() throws IOException {
-
-        final Path passes = Files.createTempDirectory("testdirectory").resolve("nonexistantfile.txt");
-
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliKeyPasswordResolver.resolveKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-        assertThat(returned.getPassword()).isNull();
-    }
-
-    @Test
-    public void readablePasswordFileAssignsPasswords() throws IOException {
-
-        final Path passes = Files.createTempDirectory("testdirectory").resolve("passwords.txt");
-        Files.write(passes, "q".getBytes());
-
-        final ConfigKeyPair keypair = new FilesystemKeyPair(null, null, null);
-        final KeyConfiguration keyConfig = new KeyConfiguration(passes, null, singletonList(keypair), null, null);
-        final Config config = new Config();
-        config.setKeys(keyConfig);
-
-        this.cliKeyPasswordResolver.resolveKeyPasswords(config);
-
-        assertThat(keyConfig.getKeyData()).hasSize(1);
-        final ConfigKeyPair returned = keyConfig.getKeyData().get(0);
-        assertThat(returned.getPassword()).isEqualTo("q");
-    }
 
     @Test
     public void nullKeyConfigReturns() {
