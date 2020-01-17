@@ -35,7 +35,7 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
             final KeyConfiguration keyConfiguration = new KeyConfiguration();
 
             if (keyVaultConfig.getKeyVaultType().equals(KeyVaultType.AZURE)) {
-                keyConfiguration.setAzureKeyVaultConfig((AzureKeyVaultConfig) keyVaultConfig);
+                keyConfiguration.addKeyVaultConfig(keyVaultConfig);
 
                 config.setKeys(keyConfiguration);
 
@@ -49,7 +49,7 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
                     throw new IllegalArgumentException("AWS key vault config not instance of DefaultKeyVaultConfig");
                 }
 
-                keyConfiguration.setKeyVaultConfig((DefaultKeyVaultConfig) keyVaultConfig);
+                keyConfiguration.addKeyVaultConfig(keyVaultConfig);
 
                 config.setKeys(keyConfiguration);
 
@@ -58,7 +58,7 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 
                 return new AWSSecretManagerKeyGenerator(encryptor, keyVaultService);
             } else {
-                keyConfiguration.setHashicorpKeyVaultConfig((HashicorpKeyVaultConfig) keyVaultConfig);
+                keyConfiguration.addKeyVaultConfig(keyVaultConfig);
 
                 config.setKeys(keyConfiguration);
 

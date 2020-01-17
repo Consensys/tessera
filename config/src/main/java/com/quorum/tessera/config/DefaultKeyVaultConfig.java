@@ -15,7 +15,9 @@ import java.util.Map;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class DefaultKeyVaultConfig extends ConfigItem implements KeyVaultConfig {
 
-    @NotNull @XmlAttribute private KeyVaultType keyVaultType;
+    @NotNull
+    @XmlAttribute
+    private KeyVaultType keyVaultType;
 
     @XmlJavaTypeAdapter(MapAdapter.class)
     @XmlElement
