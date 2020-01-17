@@ -3,6 +3,9 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
+import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import com.quorum.tessera.key.generation.KeyVaultOptions;
@@ -12,12 +15,11 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 @CommandLine.Command(
         name = "keygen",
@@ -31,7 +33,12 @@ import java.util.concurrent.Callable;
         abbreviateSynopsis = true,
         subcommands = {CommandLine.HelpCommand.class})
 public class KeyGenCommand implements Callable<CliResult> {
-    private KeyGeneratorFactory factory;
+
+    private final KeyGeneratorFactory factory;
+
+    private final ConfigFileUpdaterWriter configFileUpdaterWriter;
+
+    private final PasswordFileUpdaterWriter passwordFileUpdaterWriter;
 
     private final Validator validator =
             Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
@@ -81,33 +88,26 @@ public class KeyGenCommand implements Callable<CliResult> {
             description = "Path to JKS truststore for TLS Hashicorp Vault communication")
     public Path hashicorpTlsTruststore;
 
-    @CommandLine.Option(
-            names = {"--configfile", "-configfile"},
-            description = "Path to node configuration file")
-    public Config config;
-
-    // TODO(cjh) implement config output and password file update ?
-    //  we've removed the ability to start the node straight away after generating keys.  Not sure if updating
-    //  configfile
-    //  and password file is something we want to still support or put onus on users to go and update as required
-    @CommandLine.Option(
-            names = {"--configout", "-output"},
-            description =
-                    "Path to save updated configfile to.  Updated config will be printed to terminal if not provided.  Only valid if --configfile option also provided.")
-    public List<String> configOut;
+    @CommandLine.ArgGroup(exclusive = false)
+    KeyGenFileUpdateOptions fileUpdateOptions;
 
     @CommandLine.Mixin public EncryptorOptions encryptorOptions;
 
-    KeyGenCommand(KeyGeneratorFactory keyGeneratorFactory) {
+    KeyGenCommand(KeyGeneratorFactory keyGeneratorFactory, ConfigFileUpdaterWriter configFileUpdaterWriter, PasswordFileUpdaterWriter passwordFileUpdaterWriter) {
         this.factory = keyGeneratorFactory;
+        this.configFileUpdaterWriter = configFileUpdaterWriter;
+        this.passwordFileUpdaterWriter = passwordFileUpdaterWriter;
     }
 
     @Override
-    public CliResult call() {
+    public CliResult call() throws IOException {
         final EncryptorConfig encryptorConfig;
 
-        if (Optional.ofNullable(config).map(Config::getEncryptor).isPresent()) {
-            encryptorConfig = config.getEncryptor();
+        if (Optional.ofNullable(fileUpdateOptions)
+                .map(KeyGenFileUpdateOptions::getConfig)
+                .map(Config::getEncryptor)
+                .isPresent()) {
+            encryptorConfig = fileUpdateOptions.config.getEncryptor();
         } else {
             encryptorConfig = encryptorOptions.parseEncryptorConfig();
         }
@@ -117,10 +117,31 @@ public class KeyGenCommand implements Callable<CliResult> {
 
         final KeyGenerator generator = factory.create(keyVaultConfig, encryptorConfig);
 
+        final List<String> newKeyNames = new ArrayList<>();
+
         if (Objects.isNull(keyOut) || keyOut.isEmpty()) {
-            generator.generate("", argonOptions, keyVaultOptions);
+            newKeyNames.add("");
         } else {
-            keyOut.forEach(name -> generator.generate(name, argonOptions, keyVaultOptions));
+            newKeyNames.addAll(keyOut);
+        }
+
+        List<ConfigKeyPair> newKeys =
+                newKeyNames.stream()
+                        .map(name -> generator.generate(name, argonOptions, keyVaultOptions))
+                        .collect(Collectors.toList());
+
+        if (Objects.nonNull(fileUpdateOptions)) {
+            if (Objects.isNull(fileUpdateOptions.getConfig().getKeys())) {
+                fileUpdateOptions.getConfig().setKeys(new KeyConfiguration());
+            }
+            if (Objects.isNull(fileUpdateOptions.getConfig().getKeys().getKeyData())) {
+                fileUpdateOptions.getConfig().getKeys().setKeyData(new ArrayList<>());
+            }
+            if (Objects.nonNull(fileUpdateOptions.getPwdOut())) {
+                passwordFileUpdaterWriter.updateAndWrite(newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
+                fileUpdateOptions.getConfig().getKeys().setPasswordFile(fileUpdateOptions.getPwdOut());
+            }
+            configFileUpdaterWriter.updateAndWrite(newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
         }
 
         return new CliResult(0, true, null);
