@@ -57,7 +57,7 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>encryption-jnacl</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>encryption-ec</artifactId>
@@ -97,10 +97,21 @@
                         </manifest>
                     </archive>
                 </configuration>
-     
+
             </plugin>
 
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
