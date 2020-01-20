@@ -4,6 +4,7 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
+import org.glassfish.jersey.client.ClientProperties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +14,9 @@ import javax.ws.rs.client.Client;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -39,6 +43,7 @@ public class ClientFactoryTest {
 
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(serverConfig.isSsl()).thenReturn(false);
+        when(serverConfig.getProperties()).thenReturn(Collections.emptyMap());
 
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
@@ -52,13 +57,19 @@ public class ClientFactoryTest {
         when(serverConfig.isSsl()).thenReturn(true);
         when(serverConfig.getServerUri()).thenReturn(new URI("https://localhost:8080"));
         when(serverConfig.getSslConfig()).thenReturn(sslConfig);
+        Map<String, String> props = new HashMap<>();
+        props.put("partyInfoInterval", "20000");
+        when(serverConfig.getProperties()).thenReturn(props);
 
         SSLContext sslContext = mock(SSLContext.class);
         when(sslContextFactory.from(serverConfig.getServerUri().toString(), sslConfig)).thenReturn(sslContext);
 
         Client client = factory.buildFrom(serverConfig);
         assertThat(client).isNotNull();
+        Map clientProperties = client.target(serverConfig.getServerUri()).getConfiguration().getProperties();
 
+        assertThat(clientProperties.get(ClientProperties.READ_TIMEOUT)).isEqualTo(15000);
+        assertThat(clientProperties.get(ClientProperties.CONNECT_TIMEOUT)).isEqualTo(15000);
         verify(sslContextFactory).from(serverConfig.getServerUri().toString(), sslConfig);
     }
 
