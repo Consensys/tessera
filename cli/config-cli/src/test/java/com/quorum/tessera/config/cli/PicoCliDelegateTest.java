@@ -160,11 +160,7 @@ public class PicoCliDelegateTest {
         FilesystemKeyPair keypair = mock(FilesystemKeyPair.class);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
-        CliResult result =
-                cliDelegate.execute(
-                        "-keygen",
-                        "-filename",
-                        UUID.randomUUID().toString());
+        CliResult result = cliDelegate.execute("-keygen", "-filename", UUID.randomUUID().toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -287,16 +283,16 @@ public class PicoCliDelegateTest {
         assertThat(Files.exists(pwdOutputPath)).isFalse();
 
         CliResult result =
-            cliDelegate.execute(
-                "-keygen",
-                "-filename",
-                keyOutputPath.toString(),
-                "-output",
-                configOutputPath.toString(),
-                "-configfile",
-                configFile.toString(),
-                "--pwdout",
-                pwdOutputPath.toString());
+                cliDelegate.execute(
+                        "-keygen",
+                        "-filename",
+                        keyOutputPath.toString(),
+                        "-output",
+                        configOutputPath.toString(),
+                        "-configfile",
+                        configFile.toString(),
+                        "--pwdout",
+                        pwdOutputPath.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -314,13 +310,13 @@ public class PicoCliDelegateTest {
 
         try {
             cliDelegate.execute(
-                "-keygen",
-                "-filename",
-                UUID.randomUUID().toString(),
-                "-output",
-                configOutputPath.toString(),
-                "-configfile",
-                configFile.toString());
+                    "-keygen",
+                    "-filename",
+                    UUID.randomUUID().toString(),
+                    "-output",
+                    configOutputPath.toString(),
+                    "-configfile",
+                    configFile.toString());
             failBecauseExceptionWasNotThrown(Exception.class);
         } catch (Exception ex) {
             assertThat(ex).isInstanceOf(UncheckedIOException.class);
@@ -332,19 +328,13 @@ public class PicoCliDelegateTest {
     public void mutuallyDependentKeygenFileUpdateOptions() throws Exception {
         Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
 
-        Throwable ex = catchThrowable(() -> cliDelegate.execute(
-                "-keygen",
-                "-configfile",
-                configFile.toString()));
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-keygen", "-configfile", configFile.toString()));
 
         assertThat(ex).isNotNull();
         assertThat(ex).isExactlyInstanceOf(CliException.class);
         assertThat(ex.getMessage()).contains("Missing required argument(s): --configout=<configOut>");
 
-        Throwable ex2 = catchThrowable(() -> cliDelegate.execute(
-            "-keygen",
-            "-output",
-            "somepath"));
+        Throwable ex2 = catchThrowable(() -> cliDelegate.execute("-keygen", "-output", "somepath"));
 
         assertThat(ex2).isNotNull();
         assertThat(ex2).isExactlyInstanceOf(CliException.class);

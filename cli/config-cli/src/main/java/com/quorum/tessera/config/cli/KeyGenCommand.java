@@ -16,7 +16,6 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
@@ -57,43 +56,18 @@ public class KeyGenCommand implements Callable<CliResult> {
                     "File containing Argon2 encryption config used to secure the new private key when storing to the filesystem")
     public ArgonOptions argonOptions;
 
-    @CommandLine.Option(
-            names = {"--vault.type", "-keygenvaulttype"},
-            description =
-                    "Specify the key vault provider the generated key is to be saved in.  If not set, the key will be encrypted and stored on the local filesystem.  Valid values: ${COMPLETION-CANDIDATES})")
-    public KeyVaultType vaultType;
-
-    @CommandLine.Option(
-            names = {"--vault.url", "-keygenvaulturl"},
-            description = "Base url for key vault")
-    public String vaultUrl;
-
-    @CommandLine.Option(
-            names = {"--vault.hashicorp.approlepath", "-keygenvaultapprole"},
-            description = "AppRole path for Hashicorp Vault authentication (defaults to 'approle')")
-    public String hashicorpApprolePath;
-
-    @CommandLine.Option(
-            names = {"--vault.hashicorp.secretenginepath", "-keygenvaultsecretengine"},
-            description = "Name of already enabled Hashicorp v2 kv secret engine")
-    public String hashicorpSecretEnginePath;
-
-    @CommandLine.Option(
-            names = {"--vault.hashicorp.tlskeystore", "-keygenvaultkeystore"},
-            description = "Path to JKS keystore for TLS Hashicorp Vault communication")
-    public Path hashicorpTlsKeystore;
-
-    @CommandLine.Option(
-            names = {"--vault.hashicorp.tlstruststore", "-keygenvaulttruststore"},
-            description = "Path to JKS truststore for TLS Hashicorp Vault communication")
-    public Path hashicorpTlsTruststore;
+    @CommandLine.ArgGroup(heading = "KEY VAULT CONFIG")
+    KeyVaultConfigOptions keyVaultConfigOptions;
 
     @CommandLine.ArgGroup(exclusive = false)
     KeyGenFileUpdateOptions fileUpdateOptions;
 
     @CommandLine.Mixin public EncryptorOptions encryptorOptions;
 
-    KeyGenCommand(KeyGeneratorFactory keyGeneratorFactory, ConfigFileUpdaterWriter configFileUpdaterWriter, PasswordFileUpdaterWriter passwordFileUpdaterWriter) {
+    KeyGenCommand(
+            KeyGeneratorFactory keyGeneratorFactory,
+            ConfigFileUpdaterWriter configFileUpdaterWriter,
+            PasswordFileUpdaterWriter passwordFileUpdaterWriter) {
         this.factory = keyGeneratorFactory;
         this.configFileUpdaterWriter = configFileUpdaterWriter;
         this.passwordFileUpdaterWriter = passwordFileUpdaterWriter;
@@ -101,19 +75,7 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @Override
     public CliResult call() throws IOException {
-        final EncryptorConfig encryptorConfig;
-
-        if (Optional.ofNullable(fileUpdateOptions)
-                .map(KeyGenFileUpdateOptions::getConfig)
-                .map(Config::getEncryptor)
-                .isPresent()) {
-            encryptorConfig = fileUpdateOptions.config.getEncryptor();
-        } else if (Objects.nonNull(encryptorOptions)) {
-            encryptorConfig = encryptorOptions.parseEncryptorConfig();
-        } else {
-            encryptorConfig = EncryptorConfig.getDefault();
-        }
-
+        final EncryptorConfig encryptorConfig = this.encryptorConfig().orElse(EncryptorConfig.getDefault());
         final KeyVaultOptions keyVaultOptions = this.keyVaultOptions().orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig().orElse(null);
 
@@ -141,36 +103,66 @@ public class KeyGenCommand implements Callable<CliResult> {
                 fileUpdateOptions.getConfig().getKeys().setKeyData(new ArrayList<>());
             }
             if (Objects.nonNull(fileUpdateOptions.getPwdOut())) {
-                passwordFileUpdaterWriter.updateAndWrite(newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
+                passwordFileUpdaterWriter.updateAndWrite(
+                        newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
                 fileUpdateOptions.getConfig().getKeys().setPasswordFile(fileUpdateOptions.getPwdOut());
             }
-            configFileUpdaterWriter.updateAndWrite(newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
+            configFileUpdaterWriter.updateAndWrite(
+                    newKeys, keyVaultConfig, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
         }
 
         return new CliResult(0, true, null);
     }
 
+    private Optional<EncryptorConfig> encryptorConfig() {
+        Optional<EncryptorConfig> fromConfigFile =
+                Optional.ofNullable(fileUpdateOptions)
+                        .map(KeyGenFileUpdateOptions::getConfig)
+                        .map(Config::getEncryptor);
+
+        Optional<EncryptorConfig> fromCliOptions =
+                Optional.ofNullable(encryptorOptions).map(EncryptorOptions::parseEncryptorConfig);
+
+        if (fromConfigFile.isPresent()) {
+            return fromConfigFile;
+        } else {
+            return fromCliOptions;
+        }
+    }
+
     private Optional<KeyVaultOptions> keyVaultOptions() {
-        if (Objects.isNull(hashicorpSecretEnginePath)) {
+        if (!Optional.ofNullable(keyVaultConfigOptions)
+                .map(KeyVaultConfigOptions::getHashicorpSecretEnginePath)
+                .isPresent()) {
             return Optional.empty();
         }
 
-        return Optional.of(new KeyVaultOptions(hashicorpSecretEnginePath));
+        return Optional.of(new KeyVaultOptions(keyVaultConfigOptions.getHashicorpSecretEnginePath()));
     }
 
     private Optional<KeyVaultConfig> keyVaultConfig() {
-        if (Objects.isNull(vaultType) && Objects.isNull(vaultUrl)) {
+        if (Objects.isNull(keyVaultConfigOptions)) {
             return Optional.empty();
         }
 
-        if (Objects.isNull(vaultType)) {
+        if (Objects.isNull(keyVaultConfigOptions.getVaultType())) {
             throw new CliException("Key vault type either not provided or not recognised");
         }
 
         final KeyVaultConfig keyVaultConfig;
 
-        if (vaultType.equals(KeyVaultType.AZURE)) {
-            keyVaultConfig = new AzureKeyVaultConfig(vaultUrl);
+        final Optional<DefaultKeyVaultConfig> fromConfigFile =
+                Optional.ofNullable(fileUpdateOptions)
+                        .map(KeyGenFileUpdateOptions::getConfig)
+                        .map(Config::getKeys)
+                        .flatMap(c -> c.getKeyVaultConfig(keyVaultConfigOptions.vaultType));
+
+        if (fromConfigFile.isPresent()) {
+            return Optional.of(fromConfigFile.get());
+        }
+
+        if (KeyVaultType.AZURE.equals(keyVaultConfigOptions.getVaultType())) {
+            keyVaultConfig = new AzureKeyVaultConfig(keyVaultConfigOptions.getVaultUrl());
 
             Set<ConstraintViolation<AzureKeyVaultConfig>> violations =
                     validator.validate((AzureKeyVaultConfig) keyVaultConfig);
@@ -178,7 +170,7 @@ public class KeyGenCommand implements Callable<CliResult> {
             if (!violations.isEmpty()) {
                 throw new ConstraintViolationException(violations);
             }
-        } else if (vaultType.equals(KeyVaultType.HASHICORP)) {
+        } else if (KeyVaultType.HASHICORP.equals(keyVaultConfigOptions.getVaultType())) {
             if (Objects.isNull(keyOut) || keyOut.isEmpty()) {
                 throw new CliException(
                         "At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
@@ -186,7 +178,10 @@ public class KeyGenCommand implements Callable<CliResult> {
 
             keyVaultConfig =
                     new HashicorpKeyVaultConfig(
-                            vaultUrl, hashicorpApprolePath, hashicorpTlsKeystore, hashicorpTlsTruststore);
+                            keyVaultConfigOptions.getVaultUrl(),
+                            keyVaultConfigOptions.getHashicorpApprolePath(),
+                            keyVaultConfigOptions.getHashicorpTlsKeystore(),
+                            keyVaultConfigOptions.getHashicorpTlsTruststore());
 
             Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations =
                     validator.validate((HashicorpKeyVaultConfig) keyVaultConfig);
@@ -198,9 +193,8 @@ public class KeyGenCommand implements Callable<CliResult> {
             DefaultKeyVaultConfig awsKeyVaultConfig = new DefaultKeyVaultConfig();
             awsKeyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
 
-            if (Objects.nonNull(vaultUrl)) {
-                awsKeyVaultConfig.setProperty("endpoint", vaultUrl);
-            }
+            Optional.ofNullable(keyVaultConfigOptions.getVaultUrl())
+                    .ifPresent(u -> awsKeyVaultConfig.setProperty("endpoint", u));
 
             keyVaultConfig = awsKeyVaultConfig;
 
