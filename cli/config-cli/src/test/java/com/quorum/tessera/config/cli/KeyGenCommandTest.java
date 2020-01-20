@@ -11,7 +11,6 @@ import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import com.quorum.tessera.key.generation.KeyVaultOptions;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -611,13 +610,6 @@ public class KeyGenCommandTest {
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions);
-    }
-
-    @Test
-    @Ignore
-    public void mutuallyDependentFileUpdateOptions() {
-        //TODO(cjh) requires tests to be more integration-based (i.e. creating a command line object and calling parseArgs or execute)
-        assertThat(true).isFalse();
     }
 
     @Test

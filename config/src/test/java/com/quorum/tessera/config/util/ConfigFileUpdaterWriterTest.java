@@ -38,26 +38,26 @@ public class ConfigFileUpdaterWriterTest {
 
     @Test
     public void appendNewKeysToExistingAndWrite() throws Exception {
-        String pub1 = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
-        String priv1 = "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=";
+        final String pub1 = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+        final String priv1 = "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=";
 
-        String pub2 = "eKSr3gAw5zPubOK96dw2qkZZmIT2HUBf8Zv001ubBC0=";
-        String priv2 = "9YabvoCKGD1sUkUgHak4XJzbtgdwEsF/jiarLoTHeR0=";
+        final String pub2 = "eKSr3gAw5zPubOK96dw2qkZZmIT2HUBf8Zv001ubBC0=";
+        final String priv2 = "9YabvoCKGD1sUkUgHak4XJzbtgdwEsF/jiarLoTHeR0=";
 
-        ConfigKeyPair key1 = new DirectKeyPair(pub1, priv1);
-        ConfigKeyPair key2 = new DirectKeyPair(pub2, priv2);
+        final ConfigKeyPair key1 = new DirectKeyPair(pub1, priv1);
+        final ConfigKeyPair key2 = new DirectKeyPair(pub2, priv2);
 
-        List<ConfigKeyPair> newKeys = Collections.singletonList(key1);
-        List<ConfigKeyPair> existingKeys = new ArrayList<>(Collections.singletonList(key2));
+        final List<ConfigKeyPair> newKeys = Collections.singletonList(key1);
+        final List<ConfigKeyPair> existingKeys = new ArrayList<>(Collections.singletonList(key2));
 
-        Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample.json"), Config.class);
+        final Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample.json"), Config.class);
         config.getKeys().setKeyData(existingKeys);
         config.getKeys().setPasswords(null);
 
-        Path configDest = mock(Path.class);
+        final Path configDest = mock(Path.class);
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(EncryptorConfig.getDefault());
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+        final KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(EncryptorConfig.getDefault());
         KeyEncryptorHolder.INSTANCE.setKeyEncryptor(keyEncryptor);
         when(filesDelegate.newOutputStream(configDest, CREATE_NEW)).thenReturn(out);
 
@@ -65,24 +65,26 @@ public class ConfigFileUpdaterWriterTest {
 
         verify(filesDelegate).newOutputStream(configDest, CREATE_NEW);
 
-        Config updated = JaxbUtil.unmarshal(new ByteArrayInputStream(out.toByteArray()), Config.class);
+        final Config updated = JaxbUtil.unmarshal(new ByteArrayInputStream(out.toByteArray()), Config.class);
         assertThat(updated).isNotNull();
         assertThat(updated.getKeys().getKeyData()).hasSize(2);
-        assertThat(updated.getKeys().getKeyData()).usingFieldByFieldElementComparator().containsExactlyInAnyOrder(key1, key2);
+        assertThat(updated.getKeys().getKeyData())
+                .usingFieldByFieldElementComparator()
+                .containsExactlyInAnyOrder(key1, key2);
     }
 
     @Test
     public void cleansUpIfExceptionThrown() {
-        Config config = mock(Config.class);
-        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        final Config config = mock(Config.class);
+        final KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(config.getKeys()).thenReturn(keyConfiguration);
         when(keyConfiguration.getKeyData()).thenReturn(new ArrayList<>());
 
         when(filesDelegate.newOutputStream(any(), any())).thenThrow(new RuntimeException());
 
-        Path configDest = mock(Path.class);
+        final Path configDest = mock(Path.class);
 
-        Throwable ex = catchThrowable(() -> writer.updateAndWrite(new ArrayList<>(), config, configDest));
+        final Throwable ex = catchThrowable(() -> writer.updateAndWrite(new ArrayList<>(), config, configDest));
 
         assertThat(ex).isNotNull();
         verify(filesDelegate).deleteIfExists(configDest);

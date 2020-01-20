@@ -133,6 +133,7 @@ public class KeyGenCommand implements Callable<CliResult> {
                         .collect(Collectors.toList());
 
         if (Objects.nonNull(fileUpdateOptions)) {
+            // config is a 'required' option in KeyGenFileUpdateOptions
             if (Objects.isNull(fileUpdateOptions.getConfig().getKeys())) {
                 fileUpdateOptions.getConfig().setKeys(new KeyConfiguration());
             }
