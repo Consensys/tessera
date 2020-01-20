@@ -42,6 +42,7 @@ public class ConfigServiceTest {
 
     @Test
     public void isUseWhileList() {
+        when(config.isDisablePeerDiscovery()).thenReturn(false);
         when(config.isUseWhiteList()).thenReturn(false);
 
         assertThat(configService.isUseWhiteList()).isFalse();
@@ -49,7 +50,23 @@ public class ConfigServiceTest {
         when(config.isUseWhiteList()).thenReturn(true);
         assertThat(configService.isUseWhiteList()).isTrue();
 
+        verify(config, times(2)).isDisablePeerDiscovery();
         verify(config, times(2)).isUseWhiteList();
+    }
+
+    @Test
+    public void useWhiteListIsEnforcedWhenAutoDiscoveryIsOff() {
+
+        when(config.isDisablePeerDiscovery()).thenReturn(true);
+        when(config.isUseWhiteList()).thenReturn(true);
+
+        assertThat(configService.isUseWhiteList()).isTrue();
+
+        when(config.isUseWhiteList()).thenReturn(false);
+
+        assertThat(configService.isUseWhiteList()).isTrue();
+
+        verify(config, times(2)).isDisablePeerDiscovery();
     }
 
     @Test
