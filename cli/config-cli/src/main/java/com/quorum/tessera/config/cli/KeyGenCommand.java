@@ -75,6 +75,11 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @Override
     public CliResult call() throws IOException {
+        //TODO(cjh) this check shouldn't be required as --configfile is marked as 'required' in KeyGenFileUpdateOptions
+        if (Objects.nonNull(fileUpdateOptions) && Objects.isNull(fileUpdateOptions.getConfig())) {
+            throw new CliException("Missing required argument(s): --configfile=<config>");
+        }
+
         final EncryptorConfig encryptorConfig = this.encryptorConfig().orElse(EncryptorConfig.getDefault());
         final KeyVaultOptions keyVaultOptions = this.keyVaultOptions().orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig().orElse(null);
@@ -94,25 +99,28 @@ public class KeyGenCommand implements Callable<CliResult> {
                         .map(name -> generator.generate(name, argonOptions, keyVaultOptions))
                         .collect(Collectors.toList());
 
-        if (Objects.nonNull(fileUpdateOptions)) {
-            // config is a 'required' option in KeyGenFileUpdateOptions
-            if (Objects.isNull(fileUpdateOptions.getConfig().getKeys())) {
-                fileUpdateOptions.getConfig().setKeys(new KeyConfiguration());
+        if (Objects.isNull(fileUpdateOptions)) {
+            return new CliResult(0, true, null);
+        }
+
+        // prepare config for addition of new keys if required
+        if (Objects.isNull(fileUpdateOptions.getConfig().getKeys())) {
+            fileUpdateOptions.getConfig().setKeys(new KeyConfiguration());
+        }
+        if (Objects.isNull(fileUpdateOptions.getConfig().getKeys().getKeyData())) {
+            fileUpdateOptions.getConfig().getKeys().setKeyData(new ArrayList<>());
+        }
+
+        if (Objects.nonNull(fileUpdateOptions.getConfigOut())) {
+            if (Objects.nonNull(fileUpdateOptions.getPwdOut())) {
+                passwordFileUpdaterWriter.updateAndWrite(
+                        newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
+                fileUpdateOptions.getConfig().getKeys().setPasswordFile(fileUpdateOptions.getPwdOut());
             }
-            if (Objects.isNull(fileUpdateOptions.getConfig().getKeys().getKeyData())) {
-                fileUpdateOptions.getConfig().getKeys().setKeyData(new ArrayList<>());
-            }
-            if (Objects.nonNull(fileUpdateOptions.getConfigOut())) {
-                if (Objects.nonNull(fileUpdateOptions.getPwdOut())) {
-                    passwordFileUpdaterWriter.updateAndWrite(
-                            newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
-                    fileUpdateOptions.getConfig().getKeys().setPasswordFile(fileUpdateOptions.getPwdOut());
-                }
-                configFileUpdaterWriter.updateAndWrite(
-                        newKeys, keyVaultConfig, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
-            } else {
-                configFileUpdaterWriter.updateAndWriteToCLI(newKeys, keyVaultConfig, fileUpdateOptions.getConfig());
-            }
+            configFileUpdaterWriter.updateAndWrite(
+                    newKeys, keyVaultConfig, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
+        } else {
+            configFileUpdaterWriter.updateAndWriteToCLI(newKeys, keyVaultConfig, fileUpdateOptions.getConfig());
         }
 
         return new CliResult(0, true, null);

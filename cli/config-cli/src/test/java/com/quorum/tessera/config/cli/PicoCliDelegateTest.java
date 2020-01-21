@@ -325,20 +325,49 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void mutuallyDependentKeygenFileUpdateOptions() throws Exception {
-        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+    public void keygenOutputToCLI() throws Exception {
+        MockKeyGeneratorFactory.reset();
 
-        Throwable ex = catchThrowable(() -> cliDelegate.execute("-keygen", "-configfile", configFile.toString()));
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path keyOutputPath = configFile.resolveSibling(UUID.randomUUID().toString());
+
+        CliResult result =
+                cliDelegate.execute(
+                        "-keygen", "-filename", keyOutputPath.toString(), "-configfile", configFile.toString());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.getConfig()).isNotNull();
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
+        verifyNoMoreInteractions(keyGenerator);
+    }
+
+    @Test
+    public void keygenFileUpdateOptionsRequireConfigfile() {
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-keygen", "-output", "somepath"));
 
         assertThat(ex).isNotNull();
         assertThat(ex).isExactlyInstanceOf(CliException.class);
-        assertThat(ex.getMessage()).contains("Missing required argument(s): --configout=<configOut>");
-
-        Throwable ex2 = catchThrowable(() -> cliDelegate.execute("-keygen", "-output", "somepath"));
-
-        assertThat(ex2).isNotNull();
-        assertThat(ex2).isExactlyInstanceOf(CliException.class);
-        assertThat(ex2.getMessage()).contains("Missing required argument(s): --configfile=<config>");
+        assertThat(ex.getMessage()).contains("Missing required argument(s): --configfile=<config>");
     }
 
     @Test

@@ -14,8 +14,7 @@ public class KeyGenFileUpdateOptions {
 
     @CommandLine.Option(
             names = {"--configout", "-output"},
-            description = "Path to save updated configfile to.  Requires --configfile option to also be provided",
-            required = true)
+            description = "Path to save updated configfile to.  Requires --configfile option to also be provided")
     Path configOut;
 
     @CommandLine.Option(
