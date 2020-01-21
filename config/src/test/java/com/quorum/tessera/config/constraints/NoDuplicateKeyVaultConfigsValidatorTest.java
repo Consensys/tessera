@@ -1,6 +1,7 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.*;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,29 +14,50 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class NoDuplicateKeyVaultConfigsValidatorTest {
+
     private ConstraintValidatorContext constraintValidatorContext;
 
     private NoDuplicateKeyVaultConfigsValidator validator;
+
+    private NoDuplicateKeyVaultConfigs annotation;
 
     @Before
     public void setUp() {
         validator = new NoDuplicateKeyVaultConfigsValidator();
         constraintValidatorContext = mock(ConstraintValidatorContext.class);
+        annotation = mock(NoDuplicateKeyVaultConfigs.class);
+        validator.initialize(annotation);
+    }
+
+    @After
+    public void tearDown() {
+
+        verifyNoMoreInteractions(annotation);
     }
 
     @Test
-    public void noKeyVaultConfigsValid() {
-        boolean result;
-
-        result = validator.isValid(null, constraintValidatorContext);
+    public void nullKeyConfigurationIsIgnored() {
+        boolean result = validator.isValid(null, constraintValidatorContext);
         assertThat(result).isTrue();
+    }
 
-        List<DefaultKeyVaultConfig> configs = Collections.emptyList();
+
+    @Test
+    public void nullKeyVaultConfigsIsIgnored() {
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(null);
+        boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
+        assertThat(result).isTrue();
+    }
 
-        result = validator.isValid(keyConfiguration, constraintValidatorContext);
+    @Test
+    public void emptyKeyVaultConfigsIsIgnored() {
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyVaultConfigs()).thenReturn(Collections.EMPTY_LIST);
+
+        boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isTrue();
     }
 

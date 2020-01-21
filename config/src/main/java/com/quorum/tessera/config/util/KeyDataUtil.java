@@ -11,21 +11,83 @@ import java.util.regex.Pattern;
 public class KeyDataUtil {
 
 
+    public static  Class<? extends ConfigKeyPair> getKeyPairTypeFor(KeyData keyData) {
+        if(isDirect(keyData)) {
+            return DirectKeyPair.class;
+        }
+
+        if(isInline(keyData)) {
+            return InlineKeypair.class;
+        }
+
+        if(isAzure(keyData)) {
+            return AzureVaultKeyPair.class;
+        }
+
+        if(isHashicorp(keyData)) {
+            return HashicorpVaultKeyPair.class;
+        }
+
+        if(isAws(keyData)) {
+            return AWSKeyPair.class;
+        }
+
+        if(isFileSystem(keyData)) {
+            return FilesystemKeyPair.class;
+        }
+
+        return UnsupportedKeyPair.class;
+
+    }
+
+
+    public static boolean isDirect(KeyData keyData) {
+        return Objects.nonNull(keyData.getPrivateKey()) && Objects.nonNull(keyData.getPublicKey());
+    }
+
+    public static boolean isInline(KeyData keyData) {
+        return Objects.nonNull(keyData.getPublicKey()) && Objects.nonNull(keyData.getConfig());
+    }
+
+    public static boolean isAzure(KeyData keyData) {
+        return keyData.getAzureVaultPublicKeyId() != null && keyData.getAzureVaultPrivateKeyId() != null;
+    }
+
+    public static boolean isHashicorp(KeyData keyData) {
+        return keyData.getHashicorpVaultPublicKeyId() != null
+            && keyData.getHashicorpVaultPrivateKeyId() != null
+            && keyData.getHashicorpVaultSecretEngineName() != null
+            && keyData.getHashicorpVaultSecretName() != null;
+    }
+
+    public static boolean isAws(KeyData keyData) {
+        return keyData.getAwsSecretsManagerPublicKeyId() != null && keyData.getAwsSecretsManagerPrivateKeyId() != null;
+    }
+
+    public static boolean isFileSystem(KeyData keyData) {
+        return Objects.nonNull(keyData.getPrivateKey()) && Objects.nonNull(keyData.getPublicKey());
+    }
+
+    public static boolean isUnsupported(KeyData keyData) {
+        return getKeyPairTypeFor(keyData).equals(UnsupportedKeyPair.class);
+
+    }
+
     public static ConfigKeyPair unmarshal(final KeyData keyData, final KeyEncryptor keyEncryptor) {
 
         // case 1, the keys are provided inline
-        if (Objects.nonNull(keyData.getPrivateKey()) && Objects.nonNull(keyData.getPublicKey())) {
+        if (isDirect(keyData)) {
             return new DirectKeyPair(keyData.getPublicKey(), keyData.getPrivateKey());
         }
 
         // case 2, the config is provided inline
-        if (keyData.getPublicKey() != null && keyData.getConfig() != null) {
+        if (isInline(keyData)) {
             return new InlineKeypair(
                 keyData.getPublicKey(), keyData.getConfig(), keyEncryptor);
         }
 
         // case 3, the Azure Key Vault data is provided
-        if (keyData.getAzureVaultPublicKeyId() != null && keyData.getAzureVaultPrivateKeyId() != null) {
+        if (isAzure(keyData)) {
             return new AzureVaultKeyPair(
                 keyData.getAzureVaultPublicKeyId(),
                 keyData.getAzureVaultPrivateKeyId(),
@@ -34,10 +96,7 @@ public class KeyDataUtil {
         }
 
         // case 4, the Hashicorp Vault data is provided
-        if (keyData.getHashicorpVaultPublicKeyId() != null
-            && keyData.getHashicorpVaultPrivateKeyId() != null
-            && keyData.getHashicorpVaultSecretEngineName() != null
-            && keyData.getHashicorpVaultSecretName() != null) {
+        if (isHashicorp(keyData)) {
 
             Integer hashicorpVaultSecretVersion;
 
@@ -61,13 +120,13 @@ public class KeyDataUtil {
         }
 
         // case 5, the AWS Secrets Manager data is provided
-        if (keyData.getAwsSecretsManagerPublicKeyId() != null && keyData.getAwsSecretsManagerPrivateKeyId() != null) {
+        if (isAws(keyData)) {
             return new AWSKeyPair(
                 keyData.getAwsSecretsManagerPublicKeyId(), keyData.getAwsSecretsManagerPrivateKeyId());
         }
 
         // case 6, the keys are provided inside a file
-        if (keyData.getPublicKeyPath() != null && keyData.getPrivateKeyPath() != null) {
+        if (isFileSystem(keyData)) {
             return new FilesystemKeyPair(keyData.getPublicKeyPath(), keyData.getPrivateKeyPath(), keyEncryptor);
         }
 

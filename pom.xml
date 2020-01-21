@@ -482,6 +482,7 @@
         <module>test-utils</module>
         <module>tessera-jaxrs</module>
         <module>tessera-data</module>
+        <module>tessera-context</module>
     </modules>
 
     <dependencyManagement>
@@ -675,6 +676,12 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>jaxrs-client</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessra-context</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
 

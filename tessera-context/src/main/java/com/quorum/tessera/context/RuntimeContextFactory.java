@@ -1,9 +1,8 @@
 package com.quorum.tessera.context;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.EncryptorConfig;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.KeyVaultConfig;
+import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.apps.TesseraApp;
+import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
@@ -11,13 +10,18 @@ import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.enclave.KeyPairConverter;
 import com.quorum.tessera.encryption.KeyPair;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.server.TesseraServer;
+import com.quorum.tessera.server.TesseraServerFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public interface RuntimeContextFactory {
 
@@ -26,7 +30,10 @@ public interface RuntimeContextFactory {
         EncryptorConfig encryptorConfig = config.getEncryptor();
         KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
 
-        Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+        Validator validator = Validation.byDefaultProvider().configure()
+            .ignoreXmlConfiguration()
+            .buildValidatorFactory().getValidator();
+
         if(config.getKeys().getKeyVaultConfigs() != null
             && !config.getKeys().getKeyVaultConfigs().isEmpty()) {
 
@@ -63,14 +70,48 @@ public interface RuntimeContextFactory {
 
         KeyPairConverter keyPairConverter = new KeyPairConverter(config,environmentVariableProvider);
 
-        Collection<KeyPair> pairs = keyPairConverter.convert(configKeyPairs);
+        List<KeyPair> pairs = new ArrayList<>(keyPairConverter.convert(configKeyPairs));
+
+        List<TesseraServer> servers = config.getServerConfigs().stream()
+            .map(serverConfig -> {
+                TesseraApp app = TesseraAppFactory.create(serverConfig.getCommunicationType(), serverConfig.getApp())
+                    .orElseThrow(
+                        () ->
+                            new IllegalStateException("Cant create app for " + serverConfig.getApp()));
+
+                TesseraServerFactory tesseraServerFactory = TesseraServerFactory.create(serverConfig.getCommunicationType());
+
+                return tesseraServerFactory.createServer(serverConfig, Collections.singleton(app));
+
+            }).collect(Collectors.toList());
 
 
+       List<PublicKey> alwaysSendTo = Stream.of(config)
+            .map(Config::getAlwaysSendTo)
+            .filter(Objects::nonNull)
+            .flatMap(List::stream)
+            .map(Base64.getDecoder()::decode)
+            .map(PublicKey::from)
+            .collect(Collectors.toList());
 
-        return null;
+        RuntimeContext runtimeContext = RuntimeContext.Builder.newBuilder()
+            .withKeyEncryptor(keyEncryptor)
+            .withServers(servers)
+            .withPeers(config.getPeers().stream()
+                .map(Peer::getUrl)
+                .map(URI::create)
+                .collect(Collectors.toList())
+            )
+            .withAlwaysSendTo(alwaysSendTo)
+            .withKeys(pairs)
+            .build();
+
+        return runtimeContext;
     }
 
-
+    static RuntimeContextFactory newFactory() {
+        return new RuntimeContextFactory() {};
+    }
 
 
 

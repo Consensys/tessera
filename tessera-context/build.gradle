@@ -16,5 +16,6 @@ dependencies {
     compile project(':config')
     compile project(':key-vault:key-vault-api')
     compile project(':enclave:enclave-api')
+    compile project(':server:server-api')
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
