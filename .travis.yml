@@ -19,7 +19,7 @@ stages:
 jobs:
   include:
     - stage: test
-      name: "Unit Tests Java 8"
+      name: "Unit Tests"
       jdk:  oraclejdk11
       install: &build_no_checks
         - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
@@ -30,11 +30,6 @@ jobs:
       jdk:  oraclejdk11
       script:
         - ./gradlew build || travis_terminate 1
-
-    - name: "Unit Tests"
-      jdk:  oraclejdk11
-      install: *build_no_checks
-      script: *build_with_unittests
 
     - name: "Acceptance Tests"
       jdk:  oraclejdk11
