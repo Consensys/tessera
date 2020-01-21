@@ -56,7 +56,7 @@ public class KeyGenCommand implements Callable<CliResult> {
                     "File containing Argon2 encryption config used to secure the new private key when storing to the filesystem")
     public ArgonOptions argonOptions;
 
-    @CommandLine.ArgGroup(heading = "KEY VAULT CONFIG")
+    @CommandLine.ArgGroup(heading = "Key Vault Options:\n", exclusive = false)
     KeyVaultConfigOptions keyVaultConfigOptions;
 
     @CommandLine.ArgGroup(exclusive = false)
