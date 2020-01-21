@@ -6,6 +6,8 @@ import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.util.ConfigFileStore;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.Objects;
 import java.util.Set;
 
 public class ConfigServiceImpl implements ConfigService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigServiceImpl.class);
 
     private final Config config;
 
@@ -39,6 +43,12 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public boolean isUseWhiteList() {
+        if (isDisablePeerDiscovery()) {
+            LOGGER.warn(
+                    "As peer discovery is being disabled, the use of peer whitelist restriction will be switched on."
+                            + "This is to prevent unauthorized attempt to push transactions from unknown peers.");
+            return true;
+        }
         return config.isUseWhiteList();
     }
 
