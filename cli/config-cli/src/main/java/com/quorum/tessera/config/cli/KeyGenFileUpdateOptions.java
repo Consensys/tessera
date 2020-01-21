@@ -10,19 +10,19 @@ public class KeyGenFileUpdateOptions {
             names = {"--configfile", "-configfile"},
             description = "Path to node configuration file",
             required = true)
-    public Config config;
+    Config config;
 
     @CommandLine.Option(
             names = {"--configout", "-output"},
             description = "Path to save updated configfile to.  Requires --configfile option to also be provided",
-        required = true)
-    public Path configOut;
+            required = true)
+    Path configOut;
 
     @CommandLine.Option(
             names = {"--pwdout"},
             description =
                     "Path to save updated password list to.  Requires --configfile and --configout options to also be provided")
-    public Path pwdOut;
+    Path pwdOut;
 
     public Config getConfig() {
         return config;

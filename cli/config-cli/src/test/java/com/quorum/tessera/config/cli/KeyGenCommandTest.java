@@ -124,7 +124,7 @@ public class KeyGenCommandTest {
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
 
-        verify(configFileUpdaterWriter).updateAndWrite(any(), any(), any(), any());
+        verify(configFileUpdaterWriter).updateAndWriteToCLI(any(), any(), any());
     }
 
     @Test

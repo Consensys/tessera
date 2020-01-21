@@ -36,20 +36,6 @@ public class ConfigFileUpdaterWriterTest {
     }
 
     @Test
-    public void testMarshalling() {
-        final Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample_full.json"), Config.class);
-
-        final ByteArrayOutputStream out = new ByteArrayOutputStream();
-        JaxbUtil.marshal(config, out);
-
-        final ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-
-        final Config config2 = JaxbUtil.unmarshal(in, Config.class);
-
-        assertThat(config2).isNotNull();
-    }
-
-    @Test
     public void appendNewKeysToExistingAndWrite() throws Exception {
         final String pub1 = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
         final String priv1 = "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=";
@@ -172,5 +158,26 @@ public class ConfigFileUpdaterWriterTest {
 
         assertThat(ex).isNotNull();
         verify(filesDelegate).deleteIfExists(configDest);
+    }
+
+    @Test
+    public void updateAndWriteToCLI() {
+        final String pub1 = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+        final String priv1 = "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=";
+
+        final String pub2 = "eKSr3gAw5zPubOK96dw2qkZZmIT2HUBf8Zv001ubBC0=";
+        final String priv2 = "9YabvoCKGD1sUkUgHak4XJzbtgdwEsF/jiarLoTHeR0=";
+
+        final ConfigKeyPair key1 = new DirectKeyPair(pub1, priv1);
+        final ConfigKeyPair key2 = new DirectKeyPair(pub2, priv2);
+
+        final List<ConfigKeyPair> newKeys = Collections.singletonList(key1);
+        final List<ConfigKeyPair> existingKeys = new ArrayList<>(Collections.singletonList(key2));
+
+        final Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample_full.json"), Config.class);
+        config.getKeys().setKeyData(existingKeys);
+        config.getKeys().setPasswords(null);
+
+        writer.updateAndWriteToCLI(newKeys, null, config);
     }
 }

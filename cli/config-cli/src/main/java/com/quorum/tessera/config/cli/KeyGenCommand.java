@@ -56,7 +56,7 @@ public class KeyGenCommand implements Callable<CliResult> {
                     "File containing Argon2 encryption config used to secure the new private key when storing to the filesystem")
     public ArgonOptions argonOptions;
 
-    @CommandLine.ArgGroup(heading = "Key Vault Options:\n", exclusive = false)
+    @CommandLine.ArgGroup(heading = "Key Vault Options:%n", exclusive = false)
     KeyVaultConfigOptions keyVaultConfigOptions;
 
     @CommandLine.ArgGroup(exclusive = false)
@@ -102,13 +102,17 @@ public class KeyGenCommand implements Callable<CliResult> {
             if (Objects.isNull(fileUpdateOptions.getConfig().getKeys().getKeyData())) {
                 fileUpdateOptions.getConfig().getKeys().setKeyData(new ArrayList<>());
             }
-            if (Objects.nonNull(fileUpdateOptions.getPwdOut())) {
-                passwordFileUpdaterWriter.updateAndWrite(
-                        newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
-                fileUpdateOptions.getConfig().getKeys().setPasswordFile(fileUpdateOptions.getPwdOut());
+            if (Objects.nonNull(fileUpdateOptions.getConfigOut())) {
+                if (Objects.nonNull(fileUpdateOptions.getPwdOut())) {
+                    passwordFileUpdaterWriter.updateAndWrite(
+                            newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
+                    fileUpdateOptions.getConfig().getKeys().setPasswordFile(fileUpdateOptions.getPwdOut());
+                }
+                configFileUpdaterWriter.updateAndWrite(
+                        newKeys, keyVaultConfig, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
+            } else {
+                configFileUpdaterWriter.updateAndWriteToCLI(newKeys, keyVaultConfig, fileUpdateOptions.getConfig());
             }
-            configFileUpdaterWriter.updateAndWrite(
-                    newKeys, keyVaultConfig, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
         }
 
         return new CliResult(0, true, null);
