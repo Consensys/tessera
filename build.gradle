@@ -98,6 +98,12 @@ allprojects {
                 compile "javax.inject:javax.inject:1"
                 compile "javax:javaee-api:7.0"
 
+                compile "javax.xml.bind:jaxb-api:2.3.0"
+                compile "org.glassfish.jaxb:jaxb-runtime:2.3.0"
+                compile "javax.activation:javax.activation-api:1.2.0"
+                compile "javax.annotation:javax.annotation-api:1.3.2"
+
+
             }
         }
     }
@@ -119,6 +125,7 @@ subprojects {
     }
 
     dependencies {
+
         compile 'org.slf4j:slf4j-api'
         runtimeOnly 'ch.qos.logback:logback-classic'
         runtimeOnly 'ch.qos.logback:logback-core'
@@ -220,7 +227,7 @@ subprojects {
         }
     }
 
-    sourceCompatibility = '1.8'
+    sourceCompatibility = '11'
 
     java {
         withJavadocJar()

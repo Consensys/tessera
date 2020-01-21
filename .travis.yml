@@ -20,42 +20,29 @@ jobs:
   include:
     - stage: test
       name: "Unit Tests Java 8"
-      jdk:  oraclejdk8
+      jdk:  oraclejdk11
       install: &build_no_checks
         - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
       script: &build_with_unittests
         - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
 
     - name: "Gradle Build"
-      jdk:  oraclejdk8
+      jdk:  oraclejdk11
       script:
         - ./gradlew build || travis_terminate 1
 
-    - name: "Unit Tests Java 11"
+    - name: "Unit Tests"
       jdk:  oraclejdk11
       install: *build_no_checks
       script: *build_with_unittests
 
-    - name: "Acceptance Tests Java 8"
-      jdk:  oraclejdk8
+    - name: "Acceptance Tests"
+      jdk:  oraclejdk11
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
 
-    - name: "Acceptance Tests Java 11"
+    - name: "Vault Acceptance Tests"
       jdk:  oraclejdk11
-#      before_install:
-#        - rm "${JAVA_HOME}/lib/security/cacerts"
-#        - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-      install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P reduce-logging || travis_terminate 1
-
-    - name: "Simple Only Acceptance Tests"
-      jdk:  oraclejdk8
-      install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P simple-acceptance-tests,reduce-logging -o || travis_terminate 1
-
-    - name: "Vault Acceptance Tests Java 8"
-      jdk:  oraclejdk8
       before_install: &install_hashicorp
         - wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
         - mkdir -p vault/bin && pushd $_
@@ -64,11 +51,6 @@ jobs:
       install: *build_no_checks
       script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
 
-    - name: "Vault Acceptance Tests Java 11"
-      jdk:  oraclejdk11
-      before_install: *install_hashicorp
-      install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
 
 #    - stage: deploy only
 #      name: "Deploy to OSSRH"
@@ -80,7 +62,7 @@ jobs:
 
     - stage: tag and deploy
       name: "Tag on GitHub and deploy to OSSRH"
-      jdk:  oraclejdk8
+      jdk:  oraclejdk11
       script:
         - head_ref=$(git rev-parse HEAD) || travis_terminate 1
         - branch_ref=$(git rev-parse "$TRAVIS_BRANCH") || travis_terminate 1
