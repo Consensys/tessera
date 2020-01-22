@@ -1,6 +1,5 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.enclave.Enclave;
@@ -17,9 +16,9 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
     private final Enclave enclave;
 
-    private final P2pClient client;
+    private final ResendClient client;
 
-    public TransactionRequesterImpl(final Enclave enclave, final P2pClient client) {
+    public TransactionRequesterImpl(final Enclave enclave, final ResendClient client) {
         this.enclave = Objects.requireNonNull(enclave);
         this.client = Objects.requireNonNull(client);
     }
