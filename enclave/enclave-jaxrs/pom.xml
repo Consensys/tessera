@@ -251,16 +251,6 @@
 
     <name>enclave-jaxrs</name>
 
-    <profiles>
-        <profile>
-            <id>afterjdk9</id>
-            <activation>
-                <jdk>[9,12)</jdk>
-            </activation>
-            <properties>
-                <dist.classfier>jdk${java.vm.specification.version}_server</dist.classfier>
-            </properties>
-        </profile>
-    </profiles>
+
 
 </project>
