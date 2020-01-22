@@ -84,17 +84,6 @@
             </modules>
         </profile>
 
-        <profile>
-            <id>afterjdk9</id>
-            <activation>
-                <jdk>[9,12)</jdk>
-            </activation>
-            <properties>
-                <enclave.server.classifer>jdk${java.vm.specification.version}_server</enclave.server.classifer>
-                <tesssra.app.classifer>jdk${java.vm.specification.version}_app</tesssra.app.classifer>
-            </properties>
-
-        </profile>
     </profiles>
 
 
