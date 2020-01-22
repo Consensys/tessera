@@ -60,9 +60,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
     @CommandLine.Option(names = "--keys.keyData.config.data.aopts.parallelism", defaultValue = "4")
     public Integer parallelism;
 
-    // TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt and password file - can be done
-    // as
-    // a separate change
+    // TODO(cjh) remove plaintext passwords being provided on CLI, replace with prompt and password file
     @CommandLine.Option(names = {"--keys.passwords"})
     public String password;
 
