@@ -257,10 +257,10 @@ public class ConfigBuilder {
                         .map(Path::toString)
                         .map("unix:"::concat)
                         .orElse(null);
-        final ServerConfig q2tConfig = new ServerConfig(Q2T, true, unixPath, REST, null, null, null);
+        final ServerConfig q2tConfig = new ServerConfig(Q2T, unixPath, REST, null, null, null);
 
         final String address = (serverHostname == null) ? null : serverHostname + ":" + serverPort;
-        final ServerConfig p2pConfig = new ServerConfig(P2P, true, address, REST, sslConfig, null, address);
+        final ServerConfig p2pConfig = new ServerConfig(P2P, address, REST, sslConfig, null, address);
 
         final List<Peer> peerList;
         if (peers != null) {

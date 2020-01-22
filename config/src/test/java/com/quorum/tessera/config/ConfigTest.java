@@ -48,7 +48,6 @@ public class ConfigTest {
         Config config = new Config();
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.P2P);
-        serverConfig.setEnabled(true);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
         assertThat(config.getP2PServerConfig()).isSameAs(serverConfig);
@@ -59,7 +58,6 @@ public class ConfigTest {
         Config config = new Config();
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.THIRD_PARTY);
-        serverConfig.setEnabled(true);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
         assertThat(config.getP2PServerConfig()).isNull();
