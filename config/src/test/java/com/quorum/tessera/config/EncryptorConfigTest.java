@@ -1,14 +1,16 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.util.JaxbUtil;
+import org.junit.Test;
+
+import javax.json.Json;
+import javax.json.JsonObject;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import javax.json.Json;
-import javax.json.JsonObject;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 
 public class EncryptorConfigTest {
 
@@ -107,5 +109,12 @@ public class EncryptorConfigTest {
         assertThat(json.getJsonObject("properties")).containsKeys("greeting", "something", "bogus");
         assertThat(json.getJsonObject("properties").getString("greeting")).isEqualTo("Hellow");
         assertThat(json.getJsonObject("properties").getString("something")).isEqualTo("ELSE");
+    }
+
+    @Test
+    public void getDefault() {
+        EncryptorConfig encryptorConfig = EncryptorConfig.getDefault();
+        assertThat(encryptorConfig.getType()).isEqualTo(EncryptorType.NACL);
+        assertThat(encryptorConfig.getProperties()).isNull();
     }
 }
