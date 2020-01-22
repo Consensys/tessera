@@ -16,7 +16,6 @@ public class PayloadPublisherFactoryTest {
         final Config config = new Config();
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.P2P);
-        serverConfig.setEnabled(true);
         serverConfig.setCommunicationType(CommunicationType.REST);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
@@ -35,7 +34,6 @@ public class PayloadPublisherFactoryTest {
         final Config config = new Config();
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.P2P);
-        serverConfig.setEnabled(true);
         serverConfig.setCommunicationType(CommunicationType.WEB_SOCKET);
         config.setServerConfigs(Arrays.asList(serverConfig));
 

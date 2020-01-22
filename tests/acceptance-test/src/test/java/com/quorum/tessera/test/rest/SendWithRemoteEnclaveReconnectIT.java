@@ -99,13 +99,11 @@ public class SendWithRemoteEnclaveReconnectIT {
 
         ServerConfig p2pServerConfig = new ServerConfig();
         p2pServerConfig.setApp(AppType.P2P);
-        p2pServerConfig.setEnabled(true);
         p2pServerConfig.setServerAddress(String.format(serverUriTemplate, portGenerator.nextPort()));
         p2pServerConfig.setCommunicationType(CommunicationType.REST);
 
         final ServerConfig q2tServerConfig = new ServerConfig();
         q2tServerConfig.setApp(AppType.Q2T);
-        q2tServerConfig.setEnabled(true);
         q2tServerConfig.setServerAddress(String.format(serverUriTemplate, portGenerator.nextPort()));
         q2tServerConfig.setCommunicationType(CommunicationType.REST);
 
@@ -114,7 +112,6 @@ public class SendWithRemoteEnclaveReconnectIT {
 
         final ServerConfig enclaveServerConfig = new ServerConfig();
         enclaveServerConfig.setApp(AppType.ENCLAVE);
-        enclaveServerConfig.setEnabled(true);
         enclaveServerConfig.setServerAddress(String.format(serverUriTemplate, portGenerator.nextPort()));
         enclaveServerConfig.setCommunicationType(CommunicationType.REST);
 

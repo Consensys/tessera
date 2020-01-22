@@ -40,7 +40,6 @@ public class EnclaveFactoryTest {
                 });
 
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setEnabled(true);
         serverConfig.setApp(AppType.ENCLAVE);
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setServerAddress("http://bogus:9898");

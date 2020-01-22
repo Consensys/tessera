@@ -969,7 +969,6 @@ public class TransactionManagerTest {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setApp(AppType.P2P);
-        serverConfig.setEnabled(true);
         config.setServerConfigs(Arrays.asList(serverConfig));
 
         serviceLocator.setServices(
