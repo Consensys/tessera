@@ -112,11 +112,10 @@ public class ConfigMigrationSteps implements En {
 
                     final String url = "http://127.0.0.1:9001";
                     final ServerConfig p2pServer =
-                            new ServerConfig(AppType.P2P, true, url, CommunicationType.REST, sslConfig, null, url);
+                            new ServerConfig(AppType.P2P, url, CommunicationType.REST, sslConfig, null, url);
                     final ServerConfig unixServer =
                             new ServerConfig(
                                     AppType.Q2T,
-                                    true,
                                     "unix:" + Paths.get("data", "constellation.ipc").toAbsolutePath().toString(),
                                     CommunicationType.REST,
                                     null,

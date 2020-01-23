@@ -644,17 +644,4 @@ public class OverrideUtilTest {
         Config config = OverrideUtil.createInstance(Config.class);
         assertThat(config.getEncryptor().getProperties()).isNull();
     }
-
-    @Ignore
-    @Test
-    // TODO (cjh) Previously, peer overrides would be appended to any existing peers list.  This has now been disabled
-    //  so that behaviour is consistent across all options.  It is now possible to overwrite existing peers or append
-    // the
-    //  existing list depending on the position provided when calling the CLI, i.e. --peers[i].  It might be worth
-    //  introducing an additional mode to always append so that the position doesn't have to be provided in these
-    // simpler
-    //  situations?
-    public void setValuePeersAppended() {
-        assertThat(true).isFalse();
-    }
 }

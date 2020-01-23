@@ -2,16 +2,15 @@ package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keypairs.*;
-import com.quorum.tessera.config.keys.KeyEncryptorHolder;
 import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 
 public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
@@ -57,13 +56,15 @@ public class KeyDataAdapter extends XmlAdapter<KeyData, ConfigKeyPair> {
 
             Integer hashicorpVaultSecretVersion;
 
-            Optional<String> hashicorpVaultSecretVersionStr = Optional.of(keyData)
-                .map(KeyData::getHashicorpVaultSecretVersion);
+            Optional<String> hashicorpVaultSecretVersionStr =
+                    Optional.of(keyData).map(KeyData::getHashicorpVaultSecretVersion);
 
             if (hashicorpVaultSecretVersionStr.isPresent()) {
-                hashicorpVaultSecretVersion = hashicorpVaultSecretVersionStr
-                    .filter(Pattern.compile("^\\d*$").asPredicate())
-                    .map(Integer::parseInt).orElse(-1);
+                hashicorpVaultSecretVersion =
+                        hashicorpVaultSecretVersionStr
+                                .filter(Pattern.compile("^\\d*$").asPredicate())
+                                .map(Integer::parseInt)
+                                .orElse(-1);
             } else {
                 hashicorpVaultSecretVersion = 0;
             }

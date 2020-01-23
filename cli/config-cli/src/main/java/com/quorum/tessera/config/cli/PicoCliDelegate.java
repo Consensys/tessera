@@ -30,9 +30,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
-// TODO(cjh) clean up cli-api and config-cli modules.  the parser and adapter behaviour should be encapsulated in these
-// commands so are no longer needed
-
 public class PicoCliDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);
 
@@ -120,7 +117,6 @@ public class PicoCliDelegate {
             String[] subArgs = new String[subCmdAndArgs.length - 1];
             System.arraycopy(subCmdAndArgs, 1, subArgs, 0, subArgs.length);
 
-            // TODO(cjh) document the change of behaviour meaning node cannot start after keygen
             subParseResult.asCommandLineList().get(0).execute(subArgs);
 
             // if an exception occurred, throw it to to the upper levels where it gets handled

@@ -93,14 +93,13 @@ public class DeprecatedServerConfig extends ConfigItem {
         }
 
         final ServerConfig q2tConfig =
-                new ServerConfig(Q2T, true, "unix:" + unixSocketFile, REST, null, server.getInfluxConfig(), null);
+                new ServerConfig(Q2T, "unix:" + unixSocketFile, REST, null, server.getInfluxConfig(), null);
 
         final Integer port = server.getPort();
 
         final ServerConfig p2pConfig =
                 new ServerConfig(
                         P2P,
-                        true,
                         server.getHostName() + ":" + port,
                         server.getCommunicationType(),
                         server.getSslConfig(),
