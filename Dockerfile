@@ -8,11 +8,15 @@ RUN cd /tessera && mvn clean -Dmaven.repo.local=/tessera/.m2/repository -DskipTe
 
 # Create docker image with only distribution jar
 
-FROM alpine:latest
-# Update bzip2 version to 1.0.8-r1 as the bundled version 1.0.6 has critical vulnerability https://nvd.nist.gov/vuln/detail/CVE-2019-12900
-RUN apk add bzip2=1.0.8-r1 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
+FROM adoptopenjdk/openjdk11:alpine
 
-FROM openjdk:11
+RUN apk add bzip2=1.0.8-r1 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
+RUN apk add musl=1.1.24-r0 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
+RUN apk add libbz2=1.0.8-r1 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
+RUN apk add libtasn1=4.15.0-r0 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
+RUN apk add libpng=1.6.37-r1 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
+RUN apk add giflib=5.2.1-r0 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
+RUN apk add libjpeg-turbo=2.0.4-r0 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
 
 COPY --from=builder /tessera/tessera-dist/tessera-app/target/*-app.jar /tessera/tessera-app.jar
 
