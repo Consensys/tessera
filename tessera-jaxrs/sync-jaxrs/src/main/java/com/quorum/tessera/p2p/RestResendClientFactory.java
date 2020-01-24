@@ -12,14 +12,13 @@ import javax.ws.rs.client.Client;
 
 public class RestResendClientFactory implements ResendClientFactory {
 
-    public ResendClient create(Config config) {
+    public ResendClient create(final Config config) {
+        final SSLContextFactory clientSSLContextFactory = ClientSSLContextFactory.create();
 
-        SSLContextFactory clientSSLContextFactory = ClientSSLContextFactory.create();
+        final ClientFactory clientFactory = new ClientFactory(clientSSLContextFactory);
+        final Client client = clientFactory.buildFrom(config.getP2PServerConfig());
 
-        ClientFactory clientFactory = new ClientFactory(clientSSLContextFactory);
-        Client client = clientFactory.buildFrom(config.getP2PServerConfig());
-
-        client.property("jersey.config.client.readTimeout", "300000");
+        client.property("jersey.config.client.readTimeout", "36000000"); // 10 hours
         return new RestResendClient(client);
     }
 
