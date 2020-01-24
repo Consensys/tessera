@@ -3,12 +3,16 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
+import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import com.quorum.tessera.key.generation.KeyVaultOptions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -28,21 +32,27 @@ public class KeyGenCommandTest {
 
     private KeyGeneratorFactory keyGeneratorFactory;
 
+    private ConfigFileUpdaterWriter configFileUpdaterWriter;
+
+    private PasswordFileUpdaterWriter passwordFileUpdaterWriter;
+
     private final CliResult wantResult = new CliResult(0, true, null);
 
     @Before
     public void onSetup() {
         keyGeneratorFactory = mock(KeyGeneratorFactory.class);
-        command = new KeyGenCommand(keyGeneratorFactory);
+        configFileUpdaterWriter = mock(ConfigFileUpdaterWriter.class);
+        passwordFileUpdaterWriter = mock(PasswordFileUpdaterWriter.class);
+        command = new KeyGenCommand(keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(keyGeneratorFactory);
+        verifyNoMoreInteractions(keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter);
     }
 
     @Test
-    public void usesDefaultEncryptorConfigIfNoneInConfig() {
+    public void usesDefaultEncryptorConfigIfNoneInConfig() throws Exception {
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
         final Map<String, String> properties = new HashMap<>();
         encryptorConfig.setType(EncryptorType.NACL);
@@ -68,7 +78,24 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void doNotUseEncryptorOptionsIfConfigHasEncryptorConfig() {
+    public void usesDefaultEncryptorIfNoneInConfigOrCLI() throws Exception {
+        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+        CliResult result = command.call();
+
+        // verify the correct config is used
+        ArgumentCaptor<EncryptorConfig> arg = ArgumentCaptor.forClass(EncryptorConfig.class);
+        verify(keyGeneratorFactory).create(eq(null), arg.capture());
+        EncryptorConfig gotEncryptorConfig = arg.getValue();
+        assertThat(gotEncryptorConfig).isEqualToComparingFieldByField(EncryptorConfig.getDefault());
+
+        assertThat(result).isEqualToComparingFieldByField(wantResult);
+        verify(keyGenerator).generate(anyString(), any(), any());
+    }
+
+    @Test
+    public void doNotUseEncryptorOptionsIfConfigHasEncryptorConfig() throws Exception {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
 
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
@@ -77,9 +104,11 @@ public class KeyGenCommandTest {
         encryptorConfig.setProperties(properties);
         final Config config = new Config();
         config.setEncryptor(encryptorConfig);
+        final KeyGenFileUpdateOptions fileUpdateOptions = new KeyGenFileUpdateOptions();
 
         command.encryptorOptions = encryptorOptions;
-        command.config = config;
+        command.fileUpdateOptions = fileUpdateOptions;
+        command.fileUpdateOptions.config = config;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -91,11 +120,15 @@ public class KeyGenCommandTest {
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
         verify(keyGenerator).generate(anyString(), any(), any());
+
+        verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+
+        verify(configFileUpdaterWriter).updateAndWriteToCLI(any(), any(), any());
     }
 
     @Test
-    public void noKeyEncryptionConfigUsesDefault() {
+    public void noKeyEncryptionConfigUsesDefault() throws Exception {
         final ArgonOptions defaultArgonOptions = null;
 
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
@@ -123,7 +156,7 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void providedKeyEncryptionConfigIsUsed() {
+    public void providedKeyEncryptionConfigIsUsed() throws Exception {
         final ArgonOptions argonOptions = new ArgonOptions();
 
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
@@ -152,7 +185,7 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void noKeyOutputPathUsesDefault() {
+    public void noKeyOutputPathUsesDefault() throws Exception {
         final String defaultOutputPath = "";
 
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
@@ -180,7 +213,7 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void providedKeyOutputPathIsUsed() {
+    public void providedKeyOutputPathIsUsed() throws Exception {
         final String outputPath = "mynewkey";
 
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
@@ -209,7 +242,7 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void multipleKeyOutputPathsGeneratesMultipleKeys() {
+    public void multipleKeyOutputPathsGeneratesMultipleKeys() throws Exception {
         final String outputPath = "mynewkey";
         final String otherOutputPath = "myothernewkey";
 
@@ -240,7 +273,7 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void noKeyVaultOptionsUsesDefault() {
+    public void noKeyVaultOptionsUsesDefault() throws Exception {
         final KeyVaultOptions defaultKeyVaultOptions = null;
 
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
@@ -268,7 +301,7 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void providedKeyVaultOptionsAreUsed() {
+    public void providedKeyVaultOptionsAreUsed() throws Exception {
         final String keyVaultOptionValue = "somevalue";
         final KeyVaultOptions keyVaultOptions = new KeyVaultOptions(keyVaultOptionValue);
 
@@ -280,8 +313,14 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(encryptorConfig);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.HASHICORP);
+        when(keyVaultConfigOptions.getVaultUrl()).thenReturn("someurl");
+        when(keyVaultConfigOptions.getHashicorpSecretEnginePath()).thenReturn(keyVaultOptionValue);
+
         command.encryptorOptions = encryptorOptions;
-        command.hashicorpSecretEnginePath = keyVaultOptionValue;
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
+        command.keyOut = Collections.singletonList("keyout");
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -289,7 +328,8 @@ public class KeyGenCommandTest {
         CliResult result = command.call();
 
         // verify the correct config is used
-        verify(keyGeneratorFactory).create(null, encryptorConfig);
+        KeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig("someurl", null, null, null);
+        verify(keyGeneratorFactory).create(keyVaultConfig, encryptorConfig);
         assertThat(result).isEqualToComparingFieldByField(wantResult);
         verify(keyGenerator).generate(anyString(), any(), refEq(keyVaultOptions));
 
@@ -298,15 +338,18 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void validAzureKeyVaultConfig() {
+    public void validAzureKeyVaultConfig() throws Exception {
         final KeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig("someurl");
 
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.AZURE);
+        when(keyVaultConfigOptions.getVaultUrl()).thenReturn("someurl");
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultType = KeyVaultType.AZURE;
-        command.vaultUrl = "someurl";
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -314,7 +357,7 @@ public class KeyGenCommandTest {
         CliResult result = command.call();
 
         // verify the correct config is used
-        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), isNull());
+        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), any(EncryptorConfig.class));
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
         verify(keyGenerator).generate(anyString(), any(), any());
@@ -327,8 +370,11 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.AZURE);
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultType = KeyVaultType.AZURE;
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
 
         Throwable ex = catchThrowable(() -> command.call());
 
@@ -359,12 +405,15 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.HASHICORP);
+        when(keyVaultConfigOptions.getVaultUrl()).thenReturn(vaultUrl);
+        when(keyVaultConfigOptions.getHashicorpApprolePath()).thenReturn(approlePath);
+        when(keyVaultConfigOptions.getHashicorpTlsKeystore()).thenReturn(tempPath);
+        when(keyVaultConfigOptions.getHashicorpTlsTruststore()).thenReturn(tempPath);
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultType = KeyVaultType.HASHICORP;
-        command.vaultUrl = vaultUrl;
-        command.hashicorpApprolePath = approlePath;
-        command.hashicorpTlsKeystore = tempPath;
-        command.hashicorpTlsTruststore = tempPath;
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
         command.keyOut = Collections.singletonList("out");
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
@@ -373,7 +422,7 @@ public class KeyGenCommandTest {
         CliResult result = command.call();
 
         // verify the correct config is used
-        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), isNull());
+        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), any(EncryptorConfig.class));
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
         verify(keyGenerator).generate(anyString(), any(), any());
@@ -391,12 +440,15 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.HASHICORP);
+        when(keyVaultConfigOptions.getVaultUrl()).thenReturn(vaultUrl);
+        when(keyVaultConfigOptions.getHashicorpApprolePath()).thenReturn(approlePath);
+        when(keyVaultConfigOptions.getHashicorpTlsKeystore()).thenReturn(tempPath);
+        when(keyVaultConfigOptions.getHashicorpTlsTruststore()).thenReturn(tempPath);
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultType = KeyVaultType.HASHICORP;
-        command.vaultUrl = vaultUrl;
-        command.hashicorpApprolePath = approlePath;
-        command.hashicorpTlsKeystore = tempPath;
-        command.hashicorpTlsTruststore = tempPath;
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -416,9 +468,11 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
-        command.encryptorOptions = encryptorOptions;
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
-        command.vaultType = KeyVaultType.HASHICORP;
+        command.encryptorOptions = encryptorOptions;
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
         command.keyOut = Collections.singletonList("out");
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
@@ -450,12 +504,15 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.HASHICORP);
+        when(keyVaultConfigOptions.getVaultUrl()).thenReturn(vaultUrl);
+        when(keyVaultConfigOptions.getHashicorpApprolePath()).thenReturn(approlePath);
+        when(keyVaultConfigOptions.getHashicorpTlsKeystore()).thenReturn(nonExistentPath);
+        when(keyVaultConfigOptions.getHashicorpTlsTruststore()).thenReturn(nonExistentPath);
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultType = KeyVaultType.HASHICORP;
-        command.vaultUrl = vaultUrl;
-        command.hashicorpApprolePath = approlePath;
-        command.hashicorpTlsKeystore = nonExistentPath;
-        command.hashicorpTlsTruststore = nonExistentPath;
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
         command.keyOut = Collections.singletonList("out");
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
@@ -480,7 +537,7 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void validAWSKeyVaultConfig() {
+    public void validAWSKeyVaultConfig() throws Exception {
         String endpointUrl = "https://someurl.com";
 
         final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
@@ -490,9 +547,12 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.AWS);
+        when(keyVaultConfigOptions.getVaultUrl()).thenReturn(endpointUrl);
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultType = KeyVaultType.AWS;
-        command.vaultUrl = endpointUrl;
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -500,7 +560,7 @@ public class KeyGenCommandTest {
         CliResult result = command.call();
 
         // verify the correct config is used
-        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), isNull());
+        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), any(EncryptorConfig.class));
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
         verify(keyGenerator).generate(anyString(), any(), any());
@@ -509,15 +569,18 @@ public class KeyGenCommandTest {
     }
 
     @Test
-    public void validAWSKeyVaultConfigNoVaultUrl() {
+    public void validAWSKeyVaultConfigNoVaultUrl() throws Exception {
         final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
         keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
 
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.AWS);
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultType = KeyVaultType.AWS;
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -525,7 +588,7 @@ public class KeyGenCommandTest {
         CliResult result = command.call();
 
         // verify the correct config is used
-        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), isNull());
+        verify(keyGeneratorFactory).create(refEq(keyVaultConfig), any(EncryptorConfig.class));
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
         verify(keyGenerator).generate(anyString(), any(), any());
@@ -538,9 +601,12 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultType()).thenReturn(KeyVaultType.AWS);
+        when(keyVaultConfigOptions.getVaultUrl()).thenReturn("not a valid url");
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultType = KeyVaultType.AWS;
-        command.vaultUrl = "not a valid url";
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -566,8 +632,11 @@ public class KeyGenCommandTest {
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(null);
 
+        final KeyVaultConfigOptions keyVaultConfigOptions = mock(KeyVaultConfigOptions.class);
+        when(keyVaultConfigOptions.getVaultUrl()).thenReturn("someurl");
+
         command.encryptorOptions = encryptorOptions;
-        command.vaultUrl = "someurl";
+        command.keyVaultConfigOptions = keyVaultConfigOptions;
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -579,5 +648,122 @@ public class KeyGenCommandTest {
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions);
+    }
+
+    @Test
+    public void configAndConfigOutOptionsThenWriteUpdatedConfigFile() throws Exception {
+        command.fileUpdateOptions = new KeyGenFileUpdateOptions();
+        Config config = new Config();
+        Path configOut = mock(Path.class);
+        command.fileUpdateOptions.config = config;
+        command.fileUpdateOptions.configOut = configOut;
+
+        KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
+
+        command.call();
+
+        verify(configFileUpdaterWriter).updateAndWrite(any(), any(), eq(config), eq(configOut));
+        verify(keyGeneratorFactory).create(any(), any());
+    }
+
+    @Test
+    public void configOutAndPwdOutOptionsThenWriteUpdatedConfigAndPasswordFiles() throws Exception {
+        command.fileUpdateOptions = new KeyGenFileUpdateOptions();
+        Config config = new Config();
+        Path configOut = mock(Path.class);
+        Path pwdOut = mock(Path.class);
+        command.fileUpdateOptions.config = config;
+        command.fileUpdateOptions.configOut = configOut;
+        command.fileUpdateOptions.pwdOut = pwdOut;
+
+        KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
+
+        command.call();
+
+        verify(passwordFileUpdaterWriter).updateAndWrite(any(), eq(config), eq(pwdOut));
+        verify(configFileUpdaterWriter).updateAndWrite(any(), any(), eq(config), eq(configOut));
+        verify(keyGeneratorFactory).create(any(), any());
+    }
+
+    @Test
+    public void useKeyVaultConfigFromFileOverCliOptions() throws Exception {
+        command.fileUpdateOptions = new KeyGenFileUpdateOptions();
+        command.keyVaultConfigOptions = new KeyVaultConfigOptions();
+
+        Config config = mock(Config.class);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
+        when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("should be used"));
+
+        when(config.getKeys()).thenReturn(keyConfiguration);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.of(keyVaultConfig));
+
+        Path configOut = mock(Path.class);
+        command.fileUpdateOptions.config = config;
+        command.fileUpdateOptions.configOut = configOut;
+        command.keyVaultConfigOptions.vaultType = KeyVaultType.AZURE;
+        command.keyVaultConfigOptions.vaultUrl = "shouldnt be used";
+
+        KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
+
+        command.call();
+
+        ArgumentCaptor<KeyVaultConfig> captor = ArgumentCaptor.forClass(KeyVaultConfig.class);
+
+        verify(configFileUpdaterWriter).updateAndWrite(any(), captor.capture(), eq(config), eq(configOut));
+
+        KeyVaultConfig arg = captor.getValue();
+        assertThat(arg).isNotNull();
+        assertThat(arg.getKeyVaultType()).isEqualTo(KeyVaultType.AZURE);
+        assertThat(arg.getProperty("url")).isNotEmpty();
+        assertThat(arg.getProperty("url")).hasValue("should be used");
+
+        verify(keyGeneratorFactory).create(any(), any());
+    }
+
+    @Test
+    public void useKeyVaultConfigFromCliOptionsIfConfigFileValueIsForDifferentType() throws Exception {
+        command.fileUpdateOptions = new KeyGenFileUpdateOptions();
+        command.keyVaultConfigOptions = new KeyVaultConfigOptions();
+
+        Config config = mock(Config.class);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+        when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
+        when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("azure in the existing file"));
+
+        when(config.getKeys()).thenReturn(keyConfiguration);
+        when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.of(keyVaultConfig));
+
+        Path configOut = mock(Path.class);
+        command.fileUpdateOptions.config = config;
+        command.fileUpdateOptions.configOut = configOut;
+        command.keyVaultConfigOptions.vaultType = KeyVaultType.AWS;
+        command.keyVaultConfigOptions.vaultUrl = "http://awsforthenewkey";
+
+        KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
+
+        command.call();
+
+        ArgumentCaptor<KeyVaultConfig> captor = ArgumentCaptor.forClass(KeyVaultConfig.class);
+
+        verify(configFileUpdaterWriter).updateAndWrite(any(), captor.capture(), eq(config), eq(configOut));
+
+        KeyVaultConfig arg = captor.getValue();
+        assertThat(arg).isNotNull();
+        assertThat(arg.getKeyVaultType()).isEqualTo(KeyVaultType.AWS);
+        assertThat(arg.getProperty("endpoint")).isNotEmpty();
+        assertThat(arg.getProperty("endpoint")).hasValue("http://awsforthenewkey");
+
+        verify(keyGeneratorFactory).create(any(), any());
     }
 }

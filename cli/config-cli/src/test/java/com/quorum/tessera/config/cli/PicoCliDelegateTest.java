@@ -5,17 +5,14 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.cli.keys.MockKeyGeneratorFactory;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
-import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.test.util.ElUtil;
 import org.assertj.core.util.Strings;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
@@ -156,33 +153,14 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void keygenWithConfig() throws Exception {
+    public void keygen() throws Exception {
+        MockKeyGeneratorFactory.reset();
 
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
-
-        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
-
-        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
-        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
-
-        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
-        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        when(keyDataConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
-
-        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
+        FilesystemKeyPair keypair = mock(FilesystemKeyPair.class);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
-        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("unixSocketPath", unixSocketPath.toString());
-
-        Path configFilePath = ElUtil.createTempFileFromTemplate(getClass().getResource("/sample-config.json"), params);
-
-        CliResult result =
-                cliDelegate.execute(
-                        "-keygen", "-filename", UUID.randomUUID().toString(), "-configfile", configFilePath.toString());
+        CliResult result = cliDelegate.execute("-keygen", "-filename", UUID.randomUUID().toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -211,10 +189,9 @@ public class PicoCliDelegateTest {
                 .hasMessage("Missing required option '--configfile <config>'");
     }
 
-    // TODO (cjh) remove ignore once implemented
-    @Ignore
     @Test
     public void output() throws Exception {
+        MockKeyGeneratorFactory.reset();
 
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
 
@@ -224,42 +201,41 @@ public class PicoCliDelegateTest {
         Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
         Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
 
-        InlineKeypair inlineKeypair = mock(InlineKeypair.class);
-
-        KeyDataConfig keyDataConfig = mock(KeyDataConfig.class);
-        when(keyDataConfig.getType()).thenReturn(PrivateKeyType.UNLOCKED);
-        when(inlineKeypair.getPrivateKeyConfig()).thenReturn(keyDataConfig);
-
         KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
-
-        Path generatedKey = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
-
-        Files.deleteIfExists(generatedKey);
-        assertThat(Files.exists(generatedKey)).isFalse();
-
-        Path tempKeyFile = Files.createTempFile(UUID.randomUUID().toString(), "");
 
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         Map<String, Object> params = new HashMap<>();
         params.put("unixSocketPath", unixSocketPath.toString());
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path keyOutputPath = configFile.resolveSibling(UUID.randomUUID().toString());
+        Path configOutputPath = configFile.resolveSibling(UUID.randomUUID().toString() + ".json");
+
+        assertThat(Files.exists(configOutputPath)).isFalse();
 
         CliResult result =
                 cliDelegate.execute(
                         "-keygen",
                         "-filename",
-                        tempKeyFile.toAbsolutePath().toString(),
+                        keyOutputPath.toString(),
                         "-output",
-                        generatedKey.toFile().getPath(),
+                        configOutputPath.toString(),
                         "-configfile",
                         configFile.toString());
 
         assertThat(result).isNotNull();
-        assertThat(Files.exists(generatedKey)).isTrue();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.getConfig()).isNotNull();
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        assertThat(Files.exists(configOutputPath)).isTrue();
+        configOutputPath.toFile().deleteOnExit();
+
+        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
+        verifyNoMoreInteractions(keyGenerator);
 
         try {
             cliDelegate.execute(
@@ -267,7 +243,7 @@ public class PicoCliDelegateTest {
                     "-filename",
                     UUID.randomUUID().toString(),
                     "-output",
-                    generatedKey.toFile().getPath(),
+                    configOutputPath.toString(),
                     "-configfile",
                     configFile.toString());
             failBecauseExceptionWasNotThrown(Exception.class);
@@ -275,6 +251,123 @@ public class PicoCliDelegateTest {
             assertThat(ex).isInstanceOf(UncheckedIOException.class);
             assertThat(ex.getCause()).isExactlyInstanceOf(FileAlreadyExistsException.class);
         }
+    }
+
+    @Test
+    public void outputConfigAndPasswordFiles() throws Exception {
+        MockKeyGeneratorFactory.reset();
+
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path keyOutputPath = configFile.resolveSibling(UUID.randomUUID().toString());
+        Path configOutputPath = configFile.resolveSibling(UUID.randomUUID().toString() + ".json");
+        Path pwdOutputPath = configFile.resolveSibling(UUID.randomUUID().toString() + ".pwds");
+
+        assertThat(Files.exists(configOutputPath)).isFalse();
+        assertThat(Files.exists(pwdOutputPath)).isFalse();
+
+        CliResult result =
+                cliDelegate.execute(
+                        "-keygen",
+                        "-filename",
+                        keyOutputPath.toString(),
+                        "-output",
+                        configOutputPath.toString(),
+                        "-configfile",
+                        configFile.toString(),
+                        "--pwdout",
+                        pwdOutputPath.toString());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.getConfig()).isNotNull();
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        assertThat(Files.exists(configOutputPath)).isTrue();
+        configOutputPath.toFile().deleteOnExit();
+
+        assertThat(Files.exists(pwdOutputPath)).isTrue();
+        pwdOutputPath.toFile().deleteOnExit();
+
+        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
+        verifyNoMoreInteractions(keyGenerator);
+
+        try {
+            cliDelegate.execute(
+                    "-keygen",
+                    "-filename",
+                    UUID.randomUUID().toString(),
+                    "-output",
+                    configOutputPath.toString(),
+                    "-configfile",
+                    configFile.toString());
+            failBecauseExceptionWasNotThrown(Exception.class);
+        } catch (Exception ex) {
+            assertThat(ex).isInstanceOf(UncheckedIOException.class);
+            assertThat(ex.getCause()).isExactlyInstanceOf(FileAlreadyExistsException.class);
+        }
+    }
+
+    @Test
+    public void keygenOutputToCLI() throws Exception {
+        MockKeyGeneratorFactory.reset();
+
+        final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
+
+        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+
+        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
+        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+
+        KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+
+        FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
+        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/keygen-sample.json"));
+        Path keyOutputPath = configFile.resolveSibling(UUID.randomUUID().toString());
+
+        CliResult result =
+                cliDelegate.execute(
+                        "-keygen", "-filename", keyOutputPath.toString(), "-configfile", configFile.toString());
+
+        assertThat(result).isNotNull();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.getConfig()).isNotNull();
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
+        verifyNoMoreInteractions(keyGenerator);
+    }
+
+    @Test
+    public void keygenFileUpdateOptionsRequireConfigfile() {
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-keygen", "-output", "somepath"));
+
+        assertThat(ex).isNotNull();
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex.getMessage()).contains("Missing required argument(s): --configfile=<config>");
     }
 
     @Test
@@ -416,7 +509,7 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void suppressStartupForKeygenOptionWithConfigfile() throws Exception {
+    public void suppressStartupForKeygenOptionWithFileOutputOptions() throws Exception {
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
         Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
         Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
@@ -429,7 +522,11 @@ public class PicoCliDelegateTest {
 
         final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        final CliResult cliResult = cliDelegate.execute("-keygen", "-configfile", configFile.toString());
+        final Path configOutputPath = configFile.resolveSibling(UUID.randomUUID().toString() + ".json");
+
+        final CliResult cliResult =
+                cliDelegate.execute(
+                        "-keygen", "-configfile", configFile.toString(), "-output", configOutputPath.toString());
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
     }
@@ -472,14 +569,13 @@ public class PicoCliDelegateTest {
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.isSuppressStartup()).isFalse();
-
     }
 
     @Test
     public void withValidConfigAndUnmatchableDynamicOptionWithValue() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus","bogus value");
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus", "bogus value");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -487,14 +583,15 @@ public class PicoCliDelegateTest {
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.isSuppressStartup()).isFalse();
-
     }
 
     @Test
     public void withValidConfigAndJdbcOverides() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
+        CliResult result =
+                cliDelegate.execute(
+                        "-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
