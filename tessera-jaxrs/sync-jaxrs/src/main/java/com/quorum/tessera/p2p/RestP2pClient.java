@@ -1,7 +1,6 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.partyinfo.P2pClient;
-import com.quorum.tessera.partyinfo.ResendRequest;
 import java.util.Objects;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -48,18 +47,6 @@ public class RestP2pClient implements P2pClient {
             }
 
             return Objects.nonNull(response.readEntity(byte[].class));
-        }
-    }
-
-    @Override
-    public boolean makeResendRequest(String targetUrl, ResendRequest request) {
-        try (Response response =
-                client.target(targetUrl)
-                        .path("/resend")
-                        .request()
-                        .post(Entity.entity(request, MediaType.APPLICATION_JSON))) {
-
-            return Response.Status.OK.getStatusCode() == response.getStatus();
         }
     }
 }

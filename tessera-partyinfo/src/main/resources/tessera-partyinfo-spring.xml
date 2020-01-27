@@ -11,6 +11,15 @@
         <constructor-arg ref="config"/>
     </bean>
 
+    <bean id="resendClientFactory" class="com.quorum.tessera.sync.ResendClientFactory" factory-method="newFactory">
+        <constructor-arg ref="config"/>
+    </bean>
+
+    <bean id="resendClient" factory-bean="resendClientFactory" factory-method="create">
+        <constructor-arg ref="config"/>
+    </bean>
+
+
     <bean id="payloadPublisherFactory" class="com.quorum.tessera.partyinfo.PayloadPublisherFactory" factory-method="newFactory">
         <constructor-arg ref="config" />
     </bean>
@@ -79,7 +88,7 @@
 
         <bean name="transactionRequester" class="com.quorum.tessera.sync.TransactionRequesterImpl">
             <constructor-arg ref="enclave" />
-            <constructor-arg ref="p2pClient" />
+            <constructor-arg ref="resendClient" />
         </bean>
 
         <bean name="syncPoller" class="com.quorum.tessera.sync.SyncPoller">
