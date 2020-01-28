@@ -55,15 +55,22 @@ public class PartyInfoPoller implements Runnable {
      */
     @Override
     public void run() {
+        LOGGER.info("Started PartyInfo polling round");
+
         final PartyInfo partyInfo = partyInfoService.getPartyInfo();
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
         final String ourUrl = partyInfo.getUrl();
 
+        LOGGER.debug("Contacting following peers with PartyInfo: {}", partyInfo.getParties());
+        LOGGER.debug("Sending recipients {}", partyInfo.getRecipients());
+
         partyInfo.getParties().stream()
                 .map(Party::getUrl)
                 .filter(url -> !ourUrl.equals(url))
                 .forEach(url -> pollSingleParty(url, encodedPartyInfo));
+
+        LOGGER.info("Finished PartyInfo polling round");
     }
 
     /**
