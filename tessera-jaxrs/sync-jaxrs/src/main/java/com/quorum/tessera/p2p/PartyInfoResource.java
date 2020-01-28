@@ -87,7 +87,10 @@ public class PartyInfoResource {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
 
+        LOGGER.debug("Received PartyInfo from {}", partyInfo.getUrl());
+
         if (!enableKeyValidation) {
+            LOGGER.debug("Key validation not enabled, passing PartyInfo through");
             partyInfoService.updatePartyInfo(partyInfo);
 
             // create an empty party info object with our URL to send back
@@ -99,18 +102,17 @@ public class PartyInfoResource {
 
         // Start validation stuff
         final PublicKey sender = enclave.defaultPublicKey();
-
         final String url = partyInfo.getUrl();
-
         final String dataToEncrypt = UUID.randomUUID().toString();
 
         final Predicate<Recipient> isValidRecipientKey =
                 r -> {
                     try {
-
                         final PublicKey key = r.getKey();
                         final EncodedPayload encodedPayload =
                                 enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
+
+                        LOGGER.debug("Validating key {} on peer {}", key, url);
 
                         final byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
 
@@ -122,16 +124,19 @@ public class PartyInfoResource {
                                         .request()
                                         .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM))) {
 
-                            String unencodedValidationData = response.readEntity(String.class);
+                            LOGGER.debug("Response code {} from peer {}", response.getStatus(), url);
 
-                            boolean isValid = Objects.equals(unencodedValidationData, dataToEncrypt);
+                            final String decodedValidationData = response.readEntity(String.class);
+
+                            final boolean isValid = Objects.equals(decodedValidationData, dataToEncrypt);
                             if (!isValid) {
                                 LOGGER.warn("Invalid key found {} recipient will be ignored.", r.getUrl());
+                                LOGGER.debug("Response from {} was {}", url, decodedValidationData);
                             }
 
                             return isValid;
                         }
-                        // Assume any all exceptions to mean invalid. enclave bubbles up nacl array out of
+                        // Assume any and all exceptions to mean invalid. enclave bubbles up nacl array out of
                         // bounds when calculating shared key from invalid data
                     } catch (Exception ex) {
                         LOGGER.debug(null, ex);
@@ -147,6 +152,7 @@ public class PartyInfoResource {
                         .filter(isSendingUrl.and(isValidRecipientKey))
                         .collect(Collectors.toSet());
 
+        LOGGER.debug("Found keys from {} after key validation: {}", url, recipients);
         if (recipients.isEmpty()) {
             throw new SecurityException("No key found for url " + url);
         }
