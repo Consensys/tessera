@@ -13,8 +13,7 @@ import java.util.List;
 @NoUnmatchedElements
 public abstract class ConfigItem {
 
-    @XmlAnyElement
-    private List<Object> unmatched;
+    @XmlAnyElement private List<Object> unmatched;
 
     public List<Object> getUnmatched() {
         return unmatched;
@@ -32,12 +31,11 @@ public abstract class ConfigItem {
 
     @Override
     public String toString() {
-        return new ReflectionToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE) {
+        return new ReflectionToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE) {
             @Override
             protected boolean accept(Field f) {
                 return super.accept(f) && !f.getName().toLowerCase().contains("password");
             }
         }.toString();
     }
-
 }
