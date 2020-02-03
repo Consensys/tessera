@@ -16,10 +16,11 @@ public class NodeId {
     }
 
     public static String generate(ExecutionContext executionContext, NodeAlias alias) {
-        if (executionContext.isAdmin()) {
-            return "admin";
-        }
         List<String> tokens = new ArrayList<>();
+
+        if (executionContext.isAdmin()) {
+            tokens.add("admin");
+        }
         executionContext.getPrefix().ifPresent(v -> tokens.add(v));
         tokens.add(executionContext.getCommunicationType().name().toLowerCase());
         tokens.add(executionContext.getSocketType().name().toLowerCase());
