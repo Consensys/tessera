@@ -47,6 +47,8 @@ public class ConfigBuilder {
 
     private Integer p2pPort;
 
+    private Integer partyInfoInterval;
+
     private Integer adminPort;
 
     private Integer enclavePort;
@@ -99,6 +101,11 @@ public class ConfigBuilder {
 
     public ConfigBuilder withP2pPort(Integer p2pPort) {
         this.p2pPort = p2pPort;
+        return this;
+    }
+
+    public ConfigBuilder withPartyInfoInterval(Integer partyInfoInterval) {
+        this.partyInfoInterval = partyInfoInterval;
         return this;
     }
 
@@ -172,6 +179,10 @@ public class ConfigBuilder {
         p2pServerConfig.setCommunicationType(executionContext.getCommunicationType());
         p2pServerConfig.setServerAddress("http://localhost:" + p2pPort);
         p2pServerConfig.setBindingAddress("http://0.0.0.0:" + p2pPort);
+        if (Objects.nonNull(partyInfoInterval)) {
+            p2pServerConfig.setProperties(
+                    Collections.singletonMap("partyInfoInterval", Integer.toString(partyInfoInterval)));
+        }
         servers.add(p2pServerConfig);
 
         if (executionContext.getCommunicationType() == CommunicationType.REST && Objects.nonNull(adminPort)) {
