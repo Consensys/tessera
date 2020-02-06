@@ -6,6 +6,7 @@ import com.quorum.tessera.server.JerseyServer;
 import org.glassfish.jersey.client.ClientConfig;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -15,6 +16,7 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,7 +28,6 @@ public class JerseyServerIT {
 
     @Before
     public void onSetUp() throws Exception {
-
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
 
@@ -44,12 +45,7 @@ public class JerseyServerIT {
 
     @Test
     public void ping() {
-
-        Response result = newClient(unixfile)
-                .target(URI.create("http://localhost:88"))
-                .path("ping")
-                .request()
-                .get();
+        Response result = newClient(unixfile).target(URI.create("http://localhost:88")).path("ping").request().get();
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
@@ -57,11 +53,11 @@ public class JerseyServerIT {
 
     @Test
     public void create() {
-
         SamplePayload payload = new SamplePayload();
         payload.setValue("Hellow");
 
-        Response result = newClient(unixfile)
+        Response result =
+            newClient(unixfile)
                 .target(unixfile)
                 .path("create")
                 .request()
@@ -70,18 +66,13 @@ public class JerseyServerIT {
         assertThat(result.getStatus()).isEqualTo(201);
         assertThat(result.getLocation()).isNotNull();
 
-        Response result2 = newClient(unixfile)
-                .target(result.getLocation())
-                .request(MediaType.APPLICATION_JSON)
-                .get();
+        Response result2 = newClient(unixfile).target(result.getLocation()).request(MediaType.APPLICATION_JSON).get();
 
         SamplePayload p = result2.readEntity(SamplePayload.class);
         assertThat(p).isNotNull();
         assertThat(p.getValue()).isEqualTo("Hellow");
 
-        Response result3 = newClient(unixfile)
-                .target(unixfile)
-                .path(p.getId()).request().delete();
+        Response result3 = newClient(unixfile).target(unixfile).path(p.getId()).request().delete();
 
         assertThat(result3.getStatus()).isEqualTo(200);
         SamplePayload deleted = result3.readEntity(SamplePayload.class);
@@ -90,10 +81,10 @@ public class JerseyServerIT {
 
     @Test
     public void raw() {
-
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
-        Response result = newClient(unixfile)
+        Response result =
+            newClient(unixfile)
                 .target(unixfile)
                 .path("sendraw")
                 .request()
@@ -102,16 +93,12 @@ public class JerseyServerIT {
                 .post(Entity.entity("PAYLOAD".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
         assertThat(result.getStatus()).isEqualTo(201);
-
     }
 
     @Test
     public void param() {
-        // URL.setURLStreamHandlerFactory(new UnixSocketURLStreamHandlerFactory());
-        ClientConfig config = new ClientConfig();
-        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
-
-        Response result = newClient(unixfile)
+        final Response result =
+            newClient(unixfile)
                 .target(unixfile)
                 .path("param")
                 .queryParam("queryParam", "QueryParamValue")
@@ -120,11 +107,29 @@ public class JerseyServerIT {
                 .get();
 
         assertThat(result.getStatus()).isEqualTo(200);
-
     }
-    
+
+    //TODO: see why the unix socket client doesn't like reading large files
+    @Test
+    @Ignore
+    public void readLargeFileFromSocket() {
+        final Response result = newClient(unixfile)
+            .target(unixfile)
+            .path("smallfile")
+            .request()
+            .get();
+
+        assertThat(result.getStatus()).isEqualTo(200);
+
+        final String resultEntity = result.readEntity(String.class);
+        assertThat(resultEntity).isNotNull();
+
+        final byte[] decoded = Base64.getDecoder().decode(resultEntity);
+        assertThat(decoded.length).isEqualTo(1024 * 1024 * 100);
+    }
+
     private static Client newClient(URI unixfile) {
-        ClientConfig config = new ClientConfig();
+        final ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
 
         return ClientBuilder.newClient(config).property("unixfile", unixfile);

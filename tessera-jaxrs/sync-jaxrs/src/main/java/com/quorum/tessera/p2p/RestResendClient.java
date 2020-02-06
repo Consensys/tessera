@@ -13,19 +13,17 @@ public class RestResendClient implements ResendClient {
 
     private final Client client;
 
-    public RestResendClient(Client client) {
+    public RestResendClient(final Client client) {
         this.client = Objects.requireNonNull(client);
     }
 
     @Override
-    public boolean makeResendRequest(String targetUrl, ResendRequest request) {
-        try (Response response =
-                client.target(targetUrl)
-                        .path("/resend")
-                        .request()
-                        .post(Entity.entity(request, MediaType.APPLICATION_JSON))) {
+    public boolean makeResendRequest(final String targetUrl, final ResendRequest request) {
+        final Entity<ResendRequest> outboundEntity = Entity.entity(request, MediaType.APPLICATION_JSON);
 
+        try (Response response = client.target(targetUrl).path("/resend").request().post(outboundEntity)) {
             return Response.Status.OK.getStatusCode() == response.getStatus();
         }
     }
+
 }

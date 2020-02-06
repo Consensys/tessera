@@ -47,6 +47,8 @@ public class ConfigBuilder {
 
     private Integer p2pPort;
 
+    private Integer partyInfoInterval;
+
     private Integer adminPort;
 
     private Integer enclavePort;
@@ -102,6 +104,11 @@ public class ConfigBuilder {
         return this;
     }
 
+    public ConfigBuilder withPartyInfoInterval(Integer partyInfoInterval) {
+        this.partyInfoInterval = partyInfoInterval;
+        return this;
+    }
+
     public ConfigBuilder withEnclavePort(Integer enclavePort) {
         this.enclavePort = enclavePort;
         return this;
@@ -153,7 +160,6 @@ public class ConfigBuilder {
 
         ServerConfig q2tServerConfig = new ServerConfig();
         q2tServerConfig.setApp(AppType.Q2T);
-        q2tServerConfig.setEnabled(true);
         q2tServerConfig.setCommunicationType(executionContext.getCommunicationType());
 
         if (executionContext.getCommunicationType() == CommunicationType.REST
@@ -170,16 +176,18 @@ public class ConfigBuilder {
 
         ServerConfig p2pServerConfig = new ServerConfig();
         p2pServerConfig.setApp(AppType.P2P);
-        p2pServerConfig.setEnabled(true);
         p2pServerConfig.setCommunicationType(executionContext.getCommunicationType());
         p2pServerConfig.setServerAddress("http://localhost:" + p2pPort);
         p2pServerConfig.setBindingAddress("http://0.0.0.0:" + p2pPort);
+        if (Objects.nonNull(partyInfoInterval)) {
+            p2pServerConfig.setProperties(
+                    Collections.singletonMap("partyInfoInterval", Integer.toString(partyInfoInterval)));
+        }
         servers.add(p2pServerConfig);
 
         if (executionContext.getCommunicationType() == CommunicationType.REST && Objects.nonNull(adminPort)) {
             ServerConfig adminServerConfig = new ServerConfig();
             adminServerConfig.setApp(AppType.ADMIN);
-            adminServerConfig.setEnabled(true);
             adminServerConfig.setServerAddress("http://localhost:" + adminPort);
             adminServerConfig.setBindingAddress("http://0.0.0.0:" + adminPort);
             adminServerConfig.setCommunicationType(CommunicationType.REST);
@@ -190,7 +198,6 @@ public class ConfigBuilder {
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
             ServerConfig enclaveServerConfig = new ServerConfig();
             enclaveServerConfig.setApp(AppType.ENCLAVE);
-            enclaveServerConfig.setEnabled(true);
             SslConfig sslConfig =
                     new SslConfig(
                             SslAuthenticationMode.STRICT,

@@ -702,25 +702,6 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-server</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-api</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-ec</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
@@ -1096,7 +1077,7 @@
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-unixsocket</artifactId>
-                <version>0.22</version>
+                <version>0.25</version>
             </dependency>
 
             <dependency>

@@ -169,6 +169,8 @@ public class ConfigGenerator {
         final FeatureToggles toggles = new FeatureToggles();
         toggles.setEnableRemoteKeyValidation(true);
 
+        final Integer partyInfoInterval = 10000;
+
         EncryptorType encryptorType = executionContext.getEncryptorType();
         EncryptorConfig encryptorConfig =
                 new EncryptorConfig() {
@@ -188,6 +190,7 @@ public class ConfigGenerator {
                         .withP2pPort(port.nextPort())
                         .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
+                        .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(1))
                         .withFeatureToggles(toggles)
                         .withEncryptorConfig(encryptorConfig)
@@ -202,6 +205,7 @@ public class ConfigGenerator {
                         .withP2pPort(port.nextPort())
                         .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
+                        .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(2))
                         .withFeatureToggles(toggles)
                         .withEncryptorConfig(encryptorConfig)
@@ -216,6 +220,7 @@ public class ConfigGenerator {
                         .withP2pPort(port.nextPort())
                         .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
+                        .withPartyInfoInterval(partyInfoInterval)
                         .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
                         .withKeys(keyLookUp.get(3))
                         .withFeatureToggles(toggles)
@@ -231,6 +236,7 @@ public class ConfigGenerator {
                         .withP2pPort(port.nextPort())
                         .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
+                        .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(4))
                         .withFeatureToggles(toggles)
                         .withEncryptorConfig(encryptorConfig)

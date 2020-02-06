@@ -24,7 +24,6 @@ public class ServerConfigValidatorTest {
         cvc = mock(ConstraintValidatorContext.class);
         serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.P2P);
-        serverConfig.setEnabled(true);
         serverConfig.setServerAddress("localhost:123");
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setSslConfig(null);
@@ -50,7 +49,6 @@ public class ServerConfigValidatorTest {
     @Test
     public void isValidWhenValidDataIsSupplied() {
         assertThat(serverConfig.getApp()).isSameAs(AppType.P2P);
-        assertThat(serverConfig.isEnabled()).isTrue();
         assertThat(serverConfig.getServerUri()).isNotNull();
         assertThat(serverConfig.getCommunicationType()).isSameAs(CommunicationType.REST);
         assertThat(serverConfig.getSslConfig()).isNull();

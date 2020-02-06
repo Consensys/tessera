@@ -1,5 +1,8 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
+import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
+import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import picocli.CommandLine;
 
@@ -14,8 +17,10 @@ public class KeyGenCommandFactory implements CommandLine.IFactory {
             }
 
             KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
+            ConfigFileUpdaterWriter configFileUpdaterWriter = new ConfigFileUpdaterWriter(FilesDelegate.create());
+            PasswordFileUpdaterWriter passwordFileUpdaterWriter = new PasswordFileUpdaterWriter(FilesDelegate.create());
 
-            return (K) new KeyGenCommand(keyGeneratorFactory);
+            return (K) new KeyGenCommand(keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter);
         } catch (Exception e) {
             return CommandLine.defaultFactory().create(cls); // fallback if missing
         }

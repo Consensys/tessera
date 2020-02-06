@@ -41,7 +41,6 @@ public class P2PRestAppTest {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.P2P);
         serverConfig.setServerAddress("http://localhost:9928");
-        serverConfig.setEnabled(true);
 
         final Config config = new Config();
         config.setServerConfigs(Collections.singletonList(serverConfig));
@@ -93,7 +92,6 @@ public class P2PRestAppTest {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.P2P);
         serverConfig.setServerAddress("http://localhost:9928");
-        serverConfig.setEnabled(true);
 
         final Config config = new Config();
         config.setServerConfigs(Collections.singletonList(serverConfig));

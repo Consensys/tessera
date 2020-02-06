@@ -34,7 +34,6 @@ public class ServerConfigsValidatorTest {
 
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.setApp(appType);
-            serverConfig.setEnabled(true);
             serverConfig.setServerAddress("localhost:123");
             serverConfig.setCommunicationType(CommunicationType.REST);
             serverConfig.setSslConfig(null);
@@ -67,15 +66,7 @@ public class ServerConfigsValidatorTest {
         assertThat(validator.isValid(serverConfigList, cvc)).isTrue();
     }
 
-    @Test
-    public void isNotValidWhenNoP2PServersAreEnabled() {
 
-        serverConfigs.get(AppType.P2P).setEnabled(false);
-
-        assertThat(validator.isValid(serverConfigList(), cvc)).isFalse();
-        verify(cvc).disableDefaultConstraintViolation();
-        verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
-    }
 
     @Test
     public void isNotValidWhenNoP2PServersAreDefined() {
@@ -93,14 +84,6 @@ public class ServerConfigsValidatorTest {
         assertThat(validator.isValid(serverConfigList, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
-    }
-
-    @Test
-    public void isNotValidWhenNoQ2TServersAreEnabled() {
-        serverConfigs.get(AppType.Q2T).setEnabled(false);
-        assertThat(validator.isValid(serverConfigList(), cvc)).isFalse();
-        verify(cvc).disableDefaultConstraintViolation();
-        verify(cvc).buildConstraintViolationWithTemplate(eq("At least one Q2T server must be configured and enabled."));
     }
 
     @Test
