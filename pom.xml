@@ -78,6 +78,13 @@
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.3</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>commons-collections</groupId>
+                            <artifactId>commons-collections</artifactId>
+                            <version>3.2.1</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
                 <plugin>
