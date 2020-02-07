@@ -1,7 +1,5 @@
 package com.quorum.tessera.q2t;
 
-import com.quorum.tessera.api.filter.GlobalFilter;
-import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.service.locator.ServiceLocator;
@@ -18,7 +16,6 @@ import javax.ws.rs.ApplicationPath;
  * locator
  */
 @Api
-@GlobalFilter
 @ApplicationPath("/")
 public class Q2TRestApp extends TesseraRestApplication {
 
@@ -35,10 +32,9 @@ public class Q2TRestApp extends TesseraRestApplication {
     @Override
     public Set<Object> getSingletons() {
 
-        IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
         TransactionResource transactionResource = new TransactionResource();
 
-        return Stream.of(iPWhitelistFilter, transactionResource).collect(Collectors.toSet());
+        return Stream.of(transactionResource).collect(Collectors.toSet());
     }
 
     @Override
