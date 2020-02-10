@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tests</artifactId>
-        <version>0.11-SNAPSHOT</version>
+        <version>0.10.3</version>
     </parent>
 
     <dependencies>
@@ -53,7 +53,7 @@
             <artifactId>config-migration</artifactId>
             <scope>test</scope>
             <classifier>cli</classifier>
-            <version>0.11-SNAPSHOT</version>
+            <version>0.10.3</version>
         </dependency>
 
         <dependency>
@@ -153,11 +153,11 @@
                         def classifier = project.properties['tesssra.app.classifer']
 
                         def arts = project.artifacts
-                        .findAll{item -> item.getGroupId().equals('com.jpmorgan.quorum')}
+                        .findAll{item -&gt; item.getGroupId().equals('com.jpmorgan.quorum')}
 
 
                         def dep = arts
-                        .find{item -> item.getArtifactId().equals('tessera-app') and item.getClassifier().equals(classifier)}
+                        .find{item -&gt; item.getArtifactId().equals('tessera-app') and item.getClassifier().equals(classifier)}
 
 
                         project.properties.setProperty('application.jar', dep.getFile().getPath())
@@ -165,7 +165,7 @@
                         def eclassifier = project.properties['enclave.server.classifer']
 
                         def enclaveArt = arts
-                        .find{item -> item.getArtifactId().equals('enclave-jaxrs') and item.getClassifier().equals(eclassifier)}
+                        .find{item -&gt; item.getArtifactId().equals('enclave-jaxrs') and item.getClassifier().equals(eclassifier)}
 
                         project.properties.setProperty('enclave.jaxrs.server.jar',enclaveArt.getFile().getPath())
                     </source>
