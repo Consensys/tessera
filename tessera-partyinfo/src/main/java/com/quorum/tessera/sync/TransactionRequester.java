@@ -7,8 +7,6 @@ package com.quorum.tessera.sync;
  */
 public interface TransactionRequester {
 
-    int MAX_ATTEMPTS = 5;
-
     /**
      * Makes a request to the given node to resend transactions for
      *

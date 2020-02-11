@@ -1,6 +1,5 @@
 package com.quorum.tessera.partyinfo.model;
 
-import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
