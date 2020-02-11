@@ -33,7 +33,6 @@ public class ResendPartyStoreImpl implements ResendPartyStore {
 
     @Override
     public void incrementFailedAttempt(final SyncableParty attemptedParty) {
-
         if (attemptedParty.getAttempts() < MAX_ATTEMPTS) {
             final SyncableParty updatedParty =
                     new SyncableParty(attemptedParty.getParty(), attemptedParty.getAttempts() + 1);
