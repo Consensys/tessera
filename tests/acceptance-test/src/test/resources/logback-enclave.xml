@@ -9,6 +9,8 @@
         </encoder>
     </appender>
 
+    <logger name="org.eclipse.jetty" level="INFO" />
+
     <root level="ALL">
         <appender-ref ref="FILE"/>
     </root>
