@@ -2,6 +2,9 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.ResendRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -9,6 +12,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class RestP2pClient implements P2pClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestP2pClient.class);
 
     private final Client client;
 
@@ -36,12 +41,13 @@ public class RestP2pClient implements P2pClient {
 
     @Override
     public boolean sendPartyInfo(String targetUrl, byte[] data) {
+        LOGGER.debug("Sending to {}",targetUrl);
         try (Response response =
                 client.target(targetUrl)
                         .path("/partyinfo")
                         .request()
                         .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
-
+            LOGGER.debug("Sent to {}. Response status {}",targetUrl,response.getStatus());
             if (Response.Status.OK.getStatusCode() != response.getStatus()
                     && Response.Status.CREATED.getStatusCode() != response.getStatus()) {
                 return false;

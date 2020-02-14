@@ -7,7 +7,6 @@ dependencies {
     compile project(':config')
     compile project(':shared')
     compile project(':tessera-core')
-    compile project(':tessera-admin')
     compile project(':enclave:enclave-api')
 
     implementation "org.hibernate:hibernate-validator:6.0.2.Final"

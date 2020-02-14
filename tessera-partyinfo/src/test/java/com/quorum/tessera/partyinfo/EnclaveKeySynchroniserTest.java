@@ -1,6 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
@@ -28,24 +27,20 @@ public class EnclaveKeySynchroniserTest {
 
     private PartyInfoStore partyInfoStore;
 
-    private ConfigService configService;
-
     private EnclaveKeySynchroniser enclaveKeySynchroniser;
 
     @Before
     public void init() throws URISyntaxException {
-        this.configService = mock(ConfigService.class);
-        when(configService.getServerUri()).thenReturn(new URI(URL));
 
         this.enclave = mock(Enclave.class);
         this.partyInfoStore = new PartyInfoStore(new URI(URL));
 
-        this.enclaveKeySynchroniser = new EnclaveKeySynchroniser(enclave, partyInfoStore, configService);
+        this.enclaveKeySynchroniser = new EnclaveKeySynchroniser(enclave, partyInfoStore, new URI(URL));
     }
 
     @After
     public void after() {
-        verifyNoMoreInteractions(enclave, configService);
+        verifyNoMoreInteractions(enclave);
     }
 
     @Test
@@ -66,7 +61,6 @@ public class EnclaveKeySynchroniserTest {
                 .containsExactlyInAnyOrder(new Recipient(keyOne, URL), new Recipient(keyTwo, URL));
 
         verify(enclave).getPublicKeys();
-        verify(configService).getServerUri();
     }
 
     @Test
@@ -81,6 +75,5 @@ public class EnclaveKeySynchroniserTest {
         assertThat(store.getParties()).containsExactlyInAnyOrder(new Party(URL));
 
         verify(enclave).getPublicKeys();
-        verify(configService).getServerUri();
     }
 }

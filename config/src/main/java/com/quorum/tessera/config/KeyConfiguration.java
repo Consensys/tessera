@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyConfiguration extends ConfigItem {
@@ -33,7 +34,7 @@ public class KeyConfiguration extends ConfigItem {
     @Size(min = 1, message = "At least 1 public/private key pair must be provided")
     private List<KeyData> keyData;
 
-   @XmlElement private List<@Valid DefaultKeyVaultConfig> keyVaultConfigs;
+    @XmlElement private List<@Valid DefaultKeyVaultConfig> keyVaultConfigs;
 
     @Valid @XmlElement private AzureKeyVaultConfig azureKeyVaultConfig;
 
@@ -82,8 +83,11 @@ public class KeyConfiguration extends ConfigItem {
         return hashicorpKeyVaultConfig;
     }
 
-    public List<DefaultKeyVaultConfig> getKeyVaultConfigs() {
-        return keyVaultConfigs;
+    public List<KeyVaultConfig> getKeyVaultConfigs() {
+        if (keyVaultConfigs == null) {
+            return null;
+        }
+        return keyVaultConfigs.stream().map(KeyVaultConfig.class::cast).collect(Collectors.toList());
     }
 
     public Optional<DefaultKeyVaultConfig> getKeyVaultConfig(KeyVaultType type) {
@@ -103,9 +107,7 @@ public class KeyConfiguration extends ConfigItem {
             return Optional.empty();
         }
 
-        return keyVaultConfigs.stream()
-            .filter(c -> type.equals(c.getKeyVaultType()))
-            .findFirst();
+        return keyVaultConfigs.stream().filter(c -> type.equals(c.getKeyVaultType())).findFirst();
     }
 
     public void setPasswordFile(Path passwordFile) {

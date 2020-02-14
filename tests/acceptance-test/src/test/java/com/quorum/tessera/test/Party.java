@@ -111,7 +111,6 @@ public class Party {
         return getRestClient().target(serverConfig.getServerUri());
     }
 
-
     public String getAlias() {
         return alias;
     }

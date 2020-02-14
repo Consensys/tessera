@@ -41,7 +41,6 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         assertThat(result).isTrue();
     }
 
-
     @Test
     public void nullKeyVaultConfigsIsIgnored() {
 
@@ -66,7 +65,7 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AZURE);
 
-        List<DefaultKeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
+        List<KeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
@@ -80,7 +79,7 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
-        List<DefaultKeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
+        List<KeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
@@ -94,7 +93,7 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
         when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AWS);
 
-        List<DefaultKeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
+        List<KeyVaultConfig> configs = Collections.singletonList(keyVaultConfig);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
@@ -114,7 +113,7 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         DefaultKeyVaultConfig aws = mock(DefaultKeyVaultConfig.class);
         when(aws.getKeyVaultType()).thenReturn(KeyVaultType.AWS);
 
-        List<DefaultKeyVaultConfig> configs = Arrays.asList(azure, hashicorp, aws);
+        List<KeyVaultConfig> configs = Arrays.asList(azure, hashicorp, aws);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
@@ -151,7 +150,7 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         DefaultKeyVaultConfig aws2 = mock(DefaultKeyVaultConfig.class);
         when(aws2.getKeyVaultType()).thenReturn(KeyVaultType.AWS);
 
-        List<DefaultKeyVaultConfig> configs = Arrays.asList(azure, hashicorp, aws, azure2, hashicorp2, aws2);
+        List<KeyVaultConfig> configs = Arrays.asList(azure, hashicorp, aws, azure2, hashicorp2, aws2);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
@@ -159,12 +158,9 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
         assertThat(result).isFalse();
 
-        verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("AZURE " + defaultMessageTemplate);
-        verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("HASHICORP " + defaultMessageTemplate);
-        verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("AWS " + defaultMessageTemplate);
+        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AZURE " + defaultMessageTemplate);
+        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("HASHICORP " + defaultMessageTemplate);
+        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AWS " + defaultMessageTemplate);
     }
 
     @Test
@@ -187,7 +183,7 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         HashicorpKeyVaultConfig hashicorpDeprecated = mock(HashicorpKeyVaultConfig.class);
         when(hashicorpDeprecated.getKeyVaultType()).thenReturn(KeyVaultType.HASHICORP);
 
-        List<DefaultKeyVaultConfig> configs = Arrays.asList(azureGeneric, hashicorpGeneric);
+        List<KeyVaultConfig> configs = Arrays.asList(azureGeneric, hashicorpGeneric);
 
         KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
         when(keyConfiguration.getKeyVaultConfigs()).thenReturn(configs);
@@ -198,10 +194,8 @@ public class NoDuplicateKeyVaultConfigsValidatorTest {
         boolean result = validator.isValid(keyConfiguration, constraintValidatorContext);
 
         assertThat(result).isFalse();
-        verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("AZURE " + defaultMessageTemplate);
-        verify(constraintValidatorContext)
-                .buildConstraintViolationWithTemplate("HASHICORP " + defaultMessageTemplate);
+        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("AZURE " + defaultMessageTemplate);
+        verify(constraintValidatorContext).buildConstraintViolationWithTemplate("HASHICORP " + defaultMessageTemplate);
     }
 
     @Test

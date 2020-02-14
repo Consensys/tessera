@@ -5,17 +5,14 @@ plugins {
 group 'com.jpmorgan.quorum'
 version '0.11-SNAPSHOT'
 
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     compile project(':encryption:encryption-api')
     compile project(':config')
     compile project(':key-vault:key-vault-api')
     compile project(':enclave:enclave-api')
-    compile project(':server:server-api')
+    compile project(':security')
+//   testCompile project(':server:server-api')
+    compile "javax.ws.rs:javax.ws.rs-api"
+    runtimeOnly "org.hibernate:hibernate-validator"
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

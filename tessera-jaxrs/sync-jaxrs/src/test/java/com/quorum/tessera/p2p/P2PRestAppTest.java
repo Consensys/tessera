@@ -1,17 +1,17 @@
 package com.quorum.tessera.p2p;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.context.RuntimeContext;
+import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Application;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -29,24 +29,20 @@ public class P2PRestAppTest {
 
     private JerseyTest jersey;
 
+    static final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(mock(Config.class));
+
     @Before
     public void setUp() throws Exception {
 
         Set services = new HashSet<>();
         services.add(mock(PartyInfoService.class));
-        services.add(mock(ConfigService.class));
         services.add(mock(TransactionManager.class));
         services.add(mock(Enclave.class));
 
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setApp(AppType.P2P);
-        serverConfig.setServerAddress("http://localhost:9928");
-        serverConfig.setEnabled(true);
+        Client client = mock(Client.class);
+        when(runtimeContext.getP2pClient()).thenReturn(client);
+        when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
 
-        final Config config = new Config();
-        config.setServerConfigs(Collections.singletonList(serverConfig));
-
-        services.add(config);
 
         MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);
@@ -70,6 +66,7 @@ public class P2PRestAppTest {
     @After
     public void tearDown() throws Exception {
         jersey.tearDown();
+
     }
 
     @Test
@@ -83,23 +80,5 @@ public class P2PRestAppTest {
         assertThat(p2PRestApp.getAppType()).isEqualTo(AppType.P2P);
     }
 
-    private Set createServices() {
-        Set services = new HashSet<>();
-        services.add(mock(PartyInfoService.class));
-        services.add(mock(ConfigService.class));
-        services.add(mock(TransactionManager.class));
-        services.add(mock(Enclave.class));
 
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setApp(AppType.P2P);
-        serverConfig.setServerAddress("http://localhost:9928");
-        serverConfig.setEnabled(true);
-
-        final Config config = new Config();
-        config.setServerConfigs(Collections.singletonList(serverConfig));
-
-        services.add(config);
-
-        return services;
-    }
 }

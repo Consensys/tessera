@@ -36,11 +36,18 @@ public class KeyConfigurationTest {
 
         KeyConfiguration keyConfiguration =
                 new KeyConfiguration(null, null, null, azureKeyVaultConfig, hashicorpKeyVaultConfig);
-        List<DefaultKeyVaultConfig> result = keyConfiguration.getKeyVaultConfigs();
+        List<KeyVaultConfig> result = keyConfiguration.getKeyVaultConfigs();
         assertThat(result).hasSize(2);
         assertThat(result)
-                .flatExtracting(DefaultKeyVaultConfig::getKeyVaultType)
+                .flatExtracting(KeyVaultConfig::getKeyVaultType)
                 .containsExactlyInAnyOrder(KeyVaultType.AZURE, KeyVaultType.HASHICORP);
+    }
+
+    @Test
+    public void getKeyVaultConfigsReturnNullIfConfigsAreNull() {
+        KeyConfiguration keyConfiguration = new KeyConfiguration(null, null, null, null, null);
+
+        assertThat(keyConfiguration.getKeyVaultConfigs()).isNull();
     }
 
     @Test

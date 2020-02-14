@@ -1,6 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.admin.ConfigService;
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -38,8 +38,8 @@ public class PartyInfoStore {
         this.parties.add(new Party(this.advertisedUrl));
     }
 
-    public PartyInfoStore(final ConfigService configService) {
-        this(configService.getServerUri());
+    public PartyInfoStore() {
+        this(RuntimeContext.getInstance().getP2pServerUri());
     }
 
     /**

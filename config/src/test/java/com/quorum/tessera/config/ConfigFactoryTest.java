@@ -1,6 +1,5 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.test.util.ElUtil;
 import org.junit.Test;
 
@@ -40,7 +39,6 @@ public class ConfigFactoryTest {
         assertThat(config.getPeers()).hasSize(2);
         assertThat(config.getKeys().getKeyData()).hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0)).isInstanceOf(KeyData.class);
-
     }
 
     @Test

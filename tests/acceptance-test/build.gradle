@@ -62,21 +62,24 @@ test {
     systemProperty 'jdbc.sqlite.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
     systemProperty 'jdbc.dir',"${buildDir}/ext"
 
-    include '**/AdminRestSuite.class',
+    include(
+           '**/RestSuiteHttpH2RemoteEnclave.class',
             '**/RestSuiteHttpHSQL.class',
+            '**/RestSuiteUnixH2.class',
             '**/RestSuiteHttpSqllite.class',
             '**/RestSuiteHttpH2.class',
-            '**/RestSuiteHttpH2RemoteEnclave.class',
             '**/SendWithRemoteEnclaveReconnectIT.class',
             '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
             '**/ConfigMigrationIT.class',
-            '**/AdminRestSuite.class',
+           // '**/AdminRestSuite.class',
             '**/RestSuiteUnixH2.class',
             '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
+            '**/P2pTestSuite.class',
             '**/RunAwsIT.class',
             '**/RunAzureIT.class'
+    )
 
 //    '**/RestSuite.class',
 //            '**/P2pTestSuite.class',
@@ -85,6 +88,7 @@ test {
 //            '**/RestSuiteUnixH2.class',
 //            '**/CucumberWhitelistIT.class',
 //            '**/ConfigMigrationIT.class'
+  //  '**/RestSuiteHttpH2RemoteEnclave.class'//,
 
 
 

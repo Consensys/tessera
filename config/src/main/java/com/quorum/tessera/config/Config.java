@@ -2,8 +2,6 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.*;
-import com.quorum.tessera.config.constraints.groups.KeyValidationGroup;
-
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
@@ -38,7 +36,6 @@ public class Config extends ConfigItem {
     @Valid
     @XmlElement(required = true)
     @ValidKeyConfiguration
-    @MatchingKeyVaultConfigsForKeyData(groups = KeyValidationGroup.class)
     @NoDuplicateKeyVaultConfigs
     private KeyConfiguration keys;
 
@@ -136,11 +133,7 @@ public class Config extends ConfigItem {
 
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
-        return getServerConfigs().stream()
-                .filter(ServerConfig::isEnabled)
-                .filter(sc -> sc.getApp() == AppType.P2P)
-                .findFirst()
-                .orElse(null);
+        return getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.P2P).findFirst().orElse(null);
     }
 
     @Deprecated

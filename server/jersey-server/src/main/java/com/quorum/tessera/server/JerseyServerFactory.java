@@ -3,6 +3,8 @@ package com.quorum.tessera.server;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.apps.TesseraApp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 import javax.ws.rs.core.Application;
@@ -10,8 +12,11 @@ import javax.ws.rs.core.Application;
 /** Creates Grizzly and Jersey implementations of the {@link TesseraServer} */
 public class JerseyServerFactory implements TesseraServerFactory<Object> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JerseyServerFactory.class);
+
     @Override
     public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
+
         Application application =
                 services.stream()
                         .filter(TesseraApp.class::isInstance)
@@ -21,6 +26,8 @@ public class JerseyServerFactory implements TesseraServerFactory<Object> {
                         .map(Application.class::cast)
                         .findFirst()
                         .get();
+
+        LOGGER.debug("Created JAXRS application {}", application);
 
         return new JerseyServer(serverConfig, application);
     }

@@ -17,6 +17,7 @@ public class RestfulEnclaveClientFactory implements EnclaveClientFactory<Restful
     
     @Override
     public RestfulEnclaveClient create(Config config) {
+        LOGGER.debug("Creating RestfulEnclaveClient with {}",config);
         Optional<ServerConfig> enclaveServerConfig = config.getServerConfigs().stream()
                 .filter(sc -> sc.getApp() == AppType.ENCLAVE)
                 .filter(sc -> sc.getCommunicationType() == CommunicationType.REST)
@@ -24,7 +25,9 @@ public class RestfulEnclaveClientFactory implements EnclaveClientFactory<Restful
 
         final ClientFactory clientFactory = new ClientFactory();
 
+        LOGGER.debug("Creating server context from config");
         ServerConfig serverConfig = enclaveServerConfig.get();
+        LOGGER.debug("Created server context from config");
 
         Client client = clientFactory.buildFrom(serverConfig);
         LOGGER.info("Creating remoted enclave for {}", serverConfig.getServerUri());

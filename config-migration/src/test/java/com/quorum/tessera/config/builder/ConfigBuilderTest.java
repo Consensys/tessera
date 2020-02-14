@@ -6,7 +6,6 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
 import com.quorum.tessera.config.util.KeyDataUtil;
-import com.quorum.tessera.encryption.Key;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemErrRule;

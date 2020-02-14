@@ -3,7 +3,8 @@ package suite;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.io.IOCallback;
-import java.net.URL;
+
+import java.net.URI;
 import javax.ws.rs.core.UriBuilder;
 
 import org.slf4j.Logger;
@@ -23,13 +24,13 @@ public interface ServerStatusCheck {
             if (serverConfig.isUnixSocket()) {
                 return new UnixSocketServerStatusCheck(serverConfig.getServerUri());
             } else {
-                final URL url =
+                final URI url =
                         IOCallback.execute(
-                                () -> UriBuilder.fromUri(serverConfig.getServerUri()).path("upcheck").build().toURL());
+                                () -> UriBuilder.fromUri(serverConfig.getServerUri()).path("upcheck").build());
                 if (serverConfig.isSsl()) {
-                    return new HttpsServerStatusCheck(url, serverConfig.getSslConfig());
+                    return new HttpServerStatusCheck(serverConfig.getApp(), url, serverConfig.getSslConfig());
                 } else {
-                    return new HttpServerStatusCheck(url);
+                    return new HttpServerStatusCheck(serverConfig.getApp(), url);
                 }
             }
         }

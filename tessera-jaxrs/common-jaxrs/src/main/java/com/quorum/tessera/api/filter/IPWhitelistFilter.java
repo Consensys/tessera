@@ -1,20 +1,18 @@
 package com.quorum.tessera.api.filter;
 
-import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.core.api.ServiceFactory;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.io.IOCallback;
+import com.quorum.tessera.context.RuntimeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import java.net.URL;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Applies a filter to all endpoints that only allows certain IP address and ghost names to get access to the HTTP
@@ -28,20 +26,9 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IPWhitelistFilter.class);
 
-    private final ConfigService configService;
-
     private boolean disabled;
 
     private HttpServletRequest httpServletRequest;
-
-    public IPWhitelistFilter() {
-        this(ServiceFactory.create().configService());
-    }
-
-    protected IPWhitelistFilter(ConfigService configService) {
-        this.configService = configService;
-        this.disabled = !configService.isUseWhiteList();
-    }
 
     /**
      * If the filter is disabled, return immediately Otherwise, extract the callers hostname and address, and check it
@@ -55,7 +42,8 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
      */
     @Override
     public void filter(final ContainerRequestContext requestContext) {
-
+        RuntimeContext runtimeContext = RuntimeContext.getInstance();
+        disabled = disabled ? disabled : !runtimeContext.isUseWhiteList();
         if (disabled) {
             return;
         }
@@ -67,17 +55,14 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
 
         try {
 
-            final Set<String> whitelisted =
-                    configService.getPeers().stream()
-                            .map(Peer::getUrl)
-                            .map(s -> IOCallback.execute(() -> new URL(s)))
-                            .map(URL::getHost)
-                            .collect(Collectors.toSet());
+            final Set<String> whitelisted = runtimeContext.getPeers().stream()
+                .map(URI::getHost).collect(Collectors.toSet());
 
             final String remoteAddress = httpServletRequest.getRemoteAddr();
             final String remoteHost = httpServletRequest.getRemoteHost();
 
-            final boolean allowed = whitelisted.contains(remoteAddress) || whitelisted.contains(remoteHost);
+            final boolean allowed = whitelisted.stream()
+                .anyMatch(v -> Arrays.asList(remoteAddress,remoteHost).contains(v));
 
             if (!allowed) {
                 requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());

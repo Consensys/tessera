@@ -21,8 +21,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigMigrationSteps implements En {
 
-
-
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private Path outputFile;
@@ -115,11 +113,9 @@ public class ConfigMigrationSteps implements En {
 
                     final KeyConfiguration keys = new KeyConfiguration();
 
-
                     KeyData keyData = new KeyData();
                     keyData.setPrivateKeyPath(Paths.get("data", "foo.key").toAbsolutePath());
-                    keyData.setPublicKeyPath( Paths.get("data", "foo.pub").toAbsolutePath());
-
+                    keyData.setPublicKeyPath(Paths.get("data", "foo.pub").toAbsolutePath());
 
                     keys.setKeyData(singletonList(keyData));
                     keys.setPasswordFile(Paths.get("data", "passwords").toAbsolutePath());

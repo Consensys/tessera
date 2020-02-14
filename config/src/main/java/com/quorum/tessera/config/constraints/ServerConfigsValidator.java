@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.constraints;
 
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.ServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,6 +8,10 @@ import org.slf4j.LoggerFactory;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.quorum.tessera.config.AppType.*;
 
 public class ServerConfigsValidator implements ConstraintValidator<ValidServerConfigs, List<ServerConfig>> {
 
@@ -14,39 +19,33 @@ public class ServerConfigsValidator implements ConstraintValidator<ValidServerCo
 
     @Override
     public boolean isValid(List<ServerConfig> serverConfigs, ConstraintValidatorContext constraintContext) {
-        if(serverConfigs == null) {
+        if (serverConfigs == null) {
             return true;
         }
-        
-        int p2PEnabledConfigsCount = 0;
-        int q2TEnabledConfigsCount = 0;
 
-        for (ServerConfig sc : serverConfigs) {
-            if (sc.isEnabled()) {
-                switch (sc.getApp()) {
-                    case Q2T:
-                        q2TEnabledConfigsCount++;
-                        break;
-                    case P2P:
-                        p2PEnabledConfigsCount++;
-                        break;
-                }
-            }
-        }
+        final Map<AppType, Integer> counts =
+                serverConfigs.stream()
+                        .filter(ServerConfig::isEnabled)
+                        .collect(Collectors.toMap(ServerConfig::getApp, s -> 1, (l, r) -> l + 1));
+
+        final int p2PEnabledConfigsCount = counts.getOrDefault(P2P, 0);
+        final int q2TEnabledConfigsCount = counts.getOrDefault(Q2T, 0);
 
         if (p2PEnabledConfigsCount != 1) {
             LOGGER.debug("Only one P2P server must be configured and enabled.");
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("Only one P2P server must be configured and enabled.")
-                .addConstraintViolation();
+            constraintContext
+                    .buildConstraintViolationWithTemplate("Only one P2P server must be configured and enabled.")
+                    .addConstraintViolation();
             return false;
         }
 
         if (q2TEnabledConfigsCount == 0) {
             LOGGER.debug("At least one Q2T server must be configured and enabled.");
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("At least one Q2T server must be configured and enabled.")
-                .addConstraintViolation();
+            constraintContext
+                    .buildConstraintViolationWithTemplate("At least one Q2T server must be configured and enabled.")
+                    .addConstraintViolation();
             return false;
         }
 

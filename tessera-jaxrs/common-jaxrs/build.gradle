@@ -2,7 +2,6 @@
 dependencies {
 
     compile project(':tessera-jaxrs:jaxrs-client')
-    compile project(':tessera-admin')
     compile project(':tessera-core')
     compile project(':tessera-partyinfo')
     compile project(':enclave:enclave-api')

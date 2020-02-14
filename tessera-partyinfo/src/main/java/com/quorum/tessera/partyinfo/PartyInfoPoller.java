@@ -59,7 +59,7 @@ public class PartyInfoPoller implements Runnable {
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
         final String ourUrl = partyInfo.getUrl();
-
+        LOGGER.debug("{}", ourUrl);
         partyInfo.getParties().stream()
                 .map(Party::getUrl)
                 .filter(url -> !ourUrl.equals(url))

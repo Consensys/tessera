@@ -182,7 +182,7 @@ public class ConfigBuilder {
             adminServerConfig.setBindingAddress("http://0.0.0.0:" + adminPort);
             adminServerConfig.setCommunicationType(CommunicationType.REST);
 
-            servers.add(adminServerConfig);
+            // servers.add(adminServerConfig);
         }
 
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
@@ -229,16 +229,15 @@ public class ConfigBuilder {
 
         final List<KeyData> pairs =
                 keys.entrySet().stream()
-                      //  .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
-                        .map(e -> {
-                            KeyData keyData = new KeyData();
-                            keyData.setPublicKey(e.getKey());
-                            keyData.setPrivateKey(e.getValue());
-                            return keyData;
-                        })
+                        //  .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
+                        .map(
+                                e -> {
+                                    KeyData keyData = new KeyData();
+                                    keyData.setPublicKey(e.getKey());
+                                    keyData.setPrivateKey(e.getValue());
+                                    return keyData;
+                                })
                         .collect(Collectors.toList());
-
-
 
         config.getKeys().setKeyData(pairs);
 

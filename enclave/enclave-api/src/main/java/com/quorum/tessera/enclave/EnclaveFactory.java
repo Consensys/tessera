@@ -29,21 +29,30 @@ public interface EnclaveFactory {
     }
 
     static Enclave createServer(Config config) {
+
+        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating enclave server");
+
         EncryptorConfig encryptorConfig = config.getEncryptor();
         EncryptorFactory encryptorFactory = EncryptorFactory.newFactory(encryptorConfig.getType().name());
         Encryptor encryptor = encryptorFactory.create(encryptorConfig.getProperties());
         KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
 
         final KeyPairConverter keyPairConverter = new KeyPairConverter(config, new EnvironmentVariableProvider());
-        final Collection<KeyPair> keys = keyPairConverter
-            .convert(config.getKeys().getKeyData().stream()
-                .map(kd -> KeyDataUtil.unmarshal(kd,keyEncryptor))
-                .collect(Collectors.toList()));
+        final Collection<KeyPair> keys =
+                keyPairConverter.convert(
+                        config.getKeys().getKeyData().stream()
+                                .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
+                                .collect(Collectors.toList()));
 
         final Collection<PublicKey> forwardKeys = keyPairConverter.convert(config.getAlwaysSendTo());
 
+        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating enclave");
 
-        return new EnclaveImpl(encryptor, new KeyManagerImpl(keys, forwardKeys));
+        Enclave enclave = new EnclaveImpl(encryptor, new KeyManagerImpl(keys, forwardKeys));
+
+        LoggerFactory.getLogger(EnclaveFactory.class).info("Created enclave {}", enclave);
+
+        return enclave;
     }
 
     /**
@@ -56,17 +65,15 @@ public interface EnclaveFactory {
      * @return the {@link Enclave}, which may be either local or remote
      */
     default Enclave create(Config config) {
+        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating enclave");
         try {
             final Optional<ServerConfig> enclaveServerConfig =
                     config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.ENCLAVE).findAny();
 
-            // FIXME: this is needs to create a holder instance .
-            KeyEncryptorFactory.newFactory().create(config.getEncryptor());
-
             if (enclaveServerConfig.isPresent()) {
+                LoggerFactory.getLogger(EnclaveFactory.class).info("Creating remoted enclave");
                 return EnclaveClientFactory.create().create(config);
             }
-
             return createServer(config);
         } catch (Throwable ex) {
             LoggerFactory.getLogger(EnclaveFactory.class).error("", ex);

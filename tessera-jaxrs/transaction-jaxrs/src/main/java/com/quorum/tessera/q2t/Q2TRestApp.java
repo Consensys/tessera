@@ -8,8 +8,6 @@ import com.quorum.tessera.service.locator.ServiceLocator;
 import io.swagger.annotations.Api;
 
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.ws.rs.ApplicationPath;
 
@@ -38,7 +36,7 @@ public class Q2TRestApp extends TesseraRestApplication {
         IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
         TransactionResource transactionResource = new TransactionResource();
 
-        return Stream.of(iPWhitelistFilter, transactionResource).collect(Collectors.toSet());
+        return Set.of(iPWhitelistFilter, transactionResource);
     }
 
     @Override
