@@ -5,7 +5,6 @@ import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
-import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.enclave.KeyPairConverter;
 import com.quorum.tessera.encryption.KeyPair;
@@ -46,7 +45,6 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory {
 
             List<ConfigKeyPair> configKeyPairs =
                     config.getKeys().getKeyData().stream()
-                            .peek(k -> LOGGER.debug("Key {}", k))
                             .map(o -> KeyDataUtil.unmarshal(o, keyEncryptor))
                             .collect(Collectors.toList());
 
@@ -98,9 +96,7 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory {
                         .withUseWhiteList(config.isUseWhiteList())
                         .build();
 
-        if(LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Created RuntimeContext from {}", JaxbUtil.marshalToStringNoValidation(config));
-        }
+
         return context;
     }
 }

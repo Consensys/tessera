@@ -1,8 +1,6 @@
 package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.io.FilesDelegate;
@@ -43,11 +41,16 @@ public class ConfigFileUpdaterWriterTest {
         final String pub2 = "eKSr3gAw5zPubOK96dw2qkZZmIT2HUBf8Zv001ubBC0=";
         final String priv2 = "9YabvoCKGD1sUkUgHak4XJzbtgdwEsF/jiarLoTHeR0=";
 
-        final ConfigKeyPair key1 = new DirectKeyPair(pub1, priv1);
-        final ConfigKeyPair key2 = new DirectKeyPair(pub2, priv2);
+        final KeyData key1 = new KeyData();
+        key1.setPublicKey(pub1);
+        key1.setPrivateKey(priv1);
 
-        final List<ConfigKeyPair> newKeys = Collections.singletonList(key1);
-        final List<ConfigKeyPair> existingKeys = new ArrayList<>(Collections.singletonList(key2));
+        final KeyData key2 = new KeyData();
+        key2.setPublicKey(pub2);
+        key2.setPrivateKey(priv2);
+
+        final List<KeyData> newKeys = Collections.singletonList(key1);
+        final List<KeyData> existingKeys = new ArrayList<>(Collections.singletonList(key2));
 
         final Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample_full.json"), Config.class);
         config.getKeys().setKeyData(existingKeys);
@@ -75,9 +78,11 @@ public class ConfigFileUpdaterWriterTest {
         final String pub1 = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
         final String priv1 = "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=";
 
-        final ConfigKeyPair key1 = new DirectKeyPair(pub1, priv1);
+        final KeyData key1 = new KeyData();
+        key1.setPublicKey(pub1);
+        key1.setPrivateKey(priv1);
 
-        final List<ConfigKeyPair> newKeys = Collections.singletonList(key1);
+        final List<KeyData> newKeys = Collections.singletonList(key1);
 
         final Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample_full.json"), Config.class);
         config.getKeys().setPasswords(null);
@@ -111,9 +116,11 @@ public class ConfigFileUpdaterWriterTest {
         final String pub1 = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
         final String priv1 = "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=";
 
-        final ConfigKeyPair key1 = new DirectKeyPair(pub1, priv1);
+        final KeyData key1 = new KeyData();
+        key1.setPublicKey(pub1);
+        key1.setPrivateKey(priv1);
 
-        final List<ConfigKeyPair> newKeys = Collections.singletonList(key1);
+        final List<KeyData> newKeys = Collections.singletonList(key1);
 
         final Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample_full.json"), Config.class);
         config.getKeys().setPasswords(null);
@@ -168,11 +175,16 @@ public class ConfigFileUpdaterWriterTest {
         final String pub2 = "eKSr3gAw5zPubOK96dw2qkZZmIT2HUBf8Zv001ubBC0=";
         final String priv2 = "9YabvoCKGD1sUkUgHak4XJzbtgdwEsF/jiarLoTHeR0=";
 
-        final ConfigKeyPair key1 = new DirectKeyPair(pub1, priv1);
-        final ConfigKeyPair key2 = new DirectKeyPair(pub2, priv2);
+        final KeyData key1 = new KeyData();
+        key1.setPublicKey(pub1);
+        key1.setPrivateKey(priv1);
 
-        final List<ConfigKeyPair> newKeys = Collections.singletonList(key1);
-        final List<ConfigKeyPair> existingKeys = new ArrayList<>(Collections.singletonList(key2));
+        final KeyData key2 = new KeyData();
+        key2.setPublicKey(pub2);
+        key2.setPrivateKey(priv2);
+
+        final List<KeyData> newKeys = Collections.singletonList(key1);
+        final List<KeyData> existingKeys = new ArrayList<>(Collections.singletonList(key2));
 
         final Config config = JaxbUtil.unmarshal(getClass().getResourceAsStream("/sample_full.json"), Config.class);
         config.getKeys().setKeyData(existingKeys);

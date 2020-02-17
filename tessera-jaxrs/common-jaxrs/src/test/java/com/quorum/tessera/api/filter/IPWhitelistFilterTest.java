@@ -148,7 +148,7 @@ public class IPWhitelistFilterTest {
     @Test
     public void localhostIsWhiteListed() {
 
-        Peer peer = new Peer("http://localhost:8080");
+        URI peer = URI.create("http://localhost:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
@@ -165,7 +165,7 @@ public class IPWhitelistFilterTest {
 
     @Test
     public void localhostIPv6IsAlsoWhiteListed() {
-        Peer peer = new Peer("http://localhost:8080");
+        URI peer = URI.create("http://localhost:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
 
         final HttpServletRequest request = mock(HttpServletRequest.class);

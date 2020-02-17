@@ -680,6 +680,7 @@ public class KeyGenCommandTest {
 
         KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
         when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         command.call();
@@ -728,6 +729,7 @@ public class KeyGenCommandTest {
         verify(keyGeneratorFactory).create(any(), any());
     }
 
+
     @Test
     public void useKeyVaultConfigFromCliOptionsIfConfigFileValueIsForDifferentType() throws Exception {
         command.fileUpdateOptions = new KeyGenFileUpdateOptions();
@@ -766,4 +768,6 @@ public class KeyGenCommandTest {
 
         verify(keyGeneratorFactory).create(any(), any());
     }
+
+
 }
