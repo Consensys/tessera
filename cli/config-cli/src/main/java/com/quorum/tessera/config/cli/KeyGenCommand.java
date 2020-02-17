@@ -6,7 +6,6 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
-import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
@@ -79,7 +78,7 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @Override
     public CliResult call() throws IOException {
-        //TODO(cjh) this check shouldn't be required as --configfile is marked as 'required' in KeyGenFileUpdateOptions
+        // TODO(cjh) this check shouldn't be required as --configfile is marked as 'required' in KeyGenFileUpdateOptions
         if (Objects.nonNull(fileUpdateOptions) && Objects.isNull(fileUpdateOptions.getConfig())) {
             throw new CliException("Missing required argument(s): --configfile=<config>");
         }

@@ -1,8 +1,6 @@
 package com.quorum.tessera.config.cli;
 
-
 import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import org.junit.Test;
 
@@ -20,11 +18,10 @@ public class KeyDataMarshallerTest {
     public void defaultMarshal() {
         KeyDataMarshaller k = new KeyDataMarshaller() {};
 
-        DirectKeyPair configKeyPair = new DirectKeyPair("PUBLIC","PRIVATE");
+        DirectKeyPair configKeyPair = new DirectKeyPair("PUBLIC", "PRIVATE");
         KeyData keyData = k.marshal(configKeyPair);
         assertThat(keyData).isNotNull();
         assertThat(keyData.getPublicKey()).isEqualTo("PUBLIC");
         assertThat(keyData.getPrivateKey()).isEqualTo("PRIVATE");
     }
-
 }
