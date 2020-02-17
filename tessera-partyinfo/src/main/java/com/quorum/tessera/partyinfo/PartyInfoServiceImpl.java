@@ -97,7 +97,9 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         // auto-discovery is off
         final Set<String> peerUrls =
-                runtimeContext.getPeers().stream().map(Objects::toString).collect(Collectors.toSet());
+                runtimeContext.getPeers().stream()
+                    .map(Objects::toString)
+                    .collect(Collectors.toSet());
 
         LOGGER.debug("Known peers: {}", peerUrls);
 

@@ -14,7 +14,8 @@ public interface RuntimeContextFactory {
             return ContextHolder.INSTANCE.getContextFactory().get();
         }
         RuntimeContextFactory factory =
-                ServiceLoaderUtil.load(RuntimeContextFactory.class).orElse(new DefaultRuntimeContextFactory());
+                ServiceLoaderUtil.load(RuntimeContextFactory.class)
+                    .orElse(new DefaultRuntimeContextFactory());
 
         RuntimeContextFactory proxiedFactory =
                 (RuntimeContextFactory)

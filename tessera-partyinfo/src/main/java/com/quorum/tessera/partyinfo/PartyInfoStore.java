@@ -15,8 +15,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static java.util.Collections.unmodifiableSet;
-
 /** Stores a list of all discovered nodes and public keys */
 public class PartyInfoStore {
 
@@ -70,8 +68,8 @@ public class PartyInfoStore {
     public synchronized PartyInfo getPartyInfo() {
         return new PartyInfo(
                 advertisedUrl,
-                unmodifiableSet(new HashSet<>(recipients.values())),
-                unmodifiableSet(new HashSet<>(parties)));
+                Set.copyOf(recipients.values()),
+                Set.copyOf(parties));
     }
 
     public synchronized PartyInfo removeRecipient(final String uri) {

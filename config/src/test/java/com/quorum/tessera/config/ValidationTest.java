@@ -9,10 +9,8 @@ import org.junit.Test;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.util.Base64;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -271,6 +269,73 @@ public class ValidationTest {
             Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
             assertThat(validresult).isEmpty();
         }
+    }
+
+    @Test
+    public void configHasKeysOrIsRemoteEnclaveNiether() {
+
+        Config config = new Config();
+
+        List<ConstraintViolation<Config>> constrainViolations = validator.validate(config)
+            .stream()
+            .filter(v -> v.getMessageTemplate().equals("{HasKeysOrRemoteEnclave.message}"))
+            .collect(Collectors.toList());
+
+        assertThat(constrainViolations).hasSize(1);
+
+    }
+
+    @Test
+    public void configHasKeysOrIsRemoteEnclaveRemoteEnclave() {
+
+        Config config = new Config();
+        config.setServerConfigs(new ArrayList<>());
+        ServerConfig enclaveConfig = new ServerConfig() {{
+            setApp(AppType.ENCLAVE);
+        }};
+        config.getServerConfigs().add(enclaveConfig);
+
+        List<ConstraintViolation<Config>> constrainViolations = validator.validate(config)
+            .stream()
+            .filter(v -> v.getMessageTemplate().equals("{HasKeysOrRemoteEnclave.message}"))
+            .collect(Collectors.toList());
+
+        assertThat(constrainViolations).isEmpty();
+
+    }
+
+    @Test
+    public void configHasKeysOrIsRemoteEclaveWithKeys() {
+
+        Config config = new Config();
+        config.setKeys(new KeyConfiguration());
+
+        List<ConstraintViolation<Config>> constrainViolations = validator.validate(config)
+            .stream()
+            .filter(v -> v.getMessageTemplate().equals("{HasKeysOrRemoteEnclave.message}"))
+            .collect(Collectors.toList());
+
+        assertThat(constrainViolations).isEmpty();
+
+    }
+
+    @Test
+    public void configHasKeysOrIsRemoteEnclaveNoEnclaveServerNorKeys() {
+
+        Config config = new Config();
+        config.setServerConfigs(new ArrayList<>());
+        ServerConfig enclaveConfig = new ServerConfig() {{
+            setApp(AppType.P2P);
+        }};
+        config.getServerConfigs().add(enclaveConfig);
+
+        List<ConstraintViolation<Config>> constrainViolations = validator.validate(config)
+            .stream()
+            .filter(v -> v.getMessageTemplate().equals("{HasKeysOrRemoteEnclave.message}"))
+            .collect(Collectors.toList());
+
+        assertThat(constrainViolations).hasSize(1);
+
     }
 
 }

@@ -37,6 +37,8 @@ public class RuntimeContextTest extends ContextTestCase {
         assertThat(runtimeContext.isUseWhiteList()).isFalse();
 
         assertThat(runtimeContext.isDisablePeerDiscovery()).isFalse();
+
+        assertThat(runtimeContext.toString()).isNotEmpty();
     }
 
     @Test

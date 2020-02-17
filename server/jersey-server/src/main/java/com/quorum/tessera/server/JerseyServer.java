@@ -79,7 +79,9 @@ public class JerseyServer implements TesseraServer {
 
         final ResourceConfig config = ResourceConfig.forApplication(application);
 
-        config.addProperties(initParams).register(MetricsResource.class).register(LoggingFilter.class);
+        config.addProperties(initParams)
+            .register(MetricsResource.class)
+            .register(LoggingFilter.class);
 
         if (serverConfig.getCrossDomainConfig() != null && !serverConfig.isUnixSocket()) {
             config.register(new CorsDomainResponseFilter(serverConfig.getCrossDomainConfig()));

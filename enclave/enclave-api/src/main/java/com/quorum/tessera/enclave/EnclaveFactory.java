@@ -82,6 +82,7 @@ public interface EnclaveFactory {
     }
 
     static EnclaveFactory create() {
+        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating EnclaveFactory");
         return ServiceLoaderUtil.load(EnclaveFactory.class).orElse(new EnclaveFactory() {});
     }
 }

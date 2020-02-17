@@ -64,21 +64,21 @@ test {
 
     include(
            '**/RestSuiteHttpH2RemoteEnclave.class',
-//            '**/RestSuiteHttpHSQL.class',
-//            '**/RestSuiteUnixH2.class',
-//            '**/RestSuiteHttpSqllite.class',
-//            '**/RestSuiteHttpH2.class',
-//            '**/SendWithRemoteEnclaveReconnectIT.class',
-//            '**/RestSuiteHttpqlite.class',
-//            '**/CucumberWhitelistIT.class',
-//            '**/ConfigMigrationIT.class',
-//           // '**/AdminRestSuite.class',
-//            '**/RestSuiteUnixH2.class',
-//            '**/P2pTestSuite.class',
-//            '**/CucumberFileKeyGenerationIT.class',
-//            '**/P2pTestSuite.class',
-//            '**/RunAwsIT.class',
-//            '**/RunAzureIT.class'
+            '**/RestSuiteHttpHSQL.class',
+            '**/RestSuiteUnixH2.class',
+            '**/RestSuiteHttpSqllite.class',
+            '**/RestSuiteHttpH2.class',
+            '**/SendWithRemoteEnclaveReconnectIT.class',
+            '**/RestSuiteHttpqlite.class',
+            '**/CucumberWhitelistIT.class',
+            '**/ConfigMigrationIT.class',
+           // '**/AdminRestSuite.class',
+            '**/RestSuiteUnixH2.class',
+            '**/P2pTestSuite.class',
+            '**/CucumberFileKeyGenerationIT.class',
+            '**/P2pTestSuite.class',
+            '**/RunAwsIT.class',
+            '**/RunAzureIT.class'
     )
 
 //    '**/RestSuite.class',
