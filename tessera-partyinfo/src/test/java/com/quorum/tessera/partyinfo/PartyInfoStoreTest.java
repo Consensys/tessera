@@ -1,8 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
@@ -18,7 +15,6 @@ import java.util.Set;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class PartyInfoStoreTest {
 
@@ -171,12 +167,5 @@ public class PartyInfoStoreTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipients()).hasSize(1).containsOnly(new Recipient(someKey, uri));
-    }
-
-    @Test
-    public void defaultConstructor() {
-        //Yuk. Need to address in RuntimeContext.getInstance()
-        RuntimeContextFactory.newFactory().create(mock(Config.class));
-        assertThat(new PartyInfoStore()).isNotNull();
     }
 }
