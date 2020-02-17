@@ -18,30 +18,29 @@ import com.quorum.tessera.config.apps.TesseraApp;
 import io.swagger.annotations.Api;
 
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.ws.rs.core.Application;
+
 @Api
 public abstract class TesseraRestApplication extends Application implements TesseraApp {
 
     @Override
     public Set<Class<?>> getClasses() {
-        // TODO: use new java 9+ api Sets once we move from java 8.
-        return Stream.of(
-                        AutoDiscoveryDisabledExceptionMapper.class,
-                        DecodingExceptionMapper.class,
-                        DefaultExceptionMapper.class,
-                        EnclaveNotAvailableExceptionMapper.class,
-                        EntityNotFoundExceptionMapper.class,
-                        KeyNotFoundExceptionMapper.class,
-                        NotFoundExceptionMapper.class,
-                        SecurityExceptionMapper.class,
-                        TransactionNotFoundExceptionMapper.class,
-                        WebApplicationExceptionMapper.class,
-                        UpCheckResource.class,
-                        VersionResource.class,
-                        ApiResource.class)
-                .collect(Collectors.toSet());
+        return Set.of(
+                AutoDiscoveryDisabledExceptionMapper.class,
+                DecodingExceptionMapper.class,
+                DefaultExceptionMapper.class,
+                EnclaveNotAvailableExceptionMapper.class,
+                EntityNotFoundExceptionMapper.class,
+                KeyNotFoundExceptionMapper.class,
+                NotFoundExceptionMapper.class,
+                SecurityExceptionMapper.class,
+                TransactionNotFoundExceptionMapper.class,
+                WebApplicationExceptionMapper.class,
+                UpCheckResource.class,
+                VersionResource.class,
+                ApiResource.class
+        );
+
     }
 
     @Override

@@ -32,14 +32,14 @@
     <!-- Party Info management -->
 
     <bean name="partyInfoStore" class="com.quorum.tessera.partyinfo.PartyInfoStore">
-        <constructor-arg ref="configService"/>
+        <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}"/>
     </bean>
 
     <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
         <constructor-arg ref="partyInfoStore"/>
-        <constructor-arg ref="configService"/>
         <constructor-arg ref="enclave"/>
         <constructor-arg ref="payloadPublisher"/>
+
     </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
@@ -69,7 +69,7 @@
     <bean name="enclaveKeySynchroniser" class="com.quorum.tessera.partyinfo.EnclaveKeySynchroniser">
         <constructor-arg ref="enclave" />
         <constructor-arg ref="partyInfoStore" />
-        <constructor-arg ref="configService" />
+        <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}" />
     </bean>
 
     <bean name="enclaveKeySynchroniserExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">

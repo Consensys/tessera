@@ -22,18 +22,17 @@
             <artifactId>swagger-annotations</artifactId>
             <type>jar</type>
         </dependency>
-        
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>tessera-admin</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>tessera-data</artifactId>
         </dependency> 
         
-        
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-context</artifactId>
+        </dependency>
+            
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>mock-service-locator</artifactId>

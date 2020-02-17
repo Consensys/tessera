@@ -1,6 +1,6 @@
 package com.quorum.tessera.thirdparty;
 
-import com.quorum.tessera.admin.ConfigService;
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,17 +23,16 @@ import java.util.Set;
 @Produces(MediaType.APPLICATION_JSON)
 public class KeyResource {
 
-    private final ConfigService configService;
-
-    public KeyResource(ConfigService configService) {
-        this.configService = configService;
-    }
 
     @GET
     @ApiOperation(value = "Fetch local public keys managed by the enclave")
     @ApiResponses({@ApiResponse(code = 200, message = "Managed public keys")})
     public Response getPublicKeys() {
-        Set<PublicKey> publicKeys = configService.getPublicKeys();
+
+        RuntimeContext runtimeContext = RuntimeContext.getInstance();
+
+
+        Set<PublicKey> publicKeys = runtimeContext.getPublicKeys();
 
         final JsonArrayBuilder keyBuilder = Json.createArrayBuilder();
 

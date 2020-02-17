@@ -1,12 +1,9 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.encryption.PublicKey;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,27 +15,16 @@ import java.util.Set;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
 
 public class PartyInfoStoreTest {
 
     private String uri = "http://localhost:8080";
 
-    private ConfigService configService;
-
     private PartyInfoStore partyInfoStore;
 
     @Before
     public void onSetUp() throws URISyntaxException {
-        this.configService = mock(ConfigService.class);
-        when(configService.getServerUri()).thenReturn(new URI(uri));
-
-        this.partyInfoStore = new PartyInfoStore(configService);
-    }
-
-    @After
-    public void after() {
-        verify(configService).getServerUri();
+        this.partyInfoStore = new PartyInfoStore(new URI(uri));
     }
 
     @Test
@@ -181,5 +167,10 @@ public class PartyInfoStoreTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipients()).hasSize(1).containsOnly(new Recipient(someKey, uri));
+    }
+
+    @Test
+    public void defaultConstructor() {
+        assertThat(new PartyInfoStore()).isNotNull();
     }
 }

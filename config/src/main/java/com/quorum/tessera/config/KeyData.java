@@ -12,14 +12,13 @@ import java.nio.file.Path;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyData extends ConfigItem {
 
-    @XmlElement
-    private KeyDataConfig config;
+    @XmlElement private String password;
 
-    @XmlElement
-    private String privateKey;
+    @XmlElement private KeyDataConfig config;
 
-    @XmlElement
-    private String publicKey;
+    @XmlElement private String privateKey;
+
+    @XmlElement private String publicKey;
 
     @XmlElement
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -37,34 +36,41 @@ public class KeyData extends ConfigItem {
     @Pattern(regexp = "^[0-9a-zA-Z\\-]*$")
     private String azureVaultPrivateKeyId;
 
-    @XmlElement
-    private String azureVaultPublicKeyVersion;
+    @XmlElement private String azureVaultPublicKeyVersion;
 
-    @XmlElement
-    private String azureVaultPrivateKeyVersion;
+    @XmlElement private String azureVaultPrivateKeyVersion;
 
-    @XmlElement
-    private String hashicorpVaultPublicKeyId;
+    @XmlElement private String hashicorpVaultPublicKeyId;
 
-    @XmlElement
-    private String hashicorpVaultPrivateKeyId;
+    @XmlElement private String hashicorpVaultPrivateKeyId;
 
-    @XmlElement
-    private String hashicorpVaultSecretEngineName;
+    @XmlElement private String hashicorpVaultSecretEngineName;
 
-    @XmlElement
-    private String hashicorpVaultSecretName;
+    @XmlElement private String hashicorpVaultSecretName;
 
-    @XmlElement
-    private String hashicorpVaultSecretVersion;
+    @XmlElement private String hashicorpVaultSecretVersion;
 
-    @XmlElement
-    private String awsSecretsManagerPublicKeyId;
+    @XmlElement private String awsSecretsManagerPublicKeyId;
 
-    @XmlElement
-    private String awsSecretsManagerPrivateKeyId;
+    @XmlElement private String awsSecretsManagerPrivateKeyId;
 
-    public KeyData(KeyDataConfig config, String privateKey, String publicKey, Path privateKeyPath, Path publicKeyPath, String azureVaultPublicKeyId, String azureVaultPrivateKeyId, String azureVaultPublicKeyVersion, String azureVaultPrivateKeyVersion, String hashicorpVaultPublicKeyId, String hashicorpVaultPrivateKeyId, String hashicorpVaultSecretEngineName, String hashicorpVaultSecretName, String hashicorpVaultSecretVersion, String awsSecretsManagerPublicKeyId, String awsSecretsManagerPrivateKeyId) {
+    public KeyData(
+            KeyDataConfig config,
+            String privateKey,
+            String publicKey,
+            Path privateKeyPath,
+            Path publicKeyPath,
+            String azureVaultPublicKeyId,
+            String azureVaultPrivateKeyId,
+            String azureVaultPublicKeyVersion,
+            String azureVaultPrivateKeyVersion,
+            String hashicorpVaultPublicKeyId,
+            String hashicorpVaultPrivateKeyId,
+            String hashicorpVaultSecretEngineName,
+            String hashicorpVaultSecretName,
+            String hashicorpVaultSecretVersion,
+            String awsSecretsManagerPublicKeyId,
+            String awsSecretsManagerPrivateKeyId) {
         this.config = config;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -83,9 +89,7 @@ public class KeyData extends ConfigItem {
         this.awsSecretsManagerPrivateKeyId = awsSecretsManagerPrivateKeyId;
     }
 
-    public KeyData() {
-
-    }
+    public KeyData() {}
 
     public String getPrivateKey() {
         return privateKey;
@@ -213,5 +217,13 @@ public class KeyData extends ConfigItem {
 
     public void setAwsSecretsManagerPrivateKeyId(String awsSecretsManagerPrivateKeyId) {
         this.awsSecretsManagerPrivateKeyId = awsSecretsManagerPrivateKeyId;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

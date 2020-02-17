@@ -199,8 +199,9 @@
                     </systemPropertyVariables>
                     <includes>
                         <include>CucumberFileKeyGenerationIT</include>
-                        <include>AdminRestSuite</include>
-                        <include>RestSuiteHttp*</include>
+                        <include>RestSuiteHttpH2</include>
+                        <include>RestSuiteHttpHSQL</include>
+                        <include>RestSuiteHttpSqllite</include>
                         <include>RestSuiteUnixH2</include>
                         <include>CucumberWhitelistIT</include>
                         <include>ConfigMigrationIT</include>

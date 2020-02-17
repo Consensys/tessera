@@ -34,14 +34,6 @@
 
     <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
 
-    <bean id="configService" class="com.quorum.tessera.admin.ConfigServiceImpl">
-        <constructor-arg ref="config" />
-        <constructor-arg ref="enclave"/>
-        <constructor-arg>
-            <bean class="com.quorum.tessera.config.util.ConfigFileStore" factory-method="get" />
-        </constructor-arg>
-    </bean>
-
     <bean name="encryptedTransactionDAO" class="com.quorum.tessera.data.EncryptedTransactionDAOImpl"/>
 
     <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.data.EncryptedRawTransactionDAOImpl"/>

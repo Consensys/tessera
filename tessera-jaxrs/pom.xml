@@ -9,7 +9,6 @@
     <artifactId>tessera-jaxrs</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>admin-jaxrs</module>
         <module>transaction-jaxrs</module>
         <module>common-jaxrs</module>
         <module>thirdparty-jaxrs</module>

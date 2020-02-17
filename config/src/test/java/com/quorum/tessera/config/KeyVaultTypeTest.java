@@ -11,6 +11,7 @@ public class KeyVaultTypeTest {
         for(KeyVaultType t : KeyVaultType.values()) {
             assertThat(t).isNotNull();
             assertThat(KeyVaultType.valueOf(t.name())).isSameAs(t);
+            assertThat(t.getKeyPairType()).isNotNull();
         }
     }
 

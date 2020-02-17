@@ -1,6 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.admin.ConfigService;
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static java.util.Collections.unmodifiableSet;
 
 /** Stores a list of all discovered nodes and public keys */
 public class PartyInfoStore {
@@ -38,8 +36,8 @@ public class PartyInfoStore {
         this.parties.add(new Party(this.advertisedUrl));
     }
 
-    public PartyInfoStore(final ConfigService configService) {
-        this(configService.getServerUri());
+    public PartyInfoStore() {
+        this(RuntimeContext.getInstance().getP2pServerUri());
     }
 
     /**
@@ -70,8 +68,8 @@ public class PartyInfoStore {
     public synchronized PartyInfo getPartyInfo() {
         return new PartyInfo(
                 advertisedUrl,
-                unmodifiableSet(new HashSet<>(recipients.values())),
-                unmodifiableSet(new HashSet<>(parties)));
+                Set.copyOf(recipients.values()),
+                Set.copyOf(parties));
     }
 
     public synchronized PartyInfo removeRecipient(final String uri) {

@@ -6,9 +6,9 @@ dependencies {
     compile project(':shared')
     compile project(':config')
     compile project(':enclave:enclave-api')
+    compile project(':tessera-context')
 
     compile 'io.swagger:swagger-annotations'
-    compile project(':tessera-admin')
     compile project(':tessera-data')
     compile 'org.apache.commons:commons-lang3'
 

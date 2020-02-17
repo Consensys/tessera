@@ -4,6 +4,7 @@ dependencies {
     compile 'org.apache.commons:commons-lang3:3.7'
     compile project(':config')
     compile project(':shared')
+    compile project(':tessera-context')
     compile project(':encryption:encryption-api')
     testCompile project(':tests:test-util')
 }

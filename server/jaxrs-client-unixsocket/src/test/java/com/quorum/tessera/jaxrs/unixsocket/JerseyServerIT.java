@@ -6,7 +6,6 @@ import com.quorum.tessera.server.JerseyServer;
 import org.glassfish.jersey.client.ClientConfig;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
@@ -16,7 +15,6 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,11 +26,13 @@ public class JerseyServerIT {
 
     @Before
     public void onSetUp() throws Exception {
+
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
 
         serverConfig.setServerAddress(unixfile.toString());
         Application sample = new SampleApplication();
+
         server = new JerseyServer(serverConfig, sample);
 
         server.start();
@@ -45,6 +45,7 @@ public class JerseyServerIT {
 
     @Test
     public void ping() {
+
         Response result = newClient(unixfile).target(URI.create("http://localhost:88")).path("ping").request().get();
 
         assertThat(result.getStatus()).isEqualTo(200);
@@ -53,6 +54,7 @@ public class JerseyServerIT {
 
     @Test
     public void create() {
+
         SamplePayload payload = new SamplePayload();
         payload.setValue("Hellow");
 
@@ -81,6 +83,7 @@ public class JerseyServerIT {
 
     @Test
     public void raw() {
+
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
         Response result =
@@ -97,7 +100,11 @@ public class JerseyServerIT {
 
     @Test
     public void param() {
-        final Response result =
+        // URL.setURLStreamHandlerFactory(new UnixSocketURLStreamHandlerFactory());
+        ClientConfig config = new ClientConfig();
+        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
+
+        Response result =
             newClient(unixfile)
                 .target(unixfile)
                 .path("param")
@@ -109,27 +116,8 @@ public class JerseyServerIT {
         assertThat(result.getStatus()).isEqualTo(200);
     }
 
-    //TODO: see why the unix socket client doesn't like reading large files
-    @Test
-    @Ignore
-    public void readLargeFileFromSocket() {
-        final Response result = newClient(unixfile)
-            .target(unixfile)
-            .path("smallfile")
-            .request()
-            .get();
-
-        assertThat(result.getStatus()).isEqualTo(200);
-
-        final String resultEntity = result.readEntity(String.class);
-        assertThat(resultEntity).isNotNull();
-
-        final byte[] decoded = Base64.getDecoder().decode(resultEntity);
-        assertThat(decoded.length).isEqualTo(1024 * 1024 * 100);
-    }
-
     private static Client newClient(URI unixfile) {
-        final ClientConfig config = new ClientConfig();
+        ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
 
         return ClientBuilder.newClient(config).property("unixfile", unixfile);

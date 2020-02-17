@@ -10,6 +10,7 @@ import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.reflect.ReflectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ public class PicoCliDelegate {
     }
 
     public CliResult execute(String... args) throws Exception {
+        LOGGER.debug("Execute with args [{}]",String.join(",",args));
         final CommandSpec command = CommandSpec.forAnnotatedObject(TesseraCommand.class);
 
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
@@ -99,7 +101,8 @@ public class PicoCliDelegate {
             } catch (NoTesseraConfigfileOptionException e) {
                 throw new CliException("Missing required option '--configfile <config>'");
             }
-
+            LOGGER.debug("Executed with args [{}]",String.join(",",args));
+            LOGGER.trace("Config {}", JaxbUtil.marshalToString(config));
             return new CliResult(0, false, config);
 
         } else {

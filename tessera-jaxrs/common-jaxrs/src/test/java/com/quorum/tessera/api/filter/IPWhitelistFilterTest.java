@@ -1,9 +1,11 @@
 package com.quorum.tessera.api.filter;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.context.RuntimeContext;
+import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -16,7 +18,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 
-import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -26,31 +29,34 @@ public class IPWhitelistFilterTest {
 
     private IPWhitelistFilter filter;
 
-    private ConfigService configService;
+    private static RuntimeContext configService = RuntimeContextFactory.newFactory().create(mock(Config.class));
 
     @Before
     public void init() throws URISyntaxException {
+
+        when(configService.getPeers()).thenReturn(singletonList(URI.create("http://whitelistedHost:8080")));
+        when(configService.isUseWhiteList()).thenReturn(true);
 
         this.ctx = mock(ContainerRequestContext.class);
         final UriInfo uriInfo = mock(UriInfo.class);
         when(uriInfo.getBaseUri()).thenReturn(new URI("otherhost"));
         when(ctx.getUriInfo()).thenReturn(uriInfo);
 
-        this.configService = mock(ConfigService.class);
 
-        Peer peer = new Peer("http://whitelistedHost:8080");
-        when(configService.getPeers()).thenReturn(singletonList(peer));
-        when(configService.isUseWhiteList()).thenReturn(true);
 
-        this.filter = new IPWhitelistFilter(configService);
+        this.filter = new IPWhitelistFilter();
+    }
+
+    @After
+    public void onTearDown() {
+        reset(configService);
     }
 
     @Test
     public void disabledFilterAllowsAllRequests() {
-
         when(configService.getPeers()).thenReturn(emptyList());
         when(configService.isUseWhiteList()).thenReturn(false);
-        this.filter = new IPWhitelistFilter(configService);
+        this.filter = new IPWhitelistFilter();
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("someotherhost").when(request).getRemoteAddr();
         doReturn("someotherhost").when(request).getRemoteHost();
@@ -101,6 +107,8 @@ public class IPWhitelistFilterTest {
     @Test
     public void errorFilteringStopsFutureFilters() {
 
+
+        when(configService.isUseWhiteList()).thenReturn(true);
         // show that one request goes through okay
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("whitelistedHost").when(request).getRemoteAddr();

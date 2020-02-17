@@ -32,7 +32,10 @@ public interface PartyInfoService {
      *
      * @param payload the pre-formatted payload object (i.e. with all recipients still present)
      * @param recipientKey the target public key to publish the payload to
-     * @throws KeyNotFoundException if the target public key is not known
+     * @throws com.quorum.tessera.encryption.KeyNotFoundException if the target public key is not known
      */
     void publishPayload(EncodedPayload payload, PublicKey recipientKey);
+
+    // TODO: Added as lifecycle call once RuntimeContext has been created.
+    void populateStore();
 }

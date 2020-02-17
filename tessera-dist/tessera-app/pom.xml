@@ -42,11 +42,6 @@
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>admin-jaxrs</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>sync-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
