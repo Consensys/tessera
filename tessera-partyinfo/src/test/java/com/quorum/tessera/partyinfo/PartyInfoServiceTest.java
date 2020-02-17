@@ -35,7 +35,7 @@ public class PartyInfoServiceTest {
     private PartyInfoStore partyInfoStore;
 
     //Need to look at holding as singleton
-    private final static MockRuntimeContext RUNTIME_CONTEXT =
+    private static final MockRuntimeContext RUNTIME_CONTEXT =
         (MockRuntimeContext) RuntimeContextFactory.newFactory().create(mock(Config.class));
 
     private Enclave enclave;
@@ -159,10 +159,8 @@ public class PartyInfoServiceTest {
                 .collect(toList());
 
         assertThat(allRegisteredKeys)
-            .hasSize(3)
+            .hasSize(1)
             .containsExactlyInAnyOrder(
-                new Recipient(PublicKey.from("some-key".getBytes()), URI + "/"),
-                new Recipient(PublicKey.from("another-public-key".getBytes()), URI + "/"),
                 new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080"));
 
 
@@ -302,6 +300,32 @@ public class PartyInfoServiceTest {
         assertThat(updatedInfo.getRecipients()).hasSize(1).containsExactly(new Recipient(testKey, uri));
         verify(partyInfoStore, times(2)).getPartyInfo();
         verify(partyInfoStore).store(any(PartyInfo.class));
+    }
+
+    @Test
+    public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
+
+        PartyInfoStore store = new PartyInfoStore(RUNTIME_CONTEXT.getP2pServerUri());
+
+        PartyInfoServiceImpl partyInfoService = new PartyInfoServiceImpl(store, enclave, payloadPublisher);
+
+        final Set<PublicKey> ourKeys =
+            Set.of(
+                PublicKey.from("some-key".getBytes()),
+                PublicKey.from("another-public-key".getBytes())
+            );
+
+        when(enclave.getPublicKeys()).thenReturn(ourKeys);
+
+        partyInfoService.populateStore();
+
+        assertThat(partyInfoService.getPartyInfo().getRecipients())
+            .hasSize(2);
+
+
+        verify(enclave).getPublicKeys();
+
+
     }
 
 
