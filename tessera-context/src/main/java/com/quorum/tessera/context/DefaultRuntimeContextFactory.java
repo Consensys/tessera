@@ -28,17 +28,14 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory {
     @Override
     public RuntimeContext create(Config config) {
 
-        LOGGER.trace("Creating RuntimeContext from {}", JaxbUtil.marshalToStringNoValidation(config));
-
-
         EncryptorConfig encryptorConfig =
-            Optional.ofNullable(config.getEncryptor())
-                .orElse(
-                    new EncryptorConfig() {
-                        {
-                            setType(EncryptorType.NACL);
-                        }
-                    });
+                Optional.ofNullable(config.getEncryptor())
+                        .orElse(
+                                new EncryptorConfig() {
+                                    {
+                                        setType(EncryptorType.NACL);
+                                    }
+                                });
 
         KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
         final KeyVaultConfigValidations vaultConfigValidation = KeyVaultConfigValidations.create();
@@ -48,10 +45,10 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory {
         if (Objects.nonNull(config.getKeys())) {
 
             List<ConfigKeyPair> configKeyPairs =
-                config.getKeys().getKeyData().stream()
-                    .peek(k -> LOGGER.debug("Key {}", k))
-                    .map(o -> KeyDataUtil.unmarshal(o, keyEncryptor))
-                    .collect(Collectors.toList());
+                    config.getKeys().getKeyData().stream()
+                            .peek(k -> LOGGER.debug("Key {}", k))
+                            .map(o -> KeyDataUtil.unmarshal(o, keyEncryptor))
+                            .collect(Collectors.toList());
 
             Set<ConstraintViolation<?>> violations = vaultConfigValidation.validate(config.getKeys(), configKeyPairs);
 
@@ -64,45 +61,46 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory {
             List<KeyPair> pairs = new ArrayList<>(keyPairConverter.convert(configKeyPairs));
 
             runtimeContextBuilder.withKeys(pairs);
-
         }
 
         List<ServerConfig> servers = config.getServerConfigs();
 
         ServerConfig p2pServerContext =
-            servers.stream()
-                .filter(s -> s.getApp() == AppType.P2P)
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No P2P server configured"));
+                servers.stream()
+                        .filter(s -> s.getApp() == AppType.P2P)
+                        .findFirst()
+                        .orElseThrow(() -> new IllegalStateException("No P2P server configured"));
 
         Client p2pClient = RestClientFactory.create().buildFrom(p2pServerContext);
 
         List<PublicKey> alwaysSendTo =
-            Stream.of(config)
-                .map(Config::getAlwaysSendTo)
-                .filter(Objects::nonNull)
-                .flatMap(List::stream)
-                .map(Base64.getDecoder()::decode)
-                .map(PublicKey::from)
-                .collect(Collectors.toList());
+                Stream.of(config)
+                        .map(Config::getAlwaysSendTo)
+                        .filter(Objects::nonNull)
+                        .flatMap(List::stream)
+                        .map(Base64.getDecoder()::decode)
+                        .map(PublicKey::from)
+                        .collect(Collectors.toList());
 
-        RuntimeContext context = runtimeContextBuilder
-            .withP2pServerUri(config.getP2PServerConfig().getServerUri())
-            .withP2pClient(p2pClient)
-            .withKeyEncryptor(keyEncryptor)
-            .withDisablePeerDiscovery(config.isDisablePeerDiscovery())
-            .withRemoteKeyValidation(config.getFeatures().isEnableRemoteKeyValidation())
-            .withPeers(
-                config.getPeers().stream()
-                    .map(Peer::getUrl)
-                    .map(URI::create)
-                    .collect(Collectors.toList()))
-            .withAlwaysSendTo(alwaysSendTo)
-            .withUseWhiteList(config.isUseWhiteList())
-            .build();
+        RuntimeContext context =
+                runtimeContextBuilder
+                        .withP2pServerUri(config.getP2PServerConfig().getServerUri())
+                        .withP2pClient(p2pClient)
+                        .withKeyEncryptor(keyEncryptor)
+                        .withDisablePeerDiscovery(config.isDisablePeerDiscovery())
+                        .withRemoteKeyValidation(config.getFeatures().isEnableRemoteKeyValidation())
+                        .withPeers(
+                                config.getPeers().stream()
+                                        .map(Peer::getUrl)
+                                        .map(URI::create)
+                                        .collect(Collectors.toList()))
+                        .withAlwaysSendTo(alwaysSendTo)
+                        .withUseWhiteList(config.isUseWhiteList())
+                        .build();
 
-        LOGGER.trace("Created RuntimeContext from {}", JaxbUtil.marshalToStringNoValidation(config));
-
+        if(LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Created RuntimeContext from {}", JaxbUtil.marshalToStringNoValidation(config));
+        }
         return context;
     }
 }
