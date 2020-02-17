@@ -481,7 +481,6 @@
         <module>enclave</module>
         <module>tessera-dist</module>
         <module>tessera-partyinfo</module>
-        <module>tessera-admin</module>
         <module>tessera-sync</module>
         <module>test-utils</module>
         <module>tessera-jaxrs</module>
