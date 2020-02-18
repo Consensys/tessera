@@ -125,9 +125,12 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.addAll(enclave.getForwardingKeys());
 
+        final List<PublicKey> recipientListNoDuplicate =
+            recipientList.stream().distinct().collect(Collectors.toList());
+
         final byte[] raw = sendRequest.getPayload();
 
-        final EncodedPayload payload = enclave.encryptPayload(raw, senderPublicKey, recipientList);
+        final EncodedPayload payload = enclave.encryptPayload(raw, senderPublicKey, recipientListNoDuplicate);
 
         final MessageHash transactionHash =
                 Optional.of(payload)
@@ -140,7 +143,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        recipientList.forEach(
+        recipientListNoDuplicate.forEach(
                 recipient -> {
                     final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
                     partyInfoService.publishPayload(outgoing, recipient);

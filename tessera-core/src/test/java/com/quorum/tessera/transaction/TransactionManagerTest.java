@@ -120,6 +120,40 @@ public class TransactionManagerTest {
     }
 
     @Test
+    public void sendWithDuplicateRecipients() {
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
+
+        when(enclave.encryptPayload(any(), any(), any())).thenReturn(encodedPayload);
+        when(enclave.getForwardingKeys()).thenReturn(Set.of(PublicKey.from("RECEIVER".getBytes())));
+
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
+
+        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
+        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
+
+        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
+
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom(sender);
+        sendRequest.setTo(receiver);
+        sendRequest.setPayload(payload);
+
+        SendResponse result = transactionManager.send(sendRequest);
+
+        assertThat(result).isNotNull();
+
+        verify(enclave).encryptPayload(any(), any(), any());
+        verify(payloadEncoder).encode(encodedPayload);
+        verify(payloadEncoder, times(2)).forRecipient(eq(encodedPayload), any(PublicKey.class));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
+        verify(partyInfoService, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(enclave).getForwardingKeys();
+    }
+
+    @Test
     public void sendSignedTransaction() {
 
         EncodedPayload payload = mock(EncodedPayload.class);
