@@ -58,6 +58,10 @@ public class KeyDataUtil {
             return keyDataConfig.getType() == PrivateKeyType.LOCKED;
         }
 
+        if (Objects.isNull(keyData.getConfig())) {
+            return false;
+        }
+
         return keyData.getConfig().getType() == PrivateKeyType.LOCKED;
     }
 

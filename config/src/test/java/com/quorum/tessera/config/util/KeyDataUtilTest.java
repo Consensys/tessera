@@ -2,11 +2,15 @@ package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyData;
+import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import org.junit.Test;
 
+import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -372,5 +376,38 @@ public class KeyDataUtilTest {
     public void isUnsupported() {
         KeyData keyData = new KeyData();
         assertThat(KeyDataUtil.isUnsupported(keyData)).isTrue();
+    }
+
+    @Test
+    public void isLockedFromFileSystem() throws URISyntaxException {
+
+        KeyData keyData = new KeyData();
+        keyData.setPublicKeyPath(mock(Path.class));
+        final Path privUnlockedFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
+        keyData.setPrivateKeyPath(privUnlockedFile);
+
+        assertThat(KeyDataUtil.isLocked(keyData)).isFalse();
+
+        final Path privLockedFile = Paths.get(getClass().getResource("/lockedprivatekey.json").toURI());
+        keyData.setPrivateKeyPath(privLockedFile);
+
+        assertThat(KeyDataUtil.isLocked(keyData)).isTrue();
+
+    }
+
+    @Test
+    public void isLocked() {
+        KeyData keyData = new KeyData();
+        keyData.setPublicKey("PUBLIC_KEY");
+        KeyDataConfig keyDataConfig = new KeyDataConfig(mock(PrivateKeyData.class), PrivateKeyType.LOCKED);
+        keyData.setConfig(keyDataConfig);
+        assertThat(KeyDataUtil.isLocked(keyData)).isTrue();
+
+        keyData.setConfig(null);
+        assertThat(KeyDataUtil.isLocked(keyData)).isFalse();
+
+        keyData.setConfig(new KeyDataConfig());
+        assertThat(KeyDataUtil.isLocked(keyData)).isFalse();
+
     }
 }
