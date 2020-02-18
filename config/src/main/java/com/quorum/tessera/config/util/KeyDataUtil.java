@@ -1,9 +1,13 @@
 package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.KeyDataConfig;
+import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.io.IOCallback;
 
+import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -45,6 +49,17 @@ public class KeyDataUtil {
     }
 
     private static final Predicate<KeyData> HAS_PUBLIC_KEY = k -> Objects.nonNull(k.getPublicKey());
+
+    public static boolean isLocked(KeyData keyData) {
+        if (isFileSystem(keyData)) {
+            final KeyDataConfig keyDataConfig =
+                JaxbUtil.unmarshal(
+                    IOCallback.execute(() -> Files.newInputStream(keyData.getPrivateKeyPath())), KeyDataConfig.class);
+            return keyDataConfig.getType() == PrivateKeyType.LOCKED;
+        }
+
+        return keyData.getConfig().getType() == PrivateKeyType.LOCKED;
+    }
 
     public static boolean isDirect(KeyData keyData) {
         return Optional.of(keyData).filter(k -> Objects.nonNull(k.getPrivateKey())).filter(HAS_PUBLIC_KEY).isPresent();
