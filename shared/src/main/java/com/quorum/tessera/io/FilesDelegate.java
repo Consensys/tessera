@@ -10,6 +10,7 @@ import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -47,6 +48,10 @@ public interface FilesDelegate {
 
     default byte[] readAllBytes(Path path) {
         return IOCallback.execute(() -> Files.readAllBytes(path));
+    }
+
+    default List<String> readAllLines(Path path) {
+        return IOCallback.execute(() -> Files.readAllLines(path));
     }
 
     default Stream<String> lines(Path path) {

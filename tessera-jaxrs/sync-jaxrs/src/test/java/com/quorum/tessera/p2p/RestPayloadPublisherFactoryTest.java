@@ -25,7 +25,6 @@ public class RestPayloadPublisherFactoryTest {
         
         final Config config = new Config();
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setEnabled(true);
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setApp(AppType.P2P);
         serverConfig.setServerAddress("http://someaddeess");

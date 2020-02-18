@@ -15,7 +15,7 @@ public class JaxbConfigFactory implements ConfigFactory {
 
     private final KeyEncryptorFactory keyEncryptorFactory;
 
-    private static final EncryptorConfig DEFAULT_ENCRYPTOR_CONFIG = defaultEncryptorConfig();
+    private static final EncryptorConfig DEFAULT_ENCRYPTOR_CONFIG = EncryptorConfig.getDefault();
 
     protected JaxbConfigFactory(KeyEncryptorFactory keyEncryptorFactory) {
         this.keyEncryptorFactory = keyEncryptorFactory;
@@ -49,9 +49,4 @@ public class JaxbConfigFactory implements ConfigFactory {
         return config;
     }
 
-    private static EncryptorConfig defaultEncryptorConfig() {
-        final EncryptorConfig encryptorConfig = new EncryptorConfig();
-        encryptorConfig.setType(EncryptorType.NACL);
-        return encryptorConfig;
-    }
 }

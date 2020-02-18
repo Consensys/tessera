@@ -78,6 +78,13 @@
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.8.3</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>commons-collections</groupId>
+                            <artifactId>commons-collections</artifactId>
+                            <version>3.2.1</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
                 <plugin>
@@ -481,7 +488,6 @@
         <module>enclave</module>
         <module>tessera-dist</module>
         <module>tessera-partyinfo</module>
-        <module>tessera-admin</module>
         <module>tessera-sync</module>
         <module>test-utils</module>
         <module>tessera-jaxrs</module>
@@ -557,12 +563,6 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-partyinfo</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>tessera-admin</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
 
@@ -706,25 +706,6 @@
                 <artifactId>tessera-data</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-server</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>grpc-api</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
@@ -1110,7 +1091,7 @@
             <dependency>
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-unixsocket</artifactId>
-                <version>0.22</version>
+                <version>0.25</version>
             </dependency>
 
             <dependency>

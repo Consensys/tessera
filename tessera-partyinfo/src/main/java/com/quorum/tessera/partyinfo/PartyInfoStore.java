@@ -1,6 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -36,10 +35,6 @@ public class PartyInfoStore {
         this.parties.add(new Party(this.advertisedUrl));
     }
 
-    public PartyInfoStore() {
-        this(RuntimeContext.getInstance().getP2pServerUri());
-    }
-
     /**
      * Merge an incoming {@link PartyInfo} into the current one, adding any new keys or parties to the current store
      *
@@ -66,10 +61,7 @@ public class PartyInfoStore {
      * @return an immutable copy of the current state of the store
      */
     public synchronized PartyInfo getPartyInfo() {
-        return new PartyInfo(
-                advertisedUrl,
-                Set.copyOf(recipients.values()),
-                Set.copyOf(parties));
+        return new PartyInfo(advertisedUrl, Set.copyOf(recipients.values()), Set.copyOf(parties));
     }
 
     public synchronized PartyInfo removeRecipient(final String uri) {

@@ -48,15 +48,15 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
             return;
         }
 
-        // this is the unix socket request, so let it through the filter
-        if ("unixsocket".equals(requestContext.getUriInfo().getBaseUri().toString())) {
-            return;
-        }
-
         try {
 
             final Set<String> whitelisted = runtimeContext.getPeers().stream()
                 .map(URI::getHost).collect(Collectors.toSet());
+
+            if (whitelisted.contains("localhost")) {
+                whitelisted.add("127.0.0.1");
+                whitelisted.add("0:0:0:0:0:0:0:1");
+            }
 
             final String remoteAddress = httpServletRequest.getRemoteAddr();
             final String remoteHost = httpServletRequest.getRemoteHost();

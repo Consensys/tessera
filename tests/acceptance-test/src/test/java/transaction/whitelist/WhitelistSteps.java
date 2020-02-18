@@ -66,9 +66,10 @@ public class WhitelistSteps implements En {
                                         .withNodeId("whitelist")
                                         .withNodeNumber(5)
                                         .withQ2TSocketType(SocketType.HTTP)
+                                        .withQt2Port(7001)
                                         .withExecutionContext(executionContext)
                                         .withP2pPort(port)
-                                        .withPeer("http://localhost:7000")
+                                        .withPeer("http://other:7000")
                                         .withEncryptorConfig(
                                                 new EncryptorConfig() {
                                                     {
@@ -82,7 +83,8 @@ public class WhitelistSteps implements En {
                         Config whiteListConfig = whiteListConfigBuilder.build();
                         whiteListConfig.setUseWhiteList(true);
 
-                        Path configFile = Paths.get(System.getProperty("java.io.tmpdir")).resolve("white-list-config.json");
+                        Path configFile =
+                                Paths.get(System.getProperty("java.io.tmpdir")).resolve("white-list-config.json");
 
                         try (OutputStream out = Files.newOutputStream(configFile)) {
                             JaxbUtil.marshalWithNoValidation(whiteListConfig, out);
@@ -136,7 +138,7 @@ public class WhitelistSteps implements En {
                         ServerStatusCheck serverStatusCheck =
                                 ServerStatusCheck.create(
                                         whiteListConfig.getServerConfigs().stream()
-                                                .filter(s -> s.getApp() == AppType.P2P)
+                                                .filter(s -> s.getApp() == AppType.Q2T)
                                                 .findAny()
                                                 .get());
 

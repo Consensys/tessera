@@ -23,12 +23,6 @@ public class ServerConfig extends ConfigItem {
     @XmlElement(required = true)
     private AppType app;
 
-    // TODO: Remove this nobody asked for it
-    @Deprecated
-    @NotNull
-    @XmlElement(required = true)
-    private boolean enabled;
-
     @XmlElement private CommunicationType communicationType;
 
     @Valid @XmlElement @ValidSsl private SslConfig sslConfig;
@@ -54,16 +48,18 @@ public class ServerConfig extends ConfigItem {
     @XmlElement
     private Map<String, String> properties = Collections.emptyMap();
 
+    /**
+     * @deprecated USe default constructor and setters
+     */
+    @Deprecated
     public ServerConfig(
             final AppType app,
-            final boolean enabled,
             final String serverAddress,
             final CommunicationType communicationType,
             final SslConfig sslConfig,
             final InfluxConfig influxConfig,
             final String bindingAddress) {
         this.app = app;
-        this.enabled = enabled;
         this.serverAddress = serverAddress;
         this.communicationType = communicationType;
         this.sslConfig = sslConfig;
@@ -103,18 +99,6 @@ public class ServerConfig extends ConfigItem {
 
     public void setApp(AppType app) {
         this.app = app;
-    }
-
-    // TODO: Remove this nobody asked for it
-    @Deprecated
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    // TODO: Remove this nobody asked for it
-    @Deprecated
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     public CommunicationType getCommunicationType() {

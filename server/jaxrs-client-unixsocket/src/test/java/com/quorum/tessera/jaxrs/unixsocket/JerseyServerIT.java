@@ -59,11 +59,11 @@ public class JerseyServerIT {
         payload.setValue("Hellow");
 
         Response result =
-                newClient(unixfile)
-                        .target(unixfile)
-                        .path("create")
-                        .request()
-                        .post(Entity.entity(payload, MediaType.APPLICATION_JSON));
+            newClient(unixfile)
+                .target(unixfile)
+                .path("create")
+                .request()
+                .post(Entity.entity(payload, MediaType.APPLICATION_JSON));
 
         assertThat(result.getStatus()).isEqualTo(201);
         assertThat(result.getLocation()).isNotNull();
@@ -87,13 +87,13 @@ public class JerseyServerIT {
         ClientConfig config = new ClientConfig();
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
         Response result =
-                newClient(unixfile)
-                        .target(unixfile)
-                        .path("sendraw")
-                        .request()
-                        .header("c11n-from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-                        .header("c11n-to", "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
-                        .post(Entity.entity("PAYLOAD".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
+            newClient(unixfile)
+                .target(unixfile)
+                .path("sendraw")
+                .request()
+                .header("c11n-from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .header("c11n-to", "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+                .post(Entity.entity("PAYLOAD".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
         assertThat(result.getStatus()).isEqualTo(201);
     }
@@ -105,13 +105,13 @@ public class JerseyServerIT {
         config.connectorProvider(new JerseyUnixSocketConnectorProvider());
 
         Response result =
-                newClient(unixfile)
-                        .target(unixfile)
-                        .path("param")
-                        .queryParam("queryParam", "QueryParamValue")
-                        .request()
-                        .header("headerParam", "HeaderParamValue")
-                        .get();
+            newClient(unixfile)
+                .target(unixfile)
+                .path("param")
+                .queryParam("queryParam", "QueryParamValue")
+                .request()
+                .header("headerParam", "HeaderParamValue")
+                .get();
 
         assertThat(result.getStatus()).isEqualTo(200);
     }

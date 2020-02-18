@@ -22,11 +22,6 @@
             <artifactId>swagger-annotations</artifactId>
             <type>jar</type>
         </dependency>
-        
-        <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
-            <artifactId>tessera-admin</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>

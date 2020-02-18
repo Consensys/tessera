@@ -168,9 +168,4 @@ public class PartyInfoStoreTest {
         assertThat(result).isNotNull();
         assertThat(result.getRecipients()).hasSize(1).containsOnly(new Recipient(someKey, uri));
     }
-
-    @Test
-    public void defaultConstructor() {
-        assertThat(new PartyInfoStore()).isNotNull();
-    }
 }

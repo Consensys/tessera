@@ -108,7 +108,11 @@ public class Main {
 
             System.exit(5);
         } catch (final Throwable ex) {
-            Optional.ofNullable(ex.getMessage()).ifPresent(System.err::println);
+            if (Optional.ofNullable(ex.getMessage()).isPresent()) {
+                System.err.println(ex.getMessage());
+            } else {
+                System.err.println(ex.getClass().getSimpleName());
+            }
             System.exit(2);
         }
     }

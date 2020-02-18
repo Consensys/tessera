@@ -56,24 +56,24 @@ public class KeyDataUtil {
 
     public static boolean isAzure(KeyData keyData) {
         return Optional.of(keyData)
-                .filter(k -> Objects.nonNull(k.getAzureVaultPublicKeyId()))
-                .filter(k -> Objects.nonNull(k.getAzureVaultPrivateKeyId()))
-                .isPresent();
+            .filter(k -> Objects.nonNull(k.getAzureVaultPublicKeyId()))
+            .filter(k -> Objects.nonNull(k.getAzureVaultPrivateKeyId()))
+            .isPresent();
     }
 
     public static boolean isHashicorp(KeyData keyData) {
 
         return Stream.of(
-                        keyData.getHashicorpVaultPublicKeyId(),
-                        keyData.getHashicorpVaultPrivateKeyId(),
-                        keyData.getHashicorpVaultSecretEngineName(),
-                        keyData.getHashicorpVaultSecretName())
-                .allMatch(Objects::nonNull);
+            keyData.getHashicorpVaultPublicKeyId(),
+            keyData.getHashicorpVaultPrivateKeyId(),
+            keyData.getHashicorpVaultSecretEngineName(),
+            keyData.getHashicorpVaultSecretName())
+            .allMatch(Objects::nonNull);
     }
 
     public static boolean isAws(KeyData keyData) {
         return Stream.of(keyData.getAwsSecretsManagerPublicKeyId(), keyData.getAwsSecretsManagerPrivateKeyId())
-                .allMatch(Objects::nonNull);
+            .allMatch(Objects::nonNull);
     }
 
     public static boolean isFileSystem(KeyData keyData) {
@@ -82,13 +82,13 @@ public class KeyDataUtil {
 
     public static boolean isUnsupported(KeyData keyData) {
         return Optional.of(keyData)
-                .filter(not(KeyDataUtil::isAws))
-                .filter(not(KeyDataUtil::isAzure))
-                .filter(not(KeyDataUtil::isDirect))
-                .filter(not(KeyDataUtil::isFileSystem))
-                .filter(not(KeyDataUtil::isHashicorp))
-                .filter(not(KeyDataUtil::isInline))
-                .isPresent();
+            .filter(not(KeyDataUtil::isAws))
+            .filter(not(KeyDataUtil::isAzure))
+            .filter(not(KeyDataUtil::isDirect))
+            .filter(not(KeyDataUtil::isFileSystem))
+            .filter(not(KeyDataUtil::isHashicorp))
+            .filter(not(KeyDataUtil::isInline))
+            .isPresent();
     }
 
     public static ConfigKeyPair unmarshal(final KeyData keyData, final KeyEncryptor keyEncryptor) {
@@ -106,10 +106,10 @@ public class KeyDataUtil {
         // case 3, the Azure Key Vault data is provided
         if (isAzure(keyData)) {
             return new AzureVaultKeyPair(
-                    keyData.getAzureVaultPublicKeyId(),
-                    keyData.getAzureVaultPrivateKeyId(),
-                    keyData.getAzureVaultPublicKeyVersion(),
-                    keyData.getAzureVaultPrivateKeyVersion());
+                keyData.getAzureVaultPublicKeyId(),
+                keyData.getAzureVaultPrivateKeyId(),
+                keyData.getAzureVaultPublicKeyVersion(),
+                keyData.getAzureVaultPrivateKeyVersion());
         }
 
         // case 4, the Hashicorp Vault data is provided
@@ -118,30 +118,30 @@ public class KeyDataUtil {
             Integer hashicorpVaultSecretVersion;
 
             Optional<String> hashicorpVaultSecretVersionStr =
-                    Optional.of(keyData).map(KeyData::getHashicorpVaultSecretVersion);
+                Optional.of(keyData).map(KeyData::getHashicorpVaultSecretVersion);
 
             if (hashicorpVaultSecretVersionStr.isPresent()) {
                 hashicorpVaultSecretVersion =
-                        hashicorpVaultSecretVersionStr
-                                .filter(Pattern.compile("^\\d*$").asPredicate())
-                                .map(Integer::parseInt)
-                                .orElse(-1);
+                    hashicorpVaultSecretVersionStr
+                        .filter(Pattern.compile("^\\d*$").asPredicate())
+                        .map(Integer::parseInt)
+                        .orElse(-1);
             } else {
                 hashicorpVaultSecretVersion = 0;
             }
 
             return new HashicorpVaultKeyPair(
-                    keyData.getHashicorpVaultPublicKeyId(),
-                    keyData.getHashicorpVaultPrivateKeyId(),
-                    keyData.getHashicorpVaultSecretEngineName(),
-                    keyData.getHashicorpVaultSecretName(),
-                    hashicorpVaultSecretVersion);
+                keyData.getHashicorpVaultPublicKeyId(),
+                keyData.getHashicorpVaultPrivateKeyId(),
+                keyData.getHashicorpVaultSecretEngineName(),
+                keyData.getHashicorpVaultSecretName(),
+                hashicorpVaultSecretVersion);
         }
 
         // case 5, the AWS Secrets Manager data is provided
         if (isAws(keyData)) {
             return new AWSKeyPair(
-                    keyData.getAwsSecretsManagerPublicKeyId(), keyData.getAwsSecretsManagerPrivateKeyId());
+                keyData.getAwsSecretsManagerPublicKeyId(), keyData.getAwsSecretsManagerPrivateKeyId());
         }
 
         // case 6, the keys are provided inside a file
@@ -151,22 +151,22 @@ public class KeyDataUtil {
 
         // case 7, the key config specified is invalid
         return new UnsupportedKeyPair(
-                keyData.getConfig(),
-                keyData.getPrivateKey(),
-                keyData.getPublicKey(),
-                keyData.getPrivateKeyPath(),
-                keyData.getPublicKeyPath(),
-                keyData.getAzureVaultPublicKeyId(),
-                keyData.getAzureVaultPrivateKeyId(),
-                keyData.getAzureVaultPublicKeyVersion(),
-                keyData.getAzureVaultPrivateKeyVersion(),
-                keyData.getHashicorpVaultPublicKeyId(),
-                keyData.getHashicorpVaultPrivateKeyId(),
-                keyData.getHashicorpVaultSecretEngineName(),
-                keyData.getHashicorpVaultSecretName(),
-                keyData.getHashicorpVaultSecretVersion(),
-                keyData.getAwsSecretsManagerPublicKeyId(),
-                keyData.getAwsSecretsManagerPrivateKeyId());
+            keyData.getConfig(),
+            keyData.getPrivateKey(),
+            keyData.getPublicKey(),
+            keyData.getPrivateKeyPath(),
+            keyData.getPublicKeyPath(),
+            keyData.getAzureVaultPublicKeyId(),
+            keyData.getAzureVaultPrivateKeyId(),
+            keyData.getAzureVaultPublicKeyVersion(),
+            keyData.getAzureVaultPrivateKeyVersion(),
+            keyData.getHashicorpVaultPublicKeyId(),
+            keyData.getHashicorpVaultPrivateKeyId(),
+            keyData.getHashicorpVaultSecretEngineName(),
+            keyData.getHashicorpVaultSecretName(),
+            keyData.getHashicorpVaultSecretVersion(),
+            keyData.getAwsSecretsManagerPublicKeyId(),
+            keyData.getAwsSecretsManagerPrivateKeyId());
     }
 
     public static KeyData marshal(final ConfigKeyPair keyPair) {
@@ -225,22 +225,22 @@ public class KeyDataUtil {
         if (UnsupportedKeyPair.class.isInstance(keyPair)) {
             UnsupportedKeyPair kp = UnsupportedKeyPair.class.cast(keyPair);
             return new KeyData(
-                    kp.getConfig(),
-                    kp.getPrivateKey(),
-                    kp.getPublicKey(),
-                    kp.getPrivateKeyPath(),
-                    kp.getPublicKeyPath(),
-                    kp.getAzureVaultPrivateKeyId(),
-                    kp.getAzureVaultPublicKeyId(),
-                    kp.getAzureVaultPublicKeyVersion(),
-                    kp.getAzureVaultPrivateKeyVersion(),
-                    kp.getHashicorpVaultPrivateKeyId(),
-                    kp.getHashicorpVaultPublicKeyId(),
-                    kp.getHashicorpVaultSecretEngineName(),
-                    kp.getHashicorpVaultSecretName(),
-                    kp.getHashicorpVaultSecretVersion(),
-                    kp.getAwsSecretsManagerPublicKeyId(),
-                    kp.getAwsSecretsManagerPrivateKeyId());
+                kp.getConfig(),
+                kp.getPrivateKey(),
+                kp.getPublicKey(),
+                kp.getPrivateKeyPath(),
+                kp.getPublicKeyPath(),
+                kp.getAzureVaultPrivateKeyId(),
+                kp.getAzureVaultPublicKeyId(),
+                kp.getAzureVaultPublicKeyVersion(),
+                kp.getAzureVaultPrivateKeyVersion(),
+                kp.getHashicorpVaultPrivateKeyId(),
+                kp.getHashicorpVaultPublicKeyId(),
+                kp.getHashicorpVaultSecretEngineName(),
+                kp.getHashicorpVaultSecretName(),
+                kp.getHashicorpVaultSecretVersion(),
+                kp.getAwsSecretsManagerPublicKeyId(),
+                kp.getAwsSecretsManagerPrivateKeyId());
         }
 
         throw new UnsupportedOperationException("The keypair type " + keyPair.getClass() + " is not allowed");

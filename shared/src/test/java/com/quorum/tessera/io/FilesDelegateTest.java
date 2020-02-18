@@ -1,5 +1,6 @@
 package com.quorum.tessera.io;
 
+import org.assertj.core.util.Strings;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -91,6 +92,20 @@ public class FilesDelegateTest {
         byte[] result = filesDelegate.readAllBytes(file);
 
         assertThat(result).isEqualTo(someBytes);
+    }
+
+    @Test
+    public void readAllLines() throws Exception {
+        final List<String> lines = Arrays.asList("line1", "line2");
+        final byte[] linesBytes = Strings.join(lines).with("\n").getBytes();
+
+        final Path file = Files.createTempFile(UUID.randomUUID().toString(), ".txt");
+        file.toFile().deleteOnExit();
+        Files.write(file, linesBytes);
+
+        final List<String> result = filesDelegate.readAllLines(file);
+
+        assertThat(result).isEqualTo(lines);
     }
 
     @Test

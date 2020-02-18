@@ -50,15 +50,15 @@ public class P2PRestAppTest {
         p2PRestApp = new P2PRestApp();
 
         jersey =
-                new JerseyTest() {
-                    @Override
-                    protected Application configure() {
-                        enable(TestProperties.LOG_TRAFFIC);
-                        enable(TestProperties.DUMP_ENTITY);
-                        ResourceConfig jerseyconfig = ResourceConfig.forApplication(p2PRestApp);
-                        return jerseyconfig;
-                    }
-                };
+            new JerseyTest() {
+                @Override
+                protected Application configure() {
+                    enable(TestProperties.LOG_TRAFFIC);
+                    enable(TestProperties.DUMP_ENTITY);
+                    ResourceConfig jerseyconfig = ResourceConfig.forApplication(p2PRestApp);
+                    return jerseyconfig;
+                }
+            };
 
         jersey.setUp();
     }

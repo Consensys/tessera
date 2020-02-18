@@ -101,7 +101,6 @@ public class IPWhitelistFilterTest {
 
         verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
-        verify(ctx).getUriInfo();
         verifyNoMoreInteractions(ctx);
     }
 
@@ -117,7 +116,7 @@ public class IPWhitelistFilterTest {
         filter.filter(ctx);
         verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
-        verify(ctx).getUriInfo();
+
         verifyNoMoreInteractions(ctx);
 
         // show the second one errors
@@ -125,7 +124,7 @@ public class IPWhitelistFilterTest {
         doThrow(RuntimeException.class).when(requestError).getRemoteHost();
         filter.setHttpServletRequest(requestError);
         filter.filter(ctx);
-        verify(ctx, times(2)).getUriInfo();
+
         verifyNoMoreInteractions(ctx);
         verify(request).getRemoteAddr();
 
@@ -138,28 +137,46 @@ public class IPWhitelistFilterTest {
     }
 
     @Test
-    public void unixsocketIsWhitelisted() throws URISyntaxException {
-
-        final HttpServletRequest requestError = mock(HttpServletRequest.class);
-        filter.setHttpServletRequest(requestError);
-
-        final UriInfo uriInfo = mock(UriInfo.class);
-        when(uriInfo.getBaseUri()).thenReturn(new URI("unixsocket"));
-        when(ctx.getUriInfo()).thenReturn(uriInfo);
-
-        filter.filter(ctx);
-
-        verify(ctx).getUriInfo();
-        verifyNoMoreInteractions(ctx);
-        verifyZeroInteractions(requestError);
-    }
-
-    @Test
     public void defaultConstructor() {
         when(configService.isUseWhiteList()).thenReturn(Boolean.TRUE);
         MockServiceLocator mockServiceLocator = (MockServiceLocator) ServiceLocator.create();
         mockServiceLocator.setServices(Collections.singleton(configService));
 
         assertThat(new IPWhitelistFilter()).isNotNull();
+    }
+
+    @Test
+    public void localhostIsWhiteListed() {
+
+        URI peer = URI.create("http://localhost:8080");
+        when(configService.getPeers()).thenReturn(singletonList(peer));
+
+        final HttpServletRequest request = mock(HttpServletRequest.class);
+        doReturn("127.0.0.1").when(request).getRemoteAddr();
+
+        filter.setHttpServletRequest(request);
+
+        filter.filter(ctx);
+
+        verify(request).getRemoteHost();
+        verify(request).getRemoteAddr();
+        verifyNoMoreInteractions(ctx);
+    }
+
+    @Test
+    public void localhostIPv6IsAlsoWhiteListed() {
+        URI peer = URI.create("http://localhost:8080");
+        when(configService.getPeers()).thenReturn(singletonList(peer));
+
+        final HttpServletRequest request = mock(HttpServletRequest.class);
+        doReturn("0:0:0:0:0:0:0:1").when(request).getRemoteAddr();
+
+        filter.setHttpServletRequest(request);
+
+        filter.filter(ctx);
+
+        verify(request).getRemoteHost();
+        verify(request).getRemoteAddr();
+        verifyNoMoreInteractions(ctx);
     }
 }
