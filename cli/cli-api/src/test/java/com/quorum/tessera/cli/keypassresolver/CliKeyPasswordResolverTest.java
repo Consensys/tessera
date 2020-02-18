@@ -187,17 +187,6 @@ public class CliKeyPasswordResolverTest {
         assertThat(keyData.getPassword()).isNullOrEmpty();
     }
 
-    @Test
-    public void unlockedKeyFileSystemAlsoDoesntReadPassword() {
-
-        KeyData keyData = new KeyData();
-        keyData.setPublicKeyPath(Path.of("public"));
-        keyData.setPrivateKeyPath(Path.of("private"));
-
-        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyData);
-
-        assertThat(keyData.getPassword()).isNullOrEmpty();
-    }
 
     @Test
     public void lockedKeyWithEmptyPasswordRequestsPassword() {

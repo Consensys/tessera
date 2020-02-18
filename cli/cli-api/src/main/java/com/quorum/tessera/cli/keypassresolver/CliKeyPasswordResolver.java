@@ -77,7 +77,7 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
             return;
         }
 
-        final boolean isLocked = keyPair.getConfig().getType() == PrivateKeyType.LOCKED;
+        final boolean isLocked = KeyDataUtil.isLocked(keyPair);
 
         if (isLocked) {
             int currentAttemptNumber = MAX_PASSWORD_ATTEMPTS;
