@@ -26,28 +26,8 @@ public class ContextHolderTest extends ContextTestCase {
     }
 
     @Test
-    public void setContextFactoryCanOnlyBeStoredOnce() {
-
-        RuntimeContextFactory runtimeContextFactory = mock(RuntimeContextFactory.class);
-        contextHolder.setContextFactory(runtimeContextFactory);
-
-        assertThat(contextHolder.getContextFactory().get()).isSameAs(runtimeContextFactory);
-
-        try {
-            contextHolder.setContextFactory(mock(RuntimeContextFactory.class));
-            failBecauseExceptionWasNotThrown(IllegalStateException.class);
-        } catch (IllegalStateException ex) {
-            assertThat(ex).hasMessage("RuntimeContextFactory has already been stored");
-        }
-    }
-
-    @Test
     public void getContextIfNotPresent() {
         assertThat(contextHolder.getContext()).isNotPresent();
     }
 
-    @Test
-    public void getContextFactoryIfNotPresent() {
-        assertThat(contextHolder.getContextFactory()).isNotPresent();
-    }
 }

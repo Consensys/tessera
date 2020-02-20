@@ -10,22 +10,15 @@ public interface RuntimeContextFactory {
     RuntimeContext create(Config config);
 
     static RuntimeContextFactory newFactory() {
-        if (ContextHolder.INSTANCE.getContextFactory().isPresent()) {
-            return ContextHolder.INSTANCE.getContextFactory().get();
-        }
+
         RuntimeContextFactory factory =
                 ServiceLoaderUtil.load(RuntimeContextFactory.class)
                     .orElse(new DefaultRuntimeContextFactory());
-
-        RuntimeContextFactory proxiedFactory =
+        return
                 (RuntimeContextFactory)
                         Proxy.newProxyInstance(
                                 RuntimeContextFactory.class.getClassLoader(),
                                 new Class[] {RuntimeContextFactory.class},
                                 new CreateContextInvocationHandler(factory));
-
-        ContextHolder.INSTANCE.setContextFactory(proxiedFactory);
-
-        return proxiedFactory;
     }
 }
