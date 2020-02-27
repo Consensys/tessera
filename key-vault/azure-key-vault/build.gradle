@@ -1,7 +1,12 @@
 
+
+dependencyCheck {
+    failBuildOnCVSS = 11
+}
+
 dependencies {
-    implementation project(':config')
-    implementation 'com.microsoft.azure:azure-keyvault:1.2.2'
-    implementation 'com.microsoft.azure:adal4j:1.6.3'
-    implementation project(':key-vault:key-vault-api')
+    compile project(':config')
+    compile 'com.microsoft.azure:azure-keyvault:1.2.2'
+    compile 'com.microsoft.azure:adal4j:1.6.3'
+    compile project(':key-vault:key-vault-api')
 }

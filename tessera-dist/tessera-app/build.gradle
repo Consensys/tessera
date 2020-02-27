@@ -3,6 +3,10 @@ plugins {
     id 'java'
 }
 
+dependencyCheck {
+    failBuildOnCVSS = 11
+}
+
 
 //application {
 //    mainClassName = 'com.quorum.tessera.launcher.Main'
