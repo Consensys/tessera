@@ -183,15 +183,18 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.add(PublicKey.from(encryptedRawTransaction.getSender()));
 
+        final List<PublicKey> recipientListNoDuplicate =
+            recipientList.stream().distinct().collect(Collectors.toList());
+
         final EncodedPayload payload =
-                enclave.encryptPayload(encryptedRawTransaction.toRawTransaction(), recipientList);
+                enclave.encryptPayload(encryptedRawTransaction.toRawTransaction(), recipientListNoDuplicate);
 
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        recipientList.forEach(
+        recipientListNoDuplicate.forEach(
                 recipient -> {
                     final EncodedPayload toPublish = payloadEncoder.forRecipient(payload, recipient);
                     partyInfoService.publishPayload(toPublish, recipient);
