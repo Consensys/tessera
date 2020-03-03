@@ -120,6 +120,40 @@ public class TransactionManagerTest {
     }
 
     @Test
+    public void sendWithDuplicateRecipients() {
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
+
+        when(enclave.encryptPayload(any(), any(), any())).thenReturn(encodedPayload);
+        when(enclave.getForwardingKeys()).thenReturn(Set.of(PublicKey.from("RECEIVER".getBytes())));
+
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
+
+        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
+        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
+
+        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
+
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setFrom(sender);
+        sendRequest.setTo(receiver);
+        sendRequest.setPayload(payload);
+
+        SendResponse result = transactionManager.send(sendRequest);
+
+        assertThat(result).isNotNull();
+
+        verify(enclave).encryptPayload(any(), any(), any());
+        verify(payloadEncoder).encode(encodedPayload);
+        verify(payloadEncoder, times(2)).forRecipient(eq(encodedPayload), any(PublicKey.class));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
+        verify(partyInfoService, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(enclave).getForwardingKeys();
+    }
+
+    @Test
     public void sendSignedTransaction() {
 
         EncodedPayload payload = mock(EncodedPayload.class);
@@ -138,6 +172,48 @@ public class TransactionManagerTest {
 
         when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
 
+        when(enclave.encryptPayload(any(RawTransaction.class), any())).thenReturn(payload);
+
+        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
+
+        SendSignedRequest sendSignedRequest = new SendSignedRequest();
+        sendSignedRequest.setTo(receiver);
+        sendSignedRequest.setHash("HASH".getBytes());
+
+        SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
+
+        assertThat(result).isNotNull();
+
+        verify(enclave).encryptPayload(any(RawTransaction.class), any());
+        verify(payloadEncoder).encode(payload);
+        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
+        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
+        verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
+        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
+        verify(enclave).getForwardingKeys();
+    }
+
+    @Test
+    public void sendSignedTransactionWithDuplicateRecipients() {
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        EncryptedRawTransaction encryptedRawTransaction =
+            new EncryptedRawTransaction(
+                new MessageHash("HASH".getBytes()),
+                "ENCRYPTED_PAYLOAD".getBytes(),
+                "ENCRYPTED_KEY".getBytes(),
+                "NONCE".getBytes(),
+                "SENDER".getBytes());
+
+        when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
+            .thenReturn(Optional.of(encryptedRawTransaction));
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
+
+        when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
+        when(enclave.getForwardingKeys()).thenReturn(Set.of(PublicKey.from("RECEIVER".getBytes())));
         when(enclave.encryptPayload(any(RawTransaction.class), any())).thenReturn(payload);
 
         String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
