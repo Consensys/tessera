@@ -5,8 +5,6 @@ import com.quorum.tessera.io.FilesDelegate;
 import java.io.UncheckedIOException;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.regex.Pattern;
