@@ -7,6 +7,7 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +38,11 @@ public class PathValidator implements ConstraintValidator<ValidPath, Path> {
             } catch (UncheckedIOException ex) {
                 LOGGER.debug(null, ex);
                 constraintContext.disableDefaultConstraintViolation();
-                constraintContext.buildConstraintViolationWithTemplate("Unable to create file " + t)
+
+                String sanitised = Objects.toString(t).replaceAll(Pattern.quote("$"),"")
+                    .replaceAll(Pattern.quote("#"),"");
+                String message = String.format("Unable to create file %s",sanitised);
+                constraintContext.buildConstraintViolationWithTemplate(message)
                     .addConstraintViolation();
                 return false;
             } finally {
