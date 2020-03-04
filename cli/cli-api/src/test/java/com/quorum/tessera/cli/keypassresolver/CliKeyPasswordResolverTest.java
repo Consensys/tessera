@@ -33,10 +33,12 @@ public class CliKeyPasswordResolverTest {
 
     private CliKeyPasswordResolver cliKeyPasswordResolver;
 
+    private KeyEncryptor keyEncryptor;
+
     @Before
     public void init() {
         this.passwordReader = mock(PasswordReader.class);
-
+        this.keyEncryptor = mock(KeyEncryptor.class);
         this.cliKeyPasswordResolver = new CliKeyPasswordResolver(passwordReader);
     }
 
@@ -157,7 +159,7 @@ public class CliKeyPasswordResolverTest {
         keyPair.setPublicKey("public");
         keyPair.setPrivateKey("private");
 
-        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
+        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair, keyEncryptor);
 
         assertThat(keyPair.getPassword()).isNullOrEmpty();
     }
@@ -166,7 +168,7 @@ public class CliKeyPasswordResolverTest {
     public void nullInlineKeyDoesntReadPassword() {
 
         KeyData keyData = new KeyData();
-        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyData);
+        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyData, keyEncryptor);
 
         assertThat(keyData.getPassword()).isNullOrEmpty();
     }
@@ -182,11 +184,10 @@ public class CliKeyPasswordResolverTest {
         keyData.setPublicKey("public");
         keyData.setConfig(privKeyDataConfig);
 
-        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyData);
+        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyData, keyEncryptor);
 
         assertThat(keyData.getPassword()).isNullOrEmpty();
     }
-
 
     @Test
     public void lockedKeyWithEmptyPasswordRequestsPassword() {
@@ -204,7 +205,9 @@ public class CliKeyPasswordResolverTest {
         keyPair.setPublicKey("public");
         keyPair.setConfig(privKeyDataConfig);
 
-        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
+        when(keyEncryptor.decryptPrivateKey(any(), any())).thenThrow(new EncryptorException(""));
+
+        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair, keyEncryptor);
 
         assertThat(systemOutRule.getLog())
                 .containsOnlyOnce(
@@ -240,7 +243,7 @@ public class CliKeyPasswordResolverTest {
         keyPair.setPublicKey("public");
         keyPair.setConfig(privKeyDataConfig);
 
-        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
+        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair, keyEncryptor);
 
         assertThat(systemOutRule.getLog())
                 .containsOnlyOnce(
@@ -266,7 +269,9 @@ public class CliKeyPasswordResolverTest {
         keyPair.setConfig(privKeyDataConfig);
         keyPair.setPublicKey("public");
 
-        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
+        when(keyEncryptor.decryptPrivateKey(any(), any())).thenReturn(mock(PrivateKey.class));
+
+        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair, keyEncryptor);
 
         verifyZeroInteractions(passwordReader);
     }
@@ -313,7 +318,7 @@ public class CliKeyPasswordResolverTest {
         keyPair.setConfig(privKeyDataConfig);
         keyPair.setPrivateKey("NACL_FAILURE");
 
-        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair);
+        this.cliKeyPasswordResolver.getSingleKeyPassword(0, keyPair, keyEncryptor);
 
         assertThat(systemOutRule.getLog())
                 .containsOnlyOnce(

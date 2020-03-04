@@ -1,6 +1,9 @@
 package com.quorum.tessera.cli.keypassresolver;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.passwords.PasswordReader;
 import com.quorum.tessera.passwords.PasswordReaderFactory;
@@ -61,13 +64,25 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
 
         // decrypt the keys, either using provided passwords or read from CLI
 
+        EncryptorConfig encryptorConfig =
+                Optional.ofNullable(config.getEncryptor())
+                        .orElse(
+                                new EncryptorConfig() {
+                                    {
+                                        setType(EncryptorType.NACL);
+                                    }
+                                });
+
+        final KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
         IntStream.range(0, input.getKeyData().size())
-                .forEachOrdered(keyNumber -> getSingleKeyPassword(keyNumber, input.getKeyData().get(keyNumber)));
+                .forEachOrdered(
+                        keyNumber -> getSingleKeyPassword(keyNumber, input.getKeyData().get(keyNumber), keyEncryptor));
     }
 
     // TODO: make private
     // @VisibleForTesting
-    public void getSingleKeyPassword(final int keyNumber, final KeyData keyPair) {
+    public void getSingleKeyPassword(final int keyNumber, final KeyData keyPair, final KeyEncryptor keyEncryptor) {
 
         final boolean isInline = KeyDataUtil.isInline(keyPair);
         final boolean isFilesystem = KeyDataUtil.isFileSystem(keyPair);
@@ -80,16 +95,15 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
         final boolean isLocked = KeyDataUtil.isLocked(keyPair);
 
         if (isLocked) {
+
+            ConfigKeyPair configKeyPair = KeyDataUtil.unmarshal(keyPair, keyEncryptor);
+
             int currentAttemptNumber = MAX_PASSWORD_ATTEMPTS;
             while (currentAttemptNumber > 0) {
 
-                //                if(Objects.nonNull(keyPair.getPassword()) && !keyPair.getPassword().isEmpty()) {
-                //                    break;
-                //                }
-
-                if (Objects.isNull(keyPair.getPassword())
-                        || keyPair.getPassword().isEmpty()
-                        || Optional.ofNullable(keyPair.getPrivateKey())
+                if (Objects.isNull(configKeyPair.getPassword())
+                        || configKeyPair.getPassword().isEmpty()
+                        || Optional.ofNullable(configKeyPair.getPrivateKey())
                                 .filter(s -> s.contains("NACL_FAILURE"))
                                 .isPresent()) {
 
@@ -105,6 +119,7 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
                     System.out.println();
 
                     final String pass = passwordReader.readPasswordFromConsole();
+                    configKeyPair.withPassword(pass);
                     keyPair.setPassword(pass);
                 }
                 currentAttemptNumber--;
