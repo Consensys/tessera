@@ -39,7 +39,8 @@ public class PathValidator implements ConstraintValidator<ValidPath, Path> {
                 LOGGER.debug(null, ex);
                 constraintContext.disableDefaultConstraintViolation();
 
-                String sanitised = Objects.toString(t).replaceAll(Pattern.quote("$"),"");
+                String sanitised = Objects.toString(t).replaceAll(Pattern.quote("$"),"")
+                    .replaceAll(Pattern.quote("#"),"");
                 String message = String.format("Unable to create file %s",sanitised);
                 constraintContext.buildConstraintViolationWithTemplate(message)
                     .addConstraintViolation();
