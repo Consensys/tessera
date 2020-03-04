@@ -9,6 +9,8 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -185,5 +187,60 @@ public class PathValidatorTest {
         assertThat(pathValidator.isValid(path, context)).isTrue();
 
         verifyNoMoreInteractions(context);
+    }
+
+
+    @Test
+    public void steathElExpression() throws Exception {
+
+        final String evilPathWithElExpression = "/somepath/${somethingbad}/somefile.file";
+
+        ValidPath validPath = mock(ValidPath.class);
+        when(validPath.checkCanCreate()).thenReturn(true);
+        when(validPath.checkExists()).thenReturn(false);
+        PathValidator pathValidator = new PathValidator();
+        pathValidator.initialize(validPath);
+
+        Path path = Paths.get(evilPathWithElExpression);
+
+        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+
+        List<String> messages = new ArrayList<>();
+        doAnswer(invocation -> {
+            messages.add(invocation.getArgument(0));
+            return mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        }).when(context).buildConstraintViolationWithTemplate(anyString());
+
+        assertThat(pathValidator.isValid(path,context)).isFalse();
+
+        assertThat(messages).containsExactly("Unable to create file /somepath/{somethingbad}/somefile.file");
+
+    }
+
+    @Test
+    public void steathElExpressionHashPrefix() throws Exception {
+
+        final String evilPathWithElExpression = "/somepath/#{somethingbad}/somefile.file";
+
+        ValidPath validPath = mock(ValidPath.class);
+        when(validPath.checkCanCreate()).thenReturn(true);
+        when(validPath.checkExists()).thenReturn(false);
+        PathValidator pathValidator = new PathValidator();
+        pathValidator.initialize(validPath);
+
+        Path path = Paths.get(evilPathWithElExpression);
+
+        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+
+        List<String> messages = new ArrayList<>();
+        doAnswer(invocation -> {
+            messages.add(invocation.getArgument(0));
+            return mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        }).when(context).buildConstraintViolationWithTemplate(anyString());
+
+        assertThat(pathValidator.isValid(path,context)).isFalse();
+
+        assertThat(messages).containsExactly("Unable to create file /somepath/{somethingbad}/somefile.file");
+
     }
 }
