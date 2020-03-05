@@ -38,20 +38,22 @@ public class Main {
             System.exit(cliResult.getStatus());
         }
 
-        TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
+        final TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
 
-        Config config = cliResult.getConfig().get();
+        final Config config = cliResult.getConfig().get();
 
-        Enclave enclave = EnclaveFactory.createServer(config);
+        final Enclave enclave = EnclaveFactory.createServer(config);
 
-        EnclaveResource enclaveResource = new EnclaveResource(enclave);
+        final EnclaveResource enclaveResource = new EnclaveResource(enclave);
 
         final EnclaveApplication application = new EnclaveApplication(enclaveResource);
 
-        final ServerConfig serverConfig = config.getServerConfigs().iterator().next();
+        final ServerConfig serverConfig = config.getServerConfigs()
+                                                .stream()
+                                                .findFirst()
+                                                .get();
 
-        TesseraServer server = restServerFactory.createServer(serverConfig, Collections.singleton(application));
-
+        final TesseraServer server = restServerFactory.createServer(serverConfig, Collections.singleton(application));
         server.start();
 
         CountDownLatch latch = new CountDownLatch(1);

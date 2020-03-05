@@ -9,6 +9,8 @@ import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigurationMixin;
 import com.quorum.tessera.cli.parsers.PidFileMixin;
 import com.quorum.tessera.config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.util.Objects;
@@ -25,6 +27,8 @@ import java.util.concurrent.Callable;
             "for a transaction manager. This means that the transaction manager does not perform any of the " +
             "operations inside its own process, shielding the user from potential attacks.")
 public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveCliAdapter.class);
 
     @CommandLine.Option(names = "help", usageHelp = true, description = "display this help message")
     private boolean isHelpRequested;

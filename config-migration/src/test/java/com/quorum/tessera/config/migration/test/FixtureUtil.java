@@ -10,6 +10,7 @@ import com.quorum.tessera.config.builder.ConfigBuilder;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.KeyDataUtil;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -82,9 +83,9 @@ public class FixtureUtil {
                         new KeyConfiguration(
                                 null,
                                 Collections.emptyList(),
-                                Collections.singletonList(
+                                Collections.singletonList(KeyDataUtil.marshal(
                                         new FilesystemKeyPair(
-                                                Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR)),
+                                                Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR))),
                                 null,
                                 null));
     }
@@ -120,9 +121,9 @@ public class FixtureUtil {
                         new KeyConfiguration(
                                 null,
                                 Collections.emptyList(),
-                                Collections.singletonList(
+                                Collections.singletonList(KeyDataUtil.marshal(
                                         new FilesystemKeyPair(
-                                                Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR)),
+                                                Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR))),
                                 null,
                                 null));
     }

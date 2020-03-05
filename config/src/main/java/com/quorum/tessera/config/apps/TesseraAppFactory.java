@@ -19,6 +19,7 @@ public class TesseraAppFactory {
     private static final TesseraAppFactory INSTANCE = new TesseraAppFactory();
 
     public static Optional<TesseraApp> create(CommunicationType communicationType, AppType appType) {
+        LOGGER.info("Create from {} {}", communicationType, appType);
         return INSTANCE.createApp(communicationType, appType);
     }
 

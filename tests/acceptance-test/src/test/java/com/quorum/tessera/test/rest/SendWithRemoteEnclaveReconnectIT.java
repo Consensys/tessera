@@ -1,16 +1,7 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.api.model.SendRequest;
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.EncryptorConfig;
-import com.quorum.tessera.config.EncryptorType;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.Peer;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
@@ -117,9 +108,10 @@ public class SendWithRemoteEnclaveReconnectIT {
 
         nodeConfig.setServerConfigs(Arrays.asList(p2pServerConfig, q2tServerConfig, enclaveServerConfig));
 
-        DirectKeyPair keyPair =
-                new DirectKeyPair(
-                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+
+        KeyData keyPair = new KeyData();
+        keyPair.setPublicKey("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        keyPair.setPrivateKey("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
 
         enclaveConfig.setKeys(new KeyConfiguration());
         enclaveConfig.getKeys().setKeyData(Arrays.asList(keyPair));

@@ -5,7 +5,7 @@
         <file>target/node-${node.number}.log</file>
         <append>false</append>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -17,7 +17,9 @@
     <logger name="com.quorum.tessera.api.filter" level="DEBUG"/>
     <logger name="com.quorum.tessera.api.exception" level="DEBUG"/>
 
-    <root level="INFO">
+    <logger name="org.hibernate.validator" level="INFO" />
+
+    <root level="ALL">
         <appender-ref ref="FILE"/>
     </root>
 

@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class PrivateKeyTypeAdapter extends XmlAdapter<String, PrivateKeyType> {
 
-    private static final Map<String, PrivateKeyType> MAPPING = new HashMap<String, PrivateKeyType>() {
+    private static final Map<String, PrivateKeyType> MAPPING = new HashMap<>() {
         {
             put("unlocked", PrivateKeyType.UNLOCKED);
             put("argon2sbox", PrivateKeyType.LOCKED);

@@ -1,8 +1,6 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -74,11 +72,12 @@ public class EnclaveFactoryTest {
                             config.setServerConfigs(singletonList(serverConfig));
 
                             KeyConfiguration keyConfiguration = new KeyConfiguration();
-                            ConfigKeyPair pair =
-                                    new DirectKeyPair(
-                                            "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
-                                            "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
-                            keyConfiguration.setKeyData(singletonList(pair));
+
+                            KeyData keyData = new KeyData();
+                            keyData.setPrivateKey("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+                            keyData.setPublicKey("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+
+                            keyConfiguration.setKeyData(singletonList(keyData));
                             config.setKeys(keyConfiguration);
 
                             config.setAlwaysSendTo(new ArrayList<>());
@@ -101,10 +100,12 @@ public class EnclaveFactoryTest {
                 });
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
-        ConfigKeyPair pair =
-                new DirectKeyPair(
-                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
-        keyConfiguration.setKeyData(singletonList(pair));
+
+        KeyData keyData = new KeyData();
+        keyData.setPublicKey("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        keyData.setPrivateKey("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+
+        keyConfiguration.setKeyData(singletonList(keyData));
         config.setKeys(keyConfiguration);
 
         config.setAlwaysSendTo(new ArrayList<>());
@@ -126,10 +127,11 @@ public class EnclaveFactoryTest {
                 });
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
-        ConfigKeyPair pair =
-                new DirectKeyPair(
-                        "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
-        keyConfiguration.setKeyData(singletonList(pair));
+
+        KeyData keyData = new KeyData();
+        keyData.setPrivateKey("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
+        keyData.setPublicKey("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
+        keyConfiguration.setKeyData(singletonList(keyData));
         config.setKeys(keyConfiguration);
 
         config.setAlwaysSendTo(new ArrayList<>());

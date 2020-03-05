@@ -62,13 +62,14 @@ public class AzureStepDefs implements En {
 
     public AzureStepDefs() {
 
-//                Before(
-//                    () -> {
-//                        // only needed when running outside of maven build process
-//                        System.setProperty(
-//                            "application.jar",
-//                            "/Users/chrishounsom/jpmc-tessera/tessera-dist/tessera-app/target/tessera-app-0.11-SNAPSHOT-app.jar");
-//                    });
+        //                Before(
+        //                    () -> {
+        //                        // only needed when running outside of maven build process
+        //                        System.setProperty(
+        //                            "application.jar",
+        //
+        // "/Users/chrishounsom/jpmc-tessera/tessera-dist/tessera-app/target/tessera-app-0.11-SNAPSHOT-app.jar");
+        //                    });
 
         After(
                 () -> {
@@ -225,8 +226,8 @@ public class AzureStepDefs implements En {
                 "^Tessera will retrieve the key pair from AKV$",
                 () -> {
                     wireMockServer.get().verify(2, postRequestedFor(urlEqualTo(authUrl)));
-                    wireMockServer.get().verify(2, getRequestedFor(urlPathEqualTo(publicKeyUrl)));
-                    wireMockServer.get().verify(1, getRequestedFor(urlPathEqualTo(privateKeyUrl)));
+                    wireMockServer.get().verify(3, getRequestedFor(urlPathEqualTo(publicKeyUrl)));
+                    wireMockServer.get().verify(2, getRequestedFor(urlPathEqualTo(privateKeyUrl)));
 
                     final URL partyInfoUrl =
                             UriBuilder.fromUri("http://localhost").port(8080).path("partyinfo").build().toURL();

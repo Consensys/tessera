@@ -1,6 +1,7 @@
 package com.quorum.tessera.jaxrs.client;
 
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.context.RestClientFactory;
 import com.quorum.tessera.reflect.ReflectCallback;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import com.quorum.tessera.config.util.IntervalPropertyHelper;
@@ -21,7 +22,7 @@ import javax.ws.rs.core.Configuration;
  *
  * <p>Makes the client SSL enabled if specified
  */
-public class ClientFactory {
+public class ClientFactory implements RestClientFactory {
 
     private final SSLContextFactory sslContextFactory;
 

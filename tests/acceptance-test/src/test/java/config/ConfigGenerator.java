@@ -15,6 +15,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import suite.EnclaveType;
 import suite.ExecutionContext;
 import suite.NodeAlias;
@@ -22,6 +25,8 @@ import suite.NodeId;
 import suite.SocketType;
 
 public class ConfigGenerator {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigGenerator.class);
 
     public List<ConfigDescriptor> generateConfigs(ExecutionContext executionContext) {
 
@@ -188,7 +193,7 @@ public class ConfigGenerator {
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
-                        .withAdminPort(port.nextPort())
+                        //  .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
                         .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(1))
@@ -203,7 +208,7 @@ public class ConfigGenerator {
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
-                        .withAdminPort(port.nextPort())
+                        // .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
                         .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(2))
@@ -218,7 +223,7 @@ public class ConfigGenerator {
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
-                        .withAdminPort(port.nextPort())
+                        // .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
                         .withPartyInfoInterval(partyInfoInterval)
                         .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
@@ -234,7 +239,7 @@ public class ConfigGenerator {
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
-                        .withAdminPort(port.nextPort())
+                        // .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
                         .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(4))
@@ -247,7 +252,16 @@ public class ConfigGenerator {
         third.addPeer(new Peer(fourth.getP2PServerConfig().getServerAddress()));
         fourth.addPeer(new Peer(first.getP2PServerConfig().getServerAddress()));
 
-        return Arrays.asList(first, second, third, fourth);
+        List<Config> configList = List.of(first, second, third, fourth);
+        if (LOGGER.isDebugEnabled()) {
+            configList.stream()
+                    .map(JaxbUtil::marshalToString)
+                    .forEach(
+                            s -> {
+                                LOGGER.debug(s);
+                            });
+        }
+        return configList;
     }
 
     public static void main(String[] args) throws Exception {

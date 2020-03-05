@@ -2,10 +2,12 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultType;
+import com.quorum.tessera.config.util.KeyDataUtil;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,7 +27,9 @@ public class MatchingKeyVaultConfigsForKeyDataValidator
                 Stream.of(KeyVaultType.values())
                         .filter(k -> {
                             if (Optional.ofNullable(keyConfiguration.getKeyData()).isPresent()) {
-                                return keyConfiguration.getKeyData().stream().anyMatch(kd -> k.getKeyPairType().isInstance(kd));
+                                return keyConfiguration.getKeyData().stream()
+                                    .map(KeyDataUtil::getKeyPairTypeFor)
+                                    .anyMatch(keyType -> Objects.equals(k.getKeyPairType(),keyType));
                             }
                             return false;
                         })
