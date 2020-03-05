@@ -1,10 +1,10 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 
+import java.net.URI;
 import java.util.Objects;
 import java.util.Set;
 
@@ -23,15 +23,15 @@ public class EnclaveKeySynchroniser implements Runnable {
 
     private final String advertisedUrl;
 
-    public EnclaveKeySynchroniser(
-            final Enclave enclave, final PartyInfoStore partyInfoStore, final ConfigService configService) {
+    public EnclaveKeySynchroniser(final Enclave enclave, final PartyInfoStore partyInfoStore, URI advertisedUrl) {
         this.enclave = Objects.requireNonNull(enclave);
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
-        this.advertisedUrl = URLNormalizer.create().normalize(configService.getServerUri().toString());
+        this.advertisedUrl = URLNormalizer.create().normalize(advertisedUrl.toString());
     }
 
     @Override
     public void run() {
+
         // fetch keys and create recipients
         final Set<Recipient> ourKeys =
                 this.enclave.getPublicKeys().stream()

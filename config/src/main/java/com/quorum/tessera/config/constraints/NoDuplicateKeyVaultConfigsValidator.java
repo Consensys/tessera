@@ -6,10 +6,7 @@ import com.quorum.tessera.config.KeyVaultType;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class NoDuplicateKeyVaultConfigsValidator
@@ -25,9 +22,15 @@ public class NoDuplicateKeyVaultConfigsValidator
     @Override
     public boolean isValid(KeyConfiguration keyConfiguration, ConstraintValidatorContext constraintValidatorContext) {
         // cannot have duplicates if the KeyVaultConfigs list is empty
-        if (keyConfiguration == null
-                || keyConfiguration.getKeyVaultConfigs() == null
-                || keyConfiguration.getKeyVaultConfigs().isEmpty()) {
+        if(Objects.isNull(keyConfiguration)) {
+            return true;
+        }
+
+        if(Objects.isNull(keyConfiguration.getKeyVaultConfigs())) {
+            return true;
+        }
+
+        if(keyConfiguration.getKeyVaultConfigs().isEmpty()) {
             return true;
         }
 

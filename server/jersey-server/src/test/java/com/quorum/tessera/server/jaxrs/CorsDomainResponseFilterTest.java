@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 public class CorsDomainResponseFilterTest {
 
     private static final String SOME_ORIGIN = "http://bogus.com";
-    
+
     private CorsDomainResponseFilter domainResponseFilter;
 
     private ContainerRequestContext requestContext;
@@ -27,10 +27,10 @@ public class CorsDomainResponseFilterTest {
 
     @Before
     public void setUp() {
-        
+
         CrossDomainConfig crossDomainConfig = new CrossDomainConfig();
         crossDomainConfig.setAllowedOrigins(Arrays.asList(SOME_ORIGIN));
-        
+
         domainResponseFilter = new CorsDomainResponseFilter(crossDomainConfig);
         requestContext = mock(ContainerRequestContext.class);
         responseContext = mock(ContainerResponseContext.class);
@@ -42,7 +42,6 @@ public class CorsDomainResponseFilterTest {
         verifyNoMoreInteractions(requestContext, responseContext);
     }
 
-
     @Test
     public void filter() throws Exception {
 
@@ -52,15 +51,14 @@ public class CorsDomainResponseFilterTest {
 
         when(requestContext.getHeaderString("Origin")).thenReturn(SOME_ORIGIN);
 
-
         domainResponseFilter.filter(requestContext, responseContext);
 
         assertThat(headers)
-            .containsKeys(
-                "Access-Control-Allow-Origin",
-                "Access-Control-Allow-Credentials", 
-                "Access-Control-Allow-Methods",
-                "Access-Control-Allow-Headers");
+                .containsKeys(
+                        "Access-Control-Allow-Origin",
+                        "Access-Control-Allow-Credentials",
+                        "Access-Control-Allow-Methods",
+                        "Access-Control-Allow-Headers");
 
         assertThat(headers.get("Access-Control-Allow-Origin")).containsExactly(SOME_ORIGIN);
         assertThat(headers.get("Access-Control-Allow-Credentials")).containsExactly("true");
@@ -77,9 +75,8 @@ public class CorsDomainResponseFilterTest {
 
         domainResponseFilter.filter(requestContext, responseContext);
         verify(requestContext).getHeaderString("Origin");
-
     }
-    
+
     @Test
     public void ignoreEmptyOrigin() throws Exception {
 
@@ -88,6 +85,5 @@ public class CorsDomainResponseFilterTest {
         domainResponseFilter.filter(requestContext, responseContext);
 
         verify(requestContext).getHeaderString("Origin");
-
     }
 }

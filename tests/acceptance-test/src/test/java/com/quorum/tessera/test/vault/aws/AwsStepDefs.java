@@ -165,7 +165,7 @@ public class AwsStepDefs implements En {
         Then(
                 "^Tessera will retrieve the key pair from AWS Secrets Manager$",
                 () -> {
-                    wireMockServer.get().verify(2, postRequestedFor(urlEqualTo(AWS_SECRETS_MANAGER_URL)));
+                    wireMockServer.get().verify(4, postRequestedFor(urlEqualTo(AWS_SECRETS_MANAGER_URL)));
 
                     final URL partyInfoUrl =
                             UriBuilder.fromUri("http://localhost").port(8080).path("partyinfo").build().toURL();

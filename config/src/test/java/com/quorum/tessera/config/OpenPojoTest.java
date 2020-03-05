@@ -30,7 +30,8 @@ public class OpenPojoTest {
                     pc -> !pc.getClazz().getName().startsWith(JaxbConfigFactory.class.getName()),
                     pc -> !pc.getClazz().isAssignableFrom(ConfigException.class),
                     pc -> !pc.getClazz().getName().contains(ConfigItem.class.getName()),
-                    pc -> !pc.getClazz().getSimpleName().contains("Test")
+                    pc -> !pc.getClazz().getSimpleName().contains("Test"),
+                    pc -> !pc.isNestedClass()
                 };
 
         pojoValidator.validate("com.quorum.tessera.config", filters);

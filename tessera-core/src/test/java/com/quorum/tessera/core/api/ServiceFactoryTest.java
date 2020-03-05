@@ -1,7 +1,6 @@
 package com.quorum.tessera.core.api;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
@@ -29,7 +28,6 @@ public class ServiceFactoryTest {
         mockServiceLocator = (MockServiceLocator) ServiceLocator.create();
         Set services = new HashSet();
         services.add(mock(Config.class));
-        services.add(mock(ConfigService.class));
         services.add(mock(Enclave.class));
         services.add(mock(TransactionManager.class));
         services.add(mock(PartyInfoService.class));
@@ -41,19 +39,6 @@ public class ServiceFactoryTest {
         mockServiceLocator.setServices(services);
 
         serviceFactory = (ServiceFactoryImpl) ServiceFactory.create();
-    }
-
-    @Test
-    public void config() {
-        Config config = serviceFactory.config();
-        assertThat(config).isNotNull();
-    }
-
-    @Test
-    public void configService() {
-        ConfigService configService = serviceFactory.configService();
-
-        assertThat(configService).isNotNull();
     }
 
     @Test
@@ -105,4 +90,5 @@ public class ServiceFactoryTest {
         PayloadPublisher payloadPublisher = serviceFactory.payloadPublisher();
         assertThat(payloadPublisher).isNotNull();
     }
+
 }

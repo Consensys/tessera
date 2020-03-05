@@ -1,8 +1,8 @@
 package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.io.FilesDelegate;
 import com.quorum.tessera.io.SystemAdapter;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class ConfigFileUpdaterWriter {
     }
 
     public void updateAndWrite(
-            List<ConfigKeyPair> newKeys, KeyVaultConfig keyVaultConfig, Config config, Path configDest)
+        List<KeyData> newKeys, KeyVaultConfig keyVaultConfig, Config config, Path configDest)
             throws IOException {
         LOGGER.info("Writing updated config to {}", configDest);
 
@@ -44,14 +44,15 @@ public class ConfigFileUpdaterWriter {
         }
     }
 
-    public void updateAndWriteToCLI(List<ConfigKeyPair> newKeys, KeyVaultConfig keyVaultConfig, Config config) {
+    public void updateAndWriteToCLI(List<KeyData> newKeys, KeyVaultConfig keyVaultConfig, Config config) {
         LOGGER.info("Writing updated config to system out");
         update(newKeys, keyVaultConfig, config);
         JaxbUtil.marshal(config, SystemAdapter.INSTANCE.out());
         LOGGER.info("Updated config written to system out");
     }
 
-    private void update(List<ConfigKeyPair> newKeys, KeyVaultConfig keyVaultConfig, Config config) {
+    private void update(List<KeyData> newKeys, KeyVaultConfig keyVaultConfig, Config config) {
+
         config.getKeys().getKeyData().addAll(newKeys);
         if (Optional.ofNullable(keyVaultConfig).isPresent()
                 && !Optional.ofNullable(config)

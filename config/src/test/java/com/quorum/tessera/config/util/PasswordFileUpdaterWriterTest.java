@@ -3,7 +3,7 @@ package com.quorum.tessera.config.util;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.io.FilesDelegate;
 import org.junit.After;
 import org.junit.Before;
@@ -88,14 +88,14 @@ public class PasswordFileUpdaterWriterTest {
 
         final List<String> existingPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
 
-        final ConfigKeyPair key1 = mock(ConfigKeyPair.class);
+        final KeyData key1 = mock(KeyData.class);
         when(key1.getPassword()).thenReturn("pwd3");
 
-        final ConfigKeyPair key2 = mock(ConfigKeyPair.class);
+        final KeyData key2 = mock(KeyData.class);
         when(key2.getPassword()).thenReturn("pwd4");
 
         final List<String> existingAndNewPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2", "pwd3", "pwd4"));
-        final List<ConfigKeyPair> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
+        final List<KeyData> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
 
         when(filesDelegate.readAllLines(any())).thenReturn(existingPasswords);
 
@@ -120,14 +120,14 @@ public class PasswordFileUpdaterWriterTest {
         final String path = "somepath";
         when(pwdFile.toString()).thenReturn(path);
 
-        final ConfigKeyPair key1 = mock(ConfigKeyPair.class);
+        final KeyData key1 = mock(KeyData.class);
         when(key1.getPassword()).thenReturn("pwd1");
 
-        final ConfigKeyPair key2 = mock(ConfigKeyPair.class);
+        final KeyData key2 = mock(KeyData.class);
         when(key2.getPassword()).thenReturn("pwd2");
 
         final List<String> newPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
-        final List<ConfigKeyPair> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
+        final List<KeyData> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
 
         writer.updateAndWrite(newKeys, config, pwdFile);
 
@@ -145,7 +145,7 @@ public class PasswordFileUpdaterWriterTest {
     public void newPasswordsWrittenToNewFileIncludingEmptyLinesForExistingKeys() throws Exception {
         final Config config = mock(Config.class);
         final KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-        final List<ConfigKeyPair> existingKeys = Arrays.asList(mock(ConfigKeyPair.class), mock(ConfigKeyPair.class));
+        final List<KeyData> existingKeys = Arrays.asList(mock(KeyData.class), mock(KeyData.class));
 
         when(config.getKeys()).thenReturn(keyConfiguration);
         when(keyConfiguration.getKeyData()).thenReturn(existingKeys);
@@ -154,14 +154,14 @@ public class PasswordFileUpdaterWriterTest {
         final String path = "somepath";
         when(pwdFile.toString()).thenReturn(path);
 
-        final ConfigKeyPair key1 = mock(ConfigKeyPair.class);
+        final KeyData key1 = mock(KeyData.class);
         when(key1.getPassword()).thenReturn("pwd1");
 
-        final ConfigKeyPair key2 = mock(ConfigKeyPair.class);
+        final KeyData key2 = mock(KeyData.class);
         when(key2.getPassword()).thenReturn("pwd2");
 
         final List<String> existingAndNewPasswords = new ArrayList<>(Arrays.asList("", "", "pwd1", "pwd2"));
-        final List<ConfigKeyPair> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
+        final List<KeyData> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
 
         writer.updateAndWrite(newKeys, config, pwdFile);
 

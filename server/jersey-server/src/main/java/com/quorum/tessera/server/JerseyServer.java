@@ -27,9 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
-/**
- * Implementation of a RestServer using Jersey and Jetty.
- */
+/** Implementation of a RestServer using Jersey and Jetty. */
 public class JerseyServer implements TesseraServer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JerseyServer.class);
@@ -49,23 +47,26 @@ public class JerseyServer implements TesseraServer {
     private final AppType type;
 
     public JerseyServer(final ServerConfig serverConfig, final Application application) {
+        LOGGER.debug("Constructing from {} and {}", serverConfig, application);
         this.uri = serverConfig.getServerUri();
         this.application = Objects.requireNonNull(application);
-        this.serverConfig = serverConfig;
+        this.serverConfig = Objects.requireNonNull(serverConfig);
 
         this.executor = newSingleThreadScheduledExecutor();
 
         this.influxConfig = serverConfig.getInfluxConfig();
         this.type = serverConfig.getApp();
+        LOGGER.debug("Constructed {}", this);
     }
 
     @Override
     public void start() throws Exception {
+        LOGGER.debug("Starting {}", this);
 
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
 
-        //https://jersey.github.io/documentation/latest/appendix-properties.html
+        // https://jersey.github.io/documentation/latest/appendix-properties.html
         final Map<String, Object> initParams = new HashMap<>();
         initParams.put("jersey.config.server.application.name", application.getClass().getSimpleName());
         initParams.put("jersey.config.server.tracing.type", "ON_DEMAND");
@@ -86,7 +87,9 @@ public class JerseyServer implements TesseraServer {
             config.register(new CorsDomainResponseFilter(serverConfig.getCrossDomainConfig()));
         }
 
+        LOGGER.debug("Building Server from {}", serverConfig);
         this.server = ServerUtils.buildWebServer(serverConfig);
+        LOGGER.debug("Built Server from {}", serverConfig);
 
         ServletContextHandler context = new ServletContextHandler(server, "/");
         ServletContainer servletContainer = new ServletContainer(config);
@@ -104,21 +107,21 @@ public class JerseyServer implements TesseraServer {
         if (influxConfig != null) {
             startInfluxMonitoring();
         }
-
     }
 
     private void startInfluxMonitoring() {
         InfluxDbClient influxDbClient = new InfluxDbClient(uri, influxConfig, type);
         Runnable publisher = new InfluxDbPublisher(influxDbClient);
 
-        final Runnable exceptionSafePublisher = () -> {
-            try {
-                publisher.run();
-            } catch (final Throwable ex) {
-                LOGGER.error("Error when executing action {}", publisher.getClass().getSimpleName());
-                LOGGER.error("Error when executing action", ex);
-            }
-        };
+        final Runnable exceptionSafePublisher =
+                () -> {
+                    try {
+                        publisher.run();
+                    } catch (final Throwable ex) {
+                        LOGGER.error("Error when executing action {}", publisher.getClass().getSimpleName());
+                        LOGGER.error("Error when executing action", ex);
+                    }
+                };
 
         final long delayInSecs = influxConfig.getPushIntervalInSecs();
         this.executor.scheduleWithFixedDelay(exceptionSafePublisher, delayInSecs, delayInSecs, TimeUnit.SECONDS);
@@ -142,5 +145,4 @@ public class JerseyServer implements TesseraServer {
 
         LOGGER.info("Stopped Jersey server at {}", uri);
     }
-
 }

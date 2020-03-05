@@ -1,5 +1,9 @@
 package com.quorum.tessera.test;
 
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
@@ -30,6 +34,8 @@ public class PeerToPeerIT {
 
     private PartyHelper partyHelper = PartyHelper.create();
 
+    private ClientFactory clientFactory = new ClientFactory();
+
     private Party partyA;
 
     @Before
@@ -51,7 +57,9 @@ public class PeerToPeerIT {
 
         Party partyB = partyHelper.findByAlias(NodeAlias.B);
 
-        Client client = new ClientFactory().buildFrom(partyB.getConfig().getP2PServerConfig());
+        ServerConfig serverContext = Optional.of(partyB.getConfig()).map(Config::getP2PServerConfig).get();
+
+        Client client = clientFactory.buildFrom(serverContext);
 
         PublicKey partyBKey =
                 Optional.of(partyB)
@@ -96,13 +104,15 @@ public class PeerToPeerIT {
 
         ServerConfig serverConfig = hihjackedParty.getConfig().getP2PServerConfig();
 
-        Recipient recipient = new Recipient(bogusKey, serverConfig.getServerAddress());
+        Recipient recipient = new Recipient(bogusKey, serverConfig.getServerUri().toString());
 
         PartyInfo partyInfo =
                 new PartyInfo(
-                        serverConfig.getServerAddress(), Collections.singleton(recipient), Collections.emptySet());
+                        serverConfig.getServerUri().toString(),
+                        Collections.singleton(recipient),
+                        Collections.emptySet());
 
-        Client client = new ClientFactory().buildFrom(serverConfig);
+        Client client = clientFactory.buildFrom(serverConfig);
 
         PartyInfoParser partyInfoParser = PartyInfoParser.create();
 
@@ -136,7 +146,7 @@ public class PeerToPeerIT {
                         .map(PublicKey::from)
                         .get();
 
-        Recipient itself = new Recipient(publicKey, serverConfig.getServerAddress());
+        Recipient itself = new Recipient(publicKey, serverConfig.getServerUri().toString());
 
         String validButIncorrectUrl =
                 partyHelper.findByAlias(NodeAlias.C).getConfig().getP2PServerConfig().getServerAddress();
@@ -147,7 +157,7 @@ public class PeerToPeerIT {
 
         assertThat(recipients).containsExactlyInAnyOrder(itself, badRecipient);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(), recipients, Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerUri().toString(), recipients, Collections.emptySet());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -176,7 +186,7 @@ public class PeerToPeerIT {
 
         Party partyB = partyHelper.findByAlias(NodeAlias.B);
 
-        ServerConfig serverConfig = partyB.getConfig().getP2PServerConfig();
+        ServerConfig serverConfig = Optional.of(partyB.getConfig()).map(Config::getP2PServerConfig).get();
 
         PublicKey publicKey =
                 Optional.of(partyB)
@@ -185,7 +195,7 @@ public class PeerToPeerIT {
                         .map(PublicKey::from)
                         .get();
 
-        Recipient itself = new Recipient(publicKey, serverConfig.getServerAddress());
+        Recipient itself = new Recipient(publicKey, serverConfig.getServerUri().toString());
 
         String validKeyFromOtherNode = partyHelper.findByAlias(NodeAlias.C).getPublicKey();
 
@@ -198,7 +208,7 @@ public class PeerToPeerIT {
 
         assertThat(recipients).containsExactlyInAnyOrder(itself, badRecipient);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(), recipients, Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerUri().toString(), recipients, Collections.emptySet());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -231,7 +241,7 @@ public class PeerToPeerIT {
                         .map(PublicKey::from)
                         .get();
 
-        Recipient itself = new Recipient(publicKey, serverConfig.getServerAddress());
+        Recipient itself = new Recipient(publicKey, serverConfig.getServerUri().toString());
 
         String validKeyFromOtherNode = partyHelper.findByAlias(NodeAlias.C).getPublicKey();
 
@@ -247,7 +257,7 @@ public class PeerToPeerIT {
 
         assertThat(recipients).containsExactlyInAnyOrder(itself, badRecipient);
 
-        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerAddress(), recipients, Collections.emptySet());
+        PartyInfo partyInfo = new PartyInfo(serverConfig.getServerUri().toString(), recipients, Collections.emptySet());
 
         Client client = new ClientFactory().buildFrom(serverConfig);
 
@@ -272,8 +282,8 @@ public class PeerToPeerIT {
     private void validatePartyInfoContentsOnNodeA() {
 
         Party someParty = partyHelper.getParties().filter(p -> !p.getAlias().equals("A")).findAny().get();
-
-        Client client = new ClientFactory().buildFrom(someParty.getConfig().getP2PServerConfig());
+        ServerConfig serverContext = someParty.getConfig().getP2PServerConfig();
+        Client client = clientFactory.buildFrom(serverContext);
 
         Response response = client.target(partyA.getP2PUri()).path("partyinfo").request().get();
 
@@ -288,12 +298,17 @@ public class PeerToPeerIT {
                                 Collectors.toMap(
                                         o -> o.getString("key"), o -> removeTrailingSlash(o.getString("url"))));
 
+        EncryptorConfig encryptorConfig =
+                partyHelper.getParties().findFirst().map(Party::getConfig).map(Config::getEncryptor).get();
+        KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
+
         List<String> keyz =
                 partyHelper
                         .getParties()
                         .map(Party::getConfig)
                         .map(Config::getKeys)
                         .flatMap(k -> k.getKeyData().stream())
+                        .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
                         .map(ConfigKeyPair::getPublicKey)
                         .collect(Collectors.toList());
 

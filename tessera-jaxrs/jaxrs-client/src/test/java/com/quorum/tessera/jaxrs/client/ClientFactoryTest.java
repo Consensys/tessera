@@ -1,5 +1,7 @@
 package com.quorum.tessera.jaxrs.client;
 
+import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
 import com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider;
@@ -77,6 +79,9 @@ public class ClientFactoryTest {
     public void createUnixSocketClient() {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setServerAddress("unix:/tmp/bogus.socket");
+        serverConfig.setApp(AppType.Q2T);
+        serverConfig.setCommunicationType(CommunicationType.REST);
+
         org.glassfish.jersey.client.JerseyClient result =
                 (org.glassfish.jersey.client.JerseyClient) factory.buildFrom(serverConfig);
         assertThat(result.getConfiguration().getProperty("unixfile")).isNotNull().isInstanceOf(URI.class);
