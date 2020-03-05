@@ -8,6 +8,7 @@ import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import com.quorum.tessera.config.util.KeyDataUtil;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -81,6 +82,7 @@ public class KeyDataBuilder {
         final List<ConfigKeyPair> keyData =
                 mappedKeyPairs.entrySet().stream()
                         .map(pair -> new FilesystemKeyPair(pair.getKey(), pair.getValue(), keyEncryptor))
+
                         .collect(toList());
 
         final Path privateKeyPasswordFilePath;
@@ -92,6 +94,7 @@ public class KeyDataBuilder {
             privateKeyPasswordFilePath = null;
         }
 
-        return new KeyConfiguration(privateKeyPasswordFilePath, null, keyData, null, null);
+        return new KeyConfiguration(privateKeyPasswordFilePath, null, keyData.stream()
+            .map(KeyDataUtil::marshal).collect(toList()), null, null);
     }
 }

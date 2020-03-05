@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-@Target({FIELD, PARAMETER, ANNOTATION_TYPE})
+@Target({FIELD, PARAMETER, ANNOTATION_TYPE, TYPE})
 @Retention(RUNTIME)
 @Constraint(validatedBy = MatchingKeyVaultConfigsForKeyDataValidator.class)
 @Documented
@@ -20,5 +20,4 @@ public @interface MatchingKeyVaultConfigsForKeyData {
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
-
 }

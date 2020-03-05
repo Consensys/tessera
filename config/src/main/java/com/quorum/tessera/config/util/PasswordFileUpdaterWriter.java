@@ -3,7 +3,7 @@ package com.quorum.tessera.config.util;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.io.FilesDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class PasswordFileUpdaterWriter {
         this.filesDelegate = filesDelegate;
     }
 
-    public void updateAndWrite(List<ConfigKeyPair> newKeys, Config config, Path pwdDest) throws IOException {
+    public void updateAndWrite(List<KeyData> newKeys, Config config, Path pwdDest) throws IOException {
         if (Optional.ofNullable(config).map(Config::getKeys).map(KeyConfiguration::getPasswords).isPresent()
             && !config.getKeys().getPasswords().isEmpty()) {
             throw new ConfigException(new RuntimeException(passwordsMessage));
@@ -50,7 +50,7 @@ public class PasswordFileUpdaterWriter {
         LOGGER.info("Writing updated passwords to {}", pwdDest);
 
         final List<String> newPasswords =
-            newKeys.stream().map(ConfigKeyPair::getPassword).collect(Collectors.toList());
+            newKeys.stream().map(KeyData::getPassword).collect(Collectors.toList());
         final List<String> passwords;
 
         if (Optional.ofNullable(config.getKeys()).map(KeyConfiguration::getPasswordFile).isPresent()) {

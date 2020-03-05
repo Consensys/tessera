@@ -33,7 +33,7 @@ public class JerseyServerIT {
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setServerAddress("http://localhost:8080");
-        
+
         CrossDomainConfig crossDomainConfig = new CrossDomainConfig();
         crossDomainConfig.setAllowedOrigins(Arrays.asList("*.acme.com", "*.other.com"));
         serverConfig.setCrossDomainConfig(crossDomainConfig);
@@ -53,22 +53,15 @@ public class JerseyServerIT {
 
     @Test
     public void ping() {
-        
+
         MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
         headers.add("Origin", "*.acme.com");
 
-        Response result = ClientBuilder.newClient()
-            .target(serverUri)
-            .path("ping")
-            .request()
-            .headers(headers)
-            .get();
+        Response result = ClientBuilder.newClient().target(serverUri).path("ping").request().headers(headers).get();
 
-        assertThat(result.getHeaderString("Access-Control-Allow-Origin"))
-            .isEqualTo("*.acme.com");
+        assertThat(result.getHeaderString("Access-Control-Allow-Origin")).isEqualTo("*.acme.com");
 
-        assertThat(result.getHeaderString("Access-Control-Allow-Credentials"))
-            .isEqualTo("true");
+        assertThat(result.getHeaderString("Access-Control-Allow-Credentials")).isEqualTo("true");
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
@@ -80,27 +73,24 @@ public class JerseyServerIT {
         SamplePayload payload = new SamplePayload();
         payload.setValue("Hellow");
 
-        Response result = ClientBuilder.newClient()
-            .target(serverUri)
-            .path("create")
-            .request()
-            .post(Entity.entity(payload, MediaType.APPLICATION_JSON));
+        Response result =
+                ClientBuilder.newClient()
+                        .target(serverUri)
+                        .path("create")
+                        .request()
+                        .post(Entity.entity(payload, MediaType.APPLICATION_JSON));
 
         assertThat(result.getStatus()).isEqualTo(201);
         assertThat(result.getLocation()).isNotNull();
 
-        Response result2 = ClientBuilder.newClient()
-            .target(result.getLocation())
-            .request(MediaType.APPLICATION_JSON)
-            .get();
+        Response result2 =
+                ClientBuilder.newClient().target(result.getLocation()).request(MediaType.APPLICATION_JSON).get();
 
         SamplePayload p = result2.readEntity(SamplePayload.class);
         assertThat(p).isNotNull();
         assertThat(p.getValue()).isEqualTo("Hellow");
 
-        Response result3 = ClientBuilder.newClient()
-            .target(serverUri)
-            .path(p.getId()).request().delete();
+        Response result3 = ClientBuilder.newClient().target(serverUri).path(p.getId()).request().delete();
 
         assertThat(result3.getStatus()).isEqualTo(200);
         SamplePayload deleted = result3.readEntity(SamplePayload.class);

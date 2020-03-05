@@ -1,7 +1,6 @@
 package com.quorum.tessera.thirdparty;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.admin.ConfigService;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.partyinfo.PartyInfoService;
@@ -35,7 +34,6 @@ public class ThirdPartyRestAppTest {
         Set services = new HashSet();
         services.add(mock(IPWhitelistFilter.class));
         services.add(mock(TransactionManager.class));
-        services.add(mock(ConfigService.class));
         services.add(mock(PartyInfoService.class));
 
         serviceLocator.setServices(services);

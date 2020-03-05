@@ -488,11 +488,11 @@
         <module>enclave</module>
         <module>tessera-dist</module>
         <module>tessera-partyinfo</module>
-        <module>tessera-admin</module>
         <module>tessera-sync</module>
         <module>test-utils</module>
         <module>tessera-jaxrs</module>
         <module>tessera-data</module>
+        <module>tessera-context</module>
     </modules>
 
     <dependencyManagement>
@@ -563,12 +563,6 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-partyinfo</artifactId>
-                <version>0.11-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
-                <artifactId>tessera-admin</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
 
@@ -691,6 +685,12 @@
 
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessra-context</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>ddls</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
@@ -710,6 +710,13 @@
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>encryption-ec</artifactId>
+                <version>0.11-SNAPSHOT</version>
+            </dependency>
+            
+            
+            <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>tessera-context</artifactId>
                 <version>0.11-SNAPSHOT</version>
             </dependency>
 
@@ -1278,19 +1285,7 @@
                 <version>${awssdk.version}</version>
             </dependency>
 
-            <!-- to resolve dependency convergence issue within software.amazon.awssdk:secretsmanager -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-handler</artifactId>
-                <version>4.1.42.Final</version>
-            </dependency>
 
-            <!-- to resolve dependency convergence issue within software.amazon.awssdk:secretsmanager -->
-            <dependency>
-                <groupId>io.netty</groupId>
-                <artifactId>netty-codec-http</artifactId>
-                <version>4.1.42.Final</version>
-            </dependency>
 
             <!-- to address dependency convergence between com.github.tomakehurst:wiremock-jre8 and software.amazon.awssdk:secretsmanager -->
             <dependency>

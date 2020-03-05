@@ -5,9 +5,10 @@ import javax.validation.ConstraintValidatorContext;
 import java.util.Base64;
 import java.util.Objects;
 
-import static com.quorum.tessera.config.adapters.KeyDataAdapter.NACL_FAILURE_TOKEN;
 
 public class Base64Validator implements ConstraintValidator<ValidBase64, String> {
+
+    private static final String NACL_FAILURE_TOKEN = "NACL_FAILURE";
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext cvc) {

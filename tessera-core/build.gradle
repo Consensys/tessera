@@ -4,8 +4,8 @@ dependencies {
     compile 'javax.validation:validation-api:2.0.1.Final'
     compile project(':enclave:enclave-api')
     compile project(':shared')
+    compile project(':tessera-context')
     compile project(':tessera-partyinfo')
-    compile project(':tessera-admin')
     compile project(':config')
     compile project(':key-vault:key-vault-api')
 

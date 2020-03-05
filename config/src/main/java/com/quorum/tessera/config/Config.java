@@ -15,6 +15,7 @@ import java.util.List;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 @ValidEitherServerConfigsOrServer
+@HasKeysOrRemoteEnclave
 public class Config extends ConfigItem {
 
     @XmlAttribute private String version = Version.getVersion();

@@ -3,7 +3,8 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
 import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
 import com.quorum.tessera.key.generation.KeyGenerator;
@@ -38,6 +39,8 @@ public class KeyGenCommand implements Callable<CliResult> {
     private final ConfigFileUpdaterWriter configFileUpdaterWriter;
 
     private final PasswordFileUpdaterWriter passwordFileUpdaterWriter;
+
+    private KeyDataMarshaller keyDataMarshaller = KeyDataMarshaller.create();
 
     private final Validator validator =
             Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
@@ -75,7 +78,7 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @Override
     public CliResult call() throws IOException {
-        //TODO(cjh) this check shouldn't be required as --configfile is marked as 'required' in KeyGenFileUpdateOptions
+        // TODO(cjh) this check shouldn't be required as --configfile is marked as 'required' in KeyGenFileUpdateOptions
         if (Objects.nonNull(fileUpdateOptions) && Objects.isNull(fileUpdateOptions.getConfig())) {
             throw new CliException("Missing required argument(s): --configfile=<config>");
         }
@@ -84,6 +87,7 @@ public class KeyGenCommand implements Callable<CliResult> {
         final KeyVaultOptions keyVaultOptions = this.keyVaultOptions().orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig().orElse(null);
 
+        KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
         final KeyGenerator generator = factory.create(keyVaultConfig, encryptorConfig);
 
         final List<String> newKeyNames = new ArrayList<>();
@@ -94,9 +98,10 @@ public class KeyGenCommand implements Callable<CliResult> {
             newKeyNames.addAll(keyOut);
         }
 
-        List<ConfigKeyPair> newKeys =
+        List<KeyData> newKeys =
                 newKeyNames.stream()
                         .map(name -> generator.generate(name, argonOptions, keyVaultOptions))
+                        .map(pair -> keyDataMarshaller.marshal(pair))
                         .collect(Collectors.toList());
 
         if (Objects.isNull(fileUpdateOptions)) {

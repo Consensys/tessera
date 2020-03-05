@@ -1,7 +1,5 @@
 package com.quorum.tessera.core.api;
 
-import com.quorum.tessera.admin.ConfigService;
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
@@ -41,16 +39,6 @@ public class ServiceFactoryImpl implements ServiceFactory {
     @Override
     public TransactionManager transactionManager() {
         return find(TransactionManager.class);
-    }
-
-    @Override
-    public Config config() {
-        return find(Config.class);
-    }
-
-    @Override
-    public ConfigService configService() {
-        return find(ConfigService.class);
     }
 
     @Override

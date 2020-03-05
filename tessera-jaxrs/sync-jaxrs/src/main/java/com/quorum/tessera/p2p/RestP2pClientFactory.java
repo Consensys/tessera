@@ -17,7 +17,6 @@ public class RestP2pClientFactory implements P2pClientFactory {
         SSLContextFactory clientSSLContextFactory = ClientSSLContextFactory.create();
 
         ClientFactory clientFactory = new ClientFactory(clientSSLContextFactory);
-
         Client client = clientFactory.buildFrom(config.getP2PServerConfig());
 
         return new RestP2pClient(client);

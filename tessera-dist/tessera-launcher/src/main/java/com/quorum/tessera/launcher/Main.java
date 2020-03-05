@@ -9,8 +9,12 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
+import com.quorum.tessera.context.RuntimeContext;
+import com.quorum.tessera.context.RuntimeContextFactory;
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
+import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,8 +36,11 @@ public class Main {
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         try {
+
             PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
+            LOGGER.debug("Execute PicoCliDelegate with args [{}]",String.join(",",args));
             final CliResult cliResult = picoCliDelegate.execute(args);
+            LOGGER.debug("Executed PicoCliDelegate with args [{}].",String.join(",",args));
             CliDelegate.instance().setConfig(cliResult.getConfig().orElse(null));
 
             if (cliResult.isSuppressStartup()) {
@@ -48,6 +55,24 @@ public class Main {
                     cliResult
                             .getConfig()
                             .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
+
+            RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
+
+            LOGGER.debug("Creating service locator");
+            ServiceLocator serviceLocator = ServiceLocator.create();
+            LOGGER.debug("Created service locator {}",serviceLocator);
+
+            Set<Object> services = serviceLocator.getServices();
+
+            LOGGER.debug("Created {} services",services.size());
+
+            services.forEach(o -> LOGGER.debug("Service : {}",o));
+
+            services.stream()
+                .filter(PartyInfoService.class::isInstance)
+                .map(PartyInfoService.class::cast)
+                .findAny()
+                .ifPresent(p -> p.populateStore());
 
             runWebServer(config);
 
