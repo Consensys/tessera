@@ -163,7 +163,7 @@ public class ConfigBuilder {
         q2tServerConfig.setCommunicationType(executionContext.getCommunicationType());
 
         if (executionContext.getCommunicationType() == CommunicationType.REST
-                && (q2tSocketType != null || executionContext.getSocketType() == SocketType.UNIX)) {
+                && (q2tSocketType == SocketType.UNIX || executionContext.getSocketType() == SocketType.UNIX)) {
             q2tServerConfig.setServerAddress(String.format("unix:/tmp/q2t-rest-unix-%d.ipc", nodeNumber));
         } else {
             q2tServerConfig.setServerAddress("http://localhost:" + q2tPort);
