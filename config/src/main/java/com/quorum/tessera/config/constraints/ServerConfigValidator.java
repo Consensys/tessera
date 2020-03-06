@@ -7,6 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ServerConfigValidator implements ConstraintValidator<ValidServerConfig, ServerConfig> {
 
@@ -17,6 +20,17 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
 
         if (serverConfig == null) {
             return true;
+        }
+
+        if (serverConfig.getApp() == null) {
+            List<String> supportedAppTypes = Arrays.stream(AppType.values())
+                .map(AppType::toString)
+                .collect(Collectors.toList());
+
+            constraintContext.disableDefaultConstraintViolation();
+            constraintContext.buildConstraintViolationWithTemplate("app must be provided for serverConfig and be one of " + String.join(", ", supportedAppTypes))
+                .addConstraintViolation();
+            return false;
         }
 
         if (!serverConfig.getApp().getAllowedCommunicationTypes().contains(serverConfig.getCommunicationType())) {

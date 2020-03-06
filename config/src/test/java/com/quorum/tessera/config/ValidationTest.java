@@ -272,6 +272,35 @@ public class ValidationTest {
     }
 
     @Test
+    public void serverTypeValidationsFullValidation() {
+
+        final ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setApp(null);
+
+        final Config config = new Config();
+        config.setServerConfigs(Collections.singletonList(serverConfig));
+
+        final Set<ConstraintViolation<Config>> invalidresult = validator.validate(config);
+        final List<ConstraintViolation<Config>> invalidServerAppTypeResults = invalidresult.stream()
+            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE, ADMIN"))
+            .collect(Collectors.toList());
+
+        assertThat(invalidServerAppTypeResults).hasSize(1);
+
+
+        config.getServerConfigs().get(0).setApp(AppType.P2P);
+
+        final Set<ConstraintViolation<Config>> validresult = validator.validate(config);
+        List<ConstraintViolation<Config>> validServerAppTypeResults = validresult.stream()
+            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE, ADMIN"))
+            .collect(Collectors.toList());
+
+        assertThat(validServerAppTypeResults).isEmpty();
+    }
+
+
+
+    @Test
     public void configHasKeysOrIsRemoteEnclaveNiether() {
 
         Config config = new Config();
