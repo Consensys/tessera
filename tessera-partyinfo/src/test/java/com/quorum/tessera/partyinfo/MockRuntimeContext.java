@@ -11,7 +11,7 @@ import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
 
-public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory {
+public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory<Config> {
 
     private List<KeyPair> keys;
 
