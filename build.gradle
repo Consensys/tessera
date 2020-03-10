@@ -324,8 +324,10 @@ subprojects {
 
 
                             credentials {
-                                username = property('ossrhUsername')
-                                password = property('ossrhPassword')
+                                if(project.hasProperty("ossrhUsername") && project.hasProperty("ossrhPassword")) {
+                                    username = property('ossrhUsername')
+                                    password = property('ossrhPassword')
+                                }
                             }
 
                         }
