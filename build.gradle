@@ -106,12 +106,8 @@ allprojects {
                 compile "org.glassfish.jaxb:jaxb-runtime:2.3.0"
                 compile "javax.activation:javax.activation-api:1.2.0"
                 compile "javax.annotation:javax.annotation-api:1.3.2"
-                    
 
                 compile "org.glassfish:jsonp-jaxrs:1.1.6"
-
-
-
             }
         }
     }
@@ -257,25 +253,87 @@ subprojects {
 
     publishing {
 
-        repositories {
-            maven {
-
-                def releasesRepoUrl = "$rootDir/repos/releases"
-                def snapshotsRepoUrl = "$rootDir/repos/snapshots"
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-            }
-        }
         publications {
 
             mavenJava(MavenPublication) {
-                from(components.java)
+
+                from components.java
                 afterEvaluate {
+                   // artifactId = jar.archiveBaseName
+                }
+
+                pom {
+                    groupId = 'com.jpmorgan.quorum'
+//                    description = 'A concise description of my library'
+                    url = 'https://github.com/jpmorganchase/tessera'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'LICENSE'
+                        }
+                    }
+                    developers {
+                        developer {
+                            id = 'melowe'
+                            name = 'Mark Lowe'
+                            email = 'melowe.quorum@gmail.com'
+                        }
+                        developer {
+                            id = 'prd-fox'
+                            name = 'Peter Fox'
+                            email = 'peter.rd.fox@gmail.com'
+                        }
+                        developer {
+                            id = 'namtruong'
+                            name = 'Nam Truong'
+                            email = 'nam.p.truong@gmail.com'
+                        }
+                        developer {
+                            id = 'SatpalSandhu61'
+                            name = 'Satpal Sandhu'
+                            email = 'quorum@satpal.co.uk'
+                        }
+                        developer {
+                            id = 'chrishounsom'
+                            name = 'Chris Hounsom'
+                            email = 'chrishounsom@icloud.com'
+                        }
+                        developer {
+                            id = 'nicolae-leonte-go'
+                            name = 'Nicolae Leonte'
+                            email = 'nicolae.leonte.go@gmail.com'
+                        }
+
+                    }
+
+                    scm {
+                        connection = 'scm:git:https://github.com/jpmorganchase/tessera.git'
+                        developerConnection = 'scm:git:https://github.com/jpmorganchase/tessera.git'
+                        url = 'https://github.com/jpmorganchase/tessera'
+                        tag = 'HEAD'
+                    }
+
+                    repositories {
+                        maven {
+
+                            //https://oss.sonatype.org/service/local/staging/deploy/maven2
+                            // change URLs to point to your repos, e.g. http://my.org/repo
+                            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'//"$buildDir/repos/releases"
+                            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots' //"$buildDir/repos/snapshots"
+                            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+
+                            credentials {
+                                username = property('ossrhUsername')
+                                password = property('ossrhPassword')
+                            }
+
+                        }
+                    }
                 }
             }
         }
     }
-
 
 
     apply plugin: 'signing'
