@@ -5,5 +5,7 @@
         <cpe>cpe:/a:org.glassfish/jsonp-jaxrs@1.1.6</cpe>
         <cve>CVE-2018-1000840</cve>
     </suppress>
-
+    <suppress>
+        <cpe>cpe:/a:checkstyle:checkstyle:1.37.1</cpe>
+    </suppress>
 </suppressions>

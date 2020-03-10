@@ -3,6 +3,7 @@ plugins {
     id 'jacoco'
     id 'com.diffplug.gradle.spotless' version '3.25.0'
     id 'com.github.ben-manes.versions' version '0.8'
+    id 'checkstyle'
 
 }
 
@@ -119,6 +120,7 @@ subprojects {
     apply plugin: 'com.diffplug.gradle.spotless'
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
+    apply plugin: 'checkstyle'
     apply plugin: 'org.owasp.dependencycheck'
 
     repositories {
@@ -147,10 +149,19 @@ subprojects {
         systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
         systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
     }
+    checkstyle {
+        configFile project.getRootProject().file('checkstyle.xml')
+        configProperties.put('checkstyle.suppressions.file',project.getRootProject().file('checkstyle-suppressions.xml'))
+        dependencies{
+            checkstyle "com.puppycrawl.tools:checkstyle:8.30"
+            checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
+        }
+    }
 
     dependencyCheck {
         failBuildOnCVSS = 0
         suppressionFile = 'cvss-suppressions.xml'
+
 
     }
     
@@ -163,7 +174,6 @@ subprojects {
         lineEndings = 'unix'
 
         java {
-
 
             target fileTree('**/*.java') {
                 exclude('enclave/enclave-websockets/**/*.java')
@@ -216,6 +226,8 @@ subprojects {
 
         }
     }
+
+
 
     sourceSets {
         main {
@@ -357,7 +369,7 @@ subprojects {
     }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
-    check.dependsOn dependencyCheckAnalyze, spotlessCheck, jacocoTestCoverageVerification
+    check.dependsOn checkstyleMain, checkstyleTest, dependencyCheckAnalyze, spotlessCheck, jacocoTestCoverageVerification
 
 }
 
