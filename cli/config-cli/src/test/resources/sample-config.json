@@ -17,12 +17,6 @@
             "communicationType": "REST"
         },
         {
-            "app": "ADMIN",
-            "enabled": true,
-            "serverAddress": "http://localhost:18090",
-            "communicationType": "REST"
-        },
-        {
             "app": "Q2T",
             "enabled": true,
             "serverAddress": "unix:/tmp/test.ipc",
