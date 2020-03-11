@@ -1,6 +1,5 @@
 package com.quorum.tessera.context;
 
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.reflect.ReflectCallback;
 
 import java.lang.reflect.InvocationHandler;
@@ -12,7 +11,7 @@ class CreateContextInvocationHandler implements InvocationHandler {
     private RuntimeContextFactory runtimeContextFactory;
 
     private final Method target =
-            ReflectCallback.execute(() -> RuntimeContextFactory.class.getDeclaredMethod("create", Config.class));
+            ReflectCallback.execute(() -> RuntimeContextFactory.class.getDeclaredMethod("create", Object.class));
 
     protected CreateContextInvocationHandler(RuntimeContextFactory runtimeContextFactory) {
         this.runtimeContextFactory = runtimeContextFactory;
