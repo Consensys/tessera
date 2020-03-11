@@ -3,6 +3,7 @@ package com.quorum.tessera.context;
 import com.quorum.tessera.reflect.ReflectCallback;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -20,7 +21,12 @@ class CreateContextInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        Object outcome = method.invoke(runtimeContextFactory, args);
+        final Object outcome;
+        try {
+            outcome = method.invoke(runtimeContextFactory, args);
+        } catch (InvocationTargetException e) {
+            throw e.getCause();
+        }
 
         if (Objects.equals(method, target)) {
 
