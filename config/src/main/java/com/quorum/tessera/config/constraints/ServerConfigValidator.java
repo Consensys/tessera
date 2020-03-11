@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class ServerConfigValidator implements ConstraintValidator<ValidServerConfig, ServerConfig> {
@@ -23,14 +22,17 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
         }
 
         if (serverConfig.getApp() == null || AppType.ADMIN.toString().equals(serverConfig.getApp().toString())) {
-            List<String> supportedAppTypes = Arrays.stream(AppType.values())
-                .map(AppType::toString)
-                .filter(t -> !t.equals(AppType.ADMIN.toString()))
-                .collect(Collectors.toList());
+            String supportedAppTypes =
+                    Arrays.stream(AppType.values())
+                            .filter(t -> t != AppType.ADMIN)
+                            .map(AppType::name)
+                            .collect(Collectors.joining(", "));
 
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate("app must be provided for serverConfig and be one of " + String.join(", ", supportedAppTypes))
-                .addConstraintViolation();
+            constraintContext
+                    .buildConstraintViolationWithTemplate(
+                            "app must be provided for serverConfig and be one of " + supportedAppTypes)
+                    .addConstraintViolation();
             return false;
         }
 
