@@ -67,6 +67,8 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @CommandLine.Mixin public EncryptorOptions encryptorOptions;
 
+    @CommandLine.Mixin public DebugOptions debugOptions;
+
     KeyGenCommand(
             KeyGeneratorFactory keyGeneratorFactory,
             ConfigFileUpdaterWriter configFileUpdaterWriter,

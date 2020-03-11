@@ -1,7 +1,6 @@
 package com.quorum.tessera.context;
 
 import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.config.*;
 
 import java.lang.reflect.Proxy;
 
