@@ -249,8 +249,6 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
     }
 
-
-
     @Test
     public void serverAddressValidations() {
 
@@ -272,8 +270,7 @@ public class ValidationTest {
     }
 
     @Test
-    public void serverTypeValidationsFullValidation() {
-
+    public void unknownServerType() {
         final ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(null);
 
@@ -282,23 +279,27 @@ public class ValidationTest {
 
         final Set<ConstraintViolation<Config>> invalidresult = validator.validate(config);
         final List<ConstraintViolation<Config>> invalidServerAppTypeResults = invalidresult.stream()
-            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE, ADMIN"))
+            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE"))
             .collect(Collectors.toList());
 
         assertThat(invalidServerAppTypeResults).hasSize(1);
-
-
-        config.getServerConfigs().get(0).setApp(AppType.P2P);
-
-        final Set<ConstraintViolation<Config>> validresult = validator.validate(config);
-        List<ConstraintViolation<Config>> validServerAppTypeResults = validresult.stream()
-            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE, ADMIN"))
-            .collect(Collectors.toList());
-
-        assertThat(validServerAppTypeResults).isEmpty();
     }
 
+    @Test
+    public void adminServerTypeDeprecated() {
+        final ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setApp(AppType.ADMIN);
 
+        final Config config = new Config();
+        config.setServerConfigs(Collections.singletonList(serverConfig));
+
+        final Set<ConstraintViolation<Config>> invalidresult = validator.validate(config);
+        final List<ConstraintViolation<Config>> invalidServerAppTypeResults = invalidresult.stream()
+            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE"))
+            .collect(Collectors.toList());
+
+        assertThat(invalidServerAppTypeResults).hasSize(1);
+    }
 
     @Test
     public void configHasKeysOrIsRemoteEnclaveNiether() {

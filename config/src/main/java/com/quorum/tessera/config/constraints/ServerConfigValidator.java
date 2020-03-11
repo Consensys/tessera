@@ -22,9 +22,10 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
             return true;
         }
 
-        if (serverConfig.getApp() == null) {
+        if (serverConfig.getApp() == null || AppType.ADMIN.toString().equals(serverConfig.getApp().toString())) {
             List<String> supportedAppTypes = Arrays.stream(AppType.values())
                 .map(AppType::toString)
+                .filter(t -> !t.equals(AppType.ADMIN.toString()))
                 .collect(Collectors.toList());
 
             constraintContext.disableDefaultConstraintViolation();
