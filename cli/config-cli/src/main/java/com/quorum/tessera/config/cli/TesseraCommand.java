@@ -35,6 +35,8 @@ public class TesseraCommand {
             paramLabel = "KEY=VALUE")
     private Map<String, String> overrides = new LinkedHashMap<>();
 
+    @CommandLine.Mixin public DebugOptions debugOptions;
+
     @CommandLine.Unmatched public List<String> unmatchedEntries;
 
     // TODO(cjh) dry run option to print effective config to terminal to allow review of CLI overrides

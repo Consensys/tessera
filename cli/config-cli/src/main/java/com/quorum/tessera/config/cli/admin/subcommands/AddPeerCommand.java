@@ -4,6 +4,7 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.parsers.ConfigurationMixin;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.cli.DebugOptions;
 import com.quorum.tessera.config.util.ConfigFileStore;
 import picocli.CommandLine;
 
@@ -20,21 +21,18 @@ import static java.util.Objects.isNull;
     parameterListHeading = "%nParameters:%n",
     optionListHeading = "%nOptions:%n",
     header = "Add a new peer to the local node",
+    subcommands = {CommandLine.HelpCommand.class},
     description =
         "Calls the 'PUT /config/peers' API endpoint over REST to add a new peer to the local node, with which it will start exchanging network information")
 public class AddPeerCommand implements Callable<CliResult> {
 
-    @CommandLine.Option(names = "help", usageHelp = true, description = "display this help message")
-    private boolean isHelpRequested;
-
     @CommandLine.Mixin
     private ConfigurationMixin configMixin;
-
 
     @CommandLine.Parameters(index = "0", description = "the URL of the peer to add")
     private String peerUrl = null;
 
-
+    @CommandLine.Mixin public DebugOptions debugOptions;
 
     @Override
     public CliResult call() {

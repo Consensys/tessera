@@ -108,11 +108,16 @@ public class Main {
 
             System.exit(5);
         } catch (final Throwable ex) {
-            if (Optional.ofNullable(ex.getMessage()).isPresent()) {
-                System.err.println(ex.getMessage());
+            if (Arrays.asList(args).contains("--debug")) {
+                ex.printStackTrace();
             } else {
-                System.err.println(ex.getClass().getSimpleName());
+                if (Optional.ofNullable(ex.getMessage()).isPresent()) {
+                    System.err.println(ex.getMessage());
+                } else {
+                    System.err.println(ex.getClass().getSimpleName());
+                }
             }
+
             System.exit(2);
         }
     }
