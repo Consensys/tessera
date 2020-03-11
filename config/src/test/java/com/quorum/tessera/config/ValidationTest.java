@@ -249,8 +249,6 @@ public class ValidationTest {
         assertThat(violation.getMessageTemplate()).isEqualTo("{javax.validation.constraints.NotNull.message}");
     }
 
-
-
     @Test
     public void serverAddressValidations() {
 
@@ -269,6 +267,38 @@ public class ValidationTest {
             Set<ConstraintViolation<ServerConfig>> validresult = validator.validateProperty(config, "serverAddress");
             assertThat(validresult).isEmpty();
         }
+    }
+
+    @Test
+    public void unknownServerType() {
+        final ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setApp(null);
+
+        final Config config = new Config();
+        config.setServerConfigs(Collections.singletonList(serverConfig));
+
+        final Set<ConstraintViolation<Config>> invalidresult = validator.validate(config);
+        final List<ConstraintViolation<Config>> invalidServerAppTypeResults = invalidresult.stream()
+            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE"))
+            .collect(Collectors.toList());
+
+        assertThat(invalidServerAppTypeResults).hasSize(1);
+    }
+
+    @Test
+    public void adminServerTypeDeprecated() {
+        final ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setApp(AppType.ADMIN);
+
+        final Config config = new Config();
+        config.setServerConfigs(Collections.singletonList(serverConfig));
+
+        final Set<ConstraintViolation<Config>> invalidresult = validator.validate(config);
+        final List<ConstraintViolation<Config>> invalidServerAppTypeResults = invalidresult.stream()
+            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE"))
+            .collect(Collectors.toList());
+
+        assertThat(invalidServerAppTypeResults).hasSize(1);
     }
 
     @Test
