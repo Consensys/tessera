@@ -74,6 +74,8 @@ public class KeyUpdateCommand implements Callable<CliResult> {
 
     @CommandLine.Mixin public EncryptorOptions encryptorOptions;
 
+    @CommandLine.Mixin public DebugOptions debugOptions;
+
     private KeyEncryptorFactory keyEncryptorFactory;
 
     // TODO(cjh) is package-private for migrated apache commons CLI tests
