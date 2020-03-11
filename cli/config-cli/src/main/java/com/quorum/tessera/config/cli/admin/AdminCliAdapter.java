@@ -11,7 +11,7 @@ import java.util.concurrent.Callable;
 /** Cli Adapter to be used for runtime updates */
 @CommandLine.Command(
         name = "admin",
-        subcommands = {AddPeerCommand.class},
+        subcommands = {AddPeerCommand.class, CommandLine.HelpCommand.class},
         headerHeading = "Usage:%n%n",
         synopsisHeading = "%n",
         descriptionHeading = "%nDescription:%n%n",
@@ -22,9 +22,6 @@ import java.util.concurrent.Callable;
                 "Perform admin tasks such as maintenance or runtime configuration updates, either connecting to "
                         + "an already running node or directly accessing resources")
 public class AdminCliAdapter implements CliAdapter, Callable<CliResult> {
-
-    @CommandLine.Option(names = "help", usageHelp = true, description = "display this help message")
-    private boolean isHelpRequested;
 
     @Override
     public CliType getType() {
