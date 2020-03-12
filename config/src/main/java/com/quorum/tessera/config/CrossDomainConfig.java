@@ -1,16 +1,17 @@
 package com.quorum.tessera.config;
 
-import java.util.Arrays;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CrossDomainConfig extends ConfigItem {
 
     @XmlElement
-    private List<String> allowedMethods = Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD");
+    private List<String> allowedMethods;
 
     @XmlElement
     private List<String> allowedOrigins;
@@ -19,7 +20,7 @@ public class CrossDomainConfig extends ConfigItem {
     private List<String> allowedHeaders;
 
     @XmlElement
-    private Boolean allowCredentials = Boolean.TRUE;
+    private Boolean allowCredentials;
     
     public List<String> getAllowedOrigins() {
         return allowedOrigins;
@@ -30,7 +31,7 @@ public class CrossDomainConfig extends ConfigItem {
     }
 
     public List<String> getAllowedMethods() {
-        return allowedMethods;
+        return Objects.requireNonNullElse(allowedMethods, Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
     }
 
     public void setAllowedMethods(List<String> allowedMethods) {
@@ -46,7 +47,7 @@ public class CrossDomainConfig extends ConfigItem {
     }
 
     public Boolean getAllowCredentials() {
-        return allowCredentials;
+        return Objects.requireNonNullElse(allowCredentials, Boolean.TRUE);
     }
 
     public void setAllowCredentials(Boolean allowCredentials) {
