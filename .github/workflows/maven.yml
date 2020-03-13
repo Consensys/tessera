@@ -113,7 +113,7 @@ jobs:
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
           cd
           echo "Install geth"
-          curl -L https://dl.bintray.com/quorumengineering/quorum/v2.3.0/geth_v2.3.0_linux_amd64.tar.gz -o geth.tar.gz
+          curl -L https://dl.bintray.com/quorumengineering/quorum/v2.5.0/geth_vv2.5.0_linux_amd64.tar.gz -o geth.tar.gz
           tar xvzf geth.tar.gz
           sudo mv geth /usr/local/bin/
           geth version
@@ -125,7 +125,7 @@ jobs:
           solc --version
           echo "Installed solc"
           echo "Install gauge"
-          curl -L https://github.com/getgauge/gauge/releases/download/v1.0.4/gauge-1.0.4-linux.x86_64.zip -o gauge.zip
+          curl -L https://github.com/getgauge/gauge/releases/download/v1.0.7/gauge-1.0.7-linux.x86_64.zip -o gauge.zip
           sudo unzip -o gauge.zip -d /usr/local/bin
           gauge telemetry off
           gauge install
