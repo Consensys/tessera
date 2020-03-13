@@ -32,15 +32,17 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - uses: codecov/codecov-action@v1
-        with:
-          token: b5659ea0-f191-4e1d-9139-a8a31971c386
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+      - uses: codecov/codecov-action@v1
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
+          flags: unittests
+          fail_ci_if_error: true
       - run: mvn install -pl \!tests/acceptance-test -P reduce-logging -o
 
 #  gradleBuild:
@@ -151,12 +153,12 @@ jobs:
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
 
-  slackNotification:
-    name: Slack Notification
-    runs-on: ubuntu-latest
-    needs: [build,atest,itest,test,vaultTests]
-    steps:
-    - name: Slack Notification
-      uses: rtCamp/action-slack-notify@v2.0.0
-      env:
-        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+#  slackNotification:
+#    name: Slack Notification
+#    runs-on: ubuntu-latest
+#    needs: [build,atest,itest,test,vaultTests]
+#    steps:
+#    - name: Slack Notification
+#      uses: rtCamp/action-slack-notify@v2.0.0
+#      env:
+#        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
