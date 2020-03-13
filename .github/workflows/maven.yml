@@ -1,10 +1,8 @@
 name: Java CI with Maven
 
 on:
-  push:
-    branches: [ gh_actions_migration ]
   pull_request:
-    branches: [ gh_actions_migration ]
+    branches: [ master ]
 
 jobs:
   build:
