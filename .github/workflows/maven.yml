@@ -17,8 +17,8 @@ jobs:
       with:
           java-version: 11
     - name: Build no checks
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
     - uses: actions/cache@v1
       with:
         path: ~/.m2/repository
