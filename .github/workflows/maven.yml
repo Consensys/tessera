@@ -16,7 +16,9 @@ jobs:
     - uses: actions/setup-java@v1
       with:
           java-version: 11
-    - run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
+    - name: Build no checks
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
     - uses: actions/cache@v1
       with:
         path: ~/.m2/repository
@@ -38,12 +40,13 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
+      - run: mvn install -pl \!tests/acceptance-test -P reduce-logging -o
       - uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           flags: unittests
           fail_ci_if_error: true
-      - run: mvn install -pl \!tests/acceptance-test -P reduce-logging -o
+
 
 #  gradleBuild:
 #    runs-on: ubuntu-latest
