@@ -87,7 +87,7 @@ jobs:
             ${{ runner.os }}-maven-
       - run: mvn verify -pl tests/acceptance-test -P reduce-logging -o
       - uses: innocarpe/actions-slack@v1
-      with:
+        with:
         status: ${{ job.status }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
