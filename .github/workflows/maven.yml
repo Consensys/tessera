@@ -22,8 +22,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - uses: innocarpe/actions-slack@v1
-    with:
-      status: ${{ job.status }}
+      with:
+        status: ${{ job.status }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -88,10 +88,10 @@ jobs:
       - run: mvn verify -pl tests/acceptance-test -P reduce-logging -o
       - uses: innocarpe/actions-slack@v1
         with:
-        status: ${{ job.status }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+          status: ${{ job.status }}
+    env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   vaultTests:
     runs-on: ubuntu-latest
@@ -115,10 +115,10 @@ jobs:
           mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o
       - uses: innocarpe/actions-slack@v1
         with:
-        status: ${{ job.status }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+          status: ${{ job.status }}
+    env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   atest:
     runs-on: ubuntu-latest
@@ -175,7 +175,7 @@ jobs:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
       - uses: innocarpe/actions-slack@v1
         with:
-        status: ${{ job.status }}
+          status: ${{ job.status }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
