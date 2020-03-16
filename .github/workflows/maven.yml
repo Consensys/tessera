@@ -21,6 +21,12 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+    - uses: innocarpe/actions-slack@v1
+    with:
+      status: ${{ job.status }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   test:
     runs-on: ubuntu-latest
@@ -42,7 +48,12 @@ jobs:
           token: ${{secrets.CODECOV_TOKEN}}
           flags: unittests
           fail_ci_if_error: true
-
+      - uses: innocarpe/actions-slack@v1
+      with:
+        status: ${{ job.status }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
 #  gradleBuild:
 #    runs-on: ubuntu-latest
@@ -75,7 +86,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
       - run: mvn verify -pl tests/acceptance-test -P reduce-logging -o
-
+      - uses: innocarpe/actions-slack@v1
+      with:
+        status: ${{ job.status }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   vaultTests:
     runs-on: ubuntu-latest
@@ -97,6 +113,12 @@ jobs:
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
           mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o
+      - uses: innocarpe/actions-slack@v1
+      with:
+        status: ${{ job.status }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   atest:
     runs-on: ubuntu-latest
@@ -151,34 +173,23 @@ jobs:
           echo "Complete quorum-acceptance-tests"
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
-
-#  slackNotification:
-#    name: Slack Notification
-#    runs-on: ubuntu-latest
-#    needs: [build,atest,itest,test,vaultTests]
-#    steps:
-#    - name: Slack Notification
-#      uses: innocarpe/actions-slack@v1
-#      with:
-#        status: ${{ job.status }} # Required
-#        success_text: 'Step Succeeded 🚀' # Optional
-#        failure_text: 'Step Failed 😱' # Optional
-#        cancelled_text: 'Step Cancelled ⚠️' # Optional
-#    env:
-#      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-#      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+     - uses: innocarpe/actions-slack@v1
+     with:
+      status: ${{ job.status }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   slackNotification:
-    name: Slack Notification
     runs-on: ubuntu-latest
     needs: [build,atest,itest,test,vaultTests]
     steps:
-      - name: Slack Notification
-        uses: Ilshidur/action-slack@2.0.1
-        with:
-          args: 'A new commit has been pushed.'
+      - uses: innocarpe/actions-slack@v1
+      with:
+        status: ${{ job.status }} # Required
+        success_text: 'Step Succeeded 🚀' # Optional
+        failure_text: 'Step Failed 😱' # Optional
+        cancelled_text: 'Step Cancelled ⚠️' # Optional
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }} # Required
-      
-
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
