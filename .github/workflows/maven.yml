@@ -22,11 +22,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-maven-
     - uses: innocarpe/actions-slack@v1
-    with:
-      status: ${{ job.status }}
-      success_text: Build and populate maven cache step Sucess
-      failure_text: Build step failed
-      cancelled_text: Build step cancelled
+      with:
+        status: ${{ job.status }}
+        success_text: Build and populate maven cache step Sucess
+        failure_text: Build step failed
+        cancelled_text: Build step cancelled
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -52,11 +52,11 @@ jobs:
           flags: unittests
           fail_ci_if_error: true
       - uses: innocarpe/actions-slack@v1
-      with:
-        status: ${{ job.status }}
-        success_text: Unit test step Success
-        failure_text: Unit test step failed
-        cancelled_text: Unit test step cancelled
+        with:
+          status: ${{ job.status }}
+          success_text: Unit test step Success
+          failure_text: Unit test step failed
+          cancelled_text: Unit test step cancelled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -93,11 +93,11 @@ jobs:
             ${{ runner.os }}-maven-
       - run: mvn verify -pl tests/acceptance-test -P reduce-logging -o
       - uses: innocarpe/actions-slack@v1
-      with:
-        status: ${{ job.status }}
-        success_text: Integration test step Success
-        failure_text: Integration test step failed
-        cancelled_text: Integration test step cancelled
+        with:
+          status: ${{ job.status }}
+          success_text: Integration test step Success
+          failure_text: Integration test step failed
+          cancelled_text: Integration test step cancelled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -123,11 +123,11 @@ jobs:
           export PATH=$PATH:$PWD && popd
           mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o
       - uses: innocarpe/actions-slack@v1
-      with:
-        status: ${{ job.status }}
-        success_text: Vault integration test step Success
-        failure_text: Vault integration test step failed
-        cancelled_text: Vault integration test step cancelled
+        with:
+          status: ${{ job.status }}
+          success_text: Vault integration test step Success
+          failure_text: Vault integration test step failed
+          cancelled_text: Vault integration test step cancelled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -185,24 +185,24 @@ jobs:
           echo "Complete quorum-acceptance-tests"
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
-     - uses: innocarpe/actions-slack@v1
-     with:
-      status: ${{ job.status }}
-      success_text: Acceptance test step Success
-      failure_text: Acceptance test step failed
-      cancelled_text: Acceptance test step cancelled
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+      - uses: innocarpe/actions-slack@v1
+        with:
+          status: ${{ job.status }}
+          success_text: Acceptance test step Success
+          failure_text: Acceptance test step failed
+          cancelled_text: Acceptance test step cancelled
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   slackNotification:
     runs-on: ubuntu-latest
     needs: [build,atest,itest,test,vaultTests]
     steps:
       - uses: innocarpe/actions-slack@v1
-      with:
-        status: All jobs completed successfully
-        success_text: 'Workflow Complete 🚀'
+        with:
+          status: All jobs completed successfully
+          success_text: 'Workflow Complete 🚀'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
