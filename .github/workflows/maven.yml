@@ -51,9 +51,9 @@ jobs:
       - uses: innocarpe/actions-slack@v1
         with:
           status: ${{ job.status }}
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
 #  gradleBuild:
 #    runs-on: ubuntu-latest
