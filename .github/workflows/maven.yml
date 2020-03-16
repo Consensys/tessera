@@ -174,7 +174,9 @@ jobs:
     needs: [build,atest,itest,test,vaultTests]
     steps:
       - name: Slack Notification
-        uses: Ilshidur/action-slack@master
+        uses: Ilshidur/action-slack@2.0.1
+        with:
+          args: 'A new commit has been pushed.'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
       SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }} # Required
