@@ -24,7 +24,7 @@ jobs:
     - uses: innocarpe/actions-slack@v1
       with:
         status: ${{ job.status }}
-        success_text: Build and populate maven cache step Sucess
+        success_text: Build and populate maven cache step Success
         failure_text: Build step failed
         cancelled_text: Build step cancelled
       env:
@@ -201,7 +201,7 @@ jobs:
     steps:
       - uses: innocarpe/actions-slack@v1
         with:
-          status: All jobs completed successfully
+          status: ${{ job.status }}
           success_text: 'Workflow Complete 🚀'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
