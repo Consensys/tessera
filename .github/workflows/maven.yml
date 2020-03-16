@@ -9,8 +9,17 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:
+steps:
     - uses: actions/checkout@v2
+    - uses: innocarpe/actions-slack@v1
+      with:
+        status: ${{ job.status }}
+        success_text: Start ${{ github.ref }} build
+        failure_text: Start ${{ github.ref }} failed
+        cancelled_text: Start ${{ github.ref }} cancelled
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
     - uses: actions/setup-java@v1
       with:
           java-version: 11
@@ -28,8 +37,8 @@ jobs:
         failure_text: Build step failed
         cancelled_text: Build step cancelled
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   test:
     runs-on: ubuntu-latest
@@ -202,7 +211,7 @@ jobs:
       - uses: innocarpe/actions-slack@v1
         with:
           status: ${{ job.status }}
-          success_text: 'Workflow Complete 🚀'
+          success_text: ${{ github.ref }} Workflow Complete 🚀
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
