@@ -114,7 +114,7 @@ jobs:
           export PATH=$PATH:$PWD && popd
           mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o
       - uses: innocarpe/actions-slack@v1
-      with:
+        with:
         status: ${{ job.status }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
@@ -173,23 +173,23 @@ jobs:
           echo "Complete quorum-acceptance-tests"
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
-     - uses: innocarpe/actions-slack@v1
-     with:
-      status: ${{ job.status }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+      - uses: innocarpe/actions-slack@v1
+        with:
+        status: ${{ job.status }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   slackNotification:
     runs-on: ubuntu-latest
     needs: [build,atest,itest,test,vaultTests]
     steps:
       - uses: innocarpe/actions-slack@v1
-      with:
-        status: ${{ job.status }} # Required
-        success_text: 'Step Succeeded 🚀' # Optional
-        failure_text: 'Step Failed 😱' # Optional
-        cancelled_text: 'Step Cancelled ⚠️' # Optional
+        with:
+          status: ${{ job.status }} # Required
+          success_text: 'Step Succeeded 🚀' # Optional
+          failure_text: 'Step Failed 😱' # Optional
+          cancelled_text: 'Step Cancelled ⚠️' # Optional
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
