@@ -6,27 +6,25 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
-steps:
-    - uses: actions/checkout@v2
-    - uses: actions/setup-java@v1
-      with:
-          java-version: 11
-      - run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-      - uses: innocarpe/actions-slack@v1
-        with:
-          status: ${{ job.status }}
-          success_text: Build and populate maven cache step Success
-          failure_text: Build step failed
-          cancelled_text: Build step cancelled
+    steps:
+        - uses: actions/checkout@v2
+        - uses: actions/setup-java@v1
+          with:
+              java-version: 11
+        - run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
+        - uses: actions/cache@v1
+          with:
+              path: ~/.m2/repository
+              key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+              restore-keys: |
+                ${{ runner.os }}-maven-
+        - uses: innocarpe/actions-slack@v1
+          with:
+            status: ${{ job.status }}
+            success_text: Build and populate maven cache step Success
+            failure_text: Build step failed
+            cancelled_text: Build step cancelled
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
             SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -56,9 +54,9 @@ steps:
           success_text: Unit test step Success
           failure_text: Unit test step failed
           cancelled_text: Unit test step cancelled
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
     #  gradleBuild:
     #    runs-on: ubuntu-latest
@@ -188,9 +186,9 @@ steps:
           success_text: Acceptance test step Success
           failure_text: Acceptance test step failed
           cancelled_text: Acceptance test step cancelled
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   slackNotification:
     runs-on: ubuntu-latest
@@ -200,6 +198,6 @@ steps:
         with:
           status: ${{ job.status }}
           success_text: ${{ github.ref }} Workflow Complete 🚀
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
