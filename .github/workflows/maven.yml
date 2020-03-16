@@ -24,6 +24,9 @@ jobs:
     - uses: innocarpe/actions-slack@v1
     with:
       status: ${{ job.status }}
+      success_text: Build and populate maven cache step Sucess
+      failure_text: Build step failed
+      cancelled_text: Build step cancelled
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -51,6 +54,9 @@ jobs:
       - uses: innocarpe/actions-slack@v1
       with:
         status: ${{ job.status }}
+        success_text: Unit test step Success
+        failure_text: Unit test step failed
+        cancelled_text: Unit test step cancelled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -89,6 +95,9 @@ jobs:
       - uses: innocarpe/actions-slack@v1
       with:
         status: ${{ job.status }}
+        success_text: Integration test step Success
+        failure_text: Integration test step failed
+        cancelled_text: Integration test step cancelled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -116,6 +125,9 @@ jobs:
       - uses: innocarpe/actions-slack@v1
       with:
         status: ${{ job.status }}
+        success_text: Vault integration test step Success
+        failure_text: Vault integration test step failed
+        cancelled_text: Vault integration test step cancelled
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -176,6 +188,9 @@ jobs:
      - uses: innocarpe/actions-slack@v1
      with:
       status: ${{ job.status }}
+      success_text: Acceptance test step Success
+      failure_text: Acceptance test step failed
+      cancelled_text: Acceptance test step cancelled
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
@@ -186,10 +201,8 @@ jobs:
     steps:
       - uses: innocarpe/actions-slack@v1
       with:
-        status: ${{ job.status }} # Required
-        success_text: 'Step Succeeded 🚀' # Optional
-        failure_text: 'Step Failed 😱' # Optional
-        cancelled_text: 'Step Cancelled ⚠️' # Optional
+        status: All jobs completed successfully
+        success_text: 'Workflow Complete 🚀'
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
       SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
