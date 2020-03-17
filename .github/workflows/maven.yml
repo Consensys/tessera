@@ -11,7 +11,7 @@ jobs:
     - uses: innocarpe/actions-slack@v1
       with:
         status: ${{ job.status }}
-        success_text: ${{github.actor}} started workflow ${{github.workflow}}
+        success_text: ${{github.actor}} started workflow ${{github.base_ref}}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
