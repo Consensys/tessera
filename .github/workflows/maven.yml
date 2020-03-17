@@ -54,7 +54,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
-        - mvn install -pl \!tests/acceptance-test -P reduce-logging -o
+      - run: mvn install -pl \!tests/acceptance-test -P reduce-logging -o
       - uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
@@ -66,9 +66,9 @@ jobs:
           success_text: Unit test step Success
           failure_text: Unit test step failed
           cancelled_text: Unit test step cancelled
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
     #  gradleBuild:
     #    runs-on: ubuntu-latest
@@ -198,9 +198,9 @@ jobs:
           success_text: Acceptance test step Success
           failure_text: Acceptance test step failed
           cancelled_text: Acceptance test step cancelled
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }} # Required
 
   slackNotification:
     runs-on: ubuntu-latest
