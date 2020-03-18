@@ -1,5 +1,6 @@
 package com.quorum.tessera.thirdparty;
 
+import com.quorum.tessera.api.common.RawTransactionResource;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
@@ -19,7 +20,6 @@ import javax.ws.rs.ApplicationPath;
 public class ThirdPartyRestApp extends TesseraRestApplication {
 
     private final PartyInfoService partyInfoService;
-
 
     public ThirdPartyRestApp() {
         final ServiceFactory serviceFactory = ServiceFactory.create();
