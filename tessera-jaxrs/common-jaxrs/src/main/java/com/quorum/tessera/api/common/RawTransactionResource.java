@@ -1,4 +1,4 @@
-package com.quorum.tessera.thirdparty;
+package com.quorum.tessera.api.common;
 
 import com.quorum.tessera.api.model.StoreRawRequest;
 import com.quorum.tessera.api.model.StoreRawResponse;
