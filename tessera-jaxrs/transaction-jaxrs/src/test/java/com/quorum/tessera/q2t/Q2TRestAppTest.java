@@ -60,7 +60,7 @@ public class Q2TRestAppTest {
 
         Set<Object> results = q2TRestApp.getSingletons();
 
-        assertThat(results).hasSize(1);
+        assertThat(results).hasSize(2);
     }
 
     @Test
