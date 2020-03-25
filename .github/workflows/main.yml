@@ -172,17 +172,17 @@ jobs:
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
       - uses: pioug/le-slack-message@v1.0.0
-          with:
-            ACTION_NAME: Run acceptance tests
-            JOB: ${{ toJson(job) }}
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        with:
+          ACTION_NAME: Run acceptance tests
+          JOB: ${{ toJson(job) }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
 
   slackNotification:
     runs-on: ubuntu-latest
     needs: [build,atest,itest,test,vaultTests]
     steps:
       - uses: pioug/le-slack-message@v1.0.0
-          with:
-            ACTION_NAME: Workflow success
-            JOB: ${{ toJson(job) }}
-            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        with:
+          ACTION_NAME: Workflow success
+          JOB: ${{ toJson(job) }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
