@@ -6,15 +6,6 @@ on:
 
 jobs:
 
-  start:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: homoluctus/slatify@v2.1.2
-        with:
-            type: ${{job.status}}
-            job_name: Notify test
-            url: ${{ secrets.SLACK_WEBHOOK }}
-
   build:
     runs-on: ubuntu-latest
     steps:
@@ -29,17 +20,11 @@ jobs:
             key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
             restore-keys: |
               ${{ runner.os }}-maven-
-        - uses: muinmomin/webhook-action@v1.0.0
+        - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
-            data: |
-              {
-                "attachments": [
-                {
-                  "title": "Build Failed",
-                  "color": "danger"
-              }]}
-              
+            type: ${{job.status}}
+            job_name: Build no checks
             url: ${{ secrets.SLACK_WEBHOOK }}
   test:
     runs-on: ubuntu-latest
@@ -61,18 +46,12 @@ jobs:
           token: ${{secrets.CODECOV_TOKEN}}
           flags: unittests
           fail_ci_if_error: true
-      - uses: muinmomin/webhook-action@v1.0.0
+      - uses: homoluctus/slatify@v2.1.2
         if: failure()
         with:
-            data: |
-              {
-                "attachments": [
-                {
-                  "title": "Build Failed",
-                  "color": "danger"
-              }]}
-              
-            url: ${{ secrets.SLACK_WEBHOOK }}
+          type: ${{job.status}}
+          job_name: Unit tests
+          url: ${{ secrets.SLACK_WEBHOOK }}
 
   gradleBuild:
         runs-on: ubuntu-latest
@@ -88,19 +67,13 @@ jobs:
               key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
               restore-keys: |
                 ${{ runner.os }}-maven-
-          - run: ./gradlew build  -x :tests:acceptance-test:build -x dependencyCheckAnalyze -x javadoc
-          
-          - uses: muinmomin/webhook-action@v1.0.0
+          - run: ./gradlew build  -x :tests:acceptance-test:build -x javadoc
+       
+          - uses: homoluctus/slatify@v2.1.2
             if: failure()
             with:
-              data: |
-                {
-                  "attachments": [
-                  {
-                    "title": "Gradle Build Failed",
-                    "color": "danger"
-                }]}
-              
+              type: ${{job.status}}
+              job_name: Gradle Build
               url: ${{ secrets.SLACK_WEBHOOK }}
             
   itest:
@@ -118,18 +91,12 @@ jobs:
             restore-keys: |
               ${{ runner.os }}-maven-
         - run: mvn verify -pl tests/acceptance-test -P reduce-logging -o
-        - uses: muinmomin/webhook-action@v1.0.0
+        - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
-              data: |
-                {
-                  "attachments": [
-                  {
-                    "title": "Integration tests Failed",
-                    "color": "danger"
-                }]}
-              
-              url: ${{ secrets.SLACK_WEBHOOK }}
+            type: ${{job.status}}
+            job_name: Integration tests
+            url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
       runs-on: ubuntu-latest
@@ -151,18 +118,12 @@ jobs:
             unzip /tmp/vault_1.2.2_linux_amd64.zip
             export PATH=$PATH:$PWD && popd
             mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o
-        - uses: muinmomin/webhook-action@v1.0.0
+        - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
-              data: |
-                {
-                  "attachments": [
-                  {
-                    "title": "Vault tests Failed",
-                    "color": "danger"
-                }]}
-              
-              url: ${{ secrets.SLACK_WEBHOOK }}
+            type: ${{job.status}}
+            job_name: Vault integration tests
+            url: ${{ secrets.SLACK_WEBHOOK }}
   atest:
     runs-on: ubuntu-latest
     needs: build
@@ -216,31 +177,19 @@ jobs:
           echo "Complete quorum-acceptance-tests"
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
-      - uses: muinmomin/webhook-action@v1.0.0
+      - uses: homoluctus/slatify@v2.1.2
         if: failure()
         with:
-              data: |
-                {
-                  "attachments": [
-                  {
-                    "title": "Acceptance tests Failed",
-                    "color": "danger"
-                }]}
-              
-              url: ${{ secrets.SLACK_WEBHOOK }}
+          type: ${{job.status}}
+          job_name: Acceptance tests
+          url: ${{ secrets.SLACK_WEBHOOK }}
 
   slackNotification:
     runs-on: ubuntu-latest
     needs: [build,atest,itest,test,vaultTests]
     steps:
-      - uses: muinmomin/webhook-action@v1.0.0
+      - uses: homoluctus/slatify@v2.1.2
         with:
-              data: |
-                {
-                  "attachments": [
-                  {
-                    "title": "Build succeded",
-                    "color": "good"
-                }]}
-              
-              url: ${{ secrets.SLACK_WEBHOOK }}
+          type: ${{job.status}}
+          job_name: Build
+          url: ${{ secrets.SLACK_WEBHOOK }}
