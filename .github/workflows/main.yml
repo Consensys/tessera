@@ -12,7 +12,7 @@ jobs:
         with:
           ACTION_NAME: Start workflow
           JOB: ${{ toJson(job) }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          url: ${{ secrets.SLACK_WEBHOOK }}
   build:
     runs-on: ubuntu-latest
     steps:
