@@ -9,17 +9,11 @@ jobs:
   start:
     runs-on: ubuntu-latest
     steps:
-      - uses: muinmomin/webhook-action@v1.0.0
+      - uses: homoluctus/slatify@v2.1.2
         with:
-              data: |
-                {
-                  "attachments": [
-                  {
-                    "title": "Build in <${{env.GITHUB_EVENT_PATH.head_commit.url}}/checks|${{env.GITHUB_WORKFLOW}}>: ${JOB.status}",
-                    "color": "good"
-                }]}
-              
-              url: ${{ secrets.SLACK_WEBHOOK }}
+            type: ${{job.status}}
+            job_name: Notify test
+            url: ${{ secrets.SLACK_WEBHOOK }}
 
   build:
     runs-on: ubuntu-latest
