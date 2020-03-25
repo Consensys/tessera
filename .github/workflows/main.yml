@@ -5,6 +5,14 @@ on:
     branches: [ master ]
 
 jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pioug/le-slack-message@v1.0.0
+        with:
+          ACTION_NAME: Start workflow
+          JOB: ${{ toJson(job) }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
   build:
     runs-on: ubuntu-latest
     steps:
