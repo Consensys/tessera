@@ -3,7 +3,8 @@ name: Tessera CI Build
 on: 
   push:
     branches: 
-      - '*'
+      - master
+      - bugfix/workflow_cache_key
   pull_request:
     branches: 
       - master
