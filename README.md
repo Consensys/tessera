@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/jpmorganchase/tessera.svg?branch=master)](https://travis-ci.org/jpmorganchase/tessera)
+![Build Status](https://github.com/jpmorganchase/tessera/workflows/Java%20CI%20with%20Maven/badge.svg)
 [![codecov](https://codecov.io/gh/jpmorganchase/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/jpmorganchase/tessera)
 ![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/quorumengineering/tessera)
 ![Docker Pulls](https://img.shields.io/docker/pulls/quorumengineering/tessera)
