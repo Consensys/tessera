@@ -4,7 +4,6 @@ on:
   push:
     branches: 
       - master
-      - bugfix/workflow_cache_key
   pull_request:
     branches: 
       - master
@@ -185,7 +184,7 @@ jobs:
 
   slackNotification:
     runs-on: ubuntu-latest
-    needs: [build,atest,itest,test,vaultTests]
+    needs: [build,atest,itest,test,vaultTests,gradleBuild]
     steps:
     - uses: homoluctus/slatify@v2.1.2
       with:
