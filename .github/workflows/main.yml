@@ -12,6 +12,8 @@ jobs:
 
   setup:
       runs-on: ubuntu-latest
+      steps:
+        - run: echo Created cache key $CACHE_KEY
       env:
        CACHE_KEY: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
      
