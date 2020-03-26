@@ -33,7 +33,7 @@ allprojects {
                 testCompile "com.openpojo:openpojo:0.8.10"
                 testCompile "com.github.stefanbirkner:system-rules:1.18.0"
                 testCompile "nl.jqno.equalsverifier:equalsverifier:3.1.5"
-
+                compile "com.github.jnr:jnr-unixsocket:0.28"
                 compile "de.mkammerer:argon2-jvm:2.5"
                 compile "javax.validation:validation-api:2.0.1.Final"
                 compile "javax.ws.rs:javax.ws.rs-api:2.1"
