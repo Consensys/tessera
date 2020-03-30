@@ -3,6 +3,7 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
@@ -100,11 +101,19 @@ public class KeyGenCommand implements Callable<CliResult> {
             newKeyNames.addAll(keyOut);
         }
 
-        List<KeyData> newKeys =
+        final List<ConfigKeyPair> newConfigKeyPairs =
                 newKeyNames.stream()
                         .map(name -> generator.generate(name, argonOptions, keyVaultOptions))
-                        .map(pair -> keyDataMarshaller.marshal(pair))
                         .collect(Collectors.toList());
+
+        final List<String> newPasswords =
+                newConfigKeyPairs.stream()
+                        .map(ConfigKeyPair::getPassword)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+
+        final List<KeyData> newKeyData =
+                newConfigKeyPairs.stream().map(pair -> keyDataMarshaller.marshal(pair)).collect(Collectors.toList());
 
         if (Objects.isNull(fileUpdateOptions)) {
             return new CliResult(0, true, null);
@@ -121,13 +130,13 @@ public class KeyGenCommand implements Callable<CliResult> {
         if (Objects.nonNull(fileUpdateOptions.getConfigOut())) {
             if (Objects.nonNull(fileUpdateOptions.getPwdOut())) {
                 passwordFileUpdaterWriter.updateAndWrite(
-                        newKeys, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
+                        newPasswords, fileUpdateOptions.getConfig(), fileUpdateOptions.getPwdOut());
                 fileUpdateOptions.getConfig().getKeys().setPasswordFile(fileUpdateOptions.getPwdOut());
             }
             configFileUpdaterWriter.updateAndWrite(
-                    newKeys, keyVaultConfig, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
+                    newKeyData, keyVaultConfig, fileUpdateOptions.getConfig(), fileUpdateOptions.getConfigOut());
         } else {
-            configFileUpdaterWriter.updateAndWriteToCLI(newKeys, keyVaultConfig, fileUpdateOptions.getConfig());
+            configFileUpdaterWriter.updateAndWriteToCLI(newKeyData, keyVaultConfig, fileUpdateOptions.getConfig());
         }
 
         return new CliResult(0, true, null);

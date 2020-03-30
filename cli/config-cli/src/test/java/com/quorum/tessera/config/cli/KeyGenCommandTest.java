@@ -13,6 +13,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.MockitoAnnotations;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -38,8 +40,12 @@ public class KeyGenCommandTest {
 
     private final CliResult wantResult = new CliResult(0, true, null);
 
+    @Captor
+    private ArgumentCaptor<ArrayList<String>> argCaptor;
+
     @Before
     public void onSetup() {
+        MockitoAnnotations.initMocks(this);
         keyGeneratorFactory = mock(KeyGeneratorFactory.class);
         configFileUpdaterWriter = mock(ConfigFileUpdaterWriter.class);
         passwordFileUpdaterWriter = mock(PasswordFileUpdaterWriter.class);
@@ -65,6 +71,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -81,6 +88,7 @@ public class KeyGenCommandTest {
     public void usesDefaultEncryptorIfNoneInConfigOrCLI() throws Exception {
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -112,6 +120,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -143,6 +152,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -172,6 +182,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -200,6 +211,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -229,6 +241,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -259,6 +272,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -288,6 +302,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -324,6 +339,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -353,6 +369,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -418,6 +435,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -556,6 +574,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -584,6 +603,7 @@ public class KeyGenCommandTest {
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         CliResult result = command.call();
 
@@ -680,12 +700,15 @@ public class KeyGenCommandTest {
 
         KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        ConfigKeyPair keyPair = mock(ConfigKeyPair.class);
+        when(keyPair.getPassword()).thenReturn("pwd");
 
-        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(keyPair);
 
         command.call();
 
-        verify(passwordFileUpdaterWriter).updateAndWrite(any(), eq(config), eq(pwdOut));
+        verify(passwordFileUpdaterWriter).updateAndWrite(argCaptor.capture(), eq(config), eq(pwdOut));
+        assertThat(argCaptor.getValue()).containsExactly("pwd");
         verify(configFileUpdaterWriter).updateAndWrite(any(), any(), eq(config), eq(configOut));
         verify(keyGeneratorFactory).create(any(), any());
     }
@@ -729,7 +752,6 @@ public class KeyGenCommandTest {
         verify(keyGeneratorFactory).create(any(), any());
     }
 
-
     @Test
     public void useKeyVaultConfigFromCliOptionsIfConfigFileValueIsForDifferentType() throws Exception {
         command.fileUpdateOptions = new KeyGenFileUpdateOptions();
@@ -768,6 +790,4 @@ public class KeyGenCommandTest {
 
         verify(keyGeneratorFactory).create(any(), any());
     }
-
-
 }
