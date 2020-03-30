@@ -108,8 +108,8 @@ public class KeyGenCommand implements Callable<CliResult> {
 
         final List<String> newPasswords =
                 newConfigKeyPairs.stream()
-                        .map(ConfigKeyPair::getPassword)
                         .filter(Objects::nonNull)
+                        .map(ConfigKeyPair::getPassword)
                         .collect(Collectors.toList());
 
         final List<KeyData> newKeyData =
