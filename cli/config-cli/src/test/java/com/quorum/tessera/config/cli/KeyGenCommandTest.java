@@ -666,6 +666,7 @@ public class KeyGenCommandTest {
 
         KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         command.call();
 
@@ -720,6 +721,7 @@ public class KeyGenCommandTest {
 
         KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         command.call();
 
@@ -758,6 +760,7 @@ public class KeyGenCommandTest {
 
         KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+        when(keyGenerator.generate(any(), any(), any())).thenReturn(mock(ConfigKeyPair.class));
 
         command.call();
 
