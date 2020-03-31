@@ -4,6 +4,7 @@ on:
   push:
     branches: 
       - master
+      - download-all-deps
   pull_request:
     branches: 
       - master
