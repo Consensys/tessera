@@ -1,10 +1,6 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.enclave.EnclaveClient;
-import com.quorum.tessera.enclave.EnclaveNotAvailableException;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.service.Service;
@@ -14,10 +10,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.Base64;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,6 +32,8 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     private final ExecutorService executorService;
 
+    private final PayloadEncoder payloadEncoder;
+
     public RestfulEnclaveClient(Client client, URI uri) {
         this(client, uri, Executors.newSingleThreadExecutor());
     }
@@ -46,6 +41,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
     public RestfulEnclaveClient(Client client, URI uri, ExecutorService executorService) {
         this.client = Objects.requireNonNull(client);
         this.uri = Objects.requireNonNull(uri);
+        this.payloadEncoder = PayloadEncoder.create();
         this.executorService = executorService;
     }
 
@@ -102,7 +98,10 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     @Override
     public EncodedPayload encryptPayload(
-            byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys) {
+            byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys,
+            PrivacyMode privacyMode,
+            Map<TxHash, EncodedPayload> affectedContractTransactions,
+            byte[] execHash) {
 
         return ClientCallback.execute(
                 () -> {
@@ -111,6 +110,10 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     enclavePayload.setSenderKey(senderPublicKey.getKeyBytes());
                     enclavePayload.setRecipientPublicKeys(
                             recipientPublicKeys.stream().map(PublicKey::getKeyBytes).collect(Collectors.toList()));
+                    enclavePayload.setPrivacyMode(privacyMode);
+                    enclavePayload.setAffectedContractTransactions(
+                        convertAffectedContractTransactions(affectedContractTransactions));
+                    enclavePayload.setExecHash(execHash);
 
                     Response response = client.target(uri).path("encrypt").request().post(Entity.json(enclavePayload));
 
@@ -123,7 +126,10 @@ public class RestfulEnclaveClient implements EnclaveClient {
     }
 
     @Override
-    public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys) {
+    public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys,
+                                         PrivacyMode privacyMode,
+                                         Map<TxHash, EncodedPayload> affectedContractTransactions,
+                                         byte[] execHash) {
 
         return ClientCallback.execute(
                 () -> {
@@ -134,6 +140,12 @@ public class RestfulEnclaveClient implements EnclaveClient {
                             recipientPublicKeys.stream().map(PublicKey::getKeyBytes).collect(Collectors.toList()));
                     enclaveRawPayload.setEncryptedPayload(rawTransaction.getEncryptedPayload());
                     enclaveRawPayload.setEncryptedKey(rawTransaction.getEncryptedKey());
+
+                    enclaveRawPayload.setPrivacyMode(privacyMode);
+                    enclaveRawPayload.setExecHash(execHash);
+
+                    enclaveRawPayload.setAffectedContractTransactions(
+                        convertAffectedContractTransactions(affectedContractTransactions));
 
                     Response response =
                             client.target(uri)
@@ -219,6 +231,24 @@ public class RestfulEnclaveClient implements EnclaveClient {
                 });
     }
 
+    @Override
+    public Set<TxHash> findInvalidSecurityHashes(
+        EncodedPayload encodedPayload, Map<TxHash, EncodedPayload> affectedContractTransactions) {
+        EnclaveFindInvalidSecurityHashesRequestPayload requestPayload =
+            new EnclaveFindInvalidSecurityHashesRequestPayload();
+        requestPayload.setEncodedPayload(this.payloadEncoder.encode(encodedPayload));
+        requestPayload.setAffectedContractTransactions(
+            convertAffectedContractTransactions(affectedContractTransactions));
+
+        Response response =
+            client.target(uri).path("findinvalidsecurityhashes").request().post(Entity.json(requestPayload));
+
+        EnclaveFindInvalidSecurityHashesResponsePayload responsePayload =
+            response.readEntity(EnclaveFindInvalidSecurityHashesResponsePayload.class);
+
+        return responsePayload.getInvalidSecurityHashes().stream().map(TxHash::new).collect(Collectors.toSet());
+    }
+
     /**
      * In the case of a stateless client there is no start/stop all the run status logic is handled in the status
      * command itself
@@ -258,5 +288,14 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
             throw new EnclaveNotAvailableException(message);
         }
+    }
+
+    private List<KeyValuePair> convertAffectedContractTransactions(
+        Map<TxHash, EncodedPayload> affectedContractTransactions) {
+        List<KeyValuePair> acf = new ArrayList<>(affectedContractTransactions.size());
+        for (Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
+            acf.add(new KeyValuePair(entry.getKey().getBytes(), this.payloadEncoder.encode(entry.getValue())));
+        }
+        return acf;
     }
 }

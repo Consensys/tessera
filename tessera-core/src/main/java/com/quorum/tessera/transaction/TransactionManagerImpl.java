@@ -17,15 +17,14 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
+import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -125,12 +124,32 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.addAll(enclave.getForwardingKeys());
 
-        final List<PublicKey> recipientListNoDuplicate =
-            recipientList.stream().distinct().collect(Collectors.toList());
+        final List<PublicKey> recipientListNoDuplicate = recipientList.stream().distinct().collect(Collectors.toList());
 
         final byte[] raw = sendRequest.getPayload();
 
-        final EncodedPayload payload = enclave.encryptPayload(raw, senderPublicKey, recipientListNoDuplicate);
+        final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendRequest.getPrivacyFlag());
+
+        final byte[] execHash =
+                Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
+
+        final Map<TxHash, EncodedPayload> affectedContractTransactions =
+                buildAffectedContractTransactions(privacyMode, sendRequest.getAffectedContractTransactions());
+
+        validatePrivacyMode(Optional.empty(), privacyMode, affectedContractTransactions);
+
+        if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
+            validateRecipients(Optional.empty(), recipientList, affectedContractTransactions);
+        }
+
+        final EncodedPayload payload =
+                enclave.encryptPayload(
+                        raw,
+                        senderPublicKey,
+                        recipientListNoDuplicate,
+                        privacyMode,
+                        affectedContractTransactions,
+                        execHash);
 
         final MessageHash transactionHash =
                 Optional.of(payload)
@@ -183,11 +202,29 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.add(PublicKey.from(encryptedRawTransaction.getSender()));
 
-        final List<PublicKey> recipientListNoDuplicate =
-            recipientList.stream().distinct().collect(Collectors.toList());
+        final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendRequest.getPrivacyFlag());
+
+        final Map<TxHash, EncodedPayload> affectedContractTransactions =
+                buildAffectedContractTransactions(privacyMode, sendRequest.getAffectedContractTransactions());
+
+        final byte[] execHash =
+                Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
+
+        validatePrivacyMode(Optional.empty(), privacyMode, affectedContractTransactions);
+
+        if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
+            validateRecipients(Optional.of(messageHash), recipientList, affectedContractTransactions);
+        }
+
+        final List<PublicKey> recipientListNoDuplicate = recipientList.stream().distinct().collect(Collectors.toList());
 
         final EncodedPayload payload =
-                enclave.encryptPayload(encryptedRawTransaction.toRawTransaction(), recipientListNoDuplicate);
+                enclave.encryptPayload(
+                        encryptedRawTransaction.toRawTransaction(),
+                        recipientListNoDuplicate,
+                        privacyMode,
+                        affectedContractTransactions,
+                        execHash);
 
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
@@ -306,6 +343,48 @@ public class TransactionManagerImpl implements TransactionManager {
                         .map(messageHashFactory::createFromCipherText)
                         .get();
 
+        final PrivacyMode privacyMode = payload.getPrivacyMode();
+
+        final Map<TxHash, EncodedPayload> affectedContractTransactions =
+                buildAffectedContractTransactions(privacyMode, payload.getAffectedContractTransactions().keySet());
+
+        if (!validatePrivacyMode(Optional.of(transactionHash), privacyMode, affectedContractTransactions)) {
+            return transactionHash;
+        }
+        if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
+            if (!validateIfSenderIsGenuine(transactionHash, payload, affectedContractTransactions)) {
+                return transactionHash;
+            }
+            validateRecipients(Optional.of(transactionHash), payload.getRecipientKeys(), affectedContractTransactions);
+        }
+
+        final Set<TxHash> invalidSecurityHashes =
+                enclave.findInvalidSecurityHashes(payload, affectedContractTransactions);
+
+        byte[] sanitizedInput = input;
+        if (!invalidSecurityHashes.isEmpty()) {
+            if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
+                throw new PrivacyViolationException(
+                        "Invalid security hashes identified for PSC TX "
+                                + base64Decoder.encodeToString(transactionHash.getHashBytes())
+                                + ". Invalid ACOTHs: "
+                                + invalidSecurityHashes.stream()
+                                        .map(TxHash::encodeToBase64)
+                                        .collect(Collectors.joining(",")));
+            }
+            invalidSecurityHashes.forEach(txKey -> payload.getAffectedContractTransactions().remove(txKey));
+            LOGGER.debug(
+                    "A number of security hashes are invalid and have been discarded for transaction with hash {}. Invalid affected contract transaction hashes: {}",
+                    base64Decoder.encodeToString(transactionHash.getHashBytes()),
+                    invalidSecurityHashes.stream().map(TxHash::encodeToBase64).collect(Collectors.joining(",")));
+            sanitizedInput = payloadEncoder.encode(payload);
+        }
+        // TODO - remove extra logs
+        LOGGER.info(
+                "AffectedContractTransaction.size={} InvalidSecurityHashes.size={}",
+                affectedContractTransactions.size(),
+                invalidSecurityHashes.size());
+
         if (enclave.getPublicKeys().contains(payload.getSenderKey())) {
 
             this.resendManager.acceptOwnMessage(input);
@@ -402,5 +481,113 @@ public class TransactionManagerImpl implements TransactionManager {
         encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
         return new StoreRawResponse(encryptedRawTransaction.getHash().getHashBytes());
+    }
+
+    private Map<TxHash, EncodedPayload> buildAffectedContractTransactions(
+            PrivacyMode privacyMode, String[] affectedContractTransactionsList) {
+        if (Objects.isNull(affectedContractTransactionsList)) {
+            return Collections.emptyMap();
+        }
+        final Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
+        for (String affTxHashB64 : affectedContractTransactionsList) {
+            MessageHash affTxHash = new MessageHash(base64Decoder.decode(affTxHashB64));
+            Optional<EncryptedTransaction> affTx = this.encryptedTransactionDAO.retrieveByHash(affTxHash);
+            if (affTx.isPresent()) {
+                affectedContractTransactions.put(
+                        new TxHash(affTxHash.getHashBytes()), payloadEncoder.decode(affTx.get().getEncodedPayload()));
+            } else {
+                throw new PrivacyViolationException("Unable to find affectedContractTransaction " + affTxHashB64);
+            }
+        }
+        return affectedContractTransactions;
+    }
+
+    private Map<TxHash, EncodedPayload> buildAffectedContractTransactions(
+            PrivacyMode privacyMode, Set<TxHash> txHashes) {
+        if (Objects.isNull(txHashes) || txHashes.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        final Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
+        for (TxHash txHash : txHashes) {
+            MessageHash affTxHash = new MessageHash(txHash.getBytes());
+            Optional<EncryptedTransaction> affTx = this.encryptedTransactionDAO.retrieveByHash(affTxHash);
+            if (affTx.isPresent()) {
+                affectedContractTransactions.put(
+                        new TxHash(affTxHash.getHashBytes()), payloadEncoder.decode(affTx.get().getEncodedPayload()));
+            } else {
+                LOGGER.debug("Unable to find affectedContractTransaction {}", txHash.encodeToBase64());
+            }
+        }
+        return affectedContractTransactions;
+    }
+
+    private boolean validatePrivacyMode(
+            Optional<MessageHash> txHash,
+            PrivacyMode privacyMode,
+            Map<TxHash, EncodedPayload> affectedContractTransactions) {
+        boolean result = true;
+        for (Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
+            final PrivacyMode affectedContractPrivacyMode = entry.getValue().getPrivacyMode();
+            if (affectedContractPrivacyMode != privacyMode) {
+                if (!txHash.isPresent()) {
+                    throw new PrivacyViolationException(
+                            "Private state validation flag mismatched with Affected Txn "
+                                    + entry.getKey().encodeToBase64());
+                } else {
+                    LOGGER.info(
+                            "ACOTH {} has PrivacyMode={} for TX {} with PrivacyMode={}. Ignoring transaction.",
+                            entry.getKey().encodeToBase64(),
+                            affectedContractPrivacyMode.name(),
+                            base64Decoder.encodeToString(txHash.get().getHashBytes()),
+                            privacyMode.name());
+                    result = false;
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean validateRecipients(
+            Optional<MessageHash> txHash,
+            List<PublicKey> recipientList,
+            Map<TxHash, EncodedPayload> affectedContractTransactions) {
+        for (Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
+            if (!entry.getValue().getRecipientKeys().containsAll(recipientList)
+                    || !recipientList.containsAll(entry.getValue().getRecipientKeys())) {
+                throw new PrivacyViolationException(
+                        "Recipients mismatched for Affected Txn "
+                                + entry.getKey().encodeToBase64()
+                                + ". TxHash="
+                                + txHash.map(MessageHash::getHashBytes)
+                                        .map(base64Decoder::encodeToString)
+                                        .orElse("NONE"));
+            }
+        }
+        return true;
+    }
+
+    private boolean validateIfSenderIsGenuine(
+            MessageHash txHash, EncodedPayload payload, Map<TxHash, EncodedPayload> affectedContractTransactions) {
+        boolean result = true;
+        if (affectedContractTransactions.size() != payload.getAffectedContractTransactions().size()) {
+            // This could be a recipient discovery attack. Respond successfully while not saving the transaction.
+            LOGGER.info(
+                    "Not all ACOTHs were found for inbound TX {}. Ignoring transaction.",
+                    base64Decoder.encodeToString(txHash.getHashBytes()));
+            return false;
+        }
+        final PublicKey senderKey = payload.getSenderKey();
+        for (Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
+            if (!entry.getValue().getRecipientKeys().contains(senderKey)) {
+                LOGGER.info(
+                        "Sender key {} for TX {} is not a recipient for ACOTH {}",
+                        senderKey.encodeToBase64(),
+                        base64Decoder.encodeToString(txHash.getHashBytes()),
+                        entry.getKey().encodeToBase64());
+                result = false;
+            }
+        }
+
+        return result;
     }
 }

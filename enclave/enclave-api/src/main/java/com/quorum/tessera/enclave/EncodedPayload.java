@@ -2,8 +2,8 @@ package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
 
 /** This class contains the data that is sent to other nodes */
 public class EncodedPayload {
@@ -20,19 +20,31 @@ public class EncodedPayload {
 
     private final List<PublicKey> recipientKeys;
 
+    private final PrivacyMode privacyMode;
+
+    private final Map<TxHash, byte[]> affectedContractTransactions;
+
+    private final byte[] execHash;
+
     private EncodedPayload(
             final PublicKey senderKey,
             final byte[] cipherText,
             final Nonce cipherTextNonce,
             final List<byte[]> recipientBoxes,
             final Nonce recipientNonce,
-            final List<PublicKey> recipientKeys) {
+            final List<PublicKey> recipientKeys,
+            final PrivacyMode privacyMode,
+            final Map<TxHash, byte[]> affectedContractTransactions,
+            final byte[] execHash) {
         this.senderKey = senderKey;
         this.cipherText = cipherText;
         this.cipherTextNonce = cipherTextNonce;
         this.recipientNonce = recipientNonce;
         this.recipientBoxes = recipientBoxes;
         this.recipientKeys = recipientKeys;
+        this.privacyMode = Objects.requireNonNull(privacyMode);
+        this.affectedContractTransactions = affectedContractTransactions;
+        this.execHash = execHash;
     }
 
     public PublicKey getSenderKey() {
@@ -59,6 +71,18 @@ public class EncodedPayload {
         return recipientKeys;
     }
 
+    public PrivacyMode getPrivacyMode() {
+        return privacyMode;
+    }
+
+    public Map<TxHash, byte[]> getAffectedContractTransactions() {
+        return affectedContractTransactions;
+    }
+
+    public byte[] getExecHash() {
+        return execHash;
+    }
+
     public static class Builder {
 
         private Builder() {}
@@ -78,6 +102,12 @@ public class EncodedPayload {
         private List<byte[]> recipientBoxes = new ArrayList<>();
 
         private List<PublicKey> recipientKeys = new ArrayList<>();
+
+        private PrivacyMode privacyMode = PrivacyMode.STANDARD_PRIVATE;
+
+        private Map<TxHash, byte[]> affectedContractTransactions = Collections.emptyMap();
+
+        private byte[] execHash = new byte[0];
 
         public Builder withSenderKey(final PublicKey senderKey) {
             this.senderKey = senderKey;
@@ -119,9 +149,32 @@ public class EncodedPayload {
             return this;
         }
 
+        public Builder withPrivacyMode(final PrivacyMode privacyMode) {
+            this.privacyMode = privacyMode;
+            return this;
+        }
+
+        public Builder withAffectedContractTransactions(final Map<TxHash, byte[]> affectedContractTransactions) {
+            this.affectedContractTransactions = affectedContractTransactions;
+            return this;
+        }
+
+        public Builder withExecHash(final byte[] execHash) {
+            this.execHash = execHash;
+            return this;
+        }
+
         public EncodedPayload build() {
             return new EncodedPayload(
-                    senderKey, cipherText, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
+                    senderKey,
+                    cipherText,
+                    cipherTextNonce,
+                    recipientBoxes,
+                    recipientNonce,
+                    recipientKeys,
+                    privacyMode,
+                    affectedContractTransactions,
+                    execHash);
         }
     }
 }
