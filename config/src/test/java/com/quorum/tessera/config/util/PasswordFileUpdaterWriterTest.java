@@ -88,18 +88,12 @@ public class PasswordFileUpdaterWriterTest {
 
         final List<String> existingPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
 
-        final KeyData key1 = mock(KeyData.class);
-        when(key1.getPassword()).thenReturn("pwd3");
-
-        final KeyData key2 = mock(KeyData.class);
-        when(key2.getPassword()).thenReturn("pwd4");
-
         final List<String> existingAndNewPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2", "pwd3", "pwd4"));
-        final List<KeyData> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
+        final List<String> newPasswords = new ArrayList<>(Arrays.asList("pwd3", "pwd4"));
 
         when(filesDelegate.readAllLines(any())).thenReturn(existingPasswords);
 
-        writer.updateAndWrite(newKeys, config, pwdFile);
+        writer.updateAndWrite(newPasswords, config, pwdFile);
 
         verify(filesDelegate).readAllLines(existingPwdFile);
         verify(filesDelegate).exists(pwdFile);
@@ -127,9 +121,8 @@ public class PasswordFileUpdaterWriterTest {
         when(key2.getPassword()).thenReturn("pwd2");
 
         final List<String> newPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
-        final List<KeyData> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
 
-        writer.updateAndWrite(newKeys, config, pwdFile);
+        writer.updateAndWrite(newPasswords, config, pwdFile);
 
         verify(filesDelegate).exists(pwdFile);
         verify(filesDelegate).createFile(pwdFile);
@@ -154,16 +147,10 @@ public class PasswordFileUpdaterWriterTest {
         final String path = "somepath";
         when(pwdFile.toString()).thenReturn(path);
 
-        final KeyData key1 = mock(KeyData.class);
-        when(key1.getPassword()).thenReturn("pwd1");
-
-        final KeyData key2 = mock(KeyData.class);
-        when(key2.getPassword()).thenReturn("pwd2");
-
         final List<String> existingAndNewPasswords = new ArrayList<>(Arrays.asList("", "", "pwd1", "pwd2"));
-        final List<KeyData> newKeys = new ArrayList<>(Arrays.asList(key1, key2));
+        final List<String> newPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
 
-        writer.updateAndWrite(newKeys, config, pwdFile);
+        writer.updateAndWrite(newPasswords, config, pwdFile);
 
         verify(filesDelegate).exists(pwdFile);
         verify(filesDelegate).createFile(pwdFile);
