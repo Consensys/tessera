@@ -43,7 +43,7 @@ jobs:
           key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
           restore-keys: |
             ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-      - run: mvn package -pl \!tests/acceptance-test -P
+      - run: mvn package -pl \!tests/acceptance-test
       - uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
