@@ -20,6 +20,7 @@ jobs:
         - run: | 
             mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
             mvn dependency:resolve-plugins
+            mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
             cd
             git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
             cd quorum-acceptance-tests
@@ -27,7 +28,6 @@ jobs:
             mvn dependency:resolve-plugins
             cd
             rm -rf quorum-acceptance-tests 
-           # cd ~/tessera
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
