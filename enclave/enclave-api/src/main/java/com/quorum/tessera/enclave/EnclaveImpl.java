@@ -224,6 +224,27 @@ public class EnclaveImpl implements Enclave {
         return encryptor.openAfterPrecomputation(cipherText, cipherTextNonce, masterKey);
     }
 
+    @Override
+    public byte[] unencryptRawPayload(RawTransaction payload) {
+
+        final PrivateKey senderPrivKey = keyManager.getPrivateKeyForPublicKey(payload.getFrom());
+
+        final SharedKey sharedKey = encryptor.computeSharedKey(payload.getFrom(), senderPrivKey);
+
+        final byte[] recipientBox = payload.getEncryptedKey();
+
+        final Nonce recipientNonce = payload.getNonce();
+
+        final byte[] masterKeyBytes = encryptor.openAfterPrecomputation(recipientBox, recipientNonce, sharedKey);
+
+        final MasterKey masterKey = MasterKey.from(masterKeyBytes);
+
+        final byte[] cipherText = payload.getEncryptedPayload();
+        final Nonce cipherTextNonce = payload.getNonce();
+
+        return encryptor.openAfterPrecomputation(cipherText, cipherTextNonce, masterKey);
+    }
+
     private MasterKey getMasterKey(PublicKey recipient, PublicKey sender, Nonce nonce, byte[] encryptedKey) {
 
         final SharedKey sharedKey = encryptor.computeSharedKey(recipient, keyManager.getPrivateKeyForPublicKey(sender));

@@ -149,6 +149,10 @@ public class EncodedPayload {
             return this;
         }
 
+        public Builder withPrivacyFlag(final int privacyFlag) {
+            return this.withPrivacyMode(PrivacyMode.fromFlag(privacyFlag));
+        }
+
         public Builder withPrivacyMode(final PrivacyMode privacyMode) {
             this.privacyMode = privacyMode;
             return this;

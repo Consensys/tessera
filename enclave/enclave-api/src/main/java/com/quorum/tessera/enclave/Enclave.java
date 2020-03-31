@@ -103,6 +103,15 @@ public interface Enclave extends Service {
     byte[] unencryptTransaction(EncodedPayload payload, PublicKey providedKey);
 
     /**
+     * Decrypt a raw payload and fetch the original message. Throws an {@link com.quorum.tessera.nacl.NaclException} if
+     * the provided public key OR one of the Enclave's managed keys cannot be used to decrypt the payload
+     *
+     * @param payload the encrypted raw payload
+     * @return the original, decrypted message
+     */
+    byte[] unencryptRawPayload(RawTransaction payload);
+
+    /**
      * Creates a new recipient box for the payload, for which we must be the originator. At least one recipient must
      * already be available to be able to decrypt the master key.
      *
