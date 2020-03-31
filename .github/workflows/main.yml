@@ -27,7 +27,7 @@ jobs:
             mvn dependency:resolve-plugins
             cd
             rm -rf quorum-acceptance-tests 
-            cd ~/tessera
+           # cd ~/tessera
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
