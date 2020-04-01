@@ -7,8 +7,7 @@ on:
   pull_request:
     branches: 
       - master
-    
-    
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -44,7 +43,7 @@ jobs:
           key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
           restore-keys: |
             ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-      - run: mvn package -pl \!tests/acceptance-test -P reduce-logging -o
+      - run: mvn package -pl \!tests/acceptance-test
       - uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
@@ -115,7 +114,7 @@ jobs:
             mkdir -p vault/bin && pushd $_
             unzip /tmp/vault_1.2.2_linux_amd64.zip
             export PATH=$PATH:$PWD && popd
-            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o
+            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
