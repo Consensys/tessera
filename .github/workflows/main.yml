@@ -16,7 +16,9 @@ jobs:
         - uses: actions/setup-java@v1
           with:
               java-version: 11
-        - run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
+        - run: | 
+           mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies
+           mvn dependency:resolve-plugins
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
