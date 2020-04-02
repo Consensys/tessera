@@ -89,7 +89,7 @@ jobs:
             key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
             restore-keys: |
               ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-        - run: mvn verify -pl tests/acceptance-test -P reduce-logging -o
+        - run: mvn verify -pl tests/acceptance-test
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
