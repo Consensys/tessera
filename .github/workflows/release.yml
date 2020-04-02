@@ -10,7 +10,6 @@ env:
   GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   GPG_EXECUTABLE: ${{ secrets.GPG_EXECUTABLE }}
   GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
-  RELEASE_VERSION: ${{github.event.client_payload.version}}
 
 jobs:
   release:
@@ -22,46 +21,14 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Create release skip tests
-        if: ${{github.event.client_payload.skipTests}}
-
+      - name: Create release branch
         run: |
-          echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
-          echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+          export now=`date +%Y%m%d%H%M%S`
+          git checkout -b "release-$now"
 
-          mvn --settings .maven.xml release:prepare -DdryRun=true -pl \!tests/acceptance-test -DskipTests -Darguments="-DskipTests"
-          mvn --settings .maven.xml release:perform -DdryRun=true -pl \!tests/acceptance-test -DskipTests -Darguments="-DskipTests"
-
-          #     mvn --settings .maven.xml -B deploy -P release -pl \!tests/acceptance-test -DskipTests
-
-
-          #          mvn --settings .maven.xml release:prepare -DdryRun=true -pl \!tests/acceptance-test -DskipTests -Darguments="-DskipTests"
-
-          #              export now=`date +%Y%m%d%H%M%S`
-          #              git config user.email "melowe.quorum@gmail.com"
-          #              git config user.name "melowe"
-          #              git checkout -b release-$now
-          #              mvn build-helper:parse-version versions:set -DnewVersion=\${parsedVersion.majorVersion}.\${parsedVersion.minorVersion}.\${parsedVersion.incrementalVersion}.$now versions:commit -B
-          #              export new_version=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
-          #              git add \*/pom.xml
-          #             git commit -m "Change pom versions to $new_version"
-          #            export tag_version=tessera-$new_version
-          #            git tag -a $tag_version -m "Create $tag_version"
-          #             git push origin $tag_version
-          #             echo "Deploy stuff"
-          #             echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
-          #             echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          # mvn --settings .maven.xml -B deploy -P release -pl \!tests/acceptance-test
-
-
-      #       mvn --settings .maven.xml release:prepare -DdryRun=true -pl \!tests/acceptance-test
-
-      - name: Create release
-        if: ${{!github.event.client_payload.skipTests}}
-
+      - name: Release Prepare
         run: |
-          echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
-          echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-
-          mvn --settings .maven.xml release:prepare -DdryRun=true -pl \!tests/acceptance-test
-          mvn --settings .maven.xml release:perform -DdryRun=true -pl \!tests/acceptance-test
+          mvn --settings .maven.xml release:prepare -pl \!tests/acceptance-test -DskipTests -Darguments="-DskipTests"
+      - name: Release Perform
+        run: |
+          mvn --settings .maven.xml release:perform -pl \!tests/acceptance-test -DskipTests -Darguments="-DskipTests"
