@@ -276,29 +276,36 @@ public class TransactionManagerImpl implements TransactionManager {
                                     final EncodedPayload prunedPayload;
 
                                     if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
-                                        final PublicKey decryptedKey =
+                                        if (payload.getRecipientKeys().isEmpty()) {
+                                            // TODO Should we stop the whole resend just because we could not find a key
+                                            // for a tx? Log instead?
+                                            // a malicious party may be able to craft TXs that prevent others from
+                                            // performing resends
+                                            final PublicKey decryptedKey =
                                                 searchForRecipientKey(payload)
-                                                        .orElseThrow(
-                                                                () -> {
-                                                                    final MessageHash hash =
-                                                                            MessageHashFactory.create()
-                                                                                    .createFromCipherText(
-                                                                                            payload.getCipherText());
-                                                                    return new KeyNotFoundException(
-                                                                            "No key found as recipient of message "
-                                                                                    + hash);
-                                                                });
-                                        payload.getRecipientKeys().add(decryptedKey);
+                                                    .orElseThrow(
+                                                        () -> {
+                                                            final MessageHash hash =
+                                                                MessageHashFactory.create()
+                                                                    .createFromCipherText(
+                                                                        payload.getCipherText());
+                                                            return new KeyNotFoundException(
+                                                                "No key found as recipient of message "
+                                                                    + hash);
+                                                        });
 
-                                        // This payload does not need to be pruned as it was not sent by this node and
-                                        // so does not contain any other node's data
-                                        prunedPayload = payload;
+                                            prunedPayload = payloadEncoder.withRecipient(payload, decryptedKey);
+                                        } else {
+                                            prunedPayload = payload;
+                                        }
                                     } else {
                                         prunedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
                                     }
 
                                     try {
-                                        partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
+                                        if (!enclave.getPublicKeys().contains(recipientPublicKey)) {
+                                            partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
+                                        }
                                     } catch (PublishPayloadException ex) {
                                         LOGGER.warn(
                                                 "Unable to publish payload to recipient {} during resend",
