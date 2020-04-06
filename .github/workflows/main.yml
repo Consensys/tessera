@@ -84,11 +84,7 @@ jobs:
             type: ${{job.status}}
             job_name: Integration tests
             url: ${{ secrets.SLACK_WEBHOOK }}
-        - uses: actions/upload-artifact@v1
-          if: failure()
-          with:
-            name: itest-junit-report
-            path: /home/runner/work/tessera/tessera/tests/acceptance-test/target/failsafe-reports/
+
   vaultTests:
       runs-on: ubuntu-latest
       needs: build
@@ -115,11 +111,7 @@ jobs:
             type: ${{job.status}}
             job_name: Vault integration tests
             url: ${{ secrets.SLACK_WEBHOOK }}
-        - uses: actions/upload-artifact@v1
-          if: failure()
-          with:
-            name: vaultTests-junit-report
-            path: /home/runner/work/tessera/tessera/tests/acceptance-test/target/failsafe-reports/
+
   atest:
     runs-on: ubuntu-latest
     needs: build
