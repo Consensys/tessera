@@ -82,6 +82,11 @@ jobs:
       with:
        java-version: 11
     - run: ./gradlew :tests:acceptance-test:test
+    - uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+       name: junit-report
+       path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/test/index.html
       
   atest:
     runs-on: ubuntu-latest
