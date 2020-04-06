@@ -86,7 +86,7 @@ jobs:
       if: failure()
       with:
        name: itest-junit-report
-       path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/test/index.html
+       path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       
   atest:
     runs-on: ubuntu-latest
