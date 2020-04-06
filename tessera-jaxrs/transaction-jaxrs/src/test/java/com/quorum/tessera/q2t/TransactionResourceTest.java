@@ -55,7 +55,8 @@ public class TransactionResourceTest {
     public void receiveRaw() {
 
         byte[] encodedPayload = Base64.getEncoder().encode("Payload".getBytes());
-        ReceiveResponse receiveResponse = new ReceiveResponse(encodedPayload);
+        ReceiveResponse receiveResponse = mock(ReceiveResponse.class);
+        when(receiveResponse.getPayload()).thenReturn(encodedPayload);
 
         when(transactionManager.receive(any(ReceiveRequest.class))).thenReturn(receiveResponse);
 

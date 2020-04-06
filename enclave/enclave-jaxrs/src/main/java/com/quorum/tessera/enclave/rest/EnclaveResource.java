@@ -12,6 +12,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -84,7 +85,15 @@ public class EnclaveResource {
         List<PublicKey> recipientPublicKeys =
                 payload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
 
-        EncodedPayload outcome = enclave.encryptPayload(payload.getData(), senderKey, recipientPublicKeys);
+        // TODO Nam Replace emptyMap
+        EncodedPayload outcome =
+                enclave.encryptPayload(
+                        payload.getData(),
+                        senderKey,
+                        recipientPublicKeys,
+                        payload.getPrivacyMode(),
+                        Collections.emptyMap(),
+                        payload.getExecHash());
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
@@ -107,7 +116,14 @@ public class EnclaveResource {
 
         RawTransaction rawTransaction = new RawTransaction(encryptedPayload, encryptedKey, nonce, from);
 
-        EncodedPayload outcome = enclave.encryptPayload(rawTransaction, recipientPublicKeys);
+        // TODO Nam - replace emptyMap
+        EncodedPayload outcome =
+                enclave.encryptPayload(
+                        rawTransaction,
+                        recipientPublicKeys,
+                        enclaveRawPayload.getPrivacyMode(),
+                        Collections.emptyMap(),
+                        enclaveRawPayload.getExecHash());
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);

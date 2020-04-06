@@ -1,10 +1,6 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveException;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
@@ -14,10 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -106,9 +99,17 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayload = Fixtures.createSample();
 
-        when(enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys)).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(), anyMap(), any()))
+                .thenReturn(encodedPayload);
 
-        EncodedPayload result = enclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        EncodedPayload result =
+                enclaveClient.encryptPayload(
+                        message,
+                        senderPublicKey,
+                        recipientPublicKeys,
+                        PrivacyMode.STANDARD_PRIVATE,
+                        Collections.emptyMap(),
+                        new byte[0]);
 
         assertThat(result).isNotNull();
 
@@ -117,7 +118,8 @@ public class RestfulEnclaveClientTest {
 
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
-        verify(enclave).encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        verify(enclave)
+                .encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(), anyMap(), any());
     }
 
     @Test
@@ -137,9 +139,16 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayload = Fixtures.createSample();
 
-        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class))).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any(), any(Map.class), any()))
+                .thenReturn(encodedPayload);
 
-        EncodedPayload result = enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys);
+        EncodedPayload result =
+                enclaveClient.encryptPayload(
+                        rawTransaction,
+                        recipientPublicKeys,
+                        PrivacyMode.STANDARD_PRIVATE,
+                        Collections.emptyMap(),
+                        new byte[0]);
 
         assertThat(result).isNotNull();
 
@@ -148,7 +157,7 @@ public class RestfulEnclaveClientTest {
 
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
-        verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class));
+        verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class), any(), any(Map.class), any());
     }
 
     @Test

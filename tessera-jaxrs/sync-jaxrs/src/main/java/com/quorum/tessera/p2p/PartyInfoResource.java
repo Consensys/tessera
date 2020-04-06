@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -25,6 +26,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 
@@ -110,7 +112,13 @@ public class PartyInfoResource {
                     try {
                         final PublicKey key = r.getKey();
                         final EncodedPayload encodedPayload =
-                                enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
+                                enclave.encryptPayload(
+                                        dataToEncrypt.getBytes(),
+                                        sender,
+                                        Arrays.asList(key),
+                                        PrivacyMode.STANDARD_PRIVATE,
+                                        emptyMap(),
+                                        new byte[0]);
 
                         LOGGER.debug("Validating key {} on peer {}", key, url);
 

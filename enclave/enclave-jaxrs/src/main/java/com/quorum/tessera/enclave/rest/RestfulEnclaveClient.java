@@ -98,7 +98,9 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     @Override
     public EncodedPayload encryptPayload(
-            byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys,
+            byte[] message,
+            PublicKey senderPublicKey,
+            List<PublicKey> recipientPublicKeys,
             PrivacyMode privacyMode,
             Map<TxHash, EncodedPayload> affectedContractTransactions,
             byte[] execHash) {
@@ -112,7 +114,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
                             recipientPublicKeys.stream().map(PublicKey::getKeyBytes).collect(Collectors.toList()));
                     enclavePayload.setPrivacyMode(privacyMode);
                     enclavePayload.setAffectedContractTransactions(
-                        convertAffectedContractTransactions(affectedContractTransactions));
+                            convertAffectedContractTransactions(affectedContractTransactions));
                     enclavePayload.setExecHash(execHash);
 
                     Response response = client.target(uri).path("encrypt").request().post(Entity.json(enclavePayload));
@@ -126,10 +128,12 @@ public class RestfulEnclaveClient implements EnclaveClient {
     }
 
     @Override
-    public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys,
-                                         PrivacyMode privacyMode,
-                                         Map<TxHash, EncodedPayload> affectedContractTransactions,
-                                         byte[] execHash) {
+    public EncodedPayload encryptPayload(
+            RawTransaction rawTransaction,
+            List<PublicKey> recipientPublicKeys,
+            PrivacyMode privacyMode,
+            Map<TxHash, EncodedPayload> affectedContractTransactions,
+            byte[] execHash) {
 
         return ClientCallback.execute(
                 () -> {
@@ -145,7 +149,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     enclaveRawPayload.setExecHash(execHash);
 
                     enclaveRawPayload.setAffectedContractTransactions(
-                        convertAffectedContractTransactions(affectedContractTransactions));
+                            convertAffectedContractTransactions(affectedContractTransactions));
 
                     Response response =
                             client.target(uri)
@@ -213,6 +217,28 @@ public class RestfulEnclaveClient implements EnclaveClient {
     }
 
     @Override
+    public byte[] unencryptRawPayload(RawTransaction payload) {
+
+        return ClientCallback.execute(
+                () -> {
+                    EnclaveRawPayload enclaveRawPayload = new EnclaveRawPayload();
+                    enclaveRawPayload.setEncryptedPayload(payload.getEncryptedPayload());
+                    enclaveRawPayload.setEncryptedKey(payload.getEncryptedKey());
+                    enclaveRawPayload.setNonce(payload.getNonce().getNonceBytes());
+                    enclaveRawPayload.setFrom(payload.getFrom().getKeyBytes());
+
+                    Response response =
+                            client.target(uri)
+                                    .path("unencrypt")
+                                    .path("raw")
+                                    .request()
+                                    .post(Entity.json(enclaveRawPayload));
+
+                    return response.readEntity(byte[].class);
+                });
+    }
+
+    @Override
     public byte[] createNewRecipientBox(final EncodedPayload payload, final PublicKey recipientKey) {
 
         return ClientCallback.execute(
@@ -233,18 +259,18 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     @Override
     public Set<TxHash> findInvalidSecurityHashes(
-        EncodedPayload encodedPayload, Map<TxHash, EncodedPayload> affectedContractTransactions) {
+            EncodedPayload encodedPayload, Map<TxHash, EncodedPayload> affectedContractTransactions) {
         EnclaveFindInvalidSecurityHashesRequestPayload requestPayload =
-            new EnclaveFindInvalidSecurityHashesRequestPayload();
+                new EnclaveFindInvalidSecurityHashesRequestPayload();
         requestPayload.setEncodedPayload(this.payloadEncoder.encode(encodedPayload));
         requestPayload.setAffectedContractTransactions(
-            convertAffectedContractTransactions(affectedContractTransactions));
+                convertAffectedContractTransactions(affectedContractTransactions));
 
         Response response =
-            client.target(uri).path("findinvalidsecurityhashes").request().post(Entity.json(requestPayload));
+                client.target(uri).path("findinvalidsecurityhashes").request().post(Entity.json(requestPayload));
 
         EnclaveFindInvalidSecurityHashesResponsePayload responsePayload =
-            response.readEntity(EnclaveFindInvalidSecurityHashesResponsePayload.class);
+                response.readEntity(EnclaveFindInvalidSecurityHashesResponsePayload.class);
 
         return responsePayload.getInvalidSecurityHashes().stream().map(TxHash::new).collect(Collectors.toSet());
     }
@@ -291,7 +317,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
     }
 
     private List<KeyValuePair> convertAffectedContractTransactions(
-        Map<TxHash, EncodedPayload> affectedContractTransactions) {
+            Map<TxHash, EncodedPayload> affectedContractTransactions) {
         List<KeyValuePair> acf = new ArrayList<>(affectedContractTransactions.size());
         for (Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
             acf.add(new KeyValuePair(entry.getKey().getBytes(), this.payloadEncoder.encode(entry.getValue())));

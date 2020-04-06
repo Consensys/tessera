@@ -147,7 +147,7 @@ public class PartyInfoResourceTest {
                             return encodedPayload;
                         })
                 .when(enclave)
-                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), any(), any());
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -172,7 +172,7 @@ public class PartyInfoResourceTest {
 
         verify(partyInfoParser).from(payload);
         verify(enclave).defaultPublicKey();
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), any(), any());
         verify(payloadEncoder).encode(encodedPayload);
         verify(restClient).target(url);
         verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
@@ -237,7 +237,8 @@ public class PartyInfoResourceTest {
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), any(), any()))
+                .thenReturn(encodedPayload);
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -260,7 +261,7 @@ public class PartyInfoResourceTest {
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
-            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), any(), any());
             verify(payloadEncoder).encode(encodedPayload);
             verify(restClient).target(url);
         }
@@ -293,7 +294,8 @@ public class PartyInfoResourceTest {
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), any(), any()))
+                .thenReturn(encodedPayload);
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -312,7 +314,7 @@ public class PartyInfoResourceTest {
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
-            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), any(), any());
             verify(payloadEncoder).encode(encodedPayload);
             verify(restClient).target(url);
         }

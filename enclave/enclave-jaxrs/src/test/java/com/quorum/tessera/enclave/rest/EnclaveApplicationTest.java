@@ -2,9 +2,8 @@ package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
@@ -15,10 +14,9 @@ import javax.ws.rs.core.Response;
 
 import static com.quorum.tessera.enclave.rest.Fixtures.createSample;
 import com.quorum.tessera.service.Service;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -83,12 +81,29 @@ public class EnclaveApplicationTest {
                             return pay;
                         })
                 .when(enclave)
-                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyMap(), any());
 
         PublicKey senderPublicKey = pay.getSenderKey();
         List<PublicKey> recipientPublicKeys = pay.getRecipientKeys();
+        EncodedPayload acoth = mock(EncodedPayload.class);
+        when(acoth.getSenderKey()).thenReturn(senderPublicKey);
+        when(acoth.getCipherText()).thenReturn("ciphertext".getBytes());
+        when(acoth.getCipherTextNonce()).thenReturn(new Nonce("0".getBytes()));
+        when(acoth.getRecipientKeys()).thenReturn(Collections.emptyList());
+        when(acoth.getRecipientNonce()).thenReturn(new Nonce("0".getBytes()));
+        when(acoth.getRecipientBoxes()).thenReturn(Collections.emptyList());
+        when(acoth.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(acoth.getAffectedContractTransactions()).thenReturn(Collections.emptyMap());
+        when(acoth.getExecHash()).thenReturn("0".getBytes());
 
-        EncodedPayload result = restfulEnclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        EncodedPayload result =
+                restfulEnclaveClient.encryptPayload(
+                        message,
+                        senderPublicKey,
+                        recipientPublicKeys,
+                        PrivacyMode.STANDARD_PRIVATE,
+                        Collections.singletonMap(new TxHash("key".getBytes()), acoth),
+                        new byte[0]);
 
         assertThat(result.getSenderKey()).isNotNull().isEqualTo(pay.getSenderKey());
 
@@ -106,7 +121,7 @@ public class EnclaveApplicationTest {
 
         assertThat(results.get(0)).isEqualTo(message);
 
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyMap(), any());
     }
 
     @Test
