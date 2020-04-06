@@ -499,6 +499,8 @@ public class TransactionManagerTest {
         SendSignedRequest sendSignedRequest = new SendSignedRequest();
         sendSignedRequest.setTo(receiver);
         sendSignedRequest.setHash("HASH".getBytes());
+        sendSignedRequest.setAffectedContractTransactions(new String[] {});
+        sendSignedRequest.setPrivacyFlag(PrivacyMode.PRIVATE_STATE_VALIDATION.getPrivacyFlag());
 
         SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
 
@@ -1415,7 +1417,7 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-            .thenReturn(Optional.of(encryptedTransaction));
+                .thenReturn(Optional.of(encryptedTransaction));
 
         byte[] expectedOutcome = "Encrypted payload".getBytes();
 

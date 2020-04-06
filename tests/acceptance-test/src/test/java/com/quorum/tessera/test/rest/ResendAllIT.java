@@ -1,6 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -56,14 +55,15 @@ public class ResendAllIT {
 
     @Test
     public void resendTransactionsForGivenKey() throws UnsupportedEncodingException {
-        //setup (sending in a tx)
+        // setup (sending in a tx)
 
-        Response sendRawResponse = client.target(partyOne.getQ2TUri())
-                .path("/sendraw")
-                .request()
-                .header("c11n-from", partyOne.getPublicKey())
-                .header("c11n-to", partyTwo.getPublicKey())
-                .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
+        Response sendRawResponse =
+                client.target(partyOne.getQ2TUri())
+                        .path("/sendraw")
+                        .request()
+                        .header("c11n-from", partyOne.getPublicKey())
+                        .header("c11n-to", partyTwo.getPublicKey())
+                        .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
         URI location = sendRawResponse.getLocation();
 
@@ -71,111 +71,102 @@ public class ResendAllIT {
 
         final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
-        //delete it from sender node
-        final Response deleteReq = client.target(location)
-                .request()
-                .delete();
+        // delete it from sender node
+        final Response deleteReq = client.target(location).request().delete();
 
         assertThat(deleteReq).isNotNull();
         assertThat(deleteReq.getStatus()).isEqualTo(204);
 
-        //check it is deleted
-        final Response deleteCheck = client.target(partyOne.getQ2TUri())
-                .path("transaction")
-                .path(encodedHash)
-                .request()
-                .get();
+        // check it is deleted
+        final Response deleteCheck =
+                client.target(partyOne.getQ2TUri()).path("transaction").path(encodedHash).request().get();
 
         assertThat(deleteCheck).isNotNull();
         assertThat(deleteCheck.getStatus()).isEqualTo(404);
 
-        //request resend from recipient
+        // request resend from recipient
         final ResendRequest req = new ResendRequest();
         req.setType(ResendRequestType.ALL);
         req.setPublicKey(partyOne.getPublicKey());
 
-        final Response resendRequest = client.target(partyTwo.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
-                .invoke();
+        final Response resendRequest =
+                client.target(partyTwo.getP2PUri())
+                        .path(RESEND_PATH)
+                        .request()
+                        .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
+                        .invoke();
 
         assertThat(resendRequest).isNotNull();
         assertThat(resendRequest.getStatus()).isEqualTo(200);
 
-        //and fetch the transaction to make sure it is there
-        final Response resendCheck = client.target(partyOne.getQ2TUri())
-                .path("transaction")
-                .path(encodedHash)
-                .request()
-                .get();
+        // and fetch the transaction to make sure it is there
+        final Response resendCheck =
+                client.target(partyOne.getQ2TUri()).path("transaction").path(encodedHash).request().get();
 
         assertThat(resendCheck).isNotNull();
         assertThat(resendCheck.getStatus()).isEqualTo(200);
-
     }
 
     @Test
     public void transactionsAreReconstructedFromMultipleParties() throws UnsupportedEncodingException, SQLException {
-        //setup (sending in a tx)
+        // setup (sending in a tx)
 
-        Response sendRawResponse = client.target(partyOne.getQ2TUri())
-                .path("/sendraw")
-                .request()
-                .header("c11n-from", partyOne.getPublicKey())
-                .header("c11n-to", partyTwo.getPublicKey() + "," + partyThree.getPublicKey())
-                .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
+        Response sendRawResponse =
+                client.target(partyOne.getQ2TUri())
+                        .path("/sendraw")
+                        .request()
+                        .header("c11n-from", partyOne.getPublicKey())
+                        .header("c11n-to", partyTwo.getPublicKey() + "," + partyThree.getPublicKey())
+                        .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
         URI location = sendRawResponse.getLocation();
         String hash = sendRawResponse.readEntity(String.class);
 
         final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
-        //delete it from the sender node
-        final Response deleteReq = client.target(location)
-                .request()
-                .delete();
+        // delete it from the sender node
+        final Response deleteReq = client.target(location).request().delete();
         assertThat(deleteReq).isNotNull();
         assertThat(deleteReq.getStatus()).isEqualTo(204);
 
-        //check it is deleted
-        final Response deleteCheck = client.target(partyOne.getQ2TUri())
-                .path("transaction")
-                .path(encodedHash)
-                .request()
-                .get();
+        // check it is deleted
+        final Response deleteCheck =
+                client.target(partyOne.getQ2TUri()).path("transaction").path(encodedHash).request().get();
 
         assertThat(deleteCheck).isNotNull();
         assertThat(deleteCheck.getStatus()).isEqualTo(404);
 
-        //request resend from recipients
+        // request resend from recipients
         final ResendRequest req = new ResendRequest();
         req.setType(ResendRequestType.ALL);
         req.setPublicKey(partyOne.getPublicKey());
 
-        final Response resendRequest = client.target(partyTwo.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
-                .invoke();
+        final Response resendRequest =
+                client.target(partyTwo.getP2PUri())
+                        .path(RESEND_PATH)
+                        .request()
+                        .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
+                        .invoke();
 
         assertThat(resendRequest).isNotNull();
         assertThat(resendRequest.getStatus()).isEqualTo(200);
 
-        final Response resendRequestNode3 = client.target(partyThree.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
-                .invoke();
+        final Response resendRequestNode3 =
+                client.target(partyThree.getP2PUri())
+                        .path(RESEND_PATH)
+                        .request()
+                        .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
+                        .invoke();
 
         assertThat(resendRequestNode3).isNotNull();
         assertThat(resendRequestNode3.getStatus()).isEqualTo(200);
 
         final String fetch = "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
-        final Connection databaseConnection = PartyHelper.create().findByPublicKey(partyOne.getPublicKey()).getDatabaseConnection();
-        try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)){
+        final Connection databaseConnection =
+                PartyHelper.create().findByPublicKey(partyOne.getPublicKey()).getDatabaseConnection();
+        try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
             statement.setBytes(1, Base64.getDecoder().decode(hash));
-            try (ResultSet rs = statement.executeQuery()){
+            try (ResultSet rs = statement.executeQuery()) {
                 assertThat(rs.next()).isTrue();
                 final byte[] output = rs.getBytes(1);
                 final EncodedPayload payload = ENCODER.decode(output);
@@ -184,67 +175,65 @@ public class ResendAllIT {
                 assertThat(payload.getRecipientBoxes()).hasSize(3);
             }
         }
-
     }
 
     @Test
-    public void transactionFromSenderDoesNotContainDataOfOtherParties() throws UnsupportedEncodingException, SQLException {
-        //setup (sending in a tx)
+    public void transactionFromSenderDoesNotContainDataOfOtherParties()
+            throws UnsupportedEncodingException, SQLException {
+        // setup (sending in a tx)
 
-        Response sendRawResponse = client.target(partyOne.getQ2TUri())
-            .path("/sendraw")
-            .request()
-            .header("c11n-from", partyOne.getPublicKey())
-            .header("c11n-to", partyTwo.getPublicKey() + "," + partyThree.getPublicKey())
-            .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
+        Response sendRawResponse =
+                client.target(partyOne.getQ2TUri())
+                        .path("/sendraw")
+                        .request()
+                        .header("c11n-from", partyOne.getPublicKey())
+                        .header("c11n-to", partyTwo.getPublicKey() + "," + partyThree.getPublicKey())
+                        .post(Entity.entity(transactionData, MediaType.APPLICATION_OCTET_STREAM));
 
         URI location = sendRawResponse.getLocation();
         String hash = sendRawResponse.readEntity(String.class);
 
         final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
-        //delete it from a recipient node
-        final Response deleteReq = client.target(partyTwo.getQ2TUri())
-            .path("transaction")
-            .path(encodedHash)
-            .request()
-            .delete();
+        // delete it from a recipient node
+        final Response deleteReq =
+                client.target(partyTwo.getQ2TUri()).path("transaction").path(encodedHash).request().delete();
         assertThat(deleteReq).isNotNull();
         assertThat(deleteReq.getStatus()).isEqualTo(204);
 
-        //check it is deleted
-        final Response deleteCheck = client.target(partyTwo.getQ2TUri())
-            .path("transaction")
-            .path(encodedHash)
-            .request()
-            .get();
+        // check it is deleted
+        final Response deleteCheck =
+                client.target(partyTwo.getQ2TUri()).path("transaction").path(encodedHash).request().get();
 
         assertThat(deleteCheck).isNotNull();
         assertThat(deleteCheck.getStatus()).isEqualTo(404);
 
-        //request resend from sender
+        // request resend from sender
         final ResendRequest req = new ResendRequest();
         req.setType(ResendRequestType.ALL);
         req.setPublicKey(partyTwo.getPublicKey());
 
-        final Response resendRequest = client.target(partyOne.getP2PUri())
-            .path(RESEND_PATH)
-            .request()
-            .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
-            .invoke();
+        final Response resendRequest =
+                client.target(partyOne.getP2PUri())
+                        .path(RESEND_PATH)
+                        .request()
+                        .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
+                        .invoke();
 
         assertThat(resendRequest).isNotNull();
         assertThat(resendRequest.getStatus()).isEqualTo(200);
 
         final String fetch = "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
-        final Connection databaseConnection = PartyHelper.create().findByPublicKey(partyTwo.getPublicKey()).getDatabaseConnection();
-        try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)){
+        final Connection databaseConnection =
+                PartyHelper.create().findByPublicKey(partyTwo.getPublicKey()).getDatabaseConnection();
+        try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
             statement.setBytes(1, Base64.getDecoder().decode(hash));
-            try (ResultSet rs = statement.executeQuery()){
+            try (ResultSet rs = statement.executeQuery()) {
                 assertThat(rs.next()).isTrue();
                 final byte[] output = rs.getBytes(1);
                 final EncodedPayload payload = ENCODER.decode(output);
-                assertThat(payload.getRecipientKeys()).hasSize(0);
+                assertThat(payload.getRecipientKeys()).hasSize(1);
+                assertThat(payload.getRecipientKeys().get(0).encodeToBase64()).isEqualTo(partyTwo.getPublicKey());
                 assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(partyOne.getPublicKey());
                 assertThat(payload.getRecipientBoxes()).hasSize(1);
             }
@@ -253,16 +242,17 @@ public class ResendAllIT {
 
     @Test
     public void resendForKeyWithNoTransactions() {
-        //perform resend
+        // perform resend
         final ResendRequest req = new ResendRequest();
         req.setType(ResendRequestType.ALL);
         req.setPublicKey("rUSW9gnm2Unm5ECvEfuU10LX7KYsN59Flw7m7iu6wEo=");
 
-        final Response resendRequest = client.target(partyOne.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
-                .invoke();
+        final Response resendRequest =
+                client.target(partyOne.getP2PUri())
+                        .path(RESEND_PATH)
+                        .request()
+                        .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
+                        .invoke();
 
         assertThat(resendRequest).isNotNull();
         assertThat(resendRequest.getStatus()).isEqualTo(200);
@@ -270,19 +260,19 @@ public class ResendAllIT {
 
     @Test
     public void resendForInvalidKeyErrors() {
-        //perform resend
+        // perform resend
         final ResendRequest req = new ResendRequest();
         req.setType(ResendRequestType.ALL);
         req.setPublicKey("rUSW9gnm2Unm5ECvEfuU&&&&&&&&59Flw7m7iu6wEo=");
 
-        final Response resendRequest = client.target(partyOne.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
-                .invoke();
+        final Response resendRequest =
+                client.target(partyOne.getP2PUri())
+                        .path(RESEND_PATH)
+                        .request()
+                        .buildPost(Entity.entity(req, MediaType.APPLICATION_JSON_TYPE))
+                        .invoke();
 
         assertThat(resendRequest).isNotNull();
         assertThat(resendRequest.getStatus()).isEqualTo(400);
     }
-
 }

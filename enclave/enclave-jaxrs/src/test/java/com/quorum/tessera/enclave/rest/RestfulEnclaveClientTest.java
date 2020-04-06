@@ -201,6 +201,47 @@ public class RestfulEnclaveClientTest {
     }
 
     @Test
+    public void unencryptRawPayload() throws Exception {
+
+        byte[] message = "HELLOW".getBytes();
+
+        PublicKey senderPublicKey = PublicKey.from("SenderPublicKey".getBytes());
+
+        byte[] encryptedKey = "encryptedKey".getBytes();
+        Nonce nonce = new Nonce("Nonce".getBytes());
+
+        RawTransaction rawTransaction = new RawTransaction(message, encryptedKey, nonce, senderPublicKey);
+
+        when(enclave.unencryptRawPayload(any(RawTransaction.class))).thenReturn("unencryptedRawTransaction".getBytes());
+
+        byte[] result = enclaveClient.unencryptRawPayload(rawTransaction);
+
+        assertThat(result).containsExactly("unencryptedRawTransaction".getBytes());
+
+        verify(enclave).unencryptRawPayload(any(RawTransaction.class));
+    }
+
+    @Test
+    public void findInvalidSecurityHashes() throws Exception {
+
+        EncodedPayload payload = Fixtures.createSample();
+
+        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
+        affectedContractTransactions.put(new TxHash("acoth1".getBytes()), payload);
+
+        Set<TxHash> invalidSecHashes = new HashSet<>();
+        invalidSecHashes.add(new TxHash("acoth1".getBytes()));
+
+        when(enclave.findInvalidSecurityHashes(any(EncodedPayload.class), any(Map.class))).thenReturn(invalidSecHashes);
+
+        Set<TxHash> result = enclaveClient.findInvalidSecurityHashes(payload, affectedContractTransactions);
+
+        assertThat(result).containsExactly(new TxHash("acoth1".getBytes()));
+
+        verify(enclave).findInvalidSecurityHashes(any(EncodedPayload.class), any(Map.class));
+    }
+
+    @Test
     public void createNewRecipientBox() {
 
         EncodedPayload payload = Fixtures.createSample();
@@ -235,7 +276,7 @@ public class RestfulEnclaveClientTest {
     }
 
     @Test
-    public void enclaveUnavialable() throws Exception {
+    public void enclaveUnavailable() throws Exception {
 
         ExecutorService executorService = mock(ExecutorService.class);
 
@@ -254,7 +295,7 @@ public class RestfulEnclaveClientTest {
     }
 
     @Test
-    public void remoteEncalveReturnsError() {
+    public void remoteEnclaveReturnsError() {
 
         when(enclave.defaultPublicKey()).thenThrow(new RuntimeException());
 
