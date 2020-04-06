@@ -1,4 +1,4 @@
-name: Java CI with Gradle
+name: Tessera Gradle Build
 
 on: 
   push:
@@ -9,7 +9,7 @@ on:
       - master
 
 env:     
-  MAVEN_REPO_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+  GRADLE_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
 
 jobs:
   build:
@@ -29,9 +29,9 @@ jobs:
     - uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
-        key: ${{ env.MAVEN_REPO_CACHE_KEY }}
+        key: ${{ env.GRADLE_CACHE_KEY }}
         restore-keys: |
-          ${{ env.MAVEN_REPO_CACHE_KEY }}
+          ${{ env.GRADLE_CACHE_KEY }}
   
   checkdependencies: 
     runs-on: ubuntu-latest
@@ -42,9 +42,9 @@ jobs:
     - uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
-        key: ${{ env.MAVEN_REPO_CACHE_KEY }}
+        key: ${{ env.GRADLE_CACHE_KEY }}
         restore-keys: |
-          ${{ env.MAVEN_REPO_CACHE_KEY }}
+          ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/setup-java@v1
       with:
        java-version: 11
@@ -59,9 +59,9 @@ jobs:
     - uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
-        key: ${{ env.MAVEN_REPO_CACHE_KEY }}
+        key: ${{ env.GRADLE_CACHE_KEY }}
         restore-keys: |
-          ${{ env.MAVEN_REPO_CACHE_KEY }}
+          ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/setup-java@v1
       with:
        java-version: 11
@@ -75,9 +75,9 @@ jobs:
     - uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
-        key: ${{ env.MAVEN_REPO_CACHE_KEY }}
+        key: ${{ env.GRADLE_CACHE_KEY }}
         restore-keys: |
-          ${{ env.MAVEN_REPO_CACHE_KEY }}
+          ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/setup-java@v1
       with:
        java-version: 11
@@ -85,7 +85,7 @@ jobs:
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
-       name: junit-report
+       name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/test/index.html
       
   atest:
@@ -99,9 +99,9 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
-          key: ${{ env.MAVEN_REPO_CACHE_KEY }}
+          key: ${{ env.GRADLE_CACHE_KEY }}
           restore-keys: |
-            ${{ env.MAVEN_REPO_CACHE_KEY }}
+            ${{ env.GRADLE_CACHE_KEY }}
       - run: |
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           export TESSERA_JAR=`ls $(pwd)/tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar`

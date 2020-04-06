@@ -1,4 +1,4 @@
-name: Tessera CI Build
+name: Tessera Maven Build
 
 on: 
   push:
