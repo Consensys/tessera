@@ -1,4 +1,4 @@
-name: Tessera CI Build
+name: Tessera Maven Build
 
 on: 
   push:
@@ -7,8 +7,9 @@ on:
   pull_request:
     branches: 
       - master
-    
-    
+env: 
+  MAVEN_REPO_CACHE_KEY: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,13 +18,18 @@ jobs:
         - uses: actions/setup-java@v1
           with:
               java-version: 11
-        - run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
+        - run: | 
+           mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B 
+           mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -B
+           mvn dependency:go-offline -B
+           mvn dependency:resolve-plugins -B
+
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
-            key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+            key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
-              ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+              ${{env.MAVEN_REPO_CACHE_KEY}}
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
@@ -41,10 +47,10 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+          key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
-            ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-      - run: mvn package -pl \!tests/acceptance-test -P reduce-logging -o
+            ${{env.MAVEN_REPO_CACHE_KEY}}
+      - run: mvn package -pl \!tests/acceptance-test
       - uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
@@ -57,23 +63,6 @@ jobs:
           job_name: Unit tests
           url: ${{ secrets.SLACK_WEBHOOK }}
 
-  gradleBuild:
-        runs-on: ubuntu-latest
-        needs: build
-        steps:
-          - uses: actions/checkout@v2
-          - uses: actions/setup-java@v1
-            with:
-              java-version: 11
-          - run: ./gradlew build  -x :tests:acceptance-test:build -x javadoc
-       
-          - uses: homoluctus/slatify@v2.1.2
-            if: failure()
-            with:
-              type: ${{job.status}}
-              job_name: Gradle Build
-              url: ${{ secrets.SLACK_WEBHOOK }}
-            
   itest:
       runs-on: ubuntu-latest
       needs: build
@@ -85,10 +74,10 @@ jobs:
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
-            key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+            key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
-              ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-        - run: mvn verify -pl tests/acceptance-test -P reduce-logging -o
+              ${{env.MAVEN_REPO_CACHE_KEY}}
+        - run: mvn verify -pl tests/acceptance-test
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
@@ -107,21 +96,22 @@ jobs:
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
-            key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+            key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
-             ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+             ${{env.MAVEN_REPO_CACHE_KEY}}
         - run: |
             wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
             mkdir -p vault/bin && pushd $_
             unzip /tmp/vault_1.2.2_linux_amd64.zip
             export PATH=$PATH:$PWD && popd
-            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o
+            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
             type: ${{job.status}}
             job_name: Vault integration tests
             url: ${{ secrets.SLACK_WEBHOOK }}
+
   atest:
     runs-on: ubuntu-latest
     needs: build
@@ -133,9 +123,9 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+          key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
-            ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+            ${{env.MAVEN_REPO_CACHE_KEY}}
       - run: |
           export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
@@ -184,7 +174,7 @@ jobs:
 
   slackNotification:
     runs-on: ubuntu-latest
-    needs: [build,atest,itest,test,vaultTests,gradleBuild]
+    needs: [build,atest,itest,test,vaultTests]
     steps:
     - uses: homoluctus/slatify@v2.1.2
       with:
