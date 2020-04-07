@@ -1,14 +1,15 @@
-name: Tessera CI Build
+name: Tessera Maven Build
 
 on: 
   push:
     branches: 
-      - master
+      - new-psv
   pull_request:
     branches: 
       - master
-    
-    
+env: 
+  MAVEN_REPO_CACHE_KEY: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+ 
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -17,19 +18,18 @@ jobs:
         - uses: actions/setup-java@v1
           with:
               java-version: 11
-        - run: mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
+        - run: | 
+           mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B 
+           mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -B
+           mvn dependency:go-offline -B
+           mvn dependency:resolve-plugins -B
+
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
-            key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+            key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
-              ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-        - uses: homoluctus/slatify@v2.1.2
-          if: failure()
-          with:
-            type: ${{job.status}}
-            job_name: Build no checks
-            url: ${{ secrets.SLACK_WEBHOOK }}
+              ${{env.MAVEN_REPO_CACHE_KEY}}
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -41,39 +41,16 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+          key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
-            ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-      - run: mvn package -pl \!tests/acceptance-test -P reduce-logging -o
+            ${{env.MAVEN_REPO_CACHE_KEY}}
+      - run: mvn package -pl \!tests/acceptance-test
       - uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           flags: unittests
           fail_ci_if_error: true
-      - uses: homoluctus/slatify@v2.1.2
-        if: failure()
-        with:
-          type: ${{job.status}}
-          job_name: Unit tests
-          url: ${{ secrets.SLACK_WEBHOOK }}
 
-  gradleBuild:
-        runs-on: ubuntu-latest
-        needs: build
-        steps:
-          - uses: actions/checkout@v2
-          - uses: actions/setup-java@v1
-            with:
-              java-version: 11
-          - run: ./gradlew build  -x :tests:acceptance-test:build -x javadoc
-       
-          - uses: homoluctus/slatify@v2.1.2
-            if: failure()
-            with:
-              type: ${{job.status}}
-              job_name: Gradle Build
-              url: ${{ secrets.SLACK_WEBHOOK }}
-            
   itest:
       runs-on: ubuntu-latest
       needs: build
@@ -85,16 +62,10 @@ jobs:
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
-            key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+            key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
-              ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-        - run: mvn verify -pl tests/acceptance-test -P reduce-logging -o
-        - uses: homoluctus/slatify@v2.1.2
-          if: failure()
-          with:
-            type: ${{job.status}}
-            job_name: Integration tests
-            url: ${{ secrets.SLACK_WEBHOOK }}
+              ${{env.MAVEN_REPO_CACHE_KEY}}
+        - run: mvn verify -pl tests/acceptance-test
 
   vaultTests:
       runs-on: ubuntu-latest
@@ -107,21 +78,16 @@ jobs:
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
-            key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+            key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
-             ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+             ${{env.MAVEN_REPO_CACHE_KEY}}
         - run: |
             wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
             mkdir -p vault/bin && pushd $_
             unzip /tmp/vault_1.2.2_linux_amd64.zip
             export PATH=$PATH:$PWD && popd
-            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o
-        - uses: homoluctus/slatify@v2.1.2
-          if: failure()
-          with:
-            type: ${{job.status}}
-            job_name: Vault integration tests
-            url: ${{ secrets.SLACK_WEBHOOK }}
+            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests
+
   atest:
     runs-on: ubuntu-latest
     needs: build
@@ -133,19 +99,21 @@ jobs:
       - uses: actions/cache@v1
         with:
           path: ~/.m2/repository
-          key: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+          key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
-            ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+            ${{env.MAVEN_REPO_CACHE_KEY}}
       - run: |
           export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
           cd
           git clone https://github.com/jpmorganchase/quorum-examples.git
-          git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
-          echo "Install geth"
-          curl -L https://dl.bintray.com/quorumengineering/quorum/v2.5.0/geth_v2.5.0_linux_amd64.tar.gz -o geth.tar.gz
-          tar xvzf geth.tar.gz
-          sudo mv geth /usr/local/bin/
+          git clone -b feature/enhancedPrivacyTests https://github.com/QuorumEngineering/quorum-acceptance-tests.git
+          git clone -b feature/quorum-1.9.7-withPE  https://github.com/QuorumEngineering/quorum
+
+          cd quorum
+          make all
+          export PATH=$PATH:$(pwd)/build/bin
+          cd
           geth version
           echo "Installed geth"
           echo "Install solc"
@@ -182,12 +150,4 @@ jobs:
           job_name: Acceptance tests
           url: ${{ secrets.SLACK_WEBHOOK }}
 
-  slackNotification:
-    runs-on: ubuntu-latest
-    needs: [build,atest,itest,test,vaultTests,gradleBuild]
-    steps:
-    - uses: homoluctus/slatify@v2.1.2
-      with:
-        type: ${{job.status}}
-        job_name: Build
-        url: ${{ secrets.SLACK_WEBHOOK }}
+

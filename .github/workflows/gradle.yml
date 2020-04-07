@@ -1,0 +1,149 @@
+name: Tessera Gradle Build
+
+on: 
+  push:
+    branches: 
+      - new-psv
+  pull_request:
+    branches: 
+      - master
+
+env:     
+  GRADLE_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build -x test -x dependencyCheckAnalyze
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ env.GRADLE_CACHE_KEY }}
+        restore-keys: |
+          ${{ env.GRADLE_CACHE_KEY }}
+    - uses: actions/upload-artifact@v1
+      if: success()
+      with:
+        name: tessera-jars
+        path: /home/runner/work/tessera/tessera/tessera-dist/tessera-app/build/libs/
+  
+  checkdependencies: 
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ env.GRADLE_CACHE_KEY }}
+        restore-keys: |
+          ${{ env.GRADLE_CACHE_KEY }}
+    - uses: actions/setup-java@v1
+      with:
+       java-version: 11
+    - run: ./gradlew dependencyCheckAnalyze -x test
+       
+  test: 
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ env.GRADLE_CACHE_KEY }}
+        restore-keys: |
+          ${{ env.GRADLE_CACHE_KEY }}
+    - uses: actions/setup-java@v1
+      with:
+       java-version: 11
+    - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test
+  itest: 
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ env.GRADLE_CACHE_KEY }}
+        restore-keys: |
+          ${{ env.GRADLE_CACHE_KEY }}
+    - uses: actions/setup-java@v1
+      with:
+       java-version: 11
+    - run: ./gradlew :tests:acceptance-test:test
+    - uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+       name: itest-junit-report
+       path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+      
+  atest:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
+          restore-keys: |
+            ${{ env.GRADLE_CACHE_KEY }}
+      - run: |
+          ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
+          export TESSERA_JAR=`ls $(pwd)/tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar`
+          cd
+          git clone https://github.com/jpmorganchase/quorum-examples.git
+          git clone -b feature/enhancedPrivacyTests https://github.com/QuorumEngineering/quorum-acceptance-tests.git
+          git clone -b feature/quorum-1.9.7-withPE  https://github.com/QuorumEngineering/quorum
+
+          cd quorum
+          make all
+          export PATH=$PATH:$(pwd)/build/bin
+          cd
+          geth version
+          echo "Installed geth"
+          echo "Install solc"
+          curl -L https://github.com/ethereum/solidity/releases/download/v0.5.4/solc-static-linux -o solc
+          sudo mv solc /usr/local/bin/
+          sudo chmod 755 /usr/local/bin/solc
+          solc --version
+          echo "Installed solc"
+          echo "Install gauge"
+          curl -L https://github.com/getgauge/gauge/releases/download/v1.0.7/gauge-1.0.7-linux.x86_64.zip -o gauge.zip
+          sudo unzip -o gauge.zip -d /usr/local/bin
+          cd quorum-acceptance-tests
+          gauge install
+          cd
+          echo "Installed gauge"
+          echo "Start $TESSERA_JAR for 7 nodes"
+          cd quorum-examples/examples/7nodes
+          ./tessera-init.sh
+          ./init.sh istanbul
+          ./start.sh istanbul tessera
+          cd ../../../
+          echo "Started $TESSERA_JAR for 7 nodes"
+          echo "Run quorum-acceptance-tests"
+          cd quorum-acceptance-tests
+          cp config/application-local.7nodes.yml config/application-local.yml
+          mvn test
+          echo "Complete quorum-acceptance-tests"
+        env:
+          MAVEN_OPTS: -Xms1024m -Xmx2048m
