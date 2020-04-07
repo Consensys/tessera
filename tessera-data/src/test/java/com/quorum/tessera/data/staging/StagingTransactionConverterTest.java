@@ -2,8 +2,8 @@ package com.quorum.tessera.data.staging;
 
 import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.Nonce;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -29,16 +29,17 @@ public class StagingTransactionConverterTest {
     public void testConvertAndVersionStagingTransaction() {
 
         final EncodedPayload originalPayload1 =
-                new EncodedPayload(
-                        sender,
-                        "cipherText".getBytes(),
-                        new Nonce("nonce".getBytes()),
-                        Arrays.asList("box1".getBytes(), "box2".getBytes()),
-                        new Nonce("recipientNonce".getBytes()),
-                        Arrays.asList(recipient1, recipient2),
-                        PrivacyMode.PARTY_PROTECTION,
-                        emptyMap(),
-                        "execHash".getBytes());
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withCipherText("cipherText".getBytes())
+                        .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                        .withRecipientBoxes(Arrays.asList("box1".getBytes(), "box2".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(Arrays.asList(recipient1, recipient2))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(emptyMap())
+                        .withExecHash("execHash".getBytes())
+                        .build();
 
         final TxHash txHash1 =
                 new TxHash(
@@ -51,16 +52,17 @@ public class StagingTransactionConverterTest {
         affectedTx.put(txHash1, encodedRaw1);
 
         final EncodedPayload originalPayload2 =
-                new EncodedPayload(
-                        sender,
-                        "cipherText".getBytes(),
-                        new Nonce("nonce".getBytes()),
-                        Arrays.asList("box1".getBytes(), "box2".getBytes()),
-                        new Nonce("recipientNonce".getBytes()),
-                        Arrays.asList(recipient1, recipient2),
-                        PrivacyMode.PARTY_PROTECTION,
-                        affectedTx,
-                        "execHash".getBytes());
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withCipherText("cipherText".getBytes())
+                        .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                        .withRecipientBoxes(Arrays.asList("box1".getBytes(), "box2".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(Arrays.asList(recipient1, recipient2))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(affectedTx)
+                        .withExecHash("execHash".getBytes())
+                        .build();
 
         final TxHash txHash2 =
                 new TxHash(
@@ -69,52 +71,56 @@ public class StagingTransactionConverterTest {
                                 .getHashBytes());
 
         final EncodedPayload payload1Recipient1 =
-                new EncodedPayload(
-                        sender,
-                        "cipherText".getBytes(),
-                        new Nonce("nonce".getBytes()),
-                        singletonList("box1".getBytes()),
-                        new Nonce("recipientNonce".getBytes()),
-                        singletonList(recipient1),
-                        PrivacyMode.PARTY_PROTECTION,
-                        emptyMap(),
-                        "execHash".getBytes());
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withCipherText("cipherText".getBytes())
+                        .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                        .withRecipientBoxes(singletonList("box1".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(singletonList(recipient1))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(emptyMap())
+                        .withExecHash("execHash".getBytes())
+                        .build();
 
         final EncodedPayload payload1Recipient2 =
-                new EncodedPayload(
-                        sender,
-                        "cipherText".getBytes(),
-                        new Nonce("nonce".getBytes()),
-                        singletonList("box2".getBytes()),
-                        new Nonce("recipientNonce".getBytes()),
-                        singletonList(recipient2),
-                        PrivacyMode.PARTY_PROTECTION,
-                        emptyMap(),
-                        "execHash".getBytes());
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withCipherText("cipherText".getBytes())
+                        .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                        .withRecipientBoxes(singletonList("box2".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(singletonList(recipient2))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(emptyMap())
+                        .withExecHash("execHash".getBytes())
+                        .build();
 
         final EncodedPayload payload2Recipient1 =
-                new EncodedPayload(
-                        sender,
-                        "cipherText".getBytes(),
-                        new Nonce("nonce".getBytes()),
-                        singletonList("box1".getBytes()),
-                        new Nonce("recipientNonce".getBytes()),
-                        singletonList(recipient1),
-                        PrivacyMode.PARTY_PROTECTION,
-                        affectedTx,
-                        "execHash".getBytes());
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withCipherText("cipherText".getBytes())
+                        .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                        .withRecipientBoxes(singletonList("box1".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(singletonList(recipient1))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(affectedTx)
+                        .withExecHash("execHash".getBytes())
+                        .build();
 
         final EncodedPayload payload2Recipient2 =
-                new EncodedPayload(
-                        sender,
-                        "cipherText".getBytes(),
-                        new Nonce("nonce".getBytes()),
-                        singletonList("box2".getBytes()),
-                        new Nonce("recipientNonce".getBytes()),
-                        singletonList(recipient2),
-                        PrivacyMode.PARTY_PROTECTION,
-                        affectedTx,
-                        "execHash".getBytes());
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withCipherText("cipherText".getBytes())
+                        .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                        .withRecipientBoxes(singletonList("box2".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(singletonList(recipient2))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(affectedTx)
+                        .withExecHash("execHash".getBytes())
+                        .build();
 
         final StagingTransaction stagingTransaction1 =
                 StagingTransactionConverter.fromRawPayload(encoder.encode(payload2Recipient1));
