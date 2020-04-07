@@ -118,11 +118,6 @@ jobs:
           make all
           export PATH=$PATH:$(pwd)/build/bin
           cd
-
-        # echo "Install geth"
-        #  curl -L https://dl.bintray.com/quorumengineering/quorum/v2.5.0/geth_v2.5.0_linux_amd64.tar.gz -o geth.tar.gz
-       #   tar xvzf geth.tar.gz
-        #  sudo mv geth /usr/local/bin/
           geth version
           echo "Installed geth"
           echo "Install solc"
