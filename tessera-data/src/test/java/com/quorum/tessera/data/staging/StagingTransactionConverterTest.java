@@ -3,7 +3,7 @@ package com.quorum.tessera.data.staging;
 import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.nacl.Nonce;
+import com.quorum.tessera.encryption.Nonce;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -29,7 +29,7 @@ public class StagingTransactionConverterTest {
     public void testConvertAndVersionStagingTransaction() {
 
         final EncodedPayload originalPayload1 =
-                new EncodedPayload(
+                createEncodedPayload(
                         sender,
                         "cipherText".getBytes(),
                         new Nonce("nonce".getBytes()),
@@ -51,7 +51,7 @@ public class StagingTransactionConverterTest {
         affectedTx.put(txHash1, encodedRaw1);
 
         final EncodedPayload originalPayload2 =
-                new EncodedPayload(
+                createEncodedPayload(
                         sender,
                         "cipherText".getBytes(),
                         new Nonce("nonce".getBytes()),
@@ -69,7 +69,7 @@ public class StagingTransactionConverterTest {
                                 .getHashBytes());
 
         final EncodedPayload payload1Recipient1 =
-                new EncodedPayload(
+                createEncodedPayload(
                         sender,
                         "cipherText".getBytes(),
                         new Nonce("nonce".getBytes()),
@@ -81,7 +81,7 @@ public class StagingTransactionConverterTest {
                         "execHash".getBytes());
 
         final EncodedPayload payload1Recipient2 =
-                new EncodedPayload(
+                createEncodedPayload(
                         sender,
                         "cipherText".getBytes(),
                         new Nonce("nonce".getBytes()),
@@ -93,7 +93,7 @@ public class StagingTransactionConverterTest {
                         "execHash".getBytes());
 
         final EncodedPayload payload2Recipient1 =
-                new EncodedPayload(
+                createEncodedPayload(
                         sender,
                         "cipherText".getBytes(),
                         new Nonce("nonce".getBytes()),
@@ -105,7 +105,7 @@ public class StagingTransactionConverterTest {
                         "execHash".getBytes());
 
         final EncodedPayload payload2Recipient2 =
-                new EncodedPayload(
+                createEncodedPayload(
                         sender,
                         "cipherText".getBytes(),
                         new Nonce("nonce".getBytes()),
@@ -231,4 +231,30 @@ public class StagingTransactionConverterTest {
         assertThat(StagingTransactionConverter.versionStagingTransaction(st1, st2).getIssues())
                 .isEqualTo("Recipients mismatched across versions");
     }
+
+    // CHECKSTYLE.OFF Too many args
+    static EncodedPayload createEncodedPayload(
+            final PublicKey senderKey,
+            final byte[] cipherText,
+            final Nonce cipherTextNonce,
+            final List<byte[]> recipientBoxes,
+            final Nonce recipientNonce,
+            final List<PublicKey> recipientKeys,
+            final PrivacyMode privacyMode,
+            final Map<TxHash, byte[]> affectedContractTransactions,
+            final byte[] execHash) {
+
+        return EncodedPayload.Builder.create()
+                .withSenderKey(senderKey)
+                .withCipherText(cipherText)
+                .withCipherTextNonce(cipherTextNonce)
+                .withRecipientBoxes(recipientBoxes)
+                .withRecipientNonce(recipientNonce)
+                .withRecipientKeys(recipientKeys)
+                .withPrivacyMode(privacyMode)
+                .withAffectedContractTransactions(affectedContractTransactions)
+                .withExecHash(execHash)
+                .build();
+    }
+    // CHECKSTYLE.ON:
 }
