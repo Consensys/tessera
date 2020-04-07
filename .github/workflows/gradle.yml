@@ -32,11 +32,11 @@ jobs:
         key: ${{ env.GRADLE_CACHE_KEY }}
         restore-keys: |
           ${{ env.GRADLE_CACHE_KEY }}
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v1
       if: success()
       with:
-        name: tessera-shaded-jar
-        path: /home/runner/work/tessera/tessera/tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar
+        name: tessera-jars
+        path: /home/runner/work/tessera/tessera/tessera-dist/tessera-app/build/libs/
   
   checkdependencies: 
     runs-on: ubuntu-latest
