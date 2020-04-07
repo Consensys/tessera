@@ -1,33 +1,23 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.partyinfo.ResendManager;
-import com.quorum.tessera.data.EncryptedRawTransactionDAO;
-import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.partyinfo.ResendRequestType;
-import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.RawTransaction;
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.Nonce;
-import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
-import com.quorum.tessera.partyinfo.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
-import com.quorum.tessera.data.EncryptedRawTransaction;
-import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.util.Base64Decoder;
 import org.junit.After;
 import org.junit.Before;
@@ -35,10 +25,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.*;
-
-import static java.util.Collections.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -1060,5 +1050,124 @@ public class TransactionManagerTest {
                         1000);
 
         assertThat(tm).isNotNull();
+    }
+
+    @Test
+    public void isSenderThrowsOnMissingTransaction() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
+
+        final Throwable throwable = catchThrowable(() -> transactionManager.isSender(key));
+
+        assertThat(throwable)
+                .isInstanceOf(TransactionNotFoundException.class)
+                .hasMessage("Message with hash RFVNTVlfVFJBTlNBQ1RJT04= was not found");
+
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+    @Test
+    public void isSenderReturnsFalseIfNotSender() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
+
+        final byte[] input = "SOMEDATA".getBytes();
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
+        final EncodedPayload encodedPayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(new ArrayList<>())
+                        .withRecipientKeys(new ArrayList<>())
+                        .build();
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
+                .thenReturn(Optional.of(encryptedTransaction));
+        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+        when(enclave.getPublicKeys()).thenReturn(emptySet());
+
+        final boolean isSender = transactionManager.isSender(key);
+
+        assertThat(isSender).isFalse();
+
+        verify(enclave).getPublicKeys();
+        verify(payloadEncoder).decode(input);
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+    @Test
+    public void isSenderReturnsTrueIfSender() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
+
+        final byte[] input = "SOMEDATA".getBytes();
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
+        final EncodedPayload encodedPayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(new ArrayList<>())
+                        .withRecipientKeys(new ArrayList<>())
+                        .build();
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
+                .thenReturn(Optional.of(encryptedTransaction));
+        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+        when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
+
+        final boolean isSender = transactionManager.isSender(key);
+
+        assertThat(isSender).isTrue();
+
+        verify(enclave).getPublicKeys();
+        verify(payloadEncoder).decode(input);
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+    @Test
+    public void getParticipantsThrowsOnMissingTransaction() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
+
+        final Throwable throwable = catchThrowable(() -> transactionManager.getParticipants(key));
+
+        assertThat(throwable)
+                .isInstanceOf(TransactionNotFoundException.class)
+                .hasMessage("Message with hash RFVNTVlfVFJBTlNBQ1RJT04= was not found");
+
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+    @Test
+    public void getParticipantsReturnsAllRecipients() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
+        final PublicKey recipientKey = PublicKey.from("RECIPIENTS".getBytes());
+
+        final byte[] input = "SOMEDATA".getBytes();
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
+        final EncodedPayload encodedPayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(new ArrayList<>())
+                        .withRecipientKeys(Arrays.asList(senderKey, recipientKey))
+                        .build();
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
+                .thenReturn(Optional.of(encryptedTransaction));
+        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+
+        final List<PublicKey> participants = transactionManager.getParticipants(key);
+
+        assertThat(participants).containsExactlyInAnyOrder(senderKey, recipientKey);
+
+        verify(payloadEncoder).decode(input);
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     }
 }
