@@ -143,11 +143,5 @@ jobs:
           echo "Complete quorum-acceptance-tests"
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
-      - uses: homoluctus/slatify@v2.1.2
-        if: failure()
-        with:
-          type: ${{job.status}}
-          job_name: Acceptance tests
-          url: ${{ secrets.SLACK_WEBHOOK }}
 
 
