@@ -3,7 +3,7 @@ name: Tessera Gradle Build
 on: 
   push:
     branches: 
-      - master
+      - new-psv
   pull_request:
     branches: 
       - master
@@ -111,11 +111,18 @@ jobs:
           export TESSERA_JAR=`ls $(pwd)/tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar`
           cd
           git clone https://github.com/jpmorganchase/quorum-examples.git
-          git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
-          echo "Install geth"
-          curl -L https://dl.bintray.com/quorumengineering/quorum/v2.5.0/geth_v2.5.0_linux_amd64.tar.gz -o geth.tar.gz
-          tar xvzf geth.tar.gz
-          sudo mv geth /usr/local/bin/
+          git clone -b feature/enhancedPrivacyTests https://github.com/QuorumEngineering/quorum-acceptance-tests.git
+          git clone -b feature/quorum-1.9.7-withPE  https://github.com/QuorumEngineering/quorum
+
+          cd quorum
+          make all
+          export PATH=$PATH:$(pwd)/build/bin
+          cd
+
+        # echo "Install geth"
+        #  curl -L https://dl.bintray.com/quorumengineering/quorum/v2.5.0/geth_v2.5.0_linux_amd64.tar.gz -o geth.tar.gz
+       #   tar xvzf geth.tar.gz
+        #  sudo mv geth /usr/local/bin/
           geth version
           echo "Installed geth"
           echo "Install solc"
