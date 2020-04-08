@@ -95,13 +95,13 @@ jobs:
         with:
           repository: QuorumEngineering/quorum
           path: quorum
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
           ref: feature/quorum-1.9.7-withPE
       - uses: actions/checkout@v2
         with:
           repository: QuorumEngineering/quorum-acceptance-tests
           path: quorum-acceptance-tests
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
           ref: feature/enhancedPrivacyTests
       - uses: actions/checkout@v2
         with:
