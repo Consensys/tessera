@@ -90,6 +90,7 @@ jobs:
 
   atest:
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -145,7 +146,7 @@ jobs:
           cd /home/runner/work/tessera/tessera
           echo "Installed gauge"
           echo "Start $TESSERA_JAR for 7 nodes"
-          cd ~/quorum-examples/examples/7nodes
+          cd /home/runner/work/tessera/tessera/quorum-examples/examples/7nodes
           ./tessera-init.sh
           ./init.sh istanbul
           ./start.sh istanbul tessera
