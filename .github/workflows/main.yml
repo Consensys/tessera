@@ -164,4 +164,9 @@ jobs:
         with:
             name: gauge-report
             path: /home/runner/work/tessera/tessera/quorum-acceptance-tests/src/site/resources/reports/html-report/
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+            name: quorum-examples-qdata
+            path: /home/runner/work/tessera/tessera/quorum-examples/examples/7nodes/qdata/
 
