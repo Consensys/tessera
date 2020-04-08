@@ -103,7 +103,7 @@ jobs:
           repository: QuorumEngineering/quorum-acceptance-tests
           path: quorum-acceptance-tests
           token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
-          ref: feature/enhancedPrivacyTests
+          #ref: feature/enhancedPrivacyTests
       - uses: actions/checkout@v2
         with:
           repository: jpmorganchase/quorum-examples
