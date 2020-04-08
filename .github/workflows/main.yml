@@ -90,21 +90,20 @@ jobs:
 
   atest:
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: QuorumEngineering/quorum
+          repository: QuorumEngineering
           path: quorum
           ref: feature/quorum-1.9.7-withPE
       - uses: actions/checkout@v2
         with:
-          repository: QuorumEngineering/quorum-acceptance-tests
+          repository: QuorumEngineering
           path: quorum-acceptance-tests
           ref: feature/enhancedPrivacyTests
       - uses: actions/checkout@v2
         with:
-          repository: jpmorganchase/quorum-examples
+          repository: jpmorganchase
           path: quorum-examples
       - uses: actions/setup-java@v1
         with:
