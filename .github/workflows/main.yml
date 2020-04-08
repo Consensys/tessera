@@ -119,11 +119,6 @@ jobs:
           key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
             ${{env.MAVEN_REPO_CACHE_KEY}}
-      - uses: actions/upload-artifact@v1
-        with:
-            name: gauge-report
-            path: /home/runner/work/tessera/tessera/quorum-acceptance-tests/src/site/resources/reports/html-report/
-
       - run: |
 
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/0.11-SNAPSHOT/tessera-app-0.11-SNAPSHOT-app.jar
@@ -164,4 +159,8 @@ jobs:
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
 
+      - uses: actions/upload-artifact@v1
+        with:
+            name: gauge-report
+            path: /home/runner/work/tessera/tessera/quorum-acceptance-tests/src/site/resources/reports/html-report/
 
