@@ -122,8 +122,9 @@ jobs:
       - run: |
           export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
-          
+          env
           pwd
+          ls
           cd ~/quorum
           make all
           export PATH=$PATH:$(pwd)/build/bin
