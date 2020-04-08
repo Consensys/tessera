@@ -108,6 +108,10 @@ jobs:
           cd
           git clone https://github.com/jpmorganchase/quorum-examples.git
           echo "Cloned quorum-examples"
+          
+          git config user.email "melowe.quorum@gmail.com"
+          git config user.name "melowe"
+          
           git clone -b feature/enhancedPrivacyTests https://github.com/QuorumEngineering/quorum-acceptance-tests.git
           echo "quorum-acceptance-tests"
           git clone -b feature/quorum-1.9.7-withPE  https://github.com/QuorumEngineering/quorum
