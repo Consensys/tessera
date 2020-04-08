@@ -124,13 +124,13 @@ jobs:
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
           
           pwd
-          cd
           cd quorum
           make all
           export PATH=$PATH:$(pwd)/build/bin
-          cd
+          cd ..
           geth version
           echo "Installed geth"
+          
           echo "Install solc"
           curl -L https://github.com/ethereum/solidity/releases/download/v0.5.4/solc-static-linux -o solc
           sudo mv solc /usr/local/bin/
@@ -140,17 +140,17 @@ jobs:
           echo "Install gauge"
           curl -L https://github.com/getgauge/gauge/releases/download/v1.0.7/gauge-1.0.7-linux.x86_64.zip -o gauge.zip
           sudo unzip -o gauge.zip -d /usr/local/bin
-          cd
+
           cd quorum-acceptance-tests
           gauge install
-          cd
+          cd ..
           echo "Installed gauge"
           echo "Start $TESSERA_JAR for 7 nodes"
           cd quorum-examples/examples/7nodes
           ./tessera-init.sh
           ./init.sh istanbul
           ./start.sh istanbul tessera
-          cd
+          cd ../../../
           echo "Started $TESSERA_JAR for 7 nodes"
           echo "Run quorum-acceptance-tests"
           cd quorum-acceptance-tests
