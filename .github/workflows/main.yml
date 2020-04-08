@@ -93,10 +93,10 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v2
-      with:
-        repository: QuorumEngineering/quorum
-        path: quorum
-        ref: feature/quorum-1.9.7-withPE
+        with:
+          repository: QuorumEngineering/quorum
+          path: quorum
+          ref: feature/quorum-1.9.7-withPE
       - uses: actions/checkout@v2
         with:
           repository: QuorumEngineering/quorum-acceptance-tests
