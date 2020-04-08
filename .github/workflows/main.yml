@@ -106,8 +106,10 @@ jobs:
           ref: feature/quorum-1.9.7-withPE
       - uses: actions/checkout@v2
         with:
-          repository: jpmorganchase/quorum-examples
+          repository: QuorumEngineering/quorum-examples
           path: quorum-examples
+          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
+          ref: state-extension
       - uses: actions/setup-java@v1
         with:
           java-version: 11
