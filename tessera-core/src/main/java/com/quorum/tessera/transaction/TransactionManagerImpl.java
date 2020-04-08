@@ -238,11 +238,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         this.encryptedTransactionDAO.save(newTransaction);
 
-        recipientListNoDuplicate.forEach(
-                recipient -> {
-                    final EncodedPayload toPublish = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(toPublish, recipient);
-                });
+        publish(recipientListNoDuplicate, payload);
 
         final byte[] key = messageHash.getHashBytes();
 
@@ -282,17 +278,18 @@ public class TransactionManagerImpl implements TransactionManager {
                                             // a malicious party may be able to craft TXs that prevent others from
                                             // performing resends
                                             final PublicKey decryptedKey =
-                                                searchForRecipientKey(payload)
-                                                    .orElseThrow(
-                                                        () -> {
-                                                            final MessageHash hash =
-                                                                MessageHashFactory.create()
-                                                                    .createFromCipherText(
-                                                                        payload.getCipherText());
-                                                            return new KeyNotFoundException(
-                                                                "No key found as recipient of message "
-                                                                    + hash);
-                                                        });
+                                                    searchForRecipientKey(payload)
+                                                            .orElseThrow(
+                                                                    () -> {
+                                                                        final MessageHash hash =
+                                                                                MessageHashFactory.create()
+                                                                                        .createFromCipherText(
+                                                                                                payload
+                                                                                                        .getCipherText());
+                                                                        return new KeyNotFoundException(
+                                                                                "No key found as recipient of message "
+                                                                                        + hash);
+                                                                    });
 
                                             prunedPayload = payloadEncoder.withRecipient(payload, decryptedKey);
                                         } else {

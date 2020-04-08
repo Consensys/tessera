@@ -46,7 +46,7 @@ public class TransactionResourceTest {
     @Test
     public void receiveFromParams() {
 
-        Response result = transactionResource.receive("", "");
+        Response result = transactionResource.receive("", "", "false");
         assertThat(result.getStatus()).isEqualTo(200);
         verify(transactionManager).receive(any(ReceiveRequest.class));
     }

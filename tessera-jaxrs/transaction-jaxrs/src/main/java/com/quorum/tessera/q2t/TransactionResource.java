@@ -55,7 +55,9 @@ public class TransactionResource {
     @Path("send")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response send(@ApiParam(name = "sendRequest", required = true) @NotNull @Valid @PrivacyValid final SendRequest sendRequest)
+    public Response send(
+            @ApiParam(name = "sendRequest", required = true) @NotNull @Valid @PrivacyValid
+                    final SendRequest sendRequest)
             throws UnsupportedEncodingException {
 
         final SendResponse response = delegate.send(sendRequest);
@@ -115,9 +117,9 @@ public class TransactionResource {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Response sendSignedTransaction(
-        @ApiParam(name = "sendSignedRequest", required = true) @NotNull @Valid @PrivacyValid
-        final SendSignedRequest sendSignedRequest)
-        throws UnsupportedEncodingException {
+            @ApiParam(name = "sendSignedRequest", required = true) @NotNull @Valid @PrivacyValid
+                    final SendSignedRequest sendSignedRequest)
+            throws UnsupportedEncodingException {
 
         final SendResponse response = delegate.sendSignedTransaction(sendSignedRequest);
 
@@ -126,9 +128,9 @@ public class TransactionResource {
         LOGGER.debug("Encoded key: {}", encodedKey);
 
         URI location =
-            UriBuilder.fromPath("transaction")
-                .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
-                .build();
+                UriBuilder.fromPath("transaction")
+                        .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
+                        .build();
 
         return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(response).build();
     }
@@ -179,11 +181,13 @@ public class TransactionResource {
     @Produces(APPLICATION_JSON)
     public Response receive(
             @ApiParam("Encoded hash used to decrypt the payload") @NotNull @Valid @PathParam("hash") final String hash,
-            @ApiParam("Encoded recipient key") @Valid @QueryParam("to") final String toStr) {
+            @ApiParam("Encoded recipient key") @Valid @QueryParam("to") final String toStr,
+            @ApiParam("isRaw flag") @Valid @QueryParam("isRaw") final String isRaw) {
 
         ReceiveRequest receiveRequest = new ReceiveRequest();
         receiveRequest.setKey(hash);
         receiveRequest.setTo(toStr);
+        receiveRequest.setRaw(Boolean.valueOf(isRaw));
         ReceiveResponse response = delegate.receive(receiveRequest);
 
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(response).build();
