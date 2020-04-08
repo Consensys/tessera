@@ -4,6 +4,10 @@ import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedRawTransactionDAOImpl;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAOImpl;
+import com.quorum.tessera.data.staging.StagingEntityDAO;
+import com.quorum.tessera.data.staging.StagingEntityDAOBatch;
+import com.quorum.tessera.data.staging.StagingEntityDAOBatchImpl;
+import com.quorum.tessera.data.staging.StagingEntityDAOImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +32,16 @@ public abstract class JpaConfig {
     @Bean
     public EncryptedRawTransactionDAO encryptedRawTransactionDAO() {
         return new EncryptedRawTransactionDAOImpl();
+    }
+
+    @Bean
+    public StagingEntityDAOBatch stagingEntityDAOBatch() {
+        return new StagingEntityDAOBatchImpl();
+    }
+
+    @Bean
+    public StagingEntityDAO stagingEntityDAO(StagingEntityDAOBatch stagingEntityDAOBatch) {
+        return new StagingEntityDAOImpl(stagingEntityDAOBatch);
     }
 
     @Bean

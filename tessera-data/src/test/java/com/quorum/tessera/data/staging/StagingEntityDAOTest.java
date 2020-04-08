@@ -5,6 +5,7 @@ import com.quorum.tessera.data.jpatest.JpaHsqlConfig;
 import com.quorum.tessera.data.jpatest.JpaSqliteConfig;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
