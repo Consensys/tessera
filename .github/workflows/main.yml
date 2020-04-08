@@ -44,13 +44,22 @@ jobs:
           key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
             ${{env.MAVEN_REPO_CACHE_KEY}}
-      - run: mvn package -pl \!tests/acceptance-test
+      - run: | 
+          mvn package -pl \!tests/acceptance-test
+          mkdir /home/runner/work/tessera/tessera/surefire-reports
+          cp **/target/surefire-reports/* /home/runner/work/tessera/tessera/surefire-reports/
+          
       - uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           flags: unittests
           fail_ci_if_error: true
-
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: junit-reports
+          path: /home/runner/work/tessera/tessera/surefire-reports
+            
   itest:
       runs-on: ubuntu-latest
       needs: build
