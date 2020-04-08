@@ -66,6 +66,11 @@ jobs:
             restore-keys: |
               ${{env.MAVEN_REPO_CACHE_KEY}}
         - run: mvn verify -pl tests/acceptance-test
+        - uses: actions/upload-artifact@v1
+          if: failure()
+          with:
+            name: itest-failsafe-reports
+            path: /home/runner/work/tessera/tessera/tests/acceptance-test/target/failsafe-reports
 
   vaultTests:
       runs-on: ubuntu-latest
