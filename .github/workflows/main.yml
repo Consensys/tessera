@@ -93,17 +93,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          repository: QuorumEngineering
+          repository: QuorumEngineering/quorum
           path: quorum
           ref: feature/quorum-1.9.7-withPE
       - uses: actions/checkout@v2
         with:
-          repository: QuorumEngineering
+          repository: QuorumEngineering/quorum-acceptance-tests
           path: quorum-acceptance-tests
           ref: feature/enhancedPrivacyTests
       - uses: actions/checkout@v2
         with:
-          repository: jpmorganchase
+          repository: jpmorganchase/quorum-examples
           path: quorum-examples
       - uses: actions/setup-java@v1
         with:
