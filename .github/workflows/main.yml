@@ -107,9 +107,11 @@ jobs:
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
           cd
           git clone https://github.com/jpmorganchase/quorum-examples.git
+          echo "Cloned quorum-examples"
           git clone -b feature/enhancedPrivacyTests https://github.com/QuorumEngineering/quorum-acceptance-tests.git
+          echo "quorum-acceptance-tests"
           git clone -b feature/quorum-1.9.7-withPE  https://github.com/QuorumEngineering/quorum
-
+          echo "Cloned quorum"
           cd quorum
           make all
           export PATH=$PATH:$(pwd)/build/bin
@@ -143,11 +145,5 @@ jobs:
           echo "Complete quorum-acceptance-tests"
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
-      - uses: homoluctus/slatify@v2.1.2
-        if: failure()
-        with:
-          type: ${{job.status}}
-          job_name: Acceptance tests
-          url: ${{ secrets.SLACK_WEBHOOK }}
 
 
