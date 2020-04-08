@@ -105,8 +105,8 @@ jobs:
       - run: |
           export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
-          git config user.email "melowe.quorum@gmail.com"
-          git config user.name "melowe"
+          git config  --global user.email "melowe.quorum@gmail.com"
+          git config  --global user.name "melowe"
           cd
           git clone https://github.com/jpmorganchase/quorum-examples.git
           echo "Cloned quorum-examples"
