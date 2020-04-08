@@ -122,11 +122,10 @@ jobs:
       - run: |
           export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
-          cd
           cd quorum
           make all
           export PATH=$PATH:$(pwd)/build/bin
-          cd
+          cd ~/tessera
           geth version
           echo "Installed geth"
           echo "Install solc"
@@ -140,7 +139,7 @@ jobs:
           sudo unzip -o gauge.zip -d /usr/local/bin
           cd quorum-acceptance-tests
           gauge install
-          cd
+          cd ~/tessera
           echo "Installed gauge"
           echo "Start $TESSERA_JAR for 7 nodes"
           cd quorum-examples/examples/7nodes
