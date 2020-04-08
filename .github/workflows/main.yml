@@ -93,6 +93,22 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v2
+      with:
+        repository: QuorumEngineering/quorum
+        path: quorum
+        ref: feature/quorum-1.9.7-withPE
+      - uses: actions/checkout@v2
+        with:
+          repository: QuorumEngineering/quorum-acceptance-tests
+          path: quorum-acceptance-tests
+          ref: feature/enhancedPrivacyTests
+      - uses: actions/checkout@v2
+        with:
+          repository: jpmorganchase/quorum-examples
+          path: quorum-examples
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
       - uses: actions/setup-java@v1
         with:
           java-version: 11
@@ -105,16 +121,7 @@ jobs:
       - run: |
           export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
-          git config  --global user.email "melowe.quorum@gmail.com"
-          git config  --global user.name "melowe"
           cd
-          git clone https://github.com/jpmorganchase/quorum-examples.git
-          echo "Cloned quorum-examples"
-
-          git clone -b feature/enhancedPrivacyTests https://github.com/QuorumEngineering/quorum-acceptance-tests.git
-          echo "quorum-acceptance-tests"
-          git clone -b feature/quorum-1.9.7-withPE  https://github.com/QuorumEngineering/quorum
-          echo "Cloned quorum"
           cd quorum
           make all
           export PATH=$PATH:$(pwd)/build/bin
