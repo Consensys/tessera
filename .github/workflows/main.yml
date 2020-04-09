@@ -44,8 +44,8 @@ jobs:
           key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
             ${{env.MAVEN_REPO_CACHE_KEY}}
-      - run: | 
-          mvn package -pl \!tests/acceptance-test
+      - run:  mvn package -pl \!tests/acceptance-test
+      - run: |
           mkdir -p /home/runner/work/tessera/tessera/surefire-reports
           cp **/target/surefire-reports/* /home/runner/work/tessera/tessera/surefire-reports/
           
