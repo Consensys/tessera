@@ -515,6 +515,7 @@ public class TransactionManagerTest {
         verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
         verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
         verify(enclave).getForwardingKeys();
+        verify(enclave, times(2)).getPublicKeys();
     }
 
     @Test
@@ -557,6 +558,7 @@ public class TransactionManagerTest {
         verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
         verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
         verify(enclave).getForwardingKeys();
+        verify(enclave, times(2)).getPublicKeys();
     }
 
     @Test
