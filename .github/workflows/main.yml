@@ -53,6 +53,7 @@ jobs:
       - run: |
           mkdir -p /home/runner/work/tessera/tessera/surefire-reports
           cp **/target/surefire-reports/* /home/runner/work/tessera/tessera/surefire-reports/
+        if: failure()
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
