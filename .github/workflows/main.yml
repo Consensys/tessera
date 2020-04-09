@@ -46,7 +46,7 @@ jobs:
             ${{env.MAVEN_REPO_CACHE_KEY}}
       - run: | 
           mvn package -pl \!tests/acceptance-test
-          mkdir /home/runner/work/tessera/tessera/surefire-reports
+          mkdir -p /home/runner/work/tessera/tessera/surefire-reports
           cp **/target/surefire-reports/* /home/runner/work/tessera/tessera/surefire-reports/
           
       - uses: codecov/codecov-action@v1
