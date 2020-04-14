@@ -637,4 +637,32 @@ public class TransactionManagerImpl implements TransactionManager {
 
         return result;
     }
+
+    @Override
+    @Transactional
+    public boolean isSender(final String key) {
+        final byte[] hashBytes = base64Decoder.decode(key);
+        final MessageHash hash = new MessageHash(hashBytes);
+        final EncodedPayload payload = this.fetchPayload(hash);
+        return enclave.getPublicKeys().contains(payload.getSenderKey());
+    }
+
+    @Override
+    @Transactional
+    public List<PublicKey> getParticipants(final String ptmHash) {
+        final byte[] hashBytes = base64Decoder.decode(ptmHash);
+        final MessageHash hash = new MessageHash(hashBytes);
+        final EncodedPayload payload = this.fetchPayload(hash);
+
+        // this includes the sender
+        return payload.getRecipientKeys();
+    }
+
+    private EncodedPayload fetchPayload(final MessageHash hash) {
+        return encryptedTransactionDAO
+                .retrieveByHash(hash)
+                .map(EncryptedTransaction::getEncodedPayload)
+                .map(payloadEncoder::decode)
+                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
+    }
 }

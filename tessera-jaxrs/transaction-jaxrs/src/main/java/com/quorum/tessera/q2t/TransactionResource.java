@@ -3,6 +3,7 @@ package com.quorum.tessera.q2t;
 import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static javax.ws.rs.core.MediaType.*;
 
@@ -266,5 +268,30 @@ public class TransactionResource {
         delegate.delete(delete);
 
         return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/transaction/{key}/isSender")
+    public Response isSender(@ApiParam("Encoded hash") @PathParam("key") final String ptmHash) {
+
+        LOGGER.debug("Received isSender API request for key {}", ptmHash);
+
+        boolean isSender = delegate.isSender(ptmHash);
+
+        return Response.ok(isSender).build();
+    }
+
+    @GET
+    @Path("/transaction/{key}/participants")
+    public Response getParticipants(@ApiParam("Encoded hash") @PathParam("key") final String ptmHash) {
+
+        LOGGER.debug("Received participants list API request for key {}", ptmHash);
+
+        final String participantList =
+                delegate.getParticipants(ptmHash).stream()
+                        .map(PublicKey::encodeToBase64)
+                        .collect(Collectors.joining(","));
+
+        return Response.ok(participantList).build();
     }
 }

@@ -181,4 +181,26 @@ public class TransactionResourceTest {
 
         verify(transactionManager).delete(deleteRequest);
     }
+
+    @Test
+    public void isSenderDelegates() {
+        final String dummyPtmHash = "DUMMY_HASH";
+
+        Response response = transactionResource.isSender(dummyPtmHash);
+
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        verify(transactionManager).isSender(dummyPtmHash);
+    }
+
+    @Test
+    public void getParticipantsDelegates() {
+        final String dummyPtmHash = "DUMMY_HASH";
+
+        Response response = transactionResource.getParticipants(dummyPtmHash);
+
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        verify(transactionManager).getParticipants(dummyPtmHash);
+    }
 }

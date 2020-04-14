@@ -2,11 +2,13 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.exception.OperationCurrentlySuspended;
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.sync.ResendStoreDelegate;
 
+import java.util.List;
 import java.util.Objects;
 
 /** Transaction manager wrapper that allows operations to be blocked/suspended. */
@@ -72,5 +74,17 @@ public class TransactionManagerWrapper implements TransactionManager, ResendStor
     @Override
     public MessageHash storePayloadBypassResendMode(byte[] payload) {
         return transactionManager.storePayload(payload);
+    }
+
+    @Override
+    public boolean isSender(String ptmHash) {
+        checkAndThrow();
+        return transactionManager.isSender(ptmHash);
+    }
+
+    @Override
+    public List<PublicKey> getParticipants(String ptmHash) {
+        checkAndThrow();
+        return transactionManager.getParticipants(ptmHash);
     }
 }

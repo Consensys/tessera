@@ -1816,4 +1816,123 @@ public class TransactionManagerTest {
 
         verify(enclave).getPublicKeys();
     }
+
+    @Test
+    public void isSenderThrowsOnMissingTransaction() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
+
+        final Throwable throwable = catchThrowable(() -> transactionManager.isSender(key));
+
+        assertThat(throwable)
+                .isInstanceOf(TransactionNotFoundException.class)
+                .hasMessage("Message with hash RFVNTVlfVFJBTlNBQ1RJT04= was not found");
+
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+    @Test
+    public void isSenderReturnsFalseIfNotSender() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
+
+        final byte[] input = "SOMEDATA".getBytes();
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
+        final EncodedPayload encodedPayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(new ArrayList<>())
+                        .withRecipientKeys(new ArrayList<>())
+                        .build();
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
+                .thenReturn(Optional.of(encryptedTransaction));
+        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+        when(enclave.getPublicKeys()).thenReturn(emptySet());
+
+        final boolean isSender = transactionManager.isSender(key);
+
+        assertThat(isSender).isFalse();
+
+        verify(enclave).getPublicKeys();
+        verify(payloadEncoder).decode(input);
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+    @Test
+    public void isSenderReturnsTrueIfSender() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
+
+        final byte[] input = "SOMEDATA".getBytes();
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
+        final EncodedPayload encodedPayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(new ArrayList<>())
+                        .withRecipientKeys(new ArrayList<>())
+                        .build();
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
+                .thenReturn(Optional.of(encryptedTransaction));
+        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+        when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
+
+        final boolean isSender = transactionManager.isSender(key);
+
+        assertThat(isSender).isTrue();
+
+        verify(enclave).getPublicKeys();
+        verify(payloadEncoder).decode(input);
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+    @Test
+    public void getParticipantsThrowsOnMissingTransaction() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
+
+        final Throwable throwable = catchThrowable(() -> transactionManager.getParticipants(key));
+
+        assertThat(throwable)
+                .isInstanceOf(TransactionNotFoundException.class)
+                .hasMessage("Message with hash RFVNTVlfVFJBTlNBQ1RJT04= was not found");
+
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+    @Test
+    public void getParticipantsReturnsAllRecipients() {
+        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
+        final PublicKey recipientKey = PublicKey.from("RECIPIENTS".getBytes());
+
+        final byte[] input = "SOMEDATA".getBytes();
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
+        final EncodedPayload encodedPayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(new ArrayList<>())
+                        .withRecipientKeys(Arrays.asList(senderKey, recipientKey))
+                        .build();
+
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
+                .thenReturn(Optional.of(encryptedTransaction));
+        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+
+        final List<PublicKey> participants = transactionManager.getParticipants(key);
+
+        assertThat(participants).containsExactlyInAnyOrder(senderKey, recipientKey);
+
+        verify(payloadEncoder).decode(input);
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
 }

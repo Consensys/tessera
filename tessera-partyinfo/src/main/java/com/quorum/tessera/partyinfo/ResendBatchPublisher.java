@@ -21,7 +21,7 @@ public interface ResendBatchPublisher {
      * @throws KeyNotFoundException if the target public key is not known
      */
     default void publishBatch(List<EncodedPayload> payload, PublicKey recipientKey) {
-        Recipient recipient = PartyInfoStore.get().findRecipientByPublicKey(recipientKey);
-        this.publishBatch(payload, recipient.getUrl());
+        //        Recipient recipient = PartyInfoStore.get().findRecipientByPublicKey(recipientKey);
+        //        this.publishBatch(payload, recipient.getUrl());
     }
 }
