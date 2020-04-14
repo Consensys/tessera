@@ -1,5 +1,8 @@
 package com.quorum.tessera.sync;
 
+import com.quorum.tessera.partyinfo.PushBatchRequest;
+import com.quorum.tessera.partyinfo.ResendBatchRequest;
+import com.quorum.tessera.partyinfo.ResendBatchResponse;
 import com.quorum.tessera.partyinfo.ResendRequest;
 
 /**
@@ -9,4 +12,8 @@ import com.quorum.tessera.partyinfo.ResendRequest;
 public interface ResendClient {
 
     boolean makeResendRequest(String targetUrl, ResendRequest request);
+
+    boolean pushBatch(String targetUrl, PushBatchRequest request);
+
+    ResendBatchResponse makeBatchResendRequest(String targetUrl, ResendBatchRequest request);
 }
