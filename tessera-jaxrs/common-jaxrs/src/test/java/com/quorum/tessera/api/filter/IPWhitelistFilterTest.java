@@ -42,8 +42,6 @@ public class IPWhitelistFilterTest {
         when(uriInfo.getBaseUri()).thenReturn(new URI("otherhost"));
         when(ctx.getUriInfo()).thenReturn(uriInfo);
 
-
-
         this.filter = new IPWhitelistFilter();
     }
 
@@ -107,7 +105,6 @@ public class IPWhitelistFilterTest {
     @Test
     public void errorFilteringStopsFutureFilters() {
 
-
         when(configService.isUseWhiteList()).thenReturn(true);
         // show that one request goes through okay
         final HttpServletRequest request = mock(HttpServletRequest.class);
@@ -166,6 +163,23 @@ public class IPWhitelistFilterTest {
     @Test
     public void localhostIPv6IsAlsoWhiteListed() {
         URI peer = URI.create("http://localhost:8080");
+        when(configService.getPeers()).thenReturn(singletonList(peer));
+
+        final HttpServletRequest request = mock(HttpServletRequest.class);
+        doReturn("0:0:0:0:0:0:0:1").when(request).getRemoteAddr();
+
+        filter.setHttpServletRequest(request);
+
+        filter.filter(ctx);
+
+        verify(request).getRemoteHost();
+        verify(request).getRemoteAddr();
+        verifyNoMoreInteractions(ctx);
+    }
+
+    @Test
+    public void localAddrIPv6IsAlsoWhiteListed() {
+        URI peer = URI.create("http://127.0.0.1:8080");
         when(configService.getPeers()).thenReturn(singletonList(peer));
 
         final HttpServletRequest request = mock(HttpServletRequest.class);

@@ -50,10 +50,13 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
 
         try {
 
-            final Set<String> whitelisted = runtimeContext.getPeers().stream()
-                .map(URI::getHost).collect(Collectors.toSet());
+            final Set<String> whitelisted =
+                    runtimeContext.getPeers().stream().map(URI::getHost).collect(Collectors.toSet());
 
-            if (whitelisted.contains("localhost")) {
+            // If local host is whitelisted then ensure all the various forms are allowed, including the IPv6 localhost
+            // as sent by curl
+            if (whitelisted.contains("localhost") || whitelisted.contains("127.0.0.1")) {
+                whitelisted.add("localhost");
                 whitelisted.add("127.0.0.1");
                 whitelisted.add("0:0:0:0:0:0:0:1");
             }
@@ -61,10 +64,11 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
             final String remoteAddress = httpServletRequest.getRemoteAddr();
             final String remoteHost = httpServletRequest.getRemoteHost();
 
-            final boolean allowed = whitelisted.stream()
-                .anyMatch(v -> Arrays.asList(remoteAddress,remoteHost).contains(v));
+            final boolean allowed =
+                    whitelisted.stream().anyMatch(v -> Arrays.asList(remoteAddress, remoteHost).contains(v));
 
             if (!allowed) {
+                LOGGER.warn("Remote host {} with IP {} failed whitelist validation", remoteHost, remoteAddress);
                 requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
             }
 
