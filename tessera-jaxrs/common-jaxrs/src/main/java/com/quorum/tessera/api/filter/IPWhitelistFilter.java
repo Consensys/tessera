@@ -26,8 +26,6 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IPWhitelistFilter.class);
 
-    private boolean disabled;
-
     private HttpServletRequest httpServletRequest;
 
     /**
@@ -43,38 +41,30 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
     @Override
     public void filter(final ContainerRequestContext requestContext) {
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
-        disabled = disabled ? disabled : !runtimeContext.isUseWhiteList();
-        if (disabled) {
+        if (!runtimeContext.isUseWhiteList()) {
             return;
         }
 
-        try {
+        final Set<String> whitelisted =
+                runtimeContext.getPeers().stream().map(URI::getHost).collect(Collectors.toSet());
 
-            final Set<String> whitelisted =
-                    runtimeContext.getPeers().stream().map(URI::getHost).collect(Collectors.toSet());
+        // If local host is whitelisted then ensure all the various forms are allowed, including the IPv6 localhost
+        // as sent by curl
+        if (whitelisted.contains("localhost") || whitelisted.contains("127.0.0.1")) {
+            whitelisted.add("localhost");
+            whitelisted.add("127.0.0.1");
+            whitelisted.add("0:0:0:0:0:0:0:1");
+        }
 
-            // If local host is whitelisted then ensure all the various forms are allowed, including the IPv6 localhost
-            // as sent by curl
-            if (whitelisted.contains("localhost") || whitelisted.contains("127.0.0.1")) {
-                whitelisted.add("localhost");
-                whitelisted.add("127.0.0.1");
-                whitelisted.add("0:0:0:0:0:0:0:1");
-            }
+        final String remoteAddress = httpServletRequest.getRemoteAddr();
+        final String remoteHost = httpServletRequest.getRemoteHost();
 
-            final String remoteAddress = httpServletRequest.getRemoteAddr();
-            final String remoteHost = httpServletRequest.getRemoteHost();
+        final boolean allowed =
+                whitelisted.stream().anyMatch(v -> Arrays.asList(remoteAddress, remoteHost).contains(v));
 
-            final boolean allowed =
-                    whitelisted.stream().anyMatch(v -> Arrays.asList(remoteAddress, remoteHost).contains(v));
-
-            if (!allowed) {
-                LOGGER.warn("Remote host {} with IP {} failed whitelist validation", remoteHost, remoteAddress);
-                requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
-            }
-
-        } catch (final Exception ex) {
-            LOGGER.error("Unexpected error while processing request.", ex);
-            this.disabled = true;
+        if (!allowed) {
+            LOGGER.warn("Remote host {} with IP {} failed whitelist validation", remoteHost, remoteAddress);
+            requestContext.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
         }
     }
 

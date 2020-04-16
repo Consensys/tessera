@@ -103,37 +103,6 @@ public class IPWhitelistFilterTest {
     }
 
     @Test
-    public void errorFilteringStopsFutureFilters() {
-
-        when(configService.isUseWhiteList()).thenReturn(true);
-        // show that one request goes through okay
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("whitelistedHost").when(request).getRemoteAddr();
-        filter.setHttpServletRequest(request);
-        filter.filter(ctx);
-        verify(request).getRemoteHost();
-        verify(request).getRemoteAddr();
-
-        verifyNoMoreInteractions(ctx);
-
-        // show the second one errors
-        final HttpServletRequest requestError = mock(HttpServletRequest.class);
-        doThrow(RuntimeException.class).when(requestError).getRemoteHost();
-        filter.setHttpServletRequest(requestError);
-        filter.filter(ctx);
-
-        verifyNoMoreInteractions(ctx);
-        verify(request).getRemoteAddr();
-
-        // show the third doesn't get filtered
-        final HttpServletRequest requestIgnored = mock(HttpServletRequest.class);
-        filter.setHttpServletRequest(requestIgnored);
-        filter.filter(ctx);
-        verifyZeroInteractions(requestIgnored);
-        verifyZeroInteractions(ctx);
-    }
-
-    @Test
     public void defaultConstructor() {
         when(configService.isUseWhiteList()).thenReturn(Boolean.TRUE);
         MockServiceLocator mockServiceLocator = (MockServiceLocator) ServiceLocator.create();
