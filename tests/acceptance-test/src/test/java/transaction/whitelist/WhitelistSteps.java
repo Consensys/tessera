@@ -42,6 +42,11 @@ public class WhitelistSteps implements En {
 
     private final URL logbackConfigFile = WhitelistSteps.class.getResource("/logback-node.xml");
 
+
+    private static final int P2P_PORT = 7070;
+
+    private static final int Q2T_PORT = 7001;
+
     public WhitelistSteps() {
 
         try {
@@ -66,10 +71,10 @@ public class WhitelistSteps implements En {
                                         .withNodeId("whitelist")
                                         .withNodeNumber(5)
                                         .withQ2TSocketType(SocketType.HTTP)
-                                        .withQt2Port(7001)
+                                        .withQt2Port(Q2T_PORT)
                                         .withExecutionContext(executionContext)
                                         .withP2pPort(port)
-                                        .withPeer("http://other:7000")
+                                        .withPeer("http://other:"+ P2P_PORT)
                                         .withEncryptorConfig(
                                                 new EncryptorConfig() {
                                                     {
@@ -155,7 +160,8 @@ public class WhitelistSteps implements En {
                     "a request is made against the node",
                     () -> {
                         Client client = ClientBuilder.newClient();
-                        Response response = client.target("http://localhost:7000").path("upcheck").request().get();
+                        Response response = client.target("http://localhost:"+ P2P_PORT)
+                            .path("upcheck").request().get();
 
                         responseHolder.add(response);
                     });
