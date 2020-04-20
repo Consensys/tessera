@@ -162,21 +162,4 @@ public class IPWhitelistFilterTest {
         verify(request).getRemoteAddr();
         verifyNoMoreInteractions(ctx);
     }
-
-    @Test
-    public void localHostIPv6IsAlsoWhiteListed() {
-        URI peer = URI.create("http://localhost:8080");
-        when(configService.getPeers()).thenReturn(singletonList(peer));
-
-        final HttpServletRequest request = mock(HttpServletRequest.class);
-        doReturn("0:0:0:0:0:0:0:1").when(request).getRemoteAddr();
-
-        filter.setHttpServletRequest(request);
-
-        filter.filter(ctx);
-
-        verify(request).getRemoteHost();
-        verify(request).getRemoteAddr();
-        verifyNoMoreInteractions(ctx);
-    }
 }
