@@ -77,8 +77,8 @@ jobs:
             restore-keys: |
               ${{env.MAVEN_REPO_CACHE_KEY}}
         - run: |
-          mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
-          mvn verify -pl tests/acceptance-test
+           mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+           mvn verify -pl tests/acceptance-test
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
