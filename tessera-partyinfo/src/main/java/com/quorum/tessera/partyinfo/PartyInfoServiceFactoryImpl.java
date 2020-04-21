@@ -3,7 +3,6 @@ package com.quorum.tessera.partyinfo;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.service.locator.ServiceLocator;
 
-
 public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
 
     private final ServiceLocator serviceLocator = ServiceLocator.create();
@@ -14,11 +13,6 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
                 .map(type::cast)
                 .findAny()
                 .orElseThrow(() -> new IllegalStateException("Unable to find service type: " + type));
-    }
-
-    @Override
-    public ResendManager resendManager() {
-        return find(ResendManager.class);
     }
 
     @Override

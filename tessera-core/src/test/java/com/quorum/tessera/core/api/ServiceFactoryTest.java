@@ -4,11 +4,13 @@ import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.ResendBatchPublisher;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
-import com.quorum.tessera.partyinfo.ResendManager;
+import com.quorum.tessera.transaction.BatchResendManager;
+import com.quorum.tessera.transaction.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +37,9 @@ public class ServiceFactoryTest {
         services.add(mock(EncryptedRawTransactionDAO.class));
         services.add(mock(ResendManager.class));
         services.add(mock(PayloadPublisher.class));
+
+        services.add(mock(BatchResendManager.class));
+        services.add(mock(ResendBatchPublisher.class));
 
         mockServiceLocator.setServices(services);
 
@@ -86,9 +91,20 @@ public class ServiceFactoryTest {
     }
 
     @Test
+    public void findBatchResendManager() {
+        BatchResendManager resendManager = serviceFactory.batchResendManager();
+        assertThat(resendManager).isNotNull();
+    }
+
+    @Test
     public void findPayloadPublisher() {
         PayloadPublisher payloadPublisher = serviceFactory.payloadPublisher();
         assertThat(payloadPublisher).isNotNull();
     }
 
+    @Test
+    public void findBatchPayloadPublisher() {
+        ResendBatchPublisher resendBatchPublisher = serviceFactory.batchPayloadPublisher();
+        assertThat(resendBatchPublisher).isNotNull();
+    }
 }

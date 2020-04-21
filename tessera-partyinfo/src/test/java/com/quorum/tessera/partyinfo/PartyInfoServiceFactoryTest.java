@@ -16,7 +16,7 @@ public class PartyInfoServiceFactoryTest {
     @Test
     public void loadServicesFromLocator() throws Exception {
 
-        ResendManager resendManager = mock(ResendManager.class);
+        //        ResendManager resendManager = mock(ResendManager.class);
         PayloadPublisher payloadPublisher = mock(PayloadPublisher.class);
 
         Enclave enclave = mock(Enclave.class);
@@ -24,8 +24,7 @@ public class PartyInfoServiceFactoryTest {
         PartyInfoStore store = mock(PartyInfoStore.class);
 
         Set<Object> services =
-                Stream.of(payloadPublisher, enclave, partyInfoService, resendManager, store)
-                        .collect(Collectors.toSet());
+                Stream.of(payloadPublisher, enclave, partyInfoService, store).collect(Collectors.toSet());
 
         final MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
         mockServiceLocator.setServices(services);
@@ -35,7 +34,7 @@ public class PartyInfoServiceFactoryTest {
         assertThat(partyInfoServiceFactory.partyInfoService()).isSameAs(partyInfoService);
         assertThat(partyInfoServiceFactory.enclave()).isSameAs(enclave);
         assertThat(partyInfoServiceFactory.payloadPublisher()).isSameAs(payloadPublisher);
-        assertThat(partyInfoServiceFactory.resendManager()).isSameAs(resendManager);
+        //        assertThat(partyInfoServiceFactory.resendManager()).isSameAs(resendManager);
         assertThat(partyInfoServiceFactory.partyInfoStore()).isSameAs(store);
     }
 

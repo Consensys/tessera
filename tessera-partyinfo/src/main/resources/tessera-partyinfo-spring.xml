@@ -69,7 +69,7 @@
         <constructor-arg value="5000"/>
     </bean>
 
-    <bean id="resendManager" class="com.quorum.tessera.partyinfo.ResendManagerImpl">
+    <bean id="resendManager" class="com.quorum.tessera.transaction.ResendManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="enclave" />
     </bean>

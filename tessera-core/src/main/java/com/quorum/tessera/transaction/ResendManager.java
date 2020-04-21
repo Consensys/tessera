@@ -1,4 +1,4 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.transaction;
 
 /** Handles resend requests where the response has one of our own keys as the sender */
 public interface ResendManager {

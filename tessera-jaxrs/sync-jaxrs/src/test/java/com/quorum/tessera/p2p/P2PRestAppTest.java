@@ -8,6 +8,7 @@ import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.transaction.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,11 +39,11 @@ public class P2PRestAppTest {
         services.add(mock(PartyInfoService.class));
         services.add(mock(TransactionManager.class));
         services.add(mock(Enclave.class));
+        services.add(mock(BatchResendManager.class));
 
         Client client = mock(Client.class);
         when(runtimeContext.getP2pClient()).thenReturn(client);
         when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
-
 
         MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);
@@ -50,15 +51,15 @@ public class P2PRestAppTest {
         p2PRestApp = new P2PRestApp();
 
         jersey =
-            new JerseyTest() {
-                @Override
-                protected Application configure() {
-                    enable(TestProperties.LOG_TRAFFIC);
-                    enable(TestProperties.DUMP_ENTITY);
-                    ResourceConfig jerseyconfig = ResourceConfig.forApplication(p2PRestApp);
-                    return jerseyconfig;
-                }
-            };
+                new JerseyTest() {
+                    @Override
+                    protected Application configure() {
+                        enable(TestProperties.LOG_TRAFFIC);
+                        enable(TestProperties.DUMP_ENTITY);
+                        ResourceConfig jerseyconfig = ResourceConfig.forApplication(p2PRestApp);
+                        return jerseyconfig;
+                    }
+                };
 
         jersey.setUp();
     }
@@ -66,7 +67,6 @@ public class P2PRestAppTest {
     @After
     public void tearDown() throws Exception {
         jersey.tearDown();
-
     }
 
     @Test
@@ -79,6 +79,4 @@ public class P2PRestAppTest {
     public void appType() {
         assertThat(p2PRestApp.getAppType()).isEqualTo(AppType.P2P);
     }
-
-
 }

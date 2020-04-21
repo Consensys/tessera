@@ -4,8 +4,6 @@ import com.quorum.tessera.enclave.Enclave;
 
 public interface PartyInfoServiceFactory {
 
-    ResendManager resendManager();
-
     PartyInfoService partyInfoService();
 
     Enclave enclave();

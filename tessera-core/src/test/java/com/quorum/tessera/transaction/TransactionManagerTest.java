@@ -1,7 +1,6 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.enclave.*;
-import com.quorum.tessera.partyinfo.ResendManager;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;

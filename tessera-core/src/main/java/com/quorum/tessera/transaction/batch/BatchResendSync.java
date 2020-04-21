@@ -75,7 +75,7 @@ public class BatchResendSync implements Runnable {
     @Override
     public void run() {
 
-        LOGGER.info("Starting Batch Resend Syncrhonization");
+        LOGGER.info("Starting Batch Resend Synchronization");
         try {
             applicationState.setResendMode(true);
             checkAndStop();

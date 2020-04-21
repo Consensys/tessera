@@ -1,5 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
@@ -167,5 +169,30 @@ public class PartyInfoStoreTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipients()).hasSize(1).containsOnly(new Recipient(someKey, uri));
+    }
+
+    @Test
+    public void findRecipientByPublicKey() {
+
+        PublicKey myKey = PublicKey.from("I LOVE SPARROWS".getBytes());
+        Recipient recipient = new Recipient(myKey, "http://myurl.com");
+
+        PartyInfo partyInfo = new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET);
+        partyInfoStore.store(partyInfo);
+
+        Recipient result = partyInfoStore.findRecipientByPublicKey(myKey);
+        assertThat(result).isSameAs(recipient);
+    }
+
+    @Test(expected = KeyNotFoundException.class)
+    public void findRecipientByPublicKeyNoKeyFound() {
+
+        PublicKey myKey = PublicKey.from("I LOVE SPARROWS".getBytes());
+        Recipient recipient = new Recipient(myKey, "http://myurl.com");
+
+        PartyInfo partyInfo = new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET);
+        partyInfoStore.store(partyInfo);
+
+        partyInfoStore.findRecipientByPublicKey(PublicKey.from("OTHER KEY".getBytes()));
     }
 }
