@@ -12,6 +12,8 @@ public interface PartyInfoServiceFactory {
 
     PayloadPublisher payloadPublisher();
 
+    ResendBatchPublisher resendBatchPublisher();
+
     PartyInfoStore partyInfoStore();
 
     static PartyInfoServiceFactory create() {

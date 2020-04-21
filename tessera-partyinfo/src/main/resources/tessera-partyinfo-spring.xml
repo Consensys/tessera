@@ -29,6 +29,15 @@
         <constructor-arg ref="config" />
     </bean>
 
+    <bean id="resendBatchPublisherFactory" class="com.quorum.tessera.partyinfo.ResendBatchPublisherFactory" factory-method="newFactory">
+        <constructor-arg ref="config" />
+    </bean>
+
+    <bean id="resendBatchPublisher" class="com.quorum.tessera.partyinfo.ResendBatchPublisher"
+          factory-bean="resendBatchPublisherFactory" factory-method="create">
+        <constructor-arg ref="config"/>
+    </bean>
+
     <!-- Party Info management -->
 
     <bean name="partyInfoStore" class="com.quorum.tessera.partyinfo.PartyInfoStore">
@@ -39,7 +48,7 @@
         <constructor-arg ref="partyInfoStore"/>
         <constructor-arg ref="enclave"/>
         <constructor-arg ref="payloadPublisher"/>
-
+        <constructor-arg ref="resendBatchPublisher"/>
     </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
@@ -105,6 +114,28 @@
             <constructor-arg ref="syncPoller"/>
             <constructor-arg value="#{propertyHelper.syncInterval()}"/>
             <constructor-arg value="5000"/>
+        </bean>
+    </beans>
+
+    <beans profile="enable-batch-sync">
+
+        <bean id="processControl" class="com.quorum.tessera.transaction.batch.ProcessControlImpl"/>
+
+        <bean name="batchTransactionRequester" class="com.quorum.tessera.transaction.batch.BatchTransactionRequesterImpl">
+            <constructor-arg ref="enclave" />
+            <constructor-arg ref="resendClient" />
+            <constructor-arg value="1000" />
+        </bean>
+
+        <bean name="batchResendSync" class="com.quorum.tessera.transaction.batch.BatchResendSync">
+
+            <constructor-arg ref="partyInfoService"/>
+            <constructor-arg ref="batchResendManager" />
+            <constructor-arg value="#{ systemProperties['BATCH_RESEND_WAIT_TIME'] ?: 30000}" />
+
+            <constructor-arg ref="processControl" />
+            <constructor-arg ref="batchTransactionRequester" />
+
         </bean>
     </beans>
     

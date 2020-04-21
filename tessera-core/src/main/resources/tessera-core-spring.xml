@@ -20,14 +20,32 @@
     <bean class="com.quorum.tessera.service.ServiceContainer">
         <constructor-arg ref="enclave" />
     </bean>
-    
-    <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerImpl">
-        <constructor-arg ref="encryptedTransactionDAO" />
+
+    <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerWrapper">
+        <constructor-arg>
+            <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerImpl">
+                <constructor-arg ref="encryptedTransactionDAO" />
+                <constructor-arg ref="enclave" />
+                <constructor-arg ref="encryptedRawTransactionDAO" />
+                <constructor-arg ref="resendManager" />
+                <constructor-arg ref="partyInfoService" />
+                <constructor-arg value="#{config.getJdbcConfig().getFetchSize() > 0 ? config.getJdbcConfig().getFetchSize() : 1000}"/>
+            </bean>
+        </constructor-arg>
+        <constructor-arg>
+            <bean class="com.quorum.tessera.transaction.SyncState" factory-method="create" />
+        </constructor-arg>
+    </bean>
+    <alias name="transactionManager" alias="resendStoreDelegate" />
+
+    <bean id="batchResendManager" class="com.quorum.tessera.transaction.BatchResendManagerImpl">
+
         <constructor-arg ref="enclave" />
-        <constructor-arg ref="encryptedRawTransactionDAO" />
-        <constructor-arg ref="resendManager" />
-        <constructor-arg ref="partyInfoService" />
-        <constructor-arg value="#{config.getJdbcConfig().getFetchSize() > 0 ? config.getJdbcConfig().getFetchSize() : 1000}"/>
+        <constructor-arg ref="resendStoreDelegate" />
+        <constructor-arg ref="stagingTransactionDAO" />
+        <constructor-arg ref="encryptedTransactionDAO" />
+        <constructor-arg ref="partyInfoService"/>
+
     </bean>
 
     <bean id="cliDelegate" class="com.quorum.tessera.cli.CliDelegate" factory-method="instance"/>
@@ -37,6 +55,12 @@
     <bean name="encryptedTransactionDAO" class="com.quorum.tessera.data.EncryptedTransactionDAOImpl"/>
 
     <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.data.EncryptedRawTransactionDAOImpl"/>
+
+    <bean name="stagingEntityDAOBatch" class="com.quorum.tessera.data.staging.StagingEntityDAOBatchImpl"/>
+
+    <bean name="stagingTransactionDAO" class="com.quorum.tessera.data.staging.StagingEntityDAOImpl">
+        <constructor-arg ref="stagingEntityDAOBatch"/>
+    </bean>
 
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
         <property name="jdbcUrl" value="#{ config.getJdbcConfig().getUrl() }" />

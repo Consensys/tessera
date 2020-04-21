@@ -37,6 +37,11 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
     }
 
     @Override
+    public ResendBatchPublisher resendBatchPublisher() {
+        return find(ResendBatchPublisher.class);
+    }
+
+    @Override
     public PartyInfoStore partyInfoStore() {
         return find(PartyInfoStore.class);
     }

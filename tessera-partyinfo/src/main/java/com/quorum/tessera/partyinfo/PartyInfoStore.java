@@ -1,5 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -9,10 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /** Stores a list of all discovered nodes and public keys */
 public class PartyInfoStore {
@@ -74,5 +72,16 @@ public class PartyInfoStore {
         LOGGER.info("Removed recipient {} from local PartyInfo store", uri);
 
         return this.getPartyInfo();
+    }
+
+    public Recipient findRecipientByPublicKey(PublicKey key) {
+        LOGGER.debug("Find key {}", key);
+        Optional<Recipient> recipient = Optional.ofNullable(recipients.get(key));
+
+        if (!recipient.isPresent()) {
+            LOGGER.warn("No recipient found for key {}", key);
+        }
+
+        return recipient.orElseThrow(() -> new KeyNotFoundException(key.encodeToBase64() + " not found"));
     }
 }

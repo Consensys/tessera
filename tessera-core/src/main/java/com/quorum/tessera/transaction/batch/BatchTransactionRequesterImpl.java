@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Base64;
 import java.util.Objects;
 
-import static com.quorum.tessera.sync.ResendPartyStore.MAX_ATTEMPTS;
-
 public class BatchTransactionRequesterImpl implements TransactionRequester {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchTransactionRequesterImpl.class);

@@ -12,10 +12,7 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.exception.StoreEntityException;
-import com.quorum.tessera.partyinfo.PushBatchRequest;
-import com.quorum.tessera.partyinfo.ResendBatchPublisher;
-import com.quorum.tessera.partyinfo.ResendBatchRequest;
-import com.quorum.tessera.partyinfo.ResendBatchResponse;
+import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.sync.ResendStoreDelegate;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
@@ -50,14 +47,14 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
-    private final ResendBatchPublisher publisher;
+    private final PartyInfoService partyInfoService;
 
     public BatchResendManagerImpl(
             Enclave enclave,
             ResendStoreDelegate transactionManager,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            ResendBatchPublisher publisher) {
+            PartyInfoService partyInfoService) {
         this(
                 PayloadEncoder.create(),
                 Base64Decoder.create(),
@@ -65,7 +62,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
                 transactionManager,
                 stagingEntityDAO,
                 encryptedTransactionDAO,
-                publisher);
+                partyInfoService);
     }
 
     public BatchResendManagerImpl(
@@ -75,14 +72,14 @@ public class BatchResendManagerImpl implements BatchResendManager {
             ResendStoreDelegate transactionManager,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            ResendBatchPublisher publisher) {
+            PartyInfoService partyInfoService) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.enclave = Objects.requireNonNull(enclave);
         this.resendStoreDelegate = Objects.requireNonNull(transactionManager);
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
-        this.publisher = Objects.requireNonNull(publisher);
+        this.partyInfoService = Objects.requireNonNull(partyInfoService);
     }
 
     @Override
@@ -149,7 +146,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
                                 messageCount.incrementAndGet();
 
                                 if (batch.size() == batchSize) {
-                                    publisher.publishBatch(batch, recipientPublicKey);
+                                    partyInfoService.publishBatch(batch, recipientPublicKey);
                                     batch.clear();
                                 }
                             });
@@ -157,7 +154,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
         }
 
         if (batch.size() > 0) {
-            publisher.publishBatch(batch, recipientPublicKey);
+            partyInfoService.publishBatch(batch, recipientPublicKey);
         }
 
         return new ResendBatchResponse(messageCount.get());

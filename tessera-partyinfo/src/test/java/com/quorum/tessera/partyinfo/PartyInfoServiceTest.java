@@ -44,12 +44,15 @@ public class PartyInfoServiceTest {
 
     private PayloadPublisher payloadPublisher;
 
+    private ResendBatchPublisher resendBatchPublisher;
+
     @Before
     public void onSetUp() throws URISyntaxException {
 
         this.partyInfoStore = mock(PartyInfoStore.class);
         this.enclave = mock(Enclave.class);
         this.payloadPublisher = mock(PayloadPublisher.class);
+        this.resendBatchPublisher = mock(ResendBatchPublisher.class);
 
         RUNTIME_CONTEXT
             .setP2pServerUri(java.net.URI.create(URI))
@@ -57,7 +60,7 @@ public class PartyInfoServiceTest {
             .setRemoteKeyValidation(true);
 
 
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher);
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, resendBatchPublisher);
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
@@ -307,7 +310,7 @@ public class PartyInfoServiceTest {
 
         PartyInfoStore store = new PartyInfoStore(RUNTIME_CONTEXT.getP2pServerUri());
 
-        PartyInfoServiceImpl partyInfoService = new PartyInfoServiceImpl(store, enclave, payloadPublisher);
+        PartyInfoServiceImpl partyInfoService = new PartyInfoServiceImpl(store, enclave, payloadPublisher, resendBatchPublisher);
 
         final Set<PublicKey> ourKeys =
             Set.of(

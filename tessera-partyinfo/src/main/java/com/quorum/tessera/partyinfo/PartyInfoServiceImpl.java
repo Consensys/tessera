@@ -11,6 +11,7 @@ import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,18 +29,25 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final PayloadPublisher payloadPublisher;
 
+    private final ResendBatchPublisher resendBatchPublisher;
+
     public PartyInfoServiceImpl(final PartyInfoServiceFactory partyInfoServiceFactory) {
         this(
                 partyInfoServiceFactory.partyInfoStore(),
                 partyInfoServiceFactory.enclave(),
-                partyInfoServiceFactory.payloadPublisher());
+                partyInfoServiceFactory.payloadPublisher(),
+                partyInfoServiceFactory.resendBatchPublisher());
     }
 
     protected PartyInfoServiceImpl(
-            final PartyInfoStore partyInfoStore, final Enclave enclave, final PayloadPublisher payloadPublisher) {
+            final PartyInfoStore partyInfoStore,
+            final Enclave enclave,
+            final PayloadPublisher payloadPublisher,
+            final ResendBatchPublisher resendBatchPublisher) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.enclave = Objects.requireNonNull(enclave);
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
+        this.resendBatchPublisher = Objects.requireNonNull(resendBatchPublisher);
     }
 
     @Override
@@ -97,9 +105,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         // auto-discovery is off
         final Set<String> peerUrls =
-                runtimeContext.getPeers().stream()
-                    .map(Objects::toString)
-                    .collect(Collectors.toSet());
+                runtimeContext.getPeers().stream().map(Objects::toString).collect(Collectors.toSet());
 
         LOGGER.debug("Known peers: {}", peerUrls);
 
@@ -160,4 +166,35 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         LOGGER.info("Published to {}", targetUrl);
     }
+
+    @Override
+    public void publishBatch(List<EncodedPayload> payloads, PublicKey recipientKey) {
+
+        if (enclave.getPublicKeys().contains(recipientKey)) {
+            // we are trying to send something to ourselves - don't do it
+            LOGGER.debug(
+                "Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
+            return;
+        }
+
+        final Recipient retrievedRecipientFromStore =
+            partyInfoStore.getPartyInfo().getRecipients().stream()
+                .filter(recipient -> recipientKey.equals(recipient.getKey()))
+                .findAny()
+                .orElseThrow(
+                    () ->
+                        new KeyNotFoundException(
+                            "Recipient not found for key: " + recipientKey.encodeToBase64()));
+
+        final String targetUrl = retrievedRecipientFromStore.getUrl();
+
+
+        LOGGER.info("Publishing messages in batch to {}", targetUrl);
+
+        resendBatchPublisher.publishBatch(payloads, targetUrl);
+
+        LOGGER.info("Published to {}", targetUrl);
+
+    }
+
 }
