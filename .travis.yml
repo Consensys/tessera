@@ -13,6 +13,7 @@ stages:
     if: type = pull_request OR type = api OR (branch = master AND type = push)
 #  - name: deploy only
 #    if: branch = master AND type = push
+#  - modified acceptance to Acceptance to remove font mismatch!
   - name: tag and deploy
     if: type = api
 
@@ -24,7 +25,7 @@ jobs:
       install: &build_no_checks
         - mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B dependency:go-offline
       script: &build_with_unittests
-        - mvn install -pl \!tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+        - mvn install -pl \!tests/Acceptance-test -P reduce-logging -o || travis_terminate 1
 
     - name: "Gradle Build"
       jdk:  oraclejdk11
@@ -34,7 +35,7 @@ jobs:
     - name: "Acceptance Tests"
       jdk:  oraclejdk11
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P reduce-logging -o || travis_terminate 1
+      script: mvn verify -pl tests/Acceptance-test -P reduce-logging -o || travis_terminate 1
 
     - name: "Vault Acceptance Tests"
       jdk:  oraclejdk11
@@ -44,7 +45,7 @@ jobs:
         - unzip /tmp/vault_1.2.2_linux_amd64.zip
         - export PATH=$PATH:$PWD && popd
       install: *build_no_checks
-      script: mvn verify -pl tests/acceptance-test -P vault-acceptance-tests,reduce-logging -o || travis_terminate 1
+      script: mvn verify -pl tests/Acceptance-test -P vault-Acceptance-tests,reduce-logging -o || travis_terminate 1
 
 
 #    - stage: deploy only
