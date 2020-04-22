@@ -91,11 +91,11 @@ public class Main {
             if (JsonException.class.isInstance(cause)) {
                 System.err.println("ERROR: Invalid json, cause is " + cause.getMessage());
             } else {
-                System.err.println("ERROR: " + Objects.toString(cause));
+                System.err.println("ERROR: Configuration exception, cause is " + Objects.toString(cause));
             }
             System.exit(3);
         } catch (final CliException ex) {
-            System.err.println("ERROR: " + ex.getMessage());
+            System.err.println("ERROR: CLI exception, cause is " + ex.getMessage());
             System.exit(4);
         } catch (final ServiceConfigurationError ex) {
             Optional<Throwable> e = Optional.of(ex);
@@ -115,9 +115,9 @@ public class Main {
                 ex.printStackTrace();
             } else {
                 if (Optional.ofNullable(ex.getMessage()).isPresent()) {
-                    System.err.println("ERROR: " + ex.getMessage());
+                    System.err.println("ERROR: Cause is " + ex.getMessage());
                 } else {
-                    System.err.println("ERROR: " + ex.getClass().getSimpleName());
+                    System.err.println("ERROR: In class " + ex.getClass().getSimpleName());
                 }
             }
 
