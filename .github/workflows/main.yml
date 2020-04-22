@@ -23,7 +23,6 @@ jobs:
            mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -B
            mvn dependency:go-offline -B
            mvn dependency:resolve-plugins -B
-
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
@@ -77,7 +76,9 @@ jobs:
             key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
               ${{env.MAVEN_REPO_CACHE_KEY}}
-        - run: mvn verify -pl tests/acceptance-test
+        - run: |
+           mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+           mvn verify -pl tests/acceptance-test
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
@@ -104,6 +105,7 @@ jobs:
             mkdir -p vault/bin && pushd $_
             unzip /tmp/vault_1.2.2_linux_amd64.zip
             export PATH=$PATH:$PWD && popd
+            mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
             mvn verify -pl tests/acceptance-test -P vault-acceptance-tests
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
@@ -127,6 +129,7 @@ jobs:
           restore-keys: |
             ${{env.MAVEN_REPO_CACHE_KEY}}
       - run: |
+          mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
           export TESSERA_VERSION=`mvn help:evaluate -Dexpression=project.version -q -DforceStdout`
           export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/$TESSERA_VERSION/tessera-app-$TESSERA_VERSION-app.jar
           cd
