@@ -69,7 +69,7 @@
         <constructor-arg value="5000"/>
     </bean>
 
-    <bean id="resendManager" class="com.quorum.tessera.transaction.ResendManagerImpl">
+    <bean id="resendManager" class="com.quorum.tessera.transaction.resend.ResendManagerImpl">
         <constructor-arg ref="encryptedTransactionDAO" />
         <constructor-arg ref="enclave" />
     </bean>
@@ -119,15 +119,15 @@
 
     <beans profile="enable-batch-sync">
 
-        <bean id="processControl" class="com.quorum.tessera.transaction.batch.ProcessControlImpl"/>
+        <bean id="processControl" class="com.quorum.tessera.transaction.resend.batch.ProcessControlImpl"/>
 
-        <bean name="batchTransactionRequester" class="com.quorum.tessera.transaction.batch.BatchTransactionRequesterImpl">
+        <bean name="batchTransactionRequester" class="com.quorum.tessera.transaction.resend.batch.BatchTransactionRequesterImpl">
             <constructor-arg ref="enclave" />
             <constructor-arg ref="resendClient" />
             <constructor-arg value="1000" />
         </bean>
 
-        <bean name="batchResendSync" class="com.quorum.tessera.transaction.batch.BatchResendSync">
+        <bean name="batchResendSync" class="com.quorum.tessera.transaction.resend.batch.BatchResendSync">
 
             <constructor-arg ref="partyInfoService"/>
             <constructor-arg ref="batchResendManager" />

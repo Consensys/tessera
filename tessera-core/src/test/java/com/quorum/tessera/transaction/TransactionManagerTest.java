@@ -19,12 +19,13 @@ import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
+import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedTransaction;
+import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Decoder;
 import org.junit.After;
 import org.junit.Before;
@@ -1149,7 +1150,7 @@ public class TransactionManagerTest {
         final Throwable throwable = catchThrowable(() -> transactionManager.resend(resendRequest));
 
         assertThat(throwable)
-                .isInstanceOf(KeyNotFoundException.class)
+                .isInstanceOf(RecipientKeyNotFoundException.class)
                 .hasMessage("No key found as recipient of message Q0lQSEVSVEVYVA==");
 
         verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
@@ -1588,8 +1589,8 @@ public class TransactionManagerTest {
 
         try {
             transactionManager.receive(receiveRequest);
-            failBecauseExceptionWasNotThrown(NoRecipientKeyFoundException.class);
-        } catch (NoRecipientKeyFoundException ex) {
+            failBecauseExceptionWasNotThrown(RecipientKeyNotFoundException.class);
+        } catch (RecipientKeyNotFoundException ex) {
             verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
             verify(enclave).getPublicKeys();
             verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
@@ -1658,8 +1659,8 @@ public class TransactionManagerTest {
 
         try {
             transactionManager.receive(receiveRequest);
-            failBecauseExceptionWasNotThrown(NoRecipientKeyFoundException.class);
-        } catch (NoRecipientKeyFoundException ex) {
+            failBecauseExceptionWasNotThrown(RecipientKeyNotFoundException.class);
+        } catch (RecipientKeyNotFoundException ex) {
             verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
             verify(enclave).getPublicKeys();
             verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));
@@ -1693,8 +1694,8 @@ public class TransactionManagerTest {
 
         try {
             transactionManager.receive(receiveRequest);
-            failBecauseExceptionWasNotThrown(NoRecipientKeyFoundException.class);
-        } catch (NoRecipientKeyFoundException ex) {
+            failBecauseExceptionWasNotThrown(RecipientKeyNotFoundException.class);
+        } catch (RecipientKeyNotFoundException ex) {
             verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
             verify(enclave).getPublicKeys();
             verify(enclave).unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class));

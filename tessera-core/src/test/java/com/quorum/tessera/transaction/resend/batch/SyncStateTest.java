@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.transaction.resend.batch;
 
 import org.junit.Test;
 

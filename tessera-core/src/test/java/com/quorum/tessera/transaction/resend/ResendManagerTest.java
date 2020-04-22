@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.enclave.Enclave;
@@ -7,6 +7,8 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.data.EncryptedTransaction;
+import com.quorum.tessera.transaction.resend.ResendManager;
+import com.quorum.tessera.transaction.resend.ResendManagerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

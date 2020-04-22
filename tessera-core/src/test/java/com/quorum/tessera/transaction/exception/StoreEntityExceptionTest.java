@@ -1,5 +1,6 @@
-package com.quorum.tessera.exception;
+package com.quorum.tessera.transaction.exception;
 
+import com.quorum.tessera.transaction.exception.StoreEntityException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

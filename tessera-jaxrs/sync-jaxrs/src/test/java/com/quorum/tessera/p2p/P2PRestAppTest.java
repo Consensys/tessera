@@ -8,7 +8,7 @@ import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import com.quorum.tessera.transaction.BatchResendManager;
+import com.quorum.tessera.transaction.resend.batch.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;

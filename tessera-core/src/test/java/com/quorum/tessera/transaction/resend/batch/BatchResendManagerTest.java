@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.transaction.resend.batch;
 
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
@@ -14,8 +14,10 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.sync.ResendStoreDelegate;
-import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
+import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
+import com.quorum.tessera.transaction.resend.batch.BatchResendManager;
+import com.quorum.tessera.transaction.resend.batch.BatchResendManagerImpl;
 import com.quorum.tessera.util.Base64Decoder;
 import org.junit.After;
 import org.junit.Before;
@@ -191,7 +193,7 @@ public class BatchResendManagerTest {
 
         Mockito.doNothing().when(partyInfoService).publishBatch(any(), any(PublicKey.class));
 
-        assertThatExceptionOfType(KeyNotFoundException.class)
+        assertThatExceptionOfType(RecipientKeyNotFoundException.class)
                 .isThrownBy(
                         () -> {
                             manager.resendBatch(request);

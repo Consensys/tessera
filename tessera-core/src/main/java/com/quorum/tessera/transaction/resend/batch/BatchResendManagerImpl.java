@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.transaction.resend.batch;
 
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
@@ -11,12 +11,12 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.exception.StoreEntityException;
+import com.quorum.tessera.transaction.exception.StoreEntityException;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.sync.ResendStoreDelegate;
-import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
+import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,7 +131,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
                                                                             MessageHashFactory.create()
                                                                                     .createFromCipherText(
                                                                                             payload.getCipherText());
-                                                                    return new KeyNotFoundException(
+                                                                    return new RecipientKeyNotFoundException(
                                                                             "No key found as recipient of message "
                                                                                     + hash);
                                                                 });

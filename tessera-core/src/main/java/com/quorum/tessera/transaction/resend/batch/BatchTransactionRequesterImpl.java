@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction.batch;
+package com.quorum.tessera.transaction.resend.batch;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;

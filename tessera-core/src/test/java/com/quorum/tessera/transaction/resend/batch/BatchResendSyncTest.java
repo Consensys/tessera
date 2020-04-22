@@ -1,12 +1,14 @@
-package com.quorum.tessera.transaction.batch;
+package com.quorum.tessera.transaction.resend.batch;
 
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.sync.TransactionRequester;
-import com.quorum.tessera.transaction.BatchResendManager;
-import com.quorum.tessera.transaction.SyncState;
+import com.quorum.tessera.transaction.resend.batch.BatchResendManager;
+import com.quorum.tessera.transaction.resend.batch.SyncState;
+import com.quorum.tessera.transaction.resend.batch.BatchResendSync;
+import com.quorum.tessera.transaction.resend.batch.ProcessControl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

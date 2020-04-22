@@ -15,10 +15,11 @@ import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
+import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
+import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -285,7 +286,7 @@ public class TransactionManagerImpl implements TransactionManager {
                                                                                         .createFromCipherText(
                                                                                                 payload
                                                                                                         .getCipherText());
-                                                                        return new KeyNotFoundException(
+                                                                        return new RecipientKeyNotFoundException(
                                                                                 "No key found as recipient of message "
                                                                                         + hash);
                                                                     });
@@ -472,7 +473,7 @@ public class TransactionManagerImpl implements TransactionManager {
                                     searchForRecipientKey(payload)
                                             .orElseThrow(
                                                     () ->
-                                                            new NoRecipientKeyFoundException(
+                                                            new RecipientKeyNotFoundException(
                                                                     "No suitable recipient keys found to decrypt payload for : "
                                                                             + hash)));
 

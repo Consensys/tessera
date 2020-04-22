@@ -33,12 +33,12 @@
             </bean>
         </constructor-arg>
         <constructor-arg>
-            <bean class="com.quorum.tessera.transaction.SyncState" factory-method="create" />
+            <bean class="com.quorum.tessera.transaction.resend.batch.SyncState" factory-method="create" />
         </constructor-arg>
     </bean>
     <alias name="transactionManager" alias="resendStoreDelegate" />
 
-    <bean id="batchResendManager" class="com.quorum.tessera.transaction.BatchResendManagerImpl">
+    <bean id="batchResendManager" class="com.quorum.tessera.transaction.resend.batch.BatchResendManagerImpl">
 
         <constructor-arg ref="enclave" />
         <constructor-arg ref="resendStoreDelegate" />

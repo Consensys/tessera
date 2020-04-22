@@ -1,4 +1,6 @@
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.transaction.resend.batch;
+
+import com.quorum.tessera.transaction.resend.batch.SyncState;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

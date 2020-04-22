@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction.batch;
+package com.quorum.tessera.transaction.resend.batch;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

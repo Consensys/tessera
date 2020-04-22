@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction.batch;
+package com.quorum.tessera.transaction.resend.batch;
 
 // TODO: I'm sure this isn't required.
 public interface ProcessControl {

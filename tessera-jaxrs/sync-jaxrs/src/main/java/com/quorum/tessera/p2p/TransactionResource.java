@@ -3,7 +3,7 @@ package com.quorum.tessera.p2p;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.transaction.BatchResendManager;
+import com.quorum.tessera.transaction.resend.batch.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;

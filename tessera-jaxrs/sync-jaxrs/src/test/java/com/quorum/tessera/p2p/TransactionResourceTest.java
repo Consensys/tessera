@@ -1,7 +1,7 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.partyinfo.*;
-import com.quorum.tessera.transaction.BatchResendManager;
+import com.quorum.tessera.transaction.resend.batch.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;

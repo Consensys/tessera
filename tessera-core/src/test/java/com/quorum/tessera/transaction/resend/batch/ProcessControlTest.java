@@ -1,5 +1,7 @@
-package com.quorum.tessera.transaction.batch;
+package com.quorum.tessera.transaction.resend.batch;
 
+import com.quorum.tessera.transaction.resend.batch.ProcessControl;
+import com.quorum.tessera.transaction.resend.batch.ProcessControlImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

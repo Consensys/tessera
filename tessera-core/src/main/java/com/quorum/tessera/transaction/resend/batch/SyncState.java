@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction;
+package com.quorum.tessera.transaction.resend.batch;
 
 import com.quorum.tessera.ServiceLoaderUtil;
 

@@ -3,10 +3,11 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.exception.OperationCurrentlySuspended;
+import com.quorum.tessera.transaction.exception.OperationCurrentlySuspended;
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.sync.ResendStoreDelegate;
+import com.quorum.tessera.transaction.resend.batch.SyncState;
 
 import java.util.List;
 import java.util.Objects;

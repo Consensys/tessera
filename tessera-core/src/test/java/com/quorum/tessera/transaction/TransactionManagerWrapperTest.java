@@ -1,6 +1,7 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.exception.OperationCurrentlySuspended;
+import com.quorum.tessera.transaction.exception.OperationCurrentlySuspended;
+import com.quorum.tessera.transaction.resend.batch.SyncState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
