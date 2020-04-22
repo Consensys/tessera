@@ -19,14 +19,13 @@ public class DefaultExceptionMapper implements ExceptionMapper<Throwable> {
         final Throwable rootCause = ExceptionUtils.getRootCause(ex);
         final Throwable cause = (rootCause == null) ? ex : rootCause;
 
-        LOGGER.error("Error occured: {}. Root cause: {}", ex.getMessage(), cause.getMessage());
+        LOGGER.error("Error occurred: {}. Root cause: {}", ex.getMessage(), cause.getMessage());
         LOGGER.debug(null, ex);
         LOGGER.debug(null, cause);
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-            .entity(cause.getMessage())
-            .type(MediaType.TEXT_PLAIN)
-            .build();
+                .entity(cause.getMessage())
+                .type(MediaType.TEXT_PLAIN)
+                .build();
     }
-
 }

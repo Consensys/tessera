@@ -27,10 +27,11 @@ public class ServiceContainer implements Runnable {
         this(service, Executors.newScheduledThreadPool(1), 1000L, 1000L);
     }
 
-    public ServiceContainer(final Service service,
-                            final ScheduledExecutorService executorService,
-                            final long initialDelay,
-                            final long period) {
+    public ServiceContainer(
+            final Service service,
+            final ScheduledExecutorService executorService,
+            final long initialDelay,
+            final long period) {
         this.service = service;
         this.executorService = executorService;
         this.initialDelay = initialDelay;
@@ -55,19 +56,18 @@ public class ServiceContainer implements Runnable {
         LOGGER.trace("{} Status is {}", service, status);
 
         if (status == Service.Status.STOPPED) {
-            LOGGER.warn("Service {} not stopped attempt to restart.", service);
+            LOGGER.warn("Service {} is stopped, attempting to start it.", service);
             try {
                 LOGGER.debug("Starting service {}", service);
                 service.start();
                 LOGGER.debug("Started service {}", service);
             } catch (Throwable ex) {
                 LOGGER.trace(null, ex);
-                LOGGER.warn("Exception thrown : {} While starting service {}", 
-                    Optional.ofNullable(ex.getCause())
-                        .orElse(ex)
-                        .getMessage(), service);
+                LOGGER.warn(
+                        "Exception thrown : {} While starting service {}",
+                        Optional.ofNullable(ex.getCause()).orElse(ex).getMessage(),
+                        service);
             }
         }
     }
-
 }
