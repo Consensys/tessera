@@ -160,7 +160,7 @@ subprojects {
 
     dependencyCheck {
         failBuildOnCVSS = 0
-        suppressionFile = 'cvss-suppressions.xml'
+        suppressionFile = rootProject.projectDir.getAbsolutePath() +'/cvss-suppressions.xml'
 
 
     }
