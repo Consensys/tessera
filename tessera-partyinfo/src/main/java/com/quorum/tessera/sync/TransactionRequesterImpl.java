@@ -41,7 +41,11 @@ public class TransactionRequesterImpl implements TransactionRequester {
         try {
             return client.makeResendRequest(uri, request);
         } catch (final Exception ex) {
-            LOGGER.warn("Failed to make resend request to node {} for key {}", uri, request.getPublicKey());
+            LOGGER.warn(
+                    "Failed to make resend request to node {} for key {}, due to {}",
+                    uri,
+                    request.getPublicKey(),
+                    ex.getMessage());
             return false;
         }
     }

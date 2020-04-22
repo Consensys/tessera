@@ -116,7 +116,7 @@ public class SyncPoller implements Runnable {
             // we deliberately discard the response as we do not want to fully duplicate the PartyInfoPoller
             return p2pClient.sendPartyInfo(url, encodedPartyInfo);
         } catch (final Exception ex) {
-            LOGGER.warn("Server error {} when connecting to {}", ex.getMessage(), url);
+            LOGGER.warn("Failed to connect to node {} for partyinfo, due to {}", url, ex.getMessage());
             LOGGER.debug(null, ex);
             return false;
         }

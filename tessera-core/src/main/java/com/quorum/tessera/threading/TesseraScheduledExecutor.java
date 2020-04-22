@@ -49,8 +49,10 @@ public class TesseraScheduledExecutor {
 
                         this.action.run();
                     } catch (final Throwable ex) {
-                        LOGGER.error("Error when executing action {}", action.getClass().getSimpleName());
-                        LOGGER.error("Error when executing action", ex);
+                        LOGGER.error(
+                                "Error when executing action {}, exception details:",
+                                action.getClass().getSimpleName(),
+                                ex);
                     } finally {
                         LOGGER.debug("{} has finished running", getClass().getSimpleName());
                     }

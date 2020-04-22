@@ -83,7 +83,7 @@ public class PartyInfoPoller implements Runnable {
         CompletableFuture.runAsync(() -> p2pClient.sendPartyInfo(url, encodedPartyInfo), executor)
                 .exceptionally(
                         ex -> {
-                            LOGGER.warn("Error {} when connecting to {}", ex.getMessage(), url);
+                            LOGGER.warn("Failed to connect to node {}, due to {}", url, ex.getMessage());
                             LOGGER.debug(null, ex);
                             return null;
                         });

@@ -115,8 +115,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.addAll(enclave.getForwardingKeys());
 
-        final List<PublicKey> recipientListNoDuplicate =
-            recipientList.stream().distinct().collect(Collectors.toList());
+        final List<PublicKey> recipientListNoDuplicate = recipientList.stream().distinct().collect(Collectors.toList());
 
         final byte[] raw = sendRequest.getPayload();
 
@@ -173,8 +172,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         recipientList.add(PublicKey.from(encryptedRawTransaction.getSender()));
 
-        final List<PublicKey> recipientListNoDuplicate =
-            recipientList.stream().distinct().collect(Collectors.toList());
+        final List<PublicKey> recipientListNoDuplicate = recipientList.stream().distinct().collect(Collectors.toList());
 
         final EncodedPayload payload =
                 enclave.encryptPayload(encryptedRawTransaction.toRawTransaction(), recipientListNoDuplicate);
@@ -247,8 +245,9 @@ public class TransactionManagerImpl implements TransactionManager {
                                         partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
                                     } catch (PublishPayloadException ex) {
                                         LOGGER.warn(
-                                                "Unable to publish payload to recipient {} during resend",
-                                                recipientPublicKey.encodeToBase64());
+                                                "Unable to resend payload to recipient with public key {}, due to {}",
+                                                recipientPublicKey.encodeToBase64(),
+                                                ex.getMessage());
                                     }
                                 });
 

@@ -38,9 +38,9 @@ public class Main {
         try {
 
             PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
-            LOGGER.debug("Execute PicoCliDelegate with args [{}]",String.join(",",args));
+            LOGGER.debug("Execute PicoCliDelegate with args [{}]", String.join(",", args));
             final CliResult cliResult = picoCliDelegate.execute(args);
-            LOGGER.debug("Executed PicoCliDelegate with args [{}].",String.join(",",args));
+            LOGGER.debug("Executed PicoCliDelegate with args [{}].", String.join(",", args));
             CliDelegate.instance().setConfig(cliResult.getConfig().orElse(null));
 
             if (cliResult.isSuppressStartup()) {
@@ -60,39 +60,42 @@ public class Main {
 
             LOGGER.debug("Creating service locator");
             ServiceLocator serviceLocator = ServiceLocator.create();
-            LOGGER.debug("Created service locator {}",serviceLocator);
+            LOGGER.debug("Created service locator {}", serviceLocator);
 
             Set<Object> services = serviceLocator.getServices();
 
-            LOGGER.debug("Created {} services",services.size());
+            LOGGER.debug("Created {} services", services.size());
 
-            services.forEach(o -> LOGGER.debug("Service : {}",o));
+            services.forEach(o -> LOGGER.debug("Service : {}", o));
 
             services.stream()
-                .filter(PartyInfoService.class::isInstance)
-                .map(PartyInfoService.class::cast)
-                .findAny()
-                .ifPresent(p -> p.populateStore());
+                    .filter(PartyInfoService.class::isInstance)
+                    .map(PartyInfoService.class::cast)
+                    .findAny()
+                    .ifPresent(p -> p.populateStore());
 
             runWebServer(config);
 
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-                System.out.println(
-                        "Config validation issue: " + violation.getPropertyPath() + " " + violation.getMessage());
+                System.err.println(
+                        "ERROR: Config validation issue: "
+                                + violation.getPropertyPath()
+                                + " "
+                                + violation.getMessage());
             }
             System.exit(1);
         } catch (final ConfigException ex) {
             final Throwable cause = ExceptionUtils.getRootCause(ex);
 
             if (JsonException.class.isInstance(cause)) {
-                System.err.println("Invalid json, error is " + cause.getMessage());
+                System.err.println("ERROR: Invalid json, cause is " + cause.getMessage());
             } else {
-                System.err.println(Objects.toString(cause));
+                System.err.println("ERROR: " + Objects.toString(cause));
             }
             System.exit(3);
         } catch (final CliException ex) {
-            System.err.println(ex.getMessage());
+            System.err.println("ERROR: " + ex.getMessage());
             System.exit(4);
         } catch (final ServiceConfigurationError ex) {
             Optional<Throwable> e = Optional.of(ex);
@@ -112,9 +115,9 @@ public class Main {
                 ex.printStackTrace();
             } else {
                 if (Optional.ofNullable(ex.getMessage()).isPresent()) {
-                    System.err.println(ex.getMessage());
+                    System.err.println("ERROR: " + ex.getMessage());
                 } else {
-                    System.err.println(ex.getClass().getSimpleName());
+                    System.err.println("ERROR: " + ex.getClass().getSimpleName());
                 }
             }
 
