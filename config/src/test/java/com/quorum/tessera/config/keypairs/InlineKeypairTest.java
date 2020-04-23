@@ -66,27 +66,27 @@ public class InlineKeypairTest {
         when(privKeyDataConfig.getPrivateKeyData()).thenReturn(privateKeyData);
         when(privKeyDataConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
 
-        when(keyEncryptor.decryptPrivateKey(privateKeyData, "wrong-password"))
+        when(keyEncryptor.decryptPrivateKey(privateKeyData, "wrong-password".toCharArray()))
                 .thenThrow(new EncryptorException("WHAT YOU TALKING ABOUT WILLIS"));
 
         final InlineKeypair inlineKeypair = new InlineKeypair("public", privKeyDataConfig, keyEncryptor);
-        inlineKeypair.withPassword("wrong-password");
+        inlineKeypair.withPassword("wrong-password".toCharArray());
 
         String result = inlineKeypair.getPrivateKey();
 
         assertThat(result).isEqualTo("NACL_FAILURE");
 
         // change password and attempt again
-        inlineKeypair.withPassword("testpassword");
+        inlineKeypair.withPassword("testpassword".toCharArray());
 
         PrivateKey privateKey = mock(PrivateKey.class);
         when(privateKey.encodeToBase64()).thenReturn("SUCCESS");
-        when(keyEncryptor.decryptPrivateKey(privateKeyData, "testpassword")).thenReturn(privateKey);
+        when(keyEncryptor.decryptPrivateKey(privateKeyData, "testpassword".toCharArray())).thenReturn(privateKey);
 
         assertThat(inlineKeypair.getPrivateKey()).isEqualTo("SUCCESS");
 
-        verify(keyEncryptor).decryptPrivateKey(privateKeyData, "wrong-password");
-        verify(keyEncryptor).decryptPrivateKey(privateKeyData, "testpassword");
+        verify(keyEncryptor).decryptPrivateKey(privateKeyData, "wrong-password".toCharArray());
+        verify(keyEncryptor).decryptPrivateKey(privateKeyData, "testpassword".toCharArray());
     }
 
     @Test
@@ -96,11 +96,11 @@ public class InlineKeypairTest {
         when(privKeyDataConfig.getPrivateKeyData()).thenReturn(privateKeyData);
         when(privKeyDataConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
 
-        when(keyEncryptor.decryptPrivateKey(privateKeyData, "wrong-password"))
+        when(keyEncryptor.decryptPrivateKey(privateKeyData, "wrong-password".toCharArray()))
                 .thenThrow(new EncryptorException("WHAT YOU TALKING ABOUT WILLIS"));
 
         final InlineKeypair inlineKeypair = new InlineKeypair("public", privKeyDataConfig, keyEncryptor);
-        inlineKeypair.withPassword("wrong-password");
+        inlineKeypair.withPassword("wrong-password".toCharArray());
 
         String result = inlineKeypair.getPrivateKey();
         assertThat(inlineKeypair.getPassword()).isEqualTo("wrong-password");
@@ -116,7 +116,7 @@ public class InlineKeypairTest {
         when(privKeyDataConfig.getPrivateKeyData()).thenReturn(privateKeyData);
         when(privKeyDataConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
 
-        String validPassword = "testpassword";
+        char[] validPassword = "testpassword".toCharArray();
 
         PrivateKey privateKey = mock(PrivateKey.class);
         when(privateKey.encodeToBase64()).thenReturn("SUCCESS");

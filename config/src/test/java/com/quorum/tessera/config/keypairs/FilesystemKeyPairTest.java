@@ -47,7 +47,7 @@ public class FilesystemKeyPairTest {
         Files.write(pubFile, pub.getBytes());
 
         final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, keyEncryptor);
-        filesystemKeyPair.withPassword("password");
+        filesystemKeyPair.withPassword("password".toCharArray());
 
         assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
     }
@@ -82,7 +82,7 @@ public class FilesystemKeyPairTest {
         final Path privFile = Paths.get(getClass().getResource("/unlockedprivatekey.json").toURI());
 
         final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, keyEncryptor);
-        filesystemKeyPair.withPassword("password");
+        filesystemKeyPair.withPassword("password".toCharArray());
 
         assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
     }

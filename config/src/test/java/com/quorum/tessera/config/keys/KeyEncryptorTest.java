@@ -38,7 +38,7 @@ public class KeyEncryptorTest {
     public void encryptingKeyReturnsCorrectJson() {
 
         final PrivateKey key = PrivateKey.from(new byte[] {1, 2, 3, 4, 5});
-        final String password = "pass";
+        final char[] password = "pass".toCharArray();
         final ArgonResult result =
                 new ArgonResult(new com.quorum.tessera.argon2.ArgonOptions("i", 1, 1, 1), new byte[] {}, new byte[] {});
 
@@ -71,7 +71,7 @@ public class KeyEncryptorTest {
     public void providingArgonOptionsEncryptsKey() {
 
         final PrivateKey key = PrivateKey.from(new byte[] {1, 2, 3, 4, 5});
-        final String password = "pass";
+        final char[] password = "pass".toCharArray();
         final ArgonResult result =
                 new ArgonResult(new com.quorum.tessera.argon2.ArgonOptions("i", 5, 6, 7), new byte[] {}, new byte[] {});
 
@@ -106,7 +106,7 @@ public class KeyEncryptorTest {
     @Test
     public void nullKeyGivesError() {
 
-        final Throwable throwable = catchThrowable(() -> keyEncryptor.encryptPrivateKey(null, "", null));
+        final Throwable throwable = catchThrowable(() -> keyEncryptor.encryptPrivateKey(null, new char[0], null));
 
         assertThat(throwable).isInstanceOf(NullPointerException.class);
     }
@@ -114,7 +114,7 @@ public class KeyEncryptorTest {
     @Test
     public void correntJsonGivesDecryptedKey() {
 
-        final String password = "pass";
+        final char[] password = "pass".toCharArray();
 
         final ArgonOptions argonOptions = new ArgonOptions("i", 1, 1, 1);
 

@@ -31,7 +31,7 @@ public class HashicorpVaultKeyPairTest {
     @Test
     public void withPasswordDoesNothing() {
         assertThat(keyPair.getPassword()).isEqualTo("");
-        keyPair.withPassword("newpwd");
+        keyPair.withPassword("newpwd".toCharArray());
         assertThat(keyPair.getPassword()).isEqualTo("");
     }
 }
