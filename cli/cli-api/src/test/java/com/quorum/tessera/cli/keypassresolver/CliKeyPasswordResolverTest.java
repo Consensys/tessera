@@ -192,7 +192,7 @@ public class CliKeyPasswordResolverTest {
     @Test
     public void lockedKeyWithEmptyPasswordRequestsPassword() {
 
-        when(passwordReader.readPasswordFromConsole()).thenReturn("a");
+        when(passwordReader.readPasswordFromConsole()).thenReturn("a".toCharArray());
 
         final KeyDataConfig privKeyDataConfig = mock(KeyDataConfig.class);
         when(privKeyDataConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
@@ -201,7 +201,7 @@ public class CliKeyPasswordResolverTest {
         when(privKeyDataConfig.getPrivateKeyData()).thenReturn(privateKeyData);
 
         KeyData keyPair = new KeyData();
-        keyPair.setPassword("");
+        keyPair.setPassword(new char[0]);
         keyPair.setPublicKey("public");
         keyPair.setConfig(privKeyDataConfig);
 
@@ -216,10 +216,10 @@ public class CliKeyPasswordResolverTest {
 
     @Test
     public void lockedKeyWithInvalidPasswordRequestsPassword() {
-        when(passwordReader.readPasswordFromConsole()).thenReturn("a");
+        when(passwordReader.readPasswordFromConsole()).thenReturn("a".toCharArray());
 
-        final String validPassword = "a";
-        final String invalidPassword = "invalidPassword";
+        final char[] validPassword = "a".toCharArray();
+        final char[] invalidPassword = "invalidPassword".toCharArray();
 
         byte[] privateKeyBytes = Base64.getDecoder().decode("w+itzh2vfuGjiGYEVJtqpiJVUmI5vGUK4CzMErxa+GY=");
         final PrivateKey unlockedKey = PrivateKey.from(privateKeyBytes);
@@ -252,7 +252,7 @@ public class CliKeyPasswordResolverTest {
 
     @Test
     public void lockedKeyWithValidPasswordDoesNotRequestPassword() {
-        final String validPassword = "somepass";
+        final char[] validPassword = "somepass".toCharArray();
 
         final KeyDataConfig privKeyDataConfig =
                 new KeyDataConfig(
@@ -306,7 +306,7 @@ public class CliKeyPasswordResolverTest {
 
     @Test
     public void lockedKeyWithEncrptionErrorP() {
-        when(passwordReader.readPasswordFromConsole()).thenReturn("a");
+        when(passwordReader.readPasswordFromConsole()).thenReturn("a".toCharArray());
 
         final KeyDataConfig privKeyDataConfig = mock(KeyDataConfig.class);
         when(privKeyDataConfig.getType()).thenReturn(PrivateKeyType.LOCKED);
