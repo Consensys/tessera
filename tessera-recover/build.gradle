@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(":tessera-partyinfo")
+    compile project(":tessera-core")
+    compile project(":tessera-jaxrs")
+    testCompile group: 'junit', name: 'junit'
+
+    compile project(":tessera-jaxrs:sync-jaxrs")
+
+    testImplementation project(":tessera-jaxrs")
+    compile 'javax.persistence:javax.persistence-api:2.2'
+    testImplementation 'javax.persistence:javax.persistence-api:2.2'
+    testImplementation 'org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3'
+    testImplementation 'org.eclipse.persistence:org.eclipse.persistence.extension:2.7.3'
+
+    runtimeOnly 'com.h2database:h2:1.4.200'
+    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3'
+    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.extension:2.7.3'
+}

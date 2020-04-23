@@ -88,4 +88,5 @@ project(':tessera-jaxrs:thirdparty-jaxrs').projectDir = file('tessera-jaxrs/thir
 project(':tessera-jaxrs:sync-jaxrs').projectDir = file('tessera-jaxrs/sync-jaxrs')
 project(':tessera-jaxrs:jaxrs-client').projectDir = file('tessera-jaxrs/jaxrs-client')
 include 'tessera-context'
+include 'tessera-recover'
 

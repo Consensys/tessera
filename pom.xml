@@ -493,6 +493,7 @@
         <module>tessera-jaxrs</module>
         <module>tessera-data</module>
         <module>tessera-context</module>
+        <module>tessera-recover</module>
     </modules>
 
     <dependencyManagement>
