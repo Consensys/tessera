@@ -40,8 +40,7 @@ public class KeyGenCommandTest {
 
     private final CliResult wantResult = new CliResult(0, true, null);
 
-    @Captor
-    private ArgumentCaptor<ArrayList<String>> argCaptor;
+    @Captor private ArgumentCaptor<ArrayList<String>> argCaptor;
 
     @Before
     public void onSetup() {
@@ -687,7 +686,7 @@ public class KeyGenCommandTest {
         KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
         ConfigKeyPair keyPair = mock(ConfigKeyPair.class);
-        when(keyPair.getPassword()).thenReturn("pwd");
+        when(keyPair.getPassword()).thenReturn("pwd".toCharArray());
 
         when(keyGenerator.generate(any(), any(), any())).thenReturn(keyPair);
 

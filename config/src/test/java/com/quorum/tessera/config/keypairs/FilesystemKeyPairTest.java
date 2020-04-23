@@ -49,7 +49,7 @@ public class FilesystemKeyPairTest {
         final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, keyEncryptor);
         filesystemKeyPair.withPassword("password".toCharArray());
 
-        assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
+        assertThat(String.valueOf(filesystemKeyPair.getPassword())).isEqualTo("password");
     }
 
     @Test
@@ -84,7 +84,7 @@ public class FilesystemKeyPairTest {
         final FilesystemKeyPair filesystemKeyPair = new FilesystemKeyPair(pubFile, privFile, keyEncryptor);
         filesystemKeyPair.withPassword("password".toCharArray());
 
-        assertThat(filesystemKeyPair.getPassword()).isEqualTo("password");
+        assertThat(String.valueOf(filesystemKeyPair.getPassword())).isEqualTo("password");
     }
 
     @Test

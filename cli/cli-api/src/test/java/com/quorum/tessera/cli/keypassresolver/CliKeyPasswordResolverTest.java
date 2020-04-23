@@ -106,7 +106,7 @@ public class CliKeyPasswordResolverTest {
 
         assertThat(keyConfig.getKeyData()).hasSize(1);
         final KeyData returned = keyConfig.getKeyData().get(0);
-        assertThat(returned.getPassword()).isEqualTo("passwordsAssignedToKeys");
+        assertThat(String.valueOf(returned.getPassword())).isEqualTo("passwordsAssignedToKeys");
     }
 
     @Test
@@ -142,7 +142,7 @@ public class CliKeyPasswordResolverTest {
 
         assertThat(keyConfig.getKeyData()).hasSize(1);
         final KeyData returned = keyConfig.getKeyData().get(0);
-        assertThat(returned.getPassword()).isEqualTo("q");
+        assertThat(String.valueOf(returned.getPassword())).isEqualTo("q");
     }
 
     @Test

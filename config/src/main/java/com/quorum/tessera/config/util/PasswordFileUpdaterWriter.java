@@ -36,7 +36,7 @@ public class PasswordFileUpdaterWriter {
         this.filesDelegate = filesDelegate;
     }
 
-    public void updateAndWrite(List<char[]> newPasswords, Config config, Path pwdDest) throws IOException {
+    public void updateAndWrite(List<String> newPasswords, Config config, Path pwdDest) throws IOException {
         if (Optional.ofNullable(config).map(Config::getKeys).map(KeyConfiguration::getPasswords).isPresent()
                 && !config.getKeys().getPasswords().isEmpty()) {
             throw new ConfigException(new RuntimeException(passwordsMessage));
@@ -61,7 +61,7 @@ public class PasswordFileUpdaterWriter {
                     .ifPresent(k -> k.forEach(kk -> passwords.add("")));
         }
 
-        passwords.addAll(newPasswords.stream().map(String::valueOf).collect(Collectors.toList()));
+        passwords.addAll(newPasswords);
 
         filesDelegate.createFile(pwdDest);
         LOGGER.info("Created empty file at {}", pwdDest);

@@ -18,8 +18,7 @@ public class DirectKeyPairTest {
     public void settingPasswordDoesntDoAnything() {
         keyPair.withPassword("randomPassword".toCharArray());
 
-        assertThat(keyPair.getPassword()).isEqualTo("");
-
+        assertThat(String.valueOf(keyPair.getPassword())).isEqualTo("");
     }
 
     @Test

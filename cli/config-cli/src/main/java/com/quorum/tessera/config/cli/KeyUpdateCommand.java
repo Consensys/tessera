@@ -111,10 +111,10 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         final KeyDataConfig keyDataConfig = JaxbUtil.unmarshal(Files.newInputStream(keypath), KeyDataConfig.class);
         final PrivateKey privateKey = this.getExistingKey(keyDataConfig, passwords);
 
-        final String newPassword = passwordReader.requestUserPassword();
+        final char[] newPassword = passwordReader.requestUserPassword();
 
         final KeyDataConfig updatedKey;
-        if (newPassword.isEmpty()) {
+        if (newPassword.length == 0) {
             final PrivateKeyData privateKeyData =
                     new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null);
             updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.UNLOCKED);
@@ -139,7 +139,8 @@ public class KeyUpdateCommand implements Callable<CliResult> {
 
             for (final String pass : passwords) {
                 try {
-                    return PrivateKey.from(keyEncryptor.decryptPrivateKey(kdc.getPrivateKeyData(), pass).getKeyBytes());
+                    return PrivateKey.from(
+                            keyEncryptor.decryptPrivateKey(kdc.getPrivateKeyData(), pass.toCharArray()).getKeyBytes());
                 } catch (final Exception e) {
                     LOGGER.debug("Password failed to decrypt. Trying next if available.");
                 }
