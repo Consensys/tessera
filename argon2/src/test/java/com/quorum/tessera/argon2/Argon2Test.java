@@ -22,7 +22,7 @@ public class Argon2Test {
         final byte[] salt = new byte[Argon2Constants.DEFAULT_SALT_LENGTH];
         secureRandom.nextBytes(salt);
 
-        final ArgonResult hash = argon2.hash("password", salt);
+        final ArgonResult hash = argon2.hash("password".toCharArray(), salt);
 
         assertThat(hash.getOptions()).isEqualToComparingFieldByField(new ArgonOptions("i", 10, 1048576, 4));
     }
@@ -34,7 +34,7 @@ public class Argon2Test {
 
         final ArgonOptions options = new ArgonOptions("id", 1, 1024, 1);
 
-        final ArgonResult hash = argon2.hash(options, "password", salt);
+        final ArgonResult hash = argon2.hash(options, "password".toCharArray(), salt);
 
         assertThat(hash.getOptions().getAlgorithm()).isEqualTo("id");
         assertThat(hash.getOptions().getIterations()).isEqualTo(1);
@@ -47,7 +47,7 @@ public class Argon2Test {
         final byte[] salt = new byte[Argon2Constants.DEFAULT_SALT_LENGTH];
         secureRandom.nextBytes(salt);
 
-        final ArgonResult hash = argon2.hash(TEST_OPTIONS, "password", salt);
+        final ArgonResult hash = argon2.hash(TEST_OPTIONS, "password".toCharArray(), salt);
 
         assertThat(hash.getSalt()).isEqualTo(salt);
     }
@@ -58,7 +58,7 @@ public class Argon2Test {
         secureRandom.nextBytes(salt);
 
         final ArgonOptions invalidOptions = new ArgonOptions("invalid", 1, 1024, 1);
-        final Throwable throwable = catchThrowable(() -> this.argon2.hash(invalidOptions, "password", salt));
+        final Throwable throwable = catchThrowable(() -> this.argon2.hash(invalidOptions, "password".toCharArray(), salt));
 
         assertThat(throwable)
             .isInstanceOf(IllegalArgumentException.class)
@@ -73,8 +73,8 @@ public class Argon2Test {
         secureRandom.nextBytes(saltOne);
         secureRandom.nextBytes(saltTwo);
 
-        final ArgonResult hashOne = argon2.hash(TEST_OPTIONS, "password", saltOne);
-        final ArgonResult hashTwo = argon2.hash(TEST_OPTIONS, "password", saltTwo);
+        final ArgonResult hashOne = argon2.hash(TEST_OPTIONS, "password".toCharArray(), saltOne);
+        final ArgonResult hashTwo = argon2.hash(TEST_OPTIONS, "password".toCharArray(), saltTwo);
 
         assertThat(hashOne.getHash()).isNotEqualTo(hashTwo.getHash());
 
@@ -87,8 +87,8 @@ public class Argon2Test {
         secureRandom.nextBytes(saltOne);
         final byte[] saltTwo = Arrays.copyOf(saltOne, saltOne.length);
 
-        final ArgonResult hashOne = argon2.hash(TEST_OPTIONS, "password", saltOne);
-        final ArgonResult hashTwo = argon2.hash(TEST_OPTIONS, "password", saltTwo);
+        final ArgonResult hashOne = argon2.hash(TEST_OPTIONS, "password".toCharArray(), saltOne);
+        final ArgonResult hashTwo = argon2.hash(TEST_OPTIONS, "password".toCharArray(), saltTwo);
 
         assertThat(hashOne.getHash()).isEqualTo(hashTwo.getHash());
 
@@ -102,7 +102,7 @@ public class Argon2Test {
 
         final ArgonOptions options = new ArgonOptions("d", 10, 1024, 4);
 
-        final ArgonResult hashOne = argon2.hash(options, "password", saltOne);
+        final ArgonResult hashOne = argon2.hash(options, "password".toCharArray(), saltOne);
 
         assertThat(hashOne.getOptions().getAlgorithm()).isEqualTo(options.getAlgorithm());
 
