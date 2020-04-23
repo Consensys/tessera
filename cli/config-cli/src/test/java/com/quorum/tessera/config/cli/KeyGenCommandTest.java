@@ -40,7 +40,7 @@ public class KeyGenCommandTest {
 
     private final CliResult wantResult = new CliResult(0, true, null);
 
-    @Captor private ArgumentCaptor<ArrayList<String>> argCaptor;
+    @Captor private ArgumentCaptor<ArrayList<char[]>> argCaptor;
 
     @Before
     public void onSetup() {
@@ -693,7 +693,7 @@ public class KeyGenCommandTest {
         command.call();
 
         verify(passwordFileUpdaterWriter).updateAndWrite(argCaptor.capture(), eq(config), eq(pwdOut));
-        assertThat(argCaptor.getValue()).containsExactly("pwd");
+        assertThat(argCaptor.getValue()).containsExactly("pwd".toCharArray());
         verify(configFileUpdaterWriter).updateAndWrite(any(), any(), eq(config), eq(configOut));
         verify(keyGeneratorFactory).create(any(), any());
     }

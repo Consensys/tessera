@@ -113,9 +113,9 @@ public class KeyUpdateCommandTest {
     public void inlinePasswordParsed() throws IOException {
         command.password = "pass";
 
-        final List<String> passwords = command.passwords();
+        final List<char[]> passwords = command.passwords();
 
-        assertThat(passwords).isNotNull().hasSize(1).containsExactly("pass");
+        assertThat(passwords).isNotNull().hasSize(1).containsExactly("pass".toCharArray());
     }
 
     @Test
@@ -125,9 +125,12 @@ public class KeyUpdateCommandTest {
 
         command.passwordFile = passwordFile;
 
-        final List<String> passwords = command.passwords();
+        final List<char[]> passwords = command.passwords();
 
-        assertThat(passwords).isNotNull().hasSize(2).containsExactly("passwordInsideFile", "secondPassword");
+        assertThat(passwords)
+                .isNotNull()
+                .hasSize(2)
+                .containsExactly("passwordInsideFile".toCharArray(), "secondPassword".toCharArray());
     }
 
     @Test
@@ -141,7 +144,7 @@ public class KeyUpdateCommandTest {
 
     @Test
     public void emptyListGivenForNoPasswords() throws IOException {
-        final List<String> passwords = command.passwords();
+        final List<char[]> passwords = command.passwords();
 
         assertThat(passwords).isNotNull().isEmpty();
     }
@@ -207,7 +210,8 @@ public class KeyUpdateCommandTest {
                                 new ArgonOptions("id", 1, 1024, 1)),
                         PrivateKeyType.LOCKED);
 
-        final Throwable throwable = catchThrowable(() -> command.getExistingKey(kdc, singletonList("wrong")));
+        final Throwable throwable =
+                catchThrowable(() -> command.getExistingKey(kdc, singletonList("wrong".toCharArray())));
 
         assertThat(throwable)
                 .isInstanceOf(IllegalArgumentException.class)
@@ -240,7 +244,7 @@ public class KeyUpdateCommandTest {
         when(privateKey.getKeyBytes()).thenReturn("SUCCESS".getBytes());
         when(keyEncryptor.decryptPrivateKey(privateKeyData, "testpassword".toCharArray())).thenReturn(privateKey);
 
-        final PrivateKey result = command.getExistingKey(kdc, singletonList("testpassword"));
+        final PrivateKey result = command.getExistingKey(kdc, singletonList("testpassword".toCharArray()));
 
         assertThat(result.getKeyBytes()).isEqualTo("SUCCESS".getBytes());
 
