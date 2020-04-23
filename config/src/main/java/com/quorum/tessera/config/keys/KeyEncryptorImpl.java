@@ -43,7 +43,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
 
     @Override
     public PrivateKeyData encryptPrivateKey(
-            final PrivateKey privateKey, final String password, final ArgonOptions argonOptions) {
+            final PrivateKey privateKey, final char[] password, final ArgonOptions argonOptions) {
 
         LOGGER.info("Encrypting a private key");
 
@@ -96,7 +96,7 @@ public class KeyEncryptorImpl implements KeyEncryptor {
     }
 
     @Override
-    public PrivateKey decryptPrivateKey(final PrivateKeyData privateKey, final String password) {
+    public PrivateKey decryptPrivateKey(final PrivateKeyData privateKey, final char[] password) {
 
         LOGGER.info("Decrypting private key");
         LOGGER.debug("Decrypting private key {} using password {}", privateKey.getValue(), password);

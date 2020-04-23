@@ -47,13 +47,13 @@ public class AWSKeyPair implements ConfigKeyPair {
     }
 
     @Override
-    public void withPassword(String password) {
+    public void withPassword(char[] password) {
         // password not used with Secrets Manager stored keys
     }
 
     @Override
-    public String getPassword() {
+    public char[] getPassword() {
         // no password to return
-        return "";
+        return new char[0];
     }
 }

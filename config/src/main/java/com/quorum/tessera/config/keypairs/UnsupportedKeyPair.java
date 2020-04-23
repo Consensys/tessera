@@ -143,13 +143,13 @@ public class UnsupportedKeyPair implements ConfigKeyPair {
     }
 
     @Override
-    public void withPassword(String password) {
+    public void withPassword(char[] password) {
         //do nothing as password not used with this keypair type
     }
 
     @Override
-    public String getPassword() {
-        return null;
+    public char[] getPassword() {
+        return new char[0];
     }
 
     public void setConfig(KeyDataConfig config) {
