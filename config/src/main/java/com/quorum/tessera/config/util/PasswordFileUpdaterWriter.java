@@ -61,7 +61,12 @@ public class PasswordFileUpdaterWriter {
                     .ifPresent(k -> k.forEach(kk -> passwords.add("")));
         }
 
-        passwords.addAll(newPasswords.stream().map(String::valueOf).collect(Collectors.toList()));
+        passwords.addAll(
+            newPasswords.stream().map(p -> Optional.ofNullable(p)
+                                            .map(String::valueOf)
+                                            .orElse(""))
+            .collect(Collectors.toList())
+        );
 
         filesDelegate.createFile(pwdDest);
         LOGGER.info("Created empty file at {}", pwdDest);
