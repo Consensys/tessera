@@ -138,7 +138,7 @@ public class FileKeygenSteps implements En {
 
                     final FilesystemKeyPair generatedKeys =
                             new FilesystemKeyPair(this.publicKeyPath, this.privateKeyPath, keyEncryptor);
-                    generatedKeys.withPassword(this.password);
+                    generatedKeys.withPassword(this.password.toCharArray());
 
                     final PublicKey publicKey = PublicKey.from(DECODER.decode(generatedKeys.getPublicKey()));
                     final PrivateKey privateKey = PrivateKey.from(DECODER.decode(generatedKeys.getPrivateKey()));
