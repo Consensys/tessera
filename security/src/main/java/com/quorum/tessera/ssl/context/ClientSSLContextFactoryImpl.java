@@ -20,29 +20,28 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
 
     private static final String DEFAULT_KNOWN_SERVER_FILEPATH = "knownServers";
 
-    private static final EnvironmentVariableProvider envVarProvider = EnvironmentVariableProviderFactory.load().create();
+    private static final EnvironmentVariableProvider envVarProvider =
+            EnvironmentVariableProviderFactory.load().create();
 
     @Override
     public SSLContext from(String address, SslConfig sslConfig) {
 
-        TrustMode trustMode = TrustMode
-            .getValueIfPresent(sslConfig.getClientTrustMode().name())
-            .orElse(TrustMode.NONE);
+        TrustMode trustMode = TrustMode.getValueIfPresent(sslConfig.getClientTrustMode().name()).orElse(TrustMode.NONE);
 
-        final Path knownServersFile = Optional.ofNullable(sslConfig.getKnownServersFile())
-            .orElse(Paths.get(DEFAULT_KNOWN_SERVER_FILEPATH));
+        final Path knownServersFile =
+                Optional.ofNullable(sslConfig.getKnownServersFile()).orElse(Paths.get(DEFAULT_KNOWN_SERVER_FILEPATH));
 
-        final SSLContextProperties properties = new SSLContextProperties(
-            address,
-            sslConfig.getClientKeyStore(),
-            getClientKeyStorePassword(sslConfig),
-            sslConfig.getClientTlsKeyPath(),
-            sslConfig.getClientTlsCertificatePath(),
-            sslConfig.getClientTrustStore(),
-            getClientTrustStorePassword(sslConfig),
-            sslConfig.getClientTrustCertificates(),
-            knownServersFile
-        );
+        final SSLContextProperties properties =
+                new SSLContextProperties(
+                        address,
+                        sslConfig.getClientKeyStore(),
+                        getClientKeyStorePassword(sslConfig),
+                        sslConfig.getClientTlsKeyPath(),
+                        sslConfig.getClientTlsCertificatePath(),
+                        sslConfig.getClientTrustStore(),
+                        getClientTrustStorePassword(sslConfig),
+                        sslConfig.getClientTrustCertificates(),
+                        knownServersFile);
 
         try {
             return trustMode.createSSLContext(properties);
@@ -52,26 +51,31 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
     }
 
     // TODO - Package private for testing, refactor so this can be made private
-    String getClientKeyStorePassword(SslConfig sslConfig) {
-        return getPreferredPassword(sslConfig.getClientKeyStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_KEYSTORE_PWD);
+    char[] getClientKeyStorePassword(SslConfig sslConfig) {
+        return getPreferredPassword(
+                sslConfig.getClientKeyStorePassword(),
+                sslConfig.getEnvironmentVariablePrefix(),
+                EnvironmentVariables.CLIENT_KEYSTORE_PWD);
     }
 
     // TODO - Package private for testing, refactor so this can be made private
-    String getClientTrustStorePassword(SslConfig sslConfig) {
-        return getPreferredPassword(sslConfig.getClientTrustStorePassword(), sslConfig.getEnvironmentVariablePrefix(), EnvironmentVariables.CLIENT_TRUSTSTORE_PWD);
+    char[] getClientTrustStorePassword(SslConfig sslConfig) {
+        return getPreferredPassword(
+                sslConfig.getClientTrustStorePassword(),
+                sslConfig.getEnvironmentVariablePrefix(),
+                EnvironmentVariables.CLIENT_TRUSTSTORE_PWD);
     }
 
     // Return the prefixed env var value if set, else return the config value, else return the global env var value
-    private String getPreferredPassword(String configPassword, String envVarPrefix, String envVar) {
-        String password = envVarProvider.getEnv(envVarPrefix + "_" + envVar);
+    private char[] getPreferredPassword(char[] configPassword, String envVarPrefix, String envVar) {
+        char[] password = envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + envVar);
 
-        if(password != null) {
+        if (password != null) {
             return password;
-        } else if(configPassword != null) {
+        } else if (configPassword != null) {
             return configPassword;
         }
 
-        return envVarProvider.getEnv(envVar);
+        return envVarProvider.getEnvAsCharArray(envVar);
     }
-
 }

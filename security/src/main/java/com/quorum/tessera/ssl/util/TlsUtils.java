@@ -39,9 +39,9 @@ public interface TlsUtils {
 
     Provider provider = new BouncyCastleProvider();
 
-    default void generateKeyStoreWithSelfSignedCertificate(String address, Path privateKeyFile, String password)
-        throws NoSuchAlgorithmException, IOException, OperatorCreationException,
-        CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException, KeyStoreException {
+    default void generateKeyStoreWithSelfSignedCertificate(String address, Path privateKeyFile, char[] password)
+            throws NoSuchAlgorithmException, IOException, OperatorCreationException, CertificateException,
+                    InvalidKeyException, NoSuchProviderException, SignatureException, KeyStoreException {
 
         final SecureRandom secureRandom = new SecureRandom();
 
@@ -50,7 +50,7 @@ public interface TlsUtils {
         KeyPair keypair = keyGen.generateKeyPair();
         final PublicKey publicKey = keypair.getPublic();
         final PrivateKey privateKey = keypair.getPrivate();
-        final String cnString = address.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)","");
+        final String cnString = address.replaceFirst("^(http[s]?://www\\.|http[s]?://|www\\.)", "");
         final X500Name commonName = new X500Name(COMMON_NAME_STRING + cnString);
         Date startDate = new Date(System.currentTimeMillis());
         Calendar calendar = Calendar.getInstance();
@@ -58,47 +58,39 @@ public interface TlsUtils {
         calendar.add(Calendar.YEAR, 1);
         Date endDate = calendar.getTime();
 
-        X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(
-            commonName,
-            new BigInteger(64, secureRandom),
-            startDate,
-            endDate,
-            commonName,
-            publicKey);
+        X509v3CertificateBuilder builder =
+                new JcaX509v3CertificateBuilder(
+                        commonName, new BigInteger(64, secureRandom), startDate, endDate, commonName, publicKey);
 
-        GeneralName[] subjectAlternativeNames = new GeneralName[] {
-            new GeneralName(GeneralName.dNSName, LOCALHOST),
-            new GeneralName(GeneralName.dNSName, HostnameUtil.create().getHostName()),
-            new GeneralName(GeneralName.iPAddress, LOCALHOST_IP),
-            new GeneralName(GeneralName.iPAddress, LOCALHOST_IP_2),
-            new GeneralName(GeneralName.iPAddress, HostnameUtil.create().getHostIpAddress())
-        };
+        GeneralName[] subjectAlternativeNames =
+                new GeneralName[] {
+                    new GeneralName(GeneralName.dNSName, LOCALHOST),
+                    new GeneralName(GeneralName.dNSName, HostnameUtil.create().getHostName()),
+                    new GeneralName(GeneralName.iPAddress, LOCALHOST_IP),
+                    new GeneralName(GeneralName.iPAddress, LOCALHOST_IP_2),
+                    new GeneralName(GeneralName.iPAddress, HostnameUtil.create().getHostIpAddress())
+                };
 
-        builder.addExtension(
-            Extension.subjectAlternativeName,
-            false,
-            new GeneralNames(subjectAlternativeNames));
+        builder.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(subjectAlternativeNames));
 
         ContentSigner contentSigner = new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).build(privateKey);
         X509CertificateHolder certHolder = builder.build(contentSigner);
         X509Certificate certificate =
-            new JcaX509CertificateConverter().setProvider(provider).getCertificate(certHolder);
+                new JcaX509CertificateConverter().setProvider(provider).getCertificate(certHolder);
 
         certificate.verify(publicKey);
 
         KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
         keyStore.load(null, null);
-        keyStore.setKeyEntry("tessera",privateKey, password.toCharArray(), new X509Certificate[]{certificate});
+        keyStore.setKeyEntry("tessera", privateKey, password, new X509Certificate[] {certificate});
 
-        try(OutputStream keyStoreFile = Files.newOutputStream(privateKeyFile)) {
-            keyStore.store(keyStoreFile, password.toCharArray());
+        try (OutputStream keyStoreFile = Files.newOutputStream(privateKeyFile)) {
+            keyStore.store(keyStoreFile, password);
         }
     }
 
-    static TlsUtils create(){
+    static TlsUtils create() {
         Security.addProvider(new BouncyCastleProvider());
-        return new TlsUtils() {
-        };
+        return new TlsUtils() {};
     }
-
 }

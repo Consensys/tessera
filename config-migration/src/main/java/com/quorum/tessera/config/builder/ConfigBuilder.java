@@ -42,9 +42,9 @@ public class ConfigBuilder {
 
     private String sslServerKeyStorePath;
 
-    private String sslServerTrustStorePassword;
+    private char[] sslServerTrustStorePassword;
 
-    private String sslServerKeyStorePassword;
+    private char[] sslServerKeyStorePassword;
 
     private String sslServerTrustStorePath;
 
@@ -52,9 +52,9 @@ public class ConfigBuilder {
 
     private String sslClientKeyStorePath;
 
-    private String sslClientKeyStorePassword;
+    private char[] sslClientKeyStorePassword;
 
-    private String sslClientTrustStorePassword;
+    private char[] sslClientTrustStorePassword;
 
     private String sslClientTrustStorePath;
 
@@ -103,7 +103,7 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder sslClientTrustStorePassword(String sslClientTrustStorePassword) {
+    public ConfigBuilder sslClientTrustStorePassword(char[] sslClientTrustStorePassword) {
         this.sslClientTrustStorePassword = sslClientTrustStorePassword;
         return this;
     }
@@ -168,7 +168,7 @@ public class ConfigBuilder {
         return this;
     }
 
-    public ConfigBuilder sslClientKeyStorePassword(String sslClientKeyStorePassword) {
+    public ConfigBuilder sslClientKeyStorePassword(char[] sslClientKeyStorePassword) {
         this.sslClientKeyStorePassword = sslClientKeyStorePassword;
         return this;
     }

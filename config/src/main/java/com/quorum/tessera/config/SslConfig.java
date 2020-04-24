@@ -32,7 +32,7 @@ public class SslConfig extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path serverTlsCertificatePath;
 
-    @XmlElement private String serverKeyStorePassword;
+    @XmlElement private char[] serverKeyStorePassword;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -42,7 +42,7 @@ public class SslConfig extends ConfigItem {
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private List<Path> serverTrustCertificates;
 
-    @XmlElement private String serverTrustStorePassword;
+    @XmlElement private char[] serverTrustStorePassword;
 
     @XmlElement private SslTrustMode serverTrustMode;
 
@@ -58,7 +58,7 @@ public class SslConfig extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path clientTlsCertificatePath;
 
-    @XmlElement private String clientKeyStorePassword;
+    @XmlElement private char[] clientKeyStorePassword;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -68,7 +68,7 @@ public class SslConfig extends ConfigItem {
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private List<Path> clientTrustCertificates;
 
-    @XmlElement private String clientTrustStorePassword;
+    @XmlElement private char[] clientTrustStorePassword;
 
     @XmlElement private SslTrustMode clientTrustMode;
 
@@ -90,14 +90,14 @@ public class SslConfig extends ConfigItem {
             SslAuthenticationMode tls,
             boolean generateKeyStoreIfNotExisted,
             Path serverKeyStore,
-            String serverKeyStorePassword,
+            char[] serverKeyStorePassword,
             Path serverTrustStore,
-            String serverTrustStorePassword,
+            char[] serverTrustStorePassword,
             SslTrustMode serverTrustMode,
             Path clientKeyStore,
-            String clientKeyStorePassword,
+            char[] clientKeyStorePassword,
             Path clientTrustStore,
-            String clientTrustStorePassword,
+            char[] clientTrustStorePassword,
             SslTrustMode clientTrustMode,
             Path knownClientsFile,
             Path knownServersFile,
@@ -146,7 +146,7 @@ public class SslConfig extends ConfigItem {
         return serverKeyStore;
     }
 
-    public String getServerKeyStorePassword() {
+    public char[] getServerKeyStorePassword() {
         return serverKeyStorePassword;
     }
 
@@ -154,7 +154,7 @@ public class SslConfig extends ConfigItem {
         return serverTrustStore;
     }
 
-    public String getServerTrustStorePassword() {
+    public char[] getServerTrustStorePassword() {
         return serverTrustStorePassword;
     }
 
@@ -166,7 +166,7 @@ public class SslConfig extends ConfigItem {
         return clientKeyStore;
     }
 
-    public String getClientKeyStorePassword() {
+    public char[] getClientKeyStorePassword() {
         return clientKeyStorePassword;
     }
 
@@ -174,7 +174,7 @@ public class SslConfig extends ConfigItem {
         return clientTrustStore;
     }
 
-    public String getClientTrustStorePassword() {
+    public char[] getClientTrustStorePassword() {
         return clientTrustStorePassword;
     }
 
@@ -238,7 +238,7 @@ public class SslConfig extends ConfigItem {
         this.serverTlsCertificatePath = serverTlsCertificatePath;
     }
 
-    public void setServerKeyStorePassword(String serverKeyStorePassword) {
+    public void setServerKeyStorePassword(char[] serverKeyStorePassword) {
         this.serverKeyStorePassword = serverKeyStorePassword;
     }
 
@@ -250,7 +250,7 @@ public class SslConfig extends ConfigItem {
         this.serverTrustCertificates = serverTrustCertificates;
     }
 
-    public void setServerTrustStorePassword(String serverTrustStorePassword) {
+    public void setServerTrustStorePassword(char[] serverTrustStorePassword) {
         this.serverTrustStorePassword = serverTrustStorePassword;
     }
 
@@ -270,7 +270,7 @@ public class SslConfig extends ConfigItem {
         this.clientTlsCertificatePath = clientTlsCertificatePath;
     }
 
-    public void setClientKeyStorePassword(String clientKeyStorePassword) {
+    public void setClientKeyStorePassword(char[] clientKeyStorePassword) {
         this.clientKeyStorePassword = clientKeyStorePassword;
     }
 
@@ -282,7 +282,7 @@ public class SslConfig extends ConfigItem {
         this.clientTrustCertificates = clientTrustCertificates;
     }
 
-    public void setClientTrustStorePassword(String clientTrustStorePassword) {
+    public void setClientTrustStorePassword(char[] clientTrustStorePassword) {
         this.clientTrustStorePassword = clientTrustStorePassword;
     }
 
