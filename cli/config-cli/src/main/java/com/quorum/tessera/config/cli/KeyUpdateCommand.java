@@ -20,6 +20,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Collections.emptyList;
@@ -105,16 +106,16 @@ public class KeyUpdateCommand implements Callable<CliResult> {
 
     public CliResult execute() throws IOException {
         final ArgonOptions argonOptions = argonOptions();
-        final List<String> passwords = passwords();
+        final List<char[]> passwords = passwords();
         final Path keypath = privateKeyPath();
 
         final KeyDataConfig keyDataConfig = JaxbUtil.unmarshal(Files.newInputStream(keypath), KeyDataConfig.class);
         final PrivateKey privateKey = this.getExistingKey(keyDataConfig, passwords);
 
-        final String newPassword = passwordReader.requestUserPassword();
+        final char[] newPassword = passwordReader.requestUserPassword();
 
         final KeyDataConfig updatedKey;
-        if (newPassword.isEmpty()) {
+        if (newPassword.length == 0) {
             final PrivateKeyData privateKeyData =
                     new PrivateKeyData(privateKey.encodeToBase64(), null, null, null, null);
             updatedKey = new KeyDataConfig(privateKeyData, PrivateKeyType.UNLOCKED);
@@ -130,14 +131,14 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         return new CliResult(0, true, null);
     }
 
-    PrivateKey getExistingKey(final KeyDataConfig kdc, final List<String> passwords) {
+    PrivateKey getExistingKey(final KeyDataConfig kdc, final List<char[]> passwords) {
 
         if (kdc.getType() == PrivateKeyType.UNLOCKED) {
             byte[] privateKeyData = Base64.getDecoder().decode(kdc.getValue().getBytes(UTF_8));
             return PrivateKey.from(privateKeyData);
         } else {
 
-            for (final String pass : passwords) {
+            for (final char[] pass : passwords) {
                 try {
                     return PrivateKey.from(keyEncryptor.decryptPrivateKey(kdc.getPrivateKeyData(), pass).getKeyBytes());
                 } catch (final Exception e) {
@@ -157,11 +158,11 @@ public class KeyUpdateCommand implements Callable<CliResult> {
         return privateKeyPath;
     }
 
-    List<String> passwords() throws IOException {
+    List<char[]> passwords() throws IOException {
         if (password != null) {
-            return singletonList(password);
+            return singletonList(password.toCharArray());
         } else if (passwordFile != null) {
-            return Files.readAllLines(passwordFile);
+            return Files.readAllLines(passwordFile).stream().map(String::toCharArray).collect(Collectors.toList());
         } else {
             return emptyList();
         }

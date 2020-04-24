@@ -72,7 +72,7 @@ public class KeyReadingTest {
         assertThat(config.getKeys().getKeyData()).isNotNull().hasSize(1);
 
         KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(config.getEncryptor());
-        ConfigKeyPair keyPair = KeyDataUtil.unmarshal(config.getKeys().getKeyData().get(0),keyEncryptor);
+        ConfigKeyPair keyPair = KeyDataUtil.unmarshal(config.getKeys().getKeyData().get(0), keyEncryptor);
         assertThat(keyPair.getPublicKey()).isEqualTo("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
         assertThat(keyPair.getPrivateKey()).isEqualTo("gZ+NvhPTi3MDaGNVvQLtlT83oEtsr2DlXww3zXnJ7mU=");
     }
@@ -111,7 +111,7 @@ public class KeyReadingTest {
 
     @Test
     public void wrongPasswordsProvided() {
-        when(passwordReader.readPasswordFromConsole()).thenReturn("invalid");
+        when(passwordReader.readPasswordFromConsole()).thenReturn("invalid".toCharArray());
 
         final Config config =
                 JaxbUtil.unmarshal(getClass().getResourceAsStream("/keytests/passwordsWrong.json"), Config.class);

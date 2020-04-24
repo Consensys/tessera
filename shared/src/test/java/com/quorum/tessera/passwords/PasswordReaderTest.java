@@ -36,9 +36,9 @@ public class PasswordReaderTest {
 
         final PasswordReader passwordReader = new InputStreamPasswordReader(byteArrayInputStream);
 
-        final String password = passwordReader.requestUserPassword();
+        final char[] password = passwordReader.requestUserPassword();
 
-        assertThat(password).isEqualTo("TRY3");
+        assertThat(String.valueOf(password)).isEqualTo("TRY3");
     }
 
 }

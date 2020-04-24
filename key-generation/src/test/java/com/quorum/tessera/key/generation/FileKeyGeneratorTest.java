@@ -54,7 +54,7 @@ public class FileKeyGeneratorTest {
         this.keyEncryptor = mock(KeyEncryptor.class);
         this.passwordReader = mock(PasswordReader.class);
 
-        when(passwordReader.requestUserPassword()).thenReturn("");
+        when(passwordReader.requestUserPassword()).thenReturn(new char[0]);
 
         this.generator = new FileKeyGenerator(encryptor, keyEncryptor, passwordReader);
     }
@@ -85,7 +85,7 @@ public class FileKeyGeneratorTest {
     @Test
     public void generateFromKeyDataLockedPrivateKey() throws IOException {
 
-        when(passwordReader.requestUserPassword()).thenReturn("PASSWORD");
+        when(passwordReader.requestUserPassword()).thenReturn("PASSWORD".toCharArray());
 
         final Path tempFolder = Files.createTempDirectory(UUID.randomUUID().toString());
         final String keyFilesName = tempFolder.resolve(UUID.randomUUID().toString()).toString();
@@ -98,11 +98,11 @@ public class FileKeyGeneratorTest {
 
         doReturn(encryptedPrivateKey)
                 .when(keyEncryptor)
-                .encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
+                .encryptPrivateKey(any(PrivateKey.class), any(), eq(null));
 
         final PrivateKeyData encryptedKey = new PrivateKeyData(null, "snonce", "salt", "sbox", argonOptions);
 
-        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
+        doReturn(encryptedKey).when(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), any(), eq(null));
 
         final FilesystemKeyPair generated = generator.generate(keyFilesName, null, null);
 
@@ -113,7 +113,7 @@ public class FileKeyGeneratorTest {
         assertThat(pkd.getAsalt()).isEqualTo("salt");
         assertThat(pkd.getType()).isEqualTo(PrivateKeyType.LOCKED);
 
-        verify(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
+        verify(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), any(), eq(null));
         verify(encryptor).generateNewKeys();
     }
 
@@ -160,7 +160,7 @@ public class FileKeyGeneratorTest {
 
         doReturn(new PrivateKeyData("", "", "", "", new ArgonOptions("", 1, 1, 1)))
                 .when(keyEncryptor)
-                .encryptPrivateKey(any(PrivateKey.class), anyString(), eq(null));
+                .encryptPrivateKey(any(PrivateKey.class), any(), eq(null));
 
         final Throwable throwable = catchThrowable(() -> generator.generate(keyFilesName, null, null));
 
