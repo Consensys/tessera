@@ -305,8 +305,9 @@ public class TransactionManagerImpl implements TransactionManager {
                                         }
                                     } catch (PublishPayloadException ex) {
                                         LOGGER.warn(
-                                                "Unable to publish payload to recipient {} during resend",
-                                                recipientPublicKey.encodeToBase64());
+                                                "Unable to resend payload to recipient with public key {}, due to {}",
+                                                recipientPublicKey.encodeToBase64(),
+                                                ex.getMessage());
                                     }
                                 });
 

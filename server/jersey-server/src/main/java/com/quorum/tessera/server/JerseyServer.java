@@ -79,9 +79,7 @@ public class JerseyServer implements TesseraServer {
 
         final ResourceConfig config = ResourceConfig.forApplication(application);
 
-        config.addProperties(initParams)
-            .register(MetricsResource.class)
-            .register(LoggingFilter.class);
+        config.addProperties(initParams).register(MetricsResource.class).register(LoggingFilter.class);
 
         if (serverConfig.getCrossDomainConfig() != null && !serverConfig.isUnixSocket()) {
             config.register(new CorsDomainResponseFilter(serverConfig.getCrossDomainConfig()));
@@ -118,8 +116,10 @@ public class JerseyServer implements TesseraServer {
                     try {
                         publisher.run();
                     } catch (final Throwable ex) {
-                        LOGGER.error("Error when executing action {}", publisher.getClass().getSimpleName());
-                        LOGGER.error("Error when executing action", ex);
+                        LOGGER.error(
+                                "Error when executing action {}, exception details:",
+                                publisher.getClass().getSimpleName(),
+                                ex);
                     }
                 };
 

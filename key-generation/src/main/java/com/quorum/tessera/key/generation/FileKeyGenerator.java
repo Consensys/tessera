@@ -48,7 +48,7 @@ public class FileKeyGenerator implements KeyGenerator {
     public FilesystemKeyPair generate(
             final String filename, final ArgonOptions encryptionOptions, final KeyVaultOptions keyVaultOptions) {
 
-        final String password = this.passwordReader.requestUserPassword();
+        final char[] password = this.passwordReader.requestUserPassword();
 
         final KeyPair generated = this.encryptor.generateNewKeys();
 
@@ -56,7 +56,7 @@ public class FileKeyGenerator implements KeyGenerator {
 
         final KeyData finalKeys = new KeyData();
         final KeyDataConfig keyDataConfig;
-        if (!password.isEmpty()) {
+        if (password.length > 0) {
 
             final PrivateKeyData encryptedPrivateKey =
                     this.keyEncryptor.encryptPrivateKey(generated.getPrivateKey(), password, encryptionOptions);
