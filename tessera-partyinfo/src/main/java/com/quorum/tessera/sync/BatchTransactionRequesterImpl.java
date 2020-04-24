@@ -1,11 +1,9 @@
-package com.quorum.tessera.transaction.resend.batch;
+package com.quorum.tessera.sync;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.ResendBatchRequest;
 import com.quorum.tessera.partyinfo.ResendBatchResponse;
-import com.quorum.tessera.sync.ResendClient;
-import com.quorum.tessera.sync.TransactionRequester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
