@@ -6,7 +6,7 @@ public interface ConfigKeyPair {
 
     String getPrivateKey();
 
-    void withPassword(String password);
+    void withPassword(char[] password);
 
-    String getPassword();
+    char[] getPassword();
 }

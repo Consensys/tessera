@@ -41,7 +41,7 @@ public class FilesystemKeyPair implements ConfigKeyPair {
 
     private InlineKeypair inlineKeypair;
 
-    private String password;
+    private char[] password;
 
     private final KeyEncryptor keyEncryptor;
 
@@ -96,7 +96,7 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     }
 
     @Override
-    public void withPassword(final String password) {
+    public void withPassword(final char[] password) {
         this.password = password;
         if (this.inlineKeypair != null) {
             this.inlineKeypair.withPassword(this.password);
@@ -104,7 +104,7 @@ public class FilesystemKeyPair implements ConfigKeyPair {
     }
 
     @Override
-    public String getPassword() {
+    public char[] getPassword() {
         return this.password;
     }
 

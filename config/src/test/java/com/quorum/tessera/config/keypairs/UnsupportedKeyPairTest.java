@@ -19,7 +19,7 @@ public class UnsupportedKeyPairTest {
     public void getPasswordAlwaysReturnsNull() {
         assertThat(keyPair.getPassword()).isNull();
 
-        keyPair.withPassword("password");
+        keyPair.withPassword("password".toCharArray());
 
         assertThat(keyPair.getPassword()).isNull();
     }

@@ -25,11 +25,11 @@ public class InlineKeypair implements ConfigKeyPair {
     @XmlElement(name = "config")
     private final KeyDataConfig privateKeyConfig;
 
-    private String password;
+    private char[] password;
 
     private String cachedValue;
 
-    private String cachedPassword;
+    private char[] cachedPassword;
 
     @XmlTransient private KeyEncryptor keyEncryptor;
 
@@ -79,12 +79,12 @@ public class InlineKeypair implements ConfigKeyPair {
     }
 
     @Override
-    public void withPassword(final String password) {
+    public void withPassword(final char[] password) {
         this.password = password;
     }
 
     @Override
-    public String getPassword() {
+    public char[] getPassword() {
         return this.password;
     }
 

@@ -32,7 +32,7 @@ public class AzureVaultKeyPairTest {
     public void getPasswordAlwaysReturnsEmptyString() {
         assertThat(keyPair.getPassword()).isEmpty();
 
-        keyPair.withPassword("password");
+        keyPair.withPassword("password".toCharArray());
 
         assertThat(keyPair.getPassword()).isEmpty();
     }

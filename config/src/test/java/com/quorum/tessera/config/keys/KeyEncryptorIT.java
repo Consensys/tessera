@@ -20,7 +20,7 @@ public class KeyEncryptorIT {
 
     private static final String pkeyBase64 = "kwMSmHpIhCFFoOCyGkHkJyfLVxsa9Mj3Y23sFYRLwLM=";
 
-    private static final String password = "PASS_WORD";
+    private static final char[] password = "PASS_WORD".toCharArray();
 
     private KeyEncryptor keyEncryptor;
 

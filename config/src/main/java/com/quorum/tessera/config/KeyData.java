@@ -12,7 +12,7 @@ import java.nio.file.Path;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyData extends ConfigItem {
 
-    @XmlElement private String password;
+    @XmlElement private char[] password;
 
     @XmlElement private KeyDataConfig config;
 
@@ -219,11 +219,11 @@ public class KeyData extends ConfigItem {
         this.awsSecretsManagerPrivateKeyId = awsSecretsManagerPrivateKeyId;
     }
 
-    public String getPassword() {
+    public char[] getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(char[] password) {
         this.password = password;
     }
 }
