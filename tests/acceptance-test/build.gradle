@@ -63,7 +63,7 @@ test {
     systemProperty 'jdbc.dir',"${buildDir}/ext"
 
     include(
-           '**/RestSuiteHttpH2RemoteEnclave.class',
+        //   '**/RestSuiteHttpH2RemoteEnclave.class',
             '**/RestSuiteHttpHSQL.class',
             '**/RestSuiteUnixH2.class',
             '**/RestSuiteHttpSqllite.class',
@@ -72,9 +72,7 @@ test {
             '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
             '**/ConfigMigrationIT.class',
-           // '**/AdminRestSuite.class',
             '**/RestSuiteUnixH2.class',
-            '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',

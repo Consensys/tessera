@@ -4,11 +4,13 @@ import com.quorum.tessera.api.filter.GlobalFilter;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
@@ -32,7 +34,8 @@ public class P2PRestApp extends TesseraRestApplication {
 
     public P2PRestApp() {
         final ServiceFactory serviceFactory = ServiceFactory.create();
-        this.partyInfoService = serviceFactory.partyInfoService();
+        Config config = serviceFactory.config();
+        this.partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
         this.enclave = serviceFactory.enclave();
     }
 

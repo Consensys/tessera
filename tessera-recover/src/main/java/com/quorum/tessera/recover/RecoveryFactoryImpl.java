@@ -2,6 +2,7 @@ package com.quorum.tessera.recover;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -26,7 +27,7 @@ public class RecoveryFactoryImpl implements RecoveryFactory {
             Persistence.createEntityManagerFactory("tessera-recover",properties);
 
 
-        PartyInfoService partyInfoService = PartyInfoServiceFactory.create(config);
+        PartyInfoService partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
 
         return new RecoveryImpl(entityManagerFactory,partyInfoService);
     }

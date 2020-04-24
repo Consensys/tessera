@@ -20,7 +20,7 @@
     </bean>
 
 
-    <bean id="payloadPublisherFactory" class="com.quorum.tessera.partyinfo.PayloadPublisherFactory" factory-method="newFactory">
+<!--    <bean id="payloadPublisherFactory" class="com.quorum.tessera.partyinfo.PayloadPublisherFactory" factory-method="newFactory">
         <constructor-arg ref="config" />
     </bean>
 
@@ -38,18 +38,18 @@
         <constructor-arg ref="config"/>
     </bean>
 
-    <!-- Party Info management -->
+    &lt;!&ndash; Party Info management &ndash;&gt;
 
     <bean name="partyInfoStore" class="com.quorum.tessera.partyinfo.PartyInfoStore">
         <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}"/>
+    </bean>-->
+
+    <bean name="partyInfoServiceFactory" class="com.quorum.tessera.partyinfo.PartyInfoServiceFactory" factory-method="create">
+        <constructor-arg ref="config"/>
     </bean>
 
-    <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
-        <constructor-arg ref="partyInfoStore"/>
-        <constructor-arg ref="enclave"/>
-        <constructor-arg ref="payloadPublisher"/>
-        <constructor-arg ref="resendBatchPublisher"/>
-    </bean>
+    <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoService"
+          factory-bean="partyInfoServiceFactory" factory-method="partyInfoService" />
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
@@ -76,9 +76,7 @@
 
     <!-- Local key sync -->
     <bean name="enclaveKeySynchroniser" class="com.quorum.tessera.partyinfo.EnclaveKeySynchroniser">
-        <constructor-arg ref="enclave" />
-        <constructor-arg ref="partyInfoStore" />
-        <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}" />
+        <constructor-arg ref="partyInfoService" />
     </bean>
 
     <bean name="enclaveKeySynchroniserExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
@@ -117,26 +115,26 @@
         </bean>
     </beans>
 
-    <beans profile="enable-batch-sync">
+<!--    <beans profile="enable-batch-sync">-->
 
-        <bean id="processControl" class="com.quorum.tessera.transaction.resend.batch.ProcessControlImpl"/>
+<!--        <bean id="processControl" class="com.quorum.tessera.transaction.resend.batch.ProcessControlImpl"/>-->
 
-        <bean name="batchTransactionRequester" class="com.quorum.tessera.transaction.resend.batch.BatchTransactionRequesterImpl">
-            <constructor-arg ref="enclave" />
-            <constructor-arg ref="resendClient" />
-            <constructor-arg value="1000" />
-        </bean>
+<!--        <bean name="batchTransactionRequester" class="com.quorum.tessera.transaction.resend.batch.BatchTransactionRequesterImpl">-->
+<!--            <constructor-arg ref="enclave" />-->
+<!--            <constructor-arg ref="resendClient" />-->
+<!--            <constructor-arg value="1000" />-->
+<!--        </bean>-->
 
-        <bean name="batchResendSync" class="com.quorum.tessera.transaction.resend.batch.BatchResendSync">
+<!--        <bean name="batchResendSync" class="com.quorum.tessera.transaction.resend.batch.BatchResendSync">-->
 
-            <constructor-arg ref="partyInfoService"/>
-            <constructor-arg ref="batchResendManager" />
-            <constructor-arg value="#{ systemProperties['BATCH_RESEND_WAIT_TIME'] ?: 30000}" />
+<!--            <constructor-arg ref="partyInfoService"/>-->
+<!--            <constructor-arg ref="batchResendManager" />-->
+<!--            <constructor-arg value="#{ systemProperties['BATCH_RESEND_WAIT_TIME'] ?: 30000}" />-->
 
-            <constructor-arg ref="processControl" />
-            <constructor-arg ref="batchTransactionRequester" />
+<!--            <constructor-arg ref="processControl" />-->
+<!--            <constructor-arg ref="batchTransactionRequester" />-->
 
-        </bean>
-    </beans>
+<!--        </bean>-->
+<!--    </beans>-->
     
 </beans>

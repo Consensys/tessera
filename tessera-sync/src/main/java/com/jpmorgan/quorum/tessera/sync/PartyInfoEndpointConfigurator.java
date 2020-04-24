@@ -1,6 +1,8 @@
 package com.jpmorgan.quorum.tessera.sync;
 
 import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
+
 import javax.websocket.server.ServerEndpointConfig;
 
 public class PartyInfoEndpointConfigurator extends ServerEndpointConfig.Configurator {
@@ -12,7 +14,7 @@ public class PartyInfoEndpointConfigurator extends ServerEndpointConfig.Configur
         if (PartyInfoEndpoint.class.isAssignableFrom(endpointClass)) {
             return (T)
                     new PartyInfoEndpoint(
-                            serviceFactory.partyInfoService(),
+                            PartyInfoServiceFactory.create(serviceFactory.config()).partyInfoService(),
                             serviceFactory.transactionManager(),
                             serviceFactory.enclave());
         }

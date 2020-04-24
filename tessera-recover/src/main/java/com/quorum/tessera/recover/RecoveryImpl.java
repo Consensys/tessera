@@ -1,8 +1,6 @@
 package com.quorum.tessera.recover;
 
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
-
 import javax.persistence.EntityManagerFactory;
 import java.util.Objects;
 

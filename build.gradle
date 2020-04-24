@@ -371,7 +371,7 @@ subprojects {
     }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
-    check.dependsOn checkstyleMain, checkstyleTest, dependencyCheckAnalyze, spotlessCheck, jacocoTestCoverageVerification
+    check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification
 
 }
 

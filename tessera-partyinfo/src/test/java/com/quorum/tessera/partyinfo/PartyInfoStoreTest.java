@@ -195,4 +195,10 @@ public class PartyInfoStoreTest {
 
         partyInfoStore.findRecipientByPublicKey(PublicKey.from("OTHER KEY".getBytes()));
     }
+
+    @Test
+    public void getAdvertisedUrl() {
+        assertThat(partyInfoStore.getAdvertisedUrl())
+            .startsWith(uri).endsWith("/");
+    }
 }

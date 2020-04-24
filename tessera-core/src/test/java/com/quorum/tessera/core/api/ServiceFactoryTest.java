@@ -59,12 +59,6 @@ public class ServiceFactoryTest {
     }
 
     @Test
-    public void partyInfoService() {
-        PartyInfoService partyInfoService = serviceFactory.partyInfoService();
-        assertThat(partyInfoService).isNotNull();
-    }
-
-    @Test
     public void encryptedTransactionDAO() {
         EncryptedTransactionDAO encryptedTransactionDAO = serviceFactory.encryptedTransactionDAO();
         assertThat(encryptedTransactionDAO).isNotNull();
@@ -97,14 +91,8 @@ public class ServiceFactoryTest {
     }
 
     @Test
-    public void findPayloadPublisher() {
-        PayloadPublisher payloadPublisher = serviceFactory.payloadPublisher();
-        assertThat(payloadPublisher).isNotNull();
-    }
-
-    @Test
-    public void findBatchPayloadPublisher() {
-        ResendBatchPublisher resendBatchPublisher = serviceFactory.batchPayloadPublisher();
-        assertThat(resendBatchPublisher).isNotNull();
+    public void findConfig() {
+        Config config = serviceFactory.config();
+        assertThat(config).isNotNull();
     }
 }

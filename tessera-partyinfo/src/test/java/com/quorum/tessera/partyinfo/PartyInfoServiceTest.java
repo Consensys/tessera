@@ -1,8 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.Config;
-
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -16,9 +14,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
@@ -26,7 +24,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 public class PartyInfoServiceTest {
 
@@ -245,23 +242,7 @@ public class PartyInfoServiceTest {
         }
     }
 
-    @Test
-    public void createWithFactoryConstructor() throws Exception {
 
-        Set<Object> services =
-                Stream.of(
-                                mock(Enclave.class),
-                                mock(PayloadPublisher.class),
-                                mock(PartyInfoStore.class),
-                                mock(ResendBatchPublisher.class))
-                        .collect(Collectors.toSet());
-
-        MockServiceLocator.createMockServiceLocator().setServices(services);
-
-        final PartyInfoServiceFactory factory = PartyInfoServiceFactory.create();
-
-        assertThat(new PartyInfoServiceImpl(factory)).isNotNull();
-    }
 
     @Test
     public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIfToggleDisabled() {
@@ -365,5 +346,52 @@ public class PartyInfoServiceTest {
             verify(partyInfoStore).getPartyInfo();
             verify(enclave).getPublicKeys();
         }
+    }
+
+    @Test
+    public void fetchedKeysAreAddedToStore() {
+
+        final String url = "http://myurl";
+
+        when(partyInfoStore.getAdvertisedUrl()).thenReturn(url);
+
+        final PublicKey keyOne = PublicKey.from("KeyOne".getBytes());
+        final PublicKey keyTwo = PublicKey.from("KeyTwo".getBytes());
+
+        when(enclave.getPublicKeys())
+            .thenReturn(Set.of(keyOne, keyTwo));
+
+        final List<PartyInfo> result = new ArrayList<>(1);
+        doAnswer(invocation -> {
+            result.add(invocation.getArgument(0));
+            return null;
+        })
+            .when(partyInfoStore).store(any(PartyInfo.class));
+
+        partyInfoService.syncKeys();
+
+        assertThat(result).hasSize(1);
+
+        final PartyInfo updatedStore = result.iterator().next();
+        assertThat(updatedStore.getRecipients())
+            .containsExactlyInAnyOrder(new Recipient(keyOne, url), new Recipient(keyTwo, url));
+
+        verify(enclave).getPublicKeys();
+        verify(partyInfoStore).getAdvertisedUrl();
+        verify(partyInfoStore).store(any(PartyInfo.class));
+    }
+
+    @Test
+    public void connectionIssuesBubbleUp() {
+
+        final String url = "http://myurl";
+
+        when(enclave.getPublicKeys()).thenThrow(UncheckedIOException.class);
+
+        final Throwable throwable = catchThrowable(this.partyInfoService::syncKeys);
+        assertThat(throwable).isInstanceOf(UncheckedIOException.class);
+
+        verify(enclave).getPublicKeys();
+        verify(partyInfoStore).getAdvertisedUrl();
     }
 }

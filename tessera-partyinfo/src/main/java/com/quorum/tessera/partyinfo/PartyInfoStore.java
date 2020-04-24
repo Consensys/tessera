@@ -84,4 +84,10 @@ public class PartyInfoStore {
 
         return recipient.orElseThrow(() -> new KeyNotFoundException(key.encodeToBase64() + " not found"));
     }
+
+    public String getAdvertisedUrl() {
+        return advertisedUrl;
+    }
 }
+
+

@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.quorum.tessera.partyinfo.PartyInfoServiceUtil.validateKeysToUrls;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
@@ -31,15 +32,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final ResendBatchPublisher resendBatchPublisher;
 
-    public PartyInfoServiceImpl(final PartyInfoServiceFactory partyInfoServiceFactory) {
-        this(
-                partyInfoServiceFactory.partyInfoStore(),
-                partyInfoServiceFactory.enclave(),
-                partyInfoServiceFactory.payloadPublisher(),
-                partyInfoServiceFactory.resendBatchPublisher());
-    }
-
-    protected PartyInfoServiceImpl(
+    public PartyInfoServiceImpl(
             final PartyInfoStore partyInfoStore,
             final Enclave enclave,
             final PayloadPublisher payloadPublisher,
@@ -76,6 +69,8 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         partyInfoStore.store(partyInfo);
         LOGGER.debug("Populated party info store {}", partyInfo);
     }
+
+
 
     @Override
     public PartyInfo getPartyInfo() {
@@ -197,4 +192,23 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     }
 
+
+    /**
+     * Fetches local public keys from the Enclave and adds them to the local store. This is useful when the Enclave is
+     * remote and can restart with new keys independently of the Transaction Manager
+     */
+    @Override
+    public void syncKeys() {
+
+        final String advertisedUrl = partyInfoStore.getAdvertisedUrl();
+
+        // fetch keys and create recipients
+        final Set<Recipient> ourKeys =
+            this.enclave.getPublicKeys().stream()
+                .map(key -> new Recipient(key, advertisedUrl))
+                .collect(toSet());
+
+        // add to store
+        this.partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, emptySet()));
+    }
 }

@@ -6,8 +6,9 @@ import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import io.swagger.annotations.Api;
-
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,7 +24,11 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
 
     public ThirdPartyRestApp() {
         final ServiceFactory serviceFactory = ServiceFactory.create();
-        this.partyInfoService = serviceFactory.partyInfoService();
+        this.partyInfoService = Optional.of(serviceFactory)
+                                    .map(ServiceFactory::config)
+                                    .map(PartyInfoServiceFactory::create)
+                                    .map(PartyInfoServiceFactory::partyInfoService)
+                                    .get();
     }
 
     @Override

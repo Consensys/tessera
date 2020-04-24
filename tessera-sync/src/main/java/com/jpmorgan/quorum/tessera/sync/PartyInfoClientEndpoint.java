@@ -3,6 +3,7 @@ package com.jpmorgan.quorum.tessera.sync;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.Objects;
@@ -31,7 +32,7 @@ public class PartyInfoClientEndpoint {
     }
 
     public PartyInfoClientEndpoint(ServiceFactory serviceFactory) {
-        this(serviceFactory.partyInfoService(), serviceFactory.transactionManager());
+        this(PartyInfoServiceFactory.create(serviceFactory.config()).partyInfoService(), serviceFactory.transactionManager());
     }
 
     public PartyInfoClientEndpoint(PartyInfoService partyInfoService, TransactionManager transactionManager) {
