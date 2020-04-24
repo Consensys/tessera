@@ -89,7 +89,7 @@ public class PasswordFileUpdaterWriterTest {
         final List<String> existingPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
 
         final List<String> existingAndNewPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2", "pwd3", "pwd4"));
-        final List<String> newPasswords = new ArrayList<>(Arrays.asList("pwd3", "pwd4"));
+        final List<char[]> newPasswords = new ArrayList<>(Arrays.asList("pwd3".toCharArray(), "pwd4".toCharArray()));
 
         when(filesDelegate.readAllLines(any())).thenReturn(existingPasswords);
 
@@ -114,13 +114,8 @@ public class PasswordFileUpdaterWriterTest {
         final String path = "somepath";
         when(pwdFile.toString()).thenReturn(path);
 
-        final KeyData key1 = mock(KeyData.class);
-        when(key1.getPassword()).thenReturn("pwd1");
-
-        final KeyData key2 = mock(KeyData.class);
-        when(key2.getPassword()).thenReturn("pwd2");
-
-        final List<String> newPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
+        final List<char[]> newPasswords = new ArrayList<>(Arrays.asList("pwd1".toCharArray(), "pwd2".toCharArray()));
+        final List<String> newPasswordsStr = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
 
         writer.updateAndWrite(newPasswords, config, pwdFile);
 
@@ -131,7 +126,7 @@ public class PasswordFileUpdaterWriterTest {
                         pwdFile,
                         Stream.of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE)
                                 .collect(Collectors.toSet()));
-        verify(filesDelegate).write(pwdFile, newPasswords, APPEND);
+        verify(filesDelegate).write(pwdFile, newPasswordsStr, APPEND);
     }
 
     @Test
@@ -148,7 +143,7 @@ public class PasswordFileUpdaterWriterTest {
         when(pwdFile.toString()).thenReturn(path);
 
         final List<String> existingAndNewPasswords = new ArrayList<>(Arrays.asList("", "", "pwd1", "pwd2"));
-        final List<String> newPasswords = new ArrayList<>(Arrays.asList("pwd1", "pwd2"));
+        final List<char[]> newPasswords = new ArrayList<>(Arrays.asList("pwd1".toCharArray(), "pwd2".toCharArray()));
 
         writer.updateAndWrite(newPasswords, config, pwdFile);
 

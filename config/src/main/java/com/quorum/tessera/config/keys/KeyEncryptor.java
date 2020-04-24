@@ -20,7 +20,7 @@ public interface KeyEncryptor {
      * @param password   the password to encrypt the key with
      * @return the configuration that can be used to decrypt the private key
      */
-    PrivateKeyData encryptPrivateKey(PrivateKey privateKey, String password, ArgonOptions argonOptions);
+    PrivateKeyData encryptPrivateKey(PrivateKey privateKey, char[] password, ArgonOptions argonOptions);
 
     /**
      * Decrypts a private key using the password and information provided by the given
@@ -30,6 +30,6 @@ public interface KeyEncryptor {
      * @param password         the password that should be used to decrypt the private key
      * @return the decrypted private key
      */
-    PrivateKey decryptPrivateKey(PrivateKeyData privateKeyConfig, String password);
+    PrivateKey decryptPrivateKey(PrivateKeyData privateKeyConfig, char[] password);
 
 }

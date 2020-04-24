@@ -66,14 +66,14 @@ public class AzureVaultKeyPair implements ConfigKeyPair {
     }
 
     @Override
-    public void withPassword(String password) {
+    public void withPassword(char[] password) {
         //password not used with vault stored keys
     }
 
     @Override
-    public String getPassword() {
+    public char[] getPassword() {
         //no password to return
-        return "";
+        return new char[0];
     }
 
 }

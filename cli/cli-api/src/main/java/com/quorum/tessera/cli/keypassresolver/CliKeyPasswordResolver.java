@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class CliKeyPasswordResolver implements KeyPasswordResolver {
@@ -39,12 +40,19 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
             return;
         }
 
-        final List<String> allPasswords = new ArrayList<>();
+        final List<char[]> allPasswords = new ArrayList<>();
         if (input.getPasswords() != null) {
-            allPasswords.addAll(input.getPasswords());
+            allPasswords.addAll(
+                input.getPasswords().stream().map(String::toCharArray).collect(Collectors.toList())
+            );
         } else if (input.getPasswordFile() != null) {
             try {
-                allPasswords.addAll(Files.readAllLines(input.getPasswordFile(), StandardCharsets.UTF_8));
+                allPasswords.addAll(
+                    Files.readAllLines(input.getPasswordFile(), StandardCharsets.UTF_8)
+                        .stream()
+                        .map(String::toCharArray)
+                        .collect(Collectors.toList())
+                );
             } catch (final IOException ex) {
                 // dont do anything, if any keys are locked validation will complain that
                 // locked keys were provided without passwords
@@ -102,7 +110,7 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
             while (currentAttemptNumber > 0) {
 
                 if (Objects.isNull(configKeyPair.getPassword())
-                        || configKeyPair.getPassword().isEmpty()
+                        || configKeyPair.getPassword().length == 0
                         || Optional.ofNullable(configKeyPair.getPrivateKey())
                                 .filter(s -> s.contains("NACL_FAILURE"))
                                 .isPresent()) {
@@ -118,7 +126,7 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
                     System.out.printf("%s Enter a password for the key", attemptOutput);
                     System.out.println();
 
-                    final String pass = passwordReader.readPasswordFromConsole();
+                    final char[] pass = passwordReader.readPasswordFromConsole();
                     configKeyPair.withPassword(pass);
                     keyPair.setPassword(pass);
                 }

@@ -11,9 +11,8 @@ public class ConsolePasswordReader implements PasswordReader {
     }
 
     @Override
-    public String readPasswordFromConsole() {
-        final char[] consolePassword = this.console.readPassword();
-        return new String(consolePassword);
+    public char[] readPasswordFromConsole() {
+        return this.console.readPassword();
     }
 
 }

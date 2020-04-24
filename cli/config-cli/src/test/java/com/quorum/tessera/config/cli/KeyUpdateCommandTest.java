@@ -44,7 +44,7 @@ public class KeyUpdateCommandTest {
         passwordReader = mock(PasswordReader.class);
 
         when(keyEncryptorFactory.create(any())).thenReturn(keyEncryptor);
-        when(passwordReader.requestUserPassword()).thenReturn("newPassword");
+        when(passwordReader.requestUserPassword()).thenReturn("newPassword".toCharArray());
 
         command = new KeyUpdateCommand(keyEncryptorFactory, passwordReader);
         command.keyEncryptor = keyEncryptor;
@@ -113,9 +113,9 @@ public class KeyUpdateCommandTest {
     public void inlinePasswordParsed() throws IOException {
         command.password = "pass";
 
-        final List<String> passwords = command.passwords();
+        final List<char[]> passwords = command.passwords();
 
-        assertThat(passwords).isNotNull().hasSize(1).containsExactly("pass");
+        assertThat(passwords).isNotNull().hasSize(1).containsExactly("pass".toCharArray());
     }
 
     @Test
@@ -125,9 +125,12 @@ public class KeyUpdateCommandTest {
 
         command.passwordFile = passwordFile;
 
-        final List<String> passwords = command.passwords();
+        final List<char[]> passwords = command.passwords();
 
-        assertThat(passwords).isNotNull().hasSize(2).containsExactly("passwordInsideFile", "secondPassword");
+        assertThat(passwords)
+                .isNotNull()
+                .hasSize(2)
+                .containsExactly("passwordInsideFile".toCharArray(), "secondPassword".toCharArray());
     }
 
     @Test
@@ -141,7 +144,7 @@ public class KeyUpdateCommandTest {
 
     @Test
     public void emptyListGivenForNoPasswords() throws IOException {
-        final List<String> passwords = command.passwords();
+        final List<char[]> passwords = command.passwords();
 
         assertThat(passwords).isNotNull().isEmpty();
     }
@@ -207,13 +210,14 @@ public class KeyUpdateCommandTest {
                                 new ArgonOptions("id", 1, 1024, 1)),
                         PrivateKeyType.LOCKED);
 
-        final Throwable throwable = catchThrowable(() -> command.getExistingKey(kdc, singletonList("wrong")));
+        final Throwable throwable =
+                catchThrowable(() -> command.getExistingKey(kdc, singletonList("wrong".toCharArray())));
 
         assertThat(throwable)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Locked key but no valid password given");
 
-        verify(keyEncryptor).decryptPrivateKey(kdc.getPrivateKeyData(), "wrong");
+        verify(keyEncryptor).decryptPrivateKey(kdc.getPrivateKeyData(), "wrong".toCharArray());
     }
 
     @Test
@@ -238,13 +242,13 @@ public class KeyUpdateCommandTest {
 
         PrivateKey privateKey = mock(PrivateKey.class);
         when(privateKey.getKeyBytes()).thenReturn("SUCCESS".getBytes());
-        when(keyEncryptor.decryptPrivateKey(privateKeyData, "testpassword")).thenReturn(privateKey);
+        when(keyEncryptor.decryptPrivateKey(privateKeyData, "testpassword".toCharArray())).thenReturn(privateKey);
 
-        final PrivateKey result = command.getExistingKey(kdc, singletonList("testpassword"));
+        final PrivateKey result = command.getExistingKey(kdc, singletonList("testpassword".toCharArray()));
 
         assertThat(result.getKeyBytes()).isEqualTo("SUCCESS".getBytes());
 
-        verify(keyEncryptor).decryptPrivateKey(privateKeyData, "testpassword");
+        verify(keyEncryptor).decryptPrivateKey(privateKeyData, "testpassword".toCharArray());
     }
 
     @Test
@@ -279,11 +283,11 @@ public class KeyUpdateCommandTest {
         addEmptyEncryptorConfigToCommand();
 
         PrivateKey privatekey = mock(PrivateKey.class);
-        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), anyString())).thenReturn(privatekey);
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), any())).thenReturn(privatekey);
 
         PrivateKeyData privateKeyData = mock(PrivateKeyData.class);
 
-        when(keyEncryptor.encryptPrivateKey(any(PrivateKey.class), anyString(), any(ArgonOptions.class)))
+        when(keyEncryptor.encryptPrivateKey(any(PrivateKey.class), any(), any(ArgonOptions.class)))
                 .thenReturn(privateKeyData);
 
         command.call();
@@ -295,8 +299,8 @@ public class KeyUpdateCommandTest {
         assertThat(endingKey.getAsalt()).isNotEqualTo(startingKey.getAsalt());
 
         verify(keyEncryptorFactory).create(any());
-        verify(keyEncryptor).decryptPrivateKey(any(PrivateKeyData.class), anyString());
-        verify(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), any(ArgonOptions.class));
+        verify(keyEncryptor).decryptPrivateKey(any(PrivateKeyData.class), any());
+        verify(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), any(), any(ArgonOptions.class));
         verify(passwordReader).requestUserPassword();
     }
 
@@ -315,11 +319,11 @@ public class KeyUpdateCommandTest {
         addEncryptorOptionsToCommand();
 
         PrivateKey privatekey = mock(PrivateKey.class);
-        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), anyString())).thenReturn(privatekey);
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), any())).thenReturn(privatekey);
 
         PrivateKeyData privateKeyData = mock(PrivateKeyData.class);
 
-        when(keyEncryptor.encryptPrivateKey(any(PrivateKey.class), anyString(), any(ArgonOptions.class)))
+        when(keyEncryptor.encryptPrivateKey(any(PrivateKey.class), any(), any(ArgonOptions.class)))
                 .thenReturn(privateKeyData);
 
         command.call();
@@ -331,8 +335,8 @@ public class KeyUpdateCommandTest {
         assertThat(endingKey.getAsalt()).isNotEqualTo(startingKey.getAsalt());
 
         verify(keyEncryptorFactory).create(any());
-        verify(keyEncryptor).decryptPrivateKey(any(PrivateKeyData.class), anyString());
-        verify(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), anyString(), any(ArgonOptions.class));
+        verify(keyEncryptor).decryptPrivateKey(any(PrivateKeyData.class), any());
+        verify(keyEncryptor).encryptPrivateKey(any(PrivateKey.class), any(), any(ArgonOptions.class));
         verify(passwordReader).requestUserPassword();
     }
 
@@ -341,7 +345,7 @@ public class KeyUpdateCommandTest {
         final KeyDataConfig startingKey =
                 JaxbUtil.unmarshal(getClass().getResourceAsStream("/lockedprivatekey.json"), KeyDataConfig.class);
 
-        when(passwordReader.requestUserPassword()).thenReturn("");
+        when(passwordReader.requestUserPassword()).thenReturn("".toCharArray());
 
         final Path key = Files.createTempFile("key", ".key");
         Files.write(key, JaxbUtil.marshalToString(startingKey).getBytes());
@@ -354,7 +358,7 @@ public class KeyUpdateCommandTest {
 
         byte[] privateKeyData = "SOME PRIVATE DATA".getBytes();
         PrivateKey privateKey = PrivateKey.from(privateKeyData);
-        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), anyString())).thenReturn(privateKey);
+        when(keyEncryptor.decryptPrivateKey(any(PrivateKeyData.class), any())).thenReturn(privateKey);
 
         command.call();
 
@@ -367,8 +371,8 @@ public class KeyUpdateCommandTest {
                 .isEqualTo(Base64.getEncoder().encodeToString(privateKeyData));
 
         verify(keyEncryptorFactory).create(any());
-        verify(keyEncryptor).decryptPrivateKey(any(PrivateKeyData.class), anyString());
-        verify(keyEncryptor, never()).encryptPrivateKey(any(PrivateKey.class), anyString(), any(ArgonOptions.class));
+        verify(keyEncryptor).decryptPrivateKey(any(PrivateKeyData.class), any());
+        verify(keyEncryptor, never()).encryptPrivateKey(any(PrivateKey.class), any(), any(ArgonOptions.class));
         verify(passwordReader).requestUserPassword();
     }
 
