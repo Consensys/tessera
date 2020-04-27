@@ -3,7 +3,6 @@ package com.quorum.tessera.recover;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
-import org.junit.BeforeClass;
 
 import java.util.*;
 
