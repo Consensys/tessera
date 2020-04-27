@@ -33,13 +33,23 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         Optional.ofNullable(response.getStatusInfo())
             .ifPresent(statusType -> getLogger()
                 .info("Response for {} : {} {}",
-                    path,
-                    statusType.getStatusCode(),
-                    statusType.getReasonPhrase()));
+                                                path,
+                                                statusType.getStatusCode(),
+                                                statusType.getReasonPhrase()));
     }
 
     private void log(String prefix, ContainerRequestContext request) {
         String path = Optional.ofNullable(request.getUriInfo()).map(UriInfo::getPath).orElse(null);
         getLogger().info("{} Request : {} : {}", prefix, request.getMethod(), "/" + path);
+    }
+
+    /**
+     * Set the request resource info. Only needed for unit tests.
+     *
+     * @param resourceInfo the resource info
+     */
+    @Context
+    public void setResourceInfo(final ResourceInfo resourceInfo) {
+        this.resourceInfo = resourceInfo;
     }
 }
