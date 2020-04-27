@@ -13,8 +13,6 @@ public interface PartyInfoServiceFactory {
 
     PartyInfoService partyInfoService();
 
-    Enclave enclave();
-
     AtomicReference<PartyInfoServiceFactory> FACTORY_ATOMIC_REFERENCE = new AtomicReference<>();
 
     static PartyInfoServiceFactory create(Config config) {
@@ -36,7 +34,7 @@ public interface PartyInfoServiceFactory {
         PartyInfoStore partyInfoStore = new PartyInfoStore(uri);
         PartyInfoService partyInfoService = new PartyInfoServiceImpl(partyInfoStore,enclave,payloadPublisher,resendBatchPublisher);
 
-        PartyInfoServiceFactory partyInfoServiceFactory = new PartyInfoServiceFactoryImpl(partyInfoService,enclave);
+        PartyInfoServiceFactory partyInfoServiceFactory = new PartyInfoServiceFactoryImpl(partyInfoService);
         FACTORY_ATOMIC_REFERENCE.set(partyInfoServiceFactory);
         return partyInfoServiceFactory;
     }
