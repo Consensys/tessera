@@ -11,7 +11,7 @@ import javax.xml.bind.UnmarshalException;
 
 public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplicationException> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExceptionMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebApplicationExceptionMapper.class);
 
     @Override
     public Response toResponse(final WebApplicationException exception) {

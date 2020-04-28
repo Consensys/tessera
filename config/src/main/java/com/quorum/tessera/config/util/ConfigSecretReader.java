@@ -39,6 +39,6 @@ public final class ConfigSecretReader {
 
     public static String readSecretFromConsole() {
         SystemAdapter.INSTANCE.out().println("Please enter the secret/password used to decrypt config value");
-        return PasswordReaderFactory.create().readPasswordFromConsole();
+        return String.valueOf(PasswordReaderFactory.create().readPasswordFromConsole());
     }
 }

@@ -106,7 +106,7 @@ public class KeyGenCommand implements Callable<CliResult> {
                         .map(name -> generator.generate(name, argonOptions, keyVaultOptions))
                         .collect(Collectors.toList());
 
-        final List<String> newPasswords =
+        final List<char[]> newPasswords =
                 newConfigKeyPairs.stream()
                         .filter(Objects::nonNull)
                         .map(ConfigKeyPair::getPassword)

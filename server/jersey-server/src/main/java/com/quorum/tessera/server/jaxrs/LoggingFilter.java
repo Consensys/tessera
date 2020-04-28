@@ -12,13 +12,13 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingFilter.class);
 
-    @Context
-    private ResourceInfo resourceInfo;
+    @Context private ResourceInfo resourceInfo;
 
     private Logger getLogger() {
         return Optional.ofNullable(resourceInfo)
-            .map(r -> LoggerFactory.getLogger(r.getResourceClass()))
-            .orElse(LOGGER);
+                .filter(r -> r.getResourceClass() != null)
+                .map(r -> LoggerFactory.getLogger(r.getResourceClass()))
+                .orElse(LOGGER);
     }
 
     @Override
@@ -30,15 +30,26 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
     public void filter(final ContainerRequestContext request, final ContainerResponseContext response) {
         log("Exit", request);
         String path = Optional.ofNullable(request.getUriInfo()).map(UriInfo::getPath).orElse(null);
-        Optional.ofNullable(response.getStatusInfo()).ifPresent(statusType -> getLogger().info("Response for {} : {} {}", path, statusType.getStatusCode(), statusType.getReasonPhrase()));
+        Optional.ofNullable(response.getStatusInfo())
+            .ifPresent(statusType -> getLogger()
+                .info("Response for {} : {} {}",
+                                                path,
+                                                statusType.getStatusCode(),
+                                                statusType.getReasonPhrase()));
     }
 
     private void log(String prefix, ContainerRequestContext request) {
         String path = Optional.ofNullable(request.getUriInfo()).map(UriInfo::getPath).orElse(null);
         getLogger().info("{} Request : {} : {}", prefix, request.getMethod(), "/" + path);
-
     }
-    
 
- 
+    /**
+     * Set the request resource info. Only needed for unit tests.
+     *
+     * @param resourceInfo the resource info
+     */
+    @Context
+    public void setResourceInfo(final ResourceInfo resourceInfo) {
+        this.resourceInfo = resourceInfo;
+    }
 }

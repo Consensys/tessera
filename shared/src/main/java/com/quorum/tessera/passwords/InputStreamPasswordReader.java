@@ -14,11 +14,11 @@ public class InputStreamPasswordReader implements PasswordReader {
     }
 
     @Override
-    public String readPasswordFromConsole() {
+    public char[] readPasswordFromConsole() {
         if (this.inputStream.hasNextLine()) {
-            return this.inputStream.nextLine();
+            return this.inputStream.nextLine().toCharArray();
         } else {
-            return "";
+            return new char[0];
         }
     }
 

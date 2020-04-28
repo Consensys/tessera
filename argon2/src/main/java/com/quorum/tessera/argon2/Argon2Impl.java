@@ -14,7 +14,7 @@ public class Argon2Impl implements Argon2 {
     private static final ArgonOptions DEFAULT_OPTIONS = new ArgonOptions("i", 10, 1048576, 4);
 
     @Override
-    public ArgonResult hash(final ArgonOptions options, final String password, final byte[] salt) {
+    public ArgonResult hash(final ArgonOptions options, final char[] password, final byte[] salt) {
         final Argon2Advanced argon2 = this.getArgon2Instance(options.getAlgorithm());
 
         final byte[] hash = argon2.rawHash(
@@ -27,7 +27,7 @@ public class Argon2Impl implements Argon2 {
     }
 
     @Override
-    public ArgonResult hash(final String password, final byte[] salt) {
+    public ArgonResult hash(final char[] password, final byte[] salt) {
         return this.hash(DEFAULT_OPTIONS, password, salt);
     }
 
