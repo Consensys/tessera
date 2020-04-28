@@ -8,6 +8,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
@@ -31,12 +32,11 @@ public class P2PRestApp extends TesseraRestApplication {
 
     private final Enclave enclave;
 
-
     public P2PRestApp() {
         final ServiceFactory serviceFactory = ServiceFactory.create();
         Config config = serviceFactory.config();
         this.partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
-        this.enclave = serviceFactory.enclave();
+        this.enclave = EnclaveFactory.create().create(config);
     }
 
     @Override
