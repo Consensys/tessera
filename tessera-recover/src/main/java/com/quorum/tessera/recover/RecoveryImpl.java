@@ -11,7 +11,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class RecoveryImpl implements Recovery {
 

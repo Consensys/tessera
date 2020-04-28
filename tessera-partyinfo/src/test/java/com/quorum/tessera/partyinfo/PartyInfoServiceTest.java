@@ -277,7 +277,7 @@ public class PartyInfoServiceTest {
     @Test
     public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
 
-        PartyInfoStore store = new PartyInfoStore(RUNTIME_CONTEXT.getP2pServerUri());
+        PartyInfoStore store = PartyInfoStore.create();
 
         PartyInfoServiceImpl partyInfoService =
                 new PartyInfoServiceImpl(store, enclave, payloadPublisher, resendBatchPublisher);

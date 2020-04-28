@@ -80,6 +80,9 @@ allprojects {
                 compile "org.eclipse.jetty:jetty-unixsocket:"+ jettyVersion
                 compile "org.eclipse.jetty:jetty-server:"+ jettyVersion
                 compile "org.eclipse.jetty.websocket:javax-websocket-server-impl:"+ jettyVersion
+                compile "org.eclipse.jetty:jetty-jndi:"+ jettyVersion
+                compile "org.eclipse.jetty:jetty-plus:"+ jettyVersion
+
 
                 compile "io.swagger:swagger-annotations:1.5.4"
                 compile "javax.transaction:javax.transaction-api:1.3"

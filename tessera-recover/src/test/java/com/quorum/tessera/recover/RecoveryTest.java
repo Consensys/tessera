@@ -1,16 +1,12 @@
 package com.quorum.tessera.recover;
 
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.sync.TransactionRequester;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
-import java.util.ArrayList;
-import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class RecoveryTest extends RecoveryTestCase {
@@ -19,8 +15,13 @@ public class RecoveryTest extends RecoveryTestCase {
 
     private TransactionRequester transactionRequester;
 
+    private PartyInfoService partyInfoService;
+
     @Before
     public void onSetUp() {
+
+        partyInfoService = new MockPartyInfoServiceFactory().partyInfoService();
+        when(partyInfoService.getPartyInfo()).thenReturn(getPartyInfo());
 
         transactionRequester = mock(TransactionRequester.class);
         when(transactionRequester.requestAllTransactionsFromNode(anyString())).thenReturn(true);
@@ -33,6 +34,7 @@ public class RecoveryTest extends RecoveryTestCase {
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(transactionRequester);
+        verifyNoMoreInteractions(partyInfoService);
         MockTransactionRequesterFactory.setTransactionRequester(null);
     }
 
@@ -42,13 +44,10 @@ public class RecoveryTest extends RecoveryTestCase {
     public void recover() {
         recovery.recover();
 
-        List<String> requestedUrls = new ArrayList<>();
-        doAnswer(invocation -> {
-            requestedUrls.add(invocation.getArgument(0));
-            return null;
-        }).when(transactionRequester).requestAllTransactionsFromNode(anyString());
+        verify(transactionRequester,times(4)).requestAllTransactionsFromNode(anyString());
 
-        assertThat(requestedUrls).hasSize(5);
+        verify(partyInfoService).getPartyInfo();
+
 
     }
 

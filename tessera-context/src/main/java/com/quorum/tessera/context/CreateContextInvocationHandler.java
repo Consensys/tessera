@@ -29,6 +29,9 @@ class CreateContextInvocationHandler implements InvocationHandler {
         }
 
         if (Objects.equals(method, target)) {
+            if(ContextHolder.INSTANCE.getContext().isPresent()) {
+                return outcome;
+            }
 
             RuntimeContext runtimeContext = (RuntimeContext) outcome;
             ContextHolder.INSTANCE.setContext(runtimeContext);

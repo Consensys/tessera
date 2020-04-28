@@ -1,10 +1,12 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.encryption.PublicKey;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +28,13 @@ public class PartyInfoStoreTest {
 
     @Before
     public void onSetUp() throws URISyntaxException {
-        this.partyInfoStore = new PartyInfoStore(new URI(uri));
+        this.partyInfoStore = new PartyInfoStoreImpl(URI.create(uri));
+    }
+
+    @After
+    public void onTearDown() {
+
+
     }
 
     @Test
@@ -200,5 +208,14 @@ public class PartyInfoStoreTest {
     public void getAdvertisedUrl() {
         assertThat(partyInfoStore.getAdvertisedUrl())
             .startsWith(uri).endsWith("/");
+    }
+
+    @Test
+    public void create() {
+
+        RuntimeContextFactory.newFactory().create(null);
+        PartyInfoStore instance = PartyInfoStore.create();
+        assertThat(instance).isNotNull();
+
     }
 }

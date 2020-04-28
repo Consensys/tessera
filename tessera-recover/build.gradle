@@ -25,4 +25,8 @@ dependencies {
     runtimeOnly 'com.h2database:h2:1.4.200'
     runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.6'
     runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.extension:2.7.6'
+//    compile 'com.zaxxer:HikariCP'
+//    compile "org.eclipse.jetty:jetty-jndi"
+//    compile "org.eclipse.jetty:jetty-plus"
+
 }

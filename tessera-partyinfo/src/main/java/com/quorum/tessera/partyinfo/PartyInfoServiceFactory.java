@@ -5,7 +5,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 
-import java.net.URI;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -30,8 +29,8 @@ public interface PartyInfoServiceFactory {
         Enclave enclave = EnclaveFactory.create().create(config);
         PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
         ResendBatchPublisher resendBatchPublisher = ResendBatchPublisherFactory.newFactory(config).create(config);
-        URI uri = config.getP2PServerConfig().getServerUri();
-        PartyInfoStore partyInfoStore = new PartyInfoStore(uri);
+
+        PartyInfoStore partyInfoStore = PartyInfoStore.create();
         PartyInfoService partyInfoService = new PartyInfoServiceImpl(partyInfoStore,enclave,payloadPublisher,resendBatchPublisher);
 
         PartyInfoServiceFactory partyInfoServiceFactory = new PartyInfoServiceFactoryImpl(partyInfoService);
