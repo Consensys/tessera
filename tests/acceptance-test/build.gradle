@@ -72,7 +72,6 @@ test {
             '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
             '**/ConfigMigrationIT.class',
-           // '**/AdminRestSuite.class',
             '**/RestSuiteUnixH2.class',
             '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
@@ -80,6 +79,10 @@ test {
             '**/RunAwsIT.class',
             '**/RunAzureIT.class'
     )
+
+    if (project.hasProperty('excludeTests')) {
+        exclude project.property('excludeTests')
+    }
 
 //    '**/RestSuite.class',
 //            '**/P2pTestSuite.class',
