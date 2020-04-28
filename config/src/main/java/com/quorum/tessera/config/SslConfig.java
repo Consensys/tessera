@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.adapters.CharArrayAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
 
 import javax.validation.constraints.NotNull;
@@ -32,7 +33,9 @@ public class SslConfig extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path serverTlsCertificatePath;
 
-    @XmlElement private char[] serverKeyStorePassword;
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(CharArrayAdapter.class)
+    private char[] serverKeyStorePassword;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -42,7 +45,9 @@ public class SslConfig extends ConfigItem {
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private List<Path> serverTrustCertificates;
 
-    @XmlElement private char[] serverTrustStorePassword;
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(CharArrayAdapter.class)
+    private char[] serverTrustStorePassword;
 
     @XmlElement private SslTrustMode serverTrustMode;
 
@@ -58,7 +63,9 @@ public class SslConfig extends ConfigItem {
     @XmlJavaTypeAdapter(PathAdapter.class)
     private Path clientTlsCertificatePath;
 
-    @XmlElement private char[] clientKeyStorePassword;
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(CharArrayAdapter.class)
+    private char[] clientKeyStorePassword;
 
     @XmlElement(type = String.class)
     @XmlJavaTypeAdapter(PathAdapter.class)
@@ -68,7 +75,9 @@ public class SslConfig extends ConfigItem {
     @XmlJavaTypeAdapter(value = PathAdapter.class)
     private List<Path> clientTrustCertificates;
 
-    @XmlElement private char[] clientTrustStorePassword;
+    @XmlElement(type = String.class)
+    @XmlJavaTypeAdapter(CharArrayAdapter.class)
+    private char[] clientTrustStorePassword;
 
     @XmlElement private SslTrustMode clientTrustMode;
 
