@@ -33,10 +33,10 @@ public class ConfigSecretReaderTest {
 
         envVariables.set(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH, filePath);
 
-        Optional<String> secret = ConfigSecretReader.readSecretFromFile();
+        Optional<char[]> secret = ConfigSecretReader.readSecretFromFile();
 
         assertThat(secret).isPresent();
-        assertThat(secret.get()).isEqualTo("quorum");
+        assertThat(secret.get()).isEqualTo("quorum".toCharArray());
     }
 
     @Test
@@ -56,10 +56,10 @@ public class ConfigSecretReaderTest {
     public void testReadFromConsole() {
         ByteArrayInputStream in = new ByteArrayInputStream("password".getBytes());
         System.setIn(in);
-        assertThat(ConfigSecretReader.readSecretFromConsole()).isEqualTo("password");
+        assertThat(ConfigSecretReader.readSecretFromConsole()).isEqualTo("password".toCharArray());
 
         System.setIn(System.in);
-        assertThat(ConfigSecretReader.readSecretFromConsole()).isEqualTo("");
+        assertThat(ConfigSecretReader.readSecretFromConsole()).isEqualTo("".toCharArray());
     }
 
     @Test

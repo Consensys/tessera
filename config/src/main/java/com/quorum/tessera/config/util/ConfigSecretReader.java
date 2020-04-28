@@ -17,7 +17,7 @@ public final class ConfigSecretReader {
 
     private ConfigSecretReader() {}
 
-    public static Optional<String> readSecretFromFile() {
+    public static Optional<char[]> readSecretFromFile() {
 
         final EnvironmentVariableProvider envProvider = new EnvironmentVariableProvider();
 
@@ -25,7 +25,7 @@ public final class ConfigSecretReader {
             final Path secretPath = Paths.get(envProvider.getEnv(EnvironmentVariables.CONFIG_SECRET_PATH));
             if (Files.exists(secretPath)) {
                 try {
-                    return Optional.of(new String(Files.readAllBytes(secretPath)).trim());
+                    return Optional.of(new String(Files.readAllBytes(secretPath)).trim().toCharArray());
                 } catch (IOException ex) {
                     LOGGER.error("Error while reading secret from file");
                 }
@@ -37,8 +37,8 @@ public final class ConfigSecretReader {
         return Optional.empty();
     }
 
-    public static String readSecretFromConsole() {
+    public static char[] readSecretFromConsole() {
         SystemAdapter.INSTANCE.out().println("Please enter the secret/password used to decrypt config value");
-        return String.valueOf(PasswordReaderFactory.create().readPasswordFromConsole());
+        return PasswordReaderFactory.create().readPasswordFromConsole();
     }
 }

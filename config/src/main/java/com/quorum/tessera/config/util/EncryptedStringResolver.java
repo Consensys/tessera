@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.util;
 
-import org.jasypt.encryption.pbe.PBEStringEncryptor;
+import org.jasypt.encryption.pbe.PBEStringCleanablePasswordEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.properties.PropertyValueEncryptionUtils;
 import org.slf4j.Logger;
@@ -10,7 +10,7 @@ public class EncryptedStringResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedStringResolver.class);
 
-    private final PBEStringEncryptor encryptor;
+    private final PBEStringCleanablePasswordEncryptor encryptor;
 
     private boolean isPasswordSet;
 
@@ -23,7 +23,7 @@ public class EncryptedStringResolver {
         if (PropertyValueEncryptionUtils.isEncryptedValue(textToDecrypt)) {
 
             if (!isPasswordSet) {
-                encryptor.setPassword(
+                encryptor.setPasswordCharArray(
                         ConfigSecretReader.readSecretFromFile().orElseGet(ConfigSecretReader::readSecretFromConsole));
                 isPasswordSet = true;
             }
