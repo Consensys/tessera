@@ -68,8 +68,8 @@ public class FixtureUtil {
                 .sslServerTrustStorePath("sslServerKeyStorePath")
                 .sslClientKeyStorePath("sslClientKeyStorePath")
                 .sslClientTrustStorePath("sslClientTrustStorePath")
-                .sslClientKeyStorePassword("sslClientKeyStorePassword")
-                .sslClientTrustStorePassword("sslClientTrustStorePassword")
+                .sslClientKeyStorePassword("sslClientKeyStorePassword".toCharArray())
+                .sslClientTrustStorePassword("sslClientTrustStorePassword".toCharArray())
                 .sslServerTlsKeyPath("sslServerTlsKeyPath")
                 .sslClientTlsKeyPath("sslClientTlsKeyPath")
                 .sslKnownClientsFile("knownClientsFile")
@@ -83,9 +83,10 @@ public class FixtureUtil {
                         new KeyConfiguration(
                                 null,
                                 Collections.emptyList(),
-                                Collections.singletonList(KeyDataUtil.marshal(
-                                        new FilesystemKeyPair(
-                                                Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR))),
+                                Collections.singletonList(
+                                        KeyDataUtil.marshal(
+                                                new FilesystemKeyPair(
+                                                        Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR))),
                                 null,
                                 null));
     }
@@ -106,8 +107,8 @@ public class FixtureUtil {
                 .sslServerTrustStorePath("sslServerKeyStorePath")
                 .sslClientKeyStorePath("sslClientKeyStorePath")
                 .sslClientTrustStorePath("sslClientTrustStorePath")
-                .sslClientKeyStorePassword("sslClientKeyStorePassword")
-                .sslClientTrustStorePassword("sslClientTrustStorePassword")
+                .sslClientKeyStorePassword("sslClientKeyStorePassword".toCharArray())
+                .sslClientTrustStorePassword("sslClientTrustStorePassword".toCharArray())
                 .sslServerTlsKeyPath("sslServerTlsKeyPath")
                 .sslClientTlsKeyPath("sslClientTlsKeyPath")
                 .sslKnownClientsFile("knownClientsFile")
@@ -121,9 +122,10 @@ public class FixtureUtil {
                         new KeyConfiguration(
                                 null,
                                 Collections.emptyList(),
-                                Collections.singletonList(KeyDataUtil.marshal(
-                                        new FilesystemKeyPair(
-                                                Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR))),
+                                Collections.singletonList(
+                                        KeyDataUtil.marshal(
+                                                new FilesystemKeyPair(
+                                                        Paths.get("public"), Paths.get("private"), KEY_ENCRYPTOR))),
                                 null,
                                 null));
     }

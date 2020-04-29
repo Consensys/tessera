@@ -26,19 +26,21 @@ import java.util.regex.Pattern;
 
 final class SSLKeyStoreLoader {
 
-    private static final Pattern PRIVATE_KEY_PATTERN = Pattern.compile(
-        "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+" +
-            "([a-z0-9+/=\\r\\n]+)" +
-            "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",
-        2);
+    private static final Pattern PRIVATE_KEY_PATTERN =
+            Pattern.compile(
+                    "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+"
+                            + "([a-z0-9+/=\\r\\n]+)"
+                            + "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",
+                    2);
 
-    private static final Pattern CERTIFICATE_PATTERN = Pattern.compile(
-        "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+" +
-            "([a-z0-9+/=\\r\\n]+)" +
-            "-+END\\s+.*CERTIFICATE[^-]*-+",
-        2);
+    private static final Pattern CERTIFICATE_PATTERN =
+            Pattern.compile(
+                    "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+"
+                            + "([a-z0-9+/=\\r\\n]+)"
+                            + "-+END\\s+.*CERTIFICATE[^-]*-+",
+                    2);
 
-    private static final String KEYSTORE_TYPE="JKS";
+    private static final String KEYSTORE_TYPE = "JKS";
 
     private static final String ALIAS = "tessera-node";
 
@@ -46,24 +48,23 @@ final class SSLKeyStoreLoader {
 
     private static final Base64.Decoder decoder = Base64.getMimeDecoder();
 
-    private SSLKeyStoreLoader(){
+    private SSLKeyStoreLoader() {}
 
-    }
-
-    static KeyManager[] fromJksKeyStore(Path keyStoreFile, String keyStorePassword) throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException {
+    static KeyManager[] fromJksKeyStore(Path keyStoreFile, char[] keyStorePassword)
+            throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException,
+                    UnrecoverableKeyException {
 
         final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
         try (InputStream in = Files.newInputStream(keyStoreFile)) {
-            keyStore.load(in, keyStorePassword.toCharArray());
+            keyStore.load(in, keyStorePassword);
         }
 
         final KeyManagerFactory keyManagerFactory =
-            KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, keyStorePassword.toCharArray());
+                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keyManagerFactory.init(keyStore, keyStorePassword);
 
         return keyManagerFactory.getKeyManagers();
-
     }
 
     static KeyManager[] fromPemKeyFile(Path key, Path certificate) throws IOException, GeneralSecurityException {
@@ -80,27 +81,29 @@ final class SSLKeyStoreLoader {
         keyStore.setKeyEntry(ALIAS, privateKey, EMPTY_PASSWORD, certificates.stream().toArray(Certificate[]::new));
 
         final KeyManagerFactory keyManagerFactory =
-            KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
         keyManagerFactory.init(keyStore, EMPTY_PASSWORD);
 
         return keyManagerFactory.getKeyManagers();
     }
 
-    static TrustManager[] fromJksTrustStore(Path trustStoreFile, String trustStorePassword) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+    static TrustManager[] fromJksTrustStore(Path trustStoreFile, char[] trustStorePassword)
+            throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
 
         try (InputStream in = Files.newInputStream(trustStoreFile)) {
-            trustStore.load(in, trustStorePassword.toCharArray());
+            trustStore.load(in, trustStorePassword);
         }
 
         final TrustManagerFactory trustManagerFactory =
-            TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init(trustStore);
 
         return trustManagerFactory.getTrustManagers();
     }
 
-    static TrustManager[] fromPemCertificatesFile(List<Path> trustedCertificates) throws GeneralSecurityException, IOException {
+    static TrustManager[] fromPemCertificatesFile(List<Path> trustedCertificates)
+            throws GeneralSecurityException, IOException {
         final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
         trustStore.load(null, null);
 
@@ -116,7 +119,7 @@ final class SSLKeyStoreLoader {
         }
 
         final TrustManagerFactory trustManagerFactory =
-            TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
         trustManagerFactory.init(trustStore);
 
         return trustManagerFactory.getTrustManagers();
@@ -137,7 +140,8 @@ final class SSLKeyStoreLoader {
         return new PKCS8EncodedKeySpec(encodedKey);
     }
 
-    private static List<X509Certificate> getCertificates(Path certificateFile) throws IOException, GeneralSecurityException {
+    private static List<X509Certificate> getCertificates(Path certificateFile)
+            throws IOException, GeneralSecurityException {
 
         final String certFileContent = readPemFile(certificateFile);
 
@@ -150,8 +154,8 @@ final class SSLKeyStoreLoader {
         int start = 0;
         while (matcher.find(start)) {
             byte[] buffer = decoder.decode(matcher.group(1));
-            final X509Certificate certificate = (X509Certificate) certificateFactory
-                .generateCertificate(new ByteArrayInputStream(buffer));
+            final X509Certificate certificate =
+                    (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(buffer));
             certificates.add(certificate);
             start = matcher.end();
         }
