@@ -26,6 +26,7 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
                     Arrays.stream(AppType.values())
                             .filter(t -> t != AppType.ADMIN)
                             .map(AppType::name)
+                            .map(n -> "THIRD_PARTY".equals(n) ? "ThirdParty" : n)
                             .collect(Collectors.joining(", "));
 
             constraintContext.disableDefaultConstraintViolation();
