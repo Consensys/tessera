@@ -1,6 +1,7 @@
 package com.quorum.tessera.data;
 
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +42,13 @@ public class EncryptedRawTransactionDAOTest {
         encryptedRawTransactionDAO = new EncryptedRawTransactionDAOImpl(entityManagerFactory);
 
     }
-
+    @After
+    public void onTearDown() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.createQuery("delete from EncryptedRawTransaction").executeUpdate();
+        entityManager.getTransaction().commit();
+    }
 
     @Test
     public void saveDoesntAllowNullEncyptedPayload() {
@@ -295,39 +302,6 @@ public class EncryptedRawTransactionDAOTest {
     public static Collection<TestConfig> connectionDetails() {
 
         return List.of(TestConfig.values());
-    }
-
-
-    enum TestConfig {
-
-        H2("jdbc:h2:mem:test","NULL not allowed for column \"%s\"","Unique index or primary key violation"),
-        HSQL("jdbc:hsqldb:mem:test","integrity constraint violation: NOT NULL check constraint","unique constraint or index violation"),
-        SQLITE("jdbc:sqlite::memory:test","NOT NULL constraint failed","UNIQUE constraint failed");
-
-
-        private String url;
-
-        private String requiredFieldColumTemplate;
-
-        private String uniqueContraintViolationMessage;
-
-        TestConfig(String url, String requiredFieldColumTemplate,String uniqueContraintViolationMessage) {
-            this.url = url;
-            this.requiredFieldColumTemplate = requiredFieldColumTemplate;
-            this.uniqueContraintViolationMessage = uniqueContraintViolationMessage;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public String getRequiredFieldColumTemplate() {
-            return requiredFieldColumTemplate;
-        }
-
-        public String getUniqueContraintViolationMessage() {
-            return uniqueContraintViolationMessage;
-        }
     }
 
 

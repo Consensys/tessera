@@ -1,563 +1,252 @@
-//package com.quorum.tessera.data;
-//
-//import com.quorum.tessera.data.jpatest.JpaHsqlConfig;
-//import com.quorum.tessera.data.jpatest.JpaSqliteConfig;
-//import com.quorum.tessera.data.jpatest.JpaH2Config;
-//
-//import org.junit.Test;
-//import org.junit.runner.RunWith;
-//import org.junit.runners.Suite;
-//import org.springframework.test.annotation.DirtiesContext;
-//import org.springframework.test.context.ContextConfiguration;
-//import org.springframework.test.context.junit4.SpringRunner;
-//
-//import javax.inject.Inject;
-//import javax.persistence.EntityManager;
-//import javax.persistence.EntityNotFoundException;
-//import javax.persistence.PersistenceContext;
-//import javax.persistence.PersistenceException;
-//import javax.transaction.Transactional;
-//import java.util.List;
-//import java.util.Optional;
-//import java.util.stream.Collectors;
-//import java.util.stream.IntStream;
-//
-//import static org.assertj.core.api.Assertions.assertThat;
-//import static org.assertj.core.api.Assertions.catchThrowable;
-//
-//@RunWith(Suite.class)
-//@Suite.SuiteClasses({
-//    EncryptedTransactionDAOTest.H2Test.class,
-//    EncryptedTransactionDAOTest.HsqlTest.class,
-//    EncryptedTransactionDAOTest.SqliteTest.class
-//})
-//public class EncryptedTransactionDAOTest {
-//
-//    @Transactional
-//    @RunWith(SpringRunner.class)
-//    @ContextConfiguration(classes = JpaH2Config.class)
-//    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-//    public static class H2Test {
-//
-//        @PersistenceContext private EntityManager entityManager;
-//
-//        @Inject private EncryptedTransactionDAO encryptedTransactionDAO;
-//
-//        @Test
-//        public void saveDoesntAllowNullEncodedPayload() {
-//
-//            EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {5}));
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(encryptedTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("NULL not allowed for column \"ENCODED_PAYLOAD\"");
-//        }
-//
-//        @Test
-//        public void saveDoesntAllowNullHash() {
-//
-//            EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(encryptedTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("NULL not allowed for column \"HASH\"");
-//        }
-//
-//        @Test
-//        public void cannotPersistMultipleOfSameHash() {
-//
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction duplicateTransaction = new EncryptedTransaction();
-//            duplicateTransaction.setEncodedPayload(new byte[] {6});
-//            duplicateTransaction.setHash(new MessageHash(new byte[] {1}));
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(duplicateTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("Unique index or primary key violation")
-//                    .hasMessageContaining("ENCRYPTED_TRANSACTION(HASH)");
-//        }
-//
-//        @Test
-//        public void validEncryptedTransactionCanBePersisted() {
-//
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//
-//            assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
-//        }
-//
-//        @Test
-//        public void fetchingAllTransactionsReturnsAll() {
-//
-//            final List<EncryptedTransaction> payloads =
-//                    IntStream.range(0, 50)
-//                            .mapToObj(
-//                                    i ->
-//                                            new EncryptedTransaction(
-//                                                    new MessageHash(new byte[] {(byte) i}), new byte[] {(byte) i}))
-//                            .peek(entityManager::persist)
-//                            .collect(Collectors.toList());
-//
-//            final List<EncryptedTransaction> retrievedList =
-//                    encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
-//
-//            assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
-//            assertThat(retrievedList).hasSameSizeAs(payloads);
-//            assertThat(retrievedList).hasSameElementsAs(payloads);
-//        }
-//
-//        @Test
-//        public void deleteTransactionRemovesFromDatabaseAndReturnsTrue() {
-//
-//            // put a transaction in the database
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            // check that it is actually in the database
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//            assertThat(retrieved).isNotNull();
-//
-//            // delete the transaction
-//            encryptedTransactionDAO.delete(new MessageHash(new byte[] {1}));
-//
-//            // check it is not longer in the database
-//            final EncryptedTransaction deleted =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//            assertThat(deleted).isNull();
-//        }
-//
-//        @Test(expected = EntityNotFoundException.class)
-//        public void deleteThrowsEntityNotFoundExceptionForNonExistentHash() {
-//            // delete the transaction
-//            encryptedTransactionDAO.delete(new MessageHash(new byte[] {1}));
-//        }
-//
-//        @Test
-//        public void retrieveByHashFindsTransactionThatIsPresent() {
-//            // put a transaction in the database
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final MessageHash searchHash = new MessageHash(new byte[] {1});
-//
-//            final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
-//
-//            assertThat(retrieved.isPresent()).isTrue();
-//            assertThat(retrieved.get()).isEqualToComparingFieldByField(encryptedTransaction);
-//        }
-//
-//        @Test
-//        public void retrieveByHashThrowsExceptionWhenNotPresent() {
-//            final MessageHash searchHash = new MessageHash(new byte[] {1});
-//
-//            final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
-//
-//            assertThat(retrieved.isPresent()).isFalse();
-//        }
-//
-//        @Test
-//        public void persistAddsTimestampToEntity() {
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//
-//            final long expected = System.currentTimeMillis();
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//
-//            assertThat(retrieved).isNotNull();
-//            assertThat(retrieved.getTimestamp()).isNotZero();
-//        }
-//    }
-//
-//    @Transactional
-//    @RunWith(SpringRunner.class)
-//    @ContextConfiguration(classes = JpaHsqlConfig.class)
-//    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-//    public static class HsqlTest {
-//
-//        @PersistenceContext private EntityManager entityManager;
-//
-//        @Inject private EncryptedTransactionDAO encryptedTransactionDAO;
-//
-//        @Test
-//        public void saveDoesntAllowNullEncodedPayload() {
-//
-//            EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {5}));
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(encryptedTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("integrity constraint violation: NOT NULL check constraint");
-//        }
-//
-//        @Test
-//        public void saveDoesntAllowNullHash() {
-//
-//            EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(encryptedTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("integrity constraint violation: NOT NULL check constraint");
-//        }
-//
-//        @Test
-//        public void cannotPersistMultipleOfSameHash() {
-//
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction duplicateTransaction = new EncryptedTransaction();
-//            duplicateTransaction.setEncodedPayload(new byte[] {6});
-//            duplicateTransaction.setHash(new MessageHash(new byte[] {1}));
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(duplicateTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("unique constraint or index violation")
-//                    .hasMessageContaining("ENCRYPTED_TRANSACTION");
-//        }
-//
-//        @Test
-//        public void validEncryptedTransactionCanBePersisted() {
-//
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//
-//            assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
-//        }
-//
-//        @Test
-//        public void fetchingAllTransactionsReturnsAll() {
-//
-//            final List<EncryptedTransaction> payloads =
-//                    IntStream.range(0, 50)
-//                            .mapToObj(
-//                                    i ->
-//                                            new EncryptedTransaction(
-//                                                    new MessageHash(new byte[] {(byte) i}), new byte[] {(byte) i}))
-//                            .peek(entityManager::persist)
-//                            .collect(Collectors.toList());
-//
-//            final List<EncryptedTransaction> retrievedList =
-//                    encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
-//
-//            assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
-//            assertThat(retrievedList).hasSameSizeAs(payloads);
-//            assertThat(retrievedList).hasSameElementsAs(payloads);
-//        }
-//
-//        @Test
-//        public void deleteTransactionRemovesFromDatabaseAndReturnsTrue() {
-//
-//            // put a transaction in the database
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            // check that it is actually in the database
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//            assertThat(retrieved).isNotNull();
-//
-//            // delete the transaction
-//            encryptedTransactionDAO.delete(new MessageHash(new byte[] {1}));
-//
-//            // check it is not longer in the database
-//            final EncryptedTransaction deleted =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//            assertThat(deleted).isNull();
-//        }
-//
-//        @Test(expected = EntityNotFoundException.class)
-//        public void deleteThrowsEntityNotFoundExceptionForNonExistentHash() {
-//            // delete the transaction
-//            encryptedTransactionDAO.delete(new MessageHash(new byte[] {1}));
-//        }
-//
-//        @Test
-//        public void retrieveByHashFindsTransactionThatIsPresent() {
-//            // put a transaction in the database
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final MessageHash searchHash = new MessageHash(new byte[] {1});
-//
-//            final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
-//
-//            assertThat(retrieved.isPresent()).isTrue();
-//            assertThat(retrieved.get()).isEqualToComparingFieldByField(encryptedTransaction);
-//        }
-//
-//        @Test
-//        public void retrieveByHashThrowsExceptionWhenNotPresent() {
-//            final MessageHash searchHash = new MessageHash(new byte[] {1});
-//
-//            final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
-//
-//            assertThat(retrieved.isPresent()).isFalse();
-//        }
-//
-//        @Test
-//        public void persistAddsTimestampToEntity() {
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//
-//            final long expected = System.currentTimeMillis();
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//
-//            assertThat(retrieved).isNotNull();
-//            assertThat(retrieved.getTimestamp()).isNotZero();
-//        }
-//    }
-//
-//    @Transactional
-//    @RunWith(SpringRunner.class)
-//    @ContextConfiguration(classes = JpaSqliteConfig.class)
-//    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-//    public static class SqliteTest {
-//
-//        @PersistenceContext private EntityManager entityManager;
-//
-//        @Inject private EncryptedTransactionDAO encryptedTransactionDAO;
-//
-//        @Test
-//        public void saveDoesntAllowNullEncodedPayload() {
-//
-//            EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {5}));
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(encryptedTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("NOT NULL constraint failed");
-//        }
-//
-//        @Test
-//        public void saveDoesntAllowNullHash() {
-//
-//            EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(encryptedTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("NOT NULL constraint failed");
-//        }
-//
-//        @Test
-//        public void cannotPersistMultipleOfSameHash() {
-//
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction duplicateTransaction = new EncryptedTransaction();
-//            duplicateTransaction.setEncodedPayload(new byte[] {6});
-//            duplicateTransaction.setHash(new MessageHash(new byte[] {1}));
-//
-//            final Throwable throwable =
-//                    catchThrowable(
-//                            () -> {
-//                                encryptedTransactionDAO.save(duplicateTransaction);
-//                                entityManager.flush();
-//                            });
-//
-//            assertThat(throwable)
-//                    .isInstanceOf(PersistenceException.class)
-//                    .hasMessageContaining("UNIQUE constraint failed")
-//                    .hasMessageContaining("ENCRYPTED_TRANSACTION.HASH");
-//        }
-//
-//        @Test
-//        public void validEncryptedTransactionCanBePersisted() {
-//
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//
-//            assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
-//        }
-//
-//        @Test
-//        public void fetchingAllTransactionsReturnsAll() {
-//
-//            final List<EncryptedTransaction> payloads =
-//                    IntStream.range(0, 50)
-//                            .mapToObj(
-//                                    i ->
-//                                            new EncryptedTransaction(
-//                                                    new MessageHash(new byte[] {(byte) i}), new byte[] {(byte) i}))
-//                            .peek(entityManager::persist)
-//                            .collect(Collectors.toList());
-//
-//            final List<EncryptedTransaction> retrievedList =
-//                    encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
-//
-//            assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
-//            assertThat(retrievedList).hasSameSizeAs(payloads);
-//            assertThat(retrievedList).hasSameElementsAs(payloads);
-//        }
-//
-//        @Test
-//        public void deleteTransactionRemovesFromDatabaseAndReturnsTrue() {
-//
-//            // put a transaction in the database
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            // check that it is actually in the database
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//            assertThat(retrieved).isNotNull();
-//
-//            // delete the transaction
-//            encryptedTransactionDAO.delete(new MessageHash(new byte[] {1}));
-//
-//            // check it is not longer in the database
-//            final EncryptedTransaction deleted =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//            assertThat(deleted).isNull();
-//        }
-//
-//        @Test(expected = EntityNotFoundException.class)
-//        public void deleteThrowsEntityNotFoundExceptionForNonExistentHash() {
-//            // delete the transaction
-//            encryptedTransactionDAO.delete(new MessageHash(new byte[] {1}));
-//        }
-//
-//        @Test
-//        public void retrieveByHashFindsTransactionThatIsPresent() {
-//            // put a transaction in the database
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final MessageHash searchHash = new MessageHash(new byte[] {1});
-//
-//            final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
-//
-//            assertThat(retrieved.isPresent()).isTrue();
-//            assertThat(retrieved.get()).isEqualToComparingFieldByField(encryptedTransaction);
-//        }
-//
-//        @Test
-//        public void retrieveByHashThrowsExceptionWhenNotPresent() {
-//            final MessageHash searchHash = new MessageHash(new byte[] {1});
-//
-//            final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
-//
-//            assertThat(retrieved.isPresent()).isFalse();
-//        }
-//
-//        @Test
-//        public void persistAddsTimestampToEntity() {
-//            final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-//            encryptedTransaction.setEncodedPayload(new byte[] {5});
-//            encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
-//
-//            final long expected = System.currentTimeMillis();
-//            encryptedTransactionDAO.save(encryptedTransaction);
-//
-//            final EncryptedTransaction retrieved =
-//                    entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
-//
-//            assertThat(retrieved).isNotNull();
-//            assertThat(retrieved.getTimestamp()).isNotZero();
-//        }
-//    }
-//}
+package com.quorum.tessera.data;
+
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import javax.persistence.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static org.assertj.core.api.Assertions.*;
+
+@RunWith(Parameterized.class)
+public class EncryptedTransactionDAOTest {
+
+    private EntityManagerFactory entityManagerFactory;
+
+    private EncryptedTransactionDAO encryptedTransactionDAO;
+
+    private TestConfig testConfig;
+
+    public EncryptedTransactionDAOTest(TestConfig testConfig) {
+        this.testConfig = testConfig;
+    }
+    @Before
+    public void onSetUp() {
+
+        Map properties = new HashMap();
+        properties.put("javax.persistence.jdbc.url",testConfig.getUrl());
+        properties.put("javax.persistence.jdbc.user","junit");
+        properties.put("javax.persistence.jdbc.password","");
+        properties.put("eclipselink.logging.logger","org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+        properties.put("eclipselink.logging.level","FINE");
+        properties.put("eclipselink.logging.parameters","true");
+        properties.put("eclipselink.logging.level.sql","FINE");
+        properties.put("eclipselink.cache.shared.default","false");
+        properties.put("javax.persistence.schema-generation.database.action","drop-and-create");
+
+        entityManagerFactory = Persistence.createEntityManagerFactory("tessera",properties);
+        encryptedTransactionDAO = new EncryptedTransactionDAOImpl(entityManagerFactory);
+    }
+
+    @After
+    public void onTearDown() {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.createQuery("delete from EncryptedTransaction").executeUpdate();
+        entityManager.getTransaction().commit();
+    }
+
+    @Test
+    public void saveDoesntAllowNullEncodedPayload() {
+
+        EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setHash(new MessageHash(new byte[] {5}));
+
+        try {
+            encryptedTransactionDAO.save(encryptedTransaction);
+            failBecauseExceptionWasNotThrown(PersistenceException.class);
+        } catch (PersistenceException ex) {
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(),"ENCODED_PAYLOAD");
+
+            assertThat(ex)
+                .isInstanceOf(PersistenceException.class)
+                .hasMessageContaining(expectedMessage)
+                .hasMessageContaining("ENCODED_PAYLOAD");
+        }
+    }
+
+    @Test
+    public void saveDoesntAllowNullHash() {
+
+        EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[] {5});
+
+
+        try {
+            encryptedTransactionDAO.save(encryptedTransaction);
+            failBecauseExceptionWasNotThrown(PersistenceException.class);
+        } catch (PersistenceException ex) {
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(),"HASH");
+
+            assertThat(ex)
+                .isInstanceOf(PersistenceException.class)
+                .hasMessageContaining(expectedMessage)
+                .hasMessageContaining("HASH");
+        }
+    }
+
+    @Test
+    public void cannotPersistMultipleOfSameHash() {
+
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[] {5});
+        encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.persist(encryptedTransaction);
+        entityManager.getTransaction().commit();
+
+        final EncryptedTransaction duplicateTransaction = new EncryptedTransaction();
+        duplicateTransaction.setEncodedPayload(new byte[] {6});
+        duplicateTransaction.setHash(new MessageHash(new byte[] {1}));
+
+        try {
+            encryptedTransactionDAO.save(encryptedTransaction);
+            failBecauseExceptionWasNotThrown(PersistenceException.class);
+        } catch (PersistenceException ex) {
+            assertThat(ex)
+                .isInstanceOf(PersistenceException.class)
+                .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+        }
+
+
+    }
+
+    @Test
+    public void validEncryptedTransactionCanBePersisted() {
+
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[] {5});
+        encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
+        encryptedTransactionDAO.save(encryptedTransaction);
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        final EncryptedTransaction retrieved =
+            entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+
+        assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
+        entityManager.getTransaction().rollback();
+    }
+
+    @Test
+    public void fetchingAllTransactionsReturnsAll() {
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        final List<EncryptedTransaction> payloads =
+            IntStream.range(0, 50)
+                .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+                .map(MessageHash::new)
+                .map(hash -> new EncryptedTransaction(hash,hash.getHashBytes()))
+                .peek(entityManager::persist)
+                .collect(Collectors.toList());
+
+        entityManager.getTransaction().commit();
+
+        final List<EncryptedTransaction> retrievedList =
+            encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
+
+        assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
+        assertThat(retrievedList).hasSameSizeAs(payloads);
+        assertThat(retrievedList).hasSameElementsAs(payloads);
+    }
+
+    @Test
+    public void deleteTransactionRemovesFromDatabaseAndReturnsTrue() {
+
+        final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        // put a transaction in the database
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[] {5});
+        encryptedTransaction.setHash(messageHash);
+
+        entityManager.getTransaction().begin();
+        entityManager.persist(encryptedTransaction);
+        entityManager.getTransaction().commit();
+
+        Query countQuery = entityManager.createQuery("select count(t) from EncryptedTransaction t where t.hash = :hash");
+        Long result = (Long) countQuery
+            .setParameter("hash",messageHash).getSingleResult();
+        assertThat(result).isEqualTo(1L);
+
+        encryptedTransactionDAO.delete(messageHash);
+
+        // check it is not longer in the database
+        Long result2 = (Long) countQuery
+            .setParameter("hash",messageHash).getSingleResult();
+        assertThat(result2).isZero();
+    }
+
+    @Test(expected = EntityNotFoundException.class)
+    public void deleteThrowsEntityNotFoundExceptionForNonExistentHash() {
+        // delete the transaction
+        final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+
+        encryptedTransactionDAO.delete(messageHash);
+    }
+
+    @Test
+    public void retrieveByHashFindsTransactionThatIsPresent() {
+        // put a transaction in the database
+        MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[] {5});
+        encryptedTransaction.setHash(messageHash);
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.persist(encryptedTransaction);
+        entityManager.getTransaction().commit();
+
+        final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(messageHash);
+
+        assertThat(retrieved.isPresent()).isTrue();
+        assertThat(retrieved.get()).isEqualToComparingFieldByField(encryptedTransaction);
+    }
+
+    @Test
+    public void retrieveByHashThrowsExceptionWhenNotPresent() {
+        MessageHash searchHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+
+        final Optional<EncryptedTransaction> retrieved = encryptedTransactionDAO.retrieveByHash(searchHash);
+
+        assertThat(retrieved.isPresent()).isFalse();
+    }
+
+    @Test
+    public void persistAddsTimestampToEntity() {
+        MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[] {5});
+        encryptedTransaction.setHash(messageHash);
+
+        final long expected = System.currentTimeMillis();
+        encryptedTransactionDAO.save(encryptedTransaction);
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        final EncryptedTransaction retrieved =
+            entityManager.find(EncryptedTransaction.class, messageHash);
+        entityManager.getTransaction().commit();
+
+        assertThat(retrieved).isNotNull();
+        assertThat(retrieved.getTimestamp()).isNotZero();
+    }
+
+    @Parameterized.Parameters(name = "DB {0}")
+    public static Collection<TestConfig> connectionDetails() {
+        return List.of(TestConfig.values());
+    }
+}

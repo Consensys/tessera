@@ -51,7 +51,7 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
         LOGGER.info("Deleting transaction with hash {}", hash);
         entityManagerTemplate.execute(entityManager -> {
             EncryptedRawTransaction txn = entityManager.find(EncryptedRawTransaction.class,hash);
-            if(txn == null)  {
+            if(txn == null) {
                 throw new EntityNotFoundException();
             }
 

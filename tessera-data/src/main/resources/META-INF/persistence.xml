@@ -5,6 +5,8 @@
   <persistence-unit name="tessera" transaction-type="RESOURCE_LOCAL">
         <class>com.quorum.tessera.data.EncryptedTransaction</class>
         <class>com.quorum.tessera.data.EncryptedRawTransaction</class>
+       <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <shared-cache-mode>NONE</shared-cache-mode>
   </persistence-unit>
 
     <persistence-unit name="tessera-recover" transaction-type="RESOURCE_LOCAL">
@@ -13,6 +15,7 @@
         <class>com.quorum.tessera.data.staging.StagingTransactionRecipient</class>
         <class>com.quorum.tessera.data.staging.StagingTransactionVersion</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <shared-cache-mode>NONE</shared-cache-mode>
     </persistence-unit>
 
 </persistence>
