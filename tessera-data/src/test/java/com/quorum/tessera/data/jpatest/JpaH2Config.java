@@ -1,16 +1,16 @@
-package com.quorum.tessera.data.jpatest;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
-
-import javax.sql.DataSource;
-
-public class JpaH2Config extends JpaConfig {
-
-    @Bean
-    @Override
-    public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
-    }
-}
+//package com.quorum.tessera.data.jpatest;
+//
+//import org.springframework.context.annotation.Bean;
+//import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+//import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
+//
+//import javax.sql.DataSource;
+//
+//public class JpaH2Config extends JpaConfig {
+//
+//    @Bean
+//    @Override
+//    public DataSource dataSource() {
+//        return new EmbeddedDatabaseBuilder().setType(EmbeddedDatabaseType.H2).build();
+//    }
+//}

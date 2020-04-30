@@ -1,17 +1,15 @@
 package com.quorum.tessera.data.staging;
 
+import com.quorum.tessera.data.EntityManagerTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.PersistenceContext;
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 /** A JPA implementation of {@link StagingEntityDAO} */
-@Transactional
+
 public class StagingEntityDAOImpl implements StagingEntityDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StagingEntityDAOImpl.class);
@@ -27,37 +25,47 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
     private static final String COUNT_STAGED =
             "SELECT count(st) from StagingTransaction st where st.validationStage is not null";
 
-    @PersistenceContext(unitName = "tessera")
-    private EntityManager entityManager;
+
+    private EntityManagerTemplate entityManagerTemplate;
 
     private final StagingEntityDAOBatch stagingEntityDAOBatch;
 
-    public StagingEntityDAOImpl(StagingEntityDAOBatch stagingEntityDAOBatch) {
-        this.stagingEntityDAOBatch = stagingEntityDAOBatch;
+    public StagingEntityDAOImpl(EntityManagerFactory entityManagerFactory) {
+        this.stagingEntityDAOBatch = new StagingEntityDAOBatchImpl(entityManagerFactory);
+        this.entityManagerTemplate = new EntityManagerTemplate(entityManagerFactory);
     }
 
     @Override
     public StagingTransaction save(final StagingTransaction entity) {
-        entityManager.persist(entity);
+        return entityManagerTemplate.execute(entityManager -> {
+            entityManager.persist(entity);
 
-        LOGGER.debug("Persisting StagingTransaction entity with hash {} ", entity.getHash());
+            LOGGER.debug("Persisting StagingTransaction entity with hash {} ", entity.getHash());
 
-        return entity;
+            return entity;
+        });
     }
 
     @Override
     public StagingTransaction update(StagingTransaction entity) {
-        entityManager.merge(entity);
 
-        LOGGER.debug("Merging StagingTransaction entity with hash {}", entity.getHash());
+        return entityManagerTemplate.execute(entityManager -> {
+            entityManager.merge(entity);
 
-        return entity;
+            LOGGER.debug("Merging StagingTransaction entity with hash {}", entity.getHash());
+
+            return entity;
+        });
+
+
     }
 
     @Override
     public Optional<StagingTransaction> retrieveByHash(final MessageHashStr hash) {
-        LOGGER.info("Retrieving payload with hash {}", hash);
-        return Optional.ofNullable(entityManager.find(StagingTransaction.class, hash));
+        return entityManagerTemplate.execute(entityManager -> {
+            LOGGER.info("Retrieving payload with hash {}", hash);
+            return Optional.ofNullable(entityManager.find(StagingTransaction.class, hash));
+        });
     }
 
     @Override
@@ -67,26 +75,33 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
                 offset,
                 maxResults);
 
-        return entityManager
+        return entityManagerTemplate.execute(entityManager -> {
+            return entityManager
                 .createQuery(FIND_ALL_ORDER_BY_STAGE, StagingTransaction.class)
                 .setFirstResult(offset)
                 .setMaxResults(maxResults)
                 .getResultList();
+        });
     }
 
     @Override
     public void delete(final MessageHashStr hash) {
         LOGGER.info("Deleting transaction with hash {}", hash);
 
-        final StagingTransaction message =
+        StagingTransaction txn = entityManagerTemplate.execute(entityManager -> {
+            final StagingTransaction message =
                 entityManager
-                        .createQuery(FIND_HASH_EQUAL, StagingTransaction.class)
-                        .setParameter("hash", hash.getHash())
-                        .getResultStream()
-                        .findAny()
-                        .orElseThrow(EntityNotFoundException::new);
+                    .createQuery(FIND_HASH_EQUAL, StagingTransaction.class)
+                    .setParameter("hash", hash.getHash())
+                    .getResultStream()
+                    .findAny()
+                    .orElseThrow(EntityNotFoundException::new);
 
-        entityManager.remove(message);
+            entityManager.remove(message);
+            return message;
+        });
+        LOGGER.info("Deleted transaction with hash {}", hash);
+
     }
 
     @Override
@@ -99,12 +114,17 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
 
     @Override
     public long countAll() {
-        return entityManager.createQuery(COUNT_ALL, Long.class).getSingleResult();
+
+        return entityManagerTemplate.execute(entityManager -> {
+            return entityManager.createQuery(COUNT_ALL, Long.class).getSingleResult();
+        });
     }
 
     @Override
     public long countStaged() {
-        return entityManager.createQuery(COUNT_STAGED, Long.class).getSingleResult();
+        return entityManagerTemplate.execute(entityManager -> {
+            return entityManager.createQuery(COUNT_STAGED, Long.class).getSingleResult();
+        });
     }
 
     @Override

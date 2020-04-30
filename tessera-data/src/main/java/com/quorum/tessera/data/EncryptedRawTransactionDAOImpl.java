@@ -4,9 +4,8 @@ import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.PersistenceContext;
 import java.util.Optional;
 
 /** A JPA implementation of {@link EncryptedTransactionDAO} */
@@ -14,8 +13,11 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedRawTransactionDAOImpl.class);
 
-    @PersistenceContext(unitName = "tessera")
-    private EntityManager entityManager;
+    private final EntityManagerTemplate entityManagerTemplate;
+
+    public EncryptedRawTransactionDAOImpl(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerTemplate = new EntityManagerTemplate(entityManagerFactory);
+    }
 
     @Override
     public EncryptedRawTransaction save(final EncryptedRawTransaction entity) {
@@ -27,22 +29,31 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
                 toHexString(entity.getNonce()),
                 toHexString(entity.getSender()));
 
-        entityManager.persist(entity);
+        return entityManagerTemplate.execute(entityManager -> {
+            entityManager.persist(entity);
+            return entity;
+        });
 
-        return entity;
     }
 
     @Override
     public Optional<EncryptedRawTransaction> retrieveByHash(final MessageHash hash) {
-        LOGGER.info("Retrieving payload with hash {}", hash);
-        return Optional.ofNullable(entityManager.find(EncryptedRawTransaction.class, hash));
+        LOGGER.debug("Retrieving payload with hash {}", hash);
+
+        EncryptedRawTransaction encryptedRawTransaction =
+            entityManagerTemplate.execute(entityManager -> entityManager.find(EncryptedRawTransaction.class, hash));
+
+        return Optional.ofNullable(encryptedRawTransaction);
     }
 
     @Override
     public void delete(final MessageHash hash) {
         LOGGER.info("Deleting transaction with hash {}", hash);
-
-        entityManager.remove(retrieveByHash(hash).orElseThrow(EntityNotFoundException::new));
+        entityManagerTemplate.execute(entityManager -> {
+            entityManager.remove(retrieveByHash(hash)
+                .orElseThrow(EntityNotFoundException::new));
+            return null;
+        });
     }
 
     private String toHexString(byte[] val) {

@@ -3,17 +3,14 @@ package com.quorum.tessera.data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.transaction.Transactional;
 
 /** A JPA implementation of {@link EncryptedTransactionDAO} */
-@Transactional
 public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedTransactionDAOImpl.class);
@@ -23,61 +20,72 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
     private static final String FIND_ALL = "SELECT et FROM EncryptedTransaction et ORDER BY et.timestamp,et.hash";
 
-    @PersistenceContext(unitName = "tessera")
-    private EntityManager entityManager;
+
+    private EntityManagerTemplate entityManagerTemplate;
+
+    public EncryptedTransactionDAOImpl(EntityManagerFactory entityManagerFactory) {
+        this.entityManagerTemplate = new EntityManagerTemplate(entityManagerFactory);
+    }
 
     @Override
     public EncryptedTransaction save(final EncryptedTransaction entity) {
-        entityManager.persist(entity);
-        LOGGER.info("Stored transaction {}", entity.getHash());
-        return entity;
+        return entityManagerTemplate.execute(entityManager -> {
+            entityManager.persist(entity);
+            LOGGER.info("Stored transaction {}", entity.getHash());
+            return entity;
+        });
     }
 
     @Override
     public Optional<EncryptedTransaction> retrieveByHash(final MessageHash hash) {
         LOGGER.info("Retrieving payload with hash {}", hash);
-
-        return entityManager
-                .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
-                .setParameter("hash", hash.getHashBytes())
-                .getResultStream()
-                .findAny();
+        return entityManagerTemplate.execute(entityManager -> entityManager
+            .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
+            .setParameter("hash", hash.getHashBytes())
+            .getResultStream()
+            .findAny());
     }
 
     @Override
     public List<EncryptedTransaction> retrieveTransactions(int offset, int maxResult) {
         LOGGER.info("Fetching batch(offset:{},maxResult:{}) EncryptedTransaction database rows", offset, maxResult);
-
-        return entityManager
-                .createQuery(FIND_ALL, EncryptedTransaction.class)
-                .setFirstResult(offset)
-                .setMaxResults(maxResult)
-                .getResultList();
+        return entityManagerTemplate.execute(entityManager -> entityManager.createQuery(FIND_ALL, EncryptedTransaction.class)
+            .setFirstResult(offset)
+            .setMaxResults(maxResult)
+            .getResultList());
     }
 
     @Override
     public long transactionCount() {
+        return entityManagerTemplate.execute(entityManager -> {
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 
-        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+            countQuery.select(criteriaBuilder.count(countQuery.from(EncryptedTransaction.class)));
 
-        CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-        countQuery.select(criteriaBuilder.count(countQuery.from(EncryptedTransaction.class)));
+            return entityManager.createQuery(countQuery).getSingleResult();
+        });
 
-        return entityManager.createQuery(countQuery).getSingleResult();
     }
 
     @Override
     public void delete(final MessageHash hash) {
+
         LOGGER.info("Deleting transaction with hash {}", hash);
 
-        final EncryptedTransaction message =
+        entityManagerTemplate.execute(entityManager -> {
+            final EncryptedTransaction message =
                 entityManager
-                        .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
-                        .setParameter("hash", hash.getHashBytes())
-                        .getResultStream()
-                        .findAny()
-                        .orElseThrow(EntityNotFoundException::new);
+                    .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
+                    .setParameter("hash", hash.getHashBytes())
+                    .getResultStream()
+                    .findAny()
+                    .orElseThrow(EntityNotFoundException::new);
 
-        entityManager.remove(message);
+            entityManager.remove(message);
+            return message;
+        });
+
+
     }
 }
