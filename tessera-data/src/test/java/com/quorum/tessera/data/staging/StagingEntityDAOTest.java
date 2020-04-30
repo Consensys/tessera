@@ -17,7 +17,6 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.*;
 
 //TODO: Rewite tests in a maintainable way
-@Ignore
 @RunWith(Parameterized.class)
 public class StagingEntityDAOTest {
 
@@ -29,8 +28,8 @@ public class StagingEntityDAOTest {
 
     public StagingEntityDAOTest(TestConfig testConfig) {
         this.testConfig = testConfig;
-
     }
+
     @Before
     public void onSetUp() {
 
@@ -82,6 +81,7 @@ public class StagingEntityDAOTest {
 
     }
 
+    @Ignore
     @Test
     public void testStagingQuery() {
 
@@ -113,6 +113,7 @@ public class StagingEntityDAOTest {
         assertThat(stagingEntityDAO.countStaged()).isEqualTo(5);
     }
 
+    @Ignore
     @Test
     public void testRetrieveTransactionByHash() {
         final MessageHashStr messageHash = new MessageHashStr(UUID.randomUUID().toString().getBytes());
@@ -171,6 +172,7 @@ public class StagingEntityDAOTest {
         assertThat(result).isZero();
     }
 
+    @Ignore
     @Test
     public void testUpdate() {
         final MessageHashStr txnHash7 = new MessageHashStr("TXN7".getBytes());
