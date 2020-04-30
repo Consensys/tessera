@@ -63,7 +63,7 @@ test {
     systemProperty 'jdbc.dir',"${buildDir}/ext"
 
     include(
-        //   '**/RestSuiteHttpH2RemoteEnclave.class',
+           '**/RestSuiteHttpH2RemoteEnclave.class',
             '**/RestSuiteHttpHSQL.class',
             '**/RestSuiteUnixH2.class',
             '**/RestSuiteHttpSqllite.class',

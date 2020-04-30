@@ -9,7 +9,6 @@ import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
-import com.quorum.tessera.transaction.resend.batch.BatchResendManager;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
@@ -37,8 +36,6 @@ public class ServiceFactoryTest {
         services.add(mock(EncryptedRawTransactionDAO.class));
         services.add(mock(ResendManager.class));
         services.add(mock(PayloadPublisher.class));
-
-        services.add(mock(BatchResendManager.class));
         services.add(mock(ResendBatchPublisher.class));
 
         mockServiceLocator.setServices(services);
@@ -46,11 +43,7 @@ public class ServiceFactoryTest {
         serviceFactory = (ServiceFactoryImpl) ServiceFactory.create();
     }
 
-    @Test
-    public void enclave() {
-        Enclave enclave = serviceFactory.enclave();
-        assertThat(enclave).isNotNull();
-    }
+
 
     @Test
     public void transactionManager() {
@@ -58,11 +51,7 @@ public class ServiceFactoryTest {
         assertThat(transactionManager).isNotNull();
     }
 
-    @Test
-    public void encryptedTransactionDAO() {
-        EncryptedTransactionDAO encryptedTransactionDAO = serviceFactory.encryptedTransactionDAO();
-        assertThat(encryptedTransactionDAO).isNotNull();
-    }
+
 
     @Test(expected = IllegalStateException.class)
     public void findNoServiceFoundThrowsIllegalState() {
@@ -72,23 +61,7 @@ public class ServiceFactoryTest {
 
     static class NonExistentService {}
 
-    @Test
-    public void findEncryptedRawTransactionDAO() {
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO = serviceFactory.encryptedRawTransactionDAO();
-        assertThat(encryptedRawTransactionDAO).isNotNull();
-    }
 
-    @Test
-    public void findResendManager() {
-        ResendManager resendManager = serviceFactory.resendManager();
-        assertThat(resendManager).isNotNull();
-    }
-
-    @Test
-    public void findBatchResendManager() {
-        BatchResendManager resendManager = serviceFactory.batchResendManager();
-        assertThat(resendManager).isNotNull();
-    }
 
     @Test
     public void findConfig() {

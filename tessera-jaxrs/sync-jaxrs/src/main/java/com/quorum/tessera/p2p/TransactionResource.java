@@ -1,9 +1,8 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.transaction.resend.batch.BatchResendManager;
+import com.quorum.tessera.recover.resend.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -18,7 +17,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Objects;
-
 import static javax.ws.rs.core.MediaType.*;
 
 /**
@@ -35,10 +33,6 @@ public class TransactionResource {
 
     private final TransactionManager delegate;
     private final BatchResendManager batchResendDelegate;
-
-    public TransactionResource() {
-        this(ServiceFactory.create().transactionManager(), ServiceFactory.create().batchResendManager());
-    }
 
     public TransactionResource(TransactionManager delegate, BatchResendManager batchResendDelegate) {
         this.delegate = Objects.requireNonNull(delegate);

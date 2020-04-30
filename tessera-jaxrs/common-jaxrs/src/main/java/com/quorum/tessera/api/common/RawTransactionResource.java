@@ -2,7 +2,6 @@ package com.quorum.tessera.api.common;
 
 import com.quorum.tessera.api.model.StoreRawRequest;
 import com.quorum.tessera.api.model.StoreRawResponse;
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -29,10 +28,6 @@ public class RawTransactionResource {
     public static final String ENDPOINT_STORE_RAW = "storeraw";
 
     private final TransactionManager delegate;
-
-    public RawTransactionResource() {
-        this(ServiceFactory.create().transactionManager());
-    }
 
     public RawTransactionResource(final TransactionManager delegate) {
         this.delegate = Objects.requireNonNull(delegate);

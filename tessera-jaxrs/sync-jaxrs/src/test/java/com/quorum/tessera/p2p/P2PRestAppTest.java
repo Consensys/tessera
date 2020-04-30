@@ -2,6 +2,7 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
@@ -40,7 +41,10 @@ public class P2PRestAppTest {
         serverConfig.setApp(AppType.P2P);
         serverConfig.setServerAddress("http://bogus.com");
         config.setServerConfigs(List.of(serverConfig));
-
+        config.setJdbcConfig(new JdbcConfig());
+        config.getJdbcConfig().setUsername("JUNIT");
+        config.getJdbcConfig().setPassword("");
+        config.getJdbcConfig().setUrl("dummydburl");
 
 
         Client client = mock(Client.class);

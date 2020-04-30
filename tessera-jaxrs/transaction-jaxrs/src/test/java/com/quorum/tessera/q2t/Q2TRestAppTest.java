@@ -2,8 +2,8 @@ package com.quorum.tessera.q2t;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
@@ -29,7 +29,7 @@ public class Q2TRestAppTest {
     public void setUp() throws Exception {
 
         final Set services = new HashSet();
-        services.add(mock(TransactionManager.class));
+        services.add(mock(Config.class));
 
         serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);

@@ -3,7 +3,9 @@ package com.quorum.tessera.q2t;
 import com.quorum.tessera.api.common.RawTransactionResource;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.Api;
 
 import java.util.Set;
@@ -31,8 +33,15 @@ public class Q2TRestApp extends TesseraRestApplication {
     @Override
     public Set<Object> getSingletons() {
 
-        TransactionResource transactionResource = new TransactionResource();
-        RawTransactionResource rawTransactionResource = new RawTransactionResource();
+        Config config =
+            serviceLocator.getServices().stream()
+                .filter(Config.class::isInstance)
+                .map(Config.class::cast)
+                .findAny().get();
+
+        TransactionManager transactionManager = TransactionManager.create(config);
+        TransactionResource transactionResource = new TransactionResource(transactionManager);
+        RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
 
         return Set.of(transactionResource, rawTransactionResource);
     }

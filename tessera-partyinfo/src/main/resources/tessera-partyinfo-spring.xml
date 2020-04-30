@@ -45,10 +45,10 @@
         <constructor-arg value="5000"/>
     </bean>
 
-    <bean id="resendManager" class="com.quorum.tessera.transaction.resend.ResendManagerImpl">
-        <constructor-arg ref="encryptedTransactionDAO" />
-        <constructor-arg ref="enclave" />
-    </bean>
+<!--    <bean id="resendManager" class="com.quorum.tessera.transaction.resend.ResendManagerImpl">-->
+<!--        <constructor-arg ref="encryptedTransactionDAO" />-->
+<!--        <constructor-arg ref="enclave" />-->
+<!--    </bean>-->
 
     <!-- Local key sync -->
     <bean name="enclaveKeySynchroniser" class="com.quorum.tessera.partyinfo.EnclaveKeySynchroniser">

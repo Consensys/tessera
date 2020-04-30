@@ -1,11 +1,9 @@
 package com.quorum.tessera.thirdparty;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import com.quorum.tessera.transaction.TransactionManager;
 import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
@@ -32,10 +30,6 @@ public class ThirdPartyRestAppTest {
         serviceLocator = (MockServiceLocator) ServiceLocator.create();
 
         Set services = new HashSet();
-        services.add(mock(IPWhitelistFilter.class));
-        services.add(mock(TransactionManager.class));
-
-
         services.add(mock(Config.class));
 
         serviceLocator.setServices(services);

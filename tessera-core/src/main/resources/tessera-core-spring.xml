@@ -7,9 +7,9 @@
                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-    <tx:annotation-driven transaction-manager="jpaTransactionManager"/>
+<!--    <tx:annotation-driven transaction-manager="jpaTransactionManager"/>-->
 
-    <context:component-scan base-package="com.quorum.tessera"/>
+<!--    <context:component-scan base-package="com.quorum.tessera"/>-->
 
     <bean id="enclaveFactory" class="com.quorum.tessera.enclave.EnclaveFactory" factory-method="create" />
 
@@ -21,46 +21,35 @@
         <constructor-arg ref="enclave" />
     </bean>
 
-    <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerWrapper">
-        <constructor-arg>
-            <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManagerImpl">
-                <constructor-arg ref="encryptedTransactionDAO" />
-                <constructor-arg ref="enclave" />
-                <constructor-arg ref="encryptedRawTransactionDAO" />
-                <constructor-arg ref="resendManager" />
-                <constructor-arg ref="partyInfoService" />
-                <constructor-arg value="#{config.getJdbcConfig().getFetchSize() > 0 ? config.getJdbcConfig().getFetchSize() : 1000}"/>
-            </bean>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="com.quorum.tessera.transaction.resend.batch.SyncState" factory-method="create" />
-        </constructor-arg>
-    </bean>
-    <alias name="transactionManager" alias="resendStoreDelegate" />
+<!--    <bean id="transactionManager" class="com.quorum.tessera.transaction.TransactionManager" factory-method="create">-->
+<!--        <constructor-arg ref="config" />-->
+<!--    </bean>-->
 
-    <bean id="batchResendManager" class="com.quorum.tessera.transaction.resend.batch.BatchResendManagerImpl">
+<!--    <alias name="transactionManager" alias="resendStoreDelegate" />-->
 
-        <constructor-arg ref="enclave" />
-        <constructor-arg ref="resendStoreDelegate" />
-        <constructor-arg ref="stagingTransactionDAO" />
-        <constructor-arg ref="encryptedTransactionDAO" />
-        <constructor-arg ref="partyInfoService"/>
+<!--    <bean id="batchResendManager" class="com.quorum.tessera.transaction.resend.batch.BatchResendManagerImpl">-->
 
-    </bean>
+<!--        <constructor-arg ref="enclave" />-->
+<!--        <constructor-arg ref="resendStoreDelegate" />-->
+<!--        <constructor-arg ref="stagingTransactionDAO" />-->
+<!--        <constructor-arg ref="encryptedTransactionDAO" />-->
+<!--        <constructor-arg ref="partyInfoService"/>-->
+
+<!--    </bean>-->
 
     <bean id="cliDelegate" class="com.quorum.tessera.cli.CliDelegate" factory-method="instance"/>
 
     <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
 
-    <bean name="encryptedTransactionDAO" class="com.quorum.tessera.data.EncryptedTransactionDAOImpl"/>
+<!--    <bean name="encryptedTransactionDAO" class="com.quorum.tessera.data.EncryptedTransactionDAOImpl"/>-->
 
-    <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.data.EncryptedRawTransactionDAOImpl"/>
+<!--    <bean name="encryptedRawTransactionDAO" class="com.quorum.tessera.data.EncryptedRawTransactionDAOImpl"/>-->
 
-    <bean name="stagingEntityDAOBatch" class="com.quorum.tessera.data.staging.StagingEntityDAOBatchImpl"/>
+<!--    <bean name="stagingEntityDAOBatch" class="com.quorum.tessera.data.staging.StagingEntityDAOBatchImpl"/>-->
 
-    <bean name="stagingTransactionDAO" class="com.quorum.tessera.data.staging.StagingEntityDAOImpl">
-        <constructor-arg ref="stagingEntityDAOBatch"/>
-    </bean>
+<!--    <bean name="stagingTransactionDAO" class="com.quorum.tessera.data.staging.StagingEntityDAOImpl">-->
+<!--        <constructor-arg ref="stagingEntityDAOBatch"/>-->
+<!--    </bean>-->
 
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
         <property name="jdbcUrl" value="#{ config.getJdbcConfig().getUrl() }" />
@@ -68,34 +57,34 @@
         <property name="password" value="#{ resolver.resolve(config.getJdbcConfig().getPassword()) }" />
     </bean>
 
-    <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
-        <property name="entityManagerFactory" ref="entityManagerFactory"/>
-    </bean>
+<!--    <bean id="jpaTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">-->
+<!--        <property name="entityManagerFactory" ref="entityManagerFactory"/>-->
+<!--    </bean>-->
 
-    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+<!--    <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">-->
 
 
-        <property name="dataSource" ref="dataSource"/>
-        <property name="persistenceUnitName" value="tessera"/>
+<!--        <property name="dataSource" ref="dataSource"/>-->
+<!--        <property name="persistenceUnitName" value="tessera"/>-->
 
-        <property name="jpaVendorAdapter">
-            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter" />
-        </property>
-        <property name="jpaDialect">
-            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect"/>
-        </property>
+<!--        <property name="jpaVendorAdapter">-->
+<!--            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaVendorAdapter" />-->
+<!--        </property>-->
+<!--        <property name="jpaDialect">-->
+<!--            <bean class="org.springframework.orm.jpa.vendor.EclipseLinkJpaDialect"/>-->
+<!--        </property>-->
 
-        <property name="jpaPropertyMap">
-            <props>
-                <prop key="eclipselink.weaving">false</prop>
-                <prop key="eclipselink.session-name">tessera</prop>
-                <prop key="eclipselink.logging.logger">org.eclipse.persistence.logging.slf4j.SLF4JLogger</prop>
-                <prop key="eclipselink.logging.session">false</prop>
-                <prop key="javax.persistence.schema-generation.database.action">#{config.getJdbcConfig().isAutoCreateTables() ? 'create' : 'none'}</prop>
-            </props>
-        </property>
+<!--        <property name="jpaPropertyMap">-->
+<!--            <props>-->
+<!--                <prop key="eclipselink.weaving">false</prop>-->
+<!--                <prop key="eclipselink.session-name">tessera</prop>-->
+<!--                <prop key="eclipselink.logging.logger">org.eclipse.persistence.logging.slf4j.SLF4JLogger</prop>-->
+<!--                <prop key="eclipselink.logging.session">false</prop>-->
+<!--                <prop key="javax.persistence.schema-generation.database.action">#{config.getJdbcConfig().isAutoCreateTables() ? 'create' : 'none'}</prop>-->
+<!--            </props>-->
+<!--        </property>-->
 
-    </bean>
+<!--    </bean>-->
 
     <bean id="resolver" class="com.quorum.tessera.config.util.EncryptedStringResolver"/>
 

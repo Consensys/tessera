@@ -73,9 +73,9 @@ public class Main {
                     .map(PartyInfoService.class::cast)
                     .findAny()
                     .ifPresent(p -> p.populateStore());
-
+            LOGGER.debug("Creating servers");
             runWebServer(config);
-
+            LOGGER.debug("Created servers");
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
                 System.err.println(
@@ -111,6 +111,7 @@ public class Main {
 
             System.exit(5);
         } catch (final Throwable ex) {
+            LOGGER.debug(null,ex);
             if (Arrays.asList(args).contains("--debug")) {
                 ex.printStackTrace();
             } else {
@@ -132,13 +133,14 @@ public class Main {
                         .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
                         .map(
                                 conf -> {
+                                    LOGGER.debug("Creating app from {}",conf);
                                     Object app =
                                             TesseraAppFactory.create(conf.getCommunicationType(), conf.getApp())
                                                     .orElseThrow(
                                                             () ->
                                                                     new IllegalStateException(
                                                                             "Cant create app for " + conf.getApp()));
-
+                                    LOGGER.debug("Created APP {} from {}",app, conf);
                                     return TesseraServerFactory.create(conf.getCommunicationType())
                                             .createServer(conf, Collections.singleton(app));
                                 })
@@ -159,7 +161,9 @@ public class Main {
                                 }));
 
         for (TesseraServer ts : servers) {
+            LOGGER.debug("Starting server {}",ts);
             ts.start();
+            LOGGER.debug("Started server {}",ts);
         }
     }
 }

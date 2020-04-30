@@ -2,7 +2,6 @@ package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
@@ -39,10 +38,6 @@ public class TransactionResource {
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
 
     private final TransactionManager delegate;
-
-    public TransactionResource() {
-        this(ServiceFactory.create().transactionManager());
-    }
 
     public TransactionResource(TransactionManager delegate) {
         this.delegate = Objects.requireNonNull(delegate);
