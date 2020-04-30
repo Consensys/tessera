@@ -1,5 +1,6 @@
 package com.quorum.tessera.recover;
 
+import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -16,16 +17,16 @@ public class RecoveryImpl implements Recovery {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecoveryImpl.class);
 
-    private final EntityManagerFactory entityManagerFactory;
+    private final StagingEntityDAO stagingEntityDAO;
 
     private final PartyInfoService partyInfoService;
 
     private final TransactionRequester transactionRequester;
 
-    public RecoveryImpl(EntityManagerFactory entityManagerFactory,
+    public RecoveryImpl(StagingEntityDAO stagingEntityDAO,
                         PartyInfoService partyInfoService,
                         TransactionRequester transactionRequester) {
-        this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);
+        this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.transactionRequester = Objects.requireNonNull(transactionRequester);
     }
@@ -42,8 +43,7 @@ public class RecoveryImpl implements Recovery {
                 LOGGER.warn("Unable to request batch resend for party: {}" + p.getUrl());
             });
 
-
-        final EntityManager entityManager = entityManagerFactory.createEntityManager();
+        stagingEntityDAO.countAll();
 
 
     }
