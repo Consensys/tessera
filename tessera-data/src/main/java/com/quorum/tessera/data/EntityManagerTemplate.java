@@ -32,9 +32,12 @@ public class EntityManagerTemplate {
         } catch (PersistenceException ex) {
             LOGGER.warn("JPA exception thrown during execution {}",ex.getMessage());
             LOGGER.debug("",ex);
-            transaction.rollback();
+            if(transaction != null && transaction.isActive()) {
+                transaction.rollback();
+            }
             throw ex;
         } finally {
+
             entityManager.close();
         }
     }

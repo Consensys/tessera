@@ -50,9 +50,15 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
     public void delete(final MessageHash hash) {
         LOGGER.info("Deleting transaction with hash {}", hash);
         entityManagerTemplate.execute(entityManager -> {
-            entityManager.remove(retrieveByHash(hash)
-                .orElseThrow(EntityNotFoundException::new));
-            return null;
+            EncryptedRawTransaction txn = entityManager.find(EncryptedRawTransaction.class,hash);
+            if(txn == null)  {
+                throw new EntityNotFoundException();
+            }
+
+            entityManager.createQuery("delete from EncryptedRawTransaction where hash.hashBytes = :hash")
+                .setParameter("hash",hash.getHashBytes()).executeUpdate();
+
+            return txn;
         });
     }
 
