@@ -4,7 +4,7 @@ public enum TestConfig {
 
     H2("jdbc:h2:mem:test","NULL not allowed for column \"%s\"","Unique index or primary key violation"),
     HSQL("jdbc:hsqldb:mem:test","integrity constraint violation: NOT NULL check constraint","unique constraint or index violation"),
-    SQLITE("jdbc:sqlite:memory:test","NOT NULL constraint failed","UNIQUE constraint failed");
+    SQLITE("jdbc:sqlite:","NOT NULL constraint failed","UNIQUE constraint failed");
 
 
     private String url;
