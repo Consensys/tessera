@@ -23,6 +23,7 @@ jobs:
           java-version: 11
       - name: Create release branch
         run: |
+          git config user.name "melowe"
           export now=`date +%Y%m%d%H%M%S`
           git checkout -b "release-$now"
 
