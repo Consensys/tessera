@@ -1,9 +1,6 @@
 package com.quorum.tessera.data.staging;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,7 +14,7 @@ public class MessageHashStrTest {
         final MessageHashStr hash = new MessageHashStr(testMessage);
 
         assertThat(hash).isNotEqualTo(testMessage);
-        Assertions.assertThat(Arrays.equals(testMessage, hash.getHashBytes())).isTrue();
+        assertThat(testMessage).isEqualTo(hash.getHashBytes());
     }
 
     @Test
