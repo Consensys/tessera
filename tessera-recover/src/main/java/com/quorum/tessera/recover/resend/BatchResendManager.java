@@ -2,7 +2,6 @@ package com.quorum.tessera.recover.resend;
 
 import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
@@ -45,8 +44,6 @@ public interface BatchResendManager {
         Enclave enclave = EnclaveFactory.create().create(config);
         TransactionManager transactionManager = TransactionManager.create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO = entityManagerDAOFactory.createEncryptedRawTransactionDAO();
-
 
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
