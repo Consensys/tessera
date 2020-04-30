@@ -1,6 +1,9 @@
-package com.quorum.tessera.transaction.resend.batch;
+package com.quorum.tessera.recover.resend;
 
-import com.quorum.tessera.data.*;
+import com.quorum.tessera.data.EncryptedTransaction;
+import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.data.staging.StagingTransactionConverter;
@@ -11,12 +14,15 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.transaction.exception.StoreEntityException;
-import com.quorum.tessera.partyinfo.*;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PushBatchRequest;
+import com.quorum.tessera.partyinfo.ResendBatchRequest;
+import com.quorum.tessera.partyinfo.ResendBatchResponse;
 import com.quorum.tessera.service.Service;
-import com.quorum.tessera.sync.ResendStoreDelegate;
+import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
+import com.quorum.tessera.transaction.exception.StoreEntityException;
 import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +47,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final Enclave enclave;
 
-    private final ResendStoreDelegate resendStoreDelegate;
+    private final TransactionManager resendStoreDelegate;
 
     private final StagingEntityDAO stagingEntityDAO;
 
@@ -51,7 +57,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     public BatchResendManagerImpl(
             Enclave enclave,
-            ResendStoreDelegate transactionManager,
+            TransactionManager transactionManager,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PartyInfoService partyInfoService) {
@@ -69,7 +75,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
             PayloadEncoder payloadEncoder,
             Base64Decoder base64Decoder,
             Enclave enclave,
-            ResendStoreDelegate transactionManager,
+            TransactionManager transactionManager,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PartyInfoService partyInfoService) {
@@ -218,7 +224,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
                 for (byte[] payload : payloadsToSend) {
                     try {
-                        resendStoreDelegate.storePayloadBypassResendMode(payload);
+                        resendStoreDelegate.storePayload(payload);
                     } catch (PrivacyViolationException | StoreEntityException ex) {
                         LOGGER.error("An error occured during batch resend sync stage.", ex);
                         syncFailureCount++;

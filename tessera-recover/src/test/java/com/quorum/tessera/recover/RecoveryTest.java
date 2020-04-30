@@ -4,11 +4,13 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.sync.TransactionRequester;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 
 import static org.mockito.Mockito.*;
 
+@Ignore
 public class RecoveryTest extends RecoveryTestCase {
 
     private Recovery recovery;
