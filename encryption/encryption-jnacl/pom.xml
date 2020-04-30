@@ -11,7 +11,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>encryption</artifactId>
-        <version>0.10.5</version>
+        <version>0.10.6-SNAPSHOT</version>
     </parent>
 
     <dependencyManagement>
