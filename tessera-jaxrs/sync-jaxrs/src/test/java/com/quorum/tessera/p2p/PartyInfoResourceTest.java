@@ -1,40 +1,36 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.encryption.PublicKey;
-
-import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import javax.json.Json;
 import javax.json.JsonReader;
-import javax.ws.rs.core.Response;
-import java.io.StringReader;
-import java.io.UncheckedIOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.UncheckedIOException;
+import java.time.Instant;
+import java.util.*;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoResourceTest {
@@ -350,5 +346,72 @@ public class PartyInfoResourceTest {
         verify(partyInfoParser).to(any(PartyInfo.class));
         verify(partyInfoService).updatePartyInfo(partyInfo);
         verify(partyInfoService).getPartyInfo();
+    }
+
+    @Test
+    public void partyInfoValidationEncryptsUniqueDataForEachKey() {
+        String url = "http://bogus";
+        Set<Party> parties = Collections.emptySet();
+        Set<Recipient> recipients = new HashSet<>();
+        recipients.add(new Recipient(mock(PublicKey.class), url));
+        recipients.add(new Recipient(mock(PublicKey.class), url));
+
+        PartyInfo partyInfo = new PartyInfo(url, recipients, parties);
+
+        byte[] payload = new byte[]{};
+        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
+
+        when(enclave.defaultPublicKey()).thenReturn(PublicKey.from("defaultKey".getBytes()));
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        List<String> uuidList = new ArrayList<>();
+        doAnswer(
+            (invocation) -> {
+                byte[] d = invocation.getArgument(0);
+                uuidList.add(new String(d));
+                return encodedPayload;
+            })
+            .when(enclave)
+            .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+
+        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("somedata".getBytes());
+
+        WebTarget webTarget = mock(WebTarget.class);
+        when(restClient.target(url)).thenReturn(webTarget);
+        when(webTarget.path(anyString())).thenReturn(webTarget);
+        Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+        when(webTarget.request()).thenReturn(invocationBuilder);
+        Response response = mock(Response.class);
+        when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
+
+        when(response.getStatus()).thenReturn(200);
+        when(response.getEntity()).thenReturn("");
+
+        doAnswer(new Answer() {
+            private int i = 0;
+
+            public Object answer(InvocationOnMock invocation) {
+                String result = uuidList.get(i);
+                i++;
+                return result;
+            }
+        }).when(response).readEntity(String.class);
+
+        when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
+
+        // the test
+        partyInfoResource.partyInfo(payload);
+
+        ArgumentCaptor<byte[]> uuidCaptor = ArgumentCaptor.forClass(byte[].class);
+        verify(enclave, times(2)).encryptPayload(uuidCaptor.capture(), any(PublicKey.class), anyList());
+        List<byte[]> capturedUUIDs = uuidCaptor.getAllValues();
+        assertThat(capturedUUIDs).hasSize(2);
+        assertThat(capturedUUIDs.get(0)).isNotEqualTo(capturedUUIDs.get(1));
+
+        // other verifications
+        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
+        verify(partyInfoParser).from(payload);
+        verify(enclave).defaultPublicKey();
+        verify(payloadEncoder, times(2)).encode(encodedPayload);
+        verify(restClient, times(2)).target(url);
     }
 }
