@@ -10,12 +10,11 @@ import javax.persistence.*;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StagingEntityDAOTest {
 
     private EntityManagerFactory entityManagerFactory;
-
-    private EntityManager entityManager;
 
     private StagingEntityDAO stagingEntityDAO;
 
@@ -33,22 +32,20 @@ public class StagingEntityDAOTest {
         properties.put("eclipselink.logging.parameters","true");
         properties.put("eclipselink.logging.level.sql","FINE");
         properties.put("javax.persistence.schema-generation.database.action","drop-and-create");
+        properties.put("eclipselink.cache.shared.default","false");
 
 
         entityManagerFactory = Persistence.createEntityManagerFactory("tessera-recover",properties);
 
-        this.entityManager = entityManagerFactory.createEntityManager();
-
         stagingEntityDAO = new StagingEntityDAOImpl(entityManagerFactory);
 
-        entityManager.getTransaction().begin();
         transactions = createFixtures();
-        entityManager.getTransaction().commit();
 
     }
 
     @After
     public void clear() throws Exception {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.createQuery("delete from StagingTransactionVersion").executeUpdate();
         entityManager.createQuery("delete from StagingAffectedContractTransaction").executeUpdate();
@@ -78,29 +75,35 @@ public class StagingEntityDAOTest {
 
     @Test
     public void testStagingQuery() {
+
+
         final List<StagingTransaction> transactionsBeforeStaging =
             stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
 
-        transactionsBeforeStaging.forEach(
-            stagingTransaction -> {
-                assertThat(stagingTransaction.getValidationStage()).isNull();
-            });
+        assertThat(transactionsBeforeStaging)
+            .hasSize(6)
+            .allMatch(stagingTransaction -> Objects.isNull(stagingTransaction.getValidationStage()));
+
 
         stagingEntityDAO.performStaging(Integer.MAX_VALUE);
 
-
         final List<StagingTransaction> verifiedTransactions = stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
+
+        assertThat(verifiedTransactions).hasSize(6);
+
         assertThat(verifiedTransactions.get(0).getValidationStage()).isEqualTo(1L);
         assertThat(verifiedTransactions.get(1).getValidationStage()).isEqualTo(2L);
         assertThat(verifiedTransactions.get(2).getValidationStage()).isEqualTo(2L);
         assertThat(verifiedTransactions.get(3).getValidationStage()).isEqualTo(3L);
         assertThat(verifiedTransactions.get(4).getValidationStage()).isEqualTo(4L);
+
         assertThat(verifiedTransactions.get(5).getValidationStage()).isNull();
 
         final List<StagingTransaction> allTransactions =
             stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
         // Transactions 1-4 and 7 are successfully resolved/staged. TXN5 is not - as it depends on an unknown
         // transaction - TXN6.
+
         assertThat(allTransactions.stream().filter(et -> et.getValidationStage() == null).count()).isEqualTo(1);
         assertThat(stagingEntityDAO.countAll()).isEqualTo(6);
         assertThat(stagingEntityDAO.countStaged()).isEqualTo(5);
@@ -108,6 +111,7 @@ public class StagingEntityDAOTest {
 
     @Test
     public void testRetrieveTransactionByHash() {
+
         final MessageHashStr txnHash7 = transactions.get("TXN7").getHash();
         final Optional<StagingTransaction> stagingTransaction = stagingEntityDAO.retrieveByHash(txnHash7);
 
@@ -115,20 +119,6 @@ public class StagingEntityDAOTest {
         assertThat(stagingTransaction.get().getAffectedContractTransactions()).hasSize(2);
     }
 
-    @Test
-    public void testDeleteTransactionByHash() {
-        final MessageHashStr txnHash1 = transactions.get("TXN1").getHash();
-
-        final Optional<StagingTransaction> before = stagingEntityDAO.retrieveByHash(txnHash1);
-
-        assertThat(before).isPresent();
-
-        stagingEntityDAO.delete(txnHash1);
-
-        final Optional<StagingTransaction> stagingTransaction = stagingEntityDAO.retrieveByHash(txnHash1);
-
-        assertThat(stagingTransaction).isNotPresent();
-    }
 
     @Test
     public void testUpdate() {
@@ -148,15 +138,6 @@ public class StagingEntityDAOTest {
 
     }
 
-    @Test
-    public void testCleanupStagingData() {
-        stagingEntityDAO.cleanStagingArea(Integer.MAX_VALUE);
-
-        final List<StagingTransaction> transactions =
-            stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
-
-        assertThat(transactions).isEmpty();
-    }
 
     public static void addTransactionRecipients(StagingTransaction stagingTransaction) {
         final StagingRecipient stRecipient1 = new StagingRecipient("RECIPIENT1".getBytes());
@@ -183,6 +164,10 @@ public class StagingEntityDAOTest {
     }
 
     public Map<String,StagingTransaction> createFixtures() {
+
+        final EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+        entityManager.getTransaction().begin();
 
         final MessageHashStr txnHash1 = Utils.createHashStr();
 
@@ -329,6 +314,8 @@ public class StagingEntityDAOTest {
         stTransaction7.getAffectedContractTransactions().put(txnHash4, stAffectedContractTransaction74);
 
         entityManager.persist(stTransaction7);
+
+        entityManager.getTransaction().commit();
 
         Map<String,StagingTransaction> transactions = new HashMap<>();
         transactions.put("TXN1",stTransaction1);

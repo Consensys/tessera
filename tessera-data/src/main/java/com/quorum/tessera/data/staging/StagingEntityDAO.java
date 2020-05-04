@@ -37,13 +37,6 @@ public interface StagingEntityDAO {
      */
     List<StagingTransaction> retrieveTransactionBatchOrderByStageAndHash(int offset, int maxResult);
 
-    /**
-     * Deletes a transaction that has the given hash as its digest
-     *
-     * @param hash The hash of the message to be deleted
-     * @throws javax.persistence.EntityNotFoundException when message is not found
-     */
-    void delete(MessageHashStr hash);
 
     /**
      * Perform staging for received transactions in staging database. Perform query to update validation stage until all
@@ -51,8 +44,6 @@ public interface StagingEntityDAO {
      */
     void performStaging(int batchSize);
 
-    /** Perform query to clear data currently existed in staging table */
-    void cleanStagingArea(int batchSize);
 
     /**
      * counts all staging transactions

@@ -251,10 +251,6 @@ public class BatchResendManagerImpl implements BatchResendManager {
         return Result.PARTIAL_SUCCESS;
     }
 
-    @Override
-    public void cleanupStagingArea() {
-        stagingEntityDAO.cleanStagingArea(BATCH_SIZE);
-    }
 
     @Override
     public boolean isResendMode() {

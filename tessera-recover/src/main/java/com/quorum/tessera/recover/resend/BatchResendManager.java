@@ -26,8 +26,6 @@ public interface BatchResendManager {
 
     boolean isResendMode();
 
-    void cleanupStagingArea();
-
     Result performStaging();
 
     Result performSync();

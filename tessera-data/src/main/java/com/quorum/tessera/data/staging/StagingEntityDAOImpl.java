@@ -4,7 +4,6 @@ import com.quorum.tessera.data.EntityManagerTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,33 +83,6 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
         });
     }
 
-    @Override
-    public void delete(final MessageHashStr hash) {
-        LOGGER.info("Deleting transaction with hash {}", hash);
-
-        StagingTransaction txn = entityManagerTemplate.execute(entityManager -> {
-            final StagingTransaction message =
-                entityManager
-                    .createQuery(FIND_HASH_EQUAL, StagingTransaction.class)
-                    .setParameter("hash", hash.getHash())
-                    .getResultStream()
-                    .findAny()
-                    .orElseThrow(EntityNotFoundException::new);
-
-            entityManager.remove(message);
-            return message;
-        });
-        LOGGER.info("Deleted transaction with hash {}", hash);
-
-    }
-
-    @Override
-    public void cleanStagingArea(int batchSize) {
-        int count = 0;
-        while ((count = stagingEntityDAOBatch.deleteBatch(batchSize)) > 0) {
-            LOGGER.info("Deleted StagingTransaction batch of {} records", count);
-        }
-    }
 
     @Override
     public long countAll() {
