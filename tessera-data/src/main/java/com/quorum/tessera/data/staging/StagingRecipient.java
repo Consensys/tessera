@@ -1,16 +1,46 @@
 package com.quorum.tessera.data.staging;
 
-import javax.persistence.Basic;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 
-@Embeddable
+@Entity
+@Table(name = "ST_TRANSACTION_RECIPIENT"
+//    ,uniqueConstraints = {
+//    @UniqueConstraint(name = "StagingTransactionRecipientHashAndRecipientAreUnique",columnNames = {"HASH","RECIPIENT"})
+//
+//}
+)
 public class StagingRecipient implements Serializable {
 
-    @Basic private String recBytes;
+    @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
+    @Column(name = "ID")
+    private Long id;
+
+    @Embedded
+    @AttributeOverride(name = "hash",
+        column = @Column(name = "HASH", nullable = false, updatable = false))
+    private MessageHashStr messageHash;
+
+
+    @ManyToOne
+    @JoinColumns({@JoinColumn(name = "TXNHASH", referencedColumnName = "HASH", insertable = false, updatable = false)})
+    private StagingTransaction transaction;
+
+//    @OneToMany(mappedBy = "recipient")
+//    private Set<StagingTransactionVersion> stagingTransactionVersions = new HashSet<>();
+
+    @Basic private boolean initiator;
+
+    @Lob
+    @Column(name = "BOX", updatable = false)
+    @Basic
+    private byte[] box;
+
+    @Basic
+    private String recBytes;
 
     public StagingRecipient() {}
 
@@ -34,14 +64,66 @@ public class StagingRecipient implements Serializable {
         this.recBytes = recBytes;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public StagingTransaction getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(StagingTransaction transaction) {
+        this.transaction = transaction;
+    }
+
+    public boolean isInitiator() {
+        return initiator;
+    }
+
+    public void setInitiator(boolean initiator) {
+        this.initiator = initiator;
+    }
+
+    public byte[] getBox() {
+        return box;
+    }
+
+    public void setBox(byte[] box) {
+        this.box = box;
+    }
+
+    public MessageHashStr getMessageHash() {
+        return messageHash;
+    }
+
+    public void setMessageHash(MessageHashStr messageHash) {
+        this.messageHash = messageHash;
+    }
+
+//    public Set<StagingTransactionVersion> getStagingTransactionVersions() {
+//        return stagingTransactionVersions;
+//    }
+//
+//    public void setStagingTransactionVersions(Set<StagingTransactionVersion> stagingTransactionVersions) {
+//        this.stagingTransactionVersions = stagingTransactionVersions;
+//    }
+
     @Override
-    public boolean equals(final Object o) {
-        return (o instanceof StagingRecipient) && Objects.equals(recBytes, ((StagingRecipient) o).recBytes);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StagingRecipient that = (StagingRecipient) o;
+        return Objects.equals(messageHash, that.messageHash) &&
+            Objects.equals(recBytes, that.recBytes);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(getBytes());
+        return Objects.hash(messageHash, recBytes);
     }
 
     @Override

@@ -160,15 +160,12 @@ public class StagingTransactionConverterTest {
         assertThat(id.getAffected()).isEqualTo(mergedAffectedTx.getHash());
 
         assertThat(mergedTransaction.getRecipients().size()).isEqualTo(2);
-        assertThat(mergedTransaction.getRecipients().keySet())
-                .containsAll(
-                        Arrays.asList(
-                                new StagingRecipient(recipient1.getKeyBytes()),
-                                new StagingRecipient(recipient2.getKeyBytes())));
+
 
         assertThat(mergedTransaction.getVersions().size()).isEqualTo(2);
+
         final List<byte[]> payloads =
-                mergedTransaction.getVersions().values().stream()
+                mergedTransaction.getVersions().stream()
                         .map(StagingTransactionVersion::getPayload)
                         .collect(Collectors.toList());
         assertThat(payloads)
@@ -229,7 +226,7 @@ public class StagingTransactionConverterTest {
 
         StagingTransaction firstTransaction = new StagingTransaction();
         firstTransaction.setPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION);
-        firstTransaction.getRecipients().put(new StagingRecipient("key".getBytes()), new StagingTransactionRecipient());
+        firstTransaction.getRecipients().add(new StagingRecipient("key".getBytes()));
 
         StagingTransaction secondTransaction = new StagingTransaction();
         secondTransaction.setPrivacyMode(PrivacyMode.PARTY_PROTECTION);

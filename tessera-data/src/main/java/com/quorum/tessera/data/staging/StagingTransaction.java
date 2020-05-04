@@ -4,9 +4,7 @@ import com.quorum.tessera.enclave.PrivacyMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /** The JPA entity that contains the staging transaction information. */
 @Entity
@@ -14,10 +12,6 @@ import java.util.Objects;
         name = "ST_TRANSACTION",
         indexes = {@Index(name = "ST_TRANSACTION_VALSTG", columnList = "VALIDATION_STAGE", unique = false)})
 @NamedQueries({
-    // this searches for staging transactions which have not been validated yet (validation stage is null) and do not
-    // depend non validated transactions
-    // TODO must understand how inefficient this is... Other solutions are welcome. Outer joins fail on sqlite (the
-    // generated query contains curly brackets)
     @NamedQuery(
             name = "StagingTransaction.stagingQuery",
             query =
@@ -30,7 +24,7 @@ public class StagingTransaction implements Serializable {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    @Column(name="ID",nullable = false,unique = true,updatable = false)
+    @Column(name="ID")
     private Long id;
 
     @Embedded
@@ -79,8 +73,7 @@ public class StagingTransaction implements Serializable {
             cascade = {CascadeType.ALL},
             mappedBy = "transaction",
             orphanRemoval = true)
-    @MapKey(name = "recipient")
-    private Map<StagingRecipient, StagingTransactionRecipient> recipients = new HashMap<>();
+    private Set<StagingRecipient> recipients = new HashSet<>();
 
     @OneToMany(
             fetch = FetchType.LAZY,
@@ -95,8 +88,7 @@ public class StagingTransaction implements Serializable {
             cascade = {CascadeType.ALL},
             mappedBy = "transaction",
             orphanRemoval = true)
-    @MapKey(name = "recipient")
-    private Map<StagingRecipient, StagingTransactionVersion> versions = new HashMap<>();
+    private Set<StagingTransactionVersion> versions = new HashSet<>();
 
     public StagingTransaction() {}
 
@@ -125,7 +117,7 @@ public class StagingTransaction implements Serializable {
         return this.timestamp;
     }
 
-    public Map<StagingRecipient, StagingTransactionRecipient> getRecipients() {
+    public Set<StagingRecipient> getRecipients() {
         return recipients;
     }
 
@@ -161,7 +153,7 @@ public class StagingTransaction implements Serializable {
         this.recipientNonce = recipientNonce;
     }
 
-    public void setRecipients(Map<StagingRecipient, StagingTransactionRecipient> recipients) {
+    public void setRecipients(Set<StagingRecipient> recipients) {
         this.recipients = recipients;
     }
 
@@ -206,11 +198,11 @@ public class StagingTransaction implements Serializable {
         this.privacyMode = privacyMode;
     }
 
-    public Map<StagingRecipient, StagingTransactionVersion> getVersions() {
+    public Set<StagingTransactionVersion> getVersions() {
         return versions;
     }
 
-    public void setVersions(Map<StagingRecipient, StagingTransactionVersion> versions) {
+    public void setVersions(Set<StagingTransactionVersion> versions) {
         this.versions = versions;
     }
 

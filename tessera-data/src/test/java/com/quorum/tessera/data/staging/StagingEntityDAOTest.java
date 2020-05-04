@@ -61,7 +61,7 @@ public class StagingEntityDAOTest {
         entityManager.getTransaction().begin();
         entityManager.createQuery("delete from StagingTransactionVersion").executeUpdate();
         entityManager.createQuery("delete from StagingAffectedContractTransaction").executeUpdate();
-        entityManager.createQuery("delete from StagingTransactionRecipient").executeUpdate();
+        entityManager.createQuery("delete from StagingRecipient").executeUpdate();
         entityManager.createQuery("delete from StagingTransaction").executeUpdate();
         entityManager.getTransaction().commit();
         transactions.clear();
@@ -156,26 +156,23 @@ public class StagingEntityDAOTest {
 
     public static void addTransactionRecipients(StagingTransaction stagingTransaction) {
         final StagingRecipient stRecipient1 = new StagingRecipient("RECIPIENT1".getBytes());
-        final StagingTransactionRecipientId stTransactionRecipientId1 =
-            new StagingTransactionRecipientId(stagingTransaction.getHash(), stRecipient1);
-        final StagingTransactionRecipient stTransactionRecipient1 = new StagingTransactionRecipient();
-        stTransactionRecipient1.setStagingTransactionRecipientId(stTransactionRecipientId1);
-        stTransactionRecipient1.setInitiator(false);
-        stTransactionRecipient1.setBox("BOX1".getBytes());
-        stTransactionRecipient1.setTransaction(stagingTransaction);
 
-        stagingTransaction.getRecipients().put(stRecipient1, stTransactionRecipient1);
+
+        stRecipient1.setMessageHash(stagingTransaction.getHash());
+        stRecipient1.setInitiator(false);
+        stRecipient1.setBox("BOX1".getBytes());
+        stRecipient1.setTransaction(stagingTransaction);
+
+        stagingTransaction.getRecipients().add(stRecipient1);
 
         final StagingRecipient stRecipient2 = new StagingRecipient("RECIPIENT2".getBytes());
-        final StagingTransactionRecipientId stTransactionRecipientId2 =
-            new StagingTransactionRecipientId(stagingTransaction.getHash(), stRecipient2);
-        final StagingTransactionRecipient stTransactionRecipient2 = new StagingTransactionRecipient();
-        stTransactionRecipient2.setStagingTransactionRecipientId(stTransactionRecipientId2);
-        stTransactionRecipient2.setInitiator(false);
-        stTransactionRecipient2.setBox("BOX1".getBytes());
-        stTransactionRecipient2.setTransaction(stagingTransaction);
 
-        stagingTransaction.getRecipients().put(stRecipient2, stTransactionRecipient2);
+        stRecipient2.setMessageHash(stagingTransaction.getHash());
+        stRecipient2.setInitiator(false);
+        stRecipient2.setBox("BOX1".getBytes());
+        stRecipient2.setTransaction(stagingTransaction);
+
+        stagingTransaction.getRecipients().add(stRecipient2);
     }
 
     public Map<String,StagingTransaction> createFixtures() {
@@ -196,14 +193,16 @@ public class StagingEntityDAOTest {
         addTransactionRecipients(stTransaction1);
 
         // add two versions for this transaction with no issues
-        for (StagingTransactionRecipient stagingTransactionRecipient : stTransaction1.getRecipients().values()) {
+        for (StagingRecipient stagingTransactionRecipient : stTransaction1.getRecipients()) {
+            stagingTransactionRecipient.setMessageHash(stTransaction1.getHash());
             StagingTransactionVersion stagingTransactionVersion = new StagingTransactionVersion();
-            stagingTransactionVersion.setStagingTransactionRecipientId(stagingTransactionRecipient.getStagingTransactionRecipientId());
             stagingTransactionVersion.setPayload("PAYLOAD".getBytes());
             stagingTransactionVersion.setTransaction(stTransaction1);
+
+
             stTransaction1
                 .getVersions()
-                .put(stagingTransactionVersion.getStagingTransactionRecipientId().getRecipient(), stagingTransactionVersion);
+                .add(stagingTransactionVersion);
         }
 
 
@@ -345,6 +344,6 @@ public class StagingEntityDAOTest {
 
     @Parameterized.Parameters(name = "DB {0}")
     public static Collection<TestConfig> connectionDetails() {
-        return List.of(TestConfig.values());
+        return List.of(TestConfig.H2);
     }
 }

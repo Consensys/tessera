@@ -11,10 +11,10 @@ public class StagingTransactionTest {
     @Test
     public void instanceWithSameHashEquals() {
         StagingTransaction stagingTransaction = new StagingTransaction();
-        stagingTransaction.setRecipients(Collections.emptyMap());
+        stagingTransaction.setRecipients(Collections.emptySet());
         stagingTransaction.setHash(new MessageHashStr("hash".getBytes()));
         stagingTransaction.setAffectedContractTransactions(Collections.emptyMap());
-        stagingTransaction.setVersions(Collections.emptyMap());
+        stagingTransaction.setVersions(Collections.emptySet());
 
         StagingTransaction stagingTransaction1 = new StagingTransaction();
         stagingTransaction1.setHash(new MessageHashStr("hash".getBytes()));

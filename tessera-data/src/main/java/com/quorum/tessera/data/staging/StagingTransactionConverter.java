@@ -9,6 +9,7 @@ import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Set;
 
 public class StagingTransactionConverter {
 
@@ -31,21 +32,21 @@ public class StagingTransactionConverter {
         stagingTransaction.setExecHash(encodedPayload.getExecHash());
         stagingTransaction.setPrivacyMode(encodedPayload.getPrivacyMode());
 
-        for (PublicKey recipient : encodedPayload.getRecipientKeys()) {
+        PublicKey firstRecipientKey = encodedPayload.getRecipientKeys().get(0);
+        final StagingRecipient firstStagingRecipient = new StagingRecipient(firstRecipientKey.getKeyBytes());
+
+        stagingTransaction.getRecipients().add(firstStagingRecipient);
+
+        for (PublicKey recipient : encodedPayload.getRecipientKeys()
+            .subList(1,encodedPayload.getRecipientKeys().size())) {
+
             final StagingRecipient stagingRecipient = new StagingRecipient(recipient.getKeyBytes());
-            final StagingTransactionRecipientId stagingTransactionRecipientId =
-                    new StagingTransactionRecipientId(messageHash, stagingRecipient);
-            final StagingTransactionRecipient stagingTransactionRecipient = new StagingTransactionRecipient();
-            stagingTransactionRecipient.setStagingTransactionRecipientId(stagingTransactionRecipientId);
-            stagingTransactionRecipient.setTransaction(stagingTransaction);
-            stagingTransactionRecipient.setInitiator(false);
-            stagingTransaction.getRecipients().put(stagingRecipient, stagingTransactionRecipient);
+
+            stagingRecipient.setMessageHash(messageHash);
+            stagingRecipient.setTransaction(stagingTransaction);
+            stagingRecipient.setInitiator(false);
+            stagingTransaction.getRecipients().add(stagingRecipient);
         }
-
-        final StagingRecipient stagingRecipient =
-                new StagingRecipient(encodedPayload.getRecipientKeys().get(0).getKeyBytes());
-
-        stagingTransaction.getRecipients().get(stagingRecipient).setBox(encodedPayload.getRecipientBoxes().get(0));
 
         for (Map.Entry<TxHash, byte[]> entry : encodedPayload.getAffectedContractTransactions().entrySet()) {
             final StagingAffectedContractTransactionId affectedContractTransactionId =
@@ -64,9 +65,9 @@ public class StagingTransactionConverter {
         StagingTransactionVersion version = new StagingTransactionVersion();
         version.setTransaction(stagingTransaction);
         version.setPayload(payload);
-        version.setStagingTransactionRecipientId(new StagingTransactionRecipientId(messageHash, stagingRecipient));
+
         version.setPrivacyMode(stagingTransaction.getPrivacyMode());
-        stagingTransaction.getVersions().put(stagingRecipient, version);
+        stagingTransaction.getVersions().add(version);
 
         return stagingTransaction;
     }
@@ -79,15 +80,17 @@ public class StagingTransactionConverter {
         }
 
         if (PrivacyMode.PRIVATE_STATE_VALIDATION == existing.getPrivacyMode()) {
-            if (!(existing.getRecipients().keySet().containsAll(newTransaction.getRecipients().keySet())
-                    && newTransaction.getRecipients().keySet().containsAll(existing.getRecipients().keySet()))) {
+            if (!(existing.getRecipients().containsAll(newTransaction.getRecipients())
+                    && newTransaction.getRecipients().containsAll(existing.getRecipients()))) {
                 existing.setIssues("Recipients mismatched across versions");
             }
         } else {
-            existing.getRecipients().putAll(newTransaction.getRecipients());
+            existing.getRecipients().addAll(newTransaction.getRecipients());
         }
         existing.getAffectedContractTransactions().putAll(newTransaction.getAffectedContractTransactions());
-        existing.getVersions().putAll(newTransaction.getVersions());
+
+        Set<StagingTransactionVersion> versions = newTransaction.getVersions();
+        existing.getVersions().addAll(versions);
 
         return existing;
     }

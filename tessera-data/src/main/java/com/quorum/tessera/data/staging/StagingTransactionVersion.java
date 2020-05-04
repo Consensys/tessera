@@ -3,7 +3,6 @@ package com.quorum.tessera.data.staging;
 import com.quorum.tessera.enclave.PrivacyMode;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 @Entity
 @Table(name = "ST_TRANSACTION_VERSION")
@@ -14,20 +13,9 @@ public class StagingTransactionVersion {
     @Column(name = "ID")
     private Long id;
 
-    @Embedded
-    @AttributeOverride(name = "hash.hash", column = @Column(name = "HASH", nullable = false, updatable = false))
-    @AttributeOverride(
-            name = "recipient.recBytes",
-            column = @Column(name = "RECIPIENT", nullable = false, updatable = false))
-    private StagingTransactionRecipientId stagingTransactionRecipientId;
-
     @ManyToOne
-    @JoinColumns({@JoinColumn(name = "HASH", referencedColumnName = "HASH", insertable = false, updatable = false)})
+    @JoinColumns({@JoinColumn(name = "TXN_ID", referencedColumnName = "ID", insertable = false, updatable = false)})
     private StagingTransaction transaction;
-
-    public StagingRecipient recipient() {
-        return this.stagingTransactionRecipientId.getRecipient();
-    }
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "PRIVACY_MODE", updatable = false)
@@ -54,14 +42,6 @@ public class StagingTransactionVersion {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public StagingTransactionRecipientId getStagingTransactionRecipientId() {
-        return stagingTransactionRecipientId;
-    }
-
-    public void setStagingTransactionRecipientId(StagingTransactionRecipientId id) {
-        this.stagingTransactionRecipientId = id;
     }
 
     public StagingTransaction getTransaction() {
@@ -96,6 +76,8 @@ public class StagingTransactionVersion {
         this.privacyMode = privacyMode;
     }
 
+
+
     @PrePersist
     public void onPersist() {
         this.timestamp = System.currentTimeMillis();
@@ -105,13 +87,15 @@ public class StagingTransactionVersion {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StagingTransactionVersion)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
+
         StagingTransactionVersion that = (StagingTransactionVersion) o;
-        return Objects.equals(stagingTransactionRecipientId, that.stagingTransactionRecipientId);
+        if(id == null) return false;
+        return id != null ? id.equals(that.id) : that.id == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(stagingTransactionRecipientId);
+        return id != null ? id.hashCode() : 0;
     }
 }
