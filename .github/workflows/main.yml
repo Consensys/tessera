@@ -18,8 +18,8 @@ jobs:
         - uses: actions/setup-java@v1
           with:
               java-version: 11
-        - run: | 
-           mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B 
+        - run: |
+           mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
            mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -B
            mvn dependency:go-offline -B
            mvn dependency:resolve-plugins -B

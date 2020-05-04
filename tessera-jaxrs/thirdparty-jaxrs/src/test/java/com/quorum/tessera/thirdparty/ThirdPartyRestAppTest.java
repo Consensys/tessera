@@ -15,7 +15,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import javax.ws.rs.core.Application;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ThirdPartyRestAppTest {
 
@@ -59,7 +64,7 @@ public class ThirdPartyRestAppTest {
 
         Set<Object> results = thirdParty.getSingletons();
 
-        assertThat(results).hasSize(4);
+        assertThat(results).hasSize(3);
     }
 
     @Test

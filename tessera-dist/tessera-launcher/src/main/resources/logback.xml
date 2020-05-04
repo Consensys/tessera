@@ -5,6 +5,7 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
+            <!-- note that %logger{36} on next line will abbreviate logger names to reduce output -->
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %replace(%msg){'[\r\n]', ''}%n</pattern>
         </encoder>
     </appender>
@@ -12,6 +13,9 @@
     <!-- silence hibernate messages that were being created from DefaultCliAdapter -->
     <logger name="org.hibernate.validator.internal.util.Version" level="OFF"/>
     <logger name="org.hibernate.validator.internal.engine.ConfigurationImpl" level="OFF"/>
+
+    <!-- silence noisy logging from regular /partyinfo messages -->
+    <logger name="com.quorum.tessera.p2p.PartyInfoResource" level="WARN"/>
 
     <root level="${verbosity:-${defaultLogLevel}}">
         <appender-ref ref="STDOUT"/>

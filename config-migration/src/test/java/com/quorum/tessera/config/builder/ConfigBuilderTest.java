@@ -18,8 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigBuilderTest {
 
-    @Rule
-    public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
+    @Rule public SystemErrRule systemErrRule = new SystemErrRule().enableLog();
 
     private final ConfigBuilder builderWithValidValues = FixtureUtil.builderWithValidValues();
 
@@ -36,21 +35,25 @@ public class ConfigBuilderTest {
         assertThat(result).isNotNull();
 
         final ServerConfig unixServer =
-            result.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
+                result.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
         assertThat(unixServer.getServerAddress()).isEqualTo("unix:" + Paths.get("somepath.ipc").toAbsolutePath());
 
         assertThat(result.getKeys().getKeyData()).hasSize(1);
 
         KeyEncryptorFactory keyEncryptorFactory = KeyEncryptorFactory.newFactory();
-        KeyEncryptor keyEncryptor = keyEncryptorFactory.create(new EncryptorConfig() {{
-            setType(EncryptorType.NACL);
-        }});
+        KeyEncryptor keyEncryptor =
+                keyEncryptorFactory.create(
+                        new EncryptorConfig() {
+                            {
+                                setType(EncryptorType.NACL);
+                            }
+                        });
 
-        final ConfigKeyPair keyData = result.getKeys().getKeyData()
-            .stream()
-            .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
-            .findFirst()
-            .get();
+        final ConfigKeyPair keyData =
+                result.getKeys().getKeyData().stream()
+                        .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
+                        .findFirst()
+                        .get();
 
         assertThat(keyData).isNotNull().extracting("privateKeyPath").containsExactly(Paths.get("private"));
         assertThat(keyData).isNotNull().extracting("publicKeyPath").containsExactly(Paths.get("public"));
@@ -62,7 +65,7 @@ public class ConfigBuilderTest {
 
         final SslConfig sslConfig = serverConfig.getSslConfig();
         assertThat(sslConfig).isNotNull();
-        assertThat(sslConfig.getClientKeyStorePassword()).isEqualTo("sslClientKeyStorePassword");
+        assertThat(sslConfig.getClientKeyStorePassword()).isEqualTo("sslClientKeyStorePassword".toCharArray());
         assertThat(sslConfig.getClientKeyStore()).isEqualTo(Paths.get("sslClientKeyStorePath"));
         assertThat(sslConfig.getClientTlsKeyPath()).isEqualTo(Paths.get("sslClientTlsKeyPath"));
         assertThat(sslConfig.getServerTrustCertificates()).containsExactly(Paths.get("sslServerTrustCertificates"));
@@ -89,7 +92,8 @@ public class ConfigBuilderTest {
         builder.build();
 
         assertThat(systemErrRule.getLog())
-            .isEqualTo("Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n");
+                .isEqualTo(
+                        "Error reading alwayssendto file: doesntexist.txt\nError reading alwayssendto file: alsodoesntexist.txt\n");
     }
 
     @Test

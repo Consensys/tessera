@@ -279,7 +279,7 @@ public class ValidationTest {
 
         final Set<ConstraintViolation<Config>> invalidresult = validator.validate(config);
         final List<ConstraintViolation<Config>> invalidServerAppTypeResults = invalidresult.stream()
-            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE"))
+            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, ThirdParty, ENCLAVE"))
             .collect(Collectors.toList());
 
         assertThat(invalidServerAppTypeResults).hasSize(1);
@@ -295,7 +295,7 @@ public class ValidationTest {
 
         final Set<ConstraintViolation<Config>> invalidresult = validator.validate(config);
         final List<ConstraintViolation<Config>> invalidServerAppTypeResults = invalidresult.stream()
-            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, THIRD_PARTY, ENCLAVE"))
+            .filter(v -> v.getMessageTemplate().contains("app must be provided for serverConfig and be one of P2P, Q2T, ThirdParty, ENCLAVE"))
             .collect(Collectors.toList());
 
         assertThat(invalidServerAppTypeResults).hasSize(1);

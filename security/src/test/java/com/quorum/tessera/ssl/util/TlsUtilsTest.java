@@ -16,12 +16,14 @@ import static org.assertj.core.api.Java6Assertions.assertThat;
 
 public class TlsUtilsTest {
 
-    private static final String PASSWORD = "quorum";
+    private static final char[] PASSWORD = "quorum".toCharArray();
 
     private static final String ALIAS = "tessera";
 
     @Test
-    public void testGenerateKeys() throws OperatorCreationException, InvalidKeyException, NoSuchAlgorithmException, IOException, SignatureException, NoSuchProviderException, CertificateException, KeyStoreException {
+    public void testGenerateKeys()
+            throws OperatorCreationException, InvalidKeyException, NoSuchAlgorithmException, IOException,
+                    SignatureException, NoSuchProviderException, CertificateException, KeyStoreException {
 
         final Path privateKeyFile = Files.createTempFile("privatekey", ".tmp");
         Files.deleteIfExists(privateKeyFile);
@@ -32,11 +34,11 @@ public class TlsUtilsTest {
 
         assertThat(Files.exists(privateKeyFile)).isTrue();
 
-        //Read keystore from created file
+        // Read keystore from created file
         final KeyStore keyStore = KeyStore.getInstance("JKS");
 
         try (InputStream in = Files.newInputStream(privateKeyFile)) {
-            keyStore.load(in, PASSWORD.toCharArray());
+            keyStore.load(in, PASSWORD);
         }
 
         assertThat(keyStore.containsAlias(ALIAS)).isTrue();
@@ -46,9 +48,12 @@ public class TlsUtilsTest {
         assertThat(certificate).isNotNull();
         assertThat(certificate).isInstanceOf(X509Certificate.class);
         assertThat(((X509Certificate) certificate))
-            .extracting("info").isNotNull()
-            .extracting("issuer").isNotNull()
-            .extracting("names").size().isEqualTo(1);
-
+                .extracting("info")
+                .isNotNull()
+                .extracting("issuer")
+                .isNotNull()
+                .extracting("names")
+                .size()
+                .isEqualTo(1);
     }
 }

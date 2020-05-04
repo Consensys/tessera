@@ -29,7 +29,7 @@ public class ClientSSLContextFactoryTest {
     @Before
     public void setUp() {
         envVarProvider = EnvironmentVariableProviderFactory.load().create();
-        when(envVarProvider.getEnv(anyString())).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(anyString())).thenReturn(null);
     }
 
     @Test
@@ -41,15 +41,14 @@ public class ClientSSLContextFactoryTest {
         Path knownServers = Paths.get(getClass().getResource("/known-servers").toURI());
         when(config.getClientTrustMode()).thenReturn(SslTrustMode.CA);
         when(config.getClientKeyStore()).thenReturn(keyStore);
-        when(config.getClientKeyStorePassword()).thenReturn("password");
+        when(config.getClientKeyStorePassword()).thenReturn("password".toCharArray());
         when(config.getClientTrustStore()).thenReturn(trustStore);
-        when(config.getClientTrustStorePassword()).thenReturn("password");
+        when(config.getClientTrustStorePassword()).thenReturn("password".toCharArray());
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        SSLContext result = ClientSSLContextFactory.create().from("localhost",config);
+        SSLContext result = ClientSSLContextFactory.create().from("localhost", config);
 
         assertThat(result).isNotNull();
-
     }
 
     @Test
@@ -60,47 +59,56 @@ public class ClientSSLContextFactoryTest {
 
         when(config.getClientTrustMode()).thenReturn(SslTrustMode.TOFU);
         when(config.getClientKeyStore()).thenReturn(keyStore);
-        when(config.getClientKeyStorePassword()).thenReturn("password");
+        when(config.getClientKeyStorePassword()).thenReturn("password".toCharArray());
         when(config.getKnownServersFile()).thenReturn(null);
 
-        SSLContext result = ClientSSLContextFactory.create().from("localhost",config);
+        SSLContext result = ClientSSLContextFactory.create().from("localhost", config);
 
-        assertThat(result).isNotNull()
-            .extracting("contextSpi").isNotNull()
-            .extracting("trustManager").isNotNull()
-            .extracting("tm").isNotNull()
-            .hasAtLeastOneElementOfType(TrustOnFirstUseManager.class)
-            .extracting("knownHostsFile").asList().first().isEqualTo(Paths.get("knownServers"));
+        assertThat(result)
+                .isNotNull()
+                .extracting("contextSpi")
+                .isNotNull()
+                .extracting("trustManager")
+                .isNotNull()
+                .extracting("tm")
+                .isNotNull()
+                .hasAtLeastOneElementOfType(TrustOnFirstUseManager.class)
+                .extracting("knownHostsFile")
+                .asList()
+                .first()
+                .isEqualTo(Paths.get("knownServers"));
     }
 
     @Test
     public void getClientKeyStorePasswordOnlySetInConfigReturnsConfigValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String password = "password";
+        char[] password = "password".toCharArray();
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(password);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(null);
 
-        String result = factory.getClientKeyStorePassword(sslConfig);
+        char[] result = factory.getClientKeyStorePassword(sslConfig);
 
-        assertThat(result).isEqualTo(password);
+        assertThat(String.valueOf(result)).isEqualTo(String.valueOf(password));
     }
 
     @Test
     public void getClientKeyStorePasswordOnlySetInGlobalEnvReturnsGlobalEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String password = "password";
+        char[] password = "password".toCharArray();
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(password);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(password);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(null);
 
-        String result = factory.getClientKeyStorePassword(sslConfig);
+        char[] result = factory.getClientKeyStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(password);
     }
@@ -109,15 +117,16 @@ public class ClientSSLContextFactoryTest {
     public void getClientKeyStorePasswordOnlySetInPrefixedEnvReturnsPrefixedEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String password = "password";
+        char[] password = "password".toCharArray();
         SslConfig sslConfig = mock(SslConfig.class);
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(password);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(password);
 
-        String result = factory.getClientKeyStorePassword(sslConfig);
+        char[] result = factory.getClientKeyStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(password);
     }
@@ -126,16 +135,17 @@ public class ClientSSLContextFactoryTest {
     public void getClientKeyStorePasswordSetInConfigAndGlobalEnvReturnsConfigValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String configVal = "config";
-        String globalEnvVal = "env";
+        char[] configVal = "config".toCharArray();
+        char[] globalEnvVal = "env".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(null);
 
-        String result = factory.getClientKeyStorePassword(sslConfig);
+        char[] result = factory.getClientKeyStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(configVal);
     }
@@ -144,17 +154,18 @@ public class ClientSSLContextFactoryTest {
     public void getClientKeyStorePasswordSetInConfigAndPrefixedEnvReturnsPrefixedEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String configVal = "config";
-        String prefixedEnvVal = "env";
+        char[] configVal = "config".toCharArray();
+        char[] prefixedEnvVal = "env".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
-        String result = factory.getClientKeyStorePassword(sslConfig);
+        char[] result = factory.getClientKeyStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(prefixedEnvVal);
     }
@@ -163,17 +174,18 @@ public class ClientSSLContextFactoryTest {
     public void getClientKeyStorePasswordSetInGlobalEnvAndPrefixedEnvReturnsPrefixedEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String globalEnvVal = "global";
-        String prefixedEnvVal = "prefixed";
+        char[] globalEnvVal = "global".toCharArray();
+        char[] prefixedEnvVal = "prefixed".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
-        String result = factory.getClientKeyStorePassword(sslConfig);
+        char[] result = factory.getClientKeyStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(prefixedEnvVal);
     }
@@ -182,18 +194,19 @@ public class ClientSSLContextFactoryTest {
     public void getClientKeyStorePasswordSetInConfigAndGlobalEnvAndPrefixedEnvReturnsPrefixedEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String configVal = "config";
-        String globalEnvVal = "global";
-        String prefixedEnvVal = "prefixed";
+        char[] configVal = "config".toCharArray();
+        char[] globalEnvVal = "global".toCharArray();
+        char[] prefixedEnvVal = "prefixed".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getClientKeyStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_KEYSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_KEYSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
-        String result = factory.getClientKeyStorePassword(sslConfig);
+        char[] result = factory.getClientKeyStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(prefixedEnvVal);
     }
@@ -202,15 +215,16 @@ public class ClientSSLContextFactoryTest {
     public void getClientTrustStorePasswordOnlySetInConfigReturnsConfigValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String password = "password";
+        char[] password = "password".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(password);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(null);
 
-        String result = factory.getClientTrustStorePassword(sslConfig);
+        char[] result = factory.getClientTrustStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(password);
     }
@@ -219,15 +233,16 @@ public class ClientSSLContextFactoryTest {
     public void getClientTrustStorePasswordOnlySetInGlobalEnvReturnsGlobalEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String password = "password";
+        char[] password = "password".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(password);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(password);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(null);
 
-        String result = factory.getClientTrustStorePassword(sslConfig);
+        char[] result = factory.getClientTrustStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(password);
     }
@@ -236,16 +251,17 @@ public class ClientSSLContextFactoryTest {
     public void getClientTrustStorePasswordOnlySetInPrefixedEnvReturnsPrefixedEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String password = "password";
+        char[] password = "password".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(password);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(password);
 
-        String result = factory.getClientTrustStorePassword(sslConfig);
+        char[] result = factory.getClientTrustStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(password);
     }
@@ -254,16 +270,17 @@ public class ClientSSLContextFactoryTest {
     public void getClientTrustStorePasswordSetInConfigAndGlobalEnvReturnsConfigValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String configVal = "config";
-        String globalEnvVal = "env";
+        char[] configVal = "config".toCharArray();
+        char[] globalEnvVal = "env".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(null);
 
-        String result = factory.getClientTrustStorePassword(sslConfig);
+        char[] result = factory.getClientTrustStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(configVal);
     }
@@ -272,17 +289,18 @@ public class ClientSSLContextFactoryTest {
     public void getClientTrustStorePasswordSetInConfigAndPrefixedEnvReturnsPrefixedEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String configVal = "config";
-        String prefixedEnvVal = "env";
+        char[] configVal = "config".toCharArray();
+        char[] prefixedEnvVal = "env".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(null);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
-        String result = factory.getClientTrustStorePassword(sslConfig);
+        char[] result = factory.getClientTrustStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(prefixedEnvVal);
     }
@@ -291,17 +309,18 @@ public class ClientSSLContextFactoryTest {
     public void getClientTrustStorePasswordSetInGlobalEnvAndPrefixedEnvReturnsPrefixedEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String globalEnvVal = "global";
-        String prefixedEnvVal = "prefixed";
+        char[] globalEnvVal = "global".toCharArray();
+        char[] prefixedEnvVal = "prefixed".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(null);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
-        String result = factory.getClientTrustStorePassword(sslConfig);
+        char[] result = factory.getClientTrustStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(prefixedEnvVal);
     }
@@ -310,18 +329,19 @@ public class ClientSSLContextFactoryTest {
     public void getClientTrustStorePasswordSetInConfigAndGlobalEnvAndPrefixedEnvReturnsPrefixedEnvValue() {
         ClientSSLContextFactoryImpl factory = new ClientSSLContextFactoryImpl();
 
-        String configVal = "config";
-        String globalEnvVal = "global";
-        String prefixedEnvVal = "prefixed";
+        char[] configVal = "config".toCharArray();
+        char[] globalEnvVal = "global".toCharArray();
+        char[] prefixedEnvVal = "prefixed".toCharArray();
 
         SslConfig sslConfig = mock(SslConfig.class);
         when(sslConfig.getEnvironmentVariablePrefix()).thenReturn(envVarPrefix);
 
         when(sslConfig.getClientTrustStorePassword()).thenReturn(configVal);
-        when(envVarProvider.getEnv(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
-        when(envVarProvider.getEnv(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(prefixedEnvVal);
+        when(envVarProvider.getEnvAsCharArray(EnvironmentVariables.CLIENT_TRUSTSTORE_PWD)).thenReturn(globalEnvVal);
+        when(envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + EnvironmentVariables.CLIENT_TRUSTSTORE_PWD))
+                .thenReturn(prefixedEnvVal);
 
-        String result = factory.getClientTrustStorePassword(sslConfig);
+        char[] result = factory.getClientTrustStorePassword(sslConfig);
 
         assertThat(result).isEqualTo(prefixedEnvVal);
     }
@@ -335,12 +355,11 @@ public class ClientSSLContextFactoryTest {
         Path knownServers = Paths.get(getClass().getResource("/known-servers").toURI());
         when(config.getClientTrustMode()).thenReturn(SslTrustMode.CA);
         when(config.getClientKeyStore()).thenReturn(keyStore);
-        when(config.getClientKeyStorePassword()).thenReturn("bogus");
+        when(config.getClientKeyStorePassword()).thenReturn("bogus".toCharArray());
         when(config.getClientTrustStore()).thenReturn(trustStore);
-        when(config.getClientTrustStorePassword()).thenReturn("password");
+        when(config.getClientTrustStorePassword()).thenReturn("password".toCharArray());
         when(config.getKnownServersFile()).thenReturn(knownServers);
 
-        ClientSSLContextFactory.create().from("localhost",config);
-
+        ClientSSLContextFactory.create().from("localhost", config);
     }
 }

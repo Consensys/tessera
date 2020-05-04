@@ -27,7 +27,7 @@ public class SSLContextBuilder {
 
     private Path keyStore;
 
-    private String keyStorePassword;
+    private char[] keyStorePassword;
 
     private Path key;
 
@@ -35,17 +35,15 @@ public class SSLContextBuilder {
 
     private Path trustStore;
 
-    private String trustStorePassword;
+    private char[] trustStorePassword;
 
     private List<Path> trustedCertificates;
 
     private SSLContext sslContext;
 
-    private SSLContextBuilder(String address,
-                              Path keyStore,
-                              String keyStorePassword,
-                              Path trustStore,
-                              String trustStorePassword) throws NoSuchAlgorithmException {
+    private SSLContextBuilder(
+            String address, Path keyStore, char[] keyStorePassword, Path trustStore, char[] trustStorePassword)
+            throws NoSuchAlgorithmException {
         this.address = address;
         this.keyStore = keyStore;
         this.keyStorePassword = keyStorePassword;
@@ -55,13 +53,10 @@ public class SSLContextBuilder {
         this.sslContext = SSLContext.getInstance(PROTOCOL);
     }
 
-    public static SSLContextBuilder createBuilder(String address, Path keyStore, String keyStorePassword, Path trustStore, String trustStorePassword) throws NoSuchAlgorithmException {
-        return new SSLContextBuilder(
-            address,
-            keyStore,
-            keyStorePassword,
-            trustStore,
-            trustStorePassword);
+    public static SSLContextBuilder createBuilder(
+            String address, Path keyStore, char[] keyStorePassword, Path trustStore, char[] trustStorePassword)
+            throws NoSuchAlgorithmException {
+        return new SSLContextBuilder(address, keyStore, keyStorePassword, trustStore, trustStorePassword);
     }
 
     public SSLContextBuilder fromPemFiles(Path key, Path certificate, List<Path> trustedCertificates) {
@@ -76,14 +71,16 @@ public class SSLContextBuilder {
         return sslContext;
     }
 
-    public SSLContextBuilder forWhiteList(Path knownHosts) throws GeneralSecurityException, IOException, OperatorCreationException {
+    public SSLContextBuilder forWhiteList(Path knownHosts)
+            throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        sslContext.init(buildKeyManagers(), new TrustManager[]{new WhiteListTrustManager(knownHosts)}, null);
+        sslContext.init(buildKeyManagers(), new TrustManager[] {new WhiteListTrustManager(knownHosts)}, null);
 
         return this;
     }
 
-    public SSLContextBuilder forCASignedCertificates() throws GeneralSecurityException, IOException, OperatorCreationException {
+    public SSLContextBuilder forCASignedCertificates()
+            throws GeneralSecurityException, IOException, OperatorCreationException {
 
         final KeyManager[] keyManagers = buildKeyManagers();
 
@@ -94,24 +91,26 @@ public class SSLContextBuilder {
         return this;
     }
 
-    public SSLContextBuilder forAllCertificates() throws GeneralSecurityException, IOException, OperatorCreationException {
+    public SSLContextBuilder forAllCertificates()
+            throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        sslContext.init(buildKeyManagers(), new TrustManager[]{new TrustAllManager()}, null);
+        sslContext.init(buildKeyManagers(), new TrustManager[] {new TrustAllManager()}, null);
 
         return this;
     }
 
-    public SSLContextBuilder forTrustOnFirstUse(Path knownHostsFile) throws GeneralSecurityException, IOException, OperatorCreationException {
+    public SSLContextBuilder forTrustOnFirstUse(Path knownHostsFile)
+            throws GeneralSecurityException, IOException, OperatorCreationException {
 
         final KeyManager[] keyManagers = buildKeyManagers();
 
-        sslContext.init(keyManagers,
-            new TrustManager[]{new TrustOnFirstUseManager(knownHostsFile)}, null);
+        sslContext.init(keyManagers, new TrustManager[] {new TrustOnFirstUseManager(knownHostsFile)}, null);
 
         return this;
     }
 
-    public SSLContextBuilder forCAOrTOFU(Path knownHostsFile) throws GeneralSecurityException, IOException, OperatorCreationException {
+    public SSLContextBuilder forCAOrTOFU(Path knownHostsFile)
+            throws GeneralSecurityException, IOException, OperatorCreationException {
 
         final KeyManager[] keyManagers = buildKeyManagers();
 
@@ -123,17 +122,17 @@ public class SSLContextBuilder {
 
         trustManagers[newLength - 1] = new TrustOnFirstUseManager(knownHostsFile);
 
-        sslContext.init(keyManagers, new TrustManager[]{new CompositeTrustManager(trustManagers)}, new SecureRandom());
+        sslContext.init(keyManagers, new TrustManager[] {new CompositeTrustManager(trustManagers)}, new SecureRandom());
 
         return this;
-
     }
 
     private KeyManager[] buildKeyManagers() throws GeneralSecurityException, IOException, OperatorCreationException {
 
         if (Objects.nonNull(this.keyStore)) {
             if (!this.keyStore.toFile().exists()) {
-                TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(this.address, this.keyStore, this.keyStorePassword);
+                TlsUtils.create()
+                        .generateKeyStoreWithSelfSignedCertificate(this.address, this.keyStore, this.keyStorePassword);
             }
             return SSLKeyStoreLoader.fromJksKeyStore(this.keyStore, this.keyStorePassword);
         } else {
@@ -149,5 +148,4 @@ public class SSLContextBuilder {
             return SSLKeyStoreLoader.fromPemCertificatesFile(this.trustedCertificates);
         }
     }
-
 }

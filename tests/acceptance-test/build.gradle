@@ -79,6 +79,10 @@ test {
             '**/RunAzureIT.class'
     )
 
+    if (project.hasProperty('excludeTests')) {
+        exclude project.property('excludeTests')
+    }
+
 //    '**/RestSuite.class',
 //            '**/P2pTestSuite.class',
 //            '**/CucumberFileKeyGenerationIT.class',

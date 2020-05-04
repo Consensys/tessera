@@ -12,7 +12,7 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotFoundException> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveNotAvailableExceptionMapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EntityNotFoundExceptionMapper.class);
 
     @Override
     public Response toResponse(final EntityNotFoundException ex) {
