@@ -6,12 +6,18 @@ import com.quorum.tessera.data.Utils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import javax.persistence.*;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
+
+
+@RunWith(Parameterized.class)
 public class StagingEntityDAOTest {
 
     private EntityManagerFactory entityManagerFactory;
@@ -20,11 +26,17 @@ public class StagingEntityDAOTest {
 
     private Map<String,StagingTransaction> transactions;
 
+    private TestConfig testConfig;
+
+    public StagingEntityDAOTest(TestConfig testConfig) {
+        this.testConfig = testConfig;
+    }
+
     @Before
     public void init() throws Exception {
 
         Map properties = new HashMap();
-        properties.put("javax.persistence.jdbc.url", TestConfig.H2.getUrl());
+        properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
         properties.put("javax.persistence.jdbc.user","junit");
         properties.put("javax.persistence.jdbc.password","");
         properties.put("eclipselink.logging.logger","org.eclipse.persistence.logging.slf4j.SLF4JLogger");
@@ -67,9 +79,12 @@ public class StagingEntityDAOTest {
             stagingEntityDAO.save(stTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
+
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(),"CIPHER_TEXT");
             assertThat(ex)
                 .isInstanceOf(PersistenceException.class)
-                .hasMessageContaining("NULL not allowed for column \"CIPHER_TEXT\"");
+                .hasMessageContaining(expectedMessage)
+                .hasMessageContaining("CIPHER_TEXT");
         }
     }
 
@@ -326,5 +341,10 @@ public class StagingEntityDAOTest {
         transactions.put("TXN7",stTransaction7);
         return transactions;
 
+    }
+
+    @Parameterized.Parameters(name = "DB {0}")
+    public static Collection<TestConfig> connectionDetails() {
+        return List.of(TestConfig.values());
     }
 }
