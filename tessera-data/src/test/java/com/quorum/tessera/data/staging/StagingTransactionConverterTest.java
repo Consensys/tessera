@@ -151,7 +151,7 @@ public class StagingTransactionConverterTest {
         assertThat(mergedTransaction.getAffectedContractTransactions().size()).isEqualTo(1);
 
         final StagingAffectedContractTransactionId id =
-                mergedTransaction.getAffectedContractTransactions().values().stream()
+                mergedTransaction.getAffectedContractTransactions().stream()
                         .map(StagingAffectedContractTransaction::getStagingAffectedContractTransactionId)
                         .collect(Collectors.toList())
                         .get(0);

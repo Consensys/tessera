@@ -25,10 +25,6 @@ public class StagingAffectedContractTransaction {
     @PrimaryKeyJoinColumn(name = "SOURCE_HASH", referencedColumnName = "HASH")
     private StagingTransaction sourceTransaction;
 
-    public MessageHashStr affected() {
-        return this.stagingAffectedContractTransactionId.getAffected();
-    }
-
     @Lob
     @Column(name = "SECURITY_HASH", updatable = false)
     private byte[] securityHash;
@@ -70,13 +66,15 @@ public class StagingAffectedContractTransaction {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StagingAffectedContractTransaction)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
+        if(id == null) return false;
+
         StagingAffectedContractTransaction that = (StagingAffectedContractTransaction) o;
-        return stagingAffectedContractTransactionId.equals(that.stagingAffectedContractTransactionId);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(stagingAffectedContractTransactionId);
+        return Objects.hash(id);
     }
 }

@@ -6,12 +6,7 @@ import java.util.Base64;
 import java.util.Objects;
 
 @Entity
-@Table(name = "ST_TRANSACTION_RECIPIENT"
-//    ,uniqueConstraints = {
-//    @UniqueConstraint(name = "StagingTransactionRecipientHashAndRecipientAreUnique",columnNames = {"HASH","RECIPIENT"})
-//
-//}
-)
+@Table(name = "ST_TRANSACTION_RECIPIENT")
 public class StagingRecipient implements Serializable {
 
     @Id
@@ -24,13 +19,9 @@ public class StagingRecipient implements Serializable {
         column = @Column(name = "HASH", nullable = false, updatable = false))
     private MessageHashStr messageHash;
 
-
     @ManyToOne
     @JoinColumns({@JoinColumn(name = "TXNHASH", referencedColumnName = "HASH", insertable = false, updatable = false)})
     private StagingTransaction transaction;
-
-//    @OneToMany(mappedBy = "recipient")
-//    private Set<StagingTransactionVersion> stagingTransactionVersions = new HashSet<>();
 
     @Basic private boolean initiator;
 
@@ -104,26 +95,18 @@ public class StagingRecipient implements Serializable {
         this.messageHash = messageHash;
     }
 
-//    public Set<StagingTransactionVersion> getStagingTransactionVersions() {
-//        return stagingTransactionVersions;
-//    }
-//
-//    public void setStagingTransactionVersions(Set<StagingTransactionVersion> stagingTransactionVersions) {
-//        this.stagingTransactionVersions = stagingTransactionVersions;
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if(id == null) return false;
         StagingRecipient that = (StagingRecipient) o;
-        return Objects.equals(messageHash, that.messageHash) &&
-            Objects.equals(recBytes, that.recBytes);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(messageHash, recBytes);
+        return Objects.hash(id);
     }
 
     @Override

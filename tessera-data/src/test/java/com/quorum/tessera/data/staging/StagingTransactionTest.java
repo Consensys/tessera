@@ -11,20 +11,24 @@ public class StagingTransactionTest {
     @Test
     public void instanceWithSameHashEquals() {
         StagingTransaction stagingTransaction = new StagingTransaction();
+        stagingTransaction.setId(1L);
         stagingTransaction.setRecipients(Collections.emptySet());
         stagingTransaction.setHash(new MessageHashStr("hash".getBytes()));
-        stagingTransaction.setAffectedContractTransactions(Collections.emptyMap());
+        stagingTransaction.setAffectedContractTransactions(Collections.emptySet());
         stagingTransaction.setVersions(Collections.emptySet());
 
         StagingTransaction stagingTransaction1 = new StagingTransaction();
+        stagingTransaction1.setId(1L);
         stagingTransaction1.setHash(new MessageHashStr("hash".getBytes()));
 
         StagingTransaction stagingTransaction2 = new StagingTransaction();
+        stagingTransaction2.setId(2L);
         stagingTransaction2.setHash(new MessageHashStr("newHash".getBytes()));
 
-        assertThat(stagingTransaction.equals(stagingTransaction1)).isTrue();
-        assertThat(stagingTransaction.equals(new Object())).isFalse();
-        assertThat(stagingTransaction.equals(stagingTransaction2)).isFalse();
+
+        assertThat(stagingTransaction).isEqualTo(stagingTransaction1);
+        assertThat(stagingTransaction).isNotEqualTo(new Object());
+        assertThat(stagingTransaction).isNotEqualTo(stagingTransaction2);
     }
 
     @Test

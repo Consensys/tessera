@@ -226,7 +226,7 @@ public class StagingEntityDAOTest {
         stAffectedContractTransaction21.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction21.setSourceTransaction(stTransaction2);
 
-        stTransaction2.getAffectedContractTransactions().put(txnHash1, stAffectedContractTransaction21);
+        stTransaction2.getAffectedContractTransactions().add(stAffectedContractTransaction21);
 
         entityManager.persist(stTransaction2);
 
@@ -250,7 +250,7 @@ public class StagingEntityDAOTest {
         stAffectedContractTransaction43.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction43.setSourceTransaction(stTransaction4);
 
-        stTransaction4.getAffectedContractTransactions().put(txnHash3, stAffectedContractTransaction43);
+        stTransaction4.getAffectedContractTransactions().add(stAffectedContractTransaction43);
 
         entityManager.persist(stTransaction4);
 
@@ -270,7 +270,7 @@ public class StagingEntityDAOTest {
         stAffectedContractTransaction31.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction31.setSourceTransaction(stTransaction3);
 
-        stTransaction3.getAffectedContractTransactions().put(txnHash1, stAffectedContractTransaction31);
+        stTransaction3.getAffectedContractTransactions().add(stAffectedContractTransaction31);
 
         entityManager.persist(stTransaction3);
 
@@ -294,7 +294,7 @@ public class StagingEntityDAOTest {
         stAffectedContractTransaction56.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction56.setSourceTransaction(stTransaction5);
 
-        stTransaction5.getAffectedContractTransactions().put(txnHash6, stAffectedContractTransaction56);
+        stTransaction5.getAffectedContractTransactions().add(stAffectedContractTransaction56);
 
         entityManager.persist(stTransaction5);
 
@@ -316,7 +316,7 @@ public class StagingEntityDAOTest {
         stAffectedContractTransaction71.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction71.setSourceTransaction(stTransaction7);
 
-        stTransaction7.getAffectedContractTransactions().put(txnHash1, stAffectedContractTransaction71);
+        stTransaction7.getAffectedContractTransactions().add(stAffectedContractTransaction71);
 
         StagingAffectedContractTransactionId stAffectedContractTransactionId74 =
             new StagingAffectedContractTransactionId(txnHash7, txnHash4);
@@ -325,7 +325,7 @@ public class StagingEntityDAOTest {
         stAffectedContractTransaction74.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction74.setSourceTransaction(stTransaction7);
 
-        stTransaction7.getAffectedContractTransactions().put(txnHash4, stAffectedContractTransaction74);
+        stTransaction7.getAffectedContractTransactions().add(stAffectedContractTransaction74);
 
         entityManager.persist(stTransaction7);
 

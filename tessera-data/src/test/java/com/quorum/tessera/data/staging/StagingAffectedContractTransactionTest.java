@@ -7,29 +7,26 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StagingAffectedContractTransactionTest {
 
     @Test
-    public void idEquals() {
-        StagingAffectedContractTransaction obj = new StagingAffectedContractTransaction();
-        obj.setSecurityHash("securityHash".getBytes());
-        obj.setSourceTransaction(new StagingTransaction());
-        StagingAffectedContractTransactionId id = new StagingAffectedContractTransactionId();
-        final MessageHashStr source = new MessageHashStr("source".getBytes());
-        id.setSource(source);
-        final MessageHashStr affected = new MessageHashStr("affected".getBytes());
-        id.setAffected(affected);
-        obj.setStagingAffectedContractTransactionId(id);
-        StagingTransaction st = new StagingTransaction();
-        obj.setSourceTransaction(st);
+    public void twoAffectedContractTransactionWithSameIdAreEqual() {
+        StagingAffectedContractTransaction affectedContractTransaction = new StagingAffectedContractTransaction();
+        affectedContractTransaction.setId(1L);
 
-        assertThat(obj.getSecurityHash()).isEqualTo("securityHash".getBytes());
-        assertThat(obj.getSourceTransaction()).isEqualTo(st);
+        StagingAffectedContractTransaction anotherAffectedContractTransaction = new StagingAffectedContractTransaction();
+        anotherAffectedContractTransaction.setId(1L);
 
-        StagingAffectedContractTransaction obj2 = new StagingAffectedContractTransaction();
-        obj2.setStagingAffectedContractTransactionId(id);
+        assertThat(affectedContractTransaction).isEqualTo(affectedContractTransaction);
+        assertThat(affectedContractTransaction).hasSameHashCodeAs(anotherAffectedContractTransaction);
+        assertThat(affectedContractTransaction).isEqualTo(anotherAffectedContractTransaction);
+        assertThat(affectedContractTransaction).isNotEqualTo(new Object());
+    }
 
-        assertThat(obj.equals(obj)).isTrue();
-        assertThat(obj.hashCode()).isEqualTo(obj2.hashCode());
-        assertThat(obj.equals(obj2)).isTrue();
-        assertThat(obj.equals(new Object())).isFalse();
-        assertThat(obj.affected()).isSameAs(affected);
+    @Test
+    public void nullIdsAreNotEqual() {
+        StagingAffectedContractTransaction affectedContractTransaction
+            = new StagingAffectedContractTransaction();
+        StagingAffectedContractTransaction anotherAffectedContractTransaction = new StagingAffectedContractTransaction();
+
+        assertThat(affectedContractTransaction).isNotEqualTo(anotherAffectedContractTransaction);
+
     }
 }

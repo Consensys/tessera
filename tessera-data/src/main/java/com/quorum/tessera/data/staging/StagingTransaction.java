@@ -80,8 +80,7 @@ public class StagingTransaction implements Serializable {
             cascade = {CascadeType.ALL},
             mappedBy = "sourceTransaction",
             orphanRemoval = true)
-    @MapKey(name = "affected")
-    private Map<MessageHashStr, StagingAffectedContractTransaction> affectedContractTransactions = new HashMap<>();
+    private Set<StagingAffectedContractTransaction> affectedContractTransactions = new HashSet<>();
 
     @OneToMany(
             fetch = FetchType.LAZY,
@@ -157,12 +156,11 @@ public class StagingTransaction implements Serializable {
         this.recipients = recipients;
     }
 
-    public Map<MessageHashStr, StagingAffectedContractTransaction> getAffectedContractTransactions() {
+    public Set<StagingAffectedContractTransaction> getAffectedContractTransactions() {
         return affectedContractTransactions;
     }
 
-    public void setAffectedContractTransactions(
-            Map<MessageHashStr, StagingAffectedContractTransaction> affectedContractTransactions) {
+    public void setAffectedContractTransactions(Set<StagingAffectedContractTransaction> affectedContractTransactions) {
         this.affectedContractTransactions = affectedContractTransactions;
     }
 
@@ -207,13 +205,16 @@ public class StagingTransaction implements Serializable {
     }
 
     @Override
-    public int hashCode() {
-        return 47 * 3 + Objects.hashCode(this.hash);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if(id == null) return false;
+        StagingTransaction that = (StagingTransaction) o;
+        return Objects.equals(id, that.id);
     }
 
     @Override
-    public boolean equals(final Object obj) {
-
-        return (obj instanceof StagingTransaction) && Objects.equals(this.hash, ((StagingTransaction) obj).hash);
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

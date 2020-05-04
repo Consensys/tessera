@@ -59,7 +59,7 @@ public class StagingTransactionConverter {
             stagingAffectedContractTransaction.setStagingAffectedContractTransactionId(affectedContractTransactionId);
             stagingTransaction
                     .getAffectedContractTransactions()
-                    .put(affectedContractTransactionId.getAffected(), stagingAffectedContractTransaction);
+                    .add(stagingAffectedContractTransaction);
         }
 
         StagingTransactionVersion version = new StagingTransactionVersion();
@@ -87,7 +87,7 @@ public class StagingTransactionConverter {
         } else {
             existing.getRecipients().addAll(newTransaction.getRecipients());
         }
-        existing.getAffectedContractTransactions().putAll(newTransaction.getAffectedContractTransactions());
+        existing.getAffectedContractTransactions().addAll(newTransaction.getAffectedContractTransactions());
 
         Set<StagingTransactionVersion> versions = newTransaction.getVersions();
         existing.getVersions().addAll(versions);

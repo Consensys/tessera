@@ -76,8 +76,6 @@ public class StagingTransactionVersion {
         this.privacyMode = privacyMode;
     }
 
-
-
     @PrePersist
     public void onPersist() {
         this.timestamp = System.currentTimeMillis();

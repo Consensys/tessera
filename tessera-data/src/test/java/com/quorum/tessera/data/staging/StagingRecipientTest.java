@@ -20,15 +20,22 @@ public class StagingRecipientTest {
     public void testEquals() {
         StagingRecipient stagingRecipient =
                 new StagingRecipient(Base64.getDecoder().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="));
+        stagingRecipient.setId(1L);
+
         StagingRecipient stagingRecipient2 = new StagingRecipient();
+        stagingRecipient2.setId(1L);
         stagingRecipient2.setRecBytes("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=");
 
         StagingRecipient stagingRecipient3 =
                 new StagingRecipient(Base64.getDecoder().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey1Ao="));
+        stagingRecipient3.setId(3L);
 
-        assertThat(stagingRecipient.equals(new Object())).isFalse();
-        assertThat(stagingRecipient.equals(stagingRecipient3)).isFalse();
-        assertThat(stagingRecipient.equals(stagingRecipient2)).isTrue();
-        assertThat(stagingRecipient.getRecBytes()).isEqualTo(stagingRecipient2.getRecBytes());
+        assertThat(stagingRecipient).isNotEqualTo(new Object());
+
+        assertThat(stagingRecipient).isNotEqualTo(stagingRecipient3);
+        assertThat(stagingRecipient).isEqualTo(stagingRecipient2);
+
+        assertThat(stagingRecipient.getRecBytes())
+            .isEqualTo(stagingRecipient2.getRecBytes());
     }
 }
