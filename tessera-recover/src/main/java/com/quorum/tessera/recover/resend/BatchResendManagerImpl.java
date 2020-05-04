@@ -208,7 +208,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
             for (StagingTransaction transaction : transactions) {
                 final List<byte[]> payloadsToSend =
-                        transaction.getVersions().values().stream()
+                        transaction.getVersions().stream()
                                 .map(StagingTransactionVersion::getPayload)
                                 .collect(Collectors.toList());
                 payloadCount += payloadsToSend.size();
