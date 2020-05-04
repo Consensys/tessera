@@ -103,11 +103,11 @@ public class PartyInfoResource {
         // Start validation stuff
         final PublicKey sender = enclave.defaultPublicKey();
         final String url = partyInfo.getUrl();
-        final String dataToEncrypt = UUID.randomUUID().toString();
 
         final Predicate<Recipient> isValidRecipientKey =
                 r -> {
                     try {
+                        final String dataToEncrypt = UUID.randomUUID().toString();
                         final PublicKey key = r.getKey();
                         final EncodedPayload encodedPayload =
                                 enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
