@@ -143,7 +143,7 @@ public class StagingTransactionConverterTest {
         assertThat(mergedTransaction).isNotNull();
         assertThat(mergedTransaction.getSenderKey()).isEqualTo(sender.getKeyBytes());
         assertThat(mergedTransaction.getHash().getHashBytes()).isEqualTo(txHash2.getBytes());
-        assertThat(mergedTransaction.getPrivacyMode()).isEqualTo((byte) 1);
+        assertThat(mergedTransaction.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
         assertThat(mergedTransaction.getCipherText()).isEqualTo("cipherText".getBytes());
         assertThat(mergedTransaction.getCipherTextNonce()).isEqualTo("nonce".getBytes());
         assertThat(mergedTransaction.getRecipientNonce()).isEqualTo("recipientNonce".getBytes());
@@ -152,7 +152,7 @@ public class StagingTransactionConverterTest {
 
         final StagingAffectedContractTransactionId id =
                 mergedTransaction.getAffectedContractTransactions().values().stream()
-                        .map(StagingAffectedContractTransaction::getId)
+                        .map(StagingAffectedContractTransaction::getStagingAffectedContractTransactionId)
                         .collect(Collectors.toList())
                         .get(0);
 
@@ -216,25 +216,26 @@ public class StagingTransactionConverterTest {
         st2.setExecHash("execHash".getBytes());
         st1.setIssues("");
 
-        st1.setPrivacyMode((byte) 3);
-        st2.setPrivacyMode((byte) 1);
+        st1.setPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        st2.setPrivacyMode(PrivacyMode.PARTY_PROTECTION);
         assertThat(StagingTransactionConverter.versionStagingTransaction(st1, st2).getIssues())
                 .isEqualTo("Data mismatched across versions");
-        st2.setPrivacyMode((byte) 3);
+        st2.setPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION);
         st1.setIssues("");
     }
 
     @Test
     public void testRecipientsMismatchedForPsvTransaction() {
-        StagingTransaction st1 = new StagingTransaction();
-        StagingTransaction st2 = new StagingTransaction();
 
-        st1.setPrivacyMode((byte) 3);
-        st2.setPrivacyMode((byte) 1);
+        StagingTransaction firstTransaction = new StagingTransaction();
+        firstTransaction.setPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        firstTransaction.getRecipients().put(new StagingRecipient("key".getBytes()), new StagingTransactionRecipient());
 
-        st1.getRecipients().put(new StagingRecipient("key".getBytes()), new StagingTransactionRecipient());
+        StagingTransaction secondTransaction = new StagingTransaction();
+        secondTransaction.setPrivacyMode(PrivacyMode.PARTY_PROTECTION);
 
-        assertThat(StagingTransactionConverter.versionStagingTransaction(st1, st2).getIssues())
-                .isEqualTo("Recipients mismatched across versions");
+        StagingTransaction versionedTransaction = StagingTransactionConverter.versionStagingTransaction(firstTransaction, secondTransaction);
+
+        assertThat(versionedTransaction.getIssues()).isEqualTo("Recipients mismatched across versions");
     }
 }

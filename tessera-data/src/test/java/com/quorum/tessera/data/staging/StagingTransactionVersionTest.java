@@ -1,5 +1,6 @@
 package com.quorum.tessera.data.staging;
 
+import com.quorum.tessera.enclave.PrivacyMode;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -11,21 +12,23 @@ public class StagingTransactionVersionTest {
 
         final StagingTransaction st = new StagingTransaction();
 
-        StagingTransactionRecipientId id = new StagingTransactionRecipientId();
+        StagingTransactionRecipientId stagingTransactionRecipientId = new StagingTransactionRecipientId();
         StagingRecipient recipient = new StagingRecipient("recipient".getBytes());
-        id.setRecipient(recipient);
+        stagingTransactionRecipientId.setRecipient(recipient);
 
         StagingTransactionVersion version = new StagingTransactionVersion();
-        version.setId(id);
+        version.setStagingTransactionRecipientId(stagingTransactionRecipientId);
+
         StagingTransactionVersion version2 = new StagingTransactionVersion();
-        version2.setId(id);
+        version2.setStagingTransactionRecipientId(stagingTransactionRecipientId);
         version.setTransaction(st);
 
         version.onPersist();
 
         assertThat(version.getTimestamp()).isNotNull();
         assertThat(version.getNanotime()).isNotNull();
-        assertThat(version.getPrivacyMode()).isEqualTo((byte) 0);
+        assertThat(version.getPrivacyMode())
+            .isEqualTo(PrivacyMode.STANDARD_PRIVATE);
 
         assertThat(version.equals(version)).isTrue();
         assertThat(version.equals(version2)).isTrue();

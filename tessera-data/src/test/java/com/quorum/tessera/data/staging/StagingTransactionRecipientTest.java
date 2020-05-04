@@ -16,13 +16,13 @@ public class StagingTransactionRecipientTest {
 
         StagingTransaction st = new StagingTransaction();
 
-        recipient1.setId(id);
+        recipient1.setStagingTransactionRecipientId(id);
         recipient1.setBox("box".getBytes());
         recipient1.setInitiator(true);
         recipient1.setTransaction(st);
 
         StagingTransactionRecipient recipient2 = new StagingTransactionRecipient();
-        recipient2.setId(id);
+        recipient2.setStagingTransactionRecipientId(id);
 
         assertThat(recipient1.getBox()).isEqualTo("box".getBytes());
         assertThat(recipient1.isInitiator()).isTrue();

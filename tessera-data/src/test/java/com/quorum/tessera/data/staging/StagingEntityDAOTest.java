@@ -159,7 +159,7 @@ public class StagingEntityDAOTest {
         final StagingTransactionRecipientId stTransactionRecipientId1 =
             new StagingTransactionRecipientId(stagingTransaction.getHash(), stRecipient1);
         final StagingTransactionRecipient stTransactionRecipient1 = new StagingTransactionRecipient();
-        stTransactionRecipient1.setId(stTransactionRecipientId1);
+        stTransactionRecipient1.setStagingTransactionRecipientId(stTransactionRecipientId1);
         stTransactionRecipient1.setInitiator(false);
         stTransactionRecipient1.setBox("BOX1".getBytes());
         stTransactionRecipient1.setTransaction(stagingTransaction);
@@ -170,7 +170,7 @@ public class StagingEntityDAOTest {
         final StagingTransactionRecipientId stTransactionRecipientId2 =
             new StagingTransactionRecipientId(stagingTransaction.getHash(), stRecipient2);
         final StagingTransactionRecipient stTransactionRecipient2 = new StagingTransactionRecipient();
-        stTransactionRecipient2.setId(stTransactionRecipientId2);
+        stTransactionRecipient2.setStagingTransactionRecipientId(stTransactionRecipientId2);
         stTransactionRecipient2.setInitiator(false);
         stTransactionRecipient2.setBox("BOX1".getBytes());
         stTransactionRecipient2.setTransaction(stagingTransaction);
@@ -198,12 +198,12 @@ public class StagingEntityDAOTest {
         // add two versions for this transaction with no issues
         for (StagingTransactionRecipient stagingTransactionRecipient : stTransaction1.getRecipients().values()) {
             StagingTransactionVersion stagingTransactionVersion = new StagingTransactionVersion();
-            stagingTransactionVersion.setId(stagingTransactionRecipient.getId());
+            stagingTransactionVersion.setStagingTransactionRecipientId(stagingTransactionRecipient.getStagingTransactionRecipientId());
             stagingTransactionVersion.setPayload("PAYLOAD".getBytes());
             stagingTransactionVersion.setTransaction(stTransaction1);
             stTransaction1
                 .getVersions()
-                .put(stagingTransactionVersion.getId().getRecipient(), stagingTransactionVersion);
+                .put(stagingTransactionVersion.getStagingTransactionRecipientId().getRecipient(), stagingTransactionVersion);
         }
 
 
@@ -223,7 +223,7 @@ public class StagingEntityDAOTest {
         StagingAffectedContractTransactionId stAffectedContractTransactionId21 =
             new StagingAffectedContractTransactionId(txnHash2, txnHash1);
         StagingAffectedContractTransaction stAffectedContractTransaction21 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction21.setId(stAffectedContractTransactionId21);
+        stAffectedContractTransaction21.setStagingAffectedContractTransactionId(stAffectedContractTransactionId21);
         stAffectedContractTransaction21.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction21.setSourceTransaction(stTransaction2);
 
@@ -247,7 +247,7 @@ public class StagingEntityDAOTest {
         StagingAffectedContractTransactionId stAffectedContractTransactionId43 =
             new StagingAffectedContractTransactionId(txnHash4, txnHash3);
         StagingAffectedContractTransaction stAffectedContractTransaction43 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction43.setId(stAffectedContractTransactionId43);
+        stAffectedContractTransaction43.setStagingAffectedContractTransactionId(stAffectedContractTransactionId43);
         stAffectedContractTransaction43.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction43.setSourceTransaction(stTransaction4);
 
@@ -267,7 +267,7 @@ public class StagingEntityDAOTest {
         StagingAffectedContractTransactionId stAffectedContractTransactionId31 =
             new StagingAffectedContractTransactionId(txnHash3, txnHash1);
         StagingAffectedContractTransaction stAffectedContractTransaction31 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction31.setId(stAffectedContractTransactionId31);
+        stAffectedContractTransaction31.setStagingAffectedContractTransactionId(stAffectedContractTransactionId31);
         stAffectedContractTransaction31.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction31.setSourceTransaction(stTransaction3);
 
@@ -291,7 +291,7 @@ public class StagingEntityDAOTest {
         StagingAffectedContractTransactionId stAffectedContractTransactionId56 =
             new StagingAffectedContractTransactionId(txnHash5, txnHash6);
         StagingAffectedContractTransaction stAffectedContractTransaction56 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction56.setId(stAffectedContractTransactionId56);
+        stAffectedContractTransaction56.setStagingAffectedContractTransactionId(stAffectedContractTransactionId56);
         stAffectedContractTransaction56.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction56.setSourceTransaction(stTransaction5);
 
@@ -313,7 +313,7 @@ public class StagingEntityDAOTest {
         StagingAffectedContractTransactionId stAffectedContractTransactionId71 =
             new StagingAffectedContractTransactionId(txnHash7, txnHash1);
         StagingAffectedContractTransaction stAffectedContractTransaction71 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction71.setId(stAffectedContractTransactionId71);
+        stAffectedContractTransaction71.setStagingAffectedContractTransactionId(stAffectedContractTransactionId71);
         stAffectedContractTransaction71.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction71.setSourceTransaction(stTransaction7);
 
@@ -322,7 +322,7 @@ public class StagingEntityDAOTest {
         StagingAffectedContractTransactionId stAffectedContractTransactionId74 =
             new StagingAffectedContractTransactionId(txnHash7, txnHash4);
         StagingAffectedContractTransaction stAffectedContractTransaction74 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction74.setId(stAffectedContractTransactionId74);
+        stAffectedContractTransaction74.setStagingAffectedContractTransactionId(stAffectedContractTransactionId74);
         stAffectedContractTransaction74.setSecurityHash("SecureHash".getBytes());
         stAffectedContractTransaction74.setSourceTransaction(stTransaction7);
 

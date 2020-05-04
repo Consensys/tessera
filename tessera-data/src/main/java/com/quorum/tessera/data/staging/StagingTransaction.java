@@ -1,5 +1,7 @@
 package com.quorum.tessera.data.staging;
 
+import com.quorum.tessera.enclave.PrivacyMode;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -20,20 +22,18 @@ import java.util.Objects;
             name = "StagingTransaction.stagingQuery",
             query =
                     "SELECT st FROM StagingTransaction st WHERE st.validationStage is null and not exists "
-                            + "    (select act from StagingAffectedContractTransaction act  where act.id.source=st.hash and  "
-                            + "        (select ast.validationStage from StagingTransaction ast where ast.hash=act.id.affected) is null"
-                            + "    )"),
-    @NamedQuery(
-            name = "StagingTransaction.stagingUpdate",
-            query =
-                    "UPDATE StagingTransaction st set st.validationStage=:vs WHERE st.validationStage is null and not exists "
-                            + "    (select act from StagingAffectedContractTransaction act  where act.id.source=st.hash and  "
-                            + "        (select ast.validationStage from StagingTransaction ast where ast.hash=act.id.affected) is null"
+                            + "    (select act from StagingAffectedContractTransaction act  where act.stagingAffectedContractTransactionId.source=st.hash and  "
+                            + "        (select ast.validationStage from StagingTransaction ast where ast.hash=act.stagingAffectedContractTransactionId.affected) is null"
                             + "    )")
 })
 public class StagingTransaction implements Serializable {
 
-    @EmbeddedId
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name="ID",nullable = false,unique = true,updatable = false)
+    private Long id;
+
+    @Embedded
     @AttributeOverride(
             name = "hash",
             column = @Column(name = "HASH", nullable = false, unique = true, updatable = false))
@@ -60,8 +60,8 @@ public class StagingTransaction implements Serializable {
     private byte[] execHash;
 
     @Column(name = "PRIVACY_MODE", updatable = false)
-    @Basic
-    private byte privacyMode;
+    @Enumerated(EnumType.ORDINAL)
+    private PrivacyMode privacyMode = PrivacyMode.STANDARD_PRIVATE;
 
     @Column(name = "VALIDATION_STAGE")
     @Basic
@@ -103,6 +103,14 @@ public class StagingTransaction implements Serializable {
     @PrePersist
     public void onPersist() {
         this.timestamp = System.currentTimeMillis();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public MessageHashStr getHash() {
@@ -190,11 +198,11 @@ public class StagingTransaction implements Serializable {
         this.issues = issues;
     }
 
-    public byte getPrivacyMode() {
+    public PrivacyMode getPrivacyMode() {
         return privacyMode;
     }
 
-    public void setPrivacyMode(byte privacyMode) {
+    public void setPrivacyMode(PrivacyMode privacyMode) {
         this.privacyMode = privacyMode;
     }
 

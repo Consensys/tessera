@@ -16,7 +16,7 @@ public class StagingAffectedContractTransactionTest {
         id.setSource(source);
         final MessageHashStr affected = new MessageHashStr("affected".getBytes());
         id.setAffected(affected);
-        obj.setId(id);
+        obj.setStagingAffectedContractTransactionId(id);
         StagingTransaction st = new StagingTransaction();
         obj.setSourceTransaction(st);
 
@@ -24,7 +24,7 @@ public class StagingAffectedContractTransactionTest {
         assertThat(obj.getSourceTransaction()).isEqualTo(st);
 
         StagingAffectedContractTransaction obj2 = new StagingAffectedContractTransaction();
-        obj2.setId(id);
+        obj2.setStagingAffectedContractTransactionId(id);
 
         assertThat(obj.equals(obj)).isTrue();
         assertThat(obj.hashCode()).isEqualTo(obj2.hashCode());

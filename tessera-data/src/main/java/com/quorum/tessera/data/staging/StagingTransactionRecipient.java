@@ -7,19 +7,24 @@ import java.util.Objects;
 @Table(name = "ST_TRANSACTION_RECIPIENT")
 public class StagingTransactionRecipient {
 
-    @EmbeddedId
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name = "ID")
+    private Long id;
+
+    @Embedded
     @AttributeOverride(name = "hash.hash", column = @Column(name = "HASH", nullable = false, updatable = false))
     @AttributeOverride(
             name = "recipient.recBytes",
             column = @Column(name = "RECIPIENT", nullable = false, updatable = false))
-    private StagingTransactionRecipientId id;
+    private StagingTransactionRecipientId stagingTransactionRecipientId;
 
     @ManyToOne
     @JoinColumns({@JoinColumn(name = "HASH", referencedColumnName = "HASH", insertable = false, updatable = false)})
     private StagingTransaction transaction;
 
     public StagingRecipient recipient() {
-        return this.id.getRecipient();
+        return this.stagingTransactionRecipientId.getRecipient();
     }
 
     @Basic private boolean initiator;
@@ -31,12 +36,20 @@ public class StagingTransactionRecipient {
 
     public StagingTransactionRecipient() {}
 
-    public StagingTransactionRecipientId getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(StagingTransactionRecipientId id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public StagingTransactionRecipientId getStagingTransactionRecipientId() {
+        return stagingTransactionRecipientId;
+    }
+
+    public void setStagingTransactionRecipientId(StagingTransactionRecipientId stagingTransactionRecipientId) {
+        this.stagingTransactionRecipientId = stagingTransactionRecipientId;
     }
 
     public StagingTransaction getTransaction() {
@@ -68,11 +81,11 @@ public class StagingTransactionRecipient {
         if (this == o) return true;
         if (!(o instanceof StagingTransactionRecipient)) return false;
         StagingTransactionRecipient that = (StagingTransactionRecipient) o;
-        return Objects.equals(id, that.id);
+        return Objects.equals(stagingTransactionRecipientId, that.stagingTransactionRecipientId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(stagingTransactionRecipientId);
     }
 }

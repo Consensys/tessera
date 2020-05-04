@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
@@ -63,7 +66,16 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
     public Optional<StagingTransaction> retrieveByHash(final MessageHashStr hash) {
         return entityManagerTemplate.execute(entityManager -> {
             LOGGER.info("Retrieving payload with hash {}", hash);
-            return Optional.ofNullable(entityManager.find(StagingTransaction.class, hash));
+
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<StagingTransaction> query = criteriaBuilder.createQuery(StagingTransaction.class);
+            Root<StagingTransaction> root = query.from(StagingTransaction.class);
+
+            query.select(root)
+                .where(
+                    criteriaBuilder.equal(root.get("hash"),hash)
+                );
+            return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
         });
     }
 

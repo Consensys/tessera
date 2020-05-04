@@ -7,21 +7,26 @@ import java.util.Objects;
 @Table(name = "ST_AFFECTED_TRANSACTION")
 public class StagingAffectedContractTransaction {
 
-    @EmbeddedId
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    @Column(name = "ID")
+    private Long id;
+
+    @Embedded
     @AttributeOverride(
             name = "source.hash",
             column = @Column(name = "SOURCE_HASH", nullable = false, updatable = false))
     @AttributeOverride(
             name = "affected.hash",
             column = @Column(name = "AFFECTED_HASH", nullable = false, updatable = false))
-    private StagingAffectedContractTransactionId id;
+    private StagingAffectedContractTransactionId stagingAffectedContractTransactionId;
 
     @ManyToOne
     @PrimaryKeyJoinColumn(name = "SOURCE_HASH", referencedColumnName = "HASH")
     private StagingTransaction sourceTransaction;
 
     public MessageHashStr affected() {
-        return this.id.getAffected();
+        return this.stagingAffectedContractTransactionId.getAffected();
     }
 
     @Lob
@@ -30,12 +35,20 @@ public class StagingAffectedContractTransaction {
 
     public StagingAffectedContractTransaction() {}
 
-    public StagingAffectedContractTransactionId getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(StagingAffectedContractTransactionId id) {
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public StagingAffectedContractTransactionId getStagingAffectedContractTransactionId() {
+        return stagingAffectedContractTransactionId;
+    }
+
+    public void setStagingAffectedContractTransactionId(StagingAffectedContractTransactionId stagingAffectedContractTransactionId) {
+        this.stagingAffectedContractTransactionId = stagingAffectedContractTransactionId;
     }
 
     public byte[] getSecurityHash() {
@@ -59,11 +72,11 @@ public class StagingAffectedContractTransaction {
         if (this == o) return true;
         if (!(o instanceof StagingAffectedContractTransaction)) return false;
         StagingAffectedContractTransaction that = (StagingAffectedContractTransaction) o;
-        return id.equals(that.id);
+        return stagingAffectedContractTransactionId.equals(that.stagingAffectedContractTransactionId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(stagingAffectedContractTransactionId);
     }
 }

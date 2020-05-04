@@ -29,14 +29,14 @@ public class StagingTransactionConverter {
         stagingTransaction.setRecipientNonce(encodedPayload.getRecipientNonce().getNonceBytes());
         stagingTransaction.setSenderKey(encodedPayload.getSenderKey().getKeyBytes());
         stagingTransaction.setExecHash(encodedPayload.getExecHash());
-        stagingTransaction.setPrivacyMode((byte) encodedPayload.getPrivacyMode().getPrivacyFlag());
+        stagingTransaction.setPrivacyMode(encodedPayload.getPrivacyMode());
 
         for (PublicKey recipient : encodedPayload.getRecipientKeys()) {
             final StagingRecipient stagingRecipient = new StagingRecipient(recipient.getKeyBytes());
             final StagingTransactionRecipientId stagingTransactionRecipientId =
                     new StagingTransactionRecipientId(messageHash, stagingRecipient);
             final StagingTransactionRecipient stagingTransactionRecipient = new StagingTransactionRecipient();
-            stagingTransactionRecipient.setId(stagingTransactionRecipientId);
+            stagingTransactionRecipient.setStagingTransactionRecipientId(stagingTransactionRecipientId);
             stagingTransactionRecipient.setTransaction(stagingTransaction);
             stagingTransactionRecipient.setInitiator(false);
             stagingTransaction.getRecipients().put(stagingRecipient, stagingTransactionRecipient);
@@ -55,7 +55,7 @@ public class StagingTransactionConverter {
                     new StagingAffectedContractTransaction();
             stagingAffectedContractTransaction.setSecurityHash(entry.getValue());
             stagingAffectedContractTransaction.setSourceTransaction(stagingTransaction);
-            stagingAffectedContractTransaction.setId(affectedContractTransactionId);
+            stagingAffectedContractTransaction.setStagingAffectedContractTransactionId(affectedContractTransactionId);
             stagingTransaction
                     .getAffectedContractTransactions()
                     .put(affectedContractTransactionId.getAffected(), stagingAffectedContractTransaction);
@@ -64,7 +64,7 @@ public class StagingTransactionConverter {
         StagingTransactionVersion version = new StagingTransactionVersion();
         version.setTransaction(stagingTransaction);
         version.setPayload(payload);
-        version.setId(new StagingTransactionRecipientId(messageHash, stagingRecipient));
+        version.setStagingTransactionRecipientId(new StagingTransactionRecipientId(messageHash, stagingRecipient));
         version.setPrivacyMode(stagingTransaction.getPrivacyMode());
         stagingTransaction.getVersions().put(stagingRecipient, version);
 
@@ -78,7 +78,7 @@ public class StagingTransactionConverter {
             existing.setIssues("Data mismatched across versions");
         }
 
-        if (PrivacyMode.PRIVATE_STATE_VALIDATION == PrivacyMode.fromFlag(existing.getPrivacyMode())) {
+        if (PrivacyMode.PRIVATE_STATE_VALIDATION == existing.getPrivacyMode()) {
             if (!(existing.getRecipients().keySet().containsAll(newTransaction.getRecipients().keySet())
                     && newTransaction.getRecipients().keySet().containsAll(existing.getRecipients().keySet()))) {
                 existing.setIssues("Recipients mismatched across versions");

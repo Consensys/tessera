@@ -8,8 +8,9 @@
     </appender>
 
     <logger name="eclipselink.logging.sql" level="DEBUG" />
-    <logger name="eclipselink" level="DEBUG" />
-    <root level="INFO">
+    <logger name="org.h2.jdbc" level="ALL" />
+    <logger name="eclipselink" level="ALL" />
+    <root level="ALL">
         <appender-ref ref="STDOUT"/>
     </root>
 
