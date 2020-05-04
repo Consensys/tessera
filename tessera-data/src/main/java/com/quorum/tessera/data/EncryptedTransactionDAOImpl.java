@@ -15,12 +15,6 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedTransactionDAOImpl.class);
 
-    private static final String FIND_HASH_EQUAL =
-            "SELECT et FROM EncryptedTransaction et WHERE et.hash.hashBytes = :hash";
-
-    private static final String FIND_ALL = "SELECT et FROM EncryptedTransaction et ORDER BY et.timestamp,et.hash";
-
-
     private EntityManagerTemplate entityManagerTemplate;
 
     public EncryptedTransactionDAOImpl(EntityManagerFactory entityManagerFactory) {
@@ -31,16 +25,16 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
     public EncryptedTransaction save(final EncryptedTransaction entity) {
         return entityManagerTemplate.execute(entityManager -> {
             entityManager.persist(entity);
-            LOGGER.info("Stored transaction {}", entity.getHash());
+            LOGGER.debug("Stored transaction {}", entity.getHash());
             return entity;
         });
     }
 
     @Override
     public Optional<EncryptedTransaction> retrieveByHash(final MessageHash hash) {
-        LOGGER.info("Retrieving payload with hash {}", hash);
+        LOGGER.debug("Retrieving payload with hash {}", hash);
         return entityManagerTemplate.execute(entityManager -> entityManager
-            .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
+            .createNamedQuery("EncryptedTransaction.FindByHash", EncryptedTransaction.class)
             .setParameter("hash", hash.getHashBytes())
             .getResultStream()
             .findAny());
@@ -48,11 +42,12 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
     @Override
     public List<EncryptedTransaction> retrieveTransactions(int offset, int maxResult) {
-        LOGGER.info("Fetching batch(offset:{},maxResult:{}) EncryptedTransaction database rows", offset, maxResult);
-        return entityManagerTemplate.execute(entityManager -> entityManager.createQuery(FIND_ALL, EncryptedTransaction.class)
-            .setFirstResult(offset)
-            .setMaxResults(maxResult)
-            .getResultList());
+        LOGGER.debug("Fetching batch(offset:{},maxResult:{}) EncryptedTransaction database rows", offset, maxResult);
+        return entityManagerTemplate.execute(entityManager ->
+                entityManager.createNamedQuery("EncryptedTransaction.FindAll", EncryptedTransaction.class)
+                                .setFirstResult(offset)
+                                .setMaxResults(maxResult)
+                                .getResultList());
     }
 
     @Override
@@ -76,7 +71,7 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
         entityManagerTemplate.execute(entityManager -> {
             final EncryptedTransaction message =
                 entityManager
-                    .createQuery(FIND_HASH_EQUAL, EncryptedTransaction.class)
+                    .createNamedQuery("EncryptedTransaction.FindByHash", EncryptedTransaction.class)
                     .setParameter("hash", hash.getHashBytes())
                     .getResultStream()
                     .findAny()

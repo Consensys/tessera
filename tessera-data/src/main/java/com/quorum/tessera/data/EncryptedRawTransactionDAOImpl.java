@@ -55,7 +55,7 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
                 throw new EntityNotFoundException();
             }
 
-            entityManager.createQuery("delete from EncryptedRawTransaction where hash.hashBytes = :hash")
+            entityManager.createNamedQuery("EncryptedRawTransaction.DeleteByHash")
                 .setParameter("hash",hash.getHashBytes()).executeUpdate();
 
             return txn;
