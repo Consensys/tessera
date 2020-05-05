@@ -493,6 +493,7 @@
         <module>tessera-data</module>
         <module>tessera-context</module>
         <module>tessera-recover</module>
+        <module>eclipselink-utils</module>
     </modules>
 
     <dependencyManagement>

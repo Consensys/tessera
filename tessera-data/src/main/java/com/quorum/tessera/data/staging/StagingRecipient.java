@@ -10,14 +10,13 @@ import java.util.Objects;
 public class StagingRecipient implements Serializable {
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(generator = "ATOMIC_LONG",strategy= GenerationType.AUTO)
     @Column(name = "ID")
     private Long id;
 
-    @Embedded
-    @AttributeOverride(name = "hash",
-        column = @Column(name = "HASH", nullable = false, updatable = false))
-    private MessageHashStr messageHash;
+    @Basic
+    @Column(name = "HASH", nullable = false, updatable = false)
+    private String messageHash;
 
     @ManyToOne
     @JoinColumns({@JoinColumn(name = "TXNHASH", referencedColumnName = "HASH", insertable = false, updatable = false)})
@@ -87,11 +86,11 @@ public class StagingRecipient implements Serializable {
         this.box = box;
     }
 
-    public MessageHashStr getMessageHash() {
+    public String getMessageHash() {
         return messageHash;
     }
 
-    public void setMessageHash(MessageHashStr messageHash) {
+    public void setMessageHash(String messageHash) {
         this.messageHash = messageHash;
     }
 

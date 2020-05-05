@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * A JPA implementation of {@link StagingEntityDAO}
  */
-
 public class StagingEntityDAOImpl implements StagingEntityDAO {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StagingEntityDAOImpl.class);
@@ -63,7 +62,7 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
     }
 
     @Override
-    public Optional<StagingTransaction> retrieveByHash(final MessageHashStr hash) {
+    public Optional<StagingTransaction> retrieveByHash(final String hash) {
         return entityManagerTemplate.execute(entityManager -> {
             LOGGER.info("Retrieving payload with hash {}", hash);
 

@@ -9,7 +9,7 @@ import javax.persistence.*;
 public class StagingTransactionVersion {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(generator = "ATOMIC_LONG",strategy=GenerationType.AUTO)
     @Column(name = "ID")
     private Long id;
 

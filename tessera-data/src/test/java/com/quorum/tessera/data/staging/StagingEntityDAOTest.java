@@ -45,7 +45,7 @@ public class StagingEntityDAOTest {
         properties.put("eclipselink.logging.level.sql","FINE");
         properties.put("javax.persistence.schema-generation.database.action","drop-and-create");
         properties.put("eclipselink.cache.shared.default","false");
-
+        properties.put("eclipselink.session.customizer","com.quorum.tessera.eclipselink.AtomicLongSequence");
 
         entityManagerFactory = Persistence.createEntityManagerFactory("tessera-recover",properties);
 
@@ -60,7 +60,7 @@ public class StagingEntityDAOTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         entityManager.createQuery("delete from StagingTransactionVersion").executeUpdate();
-        entityManager.createQuery("delete from StagingAffectedContractTransaction").executeUpdate();
+        entityManager.createQuery("delete from StagingAffectedTransaction").executeUpdate();
         entityManager.createQuery("delete from StagingRecipient").executeUpdate();
         entityManager.createQuery("delete from StagingTransaction").executeUpdate();
         entityManager.getTransaction().commit();
@@ -70,7 +70,7 @@ public class StagingEntityDAOTest {
     @Test
     public void saveDoesntAllowNullCipherText() {
 
-        MessageHashStr messageHash = Utils.createHashStr();
+        String messageHash = Base64.getEncoder().encodeToString(Utils.randomBytes());
 
         StagingTransaction stTransaction = new StagingTransaction();
         stTransaction.setHash(messageHash);
@@ -127,7 +127,7 @@ public class StagingEntityDAOTest {
     @Test
     public void testRetrieveTransactionByHash() {
 
-        final MessageHashStr txnHash7 = transactions.get("TXN7").getHash();
+        final String txnHash7 = transactions.get("TXN7").getHash();
         final Optional<StagingTransaction> stagingTransaction = stagingEntityDAO.retrieveByHash(txnHash7);
 
         assertThat(stagingTransaction).isPresent();
@@ -138,7 +138,7 @@ public class StagingEntityDAOTest {
     @Test
     public void testUpdate() {
 
-            final MessageHashStr txnHash7 = transactions.get("TXN7").getHash();
+            final String txnHash7 = transactions.get("TXN7").getHash();
             final Optional<StagingTransaction> stagingTransaction = stagingEntityDAO.retrieveByHash(txnHash7);
 
             assertThat(stagingTransaction).isPresent();
@@ -181,7 +181,7 @@ public class StagingEntityDAOTest {
 
         entityManager.getTransaction().begin();
 
-        final MessageHashStr txnHash1 = Utils.createHashStr();
+        final String txnHash1 = Utils.createHashStr();
 
         final StagingTransaction stTransaction1 = new StagingTransaction();
         stTransaction1.setHash(txnHash1);
@@ -208,7 +208,7 @@ public class StagingEntityDAOTest {
 
         entityManager.persist(stTransaction1);
 
-        final MessageHashStr txnHash2 = Utils.createHashStr();
+        final String txnHash2 = Utils.createHashStr();
 
         final StagingTransaction stTransaction2 = new StagingTransaction();
         stTransaction2.setHash(txnHash2);
@@ -219,20 +219,18 @@ public class StagingEntityDAOTest {
 
         addTransactionRecipients(stTransaction2);
 
-        StagingAffectedContractTransactionId stAffectedContractTransactionId21 =
-            new StagingAffectedContractTransactionId(txnHash2, txnHash1);
-        StagingAffectedContractTransaction stAffectedContractTransaction21 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction21.setStagingAffectedContractTransactionId(stAffectedContractTransactionId21);
-        stAffectedContractTransaction21.setSecurityHash("SecureHash".getBytes());
+        StagingAffectedTransaction stAffectedContractTransaction21 = new StagingAffectedTransaction();
+        stAffectedContractTransaction21.setHash(txnHash1);
+
         stAffectedContractTransaction21.setSourceTransaction(stTransaction2);
 
         stTransaction2.getAffectedContractTransactions().add(stAffectedContractTransaction21);
 
         entityManager.persist(stTransaction2);
 
-        final MessageHashStr txnHash4 = Utils.createHashStr();
+        final String txnHash4 = Utils.createHashStr();
         // we are storing a transaction TXN4 which depends on another transaction TXN3 (which has not been received yet)
-        final MessageHashStr txnHash3 = Utils.createHashStr();
+        final String txnHash3 = Utils.createHashStr();
 
         final StagingTransaction stTransaction4 = new StagingTransaction();
         stTransaction4.setHash(txnHash4);
@@ -243,11 +241,8 @@ public class StagingEntityDAOTest {
 
         addTransactionRecipients(stTransaction4);
 
-        StagingAffectedContractTransactionId stAffectedContractTransactionId43 =
-            new StagingAffectedContractTransactionId(txnHash4, txnHash3);
-        StagingAffectedContractTransaction stAffectedContractTransaction43 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction43.setStagingAffectedContractTransactionId(stAffectedContractTransactionId43);
-        stAffectedContractTransaction43.setSecurityHash("SecureHash".getBytes());
+        StagingAffectedTransaction stAffectedContractTransaction43 = new StagingAffectedTransaction();
+        stAffectedContractTransaction43.setHash(txnHash3);
         stAffectedContractTransaction43.setSourceTransaction(stTransaction4);
 
         stTransaction4.getAffectedContractTransactions().add(stAffectedContractTransaction43);
@@ -263,20 +258,17 @@ public class StagingEntityDAOTest {
 
         addTransactionRecipients(stTransaction3);
 
-        StagingAffectedContractTransactionId stAffectedContractTransactionId31 =
-            new StagingAffectedContractTransactionId(txnHash3, txnHash1);
-        StagingAffectedContractTransaction stAffectedContractTransaction31 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction31.setStagingAffectedContractTransactionId(stAffectedContractTransactionId31);
-        stAffectedContractTransaction31.setSecurityHash("SecureHash".getBytes());
+        StagingAffectedTransaction stAffectedContractTransaction31 = new StagingAffectedTransaction();
+        stAffectedContractTransaction31.setHash(txnHash1);
         stAffectedContractTransaction31.setSourceTransaction(stTransaction3);
 
         stTransaction3.getAffectedContractTransactions().add(stAffectedContractTransaction31);
 
         entityManager.persist(stTransaction3);
 
-        final MessageHashStr txnHash5 = Utils.createHashStr();
+        final String txnHash5 = Utils.createHashStr();
         // TXN5 is a unresolvable transaction as it depends on TXN6 which is never received
-        final MessageHashStr txnHash6 = Utils.createHashStr();
+        final String txnHash6 = Utils.createHashStr();
 
         final StagingTransaction stTransaction5 = new StagingTransaction();
         stTransaction5.setHash(txnHash5);
@@ -287,18 +279,15 @@ public class StagingEntityDAOTest {
 
         addTransactionRecipients(stTransaction5);
 
-        StagingAffectedContractTransactionId stAffectedContractTransactionId56 =
-            new StagingAffectedContractTransactionId(txnHash5, txnHash6);
-        StagingAffectedContractTransaction stAffectedContractTransaction56 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction56.setStagingAffectedContractTransactionId(stAffectedContractTransactionId56);
-        stAffectedContractTransaction56.setSecurityHash("SecureHash".getBytes());
+        StagingAffectedTransaction stAffectedContractTransaction56 = new StagingAffectedTransaction();
+        stAffectedContractTransaction56.setHash(txnHash6);
         stAffectedContractTransaction56.setSourceTransaction(stTransaction5);
 
         stTransaction5.getAffectedContractTransactions().add(stAffectedContractTransaction56);
 
         entityManager.persist(stTransaction5);
 
-        final MessageHashStr txnHash7 = Utils.createHashStr();
+        final String txnHash7 = Utils.createHashStr();
         // TXN7 depends on TXN1 and TXN3
         final StagingTransaction stTransaction7 = new StagingTransaction();
         stTransaction7.setHash(txnHash7);
@@ -309,20 +298,14 @@ public class StagingEntityDAOTest {
 
         addTransactionRecipients(stTransaction7);
 
-        StagingAffectedContractTransactionId stAffectedContractTransactionId71 =
-            new StagingAffectedContractTransactionId(txnHash7, txnHash1);
-        StagingAffectedContractTransaction stAffectedContractTransaction71 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction71.setStagingAffectedContractTransactionId(stAffectedContractTransactionId71);
-        stAffectedContractTransaction71.setSecurityHash("SecureHash".getBytes());
+        StagingAffectedTransaction stAffectedContractTransaction71 = new StagingAffectedTransaction();
+        stAffectedContractTransaction71.setHash(txnHash1);
         stAffectedContractTransaction71.setSourceTransaction(stTransaction7);
 
         stTransaction7.getAffectedContractTransactions().add(stAffectedContractTransaction71);
 
-        StagingAffectedContractTransactionId stAffectedContractTransactionId74 =
-            new StagingAffectedContractTransactionId(txnHash7, txnHash4);
-        StagingAffectedContractTransaction stAffectedContractTransaction74 = new StagingAffectedContractTransaction();
-        stAffectedContractTransaction74.setStagingAffectedContractTransactionId(stAffectedContractTransactionId74);
-        stAffectedContractTransaction74.setSecurityHash("SecureHash".getBytes());
+        StagingAffectedTransaction stAffectedContractTransaction74 = new StagingAffectedTransaction();
+        stAffectedContractTransaction74.setHash(txnHash4);
         stAffectedContractTransaction74.setSourceTransaction(stTransaction7);
 
         stTransaction7.getAffectedContractTransactions().add(stAffectedContractTransaction74);

@@ -6,10 +6,7 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyMap;
@@ -142,22 +139,23 @@ public class StagingTransactionConverterTest {
 
         assertThat(mergedTransaction).isNotNull();
         assertThat(mergedTransaction.getSenderKey()).isEqualTo(sender.getKeyBytes());
-        assertThat(mergedTransaction.getHash().getHashBytes()).isEqualTo(txHash2.getBytes());
+
+        Base64.Encoder base64Encoder = Base64.getEncoder();
+        assertThat(mergedTransaction.getHash())
+            .isEqualTo(base64Encoder.encodeToString(txHash2.getBytes()));
+
         assertThat(mergedTransaction.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
         assertThat(mergedTransaction.getCipherText()).isEqualTo("cipherText".getBytes());
         assertThat(mergedTransaction.getCipherTextNonce()).isEqualTo("nonce".getBytes());
         assertThat(mergedTransaction.getRecipientNonce()).isEqualTo("recipientNonce".getBytes());
         assertThat(mergedTransaction.getExecHash()).isEqualTo("execHash".getBytes());
-        assertThat(mergedTransaction.getAffectedContractTransactions().size()).isEqualTo(1);
+        assertThat(mergedTransaction.getAffectedContractTransactions()).hasSize(1);
 
-        final StagingAffectedContractTransactionId id =
-                mergedTransaction.getAffectedContractTransactions().stream()
-                        .map(StagingAffectedContractTransaction::getStagingAffectedContractTransactionId)
-                        .collect(Collectors.toList())
-                        .get(0);
+        final StagingAffectedTransaction affectedContractTransaction =
+                mergedTransaction.getAffectedContractTransactions().iterator().next();
 
-        assertThat(id.getSource()).isEqualTo(mergedTransaction.getHash());
-        assertThat(id.getAffected()).isEqualTo(mergedAffectedTx.getHash());
+        assertThat(affectedContractTransaction.getSourceTransaction().getHash()).isEqualTo(mergedTransaction.getHash());
+        assertThat(affectedContractTransaction.getHash()).isEqualTo(mergedAffectedTx.getHash());
 
         assertThat(mergedTransaction.getRecipients().size()).isEqualTo(2);
 

@@ -28,7 +28,7 @@ public interface StagingEntityDAO {
      * @param hash the hash of the transaction to retrieve
      * @return the encrypted transaction with the given hash
      */
-    Optional<StagingTransaction> retrieveByHash(MessageHashStr hash);
+    Optional<StagingTransaction> retrieveByHash(String hash);
 
     /**
      * Retrieves a list of all transactions stored in the database order by stage

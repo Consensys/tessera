@@ -41,6 +41,7 @@ public class EntityManagerDAOFactory {
         properties.put("eclipselink.logging.parameters","true");
         properties.put("eclipselink.logging.level.sql","FINE");
         properties.put("javax.persistence.schema-generation.database.action",config.getJdbcConfig().isAutoCreateTables() ? "create" : "none");
+       // properties.put("eclipselink.session.customizer","org.eclipse.persistence.sequencing.UUIDSequence");
 
         LOGGER.debug("Creating EntityManagerFactory from {}",properties);
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tessera",properties);

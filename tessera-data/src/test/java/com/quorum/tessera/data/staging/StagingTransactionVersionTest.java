@@ -10,7 +10,7 @@ public class StagingTransactionVersionTest {
 
     @Test
     public void testEquals() {
-        MessageHashStr messageHash = Utils.createHashStr();
+        String messageHash = Utils.createHashStr();
         final StagingTransaction st = new StagingTransaction();
         st.setHash(messageHash);
         StagingRecipient recipient = new StagingRecipient("recipient".getBytes());

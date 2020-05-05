@@ -1,7 +1,5 @@
 package com.quorum.tessera.data;
 
-import com.quorum.tessera.data.staging.MessageHashStr;
-
 import java.util.UUID;
 
 public interface Utils {
@@ -10,8 +8,8 @@ public interface Utils {
         return new MessageHash(randomBytes());
     }
 
-    static MessageHashStr createHashStr() {
-        return new MessageHashStr(randomBytes());
+    static String createHashStr() {
+        return new String(randomBytes());
     }
 
     static byte[] randomBytes() {

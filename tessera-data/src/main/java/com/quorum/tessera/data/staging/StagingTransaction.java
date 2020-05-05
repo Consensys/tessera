@@ -16,22 +16,20 @@ import java.util.*;
             name = "StagingTransaction.stagingQuery",
             query =
                     "SELECT st FROM StagingTransaction st WHERE st.validationStage is null and not exists "
-                            + "    (select act from StagingAffectedContractTransaction act  where act.stagingAffectedContractTransactionId.source=st.hash and  "
-                            + "        (select ast.validationStage from StagingTransaction ast where ast.hash=act.stagingAffectedContractTransactionId.affected) is null"
+                            + "    (select act from StagingAffectedTransaction act  where act.sourceTransaction.hash = st.hash and  "
+                            + "        (select ast.validationStage from StagingTransaction ast where ast.hash = act.hash) is null"
                             + "    )")
 })
 public class StagingTransaction implements Serializable {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(generator = "ATOMIC_LONG",strategy=GenerationType.AUTO)
     @Column(name="ID")
     private Long id;
 
-    @Embedded
-    @AttributeOverride(
-            name = "hash",
-            column = @Column(name = "HASH", nullable = false, unique = true, updatable = false))
-    private MessageHashStr hash;
+    @Basic
+    @Column(name = "HASH", nullable = false, unique = true, updatable = false)
+    private String hash;
 
     @Lob
     @Column(name = "SENDER_KEY", nullable = false, updatable = false)
@@ -80,7 +78,7 @@ public class StagingTransaction implements Serializable {
             cascade = {CascadeType.ALL},
             mappedBy = "sourceTransaction",
             orphanRemoval = true)
-    private Set<StagingAffectedContractTransaction> affectedContractTransactions = new HashSet<>();
+    private Set<StagingAffectedTransaction> affectedContractTransactions = new HashSet<>();
 
     @OneToMany(
             fetch = FetchType.LAZY,
@@ -104,11 +102,11 @@ public class StagingTransaction implements Serializable {
         this.id = id;
     }
 
-    public MessageHashStr getHash() {
+    public String getHash() {
         return this.hash;
     }
 
-    public void setHash(final MessageHashStr hash) {
+    public void setHash(final String hash) {
         this.hash = hash;
     }
 
@@ -156,11 +154,11 @@ public class StagingTransaction implements Serializable {
         this.recipients = recipients;
     }
 
-    public Set<StagingAffectedContractTransaction> getAffectedContractTransactions() {
+    public Set<StagingAffectedTransaction> getAffectedContractTransactions() {
         return affectedContractTransactions;
     }
 
-    public void setAffectedContractTransactions(Set<StagingAffectedContractTransaction> affectedContractTransactions) {
+    public void setAffectedContractTransactions(Set<StagingAffectedTransaction> affectedContractTransactions) {
         this.affectedContractTransactions = affectedContractTransactions;
     }
 

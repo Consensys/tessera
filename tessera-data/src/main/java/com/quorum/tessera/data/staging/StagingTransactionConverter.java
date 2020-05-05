@@ -8,6 +8,7 @@ import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 
@@ -18,11 +19,11 @@ public class StagingTransactionConverter {
     public static StagingTransaction fromRawPayload(final byte[] payload) {
         final EncodedPayload encodedPayload = new PayloadEncoderImpl().decode(payload);
 
-        final MessageHashStr messageHash =
-                new MessageHashStr(
+        final byte[] messageHashData =
                         MessageHashFactory.create()
-                                .createFromCipherText(encodedPayload.getCipherText())
-                                .getHashBytes());
+                                .createFromCipherText(encodedPayload.getCipherText()).getHashBytes();
+
+        final String messageHash = Base64.getEncoder().encodeToString(messageHashData);
         final StagingTransaction stagingTransaction = new StagingTransaction();
         stagingTransaction.setHash(messageHash);
         stagingTransaction.setCipherText(encodedPayload.getCipherText());
@@ -49,17 +50,17 @@ public class StagingTransactionConverter {
         }
 
         for (Map.Entry<TxHash, byte[]> entry : encodedPayload.getAffectedContractTransactions().entrySet()) {
-            final StagingAffectedContractTransactionId affectedContractTransactionId =
-                    new StagingAffectedContractTransactionId(
-                            messageHash, new MessageHashStr(entry.getKey().getBytes()));
-            final StagingAffectedContractTransaction stagingAffectedContractTransaction =
-                    new StagingAffectedContractTransaction();
-            stagingAffectedContractTransaction.setSecurityHash(entry.getValue());
+
+            final StagingAffectedTransaction stagingAffectedContractTransaction = new StagingAffectedTransaction();
+            String messageHashStr = Base64.getEncoder().encodeToString(entry.getKey().getBytes());
+
             stagingAffectedContractTransaction.setSourceTransaction(stagingTransaction);
-            stagingAffectedContractTransaction.setStagingAffectedContractTransactionId(affectedContractTransactionId);
+            stagingAffectedContractTransaction.setHash(messageHashStr);
+
             stagingTransaction
-                    .getAffectedContractTransactions()
-                    .add(stagingAffectedContractTransaction);
+                .getAffectedContractTransactions()
+                .add(stagingAffectedContractTransaction);
+
         }
 
         StagingTransactionVersion version = new StagingTransactionVersion();
