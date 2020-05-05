@@ -710,6 +710,12 @@
             </dependency>
 
             <dependency>
+                <groupId>com.jpmorgan.quorum</groupId>
+                <artifactId>eclipselink-utils</artifactId>
+                <version>0.10.6-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.glassfish.jersey</groupId>
                 <artifactId>jersey-bom</artifactId>
                 <version>${jersey.version}</version>
