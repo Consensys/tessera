@@ -10,6 +10,9 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
@@ -89,42 +92,30 @@ public class StagingEntityDAOTest {
     }
 
     @Test
-    public void findTransactionsForStaging() {
+    public void updateStageForBatch() {
 
+        final long validationStage = new Random().nextLong();
+        final int batchSize = 1;
 
-        int results = stagingEntityDAO.updateStageForBatch(1,99L);
-        assertThat(results).isOne();
+        int results = stagingEntityDAO.updateStageForBatch(batchSize,validationStage);
+        assertThat(results).isEqualTo(batchSize);
 
-        final List<StagingTransaction> transactionsBeforeStaging =
-            stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Long> criteriaQuery = criteriaBuilder.createQuery(Long.class);
+        Root<StagingTransaction> root = criteriaQuery.from(StagingTransaction.class);
+        criteriaQuery
+            .select(criteriaBuilder.count(root))
+            .where(
+                criteriaBuilder.equal(root.get("validationStage"),validationStage)
+            );
 
-        assertThat(transactionsBeforeStaging)
-            .hasSize(6)
-            .allMatch(stagingTransaction -> Objects.isNull(stagingTransaction.getValidationStage()));
+        Long countPending = entityManager.createQuery(criteriaQuery)
+            .setParameter("stage",validationStage)
+            .getSingleResult();
 
+        assertThat(countPending).isEqualTo((long) batchSize);
 
-        stagingEntityDAO.updateStageForBatch(Integer.MAX_VALUE,1L);
-
-        final List<StagingTransaction> verifiedTransactions = stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
-
-        assertThat(verifiedTransactions).hasSize(6);
-
-        assertThat(verifiedTransactions.get(0).getValidationStage()).isEqualTo(1L);
-        assertThat(verifiedTransactions.get(1).getValidationStage()).isEqualTo(2L);
-        assertThat(verifiedTransactions.get(2).getValidationStage()).isEqualTo(2L);
-        assertThat(verifiedTransactions.get(3).getValidationStage()).isEqualTo(3L);
-        assertThat(verifiedTransactions.get(4).getValidationStage()).isEqualTo(4L);
-
-        assertThat(verifiedTransactions.get(5).getValidationStage()).isNull();
-
-        final List<StagingTransaction> allTransactions =
-            stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
-        // Transactions 1-4 and 7 are successfully resolved/staged. TXN5 is not - as it depends on an unknown
-        // transaction - TXN6.
-
-        assertThat(allTransactions.stream().filter(et -> et.getValidationStage() == null).count()).isEqualTo(1);
-        assertThat(stagingEntityDAO.countAll()).isEqualTo(6);
-        assertThat(stagingEntityDAO.countStaged()).isEqualTo(5);
     }
 
     @Test
