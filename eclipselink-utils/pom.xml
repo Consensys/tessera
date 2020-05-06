@@ -35,17 +35,22 @@
             <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
-
+        
+        <dependency>
+            <groupId>org.eclipse.persistence</groupId>
+            <artifactId>org.eclipse.persistence.core</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.jpa</artifactId>
-            <scope>runtime</scope>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.extension</artifactId>
-            <scope>runtime</scope>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
