@@ -16,10 +16,8 @@ public class StagingTransactionTest {
 
         StagingTransaction stagingTransaction = new StagingTransaction();
         stagingTransaction.setId(1L);
-        stagingTransaction.setRecipients(Collections.emptySet());
         stagingTransaction.setHash(encoder.encodeToString("hash".getBytes()));
         stagingTransaction.setAffectedContractTransactions(Collections.emptySet());
-        stagingTransaction.setVersions(Collections.emptySet());
 
         StagingTransaction stagingTransaction1 = new StagingTransaction();
         stagingTransaction1.setId(1L);

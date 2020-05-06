@@ -62,9 +62,9 @@ public class StagingEntityDAOTest {
     public void clear() throws Exception {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
-        entityManager.createQuery("delete from StagingTransactionVersion").executeUpdate();
+    //    entityManager.createQuery("delete from StagingTransactionVersion").executeUpdate();
         entityManager.createQuery("delete from StagingAffectedTransaction").executeUpdate();
-        entityManager.createQuery("delete from StagingRecipient").executeUpdate();
+       // entityManager.createQuery("delete from StagingRecipient").executeUpdate();
         entityManager.createQuery("delete from StagingTransaction").executeUpdate();
         entityManager.getTransaction().commit();
         transactions.clear();
@@ -149,24 +149,8 @@ public class StagingEntityDAOTest {
 
 
     public static void addTransactionRecipients(StagingTransaction stagingTransaction) {
-        final StagingRecipient stRecipient1 = new StagingRecipient("RECIPIENT1".getBytes());
-
-
-        stRecipient1.setMessageHash(stagingTransaction.getHash());
-        stRecipient1.setInitiator(false);
-        stRecipient1.setBox("BOX1".getBytes());
-        stRecipient1.setTransaction(stagingTransaction);
-
-        stagingTransaction.getRecipients().add(stRecipient1);
-
-        final StagingRecipient stRecipient2 = new StagingRecipient("RECIPIENT2".getBytes());
-
-        stRecipient2.setMessageHash(stagingTransaction.getHash());
-        stRecipient2.setInitiator(false);
-        stRecipient2.setBox("BOX1".getBytes());
-        stRecipient2.setTransaction(stagingTransaction);
-
-        stagingTransaction.getRecipients().add(stRecipient2);
+        stagingTransaction.setRecipientKey("RECIPIENT1".getBytes());
+        stagingTransaction.setRecipientKey("RECIPIENT2".getBytes());
     }
 
     public Map<String,StagingTransaction> createFixtures() {
@@ -186,18 +170,6 @@ public class StagingEntityDAOTest {
 
         addTransactionRecipients(stTransaction1);
 
-        // add two versions for this transaction with no issues
-        for (StagingRecipient stagingTransactionRecipient : stTransaction1.getRecipients()) {
-            stagingTransactionRecipient.setMessageHash(stTransaction1.getHash());
-            StagingTransactionVersion stagingTransactionVersion = new StagingTransactionVersion();
-            stagingTransactionVersion.setPayload("PAYLOAD".getBytes());
-            stagingTransactionVersion.setTransaction(stTransaction1);
-
-
-            stTransaction1
-                .getVersions()
-                .add(stagingTransactionVersion);
-        }
 
 
         entityManager.persist(stTransaction1);

@@ -7,11 +7,7 @@ import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.data.staging.StagingTransactionConverter;
-import com.quorum.tessera.data.staging.StagingTransactionVersion;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveNotAvailableException;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
@@ -26,10 +22,9 @@ import com.quorum.tessera.transaction.exception.StoreEntityException;
 import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -167,8 +162,10 @@ public class BatchResendManagerImpl implements BatchResendManager {
     @Override
     public synchronized void storeResendBatch(PushBatchRequest resendPushBatchRequest) {
         resendPushBatchRequest.getEncodedPayloads().stream()
-                .map(StagingTransactionConverter::fromRawPayload)
-                .forEach(this::handleStagingTransaction);
+            .map(data -> PayloadEncoder.create().decode(data))
+                .map(StagingTransactionConverter::fromPayload)
+                .flatMap(Set::stream)
+                .forEach(stagingEntityDAO::save);
     }
 
     @Override
@@ -197,7 +194,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
     public Result performSync() {
 
         int payloadCount = 0;
-        int syncFailureCount = 0;
+        final AtomicInteger syncFailureCount = new AtomicInteger(0);
 
         int offset = 0;
         final int maxResult = BATCH_SIZE;
@@ -206,45 +203,52 @@ public class BatchResendManagerImpl implements BatchResendManager {
             final List<StagingTransaction> transactions =
                     stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(offset, maxResult);
 
-            for (StagingTransaction transaction : transactions) {
-                final List<byte[]> payloadsToSend =
-                        transaction.getVersions().stream()
-                                .map(StagingTransactionVersion::getPayload)
-                                .collect(Collectors.toList());
-                payloadCount += payloadsToSend.size();
+            Map<String,List<StagingTransaction>> grouped = transactions.stream()
+                .collect(Collectors.groupingBy(StagingTransaction::getHash));
 
-                if (Objects.nonNull(transaction.getIssues())) {
-                    LOGGER.warn(
-                            "There are data consistency issue across versions of this staging transaction."
-                                    + "Please check for a potential malicious attempt during recovery. "
-                                    + "This staging transaction will be ignored");
-                    syncFailureCount += payloadsToSend.size();
-                    continue;
-                }
 
-                for (byte[] payload : payloadsToSend) {
+               payloadCount = transactions.size();
+
+//                if (Objects.nonNull(transaction.getIssues())) {
+//                    LOGGER.warn(
+//                            "There are data consistency issue across versions of this staging transaction."
+//                                    + "Please check for a potential malicious attempt during recovery. "
+//                                    + "This staging transaction will be ignored");
+//                    syncFailureCount += payloadsToSend.size();
+//                    continue;
+//                }
+
+            grouped.entrySet().forEach(e -> {
+                e.getValue().forEach(t -> {
+                    PrivacyMode privacyMode = t.getPrivacyMode();
+                    byte[] payload = t.getPayload();
                     try {
                         transactionManager.storePayload(payload);
+                        if(privacyMode != PrivacyMode.STANDARD_PRIVATE) {
+                            return;
+                        }
                     } catch (PrivacyViolationException | StoreEntityException ex) {
                         LOGGER.error("An error occured during batch resend sync stage.", ex);
-                        syncFailureCount++;
+                        syncFailureCount.incrementAndGet();
                     }
-                }
-            }
+                });
+            });
+
+
             offset += maxResult;
         }
 
-        if (syncFailureCount > 0) {
+        if (syncFailureCount.get() > 0) {
             LOGGER.warn(
                     "There have been issues during the synchronisation process. "
                             + "Problematic transactions have been ignored.");
         }
 
-        if (syncFailureCount == 0) {
+        if (syncFailureCount.get() == 0) {
             return Result.SUCCESS;
         }
 
-        if (syncFailureCount == payloadCount) {
+        if (syncFailureCount.get() == payloadCount) {
             return Result.FAILURE;
         }
 
@@ -257,19 +261,6 @@ public class BatchResendManagerImpl implements BatchResendManager {
         return true;
     }
 
-    private void handleStagingTransaction(StagingTransaction stagingTransaction) {
-        final Optional<StagingTransaction> existingTransaction =
-                stagingEntityDAO.retrieveByHash(stagingTransaction.getHash());
-
-        if (existingTransaction.isPresent()) {
-            final StagingTransaction merged =
-                    StagingTransactionConverter.versionStagingTransaction(
-                            existingTransaction.get(), stagingTransaction);
-            stagingEntityDAO.update(merged);
-        } else {
-            stagingEntityDAO.save(stagingTransaction);
-        }
-    }
 
     private void validateEnclaveStatus() {
         if (enclave.status() == Service.Status.STOPPED) {

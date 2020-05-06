@@ -1,96 +1,53 @@
 package com.quorum.tessera.data.staging;
 
 import com.quorum.tessera.data.MessageHashFactory;
-import com.quorum.tessera.enclave.*;
-import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.enclave.EncodedPayload;
 
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class StagingTransactionConverter {
 
+    private static final MessageHashFactory MESSAGE_HASH_FACTORY = MessageHashFactory.create();
+
     private StagingTransactionConverter() {}
 
-    public static StagingTransaction fromRawPayload(final byte[] payload) {
-        final EncodedPayload encodedPayload = PayloadEncoder.create().decode(payload);
+    public static Set<StagingTransaction> fromPayload(EncodedPayload encodedPayload) {
 
-        final byte[] messageHashData =
-                        MessageHashFactory.create()
-                                .createFromCipherText(encodedPayload.getCipherText()).getHashBytes();
+        final Set<StagingAffectedTransaction> affectedTransactions =
+            encodedPayload.getAffectedContractTransactions().keySet()
+            .stream()
+            .map(key -> key.getBytes())
+            .map(Base64.getEncoder()::encodeToString)
+            .map(messageHash -> {
+                StagingAffectedTransaction stagingAffectedTransaction = new StagingAffectedTransaction();
+                stagingAffectedTransaction.setHash(messageHash);
+                return stagingAffectedTransaction;
+            }).collect(Collectors.toSet());
+
+        final byte[] messageHashData = MESSAGE_HASH_FACTORY.createFromCipherText(encodedPayload.getCipherText()).getHashBytes();
 
         final String messageHash = Base64.getEncoder().encodeToString(messageHashData);
-        final StagingTransaction stagingTransaction = new StagingTransaction();
-        stagingTransaction.setHash(messageHash);
-        stagingTransaction.setCipherText(encodedPayload.getCipherText());
-        stagingTransaction.setCipherTextNonce(encodedPayload.getCipherTextNonce().getNonceBytes());
-        stagingTransaction.setRecipientNonce(encodedPayload.getRecipientNonce().getNonceBytes());
-        stagingTransaction.setSenderKey(encodedPayload.getSenderKey().getKeyBytes());
-        stagingTransaction.setExecHash(encodedPayload.getExecHash());
-        stagingTransaction.setPrivacyMode(encodedPayload.getPrivacyMode());
 
-        PublicKey firstRecipientKey = encodedPayload.getRecipientKeys().get(0);
-        final StagingRecipient firstStagingRecipient = new StagingRecipient(firstRecipientKey.getKeyBytes());
+        return encodedPayload.getRecipientKeys().stream().map(recipientKey -> {
 
-        stagingTransaction.getRecipients().add(firstStagingRecipient);
+            StagingTransaction stagingTransaction = new StagingTransaction();
+            stagingTransaction.setHash(messageHash);
+            stagingTransaction.setSenderKey(encodedPayload.getSenderKey().getKeyBytes());
+            stagingTransaction.setCipherText(encodedPayload.getCipherText());
+            stagingTransaction.setCipherTextNonce(encodedPayload.getCipherTextNonce().getNonceBytes());
+            stagingTransaction.setRecipientNonce(encodedPayload.getRecipientNonce().getNonceBytes());
+            stagingTransaction.setExecHash(encodedPayload.getExecHash());
+            stagingTransaction.setPrivacyMode(encodedPayload.getPrivacyMode());
+            stagingTransaction.setRecipientKey(recipientKey.getKeyBytes());
+            stagingTransaction.setAffectedContractTransactions(affectedTransactions);
 
-        for (PublicKey recipient : encodedPayload.getRecipientKeys()
-            .subList(1,encodedPayload.getRecipientKeys().size())) {
+            return stagingTransaction;
+        }).collect(Collectors.toSet());
 
-            final StagingRecipient stagingRecipient = new StagingRecipient(recipient.getKeyBytes());
 
-            stagingRecipient.setMessageHash(messageHash);
-            stagingRecipient.setTransaction(stagingTransaction);
-            stagingRecipient.setInitiator(false);
-            stagingTransaction.getRecipients().add(stagingRecipient);
-        }
-
-        for (Map.Entry<TxHash, byte[]> entry : encodedPayload.getAffectedContractTransactions().entrySet()) {
-
-            final StagingAffectedTransaction stagingAffectedContractTransaction = new StagingAffectedTransaction();
-            String messageHashStr = Base64.getEncoder().encodeToString(entry.getKey().getBytes());
-
-            stagingAffectedContractTransaction.setSourceTransaction(stagingTransaction);
-            stagingAffectedContractTransaction.setHash(messageHashStr);
-
-            stagingTransaction
-                .getAffectedContractTransactions()
-                .add(stagingAffectedContractTransaction);
-
-        }
-
-        StagingTransactionVersion version = new StagingTransactionVersion();
-        version.setTransaction(stagingTransaction);
-        version.setPayload(payload);
-
-        version.setPrivacyMode(stagingTransaction.getPrivacyMode());
-        stagingTransaction.getVersions().add(version);
-
-        return stagingTransaction;
-    }
-
-    public static StagingTransaction versionStagingTransaction(
-            StagingTransaction existing, StagingTransaction newTransaction) {
-
-        if (!compareData(existing, newTransaction)) {
-            existing.setIssues("Data mismatched across versions");
-        }
-
-        if (PrivacyMode.PRIVATE_STATE_VALIDATION == existing.getPrivacyMode()) {
-            if (!(existing.getRecipients().containsAll(newTransaction.getRecipients())
-                    && newTransaction.getRecipients().containsAll(existing.getRecipients()))) {
-                existing.setIssues("Recipients mismatched across versions");
-            }
-        } else {
-            existing.getRecipients().addAll(newTransaction.getRecipients());
-        }
-        existing.getAffectedContractTransactions().addAll(newTransaction.getAffectedContractTransactions());
-
-        Set<StagingTransactionVersion> versions = newTransaction.getVersions();
-        existing.getVersions().addAll(versions);
-
-        return existing;
     }
 
     private static boolean compareData(StagingTransaction st1, StagingTransaction st2) {

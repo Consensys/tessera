@@ -32,7 +32,7 @@ public class StagingTransaction implements Serializable {
     private Long id;
 
     @Basic
-    @Column(name = "HASH", nullable = false, unique = true, updatable = false)
+    @Column(name = "HASH", nullable = false,updatable = false)
     private String hash;
 
     @Lob
@@ -70,12 +70,9 @@ public class StagingTransaction implements Serializable {
     @Column(name = "TIMESTAMP", updatable = false)
     private long timestamp;
 
-    @OneToMany(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.ALL},
-            mappedBy = "transaction",
-            orphanRemoval = true)
-    private Set<StagingRecipient> recipients = new HashSet<>();
+    @Lob
+    @Column(name="RECIPIENT_KEY")
+    private byte[] recipientKey;
 
     @OneToMany(
             fetch = FetchType.LAZY,
@@ -84,12 +81,9 @@ public class StagingTransaction implements Serializable {
             orphanRemoval = true)
     private Set<StagingAffectedTransaction> affectedContractTransactions = new HashSet<>();
 
-    @OneToMany(
-            fetch = FetchType.LAZY,
-            cascade = {CascadeType.ALL},
-            mappedBy = "transaction",
-            orphanRemoval = true)
-    private Set<StagingTransactionVersion> versions = new HashSet<>();
+    @Lob
+    @Column(name = "PAYLOAD")
+    private byte[] payload;
 
     public StagingTransaction() {}
 
@@ -118,9 +112,7 @@ public class StagingTransaction implements Serializable {
         return this.timestamp;
     }
 
-    public Set<StagingRecipient> getRecipients() {
-        return recipients;
-    }
+
 
     public byte[] getSenderKey() {
         return senderKey;
@@ -152,10 +144,6 @@ public class StagingTransaction implements Serializable {
 
     public void setRecipientNonce(byte[] recipientNonce) {
         this.recipientNonce = recipientNonce;
-    }
-
-    public void setRecipients(Set<StagingRecipient> recipients) {
-        this.recipients = recipients;
     }
 
     public Set<StagingAffectedTransaction> getAffectedContractTransactions() {
@@ -198,12 +186,22 @@ public class StagingTransaction implements Serializable {
         this.privacyMode = privacyMode;
     }
 
-    public Set<StagingTransactionVersion> getVersions() {
-        return versions;
+
+
+    public byte[] getRecipientKey() {
+        return recipientKey;
     }
 
-    public void setVersions(Set<StagingTransactionVersion> versions) {
-        this.versions = versions;
+    public void setRecipientKey(byte[] recipientKey) {
+        this.recipientKey = recipientKey;
+    }
+
+    public byte[] getPayload() {
+        return payload;
+    }
+
+    public void setPayload(byte[] payload) {
+        this.payload = payload;
     }
 
     @Override

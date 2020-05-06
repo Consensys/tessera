@@ -5,7 +5,6 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
-import com.quorum.tessera.data.staging.StagingTransactionVersion;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.Nonce;
@@ -387,7 +386,6 @@ public class BatchResendManagerTest {
 
         manager.storeResendBatch(request);
 
-        verify(stagingEntityDAO).retrieveByHash(any());
         verify(stagingEntityDAO).save(any(StagingTransaction.class));
     }
 
@@ -419,8 +417,7 @@ public class BatchResendManagerTest {
 
         manager.storeResendBatch(request);
 
-        verify(stagingEntityDAO).retrieveByHash(any());
-        verify(stagingEntityDAO).update(any(StagingTransaction.class));
+        verify(stagingEntityDAO).save(any(StagingTransaction.class));
     }
 
     @Test
@@ -490,18 +487,18 @@ public class BatchResendManagerTest {
     @Test
     public void testPerformSync() {
 
-        StagingTransactionVersion version1 = mock(StagingTransactionVersion.class);
-        StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
+        StagingTransaction version1 = mock(StagingTransaction.class);
+        StagingTransaction version2 = mock(StagingTransaction.class);
+
+        when(version1.getHash()).thenReturn("TXN1");
+        when(version2.getHash()).thenReturn("TXN1");
+
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
 
-        StagingTransaction stagingTransaction = mock(StagingTransaction.class);
-
-        when(stagingTransaction.getVersions()).thenReturn(versions);
 
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-                .thenReturn(singletonList(stagingTransaction));
+                .thenReturn(List.of(version1,version2));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
         when(resendStoreDelegate.storePayload(any())).thenReturn(new MessageHash("hash".getBytes()));
@@ -518,17 +515,18 @@ public class BatchResendManagerTest {
     @Test
     public void testPerformSyncPartiallyFailed() {
 
-        StagingTransactionVersion version1 = mock(StagingTransactionVersion.class);
-        StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
+        StagingTransaction version1 = mock(StagingTransaction.class);
+        StagingTransaction version2 = mock(StagingTransaction.class);
+
+        when(version1.getHash()).thenReturn("TXN1");
+        when(version2.getHash()).thenReturn("TXN1");
+
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
 
-        StagingTransaction stagingTransaction = mock(StagingTransaction.class);
-        when(stagingTransaction.getVersions()).thenReturn(versions);
 
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-                .thenReturn(singletonList(stagingTransaction));
+                .thenReturn(List.of(version1,version2));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
         when(resendStoreDelegate.storePayload("payload1".getBytes())).thenThrow(PrivacyViolationException.class);
@@ -547,18 +545,18 @@ public class BatchResendManagerTest {
     @Test
     public void testPerformSyncFailed() {
 
-        StagingTransactionVersion version1 = mock(StagingTransactionVersion.class);
-        StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
+        StagingTransaction version1 = mock(StagingTransaction.class);
+        StagingTransaction version2 = mock(StagingTransaction.class);
+        when(version1.getHash()).thenReturn("TXN1");
+        when(version2.getHash()).thenReturn("TXN1");
+
+
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
-
-        StagingTransaction stagingTransaction = mock(StagingTransaction.class);
-
-        when(stagingTransaction.getVersions()).thenReturn(versions);
 
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-                .thenReturn(singletonList(stagingTransaction));
+                .thenReturn(List.of(version1,version2));
+
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
         when(resendStoreDelegate.storePayload(any())).thenThrow(PrivacyViolationException.class);
@@ -574,32 +572,7 @@ public class BatchResendManagerTest {
         verify(resendStoreDelegate).storePayload("payload2".getBytes());
     }
 
-    @Test
-    public void testPerformSyncIgnoreDataWithConsistencyIssue() {
 
-        StagingTransactionVersion version1 = mock(StagingTransactionVersion.class);
-        StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
-        when(version1.getPayload()).thenReturn("payload1".getBytes());
-        when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
-
-        StagingTransaction stagingTransaction = mock(StagingTransaction.class);
-
-        when(stagingTransaction.getIssues()).thenReturn("Some issues");
-
-        when(stagingTransaction.getVersions()).thenReturn(versions);
-
-        when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-                .thenReturn(singletonList(stagingTransaction));
-        when(stagingEntityDAO.countAll()).thenReturn(1L);
-
-        when(resendStoreDelegate.storePayload(any())).thenReturn(new MessageHash("hash".getBytes()));
-
-        manager.performSync();
-
-        verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
-        verify(stagingEntityDAO, times(2)).countAll();
-    }
 
     @Test
     public void testIsResendMode() {
