@@ -20,37 +20,42 @@ public class EntityManagerDAOFactory {
 
     private final EntityManagerFactory stagingEntityManagerFactory;
 
-    private EntityManagerDAOFactory(EntityManagerFactory entityManagerFactory,EntityManagerFactory stagingEntityManagerFactory) {
+    private EntityManagerDAOFactory(
+            EntityManagerFactory entityManagerFactory, EntityManagerFactory stagingEntityManagerFactory) {
         this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);
         this.stagingEntityManagerFactory = Objects.requireNonNull(stagingEntityManagerFactory);
-
     }
 
     public static EntityManagerDAOFactory newFactory(Config config) {
-        LOGGER.debug("New EntityManagerDAOFactory from {}",config);
+        LOGGER.debug("New EntityManagerDAOFactory from {}", config);
         final String username = config.getJdbcConfig().getUsername();
         final String password = config.getJdbcConfig().getPassword();
         final String url = config.getJdbcConfig().getUrl();
 
         Map properties = new HashMap();
-        properties.put("javax.persistence.jdbc.url",url);
-        properties.put("javax.persistence.jdbc.user",username);
-        properties.put("javax.persistence.jdbc.password",password);
-        properties.put("eclipselink.logging.logger","org.eclipse.persistence.logging.slf4j.SLF4JLogger");
-        properties.put("eclipselink.logging.level","FINE");
-        properties.put("eclipselink.logging.parameters","true");
-        properties.put("eclipselink.logging.level.sql","FINE");
-        properties.put("javax.persistence.schema-generation.database.action",config.getJdbcConfig().isAutoCreateTables() ? "create" : "none");
-       // properties.put("eclipselink.session.customizer","org.eclipse.persistence.sequencing.UUIDSequence");
+        properties.put("javax.persistence.jdbc.url", url);
+        properties.put("javax.persistence.jdbc.user", username);
+        properties.put("javax.persistence.jdbc.password", password);
+        properties.put("eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+        properties.put("eclipselink.logging.level", "FINE");
+        properties.put("eclipselink.logging.parameters", "true");
+        properties.put("eclipselink.logging.level.sql", "FINE");
+        properties.put(
+                "javax.persistence.schema-generation.database.action",
+                config.getJdbcConfig().isAutoCreateTables() ? "create" : "none");
 
-        LOGGER.debug("Creating EntityManagerFactory from {}",properties);
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tessera",properties);
-        LOGGER.debug("Created EntityManagerFactory from {}",properties);
+        LOGGER.debug("Creating EntityManagerFactory from {}", properties);
+        final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
+        LOGGER.debug("Created EntityManagerFactory from {}", properties);
 
+        final Map stagingProperties = new HashMap(properties);
+        stagingProperties.put("eclipselink.session.customizer", "com.quorum.tessera.eclipselink.AtomicLongSequence");
+        stagingProperties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
 
-        EntityManagerFactory stagingEntityManagerFactory = Persistence.createEntityManagerFactory("tessera-recover",properties);
+        final EntityManagerFactory stagingEntityManagerFactory =
+                Persistence.createEntityManagerFactory("tessera-recover", stagingProperties);
 
-        return new EntityManagerDAOFactory(entityManagerFactory,stagingEntityManagerFactory);
+        return new EntityManagerDAOFactory(entityManagerFactory, stagingEntityManagerFactory);
     }
 
     public EncryptedTransactionDAO createEncryptedTransactionDAO() {
@@ -67,6 +72,4 @@ public class EntityManagerDAOFactory {
         LOGGER.debug("Create StagingEntityDAO");
         return new StagingEntityDAOImpl(stagingEntityManagerFactory);
     }
-
-
 }
