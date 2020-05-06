@@ -1,10 +1,7 @@
 package com.quorum.tessera.data.staging;
 
 import com.quorum.tessera.data.MessageHashFactory;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoderImpl;
-import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.enclave.TxHash;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Arrays;
@@ -17,7 +14,7 @@ public class StagingTransactionConverter {
     private StagingTransactionConverter() {}
 
     public static StagingTransaction fromRawPayload(final byte[] payload) {
-        final EncodedPayload encodedPayload = new PayloadEncoderImpl().decode(payload);
+        final EncodedPayload encodedPayload = PayloadEncoder.create().decode(payload);
 
         final byte[] messageHashData =
                         MessageHashFactory.create()
