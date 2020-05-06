@@ -26,9 +26,6 @@ import com.quorum.tessera.transaction.exception.StoreEntityException;
 import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.Basic;
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -90,7 +87,6 @@ public class BatchResendManagerImpl implements BatchResendManager {
     }
 
     @Override
-    @Transactional
     public ResendBatchResponse resendBatch(ResendBatchRequest request) {
 
         validateEnclaveStatus();
@@ -169,7 +165,6 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     // TODO use some locking mechanism to make this more efficient
     @Override
-    @Transactional
     public synchronized void storeResendBatch(PushBatchRequest resendPushBatchRequest) {
         resendPushBatchRequest.getEncodedPayloads().stream()
                 .map(StagingTransactionConverter::fromRawPayload)
