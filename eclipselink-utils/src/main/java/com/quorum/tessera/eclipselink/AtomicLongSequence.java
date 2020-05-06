@@ -9,10 +9,22 @@ import org.eclipse.persistence.internal.sessions.AbstractSession;
 import org.eclipse.persistence.sequencing.Sequence;
 import org.eclipse.persistence.sessions.Session;
 
-/*
-Quick and dirty sequence generator for staging data.
+/**
+<p>>Quick and dirty sequence generator for staging data.
 Cannot be used for non staging use cass as  sequence only lives for
-duration of process.
+duration of process.</p>
+
+<h6>Usage</h6>
+ <pre>
+ @Id
+ @GeneratedValue(generator = "ATOMIC_LONG",strategy = GenerationType.AUTO)
+ private Long id;
+ </pre>
+ <p>In persistance.xml or properties map</p>
+ <pre>
+ eclipselink.session.customizer=com.quorum.tessera.eclipselink.AtomicLongSequence
+ </pre>
+
  */
 public class AtomicLongSequence extends Sequence implements SessionCustomizer {
 
