@@ -21,11 +21,6 @@ public class MockBatchResendManager implements com.quorum.tessera.recover.resend
     }
 
     @Override
-    public void cleanupStagingArea() {
-
-    }
-
-    @Override
     public Result performStaging() {
         return null;
     }
