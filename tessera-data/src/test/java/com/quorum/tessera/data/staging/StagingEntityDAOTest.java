@@ -89,8 +89,11 @@ public class StagingEntityDAOTest {
     }
 
     @Test
-    public void testStagingQuery() {
+    public void findTransactionsForStaging() {
 
+
+        int results = stagingEntityDAO.updateStageForBatch(1,99L);
+        assertThat(results).isOne();
 
         final List<StagingTransaction> transactionsBeforeStaging =
             stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
@@ -100,7 +103,7 @@ public class StagingEntityDAOTest {
             .allMatch(stagingTransaction -> Objects.isNull(stagingTransaction.getValidationStage()));
 
 
-        stagingEntityDAO.performStaging(Integer.MAX_VALUE);
+        stagingEntityDAO.updateStageForBatch(Integer.MAX_VALUE,1L);
 
         final List<StagingTransaction> verifiedTransactions = stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(0, Integer.MAX_VALUE);
 

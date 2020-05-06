@@ -4,7 +4,6 @@ import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
-import com.quorum.tessera.data.staging.StagingRecipient;
 import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.data.staging.StagingTransactionVersion;
 import com.quorum.tessera.enclave.*;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -432,6 +432,7 @@ public class BatchResendManagerTest {
         when(st1.getValidationStage()).thenReturn(1L);
         when(st2.getValidationStage()).thenReturn(2L);
 
+        when(stagingEntityDAO.updateStageForBatch(anyInt(),anyLong())).thenReturn(0);
         when(stagingEntityDAO.countAll()).thenReturn(2L);
         when(stagingEntityDAO.countStaged()).thenReturn(2L);
 
@@ -439,7 +440,7 @@ public class BatchResendManagerTest {
 
         assertThat(result).isEqualTo(BatchResendManager.Result.SUCCESS);
 
-        verify(stagingEntityDAO).performStaging(anyInt());
+        verify(stagingEntityDAO).updateStageForBatch(anyInt(),anyLong());
         verify(stagingEntityDAO).countAll();
         verify(stagingEntityDAO).countStaged();
     }
@@ -455,11 +456,12 @@ public class BatchResendManagerTest {
         when(stagingEntityDAO.countAll()).thenReturn(2L);
         when(stagingEntityDAO.countStaged()).thenReturn(1L);
 
+        when(stagingEntityDAO.updateStageForBatch(anyInt(),anyLong())).thenReturn(0);
         BatchResendManager.Result result = manager.performStaging();
 
         assertThat(result).isEqualTo(BatchResendManager.Result.PARTIAL_SUCCESS);
 
-        verify(stagingEntityDAO).performStaging(anyInt());
+        verify(stagingEntityDAO).updateStageForBatch(anyInt(),anyLong());
         verify(stagingEntityDAO).countAll();
         verify(stagingEntityDAO).countStaged();
     }
@@ -472,6 +474,8 @@ public class BatchResendManagerTest {
         when(st1.getValidationStage()).thenReturn(null);
         when(st2.getValidationStage()).thenReturn(null);
 
+        when(stagingEntityDAO.updateStageForBatch(anyInt(),anyLong())).thenReturn(0);
+
         when(stagingEntityDAO.countAll()).thenReturn(2L);
         when(stagingEntityDAO.countStaged()).thenReturn(0L);
 
@@ -479,7 +483,7 @@ public class BatchResendManagerTest {
 
         assertThat(result).isEqualTo(BatchResendManager.Result.FAILURE);
 
-        verify(stagingEntityDAO).performStaging(anyInt());
+       verify(stagingEntityDAO).updateStageForBatch(anyInt(),anyLong());
         verify(stagingEntityDAO).countAll();
         verify(stagingEntityDAO).countStaged();
     }
@@ -491,13 +495,11 @@ public class BatchResendManagerTest {
         StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Map<StagingRecipient, StagingTransactionVersion> versions = new HashMap<>();
-        versions.put(mock(StagingRecipient.class), version1);
-        versions.put(mock(StagingRecipient.class), version2);
+        Set<StagingTransactionVersion> versions = Set.of(version1,version2);
 
         StagingTransaction stagingTransaction = mock(StagingTransaction.class);
 
-        when(stagingTransaction.getVersions()).thenReturn(versions);
+       when(stagingTransaction.getVersions()).thenReturn(versions);
 
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
                 .thenReturn(singletonList(stagingTransaction));
@@ -521,12 +523,9 @@ public class BatchResendManagerTest {
         StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Map<StagingRecipient, StagingTransactionVersion> versions = new HashMap<>();
-        versions.put(mock(StagingRecipient.class), version1);
-        versions.put(mock(StagingRecipient.class), version2);
+        Set<StagingTransactionVersion> versions = Set.of(version1,version2);
 
         StagingTransaction stagingTransaction = mock(StagingTransaction.class);
-
         when(stagingTransaction.getVersions()).thenReturn(versions);
 
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
@@ -554,9 +553,7 @@ public class BatchResendManagerTest {
         StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Map<StagingRecipient, StagingTransactionVersion> versions = new HashMap<>();
-        versions.put(mock(StagingRecipient.class), version1);
-        versions.put(mock(StagingRecipient.class), version2);
+        Set<StagingTransactionVersion> versions = Set.of(version1,version2);
 
         StagingTransaction stagingTransaction = mock(StagingTransaction.class);
 
@@ -586,9 +583,7 @@ public class BatchResendManagerTest {
         StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Map<StagingRecipient, StagingTransactionVersion> versions = new HashMap<>();
-        versions.put(mock(StagingRecipient.class), version1);
-        versions.put(mock(StagingRecipient.class), version2);
+        Set<StagingTransactionVersion> versions = Set.of(version1,version2);
 
         StagingTransaction stagingTransaction = mock(StagingTransaction.class);
 
@@ -608,15 +603,7 @@ public class BatchResendManagerTest {
         verify(stagingEntityDAO, times(2)).countAll();
     }
 
-    @Test
-    public void testCleanUpStaging() {
 
-        doNothing().when(stagingEntityDAO).cleanStagingArea(anyInt());
-
-        manager.cleanupStagingArea();
-
-        verify(stagingEntityDAO).cleanStagingArea(anyInt());
-    }
 
     @Test
     public void testIsResendMode() {

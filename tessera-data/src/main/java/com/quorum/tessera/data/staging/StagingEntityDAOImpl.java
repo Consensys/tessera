@@ -10,7 +10,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A JPA implementation of {@link StagingEntityDAO}
@@ -46,22 +45,19 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
 
             return entity;
         });
-
-
     }
 
     @Override
     public Optional<StagingTransaction> retrieveByHash(final String hash) {
         return entityManagerTemplate.execute(entityManager -> {
-            LOGGER.info("Retrieving payload with hash {}", hash);
+            LOGGER.debug("Retrieving payload with hash {}", hash);
 
             CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
             CriteriaQuery<StagingTransaction> query = criteriaBuilder.createQuery(StagingTransaction.class);
             Root<StagingTransaction> root = query.from(StagingTransaction.class);
-
             query.select(root)
                 .where(
-                    criteriaBuilder.equal(root.get("hash"),hash)
+                    criteriaBuilder.equal(root.get("hash"), hash)
                 );
             return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
         });
@@ -81,7 +77,6 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
             .getResultList());
     }
 
-
     @Override
     public long countAll() {
         return entityManagerTemplate.execute(em ->
@@ -97,26 +92,17 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
     }
 
     @Override
-    public void performStaging(int batchSize) {
+    public int updateStageForBatch(int batchSize, long validationStage) {
 
-        AtomicLong stage = new AtomicLong(0);
-
-        while (true) {
-            final long stg = stage.incrementAndGet();
-            boolean outcome = entityManagerTemplate.execute(entityManager -> {
-
+        return entityManagerTemplate.execute(
+            entityManager -> {
                 List<StagingTransaction> resultList = entityManager.createNamedQuery("StagingTransaction.stagingQuery", StagingTransaction.class)
                     .setMaxResults(batchSize)
                     .getResultList();
 
-                for (StagingTransaction st : resultList) {
-                    st.setValidationStage(stg);
-                }
-                return resultList.isEmpty();
+                resultList.forEach(st -> st.setValidationStage(validationStage));
+
+                return resultList.size();
             });
-            if(outcome) {
-                break;
-            }
-        }
     }
 }

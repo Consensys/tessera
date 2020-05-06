@@ -27,6 +27,7 @@ import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.Basic;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final Enclave enclave;
 
-    private final TransactionManager resendStoreDelegate;
+    private final TransactionManager transactionManager;
 
     private final StagingEntityDAO stagingEntityDAO;
 
@@ -82,7 +83,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.enclave = Objects.requireNonNull(enclave);
-        this.resendStoreDelegate = Objects.requireNonNull(transactionManager);
+        this.transactionManager = Objects.requireNonNull(transactionManager);
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
@@ -177,7 +178,11 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     @Override
     public Result performStaging() {
-        stagingEntityDAO.performStaging(BATCH_SIZE);
+
+        final AtomicLong stage = new AtomicLong(0);
+
+        while(stagingEntityDAO.updateStageForBatch(BATCH_SIZE,stage.incrementAndGet()) != 0) {
+        }
 
         final long totalCount = stagingEntityDAO.countAll();
         final long countValidated = stagingEntityDAO.countStaged();
@@ -224,7 +229,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
                 for (byte[] payload : payloadsToSend) {
                     try {
-                        resendStoreDelegate.storePayload(payload);
+                        transactionManager.storePayload(payload);
                     } catch (PrivacyViolationException | StoreEntityException ex) {
                         LOGGER.error("An error occured during batch resend sync stage.", ex);
                         syncFailureCount++;
@@ -260,6 +265,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
     private void handleStagingTransaction(StagingTransaction stagingTransaction) {
         final Optional<StagingTransaction> existingTransaction =
                 stagingEntityDAO.retrieveByHash(stagingTransaction.getHash());
+
         if (existingTransaction.isPresent()) {
             final StagingTransaction merged =
                     StagingTransactionConverter.versionStagingTransaction(
