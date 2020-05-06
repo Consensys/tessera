@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.11-SNAPSHOT</version>
+        <version>0.10.6-SNAPSHOT</version>
     </parent>
     <artifactId>tessera-recover</artifactId>
     <packaging>jar</packaging>
@@ -21,7 +21,13 @@
             <artifactId>enclave-api</artifactId>
             <type>jar</type>
         </dependency>
-        
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-core</artifactId>
+            <type>jar</type>
+        </dependency>
+
         <dependency>
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>

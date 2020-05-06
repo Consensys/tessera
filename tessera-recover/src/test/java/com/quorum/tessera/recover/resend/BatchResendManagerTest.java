@@ -26,7 +26,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.*;
-import java.util.function.Supplier;
 
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -432,7 +431,7 @@ public class BatchResendManagerTest {
         when(st1.getValidationStage()).thenReturn(1L);
         when(st2.getValidationStage()).thenReturn(2L);
 
-        when(stagingEntityDAO.updateStageForBatch(anyInt(),anyLong())).thenReturn(0);
+        when(stagingEntityDAO.updateStageForBatch(anyInt(), anyLong())).thenReturn(0);
         when(stagingEntityDAO.countAll()).thenReturn(2L);
         when(stagingEntityDAO.countStaged()).thenReturn(2L);
 
@@ -440,7 +439,7 @@ public class BatchResendManagerTest {
 
         assertThat(result).isEqualTo(BatchResendManager.Result.SUCCESS);
 
-        verify(stagingEntityDAO).updateStageForBatch(anyInt(),anyLong());
+        verify(stagingEntityDAO).updateStageForBatch(anyInt(), anyLong());
         verify(stagingEntityDAO).countAll();
         verify(stagingEntityDAO).countStaged();
     }
@@ -456,12 +455,12 @@ public class BatchResendManagerTest {
         when(stagingEntityDAO.countAll()).thenReturn(2L);
         when(stagingEntityDAO.countStaged()).thenReturn(1L);
 
-        when(stagingEntityDAO.updateStageForBatch(anyInt(),anyLong())).thenReturn(0);
+        when(stagingEntityDAO.updateStageForBatch(anyInt(), anyLong())).thenReturn(0);
         BatchResendManager.Result result = manager.performStaging();
 
         assertThat(result).isEqualTo(BatchResendManager.Result.PARTIAL_SUCCESS);
 
-        verify(stagingEntityDAO).updateStageForBatch(anyInt(),anyLong());
+        verify(stagingEntityDAO).updateStageForBatch(anyInt(), anyLong());
         verify(stagingEntityDAO).countAll();
         verify(stagingEntityDAO).countStaged();
     }
@@ -474,7 +473,7 @@ public class BatchResendManagerTest {
         when(st1.getValidationStage()).thenReturn(null);
         when(st2.getValidationStage()).thenReturn(null);
 
-        when(stagingEntityDAO.updateStageForBatch(anyInt(),anyLong())).thenReturn(0);
+        when(stagingEntityDAO.updateStageForBatch(anyInt(), anyLong())).thenReturn(0);
 
         when(stagingEntityDAO.countAll()).thenReturn(2L);
         when(stagingEntityDAO.countStaged()).thenReturn(0L);
@@ -483,7 +482,7 @@ public class BatchResendManagerTest {
 
         assertThat(result).isEqualTo(BatchResendManager.Result.FAILURE);
 
-       verify(stagingEntityDAO).updateStageForBatch(anyInt(),anyLong());
+        verify(stagingEntityDAO).updateStageForBatch(anyInt(), anyLong());
         verify(stagingEntityDAO).countAll();
         verify(stagingEntityDAO).countStaged();
     }
@@ -495,11 +494,11 @@ public class BatchResendManagerTest {
         StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Set<StagingTransactionVersion> versions = Set.of(version1,version2);
+        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
 
         StagingTransaction stagingTransaction = mock(StagingTransaction.class);
 
-       when(stagingTransaction.getVersions()).thenReturn(versions);
+        when(stagingTransaction.getVersions()).thenReturn(versions);
 
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
                 .thenReturn(singletonList(stagingTransaction));
@@ -523,7 +522,7 @@ public class BatchResendManagerTest {
         StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Set<StagingTransactionVersion> versions = Set.of(version1,version2);
+        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
 
         StagingTransaction stagingTransaction = mock(StagingTransaction.class);
         when(stagingTransaction.getVersions()).thenReturn(versions);
@@ -532,8 +531,7 @@ public class BatchResendManagerTest {
                 .thenReturn(singletonList(stagingTransaction));
         when(stagingEntityDAO.countAll()).thenReturn(1L);
 
-        when(resendStoreDelegate.storePayload("payload1".getBytes()))
-                .thenThrow(PrivacyViolationException.class);
+        when(resendStoreDelegate.storePayload("payload1".getBytes())).thenThrow(PrivacyViolationException.class);
 
         BatchResendManager.Result result = manager.performSync();
 
@@ -553,7 +551,7 @@ public class BatchResendManagerTest {
         StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Set<StagingTransactionVersion> versions = Set.of(version1,version2);
+        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
 
         StagingTransaction stagingTransaction = mock(StagingTransaction.class);
 
@@ -583,7 +581,7 @@ public class BatchResendManagerTest {
         StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
-        Set<StagingTransactionVersion> versions = Set.of(version1,version2);
+        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
 
         StagingTransaction stagingTransaction = mock(StagingTransaction.class);
 
@@ -602,8 +600,6 @@ public class BatchResendManagerTest {
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
     }
-
-
 
     @Test
     public void testIsResendMode() {
