@@ -9,7 +9,7 @@
 
 <!--    <tx:annotation-driven transaction-manager="jpaTransactionManager"/>-->
 
-<!--    <context:component-scan base-package="com.quorum.tessera"/>-->
+    <context:component-scan base-package="com.quorum.tessera"/>
 
     <bean id="enclaveFactory" class="com.quorum.tessera.enclave.EnclaveFactory" factory-method="create" />
 
