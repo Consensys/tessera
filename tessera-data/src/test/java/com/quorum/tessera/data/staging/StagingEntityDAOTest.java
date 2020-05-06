@@ -327,6 +327,6 @@ public class StagingEntityDAOTest {
 
     @Parameterized.Parameters(name = "DB {0}")
     public static Collection<TestConfig> connectionDetails() {
-        return List.of(TestConfig.H2);
+        return List.of(TestConfig.values());
     }
 }

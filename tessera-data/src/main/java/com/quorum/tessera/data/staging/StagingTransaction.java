@@ -15,10 +15,14 @@ import java.util.*;
     @NamedQuery(
             name = "StagingTransaction.stagingQuery",
             query =
-                    "SELECT st FROM StagingTransaction st WHERE st.validationStage is null and not exists "
+                    "select st FROM StagingTransaction st where st.validationStage is null and not exists "
                             + "    (select act from StagingAffectedTransaction act  where act.sourceTransaction.hash = st.hash and  "
                             + "        (select ast.validationStage from StagingTransaction ast where ast.hash = act.hash) is null"
-                            + "    )")
+                            + "    )"),
+    @NamedQuery(name = "StagingTransaction.countAll",query = "select count(st) from StagingTransaction st"),
+    @NamedQuery(name="StagingTransaction.countStaged",query = "select count(st) from StagingTransaction st where st.validationStage is not null"),
+    @NamedQuery(name="StagingTransaction.findAllOrderByStage",
+        query = "select st from StagingTransaction st order by coalesce(st.validationStage, select max(st.validationStage)+1 from StagingTransaction st), st.hash")
 })
 public class StagingTransaction implements Serializable {
 
