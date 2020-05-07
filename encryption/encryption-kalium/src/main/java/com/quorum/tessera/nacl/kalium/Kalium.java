@@ -44,7 +44,7 @@ public class Kalium implements Encryptor {
                         output, publicKey.getKeyBytes(), privateKey.getKeyBytes());
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
+            LOGGER.error("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
             LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
             throw new EncryptorException("Kalium could not compute the shared key");
         }
@@ -85,7 +85,7 @@ public class Kalium implements Encryptor {
                         privateKey.getKeyBytes());
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Could not create sealed payload using public key {} and private key {}", publicKey, REDACTED);
+            LOGGER.error("Could not create sealed payload using public key {} and private key {}", publicKey, REDACTED);
             LOGGER.debug(
                     "Could not create sealed payload using public key {} and private key {}", publicKey, privateKey);
             throw new EncryptorException("Kalium could not seal the payload using the provided keys directly");
@@ -169,7 +169,7 @@ public class Kalium implements Encryptor {
                         output, paddedMessage, paddedMessage.length, nonce.getNonceBytes(), sharedKey.getKeyBytes());
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Could not create sealed payload using shared key {}", sharedKey);
+            LOGGER.error("Could not create sealed payload using shared key {}", sharedKey);
             LOGGER.debug("Could not create sealed payload using shared key {}", sharedKey);
             throw new EncryptorException("Kalium could not seal the payload using the shared key");
         }
@@ -209,7 +209,7 @@ public class Kalium implements Encryptor {
                         paddedOutput, paddedInput, paddedInput.length, nonce.getNonceBytes(), sharedKey.getKeyBytes());
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Could not open sealed payload using shared key {}", sharedKey);
+            LOGGER.error("Could not open sealed payload using shared key {}", sharedKey);
             LOGGER.debug("Could not open sealed payload using shared key {}", sharedKey);
             throw new EncryptorException("Kalium could not open the payload using the shared key");
         }
@@ -250,7 +250,7 @@ public class Kalium implements Encryptor {
         final int sodiumResult = this.sodium.crypto_box_curve25519xsalsa20poly1305_keypair(publicKey, privateKey);
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Unable to generate a new keypair!");
+            LOGGER.error("Unable to generate a new keypair!");
             throw new EncryptorException("Kalium could not generate a new public/private keypair");
         }
 

@@ -42,7 +42,7 @@ public class Jnacl implements Encryptor {
                 secretBox.cryptoBoxBeforenm(precomputed, publicKey.getKeyBytes(), privateKey.getKeyBytes());
 
         if (jnaclResult == -1) {
-            LOGGER.warn("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
+            LOGGER.error("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
             LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
             throw new EncryptorException("JNacl could not compute the shared key");
         }
@@ -135,7 +135,7 @@ public class Jnacl implements Encryptor {
                         output, paddedMessage, paddedMessage.length, nonce.getNonceBytes(), sharedKey.getKeyBytes());
 
         if (jnaclResult == -1) {
-            LOGGER.warn("Could not create sealed payload using shared key {}", sharedKey);
+            LOGGER.error("Could not create sealed payload using shared key {}", sharedKey);
             LOGGER.debug("Could not create sealed payload using shared key {}", sharedKey);
             throw new EncryptorException("jnacl could not seal the payload using the shared key");
         }
@@ -164,7 +164,7 @@ public class Jnacl implements Encryptor {
                         paddedOutput, paddedInput, paddedInput.length, nonce.getNonceBytes(), sharedKey.getKeyBytes());
 
         if (jnaclResult == -1) {
-            LOGGER.warn("Could not open sealed payload using shared key {}", sharedKey);
+            LOGGER.error("Could not open sealed payload using shared key {}", sharedKey);
             LOGGER.debug("Could not open sealed payload using shared key {}", sharedKey);
             throw new EncryptorException("jnacl could not open the payload using the shared key");
         }
@@ -204,7 +204,7 @@ public class Jnacl implements Encryptor {
         final int jnaclResult = secretBox.cryptoBoxKeypair(publicKey, privateKey);
 
         if (jnaclResult == -1) {
-            LOGGER.warn("Unable to generate a new keypair!");
+            LOGGER.error("Unable to generate a new keypair!");
             throw new EncryptorException("jnacl could not generate a new public/private keypair");
         }
 

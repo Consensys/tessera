@@ -130,7 +130,7 @@ public class PartyInfoResource {
 
                             final boolean isValid = Objects.equals(decodedValidationData, dataToEncrypt);
                             if (!isValid) {
-                                LOGGER.warn("Invalid key found {} recipient will be ignored.", r.getUrl());
+                                LOGGER.warn("Invalid key {} found, {} recipient will be ignored.", key, r.getUrl());
                                 LOGGER.debug("Response from {} was {}", url, decodedValidationData);
                             }
 
