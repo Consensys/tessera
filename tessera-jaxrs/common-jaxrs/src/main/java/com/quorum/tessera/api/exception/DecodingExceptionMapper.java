@@ -16,7 +16,7 @@ public class DecodingExceptionMapper implements ExceptionMapper<DecodingExceptio
 
     @Override
     public Response toResponse(final DecodingException exception) {
-        LOGGER.error("Error decoding message: {}", exception.getMessage());
+        LOGGER.warn("Failed to decode message: {}", exception.getMessage());
         LOGGER.debug(null, exception);
 
         return Response.status(Response.Status.BAD_REQUEST)
