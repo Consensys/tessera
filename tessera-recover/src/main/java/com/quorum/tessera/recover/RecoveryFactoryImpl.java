@@ -6,7 +6,7 @@ import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.sync.*;
-
+import com.quorum.tessera.transaction.TransactionManager;
 
 public class RecoveryFactoryImpl implements RecoveryFactory {
     @Override
@@ -16,10 +16,13 @@ public class RecoveryFactoryImpl implements RecoveryFactory {
 
         PartyInfoService partyInfoService = partyInfoServiceFactory.partyInfoService();
 
-        TransactionRequester transactionRequester = TransactionRequesterFactory.newFactory().createBatchTransactionRequester(config);
+        TransactionRequester transactionRequester =
+                TransactionRequesterFactory.newFactory().createBatchTransactionRequester(config);
 
         StagingEntityDAO stagingEntityDAO = EntityManagerDAOFactory.newFactory(config).createStagingEntityDAO();
 
-        return new RecoveryImpl(stagingEntityDAO,partyInfoService,transactionRequester);
+        TransactionManager transactionManager = TransactionManager.create(config);
+
+        return new RecoveryImpl(stagingEntityDAO, partyInfoService, transactionRequester, transactionManager);
     }
 }

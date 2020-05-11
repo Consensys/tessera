@@ -14,27 +14,14 @@ import java.util.Optional;
 
 public interface BatchResendManager {
 
-    enum Result {
-        SUCCESS,
-        PARTIAL_SUCCESS,
-        FAILURE
-    }
-
     ResendBatchResponse resendBatch(ResendBatchRequest request);
 
     void storeResendBatch(PushBatchRequest resendPushBatchRequest);
 
-    boolean isResendMode();
-
-    Result performStaging();
-
-    Result performSync();
-
-
     static BatchResendManager create(Config config) {
         Optional<BatchResendManager> batchResendManagerOptional = ServiceLoaderUtil.load(BatchResendManager.class);
 
-        if(batchResendManagerOptional.isPresent()) {
+        if (batchResendManagerOptional.isPresent()) {
             return batchResendManagerOptional.get();
         }
 
@@ -46,9 +33,7 @@ public interface BatchResendManager {
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
 
-        return new BatchResendManagerImpl(enclave,transactionManager,stagingEntityDAO,encryptedTransactionDAO,partyInfoService);
-
+        return new BatchResendManagerImpl(
+                enclave, transactionManager, stagingEntityDAO, encryptedTransactionDAO, partyInfoService);
     }
-
-
 }
