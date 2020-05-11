@@ -14,7 +14,6 @@ import com.quorum.tessera.partyinfo.PushBatchRequest;
 import com.quorum.tessera.partyinfo.ResendBatchRequest;
 import com.quorum.tessera.partyinfo.ResendBatchResponse;
 import com.quorum.tessera.service.Service;
-import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
@@ -35,8 +34,6 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final Enclave enclave;
 
-    private final TransactionManager transactionManager;
-
     private final StagingEntityDAO stagingEntityDAO;
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
@@ -45,7 +42,6 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     public BatchResendManagerImpl(
             Enclave enclave,
-            TransactionManager transactionManager,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PartyInfoService partyInfoService) {
@@ -53,7 +49,6 @@ public class BatchResendManagerImpl implements BatchResendManager {
                 PayloadEncoder.create(),
                 Base64Decoder.create(),
                 enclave,
-                transactionManager,
                 stagingEntityDAO,
                 encryptedTransactionDAO,
                 partyInfoService);
@@ -63,14 +58,12 @@ public class BatchResendManagerImpl implements BatchResendManager {
             PayloadEncoder payloadEncoder,
             Base64Decoder base64Decoder,
             Enclave enclave,
-            TransactionManager transactionManager,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PartyInfoService partyInfoService) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.enclave = Objects.requireNonNull(enclave);
-        this.transactionManager = Objects.requireNonNull(transactionManager);
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
         this.partyInfoService = Objects.requireNonNull(partyInfoService);

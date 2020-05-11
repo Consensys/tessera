@@ -8,7 +8,6 @@ import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.partyinfo.*;
-import com.quorum.tessera.transaction.TransactionManager;
 
 import java.util.Optional;
 
@@ -27,13 +26,12 @@ public interface BatchResendManager {
 
         PartyInfoService partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
         Enclave enclave = EnclaveFactory.create().create(config);
-        TransactionManager transactionManager = TransactionManager.create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
 
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
 
         return new BatchResendManagerImpl(
-                enclave, transactionManager, stagingEntityDAO, encryptedTransactionDAO, partyInfoService);
+                enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService);
     }
 }

@@ -3,6 +3,7 @@ package com.quorum.tessera.recover.resend;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.enclave.*;
@@ -15,12 +16,10 @@ import com.quorum.tessera.partyinfo.ResendBatchRequest;
 import com.quorum.tessera.partyinfo.ResendBatchResponse;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.util.Base64Decoder;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -66,7 +65,6 @@ public class BatchResendManagerTest {
                         payloadEncoder,
                         Base64Decoder.create(),
                         enclave,
-                        resendStoreDelegate,
                         stagingEntityDAO,
                         encryptedTransactionDAO,
                         partyInfoService);
@@ -167,7 +165,6 @@ public class BatchResendManagerTest {
         verify(partyInfoService).publishBatch(any(), any(PublicKey.class));
     }
 
-    @Ignore
     @Test
     public void testResendBatchWhenRequestedNodeIsSenderAndNoKeyFoundToDecrypt() {
         ResendBatchRequest request = new ResendBatchRequest();
@@ -192,6 +189,11 @@ public class BatchResendManagerTest {
         when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
 
+        final MessageHash hash =
+            MessageHashFactory.create()
+                .createFromCipherText(
+                    encodedPayload.getCipherText());
+
         Mockito.doNothing().when(partyInfoService).publishBatch(any(), any(PublicKey.class));
 
         assertThatExceptionOfType(RecipientKeyNotFoundException.class)
@@ -200,7 +202,7 @@ public class BatchResendManagerTest {
                             manager.resendBatch(request);
                             failBecauseExceptionWasNotThrown(any());
                         })
-                .withMessage("No key found as recipient of message Q0lQSEVSVEVYVA==");
+                .withMessage("No key found as recipient of message "+hash);
 
         verify(enclave).getPublicKeys();
         verify(enclave).status();
@@ -421,170 +423,10 @@ public class BatchResendManagerTest {
     }
 
     @Test
-    public void testPerformStagingSuccess() {
-
-        StagingTransaction st1 = mock(StagingTransaction.class);
-        StagingTransaction st2 = mock(StagingTransaction.class);
-        when(st1.getValidationStage()).thenReturn(1L);
-        when(st2.getValidationStage()).thenReturn(2L);
-
-        when(stagingEntityDAO.updateStageForBatch(anyInt(), anyLong())).thenReturn(0);
-        when(stagingEntityDAO.countAll()).thenReturn(2L);
-        when(stagingEntityDAO.countStaged()).thenReturn(2L);
-
-        BatchResendManager.Result result = manager.performStaging();
-
-        assertThat(result).isEqualTo(BatchResendManager.Result.SUCCESS);
-
-        verify(stagingEntityDAO).updateStageForBatch(anyInt(), anyLong());
-        verify(stagingEntityDAO).countAll();
-        verify(stagingEntityDAO).countStaged();
-    }
-
-    @Test
-    public void testPerformStagingPartialSuccess() {
-
-        StagingTransaction st1 = mock(StagingTransaction.class);
-        StagingTransaction st2 = mock(StagingTransaction.class);
-        when(st1.getValidationStage()).thenReturn(1L);
-        when(st2.getValidationStage()).thenReturn(null);
-
-        when(stagingEntityDAO.countAll()).thenReturn(2L);
-        when(stagingEntityDAO.countStaged()).thenReturn(1L);
-
-        when(stagingEntityDAO.updateStageForBatch(anyInt(), anyLong())).thenReturn(0);
-        BatchResendManager.Result result = manager.performStaging();
-
-        assertThat(result).isEqualTo(BatchResendManager.Result.PARTIAL_SUCCESS);
-
-        verify(stagingEntityDAO).updateStageForBatch(anyInt(), anyLong());
-        verify(stagingEntityDAO).countAll();
-        verify(stagingEntityDAO).countStaged();
-    }
-
-    @Test
-    public void testPerformStagingFailed() {
-
-        StagingTransaction st1 = mock(StagingTransaction.class);
-        StagingTransaction st2 = mock(StagingTransaction.class);
-        when(st1.getValidationStage()).thenReturn(null);
-        when(st2.getValidationStage()).thenReturn(null);
-
-        when(stagingEntityDAO.updateStageForBatch(anyInt(), anyLong())).thenReturn(0);
-
-        when(stagingEntityDAO.countAll()).thenReturn(2L);
-        when(stagingEntityDAO.countStaged()).thenReturn(0L);
-
-        BatchResendManager.Result result = manager.performStaging();
-
-        assertThat(result).isEqualTo(BatchResendManager.Result.FAILURE);
-
-        verify(stagingEntityDAO).updateStageForBatch(anyInt(), anyLong());
-        verify(stagingEntityDAO).countAll();
-        verify(stagingEntityDAO).countStaged();
-    }
-
-    @Test
-    public void testPerformSync() {
-
-        StagingTransaction version1 = mock(StagingTransaction.class);
-        StagingTransaction version2 = mock(StagingTransaction.class);
-
-        when(version1.getHash()).thenReturn("TXN1");
-        when(version2.getHash()).thenReturn("TXN1");
-
-        when(version1.getPayload()).thenReturn("payload1".getBytes());
-        when(version2.getPayload()).thenReturn("payload2".getBytes());
-
-
-        when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-                .thenReturn(List.of(version1,version2));
-        when(stagingEntityDAO.countAll()).thenReturn(1L);
-
-        when(resendStoreDelegate.storePayload(any())).thenReturn(new MessageHash("hash".getBytes()));
-
-        manager.performSync();
-
-        verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
-        verify(stagingEntityDAO, times(2)).countAll();
-
-        verify(resendStoreDelegate).storePayload("payload1".getBytes());
-        verify(resendStoreDelegate).storePayload("payload2".getBytes());
-    }
-
-    @Test
-    public void testPerformSyncPartiallyFailed() {
-
-        StagingTransaction version1 = mock(StagingTransaction.class);
-        StagingTransaction version2 = mock(StagingTransaction.class);
-
-        when(version1.getHash()).thenReturn("TXN1");
-        when(version2.getHash()).thenReturn("TXN1");
-
-        when(version1.getPayload()).thenReturn("payload1".getBytes());
-        when(version2.getPayload()).thenReturn("payload2".getBytes());
-
-
-        when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-                .thenReturn(List.of(version1,version2));
-        when(stagingEntityDAO.countAll()).thenReturn(1L);
-
-        when(resendStoreDelegate.storePayload("payload1".getBytes())).thenThrow(PrivacyViolationException.class);
-
-        BatchResendManager.Result result = manager.performSync();
-
-        assertThat(result).isEqualTo(BatchResendManager.Result.PARTIAL_SUCCESS);
-
-        verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
-        verify(stagingEntityDAO, times(2)).countAll();
-
-        verify(resendStoreDelegate).storePayload("payload1".getBytes());
-        verify(resendStoreDelegate).storePayload("payload2".getBytes());
-    }
-
-    @Test
-    public void testPerformSyncFailed() {
-
-        StagingTransaction version1 = mock(StagingTransaction.class);
-        StagingTransaction version2 = mock(StagingTransaction.class);
-        when(version1.getHash()).thenReturn("TXN1");
-        when(version2.getHash()).thenReturn("TXN1");
-
-
-        when(version1.getPayload()).thenReturn("payload1".getBytes());
-        when(version2.getPayload()).thenReturn("payload2".getBytes());
-
-        when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-                .thenReturn(List.of(version1,version2));
-
-        when(stagingEntityDAO.countAll()).thenReturn(1L);
-
-        when(resendStoreDelegate.storePayload(any())).thenThrow(PrivacyViolationException.class);
-
-        BatchResendManager.Result result = manager.performSync();
-
-        assertThat(result).isEqualTo(BatchResendManager.Result.FAILURE);
-
-        verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
-        verify(stagingEntityDAO, times(2)).countAll();
-
-        verify(resendStoreDelegate).storePayload("payload1".getBytes());
-        verify(resendStoreDelegate).storePayload("payload2".getBytes());
-    }
-
-
-
-    @Test
-    public void testIsResendMode() {
-        assertThat(manager.isResendMode()).isTrue();
-    }
-
-    @Test
-    public void createWithMinimalConstrcutor() {
+    public void createWithMinimalConstructor() {
         assertThat(
                         new BatchResendManagerImpl(
                                 enclave,
-                                resendStoreDelegate,
                                 stagingEntityDAO,
                                 encryptedTransactionDAO,
                                 partyInfoService))
