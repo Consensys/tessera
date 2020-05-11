@@ -398,12 +398,12 @@ public class TransactionManagerImpl implements TransactionManager {
 
         if (enclave.getPublicKeys().contains(payload.getSenderKey())) {
 
-            this.resendManager.acceptOwnMessage(input);
+            this.resendManager.acceptOwnMessage(sanitizedInput);
 
         } else {
 
             // this is a tx from someone else
-            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, input));
+            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, sanitizedInput));
             LOGGER.info("Stored payload with hash {}", transactionHash);
         }
 
