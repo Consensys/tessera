@@ -11,6 +11,8 @@ import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -108,9 +110,13 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         final String incomingUrl = partyInfo.getUrl();
 
         // TODO: should we just check peer is the same or with +"/", instead of just starts with?
-        if (peerUrls.stream().noneMatch(incomingUrl::startsWith)) {
-            final String message = String.format("Peer %s not found in known peer list", partyInfo.getUrl());
-            throw new AutoDiscoveryDisabledException(message);
+        try {
+            if (!isPeer(incomingUrl, peerUrls)) {
+                final String message = String.format("Peer %s not found in known peer list", partyInfo.getUrl());
+                throw new AutoDiscoveryDisabledException(message);
+            }
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("unable to check if sender of partyinfo is a known peer", e);
         }
 
         // filter out all keys that aren't from that node
@@ -126,6 +132,26 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         partyInfoStore.store(new PartyInfo(partyInfo.getUrl(), knownRecipients, parties));
 
         return this.getPartyInfo();
+    }
+
+    private static boolean isPeer(String url, Set<String> peers) throws MalformedURLException {
+        for (String peer : peers) {
+            // allow for trailing '/'
+            if (url.startsWith(peer)) {
+                return true;
+            }
+            // if hostname is provided instead IP (or vice versa) for localhost then return true
+            if ((url.contains("localhost") || url.contains("127.0.0.1")) &&
+                (peer.contains("localhost") || peer.contains("127.0.0.1"))) {
+                URL u = new URL(url);
+                URL p = new URL(peer);
+
+                if (u.equals(p)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

@@ -97,7 +97,6 @@ public class PartyInfoServiceTest {
         verifyNoMoreInteractions(payloadPublisher);
     }
 
-
     @Test
     public void autoDiscoveryEnabledStoresAsIs() {
 
@@ -121,13 +120,13 @@ public class PartyInfoServiceTest {
 
         RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
 
-        final PartyInfo forUpdate = new PartyInfo("SomeUnknownUri", emptySet(), emptySet());
+        final PartyInfo forUpdate = new PartyInfo("http://SomeUnknownUri", emptySet(), emptySet());
 
         final Throwable throwable = catchThrowable(() -> partyInfoService.updatePartyInfo(forUpdate));
 
         assertThat(throwable)
             .isInstanceOf(AutoDiscoveryDisabledException.class)
-            .hasMessage("Peer SomeUnknownUri not found in known peer list");
+            .hasMessage("Peer http://SomeUnknownUri not found in known peer list");
 
     }
 
@@ -177,7 +176,7 @@ public class PartyInfoServiceTest {
             new PartyInfo(
                 "http://other-node.com:8080",
                 emptySet(),
-                Stream.of(new Party("known"), new Party("unknown")).collect(toSet()));
+                Stream.of(new Party("unknown")).collect(toSet()));
 
         partyInfoService.updatePartyInfo(forUpdate);
 
@@ -186,6 +185,88 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore).store(captor.capture());
+
+        final PartyInfo captured = captor.getValue();
+        assertThat(captured.getParties()).hasSize(1);
+        assertThat(captured.getParties().iterator().next().getUrl()).isNotEqualTo("unknown");
+    }
+
+    @Test
+    public void autoDiscoveryDisabledStoreIfCallerUrlHasTrailingSlash() {
+        RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        RUNTIME_CONTEXT.setPeers(singletonList(java.net.URI.create("http://localhost:8080")));
+
+        final Party unknown = new Party("unknown");
+
+        final PartyInfo forUpdate = new PartyInfo(
+            "http://localhost:8080/",
+            emptySet(),
+            Collections.singleton(unknown)
+        );
+
+        partyInfoService.updatePartyInfo(forUpdate);
+
+        verify(partyInfoStore).store(any(PartyInfo.class));
+        // other verifications
+        verify(partyInfoStore).getPartyInfo();
+    }
+
+    @Test
+    public void autoDiscoveryDisabledNoMatchIfPeerUrlHasTrailingSlash() {
+        RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        RUNTIME_CONTEXT.setPeers(singletonList(java.net.URI.create("http://localhost:8080/")));
+
+        final Party unknown = new Party("unknown");
+
+        final PartyInfo forUpdate = new PartyInfo(
+            "http://localhost:8080",
+            emptySet(),
+            Collections.singleton(unknown)
+        );
+
+        Throwable ex = catchThrowable(() -> partyInfoService.updatePartyInfo(forUpdate));
+        assertThat(ex).isNotNull();
+        assertThat(ex).isExactlyInstanceOf(AutoDiscoveryDisabledException.class);
+    }
+
+    @Test
+    public void autoDiscoveryDisabledStoreIfIpLocalhostCallerNotInPeersButHostnameLocalhostIs() {
+        RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        RUNTIME_CONTEXT.setPeers(singletonList(java.net.URI.create("http://localhost:8080")));
+
+        final Party unknown = new Party("unknown");
+
+        final PartyInfo forUpdate = new PartyInfo(
+            "http://127.0.0.1:8080",
+            emptySet(),
+            Collections.singleton(unknown)
+        );
+
+        partyInfoService.updatePartyInfo(forUpdate);
+
+        verify(partyInfoStore).store(any(PartyInfo.class));
+        // other verifications
+        verify(partyInfoStore).getPartyInfo();
+    }
+
+    @Test
+    public void autoDiscoveryDisabledStoreIfHostnameLocalhostCallerNotInPeersButIpLocalhostIs() {
+        RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        RUNTIME_CONTEXT.setPeers(singletonList(java.net.URI.create("http://127.0.0.1:8080")));
+
+        final Party unknown = new Party("unknown");
+
+        final PartyInfo forUpdate = new PartyInfo(
+            "http://localhost:8080",
+            emptySet(),
+            Collections.singleton(unknown)
+        );
+
+        partyInfoService.updatePartyInfo(forUpdate);
+
+        verify(partyInfoStore).store(any(PartyInfo.class));
+        // other verifications
+        verify(partyInfoStore).getPartyInfo();
     }
 
     @Test
@@ -268,7 +349,6 @@ public class PartyInfoServiceTest {
         assertThat(new PartyInfoServiceImpl(factory)).isNotNull();
     }
 
-
     @Test
     public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIfToggleDisabled() {
         // setup services
@@ -327,6 +407,5 @@ public class PartyInfoServiceTest {
 
 
     }
-
 
 }
