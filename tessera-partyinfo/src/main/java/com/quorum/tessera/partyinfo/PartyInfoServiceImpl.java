@@ -99,9 +99,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         // auto-discovery is off
         final Set<String> peerUrls =
-                runtimeContext.getPeers().stream()
-                    .map(Objects::toString)
-                    .collect(Collectors.toSet());
+                runtimeContext.getPeers().stream().map(Objects::toString).collect(Collectors.toSet());
 
         LOGGER.debug("Known peers: {}", peerUrls);
 
@@ -113,6 +111,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         try {
             if (!isPeer(incomingUrl, peerUrls)) {
                 final String message = String.format("Peer %s not found in known peer list", partyInfo.getUrl());
+                LOGGER.warn(message);
                 throw new AutoDiscoveryDisabledException(message);
             }
         } catch (MalformedURLException e) {
@@ -135,22 +134,33 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     private static boolean isPeer(String url, Set<String> peers) throws MalformedURLException {
+        LOGGER.debug("PartyInfoServiceImpl::isPeer, url: {}", url);
+        final URLNormalizer urlNormalizer = URLNormalizer.create();
         for (String peer : peers) {
+            LOGGER.debug("peer {}", peer);
+
             // allow for trailing '/'
-            if (url.startsWith(peer)) {
+            final String normalizedPeer = urlNormalizer.normalize(peer);
+            LOGGER.debug("normalizedPeer {}", normalizedPeer);
+
+            if (url.equals(normalizedPeer)) {
+                LOGGER.debug("{} string equals {}", url, normalizedPeer);
                 return true;
             }
             // if hostname is provided instead IP (or vice versa) for localhost then return true
-            if ((url.contains("localhost") || url.contains("127.0.0.1")) &&
-                (peer.contains("localhost") || peer.contains("127.0.0.1"))) {
+            if ((url.contains("localhost") || url.contains("127.0.0.1"))
+                    && (normalizedPeer.contains("localhost") || normalizedPeer.contains("127.0.0.1"))) {
+                LOGGER.debug("{} or {} contain localhost", url, normalizedPeer);
                 URL u = new URL(url);
-                URL p = new URL(peer);
-
+                URL p = new URL(normalizedPeer);
                 if (u.equals(p)) {
+                    LOGGER.debug("URL::equal = true");
                     return true;
                 }
             }
+            LOGGER.debug("{} and {} not equal", url, normalizedPeer);
         }
+        LOGGER.debug("{} not matched", url);
         return false;
     }
 
