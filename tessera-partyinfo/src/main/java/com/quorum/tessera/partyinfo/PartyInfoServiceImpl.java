@@ -133,34 +133,35 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         return this.getPartyInfo();
     }
 
-    private static boolean isPeer(String url, Set<String> peers) throws MalformedURLException {
-        LOGGER.debug("PartyInfoServiceImpl::isPeer, url: {}", url);
+    private static boolean isPeer(String sender, Set<String> peers) throws MalformedURLException {
+        LOGGER.debug("PartyInfoServiceImpl::isPeer, url: {}", sender);
         final URLNormalizer urlNormalizer = URLNormalizer.create();
         for (String peer : peers) {
             LOGGER.debug("peer {}", peer);
 
-            // allow for trailing '/'
+            // expect url to have trailing '/'
+            final String normalizedSender = urlNormalizer.normalize(sender);
             final String normalizedPeer = urlNormalizer.normalize(peer);
             LOGGER.debug("normalizedPeer {}", normalizedPeer);
 
-            if (url.equals(normalizedPeer)) {
-                LOGGER.debug("{} string equals {}", url, normalizedPeer);
+            if (normalizedSender.equals(normalizedPeer)) {
+                LOGGER.debug("{} string equals {}", normalizedSender, normalizedPeer);
                 return true;
             }
             // if hostname is provided instead IP (or vice versa) for localhost then return true
-            if ((url.contains("localhost") || url.contains("127.0.0.1"))
+            if ((normalizedSender.contains("localhost") || normalizedSender.contains("127.0.0.1"))
                     && (normalizedPeer.contains("localhost") || normalizedPeer.contains("127.0.0.1"))) {
-                LOGGER.debug("{} or {} contain localhost", url, normalizedPeer);
-                URL u = new URL(url);
-                URL p = new URL(normalizedPeer);
-                if (u.equals(p)) {
+                LOGGER.debug("{} or {} contain localhost", normalizedSender, normalizedPeer);
+                final URL s = new URL(normalizedSender);
+                final URL p = new URL(normalizedPeer);
+                if (s.equals(p)) {
                     LOGGER.debug("URL::equal = true");
                     return true;
                 }
             }
-            LOGGER.debug("{} and {} not equal", url, normalizedPeer);
+            LOGGER.debug("{} and {} not equal", normalizedSender, normalizedPeer);
         }
-        LOGGER.debug("{} not matched", url);
+        LOGGER.debug("{} not matched", sender);
         return false;
     }
 

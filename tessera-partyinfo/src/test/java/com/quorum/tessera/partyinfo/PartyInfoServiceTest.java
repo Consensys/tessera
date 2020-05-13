@@ -212,7 +212,7 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void autoDiscoveryDisabledNoMatchIfPeerUrlHasTrailingSlash() {
+    public void autoDiscoveryDisabledStoreIfPeerUrlHasTrailingSlash() {
         RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
         RUNTIME_CONTEXT.setPeers(singletonList(java.net.URI.create("http://localhost:8080/")));
 
@@ -224,9 +224,11 @@ public class PartyInfoServiceTest {
             Collections.singleton(unknown)
         );
 
-        Throwable ex = catchThrowable(() -> partyInfoService.updatePartyInfo(forUpdate));
-        assertThat(ex).isNotNull();
-        assertThat(ex).isExactlyInstanceOf(AutoDiscoveryDisabledException.class);
+        partyInfoService.updatePartyInfo(forUpdate);
+
+        verify(partyInfoStore).store(any(PartyInfo.class));
+        // other verifications
+        verify(partyInfoStore).getPartyInfo();
     }
 
     @Test
