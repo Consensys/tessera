@@ -11,8 +11,6 @@ import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -107,15 +105,10 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         // if it one of our known peers
         final String incomingUrl = partyInfo.getUrl();
 
-        // TODO: should we just check peer is the same or with +"/", instead of just starts with?
-        try {
-            if (!isPeer(incomingUrl, peerUrls)) {
-                final String message = String.format("Peer %s not found in known peer list", partyInfo.getUrl());
-                LOGGER.warn(message);
-                throw new AutoDiscoveryDisabledException(message);
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("unable to check if sender of partyinfo is a known peer", e);
+        final KnownPeerChecker knownPeerChecker = new KnownPeerChecker(peerUrls);
+
+        if (!knownPeerChecker.isKnown(incomingUrl)) {
+            throw new AutoDiscoveryDisabledException(String.format("%s is not a known peer", incomingUrl));
         }
 
         // filter out all keys that aren't from that node
@@ -133,37 +126,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         return this.getPartyInfo();
     }
 
-    private static boolean isPeer(String sender, Set<String> peers) throws MalformedURLException {
-        LOGGER.debug("PartyInfoServiceImpl::isPeer, url: {}", sender);
-        final URLNormalizer urlNormalizer = URLNormalizer.create();
-        for (String peer : peers) {
-            LOGGER.debug("peer {}", peer);
 
-            // expect url to have trailing '/'
-            final String normalizedSender = urlNormalizer.normalize(sender);
-            final String normalizedPeer = urlNormalizer.normalize(peer);
-            LOGGER.debug("normalizedPeer {}", normalizedPeer);
-
-            if (normalizedSender.equals(normalizedPeer)) {
-                LOGGER.debug("{} string equals {}", normalizedSender, normalizedPeer);
-                return true;
-            }
-            // if hostname is provided instead IP (or vice versa) for localhost then return true
-            if ((normalizedSender.contains("localhost") || normalizedSender.contains("127.0.0.1"))
-                    && (normalizedPeer.contains("localhost") || normalizedPeer.contains("127.0.0.1"))) {
-                LOGGER.debug("{} or {} contain localhost", normalizedSender, normalizedPeer);
-                final URL s = new URL(normalizedSender);
-                final URL p = new URL(normalizedPeer);
-                if (s.equals(p)) {
-                    LOGGER.debug("URL::equal = true");
-                    return true;
-                }
-            }
-            LOGGER.debug("{} and {} not equal", normalizedSender, normalizedPeer);
-        }
-        LOGGER.debug("{} not matched", sender);
-        return false;
-    }
 
     @Override
     public PartyInfo removeRecipient(String uri) {
