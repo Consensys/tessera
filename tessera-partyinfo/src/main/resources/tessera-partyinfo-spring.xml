@@ -35,11 +35,13 @@
         <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}"/>
     </bean>
 
+    <bean name="knownPeerCheckerFactory" class="com.quorum.tessera.partyinfo.KnownPeerCheckerFactory"/>
+
     <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
         <constructor-arg ref="partyInfoStore"/>
         <constructor-arg ref="enclave"/>
         <constructor-arg ref="payloadPublisher"/>
-
+        <constructor-arg ref="knownPeerCheckerFactory"/>
     </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">

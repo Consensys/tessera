@@ -44,20 +44,25 @@ public class PartyInfoServiceTest {
 
     private PayloadPublisher payloadPublisher;
 
+    private KnownPeerChecker knownPeerChecker;
+
     @Before
     public void onSetUp() throws URISyntaxException {
 
         this.partyInfoStore = mock(PartyInfoStore.class);
         this.enclave = mock(Enclave.class);
         this.payloadPublisher = mock(PayloadPublisher.class);
+        this.knownPeerChecker = mock(KnownPeerChecker.class);
+
+        final KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
+        when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
 
         RUNTIME_CONTEXT
             .setP2pServerUri(java.net.URI.create(URI))
             .setPeers(singletonList(java.net.URI.create("http://other-node.com:8080")))
             .setRemoteKeyValidation(true);
 
-
-        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher);
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
@@ -95,6 +100,7 @@ public class PartyInfoServiceTest {
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(payloadPublisher);
+        verifyNoMoreInteractions(knownPeerChecker);
     }
 
     @Test
@@ -117,8 +123,8 @@ public class PartyInfoServiceTest {
 
     @Test
     public void autoDiscoveryDisabledUnknownPeer() {
-
         RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        when(knownPeerChecker.isKnown("http://SomeUnknownUri")).thenReturn(false);
 
         final PartyInfo forUpdate = new PartyInfo("http://SomeUnknownUri", emptySet(), emptySet());
 
@@ -126,15 +132,18 @@ public class PartyInfoServiceTest {
 
         assertThat(throwable)
             .isInstanceOf(AutoDiscoveryDisabledException.class)
-            .hasMessage("Peer http://SomeUnknownUri not found in known peer list");
+            .hasMessage("http://SomeUnknownUri is not a known peer");
 
+        verify(knownPeerChecker).isKnown("http://SomeUnknownUri");
     }
 
+    // TODO(cjh) should be OnlySenderNodesKeysAreAdded i.e. even if they provide keys of another known node, those keys should not be added
     @Test
     public void autoDiscoveryDisabledOnlyKnownKeysAdded() {
 
         RUNTIME_CONTEXT
             .setDisablePeerDiscovery(true);
+        when(knownPeerChecker.isKnown("http://other-node.com:8080")).thenReturn(true);
 
         Recipient known = new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080");
         Recipient unknown = new Recipient(PublicKey.from("unknown".getBytes()), "http://unknown.com:8080");
@@ -162,15 +171,14 @@ public class PartyInfoServiceTest {
             .containsExactlyInAnyOrder(
                 new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080"));
 
-
         verify(partyInfoStore).getPartyInfo();
-
+        verify(knownPeerChecker).isKnown("http://other-node.com:8080");
     }
 
     @Test
     public void autoDiscoveryDisabledNoIncomingPeersAdded() {
-
         RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        when(knownPeerChecker.isKnown("http://other-node.com:8080")).thenReturn(true);
 
         final PartyInfo forUpdate =
             new PartyInfo(
@@ -189,6 +197,8 @@ public class PartyInfoServiceTest {
         final PartyInfo captured = captor.getValue();
         assertThat(captured.getParties()).hasSize(1);
         assertThat(captured.getParties().iterator().next().getUrl()).isNotEqualTo("unknown");
+
+        verify(knownPeerChecker).isKnown("http://other-node.com:8080");
     }
 
     @Test
@@ -304,12 +314,16 @@ public class PartyInfoServiceTest {
         verify(partyInfoStore).store(any(PartyInfo.class));
     }
 
+    //TODO(cjh) review to check whether it can use member variables
     @Test
     public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
 
         PartyInfoStore store = new PartyInfoStore(RUNTIME_CONTEXT.getP2pServerUri());
 
-        PartyInfoServiceImpl partyInfoService = new PartyInfoServiceImpl(store, enclave, payloadPublisher);
+        KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
+        when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
+
+        PartyInfoServiceImpl partyInfoService = new PartyInfoServiceImpl(store, enclave, payloadPublisher, knownPeerCheckerFactory);
 
         final Set<PublicKey> ourKeys =
             Set.of(

@@ -28,18 +28,24 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final PayloadPublisher payloadPublisher;
 
+    private final KnownPeerCheckerFactory knownPeerCheckerFactory;
+
+    // TODO(cjh) not sure where this is being used - can it be deleted?
     public PartyInfoServiceImpl(final PartyInfoServiceFactory partyInfoServiceFactory) {
         this(
                 partyInfoServiceFactory.partyInfoStore(),
                 partyInfoServiceFactory.enclave(),
-                partyInfoServiceFactory.payloadPublisher());
+                partyInfoServiceFactory.payloadPublisher(),
+                new KnownPeerCheckerFactory()
+            );
     }
 
     protected PartyInfoServiceImpl(
-            final PartyInfoStore partyInfoStore, final Enclave enclave, final PayloadPublisher payloadPublisher) {
+            final PartyInfoStore partyInfoStore, final Enclave enclave, final PayloadPublisher payloadPublisher, final KnownPeerCheckerFactory knownPeerCheckerFactory) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.enclave = Objects.requireNonNull(enclave);
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
+        this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory);
     }
 
     @Override
@@ -105,8 +111,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         // if it one of our known peers
         final String incomingUrl = partyInfo.getUrl();
 
-        final KnownPeerChecker knownPeerChecker = new KnownPeerChecker(peerUrls);
-
+        final KnownPeerChecker knownPeerChecker = knownPeerCheckerFactory.create(peerUrls);
         if (!knownPeerChecker.isKnown(incomingUrl)) {
             throw new AutoDiscoveryDisabledException(String.format("%s is not a known peer", incomingUrl));
         }
@@ -125,8 +130,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         return this.getPartyInfo();
     }
-
-
 
     @Override
     public PartyInfo removeRecipient(String uri) {
