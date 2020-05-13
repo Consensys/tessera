@@ -5,10 +5,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 /** A JPA implementation of {@link EncryptedTransactionDAO} */
 public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
@@ -82,5 +83,26 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
         });
 
 
+    }
+
+    @Override
+    public List<EncryptedTransaction> findByHashes(Collection<MessageHash> messageHashes) {
+        if(Objects.isNull(messageHashes) || messageHashes.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+
+        return entityManagerTemplate.execute(entityManager -> {
+            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+            CriteriaQuery<EncryptedTransaction> query =
+                criteriaBuilder.createQuery(EncryptedTransaction.class);
+
+            Root<EncryptedTransaction> root = query.from(EncryptedTransaction.class);
+
+            return entityManager.createQuery(
+                query.select(root)
+                    .where(root.get("hash")
+                        .in(messageHashes))
+                ).getResultList();
+        });
     }
 }

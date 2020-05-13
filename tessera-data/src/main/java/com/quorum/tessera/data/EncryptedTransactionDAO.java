@@ -1,7 +1,10 @@
 package com.quorum.tessera.data;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /** A data store for transactions that need to be retrieved later */
 public interface EncryptedTransactionDAO {
@@ -30,6 +33,8 @@ public interface EncryptedTransactionDAO {
      * @return The list of requested rows from the database
      */
     List<EncryptedTransaction> retrieveTransactions(int offset, int maxResult);
+
+    List<EncryptedTransaction> findByHashes(Collection<MessageHash> messageHash);
 
     /**
      * Retrieve the total transaction count.

@@ -245,6 +245,40 @@ public class EncryptedTransactionDAOTest {
         assertThat(retrieved.getTimestamp()).isNotZero();
     }
 
+    @Test
+    public void findByHashes() {
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        List<EncryptedTransaction> transactions = IntStream.range(0,100)
+            .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+            .map(MessageHash::new)
+            .map(h -> {
+                EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+                encryptedTransaction.setHash(h);
+                encryptedTransaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+                entityManager.persist(encryptedTransaction);
+                return encryptedTransaction;
+            })
+            .collect(Collectors.toList());
+
+        entityManager.getTransaction().commit();
+
+        Collection<MessageHash> hashes = transactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toList());
+        List<EncryptedTransaction> results = encryptedTransactionDAO.findByHashes(hashes);
+
+        assertThat(results).isNotEmpty().containsExactlyInAnyOrderElementsOf(transactions);
+    }
+
+
+    @Test
+    public void findByHashesEmpty() {
+
+        List<EncryptedTransaction> results = encryptedTransactionDAO.findByHashes(Collections.EMPTY_LIST);
+
+        assertThat(results).isEmpty();
+    }
+
     @Parameterized.Parameters(name = "DB {0}")
     public static Collection<TestConfig> connectionDetails() {
         return List.of(TestConfig.values());
