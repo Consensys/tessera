@@ -7,6 +7,7 @@ import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 
 import javax.transaction.Transactional;
@@ -63,31 +64,51 @@ public class ResendManagerImpl implements ResendManager {
             final byte[] encodedPayload = tx.get().getEncodedPayload();
             final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
 
-            if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
-                // lets compare it against another message received before
-                final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
-                final boolean same =
-                        Arrays.equals(newDecrypted, oldDecrypted)
-                                && Arrays.equals(payload.getCipherText(), existing.getCipherText());
 
-                if (!same) {
-                    throw new IllegalArgumentException("Invalid payload provided");
+            // lets compare it against the previous version of the message
+            final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
+            final boolean same =
+                Arrays.equals(newDecrypted, oldDecrypted)
+                    && Arrays.equals(payload.getCipherText(), existing.getCipherText())
+                    && (payload.getPrivacyMode() == existing.getPrivacyMode());
+
+            if (!same) {
+                throw new IllegalArgumentException("Invalid payload provided");
+            }
+
+            // check recipients
+            if (existing.getPrivacyMode() == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+                if (!existing.getRecipientKeys().containsAll(payload.getRecipientKeys())
+                    || !payload.getRecipientKeys().containsAll(existing.getRecipientKeys())) {
+                    throw new IllegalArgumentException(
+                        "Participants mismatch for two versions of transaction " + transactionHash);
                 }
-
+            } else if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
                 existing.getRecipientKeys().add(payload.getRecipientKeys().get(0));
                 existing.getRecipientBoxes().add(payload.getRecipientBoxes().get(0));
-
-                tx.get().setEncodedPayload(payloadEncoder.encode(existing));
-
-                this.encryptedTransactionDAO.save(tx.get());
             }
+
+            // add any ACOTHs that other parties may have missed
+            existing.getAffectedContractTransactions().putAll(payload.getAffectedContractTransactions());
+
+            EncryptedTransaction encryptedTransaction = tx.get();
+
+            encryptedTransaction.setEncodedPayload(payloadEncoder.encode(existing));
+
+            this.encryptedTransactionDAO.update(encryptedTransaction);
 
         } else {
 
             // we need to recreate this
-            payload.getRecipientKeys().add(sender);
-            byte[] newbox = enclave.createNewRecipientBox(payload, sender);
-            payload.getRecipientBoxes().add(newbox);
+            if (!payload.getRecipientKeys().contains(sender)) {
+                payload.getRecipientKeys().add(sender);
+            }
+            // add recipient boxes for all recipients (for PSV transactions)
+            for (int idx = payload.getRecipientBoxes().size(); idx < payload.getRecipientKeys().size(); idx++) {
+                PublicKey recipient = payload.getRecipientKeys().get(idx);
+                byte[] newbox = enclave.createNewRecipientBox(payload, recipient);
+                payload.getRecipientBoxes().add(newbox);
+            }
 
             final byte[] encoded = payloadEncoder.encode(payload);
 

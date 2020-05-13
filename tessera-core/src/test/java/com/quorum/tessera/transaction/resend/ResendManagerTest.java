@@ -5,6 +5,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -14,6 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -124,7 +127,7 @@ public class ResendManagerTest {
         assertThat(encodedPayload.getRecipientKeys()).containsExactly(recipientKey);
         assertThat(encodedPayload.getRecipientBoxes()).containsExactly(recipientBox);
 
-        verify(encryptedTransactionDAO).save(et);
+        verify(encryptedTransactionDAO).update(et);
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
         verify(payloadEncoder).decode(incomingData);
@@ -168,8 +171,66 @@ public class ResendManagerTest {
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
         verify(payloadEncoder).decode(incomingData);
+        verify(payloadEncoder).encode(any(EncodedPayload.class));
         verify(enclave).getPublicKeys();
-        verify(enclave).unencryptTransaction(encodedPayload, null);
+        verify(enclave, times(2)).unencryptTransaction(encodedPayload, null);
+        verify(encryptedTransactionDAO).update(et);
+    }
+
+    @Test
+    public void storePayloadAsSenderWhenTxIsPresentPrivacyModeIsPSVAndRecipientsDifferThrows() {
+
+        final byte[] incomingData = "incomingData".getBytes();
+
+        final byte[] storedData = "SOMEDATA".getBytes();
+        final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
+        final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
+
+        final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
+        final PublicKey anotherRecipientKey = PublicKey.from("ANOTHER-RECIPIENT-KEY".getBytes());
+        final byte[] recipientBox = "BOX".getBytes();
+
+        final EncodedPayload existingEncodedPayload =
+            EncodedPayload.Builder.create()
+                .withSenderKey(senderKey)
+                .withCipherText("CIPHERTEXT".getBytes())
+                .withRecipientBoxes(singletonList(recipientBox))
+                .withRecipientKeys(Arrays.asList(recipientKey, anotherRecipientKey))
+                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                .withAffectedContractTransactions(new HashMap<>())
+                .withExecHash(new byte[0])
+                .build();
+
+        final EncodedPayload incomingEncodedPayload =
+            EncodedPayload.Builder.create()
+                .withSenderKey(senderKey)
+                .withCipherText("CIPHERTEXT".getBytes())
+                .withRecipientBoxes(singletonList(recipientBox))
+                .withRecipientKeys(singletonList(anotherRecipientKey))
+                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                .withAffectedContractTransactions(new HashMap<>())
+                .withExecHash(new byte[0])
+                .build();
+
+        when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
+        when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
+            .thenReturn("data".getBytes());
+        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
+        when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
+        when(payloadEncoder.decode(incomingData)).thenReturn(incomingEncodedPayload);
+
+        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingData));
+
+        assertThat(throwable)
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("Participants mismatch for two versions of transaction");
+
+        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(payloadEncoder).decode(storedData);
+        verify(payloadEncoder).decode(incomingData);
+        verify(enclave).getPublicKeys();
+        verify(enclave).unencryptTransaction(existingEncodedPayload, null);
+        verify(enclave).unencryptTransaction(incomingEncodedPayload, null);
     }
 
     @Test
