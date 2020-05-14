@@ -1,5 +1,7 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.constraints.ValidUrl;
+
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -9,6 +11,7 @@ import java.util.Objects;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Peer extends ConfigItem {
 
+    @ValidUrl
     @NotNull
     @XmlElement(required = true)
     private String url;
