@@ -14,7 +14,7 @@ public class KnownPeerChecker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KnownPeerChecker.class);
 
-    private static final URLNormalizer urlNormalizer = URLNormalizer.create();
+    private static final URLNormalizer URL_NORMALIZER = URLNormalizer.create();
 
     private static final List<String> LOCALHOST_ALIASES = Arrays.asList("localhost", "127.0.0.1");
 
@@ -32,10 +32,11 @@ public class KnownPeerChecker {
             return false;
         }
 
-        for (String peer : peers) {
-            try {
-                final String normalizedUrl = urlNormalizer.normalize(url);
-                final String normalizedPeer = urlNormalizer.normalize(peer);
+        try {
+            final String normalizedUrl = URL_NORMALIZER.normalize(url);
+
+            for (String peer : peers) {
+                final String normalizedPeer = URL_NORMALIZER.normalize(peer);
 
                 if (normalizedUrl.equals(normalizedPeer)) {
                     LOGGER.debug("{} is known", url);
@@ -53,9 +54,9 @@ public class KnownPeerChecker {
                         return true;
                     }
                 }
-            } catch (MalformedURLException | RuntimeException e) {
-                throw new RuntimeException(String.format("unable to check if %s is a known peer", url), e);
             }
+        } catch (MalformedURLException | RuntimeException e) {
+            throw new RuntimeException(String.format("unable to check if %s is a known peer", url), e);
         }
         LOGGER.debug("{} is not known", url);
         return false;
