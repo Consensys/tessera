@@ -15,18 +15,4 @@ public class MockBatchResendManager implements com.quorum.tessera.recover.resend
 
     }
 
-    @Override
-    public boolean isResendMode() {
-        return false;
-    }
-
-    @Override
-    public Result performStaging() {
-        return null;
-    }
-
-    @Override
-    public Result performSync() {
-        return null;
-    }
 }

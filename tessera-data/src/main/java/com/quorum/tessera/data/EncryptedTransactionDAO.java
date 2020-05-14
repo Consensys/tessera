@@ -3,8 +3,6 @@ package com.quorum.tessera.data;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /** A data store for transactions that need to be retrieved later */
 public interface EncryptedTransactionDAO {
@@ -17,6 +15,9 @@ public interface EncryptedTransactionDAO {
      */
     EncryptedTransaction save(EncryptedTransaction entity);
 
+    default EncryptedTransaction update(EncryptedTransaction entity) {
+        return entity;
+    }
     /**
      * Retrieve a transaction based on its hash
      *

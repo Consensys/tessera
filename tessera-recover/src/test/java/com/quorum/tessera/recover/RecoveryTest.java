@@ -4,7 +4,6 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.recover.resend.BatchResendManager;
 import com.quorum.tessera.sync.TransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
@@ -14,9 +13,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Set;
-
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
