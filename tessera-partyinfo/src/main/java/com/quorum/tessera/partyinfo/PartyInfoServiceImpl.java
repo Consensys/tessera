@@ -30,18 +30,11 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final KnownPeerCheckerFactory knownPeerCheckerFactory;
 
-    // TODO(cjh) not sure where this is being used - can it be deleted?
-    public PartyInfoServiceImpl(final PartyInfoServiceFactory partyInfoServiceFactory) {
-        this(
-                partyInfoServiceFactory.partyInfoStore(),
-                partyInfoServiceFactory.enclave(),
-                partyInfoServiceFactory.payloadPublisher(),
-                new KnownPeerCheckerFactory()
-            );
-    }
-
     protected PartyInfoServiceImpl(
-            final PartyInfoStore partyInfoStore, final Enclave enclave, final PayloadPublisher payloadPublisher, final KnownPeerCheckerFactory knownPeerCheckerFactory) {
+            final PartyInfoStore partyInfoStore,
+            final Enclave enclave,
+            final PayloadPublisher payloadPublisher,
+            final KnownPeerCheckerFactory knownPeerCheckerFactory) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.enclave = Objects.requireNonNull(enclave);
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
