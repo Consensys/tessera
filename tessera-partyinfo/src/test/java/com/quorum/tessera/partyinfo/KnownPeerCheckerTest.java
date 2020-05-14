@@ -64,12 +64,12 @@ public class KnownPeerCheckerTest {
     }
 
     @Test
-    public void falseIfPeerUrlHasTrailingSlash() {
+    public void trueIfPeerUrlHasTrailingSlash() {
         Set<String> p = Collections.singleton("http://url:8080/");
         when(peers.iterator()).thenReturn(p.iterator());
 
         final boolean result = knownPeerChecker.isKnown("http://url:8080");
-        assertThat(result).isFalse();
+        assertThat(result).isTrue();
     }
 
     @Test
