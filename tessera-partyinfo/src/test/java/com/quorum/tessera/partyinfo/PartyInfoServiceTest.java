@@ -2,7 +2,6 @@ package com.quorum.tessera.partyinfo;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.Config;
-
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -16,8 +15,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.net.URISyntaxException;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +26,6 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.when;
 
 public class PartyInfoServiceTest {
 
@@ -47,7 +46,7 @@ public class PartyInfoServiceTest {
     private KnownPeerChecker knownPeerChecker;
 
     @Before
-    public void onSetUp() throws URISyntaxException {
+    public void onSetUp() {
 
         this.partyInfoStore = mock(PartyInfoStore.class);
         this.enclave = mock(Enclave.class);
@@ -137,23 +136,23 @@ public class PartyInfoServiceTest {
         verify(knownPeerChecker).isKnown("http://SomeUnknownUri");
     }
 
-    // TODO(cjh) should be OnlySenderNodesKeysAreAdded i.e. even if they provide keys of another known node, those keys should not be added
     @Test
-    public void autoDiscoveryDisabledOnlyKnownKeysAdded() {
+    public void autoDiscoveryDisabledOnlySendersKeysAdded() {
 
         RUNTIME_CONTEXT
             .setDisablePeerDiscovery(true);
-        when(knownPeerChecker.isKnown("http://other-node.com:8080")).thenReturn(true);
+        when(knownPeerChecker.isKnown("http://known.com:8080")).thenReturn(true);
+        when(knownPeerChecker.isKnown("http://also-known.com:8080")).thenReturn(true);
 
-        Recipient known = new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080");
+        Recipient known = new Recipient(PublicKey.from("known".getBytes()), "http://known.com:8080");
+        Recipient alsoKnown = new Recipient(PublicKey.from("also-known".getBytes()), "http://also-known.com:8080");
         Recipient unknown = new Recipient(PublicKey.from("unknown".getBytes()), "http://unknown.com:8080");
 
         final PartyInfo forUpdate =
-            new PartyInfo("http://other-node.com:8080", Set.of(known, unknown), emptySet());
+            new PartyInfo("http://known.com:8080", Set.of(known, alsoKnown, unknown), emptySet());
 
-        assertThat(forUpdate.getRecipients()).hasSize(2);
+        assertThat(forUpdate.getRecipients()).hasSize(3);
 
-        // check that the only added keys were from that node (and our own)
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         partyInfoService.updatePartyInfo(forUpdate);
@@ -169,10 +168,10 @@ public class PartyInfoServiceTest {
         assertThat(allRegisteredKeys)
             .hasSize(1)
             .containsExactlyInAnyOrder(
-                new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080"));
+                new Recipient(PublicKey.from("known".getBytes()), "http://known.com:8080"));
 
         verify(partyInfoStore).getPartyInfo();
-        verify(knownPeerChecker).isKnown("http://other-node.com:8080");
+        verify(knownPeerChecker).isKnown("http://known.com:8080");
     }
 
     @Test
@@ -268,7 +267,7 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void createWithFactoryConstructor() throws Exception {
+    public void createWithFactoryConstructor() {
 
         Set<Object> services =
             Stream.of(mock(Enclave.class), mock(PayloadPublisher.class), mock(PartyInfoStore.class))
@@ -314,34 +313,45 @@ public class PartyInfoServiceTest {
         verify(partyInfoStore).store(any(PartyInfo.class));
     }
 
-    //TODO(cjh) review to check whether it can use member variables
     @Test
-    public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
-
-        PartyInfoStore store = new PartyInfoStore(RUNTIME_CONTEXT.getP2pServerUri());
+    public void populateStoreStoresKeysFromEnclave() {
+        String p2pUrl = URI;
 
         KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
         when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
 
-        PartyInfoServiceImpl partyInfoService = new PartyInfoServiceImpl(store, enclave, payloadPublisher, knownPeerCheckerFactory);
+        PartyInfo current = mock(PartyInfo.class);
+        when(current.getUrl()).thenReturn(p2pUrl);
+        when(partyInfoStore.getPartyInfo()).thenReturn(current);
 
-        final Set<PublicKey> ourKeys =
+        final Set<PublicKey> ourEnclaveKeys =
             Set.of(
                 PublicKey.from("some-key".getBytes()),
                 PublicKey.from("another-public-key".getBytes())
             );
 
-        when(enclave.getPublicKeys()).thenReturn(ourKeys);
+        when(enclave.getPublicKeys()).thenReturn(ourEnclaveKeys);
 
         partyInfoService.populateStore();
 
-        assertThat(partyInfoService.getPartyInfo().getRecipients())
-            .hasSize(2);
+        ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
+        verify(partyInfoStore).store(captor.capture());
+        List<PartyInfo> captured = captor.getAllValues();
 
+        assertThat(captured).hasSize(1);
+
+        Set<Recipient> capturedRecipients = captured.get(0).getRecipients();
+        assertThat(capturedRecipients).hasSize(2);
+
+        String expectedAdvertisedUrl = String.format("%s/", p2pUrl);
+        Set<Recipient> expected = Set.of(
+            new Recipient(PublicKey.from("some-key".getBytes()), expectedAdvertisedUrl),
+            new Recipient(PublicKey.from("another-public-key".getBytes()), expectedAdvertisedUrl)
+        );
+        assertThat(capturedRecipients).containsExactlyInAnyOrderElementsOf(expected);
 
         verify(enclave).getPublicKeys();
-
-
+        verify(partyInfoStore).getPartyInfo();
     }
 
 }
