@@ -23,8 +23,6 @@ import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.transaction.Transactional;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -102,7 +100,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public SendResponse send(SendRequest sendRequest) {
 
         final String sender = sendRequest.getFrom();
@@ -142,7 +139,18 @@ public class TransactionManagerImpl implements TransactionManager {
 
 
         if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
-            validateRecipients(Optional.empty(), recipientList, affectedContractTransactions);
+
+            List<PublicKey> payloadRecipients = affectedContractTransactions.stream()
+                .map(AffectedTransaction::getPayload)
+                .flatMap(e -> e.getRecipientKeys().stream())
+                .collect(Collectors.toList());
+
+            validateRecipients(recipientList,affectedContractTransactions).findFirst().ifPresent(affectedTransaction -> {
+                throw new PrivacyViolationException(
+                    "Recipients mismatched for Affected Txn "
+                        + affectedTransaction.getHash().encodeToBase64());
+            });
+
         }
 
         final EncodedPayload payload =
@@ -185,7 +193,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
 
         final byte[][] recipients =
@@ -230,7 +237,31 @@ public class TransactionManagerImpl implements TransactionManager {
         validatePrivacyMode(privacyMode,affectedContractTransactions);
 
         if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
-            validateRecipients(Optional.of(messageHash), recipientList, affectedContractTransactions);
+            validateRecipients(recipientList, affectedContractTransactions).findFirst()
+                .ifPresent(affectedTransaction -> {
+                    throw new PrivacyViolationException(
+                        "Recipients mismatched for Affected Txn "
+                            + affectedTransaction.getHash().encodeToBase64()
+                            + ". TxHash="
+                            + base64Codec.encodeToString(messageHash.getHashBytes()));
+                });
+
+            Predicate<AffectedTransaction> allRecipientInPayload = a -> a.getPayload().getRecipientKeys().containsAll(recipientList);
+            Predicate<AffectedTransaction> payloadHasAllRecipients = a -> recipientList.containsAll(a.getPayload().getRecipientKeys());
+            Predicate<AffectedTransaction> allRecipientsMatch = allRecipientInPayload.and(payloadHasAllRecipients);
+
+            affectedContractTransactions.stream()
+                .filter(allRecipientsMatch.negate())
+                .findFirst()
+                .ifPresent(affectedTransaction -> {
+                    throw new PrivacyViolationException(
+                        "Recipients mismatched for Affected Txn "
+                            + affectedTransaction.getHash().encodeToBase64()
+                            + ". TxHash="
+                            + base64Codec.encodeToString(messageHash.getHashBytes()));
+                });
+
+
         }
 
         final List<PublicKey> recipientListNoDuplicate = recipientList.stream().distinct().collect(Collectors.toList());
@@ -396,7 +427,13 @@ public class TransactionManagerImpl implements TransactionManager {
             if (!isSenderGenuine) {
                 return transactionHash;
             }
-            validateRecipients(Optional.of(transactionHash), payload.getRecipientKeys(), affectedContractTransactions);
+
+            validateRecipients(payload.getRecipientKeys(), affectedContractTransactions)
+                .findFirst().ifPresent(affectedTransaction -> {
+                throw new PrivacyViolationException(
+                    "Private state validation flag mismatched with Affected Txn "
+                        + affectedTransaction.getHash().encodeToBase64());
+            });
         }
 
         final Set<TxHash> invalidSecurityHashes =
@@ -441,7 +478,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public void delete(DeleteRequest request) {
         final byte[] hashBytes = base64Codec.decode(request.getKey());
         final MessageHash messageHash = new MessageHash(hashBytes);
@@ -451,7 +487,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public ReceiveResponse receive(ReceiveRequest request) {
 
         final byte[] key = base64Codec.decode(request.getKey());
@@ -538,7 +573,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public StoreRawResponse store(StoreRawRequest storeRequest) {
 
         RawTransaction rawTransaction =
@@ -630,28 +664,26 @@ public class TransactionManagerImpl implements TransactionManager {
 
     }
 
-    private boolean validateRecipients(
-        Optional<MessageHash> txHash,
+
+
+    /*
+    Stream of invalid recipients (for reporting/logging)
+    Protected for testing
+     */
+    protected static Stream<AffectedTransaction> validateRecipients(
         List<PublicKey> recipientList,
         List<AffectedTransaction> affectedContractTransactions) {
-        for (AffectedTransaction entry : affectedContractTransactions) {
-            if (!entry.getPayload().getRecipientKeys().containsAll(recipientList)
-                || !recipientList.containsAll(entry.getPayload().getRecipientKeys())) {
-                throw new PrivacyViolationException(
-                    "Recipients mismatched for Affected Txn "
-                        + entry.getHash().encodeToBase64()
-                        + ". TxHash="
-                        + txHash.map(MessageHash::getHashBytes)
-                        .map(base64Codec::encodeToString)
-                        .orElse("NONE"));
-            }
-        }
-        return true;
+
+        Predicate<AffectedTransaction> payloadRecipientsHasAllRecipients = a -> a.getPayload().getRecipientKeys().containsAll(recipientList);
+        Predicate<AffectedTransaction> recipientsHaveAllPayloadRecipients = a -> recipientList.containsAll(a.getPayload().getRecipientKeys());
+        Predicate<AffectedTransaction> allRecipientsMatch = payloadRecipientsHasAllRecipients.and(recipientsHaveAllPayloadRecipients);
+
+        return affectedContractTransactions.stream()
+            .filter(allRecipientsMatch.negate());
     }
 
 
     @Override
-    @Transactional
     public boolean isSender(final String key) {
         final byte[] hashBytes = base64Codec.decode(key);
         final MessageHash hash = new MessageHash(hashBytes);
@@ -660,7 +692,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public List<PublicKey> getParticipants(final String ptmHash) {
         final byte[] hashBytes = base64Codec.decode(ptmHash);
         final MessageHash hash = new MessageHash(hashBytes);
