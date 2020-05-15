@@ -464,14 +464,15 @@ public class PicoCliDelegateTest {
         CliResult result =
                 cliDelegate.execute(
                         "-configfile", configFile.toString(),
-                        "-o", "peer[2].url=anotherpeer",
-                        "--override", "peer[3].url=yetanotherpeer");
+                        "-o", "peer[2].url=http://anotherpeer",
+                        "--override", "peer[3].url=http://yetanotherpeer");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getPeers()).hasSize(4);
         assertThat(result.getConfig().get().getPeers().stream().map(Peer::getUrl))
-                .containsExactlyInAnyOrder("anotherpeer", "yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
+                .containsExactlyInAnyOrder(
+                        "http://anotherpeer", "http://yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
     }
 
     @Test

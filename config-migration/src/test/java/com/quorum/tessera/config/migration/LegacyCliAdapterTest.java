@@ -277,7 +277,7 @@ public class LegacyCliAdapterTest {
             "--tomlfile", configFile.toString(),
             "--url", "http://127.0.0.1",
             "--port", "9001",
-            "--othernodes", "localhost:1111",
+            "--othernodes", "http://localhost:1111",
             "--socket", "myipcfile.ipc",
             "--publickeys", keysFile.toString(),
             "--privatekeys", keysFile.toString()
