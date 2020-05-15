@@ -237,21 +237,7 @@ public class TransactionManagerImpl implements TransactionManager {
         validatePrivacyMode(privacyMode,affectedContractTransactions);
 
         if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
-            validateRecipients(recipientList, affectedContractTransactions).findFirst()
-                .ifPresent(affectedTransaction -> {
-                    throw new PrivacyViolationException(
-                        "Recipients mismatched for Affected Txn "
-                            + affectedTransaction.getHash().encodeToBase64()
-                            + ". TxHash="
-                            + base64Codec.encodeToString(messageHash.getHashBytes()));
-                });
-
-            Predicate<AffectedTransaction> allRecipientInPayload = a -> a.getPayload().getRecipientKeys().containsAll(recipientList);
-            Predicate<AffectedTransaction> payloadHasAllRecipients = a -> recipientList.containsAll(a.getPayload().getRecipientKeys());
-            Predicate<AffectedTransaction> allRecipientsMatch = allRecipientInPayload.and(payloadHasAllRecipients);
-
-            affectedContractTransactions.stream()
-                .filter(allRecipientsMatch.negate())
+            validateRecipients(recipientList, affectedContractTransactions)
                 .findFirst()
                 .ifPresent(affectedTransaction -> {
                     throw new PrivacyViolationException(
@@ -260,8 +246,6 @@ public class TransactionManagerImpl implements TransactionManager {
                             + ". TxHash="
                             + base64Codec.encodeToString(messageHash.getHashBytes()));
                 });
-
-
         }
 
         final List<PublicKey> recipientListNoDuplicate = recipientList.stream().distinct().collect(Collectors.toList());
@@ -708,4 +692,5 @@ public class TransactionManagerImpl implements TransactionManager {
             .map(payloadEncoder::decode)
             .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
     }
+
 }
