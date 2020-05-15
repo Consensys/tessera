@@ -1,5 +1,5 @@
 
-def nettyVersion = "4.1.45.Final"
+def nettyVersion = "4.1.46.Final"
 
 dependencyCheck {
     failBuildOnCVSS = 11
