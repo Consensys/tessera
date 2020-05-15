@@ -14,12 +14,4 @@
         <module>enclave-jaxrs</module>
         <module>enclave-server</module>
     </modules>
-    <profiles>
-        <profile>
-            <id>work-in-progress</id>
-            <modules>
-                <module>enclave-websockets</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>
