@@ -135,7 +135,7 @@ jobs:
           git clone https://github.com/jpmorganchase/quorum-examples.git
           git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
           echo "Install geth"
-          curl -L https://dl.bintray.com/quorumengineering/quorum/v2.5.0/geth_v2.5.0_linux_amd64.tar.gz -o geth.tar.gz
+          curl -L https://dl.bintray.com/quorumengineering/quorum/v2.6.0/geth_v2.6.0_linux_amd64.tar.gz -o geth.tar.gz
           tar xvzf geth.tar.gz
           sudo mv geth /usr/local/bin/
           geth version
@@ -163,7 +163,7 @@ jobs:
           echo "Run quorum-acceptance-tests"
           cd quorum-acceptance-tests
           cp config/application-local.7nodes.yml config/application-local.yml
-          mvn test
+          SPRING_PROFILES_ACTIVE=local.7nodes mvn clean test -Dtags="basic || basic-istanbul || networks/typical::istanbul"
           echo "Complete quorum-acceptance-tests"
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m
