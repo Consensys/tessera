@@ -17,7 +17,7 @@ import com.quorum.tessera.partyinfo.ResendBatchResponse;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
-import com.quorum.tessera.util.Base64Decoder;
+import com.quorum.tessera.util.Base64Codec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class BatchResendManagerTest {
 
     private static final String KEY_STRING = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
 
-    private final PublicKey publicKey = PublicKey.from(Base64Decoder.create().decode(KEY_STRING));
+    private final PublicKey publicKey = PublicKey.from(Base64Codec.create().decode(KEY_STRING));
 
     @Before
     public void init() {
@@ -63,7 +63,7 @@ public class BatchResendManagerTest {
         manager =
                 new BatchResendManagerImpl(
                         payloadEncoder,
-                        Base64Decoder.create(),
+                        Base64Codec.create(),
                         enclave,
                         stagingEntityDAO,
                         encryptedTransactionDAO,
@@ -72,7 +72,7 @@ public class BatchResendManagerTest {
         when(enclave.status()).thenReturn(Service.Status.STARTED);
 
         final PublicKey publicKey =
-                PublicKey.from(Base64Decoder.create().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="));
+                PublicKey.from(Base64Codec.create().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="));
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
     }
 

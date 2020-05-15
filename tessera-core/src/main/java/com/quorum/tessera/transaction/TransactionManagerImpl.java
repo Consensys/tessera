@@ -20,7 +20,7 @@ import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.resend.ResendManager;
-import com.quorum.tessera.util.Base64Decoder;
+import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final Base64Decoder base64Decoder;
+    private final Base64Codec base64Codec;
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
@@ -66,7 +66,7 @@ public class TransactionManagerImpl implements TransactionManager {
             PartyInfoService partyInfoService,
             int resendFetchSize) {
         this(
-                Base64Decoder.create(),
+                Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
                 partyInfoService,
@@ -80,7 +80,7 @@ public class TransactionManagerImpl implements TransactionManager {
     Only use for tests
     */
     public TransactionManagerImpl(
-            Base64Decoder base64Decoder,
+            Base64Codec base64Codec,
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PartyInfoService partyInfoService,
@@ -89,7 +89,7 @@ public class TransactionManagerImpl implements TransactionManager {
             ResendManager resendManager,
             int resendFetchSize) {
 
-        this.base64Decoder = Objects.requireNonNull(base64Decoder, "base64Decoder is required");
+        this.base64Codec = Objects.requireNonNull(base64Codec, "base64Decoder is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
@@ -109,7 +109,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final PublicKey senderPublicKey =
                 Optional.ofNullable(sender)
-                        .map(base64Decoder::decode)
+                        .map(base64Codec::decode)
                         .map(PublicKey::from)
                         .orElseGet(enclave::defaultPublicKey);
 
@@ -117,7 +117,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 Stream.of(sendRequest)
                         .filter(sr -> Objects.nonNull(sr.getTo()))
                         .flatMap(s -> Stream.of(s.getTo()))
-                        .map(base64Decoder::decode)
+                        .map(base64Codec::decode)
                         .toArray(byte[][]::new);
 
         final List<PublicKey> recipientList = Stream.of(recipients).map(PublicKey::from).collect(Collectors.toList());
@@ -168,7 +168,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final byte[] key = transactionHash.getHashBytes();
 
-        final String encodedKey = base64Decoder.encodeToString(key);
+        final String encodedKey = base64Codec.encodeToString(key);
 
         return new SendResponse(encodedKey);
     }
@@ -191,7 +191,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 Stream.of(sendRequest)
                         .filter(sr -> Objects.nonNull(sr.getTo()))
                         .flatMap(s -> Stream.of(s.getTo()))
-                        .map(base64Decoder::decode)
+                        .map(base64Codec::decode)
                         .toArray(byte[][]::new);
 
         final List<PublicKey> recipientList = Stream.of(recipients).map(PublicKey::from).collect(Collectors.toList());
@@ -243,7 +243,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final byte[] key = messageHash.getHashBytes();
 
-        final String encodedKey = base64Decoder.encodeToString(key);
+        final String encodedKey = base64Codec.encodeToString(key);
 
         return new SendResponse(encodedKey);
     }
@@ -251,7 +251,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public ResendResponse resend(ResendRequest request) {
 
-        final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
+        final byte[] publicKeyData = base64Codec.decode(request.getPublicKey());
         PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
         if (request.getType() == ResendRequestType.ALL) {
 
@@ -317,7 +317,7 @@ public class TransactionManagerImpl implements TransactionManager {
             return new ResendResponse();
         } else {
 
-            final byte[] hashKey = base64Decoder.decode(request.getKey());
+            final byte[] hashKey = base64Codec.decode(request.getKey());
             final MessageHash messageHash = new MessageHash(hashKey);
 
             final EncryptedTransaction encryptedTransaction =
@@ -368,7 +368,21 @@ public class TransactionManagerImpl implements TransactionManager {
             return transactionHash;
         }
         if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
-            if (!validateIfSenderIsGenuine(transactionHash, payload, affectedContractTransactions)) {
+
+            if (affectedContractTransactions.size() != payload.getAffectedContractTransactions().size()) {
+                // This could be a recipient discovery attack. Respond successfully while not saving the transaction.
+                LOGGER.info(
+                    "Not all ACOTHs were found for inbound TX {}. Ignoring transaction.",
+                    base64Codec.encodeToString(transactionHash.getHashBytes()));
+                return transactionHash;
+            }
+
+            boolean isSenderGenuine = affectedContractTransactions.stream()
+                .map(AffectedTransaction::getPayload)
+                .map(p -> p.getRecipientKeys())
+                .anyMatch(r -> r.contains(payload.getSenderKey()));
+
+            if (!isSenderGenuine) {
                 return transactionHash;
             }
             validateRecipients(Optional.of(transactionHash), payload.getRecipientKeys(), affectedContractTransactions);
@@ -382,7 +396,7 @@ public class TransactionManagerImpl implements TransactionManager {
             if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
                 throw new PrivacyViolationException(
                         "Invalid security hashes identified for PSC TX "
-                                + base64Decoder.encodeToString(transactionHash.getHashBytes())
+                                + base64Codec.encodeToString(transactionHash.getHashBytes())
                                 + ". Invalid ACOTHs: "
                                 + invalidSecurityHashes.stream()
                                         .map(TxHash::encodeToBase64)
@@ -391,7 +405,7 @@ public class TransactionManagerImpl implements TransactionManager {
             invalidSecurityHashes.forEach(txKey -> payload.getAffectedContractTransactions().remove(txKey));
             LOGGER.debug(
                     "A number of security hashes are invalid and have been discarded for transaction with hash {}. Invalid affected contract transaction hashes: {}",
-                    base64Decoder.encodeToString(transactionHash.getHashBytes()),
+                    base64Codec.encodeToString(transactionHash.getHashBytes()),
                     invalidSecurityHashes.stream().map(TxHash::encodeToBase64).collect(Collectors.joining(",")));
             sanitizedInput = payloadEncoder.encode(payload);
         }
@@ -418,7 +432,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     @Transactional
     public void delete(DeleteRequest request) {
-        final byte[] hashBytes = base64Decoder.decode(request.getKey());
+        final byte[] hashBytes = base64Codec.decode(request.getKey());
         final MessageHash messageHash = new MessageHash(hashBytes);
 
         LOGGER.info("Received request to delete message with hash {}", messageHash);
@@ -429,10 +443,10 @@ public class TransactionManagerImpl implements TransactionManager {
     @Transactional
     public ReceiveResponse receive(ReceiveRequest request) {
 
-        final byte[] key = base64Decoder.decode(request.getKey());
+        final byte[] key = base64Codec.decode(request.getKey());
 
         final Optional<byte[]> to =
-                Optional.ofNullable(request.getTo()).filter(str -> !str.isEmpty()).map(base64Decoder::decode);
+                Optional.ofNullable(request.getTo()).filter(str -> !str.isEmpty()).map(base64Codec::decode);
 
         final MessageHash hash = new MessageHash(key);
         LOGGER.info("Lookup transaction {}", hash);
@@ -487,7 +501,7 @@ public class TransactionManagerImpl implements TransactionManager {
             final String[] affectedContractTransactions = new String[payload.getAffectedContractTransactions().size()];
             int idx = 0;
             for (TxHash affTxKey : payload.getAffectedContractTransactions().keySet()) {
-                affectedContractTransactions[idx++] = base64Decoder.encodeToString(affTxKey.getBytes());
+                affectedContractTransactions[idx++] = base64Codec.encodeToString(affTxKey.getBytes());
             }
             ReceiveResponse result =
                     new ReceiveResponse(
@@ -606,7 +620,7 @@ public class TransactionManagerImpl implements TransactionManager {
                             "ACOTH {} has PrivacyMode={} for TX {} with PrivacyMode={}. Ignoring transaction.",
                             entry.getHash().encodeToBase64(),
                             affectedContractPrivacyMode.name(),
-                            base64Decoder.encodeToString(txHash.get().getHashBytes()),
+                            base64Codec.encodeToString(txHash.get().getHashBytes()),
                             privacyMode.name());
                     result = false;
                 }
@@ -627,42 +641,27 @@ public class TransactionManagerImpl implements TransactionManager {
                                 + entry.getHash().encodeToBase64()
                                 + ". TxHash="
                                 + txHash.map(MessageHash::getHashBytes)
-                                        .map(base64Decoder::encodeToString)
+                                        .map(base64Codec::encodeToString)
                                         .orElse("NONE"));
             }
         }
         return true;
     }
 
-    private boolean validateIfSenderIsGenuine(
-            MessageHash txHash, EncodedPayload payload, List<AffectedTransaction> affectedContractTransactions) {
-        boolean result = true;
-        if (affectedContractTransactions.size() != payload.getAffectedContractTransactions().size()) {
-            // This could be a recipient discovery attack. Respond successfully while not saving the transaction.
-            LOGGER.info(
-                    "Not all ACOTHs were found for inbound TX {}. Ignoring transaction.",
-                    base64Decoder.encodeToString(txHash.getHashBytes()));
-            return false;
-        }
-        final PublicKey senderKey = payload.getSenderKey();
-        for (AffectedTransaction entry : affectedContractTransactions) {
-            if (!entry.getPayload().getRecipientKeys().contains(senderKey)) {
-                LOGGER.info(
-                        "Sender key {} for TX {} is not a recipient for ACOTH {}",
-                        senderKey.encodeToBase64(),
-                        base64Decoder.encodeToString(txHash.getHashBytes()),
-                        entry.getHash().encodeToBase64());
-                result = false;
-            }
-        }
+    private boolean validateIfSenderIsGenuine(EncodedPayload payload, List<AffectedTransaction> affectedContractTransactions) {
 
-        return result;
+        final PublicKey senderKey = payload.getSenderKey();
+
+        return affectedContractTransactions.stream()
+            .map(AffectedTransaction::getPayload)
+            .map(p -> p.getRecipientKeys())
+            .anyMatch(r -> r.contains(senderKey));
     }
 
     @Override
     @Transactional
     public boolean isSender(final String key) {
-        final byte[] hashBytes = base64Decoder.decode(key);
+        final byte[] hashBytes = base64Codec.decode(key);
         final MessageHash hash = new MessageHash(hashBytes);
         final EncodedPayload payload = this.fetchPayload(hash);
         return enclave.getPublicKeys().contains(payload.getSenderKey());
@@ -671,7 +670,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     @Transactional
     public List<PublicKey> getParticipants(final String ptmHash) {
-        final byte[] hashBytes = base64Decoder.decode(ptmHash);
+        final byte[] hashBytes = base64Codec.decode(ptmHash);
         final MessageHash hash = new MessageHash(hashBytes);
         final EncodedPayload payload = this.fetchPayload(hash);
 

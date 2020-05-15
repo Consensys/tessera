@@ -15,7 +15,7 @@ import com.quorum.tessera.partyinfo.ResendBatchRequest;
 import com.quorum.tessera.partyinfo.ResendBatchResponse;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
-import com.quorum.tessera.util.Base64Decoder;
+import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +30,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final Base64Decoder base64Decoder;
+    private final Base64Codec base64Decoder;
 
     private final Enclave enclave;
 
@@ -47,7 +47,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
             PartyInfoService partyInfoService) {
         this(
                 PayloadEncoder.create(),
-                Base64Decoder.create(),
+                Base64Codec.create(),
                 enclave,
                 stagingEntityDAO,
                 encryptedTransactionDAO,
@@ -56,7 +56,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     public BatchResendManagerImpl(
             PayloadEncoder payloadEncoder,
-            Base64Decoder base64Decoder,
+            Base64Codec base64Decoder,
             Enclave enclave,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,

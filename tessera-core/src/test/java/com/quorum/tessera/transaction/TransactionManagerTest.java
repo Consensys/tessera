@@ -26,7 +26,7 @@ import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.transaction.resend.ResendManager;
-import com.quorum.tessera.util.Base64Decoder;
+import com.quorum.tessera.util.Base64Codec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -73,7 +73,7 @@ public class TransactionManagerTest {
 
         transactionManager =
                 new TransactionManagerImpl(
-                        Base64Decoder.create(),
+                        Base64Codec.create(),
                         payloadEncoder,
                         encryptedTransactionDAO,
                         partyInfoService,

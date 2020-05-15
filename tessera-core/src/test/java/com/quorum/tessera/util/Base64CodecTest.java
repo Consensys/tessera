@@ -7,20 +7,20 @@ import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class Base64DecoderTest {
+public class Base64CodecTest {
 
-    public Base64DecoderTest() {
+    public Base64CodecTest() {
     }
 
     @Test(expected = DecodingException.class)
     public void invalidBase64DataThrowsDecodeException() {
-        Base64Decoder.create().decode("1");
+        Base64Codec.create().decode("1");
     }
     
     @Test
     public void decode() {
         
-        byte[] result = Base64Decoder.create().decode("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
+        byte[] result = Base64Codec.create().decode("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=");
         
         assertThat(result).isNotEmpty();
     }
@@ -32,7 +32,7 @@ public class Base64DecoderTest {
       
       String expected = Base64.getEncoder().encodeToString(data);
         
-      String result = Base64Decoder.create().encodeToString(data);
+      String result = Base64Codec.create().encodeToString(data);
       assertThat(result).isEqualTo(expected);
     }
 
