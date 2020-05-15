@@ -59,44 +59,44 @@ public class TransactionManagerImpl implements TransactionManager {
     private int resendFetchSize;
 
     public TransactionManagerImpl(
-            EncryptedTransactionDAO encryptedTransactionDAO,
-            Enclave enclave,
-            EncryptedRawTransactionDAO encryptedRawTransactionDAO,
-            ResendManager resendManager,
-            PartyInfoService partyInfoService,
-            int resendFetchSize) {
+        EncryptedTransactionDAO encryptedTransactionDAO,
+        Enclave enclave,
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO,
+        ResendManager resendManager,
+        PartyInfoService partyInfoService,
+        int resendFetchSize) {
         this(
-                Base64Codec.create(),
-                PayloadEncoder.create(),
-                encryptedTransactionDAO,
-                partyInfoService,
-                enclave,
-                encryptedRawTransactionDAO,
-                resendManager,
-                resendFetchSize);
+            Base64Codec.create(),
+            PayloadEncoder.create(),
+            encryptedTransactionDAO,
+            partyInfoService,
+            enclave,
+            encryptedRawTransactionDAO,
+            resendManager,
+            resendFetchSize);
     }
 
     /*
     Only use for tests
     */
     public TransactionManagerImpl(
-            Base64Codec base64Codec,
-            PayloadEncoder payloadEncoder,
-            EncryptedTransactionDAO encryptedTransactionDAO,
-            PartyInfoService partyInfoService,
-            Enclave enclave,
-            EncryptedRawTransactionDAO encryptedRawTransactionDAO,
-            ResendManager resendManager,
-            int resendFetchSize) {
+        Base64Codec base64Codec,
+        PayloadEncoder payloadEncoder,
+        EncryptedTransactionDAO encryptedTransactionDAO,
+        PartyInfoService partyInfoService,
+        Enclave enclave,
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO,
+        ResendManager resendManager,
+        int resendFetchSize) {
 
         this.base64Codec = Objects.requireNonNull(base64Codec, "base64Decoder is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
-                Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
+            Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
         this.partyInfoService = Objects.requireNonNull(partyInfoService, "partyInfoService is required");
         this.enclave = Objects.requireNonNull(enclave, "enclave is required");
         this.encryptedRawTransactionDAO =
-                Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
+            Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
         this.resendManager = Objects.requireNonNull(resendManager, "resendManager is required");
         this.resendFetchSize = resendFetchSize;
     }
@@ -108,17 +108,17 @@ public class TransactionManagerImpl implements TransactionManager {
         final String sender = sendRequest.getFrom();
 
         final PublicKey senderPublicKey =
-                Optional.ofNullable(sender)
-                        .map(base64Codec::decode)
-                        .map(PublicKey::from)
-                        .orElseGet(enclave::defaultPublicKey);
+            Optional.ofNullable(sender)
+                .map(base64Codec::decode)
+                .map(PublicKey::from)
+                .orElseGet(enclave::defaultPublicKey);
 
         final byte[][] recipients =
-                Stream.of(sendRequest)
-                        .filter(sr -> Objects.nonNull(sr.getTo()))
-                        .flatMap(s -> Stream.of(s.getTo()))
-                        .map(base64Codec::decode)
-                        .toArray(byte[][]::new);
+            Stream.of(sendRequest)
+                .filter(sr -> Objects.nonNull(sr.getTo()))
+                .flatMap(s -> Stream.of(s.getTo()))
+                .map(base64Codec::decode)
+                .toArray(byte[][]::new);
 
         final List<PublicKey> recipientList = Stream.of(recipients).map(PublicKey::from).collect(Collectors.toList());
 
@@ -133,34 +133,35 @@ public class TransactionManagerImpl implements TransactionManager {
         final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendRequest.getPrivacyFlag());
 
         final byte[] execHash =
-                Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
+            Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
 
         final List<AffectedTransaction> affectedContractTransactions =
-                buildAffectedContractTransactions(sendRequest.getAffectedContractTransactions());
+            buildAffectedContractTransactions(sendRequest.getAffectedContractTransactions());
 
-        validatePrivacyMode(Optional.empty(), privacyMode, affectedContractTransactions);
+        validatePrivacyMode(privacyMode,affectedContractTransactions);
+
 
         if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
             validateRecipients(Optional.empty(), recipientList, affectedContractTransactions);
         }
 
         final EncodedPayload payload =
-                enclave.encryptPayload(
-                        raw,
-                        senderPublicKey,
-                        recipientListNoDuplicate,
-                        privacyMode,
-                        affectedContractTransactions,
-                        execHash);
+            enclave.encryptPayload(
+                raw,
+                senderPublicKey,
+                recipientListNoDuplicate,
+                privacyMode,
+                affectedContractTransactions,
+                execHash);
 
         final MessageHash transactionHash =
-                Optional.of(payload)
-                        .map(EncodedPayload::getCipherText)
-                        .map(messageHashFactory::createFromCipherText)
-                        .get();
+            Optional.of(payload)
+                .map(EncodedPayload::getCipherText)
+                .map(messageHashFactory::createFromCipherText)
+                .get();
 
         final EncryptedTransaction newTransaction =
-                new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
+            new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
 
         this.encryptedTransactionDAO.save(newTransaction);
 
@@ -175,12 +176,12 @@ public class TransactionManagerImpl implements TransactionManager {
 
     void publish(List<PublicKey> recipientList, EncodedPayload payload) {
         recipientList.stream()
-                .filter(k -> !enclave.getPublicKeys().contains(k))
-                .forEach(
-                        recipient -> {
-                            final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                            partyInfoService.publishPayload(outgoing, recipient);
-                        });
+            .filter(k -> !enclave.getPublicKeys().contains(k))
+            .forEach(
+                recipient -> {
+                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
+                    partyInfoService.publishPayload(outgoing, recipient);
+                });
     }
 
     @Override
@@ -188,11 +189,11 @@ public class TransactionManagerImpl implements TransactionManager {
     public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
 
         final byte[][] recipients =
-                Stream.of(sendRequest)
-                        .filter(sr -> Objects.nonNull(sr.getTo()))
-                        .flatMap(s -> Stream.of(s.getTo()))
-                        .map(base64Codec::decode)
-                        .toArray(byte[][]::new);
+            Stream.of(sendRequest)
+                .filter(sr -> Objects.nonNull(sr.getTo()))
+                .flatMap(s -> Stream.of(s.getTo()))
+                .map(base64Codec::decode)
+                .toArray(byte[][]::new);
 
         final List<PublicKey> recipientList = Stream.of(recipients).map(PublicKey::from).collect(Collectors.toList());
 
@@ -201,24 +202,32 @@ public class TransactionManagerImpl implements TransactionManager {
         final MessageHash messageHash = new MessageHash(sendRequest.getHash());
 
         EncryptedRawTransaction encryptedRawTransaction =
-                encryptedRawTransactionDAO
-                        .retrieveByHash(messageHash)
-                        .orElseThrow(
-                                () ->
-                                        new TransactionNotFoundException(
-                                                "Raw Transaction with hash " + messageHash + " was not found"));
+            encryptedRawTransactionDAO
+                .retrieveByHash(messageHash)
+                .orElseThrow(
+                    () ->
+                        new TransactionNotFoundException(
+                            "Raw Transaction with hash " + messageHash + " was not found"));
 
         recipientList.add(PublicKey.from(encryptedRawTransaction.getSender()));
 
         final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendRequest.getPrivacyFlag());
 
         final List<AffectedTransaction> affectedContractTransactions =
-                buildAffectedContractTransactions(sendRequest.getAffectedContractTransactions());
+            buildAffectedContractTransactions(sendRequest.getAffectedContractTransactions());
 
         final byte[] execHash =
-                Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
+            Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
 
-        validatePrivacyMode(Optional.empty(), privacyMode, affectedContractTransactions);
+        affectedContractTransactions.stream()
+            .filter(a -> a.getPayload().getPrivacyMode() != privacyMode)
+            .findFirst().ifPresent(affectedTransaction -> {
+            throw new PrivacyViolationException(
+                "Private state validation flag mismatched with Affected Txn "
+                    + affectedTransaction.getHash().encodeToBase64());
+            });
+
+        validatePrivacyMode(privacyMode,affectedContractTransactions);
 
         if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
             validateRecipients(Optional.of(messageHash), recipientList, affectedContractTransactions);
@@ -227,15 +236,15 @@ public class TransactionManagerImpl implements TransactionManager {
         final List<PublicKey> recipientListNoDuplicate = recipientList.stream().distinct().collect(Collectors.toList());
 
         final EncodedPayload payload =
-                enclave.encryptPayload(
-                        encryptedRawTransaction.toRawTransaction(),
-                        recipientListNoDuplicate,
-                        privacyMode,
-                        affectedContractTransactions,
-                        execHash);
+            enclave.encryptPayload(
+                encryptedRawTransaction.toRawTransaction(),
+                recipientListNoDuplicate,
+                privacyMode,
+                affectedContractTransactions,
+                execHash);
 
         final EncryptedTransaction newTransaction =
-                new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
+            new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
         this.encryptedTransactionDAO.save(newTransaction);
 
@@ -260,56 +269,56 @@ public class TransactionManagerImpl implements TransactionManager {
             while (offset < encryptedTransactionDAO.transactionCount()) {
 
                 encryptedTransactionDAO.retrieveTransactions(offset, resendFetchSize).stream()
-                        .map(EncryptedTransaction::getEncodedPayload)
-                        .map(payloadEncoder::decode)
-                        .filter(
-                                payload -> {
-                                    final boolean isRecipient = payload.getRecipientKeys().contains(recipientPublicKey);
-                                    final boolean isSender = Objects.equals(payload.getSenderKey(), recipientPublicKey);
-                                    return isRecipient || isSender;
-                                })
-                        .forEach(
-                                payload -> {
-                                    final EncodedPayload prunedPayload;
+                    .map(EncryptedTransaction::getEncodedPayload)
+                    .map(payloadEncoder::decode)
+                    .filter(
+                        payload -> {
+                            final boolean isRecipient = payload.getRecipientKeys().contains(recipientPublicKey);
+                            final boolean isSender = Objects.equals(payload.getSenderKey(), recipientPublicKey);
+                            return isRecipient || isSender;
+                        })
+                    .forEach(
+                        payload -> {
+                            final EncodedPayload prunedPayload;
 
-                                    if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
-                                        if (payload.getRecipientKeys().isEmpty()) {
-                                            // TODO Should we stop the whole resend just because we could not find a key
-                                            // for a tx? Log instead?
-                                            // a malicious party may be able to craft TXs that prevent others from
-                                            // performing resends
-                                            final PublicKey decryptedKey =
-                                                    searchForRecipientKey(payload)
-                                                            .orElseThrow(
-                                                                    () -> {
-                                                                        final MessageHash hash =
-                                                                                MessageHashFactory.create()
-                                                                                        .createFromCipherText(
-                                                                                                payload
-                                                                                                        .getCipherText());
-                                                                        return new RecipientKeyNotFoundException(
-                                                                                "No key found as recipient of message "
-                                                                                        + hash);
-                                                                    });
+                            if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
+                                if (payload.getRecipientKeys().isEmpty()) {
+                                    // TODO Should we stop the whole resend just because we could not find a key
+                                    // for a tx? Log instead?
+                                    // a malicious party may be able to craft TXs that prevent others from
+                                    // performing resends
+                                    final PublicKey decryptedKey =
+                                        searchForRecipientKey(payload)
+                                            .orElseThrow(
+                                                () -> {
+                                                    final MessageHash hash =
+                                                        MessageHashFactory.create()
+                                                            .createFromCipherText(
+                                                                payload
+                                                                    .getCipherText());
+                                                    return new RecipientKeyNotFoundException(
+                                                        "No key found as recipient of message "
+                                                            + hash);
+                                                });
 
-                                            prunedPayload = payloadEncoder.withRecipient(payload, decryptedKey);
-                                        } else {
-                                            prunedPayload = payload;
-                                        }
-                                    } else {
-                                        prunedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
-                                    }
+                                    prunedPayload = payloadEncoder.withRecipient(payload, decryptedKey);
+                                } else {
+                                    prunedPayload = payload;
+                                }
+                            } else {
+                                prunedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
+                            }
 
-                                    try {
-                                        if (!enclave.getPublicKeys().contains(recipientPublicKey)) {
-                                            partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
-                                        }
-                                    } catch (PublishPayloadException ex) {
-                                        LOGGER.warn(
-                                                "Unable to publish payload to recipient {} during resend",
-                                                recipientPublicKey.encodeToBase64());
-                                    }
-                                });
+                            try {
+                                if (!enclave.getPublicKeys().contains(recipientPublicKey)) {
+                                    partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
+                                }
+                            } catch (PublishPayloadException ex) {
+                                LOGGER.warn(
+                                    "Unable to publish payload to recipient {} during resend",
+                                    recipientPublicKey.encodeToBase64());
+                            }
+                        });
 
                 offset += resendFetchSize;
             }
@@ -321,12 +330,12 @@ public class TransactionManagerImpl implements TransactionManager {
             final MessageHash messageHash = new MessageHash(hashKey);
 
             final EncryptedTransaction encryptedTransaction =
-                    encryptedTransactionDAO
-                            .retrieveByHash(messageHash)
-                            .orElseThrow(
-                                    () ->
-                                            new TransactionNotFoundException(
-                                                    "Message with hash " + messageHash + " was not found"));
+                encryptedTransactionDAO
+                    .retrieveByHash(messageHash)
+                    .orElseThrow(
+                        () ->
+                            new TransactionNotFoundException(
+                                "Message with hash " + messageHash + " was not found"));
 
             final EncodedPayload payload = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
 
@@ -350,10 +359,10 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncodedPayload payload = payloadEncoder.decode(input);
 
         final MessageHash transactionHash =
-                Optional.of(payload)
-                        .map(EncodedPayload::getCipherText)
-                        .map(messageHashFactory::createFromCipherText)
-                        .get();
+            Optional.of(payload)
+                .map(EncodedPayload::getCipherText)
+                .map(messageHashFactory::createFromCipherText)
+                .get();
 
         final PrivacyMode privacyMode = payload.getPrivacyMode();
 
@@ -362,11 +371,13 @@ public class TransactionManagerImpl implements TransactionManager {
             .toArray(String[]::new);
 
         final List<AffectedTransaction> affectedContractTransactions =
-                buildAffectedContractTransactions(affectedTransactionInBase64);
+            buildAffectedContractTransactions(affectedTransactionInBase64);
 
-        if (!validatePrivacyMode(Optional.of(transactionHash), privacyMode, affectedContractTransactions)) {
+        if(affectedContractTransactions.stream()
+            .anyMatch(a -> a.getPayload().getPrivacyMode() != privacyMode)) {
             return transactionHash;
         }
+
         if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
 
             if (affectedContractTransactions.size() != payload.getAffectedContractTransactions().size()) {
@@ -389,31 +400,31 @@ public class TransactionManagerImpl implements TransactionManager {
         }
 
         final Set<TxHash> invalidSecurityHashes =
-                enclave.findInvalidSecurityHashes(payload, affectedContractTransactions);
+            enclave.findInvalidSecurityHashes(payload, affectedContractTransactions);
 
         byte[] sanitizedInput = input;
         if (!invalidSecurityHashes.isEmpty()) {
             if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
                 throw new PrivacyViolationException(
-                        "Invalid security hashes identified for PSC TX "
-                                + base64Codec.encodeToString(transactionHash.getHashBytes())
-                                + ". Invalid ACOTHs: "
-                                + invalidSecurityHashes.stream()
-                                        .map(TxHash::encodeToBase64)
-                                        .collect(Collectors.joining(",")));
+                    "Invalid security hashes identified for PSC TX "
+                        + base64Codec.encodeToString(transactionHash.getHashBytes())
+                        + ". Invalid ACOTHs: "
+                        + invalidSecurityHashes.stream()
+                        .map(TxHash::encodeToBase64)
+                        .collect(Collectors.joining(",")));
             }
             invalidSecurityHashes.forEach(txKey -> payload.getAffectedContractTransactions().remove(txKey));
             LOGGER.debug(
-                    "A number of security hashes are invalid and have been discarded for transaction with hash {}. Invalid affected contract transaction hashes: {}",
-                    base64Codec.encodeToString(transactionHash.getHashBytes()),
-                    invalidSecurityHashes.stream().map(TxHash::encodeToBase64).collect(Collectors.joining(",")));
+                "A number of security hashes are invalid and have been discarded for transaction with hash {}. Invalid affected contract transaction hashes: {}",
+                base64Codec.encodeToString(transactionHash.getHashBytes()),
+                invalidSecurityHashes.stream().map(TxHash::encodeToBase64).collect(Collectors.joining(",")));
             sanitizedInput = payloadEncoder.encode(payload);
         }
         // TODO - remove extra logs
         LOGGER.info(
-                "AffectedContractTransaction.size={} InvalidSecurityHashes.size={}",
-                affectedContractTransactions.size(),
-                invalidSecurityHashes.size());
+            "AffectedContractTransaction.size={} InvalidSecurityHashes.size={}",
+            affectedContractTransactions.size(),
+            invalidSecurityHashes.size());
 
         if (enclave.getPublicKeys().contains(payload.getSenderKey())) {
 
@@ -446,55 +457,55 @@ public class TransactionManagerImpl implements TransactionManager {
         final byte[] key = base64Codec.decode(request.getKey());
 
         final Optional<byte[]> to =
-                Optional.ofNullable(request.getTo()).filter(str -> !str.isEmpty()).map(base64Codec::decode);
+            Optional.ofNullable(request.getTo()).filter(str -> !str.isEmpty()).map(base64Codec::decode);
 
         final MessageHash hash = new MessageHash(key);
         LOGGER.info("Lookup transaction {}", hash);
 
         if (request.isRaw()) {
             final EncryptedRawTransaction encryptedRawTransaction =
-                    encryptedRawTransactionDAO
-                            .retrieveByHash(hash)
-                            .orElseThrow(
-                                    () ->
-                                            new TransactionNotFoundException(
-                                                    "Raw Message with hash " + hash + " was not found"));
+                encryptedRawTransactionDAO
+                    .retrieveByHash(hash)
+                    .orElseThrow(
+                        () ->
+                            new TransactionNotFoundException(
+                                "Raw Message with hash " + hash + " was not found"));
 
             final RawTransaction rawTransaction =
-                    new RawTransaction(
-                            encryptedRawTransaction.getEncryptedPayload(),
-                            encryptedRawTransaction.getEncryptedKey(),
-                            new Nonce(encryptedRawTransaction.getNonce()),
-                            PublicKey.from(encryptedRawTransaction.getSender()));
+                new RawTransaction(
+                    encryptedRawTransaction.getEncryptedPayload(),
+                    encryptedRawTransaction.getEncryptedKey(),
+                    new Nonce(encryptedRawTransaction.getNonce()),
+                    PublicKey.from(encryptedRawTransaction.getSender()));
 
             byte[] response = enclave.unencryptRawPayload(rawTransaction);
-            return new ReceiveResponse(response, PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag(), new String[] {}, "");
+            return new ReceiveResponse(response, PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag(), new String[]{}, "");
 
         } else {
             final EncryptedTransaction encryptedTransaction =
-                    encryptedTransactionDAO
-                            .retrieveByHash(hash)
-                            .orElseThrow(
-                                    () ->
-                                            new TransactionNotFoundException(
-                                                    "Message with hash " + hash + " was not found"));
+                encryptedTransactionDAO
+                    .retrieveByHash(hash)
+                    .orElseThrow(
+                        () ->
+                            new TransactionNotFoundException(
+                                "Message with hash " + hash + " was not found"));
 
             final EncodedPayload payload =
-                    Optional.of(encryptedTransaction)
-                            .map(EncryptedTransaction::getEncodedPayload)
-                            .map(payloadEncoder::decode)
-                            .orElseThrow(
-                                    () -> new IllegalStateException("Unable to decode previously encoded payload"));
+                Optional.of(encryptedTransaction)
+                    .map(EncryptedTransaction::getEncodedPayload)
+                    .map(payloadEncoder::decode)
+                    .orElseThrow(
+                        () -> new IllegalStateException("Unable to decode previously encoded payload"));
 
             PublicKey recipientKey =
-                    to.map(PublicKey::from)
-                            .orElse(
-                                    searchForRecipientKey(payload)
-                                            .orElseThrow(
-                                                    () ->
-                                                            new RecipientKeyNotFoundException(
-                                                                    "No suitable recipient keys found to decrypt payload for : "
-                                                                            + hash)));
+                to.map(PublicKey::from)
+                    .orElse(
+                        searchForRecipientKey(payload)
+                            .orElseThrow(
+                                () ->
+                                    new RecipientKeyNotFoundException(
+                                        "No suitable recipient keys found to decrypt payload for : "
+                                            + hash)));
 
             byte[] response = enclave.unencryptTransaction(payload, recipientKey);
 
@@ -504,11 +515,11 @@ public class TransactionManagerImpl implements TransactionManager {
                 affectedContractTransactions[idx++] = base64Codec.encodeToString(affTxKey.getBytes());
             }
             ReceiveResponse result =
-                    new ReceiveResponse(
-                            response,
-                            payload.getPrivacyMode().getPrivacyFlag(),
-                            affectedContractTransactions,
-                            new String(payload.getExecHash()));
+                new ReceiveResponse(
+                    response,
+                    payload.getPrivacyMode().getPrivacyFlag(),
+                    affectedContractTransactions,
+                    new String(payload.getExecHash()));
 
             return result;
         }
@@ -531,18 +542,18 @@ public class TransactionManagerImpl implements TransactionManager {
     public StoreRawResponse store(StoreRawRequest storeRequest) {
 
         RawTransaction rawTransaction =
-                enclave.encryptRawPayload(
-                        storeRequest.getPayload(),
-                        storeRequest.getFrom().map(PublicKey::from).orElseGet(enclave::defaultPublicKey));
+            enclave.encryptRawPayload(
+                storeRequest.getPayload(),
+                storeRequest.getFrom().map(PublicKey::from).orElseGet(enclave::defaultPublicKey));
         MessageHash hash = messageHashFactory.createFromCipherText(rawTransaction.getEncryptedPayload());
 
         EncryptedRawTransaction encryptedRawTransaction =
-                new EncryptedRawTransaction(
-                        hash,
-                        rawTransaction.getEncryptedPayload(),
-                        rawTransaction.getEncryptedKey(),
-                        rawTransaction.getNonce().getNonceBytes(),
-                        rawTransaction.getFrom().getKeyBytes());
+            new EncryptedRawTransaction(
+                hash,
+                rawTransaction.getEncryptedPayload(),
+                rawTransaction.getEncryptedKey(),
+                rawTransaction.getNonce().getNonceBytes(),
+                rawTransaction.getFrom().getKeyBytes());
 
         encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
@@ -571,10 +582,10 @@ public class TransactionManagerImpl implements TransactionManager {
                 throw Optional.of(messageHash)
                     .map(MessageHash::getHashBytes)
                     .map(Base64.getEncoder()::encodeToString)
-                    .map(s -> String.format("Unable to find affectedContractTransaction %s",s))
+                    .map(s -> String.format("Unable to find affectedContractTransaction %s", s))
                     .map(PrivacyViolationException::new)
                     .get();
-        });
+            });
 
         return encryptedTransactions.stream()
             .map(et -> AffectedTransaction.Builder.create()
@@ -585,7 +596,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     private Map<TxHash, EncodedPayload> buildAffectedContractTransactions(
-            PrivacyMode privacyMode, Set<TxHash> txHashes) {
+        PrivacyMode privacyMode, Set<TxHash> txHashes) {
         if (Objects.isNull(txHashes) || txHashes.isEmpty()) {
             return Collections.emptyMap();
         }
@@ -595,7 +606,7 @@ public class TransactionManagerImpl implements TransactionManager {
             Optional<EncryptedTransaction> affTx = this.encryptedTransactionDAO.retrieveByHash(affTxHash);
             if (affTx.isPresent()) {
                 affectedContractTransactions.put(
-                        new TxHash(affTxHash.getHashBytes()), payloadEncoder.decode(affTx.get().getEncodedPayload()));
+                    new TxHash(affTxHash.getHashBytes()), payloadEncoder.decode(affTx.get().getEncodedPayload()));
             } else {
                 LOGGER.debug("Unable to find affectedContractTransaction {}", txHash.encodeToBase64());
             }
@@ -603,60 +614,41 @@ public class TransactionManagerImpl implements TransactionManager {
         return affectedContractTransactions;
     }
 
-    private boolean validatePrivacyMode(
-            Optional<MessageHash> txHash,
-            PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions) {
-        boolean result = true;
-        for (AffectedTransaction entry : affectedContractTransactions) {
-            final PrivacyMode affectedContractPrivacyMode = entry.getPayload().getPrivacyMode();
-            if (affectedContractPrivacyMode != privacyMode) {
-                if (!txHash.isPresent()) {
-                    throw new PrivacyViolationException(
-                            "Private state validation flag mismatched with Affected Txn "
-                                    + entry.getHash().encodeToBase64());
-                } else {
-                    LOGGER.info(
-                            "ACOTH {} has PrivacyMode={} for TX {} with PrivacyMode={}. Ignoring transaction.",
-                            entry.getHash().encodeToBase64(),
-                            affectedContractPrivacyMode.name(),
-                            base64Codec.encodeToString(txHash.get().getHashBytes()),
-                            privacyMode.name());
-                    result = false;
-                }
-            }
-        }
-        return result;
+
+
+    protected static void validatePrivacyMode(
+        PrivacyMode privacyMode,
+        List<AffectedTransaction> affectedContractTransactions) {
+
+        affectedContractTransactions.stream()
+            .filter(a -> a.getPayload().getPrivacyMode() != privacyMode)
+            .findFirst().ifPresent(affectedTransaction -> {
+                throw new PrivacyViolationException(
+                    "Private state validation flag mismatched with Affected Txn "
+                        + affectedTransaction.getHash().encodeToBase64());
+            });
+
     }
 
     private boolean validateRecipients(
-            Optional<MessageHash> txHash,
-            List<PublicKey> recipientList,
-            List<AffectedTransaction> affectedContractTransactions) {
+        Optional<MessageHash> txHash,
+        List<PublicKey> recipientList,
+        List<AffectedTransaction> affectedContractTransactions) {
         for (AffectedTransaction entry : affectedContractTransactions) {
             if (!entry.getPayload().getRecipientKeys().containsAll(recipientList)
-                    || !recipientList.containsAll(entry.getPayload().getRecipientKeys())) {
+                || !recipientList.containsAll(entry.getPayload().getRecipientKeys())) {
                 throw new PrivacyViolationException(
-                        "Recipients mismatched for Affected Txn "
-                                + entry.getHash().encodeToBase64()
-                                + ". TxHash="
-                                + txHash.map(MessageHash::getHashBytes)
-                                        .map(base64Codec::encodeToString)
-                                        .orElse("NONE"));
+                    "Recipients mismatched for Affected Txn "
+                        + entry.getHash().encodeToBase64()
+                        + ". TxHash="
+                        + txHash.map(MessageHash::getHashBytes)
+                        .map(base64Codec::encodeToString)
+                        .orElse("NONE"));
             }
         }
         return true;
     }
 
-    private boolean validateIfSenderIsGenuine(EncodedPayload payload, List<AffectedTransaction> affectedContractTransactions) {
-
-        final PublicKey senderKey = payload.getSenderKey();
-
-        return affectedContractTransactions.stream()
-            .map(AffectedTransaction::getPayload)
-            .map(p -> p.getRecipientKeys())
-            .anyMatch(r -> r.contains(senderKey));
-    }
 
     @Override
     @Transactional
@@ -680,9 +672,9 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private EncodedPayload fetchPayload(final MessageHash hash) {
         return encryptedTransactionDAO
-                .retrieveByHash(hash)
-                .map(EncryptedTransaction::getEncodedPayload)
-                .map(payloadEncoder::decode)
-                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
+            .retrieveByHash(hash)
+            .map(EncryptedTransaction::getEncodedPayload)
+            .map(payloadEncoder::decode)
+            .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
     }
 }
