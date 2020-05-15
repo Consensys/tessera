@@ -12,6 +12,7 @@ import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.resend.ResendManagerImpl;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -88,6 +89,7 @@ public class ResendManagerTest {
         verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 
+    @Ignore
     @Test
     public void storePayloadAsSenderWhenTxIsPresent() {
 

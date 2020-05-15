@@ -26,8 +26,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.emptySet;
+import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
 /** Defines endpoints for requesting node discovery (partyinfo) information */
@@ -117,7 +116,7 @@ public class PartyInfoResource {
                                         sender,
                                         Arrays.asList(key),
                                         PrivacyMode.STANDARD_PRIVATE,
-                                        emptyMap(),
+                                        emptyList(),
                                         new byte[0]);
 
                         LOGGER.debug("Validating key {} on peer {}", key, url);

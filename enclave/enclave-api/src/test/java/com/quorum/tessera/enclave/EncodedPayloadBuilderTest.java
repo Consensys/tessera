@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.PublicKey;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -11,30 +12,31 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EncodedPayloadBuilderTest {
 
+    final PublicKey senderKey = PublicKey.from("SENDER_KEY".getBytes());
+
+    final PublicKey recipientKey = PublicKey.from("RECIPIENT_KEY".getBytes());
+
+    final byte[] cipherText = "cipherText".getBytes();
+
+    final byte[] cipherTextNonce = "cipherTextNonce".getBytes();
+
+    final byte[] recipientNonce = "recipientNonce".getBytes();
+
+    final byte[] recipientBox = "recipientBox".getBytes();
+
+    final Map<TxHash, byte[]> affectedContractTransactionsRaw =
+        new HashMap<>() {
+            {
+                put(
+                    new TxHash(
+                        "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+                    "transaction".getBytes());
+            }
+        };
+
+    final byte[] execHash = "execHash".getBytes();
     @Test
     public void build() {
-
-        final PublicKey senderKey = PublicKey.from("SENDER_KEY".getBytes());
-
-        final PublicKey recipientKey = PublicKey.from("RECIPIENT_KEY".getBytes());
-
-        final byte[] cipherText = "cipherText".getBytes();
-        final byte[] cipherTextNonce = "cipherTextNonce".getBytes();
-
-        final byte[] recipientNonce = "recipientNonce".getBytes();
-        final byte[] recipientBox = "recipientBox".getBytes();
-
-        final Map<TxHash, byte[]> affectedContractTransactionsRaw =
-                new HashMap<>() {
-                    {
-                        put(
-                                new TxHash(
-                                        "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-                                "transaction".getBytes());
-                    }
-                };
-
-        final byte[] execHash = "execHash".getBytes();
 
         final EncodedPayload sample =
                 EncodedPayload.Builder.create()
@@ -63,4 +65,33 @@ public class EncodedPayloadBuilderTest {
         assertThat(sample.getExecHash()).isEqualTo(execHash);
         assertThat(sample.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
     }
+
+    @Test
+    public void from() {
+        final EncodedPayload sample =
+            EncodedPayload.Builder.create()
+                .withSenderKey(senderKey)
+                .withCipherText(cipherText)
+                .withCipherTextNonce(cipherTextNonce)
+                .withRecipientBoxes(Arrays.asList(recipientBox))
+                .withRecipientNonce(recipientNonce)
+                .withRecipientKeys(Arrays.asList(recipientKey))
+                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                .withExecHash(execHash)
+                .build();
+
+        EncodedPayload result = EncodedPayload.Builder.from(sample).build();
+
+        assertThat(result)
+            .isNotSameAs(sample)
+            .isEqualTo(sample);
+
+        EqualsVerifier.forClass(EncodedPayload.class)
+            .withIgnoredFields("affectedContractTransactions")
+            .usingGetClass()
+            .verify();
+
+    }
+
+
 }

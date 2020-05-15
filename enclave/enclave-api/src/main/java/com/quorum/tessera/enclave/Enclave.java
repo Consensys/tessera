@@ -4,7 +4,6 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -53,7 +52,7 @@ public interface Enclave extends Service {
             PublicKey senderPublicKey,
             List<PublicKey> recipientPublicKeys,
             PrivacyMode privacyMode,
-            Map<TxHash, EncodedPayload> affectedContractTransactions,
+            List<AffectedTransaction> affectedContractTransactions,
             byte[] execHash);
 
     /**
@@ -68,7 +67,7 @@ public interface Enclave extends Service {
             RawTransaction rawTransaction,
             List<PublicKey> recipientPublicKeys,
             PrivacyMode privacyMode,
-            Map<TxHash, EncodedPayload> affectedContractTransactions,
+            List<AffectedTransaction> affectedContractTransactions,
             byte[] execHash);
 
     /**
@@ -79,7 +78,7 @@ public interface Enclave extends Service {
      * @return the map of filtered affectedContractTransaction security hashes
      */
     Set<TxHash> findInvalidSecurityHashes(
-            EncodedPayload encodedPayload, Map<TxHash, EncodedPayload> affectedContractTransactions);
+            EncodedPayload encodedPayload, List<AffectedTransaction> affectedContractTransactions);
 
     /**
      * Encrypt a payload without any recipients that can be retrieved later. The payload is encrypted using the private

@@ -81,7 +81,7 @@ public class EnclaveApplicationTest {
                             return pay;
                         })
                 .when(enclave)
-                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyMap(), any());
+                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyList(), any());
 
         PublicKey senderPublicKey = pay.getSenderKey();
         List<PublicKey> recipientPublicKeys = pay.getRecipientKeys();
@@ -96,13 +96,19 @@ public class EnclaveApplicationTest {
         when(acoth.getAffectedContractTransactions()).thenReturn(Collections.emptyMap());
         when(acoth.getExecHash()).thenReturn("0".getBytes());
 
+
+        TxHash txHash = new TxHash("key".getBytes());
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getPayload()).thenReturn(acoth);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+
         EncodedPayload result =
                 restfulEnclaveClient.encryptPayload(
                         message,
                         senderPublicKey,
                         recipientPublicKeys,
                         PrivacyMode.STANDARD_PRIVATE,
-                        Collections.singletonMap(new TxHash("key".getBytes()), acoth),
+                        List.of(affectedTransaction),
                         new byte[0]);
 
         assertThat(result.getSenderKey()).isNotNull().isEqualTo(pay.getSenderKey());
@@ -121,7 +127,7 @@ public class EnclaveApplicationTest {
 
         assertThat(results.get(0)).isEqualTo(message);
 
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyMap(), any());
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyList(), any());
     }
 
     @Test

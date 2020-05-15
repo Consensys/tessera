@@ -91,6 +91,22 @@ public class EncodedPayload {
             return new Builder();
         }
 
+        public static Builder from(EncodedPayload encodedPayload) {
+            return create()
+                .withPrivacyMode(encodedPayload.getPrivacyMode())
+                .withSenderKey(encodedPayload.getSenderKey())
+                .withRecipientNonce(encodedPayload.getRecipientNonce())
+                .withRecipientKeys(encodedPayload.getRecipientKeys())
+                .withRecipientBoxes(encodedPayload.getRecipientBoxes())
+                .withPrivacyMode(encodedPayload.getPrivacyMode())
+                .withExecHash(encodedPayload.getExecHash())
+                .withCipherText(encodedPayload.getCipherText())
+                .withCipherTextNonce(encodedPayload.getCipherTextNonce())
+                .withAffectedContractTransactions(encodedPayload.getAffectedContractTransactions());
+
+        }
+
+
         private PublicKey senderKey;
 
         private byte[] cipherText;
@@ -180,5 +196,29 @@ public class EncodedPayload {
                     affectedContractTransactions,
                     execHash);
         }
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EncodedPayload that = (EncodedPayload) o;
+        return Objects.equals(senderKey, that.senderKey) &&
+            Arrays.equals(cipherText, that.cipherText) &&
+            Objects.equals(cipherTextNonce, that.cipherTextNonce) &&
+            Objects.equals(recipientBoxes, that.recipientBoxes) &&
+            Objects.equals(recipientNonce, that.recipientNonce) &&
+            Objects.equals(recipientKeys, that.recipientKeys) &&
+            privacyMode == that.privacyMode &&
+            Arrays.equals(execHash, that.execHash);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys, privacyMode);
+        result = 31 * result + Arrays.hashCode(cipherText);
+        result = 31 * result + Arrays.hashCode(execHash);
+        return result;
     }
 }

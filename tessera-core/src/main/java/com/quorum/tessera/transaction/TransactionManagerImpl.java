@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -134,8 +135,8 @@ public class TransactionManagerImpl implements TransactionManager {
         final byte[] execHash =
                 Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
 
-        final Map<TxHash, EncodedPayload> affectedContractTransactions =
-                buildAffectedContractTransactions(privacyMode, sendRequest.getAffectedContractTransactions());
+        final List<AffectedTransaction> affectedContractTransactions =
+                buildAffectedContractTransactions(sendRequest.getAffectedContractTransactions());
 
         validatePrivacyMode(Optional.empty(), privacyMode, affectedContractTransactions);
 
@@ -211,8 +212,8 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendRequest.getPrivacyFlag());
 
-        final Map<TxHash, EncodedPayload> affectedContractTransactions =
-                buildAffectedContractTransactions(privacyMode, sendRequest.getAffectedContractTransactions());
+        final List<AffectedTransaction> affectedContractTransactions =
+                buildAffectedContractTransactions(sendRequest.getAffectedContractTransactions());
 
         final byte[] execHash =
                 Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
@@ -356,8 +357,12 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final PrivacyMode privacyMode = payload.getPrivacyMode();
 
-        final Map<TxHash, EncodedPayload> affectedContractTransactions =
-                buildAffectedContractTransactions(privacyMode, payload.getAffectedContractTransactions().keySet());
+        String[] affectedTransactionInBase64 = payload.getAffectedContractTransactions().keySet().stream()
+            .map(TxHash::encodeToBase64)
+            .toArray(String[]::new);
+
+        final List<AffectedTransaction> affectedContractTransactions =
+                buildAffectedContractTransactions(affectedTransactionInBase64);
 
         if (!validatePrivacyMode(Optional.of(transactionHash), privacyMode, affectedContractTransactions)) {
             return transactionHash;
@@ -530,23 +535,39 @@ public class TransactionManagerImpl implements TransactionManager {
         return new StoreRawResponse(encryptedRawTransaction.getHash().getHashBytes());
     }
 
-    private Map<TxHash, EncodedPayload> buildAffectedContractTransactions(
-            PrivacyMode privacyMode, String[] affectedContractTransactionsList) {
+    private List<AffectedTransaction> buildAffectedContractTransactions(String[] affectedContractTransactionsList) {
+
         if (Objects.isNull(affectedContractTransactionsList)) {
-            return Collections.emptyMap();
+            return Collections.emptyList();
         }
-        final Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
-        for (String affTxHashB64 : affectedContractTransactionsList) {
-            MessageHash affTxHash = new MessageHash(base64Decoder.decode(affTxHashB64));
-            Optional<EncryptedTransaction> affTx = this.encryptedTransactionDAO.retrieveByHash(affTxHash);
-            if (affTx.isPresent()) {
-                affectedContractTransactions.put(
-                        new TxHash(affTxHash.getHashBytes()), payloadEncoder.decode(affTx.get().getEncodedPayload()));
-            } else {
-                throw new PrivacyViolationException("Unable to find affectedContractTransaction " + affTxHashB64);
-            }
-        }
-        return affectedContractTransactions;
+
+        List<MessageHash> messageHashes = Arrays.stream(affectedContractTransactionsList)
+            .map(Base64.getDecoder()::decode)
+            .map(MessageHash::new)
+            .collect(Collectors.toList());
+
+        List<EncryptedTransaction> encryptedTransactions = encryptedTransactionDAO.findByHashes(messageHashes);
+
+        encryptedTransactions.stream()
+            .map(EncryptedTransaction::getHash)
+            .filter(Predicate.not(messageHashes::contains))
+            .peek(System.out::println)
+            .findFirst()
+            .ifPresent(messageHash -> {
+                throw Optional.of(messageHash)
+                    .map(MessageHash::getHashBytes)
+                    .map(Base64.getEncoder()::encodeToString)
+                    .map(s -> String.format("Unable to find affectedContractTransaction %s",s))
+                    .map(PrivacyViolationException::new)
+                    .get();
+        });
+
+        return encryptedTransactions.stream()
+            .map(et -> AffectedTransaction.Builder.create()
+                .withPayload(et.getEncodedPayload())
+                .withHash(et.getHash().getHashBytes())
+                .build())
+            .collect(Collectors.toList());
     }
 
     private Map<TxHash, EncodedPayload> buildAffectedContractTransactions(
@@ -571,19 +592,19 @@ public class TransactionManagerImpl implements TransactionManager {
     private boolean validatePrivacyMode(
             Optional<MessageHash> txHash,
             PrivacyMode privacyMode,
-            Map<TxHash, EncodedPayload> affectedContractTransactions) {
+            List<AffectedTransaction> affectedContractTransactions) {
         boolean result = true;
-        for (Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
-            final PrivacyMode affectedContractPrivacyMode = entry.getValue().getPrivacyMode();
+        for (AffectedTransaction entry : affectedContractTransactions) {
+            final PrivacyMode affectedContractPrivacyMode = entry.getPayload().getPrivacyMode();
             if (affectedContractPrivacyMode != privacyMode) {
                 if (!txHash.isPresent()) {
                     throw new PrivacyViolationException(
                             "Private state validation flag mismatched with Affected Txn "
-                                    + entry.getKey().encodeToBase64());
+                                    + entry.getHash().encodeToBase64());
                 } else {
                     LOGGER.info(
                             "ACOTH {} has PrivacyMode={} for TX {} with PrivacyMode={}. Ignoring transaction.",
-                            entry.getKey().encodeToBase64(),
+                            entry.getHash().encodeToBase64(),
                             affectedContractPrivacyMode.name(),
                             base64Decoder.encodeToString(txHash.get().getHashBytes()),
                             privacyMode.name());
@@ -597,13 +618,13 @@ public class TransactionManagerImpl implements TransactionManager {
     private boolean validateRecipients(
             Optional<MessageHash> txHash,
             List<PublicKey> recipientList,
-            Map<TxHash, EncodedPayload> affectedContractTransactions) {
-        for (Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
-            if (!entry.getValue().getRecipientKeys().containsAll(recipientList)
-                    || !recipientList.containsAll(entry.getValue().getRecipientKeys())) {
+            List<AffectedTransaction> affectedContractTransactions) {
+        for (AffectedTransaction entry : affectedContractTransactions) {
+            if (!entry.getPayload().getRecipientKeys().containsAll(recipientList)
+                    || !recipientList.containsAll(entry.getPayload().getRecipientKeys())) {
                 throw new PrivacyViolationException(
                         "Recipients mismatched for Affected Txn "
-                                + entry.getKey().encodeToBase64()
+                                + entry.getHash().encodeToBase64()
                                 + ". TxHash="
                                 + txHash.map(MessageHash::getHashBytes)
                                         .map(base64Decoder::encodeToString)
@@ -614,7 +635,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     private boolean validateIfSenderIsGenuine(
-            MessageHash txHash, EncodedPayload payload, Map<TxHash, EncodedPayload> affectedContractTransactions) {
+            MessageHash txHash, EncodedPayload payload, List<AffectedTransaction> affectedContractTransactions) {
         boolean result = true;
         if (affectedContractTransactions.size() != payload.getAffectedContractTransactions().size()) {
             // This could be a recipient discovery attack. Respond successfully while not saving the transaction.
@@ -624,13 +645,13 @@ public class TransactionManagerImpl implements TransactionManager {
             return false;
         }
         final PublicKey senderKey = payload.getSenderKey();
-        for (Map.Entry<TxHash, EncodedPayload> entry : affectedContractTransactions.entrySet()) {
-            if (!entry.getValue().getRecipientKeys().contains(senderKey)) {
+        for (AffectedTransaction entry : affectedContractTransactions) {
+            if (!entry.getPayload().getRecipientKeys().contains(senderKey)) {
                 LOGGER.info(
                         "Sender key {} for TX {} is not a recipient for ACOTH {}",
                         senderKey.encodeToBase64(),
                         base64Decoder.encodeToString(txHash.getHashBytes()),
-                        entry.getKey().encodeToBase64());
+                        entry.getHash().encodeToBase64());
                 result = false;
             }
         }

@@ -86,7 +86,7 @@ public class EnclaveResource {
                         senderKey,
                         recipientPublicKeys,
                         payload.getPrivacyMode(),
-                        Collections.emptyMap(),
+                        Collections.emptyList(),
                         payload.getExecHash());
 
         byte[] response = payloadEncoder.encode(outcome);
@@ -116,7 +116,7 @@ public class EnclaveResource {
                         rawTransaction,
                         recipientPublicKeys,
                         enclaveRawPayload.getPrivacyMode(),
-                        Collections.emptyMap(),
+                        Collections.emptyList(),
                         enclaveRawPayload.getExecHash());
 
         byte[] response = payloadEncoder.encode(outcome);
@@ -150,13 +150,15 @@ public class EnclaveResource {
 
         EncodedPayload encodedPayload = payloadEncoder.decode(payload.getEncodedPayload());
 
-        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
-        for (KeyValuePair keyPair : payload.getAffectedContractTransactions()) {
-            affectedContractTransactions.put(new TxHash(keyPair.getKey()), payloadEncoder.decode(keyPair.getValue()));
-        }
+        List<AffectedTransaction> affectedTransactions = payload.getAffectedContractTransactions()
+            .stream()
+            .map(keyValuePair -> AffectedTransaction.Builder.create()
+            .withHash(keyValuePair.getKey())
+            .withPayload(keyValuePair.getValue())
+            .build()).collect(Collectors.toList());
 
         Set<TxHash> invalidSecurityHashes =
-                enclave.findInvalidSecurityHashes(encodedPayload, affectedContractTransactions);
+                enclave.findInvalidSecurityHashes(encodedPayload, affectedTransactions);
 
         EnclaveFindInvalidSecurityHashesResponsePayload responsePayload =
                 new EnclaveFindInvalidSecurityHashesResponsePayload();

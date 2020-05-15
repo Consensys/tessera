@@ -30,7 +30,7 @@ public class EnclaveImpl implements Enclave {
             final PublicKey senderPublicKey,
             final List<PublicKey> recipientPublicKeys,
             final PrivacyMode privacyMode,
-            final Map<TxHash, EncodedPayload> affectedContractTransactions,
+            final List<AffectedTransaction> affectedContractTransactions,
             final byte[] execHash) {
 
         final MasterKey masterKey = encryptor.createMasterKey();
@@ -43,7 +43,8 @@ public class EnclaveImpl implements Enclave {
                 buildRecipientMasterKeys(senderPublicKey, recipientPublicKeys, recipientNonce, masterKey);
 
         final Map<TxHash, byte[]> affectedContractTransactionHashes =
-                buildAffectedContractTransactionHashes(affectedContractTransactions, cipherText);
+                buildAffectedContractTransactionHashes(affectedContractTransactions.stream()
+                    .collect(Collectors.toUnmodifiableMap(AffectedTransaction::getHash,AffectedTransaction::getPayload)), cipherText);
 
         return EncodedPayload.Builder.create()
                 .withSenderKey(senderPublicKey)
@@ -109,7 +110,7 @@ public class EnclaveImpl implements Enclave {
             final RawTransaction rawTransaction,
             final List<PublicKey> recipientPublicKeys,
             final PrivacyMode privacyMode,
-            final Map<TxHash, EncodedPayload> affectedContractTransactions,
+            List<AffectedTransaction> affectedContractTransactions,
             final byte[] execHash) {
 
         final MasterKey masterKey =
@@ -124,7 +125,7 @@ public class EnclaveImpl implements Enclave {
 
         final Map<TxHash, byte[]> affectedContractTransactionHashes =
                 buildAffectedContractTransactionHashes(
-                        affectedContractTransactions, rawTransaction.getEncryptedPayload());
+                        affectedContractTransactions.stream().collect(Collectors.toMap(AffectedTransaction::getHash,AffectedTransaction::getPayload)), rawTransaction.getEncryptedPayload());
 
         return EncodedPayload.Builder.create()
                 .withSenderKey(rawTransaction.getFrom())
@@ -141,24 +142,29 @@ public class EnclaveImpl implements Enclave {
 
     @Override
     public Set<TxHash> findInvalidSecurityHashes(
-            EncodedPayload encodedPayload, Map<TxHash, EncodedPayload> affectedContractTransactions) {
+            EncodedPayload encodedPayload, List<AffectedTransaction> affectedContractTransactions) {
         return encodedPayload.getAffectedContractTransactions().entrySet().stream()
                 .filter(
                         entry -> {
                             // TODO - remove extra logs
                             LOGGER.info("Verifying hash for TxKey {}", entry.getKey().encodeToBase64());
-                            EncodedPayload affectedTransaction = affectedContractTransactions.get(entry.getKey());
-                            if (null == affectedTransaction) {
+                            TxHash txHash = entry.getKey();
+
+                            final Optional<EncodedPayload> affectedTransaction = affectedContractTransactions.stream()
+                                .filter(t -> Objects.equals(t.getHash(),txHash))
+                                .findFirst().map(AffectedTransaction::getPayload);
+                            if (affectedTransaction.isEmpty()) {
                                 return true;
                             }
                             byte[] calculatedHash =
                                     computeAffectedContractTransactionHash(
-                                            encodedPayload.getCipherText(), affectedTransaction);
+                                            encodedPayload.getCipherText(), affectedTransaction.get());
                             return !Arrays.equals(entry.getValue(), calculatedHash);
                         })
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
     }
+
 
     private List<byte[]> buildRecipientMasterKeys(
             final PublicKey senderPublicKey,

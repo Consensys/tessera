@@ -239,7 +239,7 @@ public class EnclaveTest {
                         senderPublicKey,
                         Arrays.asList(recipientPublicKey),
                         PrivacyMode.STANDARD_PRIVATE,
-                        emptyMap(),
+                        emptyList(),
                         null);
 
         assertThat(result).isNotNull();
@@ -299,10 +299,14 @@ public class EnclaveTest {
         when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
 
-        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
-        affectedContractTransactions.put(
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-                affectedTxPayload);
+
+        TxHash txnHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txnHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+        List<AffectedTransaction> affectedContractTransactions = List.of(affectedTransaction);
 
         final EncodedPayload result =
                 enclave.encryptPayload(
@@ -310,7 +314,7 @@ public class EnclaveTest {
                         senderPublicKey,
                         Arrays.asList(recipientPublicKey),
                         PrivacyMode.STANDARD_PRIVATE,
-                        affectedContractTransactions,
+                    affectedContractTransactions,
                         new byte[0]);
 
         assertThat(result).isNotNull();
@@ -319,11 +323,7 @@ public class EnclaveTest {
         assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
         assertThat(result.getRecipientBoxes()).containsExactly(encryptedMasterKeys);
-        assertThat(result.getAffectedContractTransactions().keySet())
-                .hasSize(1)
-                .containsExactly(
-                        new TxHash(
-                                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="));
+        assertThat(result.getAffectedContractTransactions()).containsOnlyKeys(txnHash);
 
         verify(nacl).createMasterKey();
         verify(nacl, times(2)).randomNonce();
@@ -377,7 +377,7 @@ public class EnclaveTest {
                         rawTransaction,
                         Arrays.asList(recipientPublicKey),
                         PrivacyMode.STANDARD_PRIVATE,
-                        emptyMap(),
+                        emptyList(),
                         new byte[0]);
 
         assertThat(result).isNotNull();
@@ -554,12 +554,14 @@ public class EnclaveTest {
         when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
 
-        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
-        affectedContractTransactions.put(
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-                affectedTxPayload);
 
-        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, affectedContractTransactions);
+        var txnHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txnHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+
+        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
 
         assertThat(invalidHashes).hasSize(1);
 
@@ -623,7 +625,12 @@ public class EnclaveTest {
         Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
         affectedContractTransactions.put(txHash, affectedTxPayload);
 
-        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, affectedContractTransactions);
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+
+        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
 
         assertThat(invalidHashes).hasSize(0);
 
@@ -674,13 +681,12 @@ public class EnclaveTest {
         when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
 
-        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
-        affectedContractTransactions.put(
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-                affectedTxPayload);
-
+        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
         try {
-            enclave.findInvalidSecurityHashes(payload, affectedContractTransactions);
+            enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
         } catch (Throwable e) {
             assertThat(e).isInstanceOf(RuntimeException.class);
             assertThat(e).hasMessageContaining("An EncodedPayload should have at least one recipient box.");
@@ -752,7 +758,12 @@ public class EnclaveTest {
                 new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
                 affectedTxPayload);
 
-        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, affectedContractTransactions);
+        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
 
         assertThat(invalidHashes).hasSize(1);
 
@@ -804,13 +815,15 @@ public class EnclaveTest {
         when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
 
-        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
-        affectedContractTransactions.put(
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-                affectedTxPayload);
+
+        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
 
         try {
-            enclave.findInvalidSecurityHashes(payload, affectedContractTransactions);
+            enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
             failBecauseExceptionWasNotThrown(any());
         } catch (Throwable ex) {
             assertThat(ex).isInstanceOf(RuntimeException.class);
