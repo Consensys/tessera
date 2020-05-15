@@ -56,7 +56,7 @@ public class KnownPeerChecker {
                 }
             }
         } catch (MalformedURLException | RuntimeException e) {
-            throw new RuntimeException(String.format("unable to check if %s is a known peer", url), e);
+            throw new RuntimeException(String.format("unable to check if %s is a known peer: %s", url, e.getMessage()), e);
         }
         LOGGER.debug("{} is not known", url);
         return false;

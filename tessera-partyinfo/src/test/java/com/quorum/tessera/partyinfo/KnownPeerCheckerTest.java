@@ -97,7 +97,7 @@ public class KnownPeerCheckerTest {
 
         final Throwable ex = catchThrowable(() -> knownPeerChecker.isKnown("malformed@url"));
         assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex).hasMessageContaining("unable to check if malformed@url is a known peer");
+        assertThat(ex).hasMessage("unable to check if malformed@url is a known peer: no protocol: malformed@url");
         assertThat(ex).hasCauseExactlyInstanceOf(MalformedURLException.class);
     }
 
@@ -108,7 +108,7 @@ public class KnownPeerCheckerTest {
 
         final Throwable ex = catchThrowable(() -> knownPeerChecker.isKnown("<><```invaliduri"));
         assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex).hasMessageContaining("unable to check if <><```invaliduri is a known peer");
+        assertThat(ex).hasMessage("unable to check if <><```invaliduri is a known peer: Invalid URL <><```invaliduri");
         assertThat(ex).hasCauseInstanceOf(RuntimeException.class);
     }
 }
