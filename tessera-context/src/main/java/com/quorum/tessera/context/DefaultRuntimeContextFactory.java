@@ -94,6 +94,7 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
                                         .collect(Collectors.toList()))
                         .withAlwaysSendTo(alwaysSendTo)
                         .withUseWhiteList(config.isUseWhiteList())
+                        .withRecoveryMode(Optional.of(config.isRecoveryMode()).orElse(false))
                         .build();
 
         return context;
