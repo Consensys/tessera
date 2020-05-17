@@ -607,4 +607,18 @@ public class PicoCliDelegateTest {
         assertThat(config.getJdbcConfig().isAutoCreateTables()).isTrue();
         assertThat(config.getJdbcConfig().getUrl()).isEqualTo("someurl");
     }
+
+    @Test
+    public void withRecoverMode() throws Exception {
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-r");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+
+        Config config = result.getConfig().get();
+        assertThat(config.isRecoveryMode()).isTrue();
+    }
 }

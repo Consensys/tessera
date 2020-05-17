@@ -160,6 +160,10 @@ public class PicoCliDelegate {
             }
         }
 
+        if (parseResult.hasMatchedOption("recover")) {
+            config.setRecoveryMode(true);
+        }
+
         if (Objects.nonNull(parseResult.unmatched())) {
             List<String> unmatched = new ArrayList<>(parseResult.unmatched());
 
