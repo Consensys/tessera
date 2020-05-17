@@ -17,43 +17,27 @@ import java.util.*;
             query =
                     "select st FROM StagingTransaction st where st.validationStage is null and not exists "
                             + "    (select act from StagingAffectedTransaction act  where act.sourceTransaction.hash = st.hash and  "
-                            + "        (select ast.validationStage from StagingTransaction ast where ast.hash = act.hash) is null"
+                            + "        (select coalesce(sum(CASE WHEN ast.validationStage is Null THEN 1 else 0 END), 1) from StagingTransaction ast where ast.hash = act.hash) > 0"
                             + "    )"),
-    @NamedQuery(name = "StagingTransaction.countAll",query = "select count(st) from StagingTransaction st"),
-    @NamedQuery(name="StagingTransaction.countStaged",query = "select count(st) from StagingTransaction st where st.validationStage is not null"),
-    @NamedQuery(name="StagingTransaction.findAllOrderByStage",
-        query = "select st from StagingTransaction st order by coalesce(st.validationStage, select max(st.validationStage)+1 from StagingTransaction st), st.hash")
+    @NamedQuery(name = "StagingTransaction.countAll", query = "select count(st) from StagingTransaction st"),
+    @NamedQuery(
+            name = "StagingTransaction.countStaged",
+            query = "select count(st) from StagingTransaction st where st.validationStage is not null"),
+    @NamedQuery(
+            name = "StagingTransaction.findAllOrderByStage",
+            query =
+                    "select st from StagingTransaction st order by coalesce(st.validationStage, select max(st.validationStage)+1 from StagingTransaction st), st.hash")
 })
 public class StagingTransaction implements Serializable {
 
     @Id
-    @GeneratedValue(generator = "ATOMIC_LONG",strategy=GenerationType.AUTO)
-    @Column(name="ID")
+    @GeneratedValue(generator = "ATOMIC_LONG", strategy = GenerationType.AUTO)
+    @Column(name = "ID")
     private Long id;
 
     @Basic
-    @Column(name = "HASH", nullable = false,updatable = false)
+    @Column(name = "HASH", nullable = false, updatable = false)
     private String hash;
-
-    @Lob
-    @Column(name = "SENDER_KEY", nullable = false, updatable = false)
-    private byte[] senderKey;
-
-    @Lob
-    @Column(name = "CIPHER_TEXT", nullable = false, updatable = false)
-    private byte[] cipherText;
-
-    @Lob
-    @Column(name = "CIPHER_TEXT_NONCE", nullable = false, updatable = false)
-    private byte[] cipherTextNonce;
-
-    @Lob
-    @Column(name = "RECIPIENT_NONCE", nullable = false, updatable = false)
-    private byte[] recipientNonce;
-
-    @Lob
-    @Column(name = "EXEC_HASH", updatable = false)
-    private byte[] execHash;
 
     @Column(name = "PRIVACY_MODE", updatable = false)
     @Enumerated(EnumType.ORDINAL)
@@ -63,16 +47,8 @@ public class StagingTransaction implements Serializable {
     @Basic
     private Long validationStage;
 
-    @Column(name = "DATA_ISSUES")
-    @Basic
-    private String issues;
-
     @Column(name = "TIMESTAMP", updatable = false)
     private long timestamp;
-
-    @Lob
-    @Column(name="RECIPIENT_KEY")
-    private byte[] recipientKey;
 
     @OneToMany(
             fetch = FetchType.LAZY,
@@ -112,54 +88,12 @@ public class StagingTransaction implements Serializable {
         return this.timestamp;
     }
 
-
-
-    public byte[] getSenderKey() {
-        return senderKey;
-    }
-
-    public void setSenderKey(byte[] senderKey) {
-        this.senderKey = senderKey;
-    }
-
-    public byte[] getCipherText() {
-        return cipherText;
-    }
-
-    public void setCipherText(byte[] cipherText) {
-        this.cipherText = cipherText;
-    }
-
-    public byte[] getCipherTextNonce() {
-        return cipherTextNonce;
-    }
-
-    public void setCipherTextNonce(byte[] cipherTextNonce) {
-        this.cipherTextNonce = cipherTextNonce;
-    }
-
-    public byte[] getRecipientNonce() {
-        return recipientNonce;
-    }
-
-    public void setRecipientNonce(byte[] recipientNonce) {
-        this.recipientNonce = recipientNonce;
-    }
-
     public Set<StagingAffectedTransaction> getAffectedContractTransactions() {
         return affectedContractTransactions;
     }
 
     public void setAffectedContractTransactions(Set<StagingAffectedTransaction> affectedContractTransactions) {
         this.affectedContractTransactions = affectedContractTransactions;
-    }
-
-    public byte[] getExecHash() {
-        return execHash;
-    }
-
-    public void setExecHash(byte[] execHash) {
-        this.execHash = execHash;
     }
 
     public Long getValidationStage() {
@@ -170,30 +104,12 @@ public class StagingTransaction implements Serializable {
         this.validationStage = validationStage;
     }
 
-    public String getIssues() {
-        return issues;
-    }
-
-    public void setIssues(String issues) {
-        this.issues = issues;
-    }
-
     public PrivacyMode getPrivacyMode() {
         return privacyMode;
     }
 
     public void setPrivacyMode(PrivacyMode privacyMode) {
         this.privacyMode = privacyMode;
-    }
-
-
-
-    public byte[] getRecipientKey() {
-        return recipientKey;
-    }
-
-    public void setRecipientKey(byte[] recipientKey) {
-        this.recipientKey = recipientKey;
     }
 
     public byte[] getPayload() {
@@ -208,7 +124,7 @@ public class StagingTransaction implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        if(id == null) return false;
+        if (id == null) return false;
         StagingTransaction that = (StagingTransaction) o;
         return Objects.equals(id, that.id);
     }

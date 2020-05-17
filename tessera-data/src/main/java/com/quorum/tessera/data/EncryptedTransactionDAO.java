@@ -15,9 +15,14 @@ public interface EncryptedTransactionDAO {
      */
     EncryptedTransaction save(EncryptedTransaction entity);
 
-    default EncryptedTransaction update(EncryptedTransaction entity) {
-        return entity;
-    }
+    /**
+     * Update an existing Encrypted Transaction All fields are required to be non-null on the entity
+     *
+     * @param entity The entity to be merged
+     * @return The entity that was merged
+     */
+    EncryptedTransaction update(EncryptedTransaction entity);
+
     /**
      * Retrieve a transaction based on its hash
      *

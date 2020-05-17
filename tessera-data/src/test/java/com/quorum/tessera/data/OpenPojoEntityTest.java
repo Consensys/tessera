@@ -1,4 +1,4 @@
-package com.quorum.tessera;
+package com.quorum.tessera.data;
 
 import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.Validator;

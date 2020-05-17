@@ -23,14 +23,6 @@ public interface StagingEntityDAO {
      */
     StagingTransaction update(StagingTransaction entity);
 
-
-    default StagingTransaction saveOrUpdate(StagingTransaction stagingTransaction) {
-        return Optional.of(stagingTransaction)
-                .filter(s -> Objects.isNull(s.getId()))
-                .map(this::save)
-                .orElse(update(stagingTransaction));
-    }
-
     /**
      * Retrieve a transaction based on its hash
      *
@@ -60,10 +52,9 @@ public interface StagingEntityDAO {
      */
     long countStaged();
 
-
-    /**
-    * Find transactions ready to be staged and update validation stage.
-     */
+    /** Find transactions ready to be staged and update validation stage.
+     *
+     * @return number of records that have been updated
+     * */
     int updateStageForBatch(int batchSize, long validationStage);
-
 }
