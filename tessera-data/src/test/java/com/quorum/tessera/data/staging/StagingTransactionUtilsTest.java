@@ -11,7 +11,7 @@ import java.util.*;
 import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class StagingTransactionConverterTest {
+public class StagingTransactionUtilsTest {
 
     private final PublicKey sender = PublicKey.from("sender".getBytes());
 
@@ -46,7 +46,7 @@ public class StagingTransactionConverterTest {
 
         final byte[] raw = encoder.encode(encodedPayload);
 
-        StagingTransaction result = StagingTransactionConverter.fromRawPayload(raw);
+        StagingTransaction result = StagingTransactionUtils.fromRawPayload(raw);
 
         assertThat(result).isNotNull();
         assertThat(result.getHash()).isEqualTo(messageHash);

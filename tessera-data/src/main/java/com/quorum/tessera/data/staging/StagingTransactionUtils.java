@@ -8,11 +8,11 @@ import java.util.Base64;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class StagingTransactionConverter {
+public class StagingTransactionUtils {
 
     private static final MessageHashFactory MESSAGE_HASH_FACTORY = MessageHashFactory.create();
 
-    private StagingTransactionConverter() {}
+    private StagingTransactionUtils() {}
 
     public static StagingTransaction fromRawPayload(byte[] rawPayload) {
 
