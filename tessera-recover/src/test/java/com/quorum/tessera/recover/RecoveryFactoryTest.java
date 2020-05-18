@@ -5,9 +5,7 @@ import org.junit.Test;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Ignore;
 
-@Ignore
 public class RecoveryFactoryTest extends RecoveryTestCase {
 
     @Test
