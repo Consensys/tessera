@@ -46,11 +46,9 @@ public class P2PRestAppTest {
         config.getJdbcConfig().setPassword("");
         config.getJdbcConfig().setUrl("dummydburl");
 
-
         Client client = mock(Client.class);
         when(runtimeContext.getP2pClient()).thenReturn(client);
         when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
-
 
         p2PRestApp = new P2PRestApp();
 
@@ -76,7 +74,7 @@ public class P2PRestAppTest {
     @Test
     public void getSingletons() {
         Set<Object> results = p2PRestApp.getSingletons();
-        assertThat(results).hasSize(3);
+        assertThat(results).hasSize(4);
     }
 
     @Test
