@@ -22,7 +22,7 @@ public class MockRecoveryFactory implements RecoveryFactory {
 
     @Override
     public Recovery create(Config config) {
-        return INSTANCE.create();
+        return instance.create();
     }
 
     private Recovery create() {
@@ -30,7 +30,7 @@ public class MockRecoveryFactory implements RecoveryFactory {
         when(mockRecoveryManager.request()).thenReturn(RecoveryResult.SUCCESS);
         when(mockRecoveryManager.stage()).thenReturn(RecoveryResult.SUCCESS);
         when(mockRecoveryManager.sync()).thenThrow(RuntimeException.class);
-        INSTANCE.getHolder().add(mockRecoveryManager);
+        instance.getHolder().add(mockRecoveryManager);
         return mockRecoveryManager;
     }
 
