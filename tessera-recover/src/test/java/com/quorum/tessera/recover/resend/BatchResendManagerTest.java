@@ -189,10 +189,7 @@ public class BatchResendManagerTest {
         when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
 
-        final MessageHash hash =
-            MessageHashFactory.create()
-                .createFromCipherText(
-                    encodedPayload.getCipherText());
+        final MessageHash hash = MessageHashFactory.create().createFromCipherText(encodedPayload.getCipherText());
 
         Mockito.doNothing().when(partyInfoService).publishBatch(any(), any(PublicKey.class));
 
@@ -202,7 +199,7 @@ public class BatchResendManagerTest {
                             manager.resendBatch(request);
                             failBecauseExceptionWasNotThrown(any());
                         })
-                .withMessage("No key found as recipient of message "+hash);
+                .withMessage("No key found as recipient of message " + hash);
 
         verify(enclave).getPublicKeys();
         verify(enclave).status();
@@ -424,12 +421,7 @@ public class BatchResendManagerTest {
 
     @Test
     public void createWithMinimalConstructor() {
-        assertThat(
-                        new BatchResendManagerImpl(
-                                enclave,
-                                stagingEntityDAO,
-                                encryptedTransactionDAO,
-                                partyInfoService))
+        assertThat(new BatchResendManagerImpl(enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService))
                 .isNotNull();
     }
 }

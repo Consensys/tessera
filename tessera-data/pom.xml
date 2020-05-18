@@ -94,6 +94,12 @@
             <artifactId>org.eclipse.persistence.extension</artifactId>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>eclipselink-utils</artifactId>
+            <scope>runtime</scope>
+        </dependency>
         
  
     </dependencies>

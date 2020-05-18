@@ -34,6 +34,8 @@ public class RuntimeContextBuilder {
 
     private boolean useWhiteList;
 
+    private boolean recoveryMode;
+
     private RuntimeContextBuilder() {}
 
     public static RuntimeContextBuilder create() {
@@ -85,6 +87,11 @@ public class RuntimeContextBuilder {
         return this;
     }
 
+    public RuntimeContextBuilder withRecoveryMode(boolean recoveryMode) {
+        this.recoveryMode = recoveryMode;
+        return this;
+    }
+
     public RuntimeContext build() {
 
         LOGGER.debug("Building {}", this);
@@ -103,7 +110,8 @@ public class RuntimeContextBuilder {
                         remoteKeyValidation,
                         p2pServerUri,
                         disablePeerDiscovery,
-                        useWhiteList);
+                        useWhiteList,
+                        recoveryMode);
         LOGGER.debug("Built {}", this);
         return instance;
     }

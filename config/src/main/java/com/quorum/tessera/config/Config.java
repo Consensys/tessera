@@ -61,6 +61,8 @@ public class Config extends ConfigItem {
 
     @XmlElement private EncryptorConfig encryptor;
 
+    @XmlElement private boolean recoveryMode;
+
     @Deprecated
     public Config(
             final JdbcConfig jdbcConfig,
@@ -136,10 +138,7 @@ public class Config extends ConfigItem {
 
     public ServerConfig getP2PServerConfig() {
         // TODO need to revisit
-        return getServerConfigs().stream()
-                .filter(sc -> sc.getApp() == AppType.P2P)
-                .findFirst()
-                .orElse(null);
+        return getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.P2P).findFirst().orElse(null);
     }
 
     @Deprecated
@@ -203,5 +202,13 @@ public class Config extends ConfigItem {
 
     public void setEncryptor(EncryptorConfig encryptor) {
         this.encryptor = encryptor;
+    }
+
+    public boolean isRecoveryMode() {
+        return recoveryMode;
+    }
+
+    public void setRecoveryMode(boolean recoveryMode) {
+        this.recoveryMode = recoveryMode;
     }
 }

@@ -1,7 +1,6 @@
 package com.quorum.tessera.data.staging;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /** A data store for transactions that need to be retrieved later */
@@ -22,14 +21,6 @@ public interface StagingEntityDAO {
      * @return The entity that was updated
      */
     StagingTransaction update(StagingTransaction entity);
-
-
-    default StagingTransaction saveOrUpdate(StagingTransaction stagingTransaction) {
-        return Optional.of(stagingTransaction)
-                .filter(s -> Objects.isNull(s.getId()))
-                .map(this::save)
-                .orElse(update(stagingTransaction));
-    }
 
     /**
      * Retrieve a transaction based on its hash
@@ -60,10 +51,10 @@ public interface StagingEntityDAO {
      */
     long countStaged();
 
-
     /**
-    * Find transactions ready to be staged and update validation stage.
+     * Find transactions ready to be staged and update validation stage.
+     *
+     * @return number of records that have been updated
      */
     int updateStageForBatch(int batchSize, long validationStage);
-
 }

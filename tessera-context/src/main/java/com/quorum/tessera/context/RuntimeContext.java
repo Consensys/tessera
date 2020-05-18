@@ -32,9 +32,11 @@ public interface RuntimeContext {
 
     boolean isDisablePeerDiscovery();
 
+    boolean isUseWhiteList();
+
+    boolean isRecoveryMode();
+
     default Set<PublicKey> getPublicKeys() {
         return getKeys().stream().map(KeyPair::getPublicKey).collect(Collectors.toSet());
     }
-
-    boolean isUseWhiteList();
 }

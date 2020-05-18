@@ -2,7 +2,7 @@ package com.quorum.tessera.recover;
 
 public interface Recovery {
 
-    RecoveryResult requestResend();
+    RecoveryResult request();
 
     RecoveryResult stage();
 
