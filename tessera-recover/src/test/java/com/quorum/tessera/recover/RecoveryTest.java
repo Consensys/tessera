@@ -3,16 +3,17 @@ package com.quorum.tessera.recover;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.sync.TransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -54,7 +55,7 @@ public class RecoveryTest extends RecoveryTestCase {
     @Test
     public void testRequestSuccess() {
 
-        final RecoveryResult result = recovery.requestResend();
+        final RecoveryResult result = recovery.request();
 
         assertThat(result).isEqualTo(RecoveryResult.SUCCESS);
 
@@ -67,7 +68,7 @@ public class RecoveryTest extends RecoveryTestCase {
 
         when(transactionRequester.requestAllTransactionsFromNode(eq("http://party2/"))).thenReturn(false);
 
-        final RecoveryResult result = recovery.requestResend();
+        final RecoveryResult result = recovery.request();
 
         assertThat(result).isEqualTo(RecoveryResult.PARTIAL_SUCCESS);
 
@@ -80,14 +81,13 @@ public class RecoveryTest extends RecoveryTestCase {
 
         when(transactionRequester.requestAllTransactionsFromNode(anyString())).thenReturn(false);
 
-        final RecoveryResult result = recovery.requestResend();
+        final RecoveryResult result = recovery.request();
 
         assertThat(result).isEqualTo(RecoveryResult.FAILURE);
 
         verify(transactionRequester, times(4)).requestAllTransactionsFromNode(anyString());
         verify(partyInfoService).getPartyInfo();
     }
-
 
     @Test
     public void testStagingSuccess() {
@@ -165,10 +165,9 @@ public class RecoveryTest extends RecoveryTestCase {
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
 
-
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-            .thenReturn(List.of(version1,version2));
-        when(stagingEntityDAO.countAll()).thenReturn(1L);
+                .thenReturn(List.of(version1, version2));
+        when(stagingEntityDAO.countAll()).thenReturn(2L);
 
         when(transactionManager.storePayload(any())).thenReturn(new MessageHash("hash".getBytes()));
 
@@ -193,10 +192,9 @@ public class RecoveryTest extends RecoveryTestCase {
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
 
-
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-            .thenReturn(List.of(version1,version2));
-        when(stagingEntityDAO.countAll()).thenReturn(1L);
+                .thenReturn(List.of(version1, version2));
+        when(stagingEntityDAO.countAll()).thenReturn(2L);
 
         when(transactionManager.storePayload("payload1".getBytes())).thenThrow(PrivacyViolationException.class);
 
@@ -219,14 +217,13 @@ public class RecoveryTest extends RecoveryTestCase {
         when(version1.getHash()).thenReturn("TXN1");
         when(version2.getHash()).thenReturn("TXN1");
 
-
         when(version1.getPayload()).thenReturn("payload1".getBytes());
         when(version2.getPayload()).thenReturn("payload2".getBytes());
 
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-            .thenReturn(List.of(version1,version2));
+                .thenReturn(List.of(version1, version2));
 
-        when(stagingEntityDAO.countAll()).thenReturn(1L);
+        when(stagingEntityDAO.countAll()).thenReturn(2L);
 
         when(transactionManager.storePayload(any())).thenThrow(PrivacyViolationException.class);
 
@@ -241,31 +238,37 @@ public class RecoveryTest extends RecoveryTestCase {
         verify(transactionManager).storePayload("payload2".getBytes());
     }
 
-    @Ignore
-    public void testSyncIgnoreDataWithConsistencyIssue() {
+    @Test
+    public void testSyncPsvTransactionOnlySentOnce() {
 
-//        StagingTransactionVersion version1 = mock(StagingTransactionVersion.class);
-//        StagingTransactionVersion version2 = mock(StagingTransactionVersion.class);
-//        when(version1.getPayload()).thenReturn("payload1".getBytes());
-//        when(version2.getPayload()).thenReturn("payload2".getBytes());
-//        Set<StagingTransactionVersion> versions = Set.of(version1, version2);
-//
-//        StagingTransaction stagingTransaction = mock(StagingTransaction.class);
-//
-//        when(stagingTransaction.getIssues()).thenReturn("Some issues");
-//
-//        when(stagingTransaction.getVersions()).thenReturn(versions);
-//
-//        when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
-//            .thenReturn(singletonList(stagingTransaction));
-//        when(stagingEntityDAO.countAll()).thenReturn(1L);
-//
-//        when(resendStoreDelegate.storePayload(any())).thenReturn(new MessageHash("hash".getBytes()));
-//
-//        manager.performSync();
-//
-//        verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
-//        verify(stagingEntityDAO, times(2)).countAll();
+        StagingTransaction version1 = mock(StagingTransaction.class);
+        StagingTransaction version2 = mock(StagingTransaction.class);
+        StagingTransaction anotherTx = mock(StagingTransaction.class);
+
+        when(version1.getHash()).thenReturn("TXN1");
+        when(version2.getHash()).thenReturn("TXN1");
+        when(anotherTx.getHash()).thenReturn("TXN2");
+
+        when(version1.getPayload()).thenReturn("payload1".getBytes());
+        when(version2.getPayload()).thenReturn("payload1".getBytes());
+        when(anotherTx.getPayload()).thenReturn("payload2".getBytes());
+
+        when(version1.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        when(version2.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        when(anotherTx.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+
+        when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
+                .thenReturn(List.of(version1, version2, anotherTx));
+        when(stagingEntityDAO.countAll()).thenReturn(3L);
+
+        when(transactionManager.storePayload(any())).thenReturn(new MessageHash("hash".getBytes()));
+
+        recovery.sync();
+
+        verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
+        verify(stagingEntityDAO, times(2)).countAll();
+
+        verify(transactionManager).storePayload("payload1".getBytes());
+        verify(transactionManager).storePayload("payload2".getBytes());
     }
-
 }

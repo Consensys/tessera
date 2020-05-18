@@ -5,7 +5,7 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
-import com.quorum.tessera.data.staging.StagingTransactionConverter;
+import com.quorum.tessera.data.staging.StagingTransactionUtils;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
@@ -81,7 +81,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
         final List<EncodedPayload> batch = new ArrayList<>(batchSize);
 
         int offset = 0;
-        final int maxResult = 10000;
+        final int maxResult = BATCH_SIZE;
 
         while (offset < encryptedTransactionDAO.transactionCount()) {
             // TODO this loop needs to be refactored to only pull the relevant records from DB (when
@@ -150,12 +150,9 @@ public class BatchResendManagerImpl implements BatchResendManager {
     @Override
     public synchronized void storeResendBatch(PushBatchRequest resendPushBatchRequest) {
         resendPushBatchRequest.getEncodedPayloads().stream()
-            .map(data -> PayloadEncoder.create().decode(data))
-                .map(StagingTransactionConverter::fromPayload)
-                .flatMap(Set::stream)
+                .map(StagingTransactionUtils::fromRawPayload)
                 .forEach(stagingEntityDAO::save);
     }
-
 
     private void validateEnclaveStatus() {
         if (enclave.status() == Service.Status.STOPPED) {
