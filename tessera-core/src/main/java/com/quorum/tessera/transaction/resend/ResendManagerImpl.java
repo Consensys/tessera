@@ -9,6 +9,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 
 import javax.transaction.Transactional;
 import java.util.Arrays;
@@ -80,7 +81,7 @@ public class ResendManagerImpl implements ResendManager {
             if (existing.getPrivacyMode() == PrivacyMode.PRIVATE_STATE_VALIDATION) {
                 if (!existing.getRecipientKeys().containsAll(payload.getRecipientKeys())
                     || !payload.getRecipientKeys().containsAll(existing.getRecipientKeys())) {
-                    throw new IllegalArgumentException(
+                    throw new PrivacyViolationException(
                         "Participants mismatch for two versions of transaction " + transactionHash);
                 }
             } else if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
