@@ -30,6 +30,10 @@
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>config-cli</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>tessera-recover</artifactId>
+        </dependency>
 
     </dependencies>
 </project>

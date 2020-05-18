@@ -4,16 +4,12 @@ import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
-import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
-import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.server.TesseraServer;
-import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -23,7 +19,6 @@ import javax.json.JsonException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /** The main entry point for the application. This just starts up the application in the embedded container. */
 public class Main {
@@ -56,7 +51,7 @@ public class Main {
                             .getConfig()
                             .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
-            RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
+            final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
 
             LOGGER.debug("Creating service locator");
             ServiceLocator serviceLocator = ServiceLocator.create();
@@ -73,9 +68,9 @@ public class Main {
                     .map(PartyInfoService.class::cast)
                     .findAny()
                     .ifPresent(p -> p.populateStore());
-            LOGGER.debug("Creating servers");
-            runWebServer(config);
-            LOGGER.debug("Created servers");
+
+            Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
+
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
                 System.err.println(
@@ -111,7 +106,7 @@ public class Main {
 
             System.exit(5);
         } catch (final Throwable ex) {
-            LOGGER.debug(null,ex);
+            LOGGER.debug(null, ex);
             if (Arrays.asList(args).contains("--debug")) {
                 ex.printStackTrace();
             } else {
@@ -123,47 +118,6 @@ public class Main {
             }
 
             System.exit(2);
-        }
-    }
-
-    private static void runWebServer(final Config config) throws Exception {
-
-        final List<TesseraServer> servers =
-                config.getServerConfigs().stream()
-                        .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
-                        .map(
-                                conf -> {
-                                    LOGGER.debug("Creating app from {}",conf);
-                                    Object app =
-                                            TesseraAppFactory.create(conf.getCommunicationType(), conf.getApp())
-                                                    .orElseThrow(
-                                                            () ->
-                                                                    new IllegalStateException(
-                                                                            "Cant create app for " + conf.getApp()));
-                                    LOGGER.debug("Created APP {} from {}",app, conf);
-                                    return TesseraServerFactory.create(conf.getCommunicationType())
-                                            .createServer(conf, Collections.singleton(app));
-                                })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-
-        Runtime.getRuntime()
-                .addShutdownHook(
-                        new Thread(
-                                () -> {
-                                    try {
-                                        for (TesseraServer ts : servers) {
-                                            ts.stop();
-                                        }
-                                    } catch (Exception ex) {
-                                        LOGGER.error(null, ex);
-                                    }
-                                }));
-
-        for (TesseraServer ts : servers) {
-            LOGGER.debug("Starting server {}",ts);
-            ts.start();
-            LOGGER.debug("Started server {}",ts);
         }
     }
 }
