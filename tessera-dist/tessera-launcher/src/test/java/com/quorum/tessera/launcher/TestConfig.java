@@ -4,7 +4,7 @@ import com.quorum.tessera.config.*;
 
 import java.util.List;
 
-public class TestConfig {
+public abstract class TestConfig {
 
     protected Config serverConfig() {
         final Config config = new Config();

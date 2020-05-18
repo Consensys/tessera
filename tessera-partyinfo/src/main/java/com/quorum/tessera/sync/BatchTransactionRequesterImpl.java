@@ -29,7 +29,7 @@ public class BatchTransactionRequesterImpl implements TransactionRequester {
     @Override
     public boolean requestAllTransactionsFromNode(final String uri) {
 
-        LOGGER.debug("Requesting transactions get resent for {}", uri);
+        LOGGER.info("Requesting transactions get resent for {}", uri);
 
         return this.enclave.getPublicKeys().stream()
                 .map(this::createRequestAllEntity)
