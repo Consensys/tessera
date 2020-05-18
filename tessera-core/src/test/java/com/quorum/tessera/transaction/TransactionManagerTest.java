@@ -713,10 +713,10 @@ public class TransactionManagerTest {
         final EncryptedTransaction affectedContractTx = mock(EncryptedTransaction.class);
         final EncodedPayload affectedContractEncodedPayload = mock(EncodedPayload.class);
 
-        Map<TxHash, byte[]> affectedContractTransactionHashes = new HashMap<>();
+        Map<TxHash, SecurityHash> affectedContractTransactionHashes = new HashMap<>();
         affectedContractTransactionHashes.put(
                 new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-                "securityHash".getBytes());
+                SecurityHash.from("securityHash".getBytes()));
 
         when(affectedContractTx.getEncodedPayload()).thenReturn(input);
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
@@ -753,11 +753,11 @@ public class TransactionManagerTest {
         final TxHash txHash =
                 new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
 
-        Map<TxHash, byte[]> affectedContractTransactionHashes = new HashMap<>();
-        affectedContractTransactionHashes.put(txHash, "securityHash".getBytes());
+        Map<TxHash, SecurityHash> affectedContractTransactionHashes = new HashMap<>();
+        affectedContractTransactionHashes.put(txHash, SecurityHash.from("securityHash".getBytes()));
         affectedContractTransactionHashes.put(
                 new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSr5J5hQ=="),
-                "bogus".getBytes());
+                SecurityHash.from("bogus".getBytes()));
 
         when(affectedContractTx.getEncodedPayload()).thenReturn(input);
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
@@ -796,11 +796,11 @@ public class TransactionManagerTest {
         final TxHash txHash =
                 new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
 
-        Map<TxHash, byte[]> affectedContractTransactionHashes = new HashMap<>();
-        affectedContractTransactionHashes.put(txHash, "securityHash".getBytes());
+        Map<TxHash, SecurityHash> affectedContractTransactionHashes = new HashMap<>();
+        affectedContractTransactionHashes.put(txHash, SecurityHash.from("securityHash".getBytes()));
         affectedContractTransactionHashes.put(
                 new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSr5J5hQ=="),
-                "bogus".getBytes());
+            SecurityHash.from("bogus".getBytes()));
 
         when(affectedContractTx.getEncodedPayload()).thenReturn(input);
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
@@ -853,14 +853,17 @@ public class TransactionManagerTest {
 
         final byte[] input = "SOMEDATA".getBytes();
 
-        Map<TxHash, byte[]> affectedTx = new HashMap();
-        affectedTx.put(new TxHash("invalidHash".getBytes()), "security".getBytes());
+        Map<TxHash, SecurityHash> affectedTx = Map.of(TxHash.from("invalidHash".getBytes()), SecurityHash.from("security".getBytes()));
 
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getSenderKey()).thenReturn(PublicKey.from("sender".getBytes()));
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
         when(payload.getCipherTextNonce()).thenReturn(new Nonce("nonce".getBytes()));
-        when(payload.getRecipientBoxes()).thenReturn(Arrays.asList("box1".getBytes()));
+
+        RecipientBox recipientBox = mock(RecipientBox.class);
+        when(recipientBox.getData()).thenReturn("box1".getBytes());
+
+        when(payload.getRecipientBoxes()).thenReturn(List.of(recipientBox));
         when(payload.getRecipientNonce()).thenReturn(new Nonce("recipientNonce".getBytes()));
         when(payload.getRecipientKeys()).thenReturn(singletonList(PublicKey.from("recipient".getBytes())));
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
@@ -879,8 +882,9 @@ public class TransactionManagerTest {
         EncodedPayload sanitisedPayload = payloadCaptor.getValue();
 
         // Assert that the invalid ACOTH had been removed
-        assertThat(sanitisedPayload.getAffectedContractTransactions().get(new TxHash("invalidHash".getBytes())))
-                .isNullOrEmpty();
+        assertThat(sanitisedPayload.getAffectedContractTransactions()
+            .get(TxHash.from("invalidHash".getBytes())))
+                .isNull();
 
         verify(encryptedTransactionDAO).retrieveByHash(any());
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
@@ -1059,17 +1063,14 @@ public class TransactionManagerTest {
         final EncryptedTransaction tx = new EncryptedTransaction(mock(MessageHash.class), encodedData);
         final EncodedPayload payload = mock(EncodedPayload.class);
 
-        final List<PublicKey> recipients = new ArrayList<>();
         final PublicKey recipientKey = PublicKey.from("RECIPIENTKEY".getBytes());
         final PublicKey anotherRecipient = PublicKey.from("ANOTHERRECIPIENT".getBytes());
-        recipients.add(recipientKey);
-        recipients.add(anotherRecipient);
+        final List<PublicKey> recipients = List.of(recipientKey,anotherRecipient);
 
-        final List<byte[]> recipientBoxes = new ArrayList<>();
-        final byte[] recipientBox = "box1".getBytes();
-        final byte[] anotherRecipientBox = "box2".getBytes();
-        recipientBoxes.add(recipientBox);
-        recipientBoxes.add(anotherRecipientBox);
+        final RecipientBox recipientBox = RecipientBox.from("box1".getBytes());
+        final RecipientBox anotherRecipientBox = RecipientBox.from("box2".getBytes());
+
+        final List<RecipientBox> recipientBoxes = List.of(recipientBox,anotherRecipientBox);
 
         when(payload.getRecipientKeys()).thenReturn(recipients);
         when(payload.getRecipientBoxes()).thenReturn(recipientBoxes);
@@ -1107,9 +1108,8 @@ public class TransactionManagerTest {
         final EncryptedTransaction tx = new EncryptedTransaction(mock(MessageHash.class), encodedData);
         final EncodedPayload payload = mock(EncodedPayload.class);
 
-        final List<byte[]> recipientBoxes = new ArrayList<>();
-        final byte[] recipientBox = "box1".getBytes();
-        recipientBoxes.add(recipientBox);
+        final RecipientBox recipientBox = RecipientBox.from("box1".getBytes());
+        final List<RecipientBox> recipientBoxes = List.of(recipientBox);
 
         final PublicKey localKey = PublicKey.from("LOCAL_KEY".getBytes());
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
@@ -1350,7 +1350,7 @@ public class TransactionManagerTest {
                 .thenReturn(Optional.of(encryptedTransaction));
 
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList("RECIPIENTBOX".getBytes()));
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
 
         byte[] encodedOutcome = "SUCCESS".getBytes();
         PublicKey recipientKey = PublicKey.from("PUBLICKEY".getBytes());
@@ -1391,7 +1391,7 @@ public class TransactionManagerTest {
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
         when(encodedPayload.getSenderKey()).thenReturn(senderKey);
-        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList("RECIPIENTBOX".getBytes()));
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
         when(encodedPayload.getRecipientKeys()).thenReturn(new ArrayList<>());
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
@@ -1526,8 +1526,7 @@ public class TransactionManagerTest {
 
         final String b64AffectedTxHash =
                 "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
-        final Map<TxHash, byte[]> affectedTxs = new HashMap<>();
-        affectedTxs.put(new TxHash(b64AffectedTxHash), "encoded".getBytes());
+        final Map<TxHash, SecurityHash> affectedTxs = Map.of(new TxHash(b64AffectedTxHash), SecurityHash.from("encoded".getBytes()));
 
         EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getExecHash()).thenReturn("execHash".getBytes());

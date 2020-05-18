@@ -24,6 +24,10 @@ public class TxHash {
         return bytes;
     }
 
+    public static TxHash from(byte[] data) {
+        return new TxHash(data);
+    }
+
     @Override
     public final boolean equals(Object arg0) {
         return getClass().isInstance(arg0) && Arrays.equals(bytes, getClass().cast(arg0).getBytes());

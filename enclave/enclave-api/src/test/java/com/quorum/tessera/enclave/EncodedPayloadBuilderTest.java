@@ -55,7 +55,7 @@ public class EncodedPayloadBuilderTest {
         assertThat(sample.getCipherText()).isEqualTo("cipherText".getBytes());
         assertThat(sample.getCipherTextNonce().getNonceBytes()).isEqualTo(cipherTextNonce);
         assertThat(sample.getRecipientNonce().getNonceBytes()).isEqualTo(recipientNonce);
-        assertThat(sample.getRecipientBoxes()).hasSize(1).containsExactlyInAnyOrder(recipientBox);
+        assertThat(sample.getRecipientBoxes()).hasSize(1).containsExactlyInAnyOrder(RecipientBox.from(recipientBox));
         assertThat(sample.getRecipientKeys()).hasSize(1).containsExactlyInAnyOrder(recipientKey);
         assertThat(sample.getAffectedContractTransactions()).hasSize(1);
         assertThat(sample.getAffectedContractTransactions().keySet())

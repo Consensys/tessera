@@ -4,6 +4,7 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /** This class contains the data that is sent to other nodes */
 public class EncodedPayload {
@@ -14,7 +15,7 @@ public class EncodedPayload {
 
     private final Nonce cipherTextNonce;
 
-    private final List<byte[]> recipientBoxes;
+    private final List<RecipientBox> recipientBoxes;
 
     private final Nonce recipientNonce;
 
@@ -22,7 +23,7 @@ public class EncodedPayload {
 
     private final PrivacyMode privacyMode;
 
-    private final Map<TxHash, byte[]> affectedContractTransactions;
+    private final Map<TxHash, SecurityHash> affectedContractTransactions;
 
     private final byte[] execHash;
 
@@ -30,11 +31,11 @@ public class EncodedPayload {
             final PublicKey senderKey,
             final byte[] cipherText,
             final Nonce cipherTextNonce,
-            final List<byte[]> recipientBoxes,
+            final List<RecipientBox> recipientBoxes,
             final Nonce recipientNonce,
             final List<PublicKey> recipientKeys,
             final PrivacyMode privacyMode,
-            final Map<TxHash, byte[]> affectedContractTransactions,
+            final Map<TxHash, SecurityHash> affectedContractTransactions,
             final byte[] execHash) {
         this.senderKey = senderKey;
         this.cipherText = cipherText;
@@ -59,8 +60,8 @@ public class EncodedPayload {
         return cipherTextNonce;
     }
 
-    public List<byte[]> getRecipientBoxes() {
-        return recipientBoxes;
+    public List<RecipientBox> getRecipientBoxes() {
+        return Collections.unmodifiableList(recipientBoxes);
     }
 
     public Nonce getRecipientNonce() {
@@ -68,15 +69,15 @@ public class EncodedPayload {
     }
 
     public List<PublicKey> getRecipientKeys() {
-        return recipientKeys;
+        return Collections.unmodifiableList(recipientKeys);
     }
 
     public PrivacyMode getPrivacyMode() {
         return privacyMode;
     }
 
-    public Map<TxHash, byte[]> getAffectedContractTransactions() {
-        return affectedContractTransactions;
+    public Map<TxHash, SecurityHash> getAffectedContractTransactions() {
+        return Collections.unmodifiableMap(affectedContractTransactions);
     }
 
     public byte[] getExecHash() {
@@ -92,17 +93,21 @@ public class EncodedPayload {
         }
 
         public static Builder from(EncodedPayload encodedPayload) {
+
+            final Map<TxHash,byte[]> affectedContractTransactionMap = encodedPayload.getAffectedContractTransactions().entrySet().stream()
+                .collect(Collectors.toMap(e -> e.getKey(),e -> e.getValue().getData()));
+
             return create()
                 .withPrivacyMode(encodedPayload.getPrivacyMode())
                 .withSenderKey(encodedPayload.getSenderKey())
                 .withRecipientNonce(encodedPayload.getRecipientNonce())
                 .withRecipientKeys(encodedPayload.getRecipientKeys())
-                .withRecipientBoxes(encodedPayload.getRecipientBoxes())
+                .withRecipientBoxes(encodedPayload.getRecipientBoxes().stream().map(RecipientBox::getData).collect(Collectors.toList()))
                 .withPrivacyMode(encodedPayload.getPrivacyMode())
                 .withExecHash(encodedPayload.getExecHash())
                 .withCipherText(encodedPayload.getCipherText())
                 .withCipherTextNonce(encodedPayload.getCipherTextNonce())
-                .withAffectedContractTransactions(encodedPayload.getAffectedContractTransactions());
+                .withAffectedContractTransactions(affectedContractTransactionMap);
 
         }
 
@@ -135,8 +140,13 @@ public class EncodedPayload {
             return this;
         }
 
+        public Builder withRecipientKey(PublicKey publicKey) {
+            this.recipientKeys.add(publicKey);
+            return this;
+        }
+
         public Builder withRecipientKeys(final List<PublicKey> recipientKeys) {
-            this.recipientKeys = recipientKeys;
+            this.recipientKeys.addAll(recipientKeys);
             return this;
         }
 
@@ -185,6 +195,12 @@ public class EncodedPayload {
         }
 
         public EncodedPayload build() {
+
+            Map<TxHash,SecurityHash> affectedTxns = affectedContractTransactions.entrySet().stream()
+                .collect(Collectors.toUnmodifiableMap(e -> e.getKey(),e -> SecurityHash.from(e.getValue())));
+
+            List<RecipientBox> recipientBoxes = this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
+
             return new EncodedPayload(
                     senderKey,
                     cipherText,
@@ -193,8 +209,13 @@ public class EncodedPayload {
                     recipientNonce,
                     recipientKeys,
                     privacyMode,
-                    affectedContractTransactions,
+                    affectedTxns,
                     execHash);
+        }
+
+        public Builder withRecipientBox(byte[] newbox) {
+            this.recipientBoxes.add(newbox);
+            return this;
         }
     }
 

@@ -13,6 +13,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import javax.transaction.Transactional;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ResendManagerImpl implements ResendManager {
 
@@ -63,6 +64,7 @@ public class ResendManagerImpl implements ResendManager {
             // we just need to add the recipient
             final byte[] encodedPayload = tx.get().getEncodedPayload();
             final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
+            final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.from(existing);
 
 
             // lets compare it against the previous version of the message
@@ -84,33 +86,37 @@ public class ResendManagerImpl implements ResendManager {
                         "Participants mismatch for two versions of transaction " + transactionHash);
                 }
             } else if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
-                existing.getRecipientKeys().add(payload.getRecipientKeys().get(0));
-                existing.getRecipientBoxes().add(payload.getRecipientBoxes().get(0));
+                    payloadBuilder.withRecipientKey(payload.getRecipientKeys().get(0))
+                    .withRecipientBox(payload.getRecipientBoxes().get(0).getData());
+
             }
 
             // add any ACOTHs that other parties may have missed
-            existing.getAffectedContractTransactions().putAll(payload.getAffectedContractTransactions());
+            payloadBuilder.withAffectedContractTransactions(payload.getAffectedContractTransactions()
+                .entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),e -> e.getValue().getData())));
 
             EncryptedTransaction encryptedTransaction = tx.get();
 
-            encryptedTransaction.setEncodedPayload(payloadEncoder.encode(existing));
+            encryptedTransaction.setEncodedPayload(payloadEncoder.encode(payloadBuilder.build()));
 
             this.encryptedTransactionDAO.update(encryptedTransaction);
 
         } else {
 
+            final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.from(payload);
+
             // we need to recreate this
             if (!payload.getRecipientKeys().contains(sender)) {
-                payload.getRecipientKeys().add(sender);
+                payloadBuilder.withRecipientKey(sender);
             }
             // add recipient boxes for all recipients (for PSV transactions)
             for (int idx = payload.getRecipientBoxes().size(); idx < payload.getRecipientKeys().size(); idx++) {
                 PublicKey recipient = payload.getRecipientKeys().get(idx);
                 byte[] newbox = enclave.createNewRecipientBox(payload, recipient);
-                payload.getRecipientBoxes().add(newbox);
+                payloadBuilder.withRecipientBox(newbox);
             }
 
-            final byte[] encoded = payloadEncoder.encode(payload);
+            final byte[] encoded = payloadEncoder.encode(payloadBuilder.build());
 
             this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, encoded));
         }

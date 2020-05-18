@@ -4,6 +4,7 @@ import com.quorum.tessera.encryption.PublicKey;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.*;
 import static java.util.Collections.emptyMap;
@@ -18,7 +19,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         final byte[] cipherText = encodeField(payload.getCipherText());
         final byte[] nonce = encodeField(payload.getCipherTextNonce().getNonceBytes());
         final byte[] recipientNonce = encodeField(payload.getRecipientNonce().getNonceBytes());
-        final byte[] recipients = encodeArray(payload.getRecipientBoxes());
+        final byte[] recipients = encodeArray(payload.getRecipientBoxes().stream().map(RecipientBox::getData).collect(Collectors.toUnmodifiableList()));
         final byte[] recipientBytes =
                 encodeArray(payload.getRecipientKeys().stream().map(PublicKey::getKeyBytes).collect(toList()));
         final PrivacyMode privacyMode = Optional.of(payload.getPrivacyMode()).orElse(PrivacyMode.STANDARD_PRIVATE);
@@ -26,7 +27,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
 
         final int affectedContractsPayloadLength =
                 payload.getAffectedContractTransactions().entrySet().stream()
-                                .mapToInt(entry -> entry.getKey().getBytes().length + entry.getValue().length)
+                                .mapToInt(entry -> entry.getKey().getBytes().length + entry.getValue().getData().length)
                                 .sum() // total size of all keys and values
                         + Long.BYTES
                         + // the number of entries in the map
@@ -35,11 +36,11 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
                                 * Long.BYTES; // sizes of key and value lengths (for each entry)
         final ByteBuffer affectedContractTxs = ByteBuffer.allocate(affectedContractsPayloadLength);
         affectedContractTxs.putLong(payload.getAffectedContractTransactions().size());
-        for (Map.Entry<TxHash, byte[]> entry : payload.getAffectedContractTransactions().entrySet()) {
+        for (Map.Entry<TxHash, SecurityHash> entry : payload.getAffectedContractTransactions().entrySet()) {
             affectedContractTxs.putLong(entry.getKey().getBytes().length);
             affectedContractTxs.put(entry.getKey().getBytes());
-            affectedContractTxs.putLong(entry.getValue().length);
-            affectedContractTxs.put(entry.getValue());
+            affectedContractTxs.putLong(entry.getValue().getData().length);
+            affectedContractTxs.put(entry.getValue().getData());
         }
         byte[] executionHash = new byte[0];
         if (Objects.nonNull(payload.getExecHash()) && payload.getExecHash().length > 0) {
@@ -187,7 +188,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         }
 
         final int recipientIndex = payload.getRecipientKeys().indexOf(recipient);
-        final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex);
+        final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex).getData();
 
         List<PublicKey> recipientList;
 
@@ -199,6 +200,9 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
             recipientList = singletonList(recipient);
         }
 
+        Map<TxHash,byte[]> affectedTxnMap = payload.getAffectedContractTransactions().entrySet()
+            .stream().collect(Collectors.toMap(e -> e.getKey(),e -> e.getValue().getData()));
+
         return EncodedPayload.Builder.create()
                 .withSenderKey(payload.getSenderKey())
                 .withCipherText(payload.getCipherText())
@@ -207,7 +211,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
                 .withRecipientNonce(payload.getRecipientNonce())
                 .withRecipientKeys(recipientList)
                 .withPrivacyMode(payload.getPrivacyMode())
-                .withAffectedContractTransactions(payload.getAffectedContractTransactions())
+                .withAffectedContractTransactions(affectedTxnMap)
                 .withExecHash(payload.getExecHash())
                 .build();
     }
@@ -218,22 +222,6 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         if (!payload.getRecipientKeys().isEmpty()) {
             return payload;
         }
-        try {
-            // if the encoded payload was send by constellation the recipientKeys is an EMPTY_LIST
-            payload.getRecipientKeys().add(recipient);
-            return payload;
-        } catch (UnsupportedOperationException e) {
-            return EncodedPayload.Builder.create()
-                    .withSenderKey(payload.getSenderKey())
-                    .withCipherText(payload.getCipherText())
-                    .withCipherTextNonce(payload.getCipherTextNonce())
-                    .withRecipientBoxes(payload.getRecipientBoxes())
-                    .withRecipientNonce(payload.getRecipientNonce())
-                    .withRecipientKeys(Arrays.asList(recipient))
-                    .withPrivacyMode(payload.getPrivacyMode())
-                    .withAffectedContractTransactions(payload.getAffectedContractTransactions())
-                    .withExecHash(payload.getExecHash())
-                    .build();
-        }
+        return EncodedPayload.Builder.from(payload).withRecipientKey(recipient).build();
     }
 }

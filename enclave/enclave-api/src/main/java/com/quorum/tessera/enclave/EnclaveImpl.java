@@ -159,7 +159,7 @@ public class EnclaveImpl implements Enclave {
                             byte[] calculatedHash =
                                     computeAffectedContractTransactionHash(
                                             encodedPayload.getCipherText(), affectedTransaction.get());
-                            return !Arrays.equals(entry.getValue(), calculatedHash);
+                            return !Arrays.equals(entry.getValue().getData(), calculatedHash);
                         })
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
@@ -216,11 +216,11 @@ public class EnclaveImpl implements Enclave {
 
         final SharedKey sharedKey = encryptor.computeSharedKey(recipientPubKey, senderPrivKey);
 
-        final byte[] recipientBox = payload.getRecipientBoxes().iterator().next();
+        final RecipientBox recipientBox = payload.getRecipientBoxes().iterator().next();
 
         final Nonce recipientNonce = payload.getRecipientNonce();
 
-        final byte[] masterKeyBytes = encryptor.openAfterPrecomputation(recipientBox, recipientNonce, sharedKey);
+        final byte[] masterKeyBytes = encryptor.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
 
         final MasterKey masterKey = MasterKey.from(masterKeyBytes);
 
@@ -260,6 +260,10 @@ public class EnclaveImpl implements Enclave {
         return MasterKey.from(masterKeyBytes);
     }
 
+    private MasterKey getMasterKey(PublicKey recipient, PublicKey sender, Nonce nonce, RecipientBox encryptedKey) {
+        return getMasterKey(recipient,sender,nonce,encryptedKey.getData());
+    }
+
     private MasterKey getMasterKey(EncodedPayload encodedPayload) {
 
         final PublicKey senderPubKey;
@@ -270,7 +274,7 @@ public class EnclaveImpl implements Enclave {
             throw new RuntimeException("An EncodedPayload should have at least one recipient box.");
         }
 
-        final byte[] recipientBox = encodedPayload.getRecipientBoxes().get(0);
+        final RecipientBox recipientBox = encodedPayload.getRecipientBoxes().get(0);
 
         if (!this.getPublicKeys().contains(encodedPayload.getSenderKey())) {
             // This is a payload originally sent to us by another node
