@@ -171,7 +171,9 @@ public class RecoveryTest extends RecoveryTestCase {
 
         when(transactionManager.storePayload(any())).thenReturn(new MessageHash("hash".getBytes()));
 
-        recovery.sync();
+        RecoveryResult result = recovery.sync();
+
+        assertThat(result).isEqualTo(RecoveryResult.SUCCESS);
 
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
@@ -261,9 +263,11 @@ public class RecoveryTest extends RecoveryTestCase {
                 .thenReturn(List.of(version1, version2, anotherTx));
         when(stagingEntityDAO.countAll()).thenReturn(3L);
 
-        when(transactionManager.storePayload(any())).thenReturn(new MessageHash("hash".getBytes()));
+        when(transactionManager.storePayload(any())).thenThrow(PrivacyViolationException.class);
 
-        recovery.sync();
+        RecoveryResult result = recovery.sync();
+
+        assertThat(result).isEqualTo(RecoveryResult.FAILURE);
 
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
