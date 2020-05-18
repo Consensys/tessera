@@ -78,7 +78,7 @@ public class RecoveryImpl implements Recovery {
         final long validatedCount = stagingEntityDAO.countStaged();
 
         if (validatedCount < totalCount) {
-            if (validatedCount == 0 ) {
+            if (validatedCount == 0) {
                 return RecoveryResult.FAILURE;
             }
             return RecoveryResult.PARTIAL_SUCCESS;

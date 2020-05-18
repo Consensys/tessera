@@ -15,14 +15,14 @@ public class MockTesseraServerFactory implements TesseraServerFactory {
 
     private final List<TesseraServer> holder = new ArrayList<>();
 
-    private static MockTesseraServerFactory INSTANCE = new MockTesseraServerFactory();
+    private static MockTesseraServerFactory instance = new MockTesseraServerFactory();
 
     public MockTesseraServerFactory() {
     }
 
     @Override
     public TesseraServer createServer(ServerConfig config, Set services) {
-        return INSTANCE.create();
+        return instance.create();
     }
 
     @Override
@@ -32,7 +32,7 @@ public class MockTesseraServerFactory implements TesseraServerFactory {
 
     private TesseraServer create() {
         final TesseraServer mockServer = mock(TesseraServer.class);
-        INSTANCE.getHolder().add(mockServer);
+        instance.getHolder().add(mockServer);
         return mockServer;
     }
 
@@ -42,10 +42,10 @@ public class MockTesseraServerFactory implements TesseraServerFactory {
     }
 
     public static MockTesseraServerFactory getInstance() {
-        if(INSTANCE == null) {
-            INSTANCE = new MockTesseraServerFactory();
+        if(instance == null) {
+            instance = new MockTesseraServerFactory();
         }
-        return INSTANCE;
+        return instance;
     }
 
     public void clearHolder() {

@@ -15,7 +15,7 @@ public class MockRecoveryFactory implements RecoveryFactory {
 
     private final List<Recovery> holder = new ArrayList<>();
 
-    public static MockRecoveryFactory INSTANCE = new MockRecoveryFactory();
+    public static MockRecoveryFactory instance = new MockRecoveryFactory();
 
     public MockRecoveryFactory(){
     }
@@ -40,9 +40,9 @@ public class MockRecoveryFactory implements RecoveryFactory {
 
 
     public static MockRecoveryFactory getInstance() {
-        if(INSTANCE == null) {
-            INSTANCE = new MockRecoveryFactory();
+        if(instance == null) {
+            instance = new MockRecoveryFactory();
         }
-        return INSTANCE;
+        return instance;
     }
 }

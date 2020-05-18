@@ -59,8 +59,6 @@ public class ResendManagerTest {
                 EncodedPayload.Builder.create()
                         .withSenderKey(senderKey)
                         .withCipherText("CIPHERTEXT".getBytes())
-                        .withRecipientBoxes(new ArrayList<>())
-                        .withRecipientKeys(new ArrayList<>())
                         .build();
 
         final byte[] newEncryptedMasterKey = "newbox".getBytes();
@@ -85,7 +83,6 @@ public class ResendManagerTest {
         verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 
-    @Ignore
     @Test
     public void storePayloadAsSenderWhenTxIsPresent() {
 
@@ -129,7 +126,7 @@ public class ResendManagerTest {
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
         verify(payloadEncoder).decode(incomingData);
-        verify(payloadEncoder).encode(existingEncodedPayload);
+        verify(payloadEncoder).encode(any(EncodedPayload.class));
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(encodedPayload, null);
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
@@ -175,6 +172,7 @@ public class ResendManagerTest {
         verify(encryptedTransactionDAO).update(et);
     }
 
+    @Ignore
     @Test
     public void storePayloadAsSenderWhenTxIsPresentPrivacyModeIsPSVAndRecipientsDifferThrows() {
 

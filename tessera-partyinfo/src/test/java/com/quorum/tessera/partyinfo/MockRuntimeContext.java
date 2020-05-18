@@ -74,6 +74,11 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
         return false;
     }
 
+    @Override
+    public boolean isRecoveryMode() {
+        return false;
+    }
+
     public MockRuntimeContext setKeys(List<KeyPair> keys) {
         this.keys = keys;
         return this;

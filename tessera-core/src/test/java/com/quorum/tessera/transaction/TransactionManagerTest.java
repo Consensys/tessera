@@ -608,7 +608,6 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).delete(any(MessageHash.class));
     }
 
-    @Ignore
     @Test
     public void storePayloadAsRecipient() {
 
@@ -622,13 +621,14 @@ public class TransactionManagerTest {
 
         transactionManager.storePayload(input);
 
+        verify(encryptedTransactionDAO).findByHashes(anyList());
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
         verify(payloadEncoder).decode(input);
         verify(enclave).getPublicKeys();
         verify(enclave).findInvalidSecurityHashes(any(), any());
     }
 
-    @Ignore
+
     @Test
     public void storePayloadWhenWeAreSender() {
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
@@ -650,9 +650,11 @@ public class TransactionManagerTest {
         verify(payloadEncoder).decode(input);
         verify(enclave).getPublicKeys();
         verify(enclave).findInvalidSecurityHashes(any(), any());
+        verify(encryptedTransactionDAO).findByHashes(anyList());
     }
 
     @Ignore
+    @Test
     public void storePayloadWhenWeAreSenderWithPrivateStateConsensus() {
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 

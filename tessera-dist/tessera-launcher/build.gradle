@@ -5,6 +5,7 @@ dependencies {
     compile project(':cli:config-cli')
     compile project(':server:server-api')
     compile project(':tessera-jaxrs:common-jaxrs')
+    compile project(':tessera-recover')
     compile 'org.apache.commons:commons-lang3'
     compile 'org.glassfish:javax.json'
 }
