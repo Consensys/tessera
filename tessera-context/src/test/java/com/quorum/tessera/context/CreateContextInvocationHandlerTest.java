@@ -83,4 +83,35 @@ public class CreateContextInvocationHandlerTest extends ContextTestCase {
 
         assertThat(ex).isExactlyInstanceOf(IllegalStateException.class);
     }
+
+
+    @Test
+    public void createMethodReturnsExsitingInstance() {
+
+        Config config = mock(Config.class);
+
+        RuntimeContextFactory factory = mock(RuntimeContextFactory.class);
+        RuntimeContext runtimeContext = mock(RuntimeContext.class);
+        when(factory.create(config)).thenReturn(runtimeContext);
+        ContextHolder.INSTANCE.setContext(runtimeContext);
+
+        CreateContextInvocationHandler handler = new CreateContextInvocationHandler(factory);
+
+        RuntimeContextFactory proxy =
+            (RuntimeContextFactory)
+                Proxy.newProxyInstance(
+                    RuntimeContextFactory.class.getClassLoader(),
+                    new Class[] {RuntimeContextFactory.class},
+                    handler);
+
+        RuntimeContext result = proxy.create(config);
+        assertThat(result).isSameAs(runtimeContext);
+
+
+        verify(factory).create(config);
+
+        assertThat(ContextHolder.INSTANCE.getContext().get()).isSameAs(runtimeContext);
+
+        verifyNoMoreInteractions(factory);
+    }
 }
