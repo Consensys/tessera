@@ -1,8 +1,0 @@
-
-dependencies {
-    implementation project(':server:server-api')
-    implementation project(':config')
-    implementation project(':security')
-    implementation project(':server:server-utils')
-    implementation 'org.eclipse.jetty.websocket:javax-websocket-server-impl:9.4.17.v20190418'
-}

@@ -329,10 +329,8 @@
                                 <exclude>com/quorum/tessera/passwords/ConsolePasswordReader*</exclude>
                                 <exclude>com/quorum/tessera/passwords/PasswordReaderFactory*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
-                                <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*
-                                </exclude>
+                                <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*</exclude>
                                 <exclude>com/quorum/tessera/enclave/rest/Main*</exclude>
-                                <exclude>com/quorum/tessera/enclave/websockets/Main*</exclude>
                             </excludes>
 
                             <rules>
@@ -488,7 +486,6 @@
         <module>enclave</module>
         <module>tessera-dist</module>
         <module>tessera-partyinfo</module>
-        <module>tessera-sync</module>
         <module>test-utils</module>
         <module>tessera-jaxrs</module>
         <module>tessera-data</module>
@@ -1080,19 +1077,6 @@
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-unixsocket</artifactId>
                 <version>0.28</version>
-            </dependency>
-
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>javax-websocket-server-impl</artifactId>
-                <version>${jetty.version}</version>
-                <type>jar</type>
-            </dependency>
-
-            <dependency>
-                <groupId>org.eclipse.jetty.websocket</groupId>
-                <artifactId>javax-websocket-client-impl</artifactId>
-                <version>${jetty.version}</version>
             </dependency>
 
             <dependency>

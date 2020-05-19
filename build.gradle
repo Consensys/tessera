@@ -78,7 +78,6 @@ allprojects {
                 compile "org.glassfish.jersey.core:jersey-common:2.27"
                 compile "org.eclipse.jetty:jetty-unixsocket:"+ jettyVersion
                 compile "org.eclipse.jetty:jetty-server:"+ jettyVersion
-                compile "org.eclipse.jetty.websocket:javax-websocket-server-impl:"+ jettyVersion
 
                 compile "io.swagger:swagger-annotations:1.5.4"
                 compile "javax.transaction:javax.transaction-api:1.3"
@@ -177,10 +176,7 @@ subprojects {
         lineEndings = 'unix'
 
         java {
-
-            target fileTree('**/*.java') {
-                exclude('enclave/enclave-websockets/**/*.java')
-            }
+            target fileTree('**/*.java')
             // indentWithSpaces(4)
             removeUnusedImports()
             // googleJavaFormat().aosp()

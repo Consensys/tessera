@@ -1,8 +1,6 @@
 ### Enclave
 
-Some deployments may wish to restrict physical access to private keys enclave can run as as standalone server and tessera instances can connect to the enclave server. There are two server options rest or websockets. 
-
-
+Some deployments may wish to restrict physical access to private keys.  Enclave can run as a standalone server and Tessera instances can connect to the enclave server.
 
 `java -jar enclave-jaxrs-[version]-server.jar -configfile enclave-rest-config.json`
 
