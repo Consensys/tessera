@@ -3,14 +3,14 @@
     <parent>
         <artifactId>key-vault</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.11-SNAPSHOT</version>
+        <version>0.10.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>aws-key-vault</artifactId>
 
     <properties>
-        <netty.version>4.1.45.Final</netty.version>
+        <netty.version>4.1.46.Final</netty.version>
     </properties>
 
     <dependencies>

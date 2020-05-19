@@ -3,7 +3,7 @@
     <parent>
         <artifactId>key-vault</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.11-SNAPSHOT</version>
+        <version>0.10.6-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -14,7 +14,7 @@
             <dependency>
                 <groupId>org.springframework.vault</groupId>
                 <artifactId>spring-vault-core</artifactId>
-                <version>2.1.1.RELEASE</version>
+                <version>2.1.5.RELEASE</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
