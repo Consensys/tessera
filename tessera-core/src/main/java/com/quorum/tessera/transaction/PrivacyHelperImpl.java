@@ -31,24 +31,20 @@ public class PrivacyHelperImpl implements PrivacyHelper {
             return Collections.emptyList();
         }
 
-        final Set<MessageHash> hashes =
+        final Set<MessageHash> hashesToFind =
                 Arrays.stream(affectedHashes)
                         .map(Base64.getDecoder()::decode)
                         .map(MessageHash::new)
                         .collect(Collectors.toSet());
 
-        final List<EncryptedTransaction> encryptedTransactions = encryptedTransactionDAO.findByHashes(hashes);
+        final List<EncryptedTransaction> encryptedTransactions = encryptedTransactionDAO.findByHashes(hashesToFind);
+        final Set<MessageHash> foundHashes =
+            encryptedTransactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toSet());
 
-        hashes.stream()
-                .filter(
-                        Predicate.not(
-                                encryptedTransactions.stream()
-                                                .map(EncryptedTransaction::getHash)
-                                                .collect(Collectors.toList())
-                                        ::contains))
+        hashesToFind.stream()
+                .filter(Predicate.not(foundHashes::contains))
                 .findAny()
-                .ifPresent(
-                        messageHash -> {
+                .ifPresent(messageHash -> {
                             throw new PrivacyViolationException(
                                     "Unable to find affectedContractTransaction " + messageHash);
                         });
@@ -74,25 +70,21 @@ public class PrivacyHelperImpl implements PrivacyHelper {
         final Set<MessageHash> hashesToFind =
                 affectedTxHashes.stream().map(TxHash::getBytes).map(MessageHash::new).collect(Collectors.toSet());
 
-        final List<AffectedTransaction> foundAffectedTransactions =
-                encryptedTransactionDAO.findByHashes(hashesToFind).stream()
-                        .map(
-                                et ->
-                                        AffectedTransaction.buildFrom(
-                                                new TxHash(et.getHash().getHashBytes()),
-                                                PayloadEncoder.create().decode(et.getEncodedPayload())))
-                        .collect(Collectors.toList());
+        final List<EncryptedTransaction> encryptedTransactions = encryptedTransactionDAO.findByHashes(hashesToFind);
+        final Set<MessageHash> foundHashes =
+            encryptedTransactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toSet());
 
-        affectedTxHashes.stream()
-                .filter(
-                        Predicate.not(
-                                foundAffectedTransactions.stream()
-                                                .map(AffectedTransaction::getHash)
-                                                .collect(Collectors.toList())
-                                        ::contains))
+        hashesToFind.stream()
+                .filter(Predicate.not(foundHashes::contains))
                 .peek(txHash -> LOGGER.debug("Unable to find affectedContractTransaction {}", txHash));
 
-        return foundAffectedTransactions;
+        return encryptedTransactions.stream()
+            .map(
+                et ->
+                    AffectedTransaction.buildFrom(
+                        new TxHash(et.getHash().getHashBytes()),
+                        PayloadEncoder.create().decode(et.getEncodedPayload())))
+            .collect(Collectors.toList());
     }
 
     @Override
