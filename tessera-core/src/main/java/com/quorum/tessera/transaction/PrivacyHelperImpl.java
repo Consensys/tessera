@@ -52,10 +52,11 @@ public class PrivacyHelperImpl implements PrivacyHelper {
         return encryptedTransactions.stream()
                 .map(
                         et ->
-                                AffectedTransaction.buildFrom(
-                                        new TxHash(et.getHash().getHashBytes()),
-                                        PayloadEncoder.create().decode(et.getEncodedPayload())))
-                .collect(Collectors.toList());
+                            AffectedTransaction.Builder.create()
+                                .withHash(new TxHash(et.getHash().getHashBytes()))
+                                .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
+                                .build()
+                ).collect(Collectors.toList());
     }
 
     @Override
@@ -81,10 +82,11 @@ public class PrivacyHelperImpl implements PrivacyHelper {
         return encryptedTransactions.stream()
             .map(
                 et ->
-                    AffectedTransaction.buildFrom(
-                        new TxHash(et.getHash().getHashBytes()),
-                        PayloadEncoder.create().decode(et.getEncodedPayload())))
-            .collect(Collectors.toList());
+                    AffectedTransaction.Builder.create()
+                        .withHash(new TxHash(et.getHash().getHashBytes()))
+                        .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
+                        .build()
+            ).collect(Collectors.toList());
     }
 
     @Override
