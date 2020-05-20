@@ -1,5 +1,6 @@
 package com.quorum.tessera.enclave;
 
+import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.encryption.PublicKey;
 
 /** Encodes and decodes a {@link EncodedPayload} to and from its binary representation */
@@ -43,6 +44,6 @@ public interface PayloadEncoder {
     EncodedPayload withRecipient(EncodedPayload input, PublicKey recipient);
 
     static PayloadEncoder create() {
-        return new PayloadEncoderImpl();
+        return ServiceLoaderUtil.load(PayloadEncoder.class).orElse(new PayloadEncoderImpl() {});
     }
 }
