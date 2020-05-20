@@ -12,9 +12,12 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ResendManagerImpl implements ResendManager {
 
@@ -67,13 +70,12 @@ public class ResendManagerImpl implements ResendManager {
             final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
             final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.from(existing);
 
-
             // lets compare it against the previous version of the message
             final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
             final boolean same =
-                Arrays.equals(newDecrypted, oldDecrypted)
-                    && Arrays.equals(payload.getCipherText(), existing.getCipherText())
-                    && (payload.getPrivacyMode() == existing.getPrivacyMode());
+                    Arrays.equals(newDecrypted, oldDecrypted)
+                            && Arrays.equals(payload.getCipherText(), existing.getCipherText())
+                            && (payload.getPrivacyMode() == existing.getPrivacyMode());
 
             if (!same) {
                 throw new IllegalArgumentException("Invalid payload provided");
@@ -82,19 +84,20 @@ public class ResendManagerImpl implements ResendManager {
             // check recipients
             if (existing.getPrivacyMode() == PrivacyMode.PRIVATE_STATE_VALIDATION) {
                 if (!existing.getRecipientKeys().containsAll(payload.getRecipientKeys())
-                    || !payload.getRecipientKeys().containsAll(existing.getRecipientKeys())) {
+                        || !payload.getRecipientKeys().containsAll(existing.getRecipientKeys())) {
                     throw new PrivacyViolationException(
-                        "Participants mismatch for two versions of transaction " + transactionHash);
+                            "Participants mismatch for two versions of transaction " + transactionHash);
                 }
             } else if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
-                    payloadBuilder.withRecipientKey(payload.getRecipientKeys().get(0))
-                    .withRecipientBox(payload.getRecipientBoxes().get(0).getData());
-
+                payloadBuilder
+                        .withRecipientKey(payload.getRecipientKeys().get(0))
+                        .withRecipientBox(payload.getRecipientBoxes().get(0).getData());
             }
 
             // add any ACOTHs that other parties may have missed
-            payloadBuilder.withAffectedContractTransactions(payload.getAffectedContractTransactions()
-                .entrySet().stream().collect(Collectors.toMap(e -> e.getKey(),e -> e.getValue().getData())));
+            payloadBuilder.withAffectedContractTransactions(
+                    payload.getAffectedContractTransactions().entrySet().stream()
+                            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getData())));
 
             EncryptedTransaction encryptedTransaction = tx.get();
 
@@ -105,17 +108,22 @@ public class ResendManagerImpl implements ResendManager {
         } else {
 
             final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.from(payload);
+            final List<PublicKey> recipientKeys = new ArrayList<>(payload.getRecipientKeys());
 
             // we need to recreate this
-            if (!payload.getRecipientKeys().contains(sender)) {
+            if (!recipientKeys.contains(sender)) {
+                recipientKeys.add(sender);
                 payloadBuilder.withRecipientKey(sender);
             }
+
             // add recipient boxes for all recipients (for PSV transactions)
-            for (int idx = payload.getRecipientBoxes().size(); idx < payload.getRecipientKeys().size(); idx++) {
-                PublicKey recipient = payload.getRecipientKeys().get(idx);
-                byte[] newbox = enclave.createNewRecipientBox(payload, recipient);
-                payloadBuilder.withRecipientBox(newbox);
-            }
+            IntStream.range(payload.getRecipientBoxes().size(), recipientKeys.size())
+                    .forEach(
+                            i -> {
+                                PublicKey recipient = recipientKeys.get(i);
+                                byte[] newBox = enclave.createNewRecipientBox(payload, recipient);
+                                payloadBuilder.withRecipientBox(newBox);
+                            });
 
             final byte[] encoded = payloadEncoder.encode(payloadBuilder.build());
 
