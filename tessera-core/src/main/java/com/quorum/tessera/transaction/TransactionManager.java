@@ -45,10 +45,10 @@ public interface TransactionManager {
     Logger LOGGER = LoggerFactory.getLogger(TransactionManager.class);
 
     static TransactionManager create(Config config) {
-        LOGGER.debug("Creating TransactionManager with {}",config);
+        LOGGER.debug("Creating TransactionManager with {}", config);
 
         Optional<TransactionManager> transactionManagerOptional = ServiceLoaderUtil.load(TransactionManager.class);
-        if(transactionManagerOptional.isPresent()) {
+        if (transactionManagerOptional.isPresent()) {
             return transactionManagerOptional.get();
         }
 
@@ -56,13 +56,19 @@ public interface TransactionManager {
         Enclave enclave = EnclaveFactory.create().create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO = entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
-        ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO,enclave);
+        ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
+        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO);
 
-        return new TransactionManagerImpl(encryptedTransactionDAO,enclave,encryptedRawTransactionDAO,resendManager,partyInfoService,100);
-
+        return new TransactionManagerImpl(
+                encryptedTransactionDAO,
+                enclave,
+                encryptedRawTransactionDAO,
+                resendManager,
+                partyInfoService,
+                privacyHelper,
+                100);
     }
-
-
 }
