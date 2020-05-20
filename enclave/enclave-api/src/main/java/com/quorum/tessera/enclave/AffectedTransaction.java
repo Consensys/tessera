@@ -17,24 +17,22 @@ public class AffectedTransaction {
         return hash;
     }
 
-
     public EncodedPayload getPayload() {
         return payload;
     }
 
-
     public static class Builder {
 
-        private byte[] hash;
+        private TxHash hash;
 
-        private byte[] payload;
+        private EncodedPayload payload;
 
-        public Builder withHash(byte[] hash) {
+        public Builder withHash(TxHash hash) {
             this.hash = hash;
             return this;
         }
 
-        public Builder withPayload(byte[] payload) {
+        public Builder withPayload(EncodedPayload payload) {
             this.payload = payload;
             return this;
         }
@@ -46,11 +44,8 @@ public class AffectedTransaction {
         }
 
         public AffectedTransaction build() {
-            final TxHash txHash = new TxHash(hash);
-            final EncodedPayload encodedPayload = PayloadEncoder.create().decode(payload);
-            return new AffectedTransaction(txHash,encodedPayload);
+            return new AffectedTransaction(hash, payload);
         }
-
     }
 
     @Override
