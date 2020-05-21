@@ -150,15 +150,17 @@ public class EnclaveResource {
 
         EncodedPayload encodedPayload = payloadEncoder.decode(payload.getEncodedPayload());
 
-        List<AffectedTransaction> affectedTransactions = payload.getAffectedContractTransactions()
-            .stream()
-            .map(keyValuePair -> AffectedTransaction.Builder.create()
-            .withHash(keyValuePair.getKey())
-            .withPayload(keyValuePair.getValue())
-            .build()).collect(Collectors.toList());
+        List<AffectedTransaction> affectedTransactions =
+                payload.getAffectedContractTransactions().stream()
+                        .map(
+                                keyValuePair ->
+                                        AffectedTransaction.Builder.create()
+                                                .withHash(TxHash.from(keyValuePair.getKey()))
+                                                .withPayload(PayloadEncoder.create().decode(keyValuePair.getValue()))
+                                                .build())
+                        .collect(Collectors.toList());
 
-        Set<TxHash> invalidSecurityHashes =
-                enclave.findInvalidSecurityHashes(encodedPayload, affectedTransactions);
+        Set<TxHash> invalidSecurityHashes = enclave.findInvalidSecurityHashes(encodedPayload, affectedTransactions);
 
         EnclaveFindInvalidSecurityHashesResponsePayload responsePayload =
                 new EnclaveFindInvalidSecurityHashesResponsePayload();
