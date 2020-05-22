@@ -9,9 +9,6 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.util.Base64Codec;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
