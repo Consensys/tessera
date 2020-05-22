@@ -10,7 +10,9 @@ import java.util.*;
 @Entity
 @Table(
         name = "ST_TRANSACTION",
-        indexes = {@Index(name = "ST_TRANSACTION_VALSTG", columnList = "VALIDATION_STAGE", unique = false)})
+        indexes = {@Index(name = "ST_TRANSACTION_VALSTG", columnList = "VALIDATION_STAGE"),
+            @Index(name = "ST_TRANSACTION_HASH", columnList = "HASH")
+        })
 @NamedQueries({
     @NamedQuery(
             name = "StagingTransaction.stagingQuery",
