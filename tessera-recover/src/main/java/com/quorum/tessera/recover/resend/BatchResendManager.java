@@ -27,8 +27,9 @@ public interface BatchResendManager {
 
                 ResendBatchPublisher resendBatchPublisher = ResendBatchPublisherFactory.newFactory(config).create(config);
 
+                final int defaultMaxResults = 10000;
                 return new BatchResendManagerImpl(
-                    enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService,resendBatchPublisher);
+                    enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService,resendBatchPublisher,defaultMaxResults);
             });
     }
 }

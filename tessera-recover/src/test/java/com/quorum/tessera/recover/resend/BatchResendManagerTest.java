@@ -68,7 +68,7 @@ public class BatchResendManagerTest {
                         enclave,
                         stagingEntityDAO,
                         encryptedTransactionDAO,
-                        partyInfoService,resendBatchPublisher);
+                        partyInfoService,resendBatchPublisher,3);
 
         when(enclave.status()).thenReturn(Service.Status.STARTED);
 
@@ -125,7 +125,7 @@ public class BatchResendManagerTest {
 
     @Test
     public void createWithMinimalConstructor() {
-        assertThat(new BatchResendManagerImpl(enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService,resendBatchPublisher))
+        assertThat(new BatchResendManagerImpl(enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService,resendBatchPublisher,1))
                 .isNotNull();
     }
 

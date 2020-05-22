@@ -18,9 +18,6 @@ import java.util.stream.IntStream;
 
 public class BatchResendManagerImpl implements BatchResendManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatchResendManagerImpl.class);
-
-    private static final int MAX_RESULTS = 10000;
 
     private final PayloadEncoder payloadEncoder;
 
@@ -36,11 +33,13 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final ResendBatchPublisher resendBatchPublisher;
 
+    private final int maxResults;
+
     public BatchResendManagerImpl(
         Enclave enclave,
         StagingEntityDAO stagingEntityDAO,
         EncryptedTransactionDAO encryptedTransactionDAO,
-        PartyInfoService partyInfoService,ResendBatchPublisher resendBatchPublisher) {
+        PartyInfoService partyInfoService,ResendBatchPublisher resendBatchPublisher,int maxResults) {
         this(
             PayloadEncoder.create(),
             Base64Codec.create(),
@@ -48,7 +47,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
             stagingEntityDAO,
             encryptedTransactionDAO,
             partyInfoService,
-            resendBatchPublisher);
+            resendBatchPublisher,maxResults);
     }
 
     public BatchResendManagerImpl(
@@ -57,7 +56,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
         Enclave enclave,
         StagingEntityDAO stagingEntityDAO,
         EncryptedTransactionDAO encryptedTransactionDAO,
-        PartyInfoService partyInfoService,ResendBatchPublisher resendBatchPublisher) {
+        PartyInfoService partyInfoService,ResendBatchPublisher resendBatchPublisher,int maxResults) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.enclave = Objects.requireNonNull(enclave);
@@ -65,6 +64,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.resendBatchPublisher = Objects.requireNonNull(resendBatchPublisher);
+        this.maxResults = maxResults;
 
 
     }
@@ -81,13 +81,13 @@ public class BatchResendManagerImpl implements BatchResendManager {
         final PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
 
         final long transactionCount = encryptedTransactionDAO.transactionCount();
-        final long batchCount = calculateBatchCount(MAX_RESULTS,transactionCount);
+        final long batchCount = calculateBatchCount(maxResults,transactionCount);
 
         final BatchWorkflow batchWorkflow = BatchWorkflowFactory.newFactory(enclave,payloadEncoder,partyInfoService,resendBatchPublisher).create();
 
         IntStream.range(0, (int) batchCount)
-            .map(i -> i * MAX_RESULTS)
-            .mapToObj(offset -> encryptedTransactionDAO.retrieveTransactions(offset, MAX_RESULTS))
+            .map(i -> i * maxResults)
+            .mapToObj(offset -> encryptedTransactionDAO.retrieveTransactions(offset, maxResults))
             .flatMap(List::stream)
             .forEach(encryptedTransaction -> {
                 final BatchWorkflowContext context = new BatchWorkflowContext();
