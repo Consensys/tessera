@@ -1,32 +1,34 @@
 package com.quorum.tessera.recover.resend;
 
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.data.staging.StagingTransaction;
+import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.ResendBatchPublisher;
-import com.quorum.tessera.partyinfo.ResendBatchRequest;
-import com.quorum.tessera.partyinfo.ResendBatchResponse;
+import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.util.Base64Codec;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class BatchResendManagerTest {
 
     private PayloadEncoder payloadEncoder;
@@ -87,7 +89,7 @@ public class BatchResendManagerTest {
 
 
     @Test
-    public void doStuff() {
+    public void resendbatch() {
         ResendBatchRequest request = new ResendBatchRequest();
         request.setBatchSize(3);
         request.setPublicKey(KEY_STRING);
@@ -102,15 +104,22 @@ public class BatchResendManagerTest {
         when(encryptedTransactionDAO.retrieveTransactions(anyInt(),anyInt()))
             .thenReturn(transactions);
 
-        ResendBatchResponse result = manager.resendBatch(request);
+        final BatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
+        when(batchWorkflow.getPublishedMessageCount()).thenReturn(999L);
 
-//        assertThat(result.getTotal())
-//            .describedAs("total should be pouplatd from batchworkflow message count")
-//            .isEqualTo(MockBatchWorkflow.PUBLISHED_COUNT);
+        final ResendBatchResponse result = manager.resendBatch(request);
+
+        verify(batchWorkflow,times(34)).execute(any(BatchWorkflowContext.class));
+        verify(batchWorkflow).getPublishedMessageCount();
+        verifyNoMoreInteractions(batchWorkflow);
+
+        assertThat(result.getTotal())
+            .isEqualTo(999L);
 
         verify(encryptedTransactionDAO,times(34)).retrieveTransactions(anyInt(),anyInt());
         verify(encryptedTransactionDAO).transactionCount();
     }
+
 
 
 
@@ -140,6 +149,58 @@ public class BatchResendManagerTest {
 
         assertThat(batchCount).isEqualTo(1);
 
+    }
+
+    @Test
+    public void createBatchResendManager() {
+        Config config = mock(Config.class);
+        JdbcConfig jdbcConfig = mock(JdbcConfig.class);
+        when(jdbcConfig.getUsername()).thenReturn("junit");
+        when(jdbcConfig.getPassword()).thenReturn("");
+        when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:test");
+        when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getCommunicationType())
+            .thenReturn(MockResendBatchPublisherFactory.getCommunicationType());
+
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
+
+        BatchResendManager result = BatchResendManager.create(config);
+
+        assertThat(result).isNotNull();
+
+    }
+
+    @Test
+    public void testStoreResendBatchMultipleVersions() {
+
+        final EncodedPayload encodedPayload =
+            EncodedPayload.Builder.create()
+                .withSenderKey(publicKey)
+                .withCipherText("cipherText".getBytes())
+                .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                .withRecipientBoxes(singletonList("box".getBytes()))
+                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                .withRecipientKeys(singletonList(PublicKey.from("receiverKey".getBytes())))
+                .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                .withAffectedContractTransactions(emptyMap())
+                .withExecHash(new byte[0])
+                .build();
+
+        final byte[] raw = new PayloadEncoderImpl().encode(encodedPayload);
+
+        PushBatchRequest request = new PushBatchRequest();
+        request.setEncodedPayloads(singletonList(raw));
+
+        StagingTransaction existing = new StagingTransaction();
+
+        when(stagingEntityDAO.retrieveByHash(any())).thenReturn(Optional.of(existing));
+        when(stagingEntityDAO.update(any(StagingTransaction.class))).thenReturn(new StagingTransaction());
+
+        manager.storeResendBatch(request);
+
+        verify(stagingEntityDAO).save(any(StagingTransaction.class));
     }
 
 }

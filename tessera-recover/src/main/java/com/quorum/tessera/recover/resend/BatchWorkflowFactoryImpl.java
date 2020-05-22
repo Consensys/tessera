@@ -18,32 +18,17 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
 
     private ResendBatchPublisher resendBatchPublisher;
 
-    public Enclave getEnclave() {
-        return enclave;
-    }
-
     public void setEnclave(Enclave enclave) {
         this.enclave = enclave;
     }
 
-    public PayloadEncoder getPayloadEncoder() {
-        return payloadEncoder;
-    }
 
     public void setPayloadEncoder(PayloadEncoder payloadEncoder) {
         this.payloadEncoder = payloadEncoder;
     }
 
-    public PartyInfoService getPartyInfoService() {
-        return partyInfoService;
-    }
-
     public void setPartyInfoService(PartyInfoService partyInfoService) {
         this.partyInfoService = partyInfoService;
-    }
-
-    public ResendBatchPublisher getResendBatchPublisher() {
-        return resendBatchPublisher;
     }
 
     public void setResendBatchPublisher(ResendBatchPublisher resendBatchPublisher) {

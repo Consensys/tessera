@@ -94,9 +94,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
                 context.setEncryptedTransaction(encryptedTransaction);
                 context.setRecipientKey(recipientPublicKey);
                 context.setBatchSize(batchSize);
-                if(!batchWorkflow.execute(context)) {
-                    return;
-                }
+                batchWorkflow.execute(context);
             });
 
         return new ResendBatchResponse(batchWorkflow.getPublishedMessageCount());
