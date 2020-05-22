@@ -4,8 +4,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.encryption.PublicKey;
 
-import java.util.List;
-
 public interface PartyInfoService {
 
     /**
@@ -37,9 +35,6 @@ public interface PartyInfoService {
      * @throws com.quorum.tessera.encryption.KeyNotFoundException if the target public key is not known
      */
     void publishPayload(EncodedPayload payload, PublicKey recipientKey);
-
-
-    void publishBatch(List<EncodedPayload> payload, PublicKey recipientKey);
 
     // TODO: Added as lifecycle call once RuntimeContext has been created.
     void populateStore();

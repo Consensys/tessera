@@ -277,7 +277,7 @@ public class PartyInfoServiceTest {
     @Test
     public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
 
-        PartyInfoStore store = PartyInfoStore.create();
+        PartyInfoStore store = spy(PartyInfoStore.create());
 
         PartyInfoServiceImpl partyInfoService =
                 new PartyInfoServiceImpl(store, enclave, payloadPublisher, resendBatchPublisher);
@@ -289,64 +289,11 @@ public class PartyInfoServiceTest {
 
         partyInfoService.populateStore();
 
-        assertThat(partyInfoService.getPartyInfo().getRecipients()).hasSize(2);
+        verify(store).store(any(PartyInfo.class));
 
         verify(enclave).getPublicKeys();
     }
 
-    @Test
-    public void testPublishBatch() {
-
-        List<EncodedPayload> payloads = Arrays.asList(mock(EncodedPayload.class), mock(EncodedPayload.class));
-
-        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(singleton(new Recipient(recipientKey, "http://somehost.com")));
-        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
-
-        partyInfoService.publishBatch(payloads, recipientKey);
-
-        verify(resendBatchPublisher).publishBatch(payloads, "http://somehost.com");
-        verify(partyInfoStore).getPartyInfo();
-        verify(enclave).getPublicKeys();
-    }
-
-    @Test
-    public void publishBatchDoesntPublishToSender() {
-
-        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
-
-        when(enclave.getPublicKeys()).thenReturn(singleton(recipientKey));
-
-        List<EncodedPayload> payloads = Arrays.asList(mock(EncodedPayload.class), mock(EncodedPayload.class));
-
-        partyInfoService.publishBatch(payloads, recipientKey);
-
-        verifyZeroInteractions(payloadPublisher);
-        verify(enclave).getPublicKeys();
-    }
-
-    @Test
-    public void publishBatchKeyNotFound() {
-        when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("Key Data".getBytes())));
-
-        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
-
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(Collections.emptySet());
-        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
-
-        List<EncodedPayload> payloads = Arrays.asList(mock(EncodedPayload.class), mock(EncodedPayload.class));
-
-        try {
-            partyInfoService.publishBatch(payloads, recipientKey);
-            failBecauseExceptionWasNotThrown(KeyNotFoundException.class);
-        } catch (KeyNotFoundException ex) {
-            verifyZeroInteractions(payloadPublisher);
-            verify(partyInfoStore).getPartyInfo();
-            verify(enclave).getPublicKeys();
-        }
-    }
 
     @Test
     public void fetchedKeysAreAddedToStore() {

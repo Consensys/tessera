@@ -1,9 +1,44 @@
 package com.quorum.tessera.partyinfo;
 
 
+import com.quorum.tessera.config.*;
+import org.junit.Test;
+
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PartyInfoServiceFactoryTest {
 
+    @Test
+    public void createAndLoadStoredInstance() {
+        Config config = mock(Config.class);
+        when(config.getEncryptor()).thenReturn(EncryptorConfig.getDefault());
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.emptyList());
+        when(config.getKeys()).thenReturn(keyConfiguration);
+
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
+
+        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create(config);
+
+        assertThat(partyInfoServiceFactory)
+            .isNotNull().isSameAs(PartyInfoServiceFactory.create(config));
+
+    }
+
+    @Test
+    public void createAndGet() {
+        PartyInfoService partyInfoService = mock(PartyInfoService.class);
+        PartyInfoServiceFactory partyInfoServiceFactory = new PartyInfoServiceFactoryImpl(partyInfoService);
+
+        assertThat(partyInfoServiceFactory.partyInfoService()).isSameAs(partyInfoService);
+
+    }
 
 
 }

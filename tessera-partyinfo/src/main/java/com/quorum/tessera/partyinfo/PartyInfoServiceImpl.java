@@ -10,8 +10,6 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -160,36 +158,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         payloadPublisher.publishPayload(payload, targetUrl);
 
         LOGGER.info("Published to {}", targetUrl);
-    }
-
-    @Override
-    public void publishBatch(List<EncodedPayload> payloads, PublicKey recipientKey) {
-
-        if (enclave.getPublicKeys().contains(recipientKey)) {
-            // we are trying to send something to ourselves - don't do it
-            LOGGER.debug(
-                "Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
-            return;
-        }
-
-        final Recipient retrievedRecipientFromStore =
-            partyInfoStore.getPartyInfo().getRecipients().stream()
-                .filter(recipient -> recipientKey.equals(recipient.getKey()))
-                .findAny()
-                .orElseThrow(
-                    () ->
-                        new KeyNotFoundException(
-                            "Recipient not found for key: " + recipientKey.encodeToBase64()));
-
-        final String targetUrl = retrievedRecipientFromStore.getUrl();
-
-
-        LOGGER.info("Publishing messages in batch to {}", targetUrl);
-
-        resendBatchPublisher.publishBatch(payloads, targetUrl);
-
-        LOGGER.info("Published to {}", targetUrl);
-
     }
 
 
