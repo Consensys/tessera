@@ -66,8 +66,8 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     }
 
-    static int calculateBatchCount(long batchSize,long total) {
-        return (int) Math.ceil((double)total / batchSize);
+    static int calculateBatchCount(long maxResults,long total) {
+        return (int) Math.ceil((double)total / maxResults);
     }
 
     @Override
