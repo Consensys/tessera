@@ -16,25 +16,22 @@ public interface PartyInfoServiceFactory {
 
     static PartyInfoServiceFactory create(Config config) {
 
-        if(FACTORY_ATOMIC_REFERENCE.get() != null) {
-            return FACTORY_ATOMIC_REFERENCE.get();
-        }
-        Optional<PartyInfoServiceFactory> optionalPartyInfoServiceFactory = ServiceLoaderUtil.load(PartyInfoServiceFactory.class);
-        if(optionalPartyInfoServiceFactory.isPresent()) {
-            PartyInfoServiceFactory partyInfoServiceFactory = optionalPartyInfoServiceFactory.get();
-            FACTORY_ATOMIC_REFERENCE.set(partyInfoServiceFactory);
-            return partyInfoServiceFactory;
-        }
+        final PartyInfoServiceFactory partyInfoServiceFactory = Optional.ofNullable(FACTORY_ATOMIC_REFERENCE.get())
+            .orElse(ServiceLoaderUtil.load(PartyInfoServiceFactory.class)
+                .orElseGet(() -> {
+                    Enclave enclave = EnclaveFactory.create().create(config);
+                    PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
+                    ResendBatchPublisher resendBatchPublisher = ResendBatchPublisherFactory.newFactory(config).create(config);
 
-        Enclave enclave = EnclaveFactory.create().create(config);
-        PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
-        ResendBatchPublisher resendBatchPublisher = ResendBatchPublisherFactory.newFactory(config).create(config);
+                    PartyInfoStore partyInfoStore = PartyInfoStore.create(config.getP2PServerConfig().getServerUri());
+                    PartyInfoService partyInfoService = new PartyInfoServiceImpl(partyInfoStore,enclave,payloadPublisher,resendBatchPublisher);
 
-        PartyInfoStore partyInfoStore = PartyInfoStore.create();
-        PartyInfoService partyInfoService = new PartyInfoServiceImpl(partyInfoStore,enclave,payloadPublisher,resendBatchPublisher);
+                    return new PartyInfoServiceFactoryImpl(partyInfoService);
+                }));
 
-        PartyInfoServiceFactory partyInfoServiceFactory = new PartyInfoServiceFactoryImpl(partyInfoService);
         FACTORY_ATOMIC_REFERENCE.set(partyInfoServiceFactory);
+
         return partyInfoServiceFactory;
+
     }
 }

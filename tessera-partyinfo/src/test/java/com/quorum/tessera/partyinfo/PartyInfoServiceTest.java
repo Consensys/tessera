@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 import java.util.stream.Stream;
@@ -277,7 +278,8 @@ public class PartyInfoServiceTest {
     @Test
     public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
 
-        PartyInfoStore store = spy(PartyInfoStore.create());
+        java.net.URI uri = java.net.URI.create(URI);
+        PartyInfoStore store = spy(PartyInfoStore.create(uri));
 
         PartyInfoServiceImpl partyInfoService =
                 new PartyInfoServiceImpl(store, enclave, payloadPublisher, resendBatchPublisher);

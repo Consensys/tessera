@@ -4,6 +4,7 @@ package com.quorum.tessera.partyinfo;
 import com.quorum.tessera.config.*;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +23,7 @@ public class PartyInfoServiceFactoryTest {
 
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
+        when(serverConfig.getServerUri()).thenReturn(URI.create("http://someplace.com"));
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create(config);

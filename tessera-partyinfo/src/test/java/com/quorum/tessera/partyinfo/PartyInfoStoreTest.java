@@ -214,7 +214,7 @@ public class PartyInfoStoreTest {
     public void create() {
 
         RuntimeContextFactory.newFactory().create(null);
-        PartyInfoStore instance = PartyInfoStore.create();
+        PartyInfoStore instance = PartyInfoStore.create(URI.create("http://junit.com"));
         assertThat(instance).isNotNull();
 
     }
