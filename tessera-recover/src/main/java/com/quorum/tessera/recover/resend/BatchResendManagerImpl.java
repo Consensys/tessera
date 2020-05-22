@@ -20,7 +20,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BatchResendManagerImpl.class);
 
-    private static final int BATCH_SIZE = 10000;
+    private static final int MAX_RESULTS = 10000;
 
     private final PayloadEncoder payloadEncoder;
 
@@ -81,13 +81,13 @@ public class BatchResendManagerImpl implements BatchResendManager {
         final PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
 
         final long transactionCount = encryptedTransactionDAO.transactionCount();
-        final long batchCount = calculateBatchCount(batchSize,transactionCount);
+        final long batchCount = calculateBatchCount(MAX_RESULTS,transactionCount);
 
         final BatchWorkflow batchWorkflow = BatchWorkflowFactory.newFactory(enclave,payloadEncoder,partyInfoService,resendBatchPublisher).create();
 
         IntStream.range(0, (int) batchCount)
-            .map(i -> i * batchSize)
-            .mapToObj(offset -> encryptedTransactionDAO.retrieveTransactions(offset,BATCH_SIZE))
+            .map(i -> i * MAX_RESULTS)
+            .mapToObj(offset -> encryptedTransactionDAO.retrieveTransactions(offset, MAX_RESULTS))
             .flatMap(List::stream)
             .forEach(encryptedTransaction -> {
                 final BatchWorkflowContext context = new BatchWorkflowContext();
