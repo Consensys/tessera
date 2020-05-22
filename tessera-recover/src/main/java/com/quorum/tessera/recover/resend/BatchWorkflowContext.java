@@ -7,6 +7,8 @@ import com.quorum.tessera.partyinfo.model.Recipient;
 
 public class BatchWorkflowContext {
 
+    private long expectedTotal;
+
     private int batchSize;
 
     private Recipient recipient;
@@ -56,5 +58,13 @@ public class BatchWorkflowContext {
 
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
+    }
+
+    public long getExpectedTotal() {
+        return expectedTotal;
+    }
+
+    public void setExpectedTotal(long expectedTotal) {
+        this.expectedTotal = expectedTotal;
     }
 }

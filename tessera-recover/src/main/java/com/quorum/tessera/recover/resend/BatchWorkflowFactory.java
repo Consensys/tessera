@@ -11,13 +11,14 @@ public interface BatchWorkflowFactory {
 
     BatchWorkflow create();
 
-    static BatchWorkflowFactory newFactory(Enclave enclave, PayloadEncoder payloadEncoder, PartyInfoService partyInfoService, ResendBatchPublisher resendBatchPublisher) {
+    static BatchWorkflowFactory newFactory(Enclave enclave, PayloadEncoder payloadEncoder, PartyInfoService partyInfoService, ResendBatchPublisher resendBatchPublisher,long transactionCount) {
         return ServiceLoaderUtil.load(BatchWorkflowFactory.class)
             .orElse(new BatchWorkflowFactoryImpl() {{
                 setEnclave(enclave);
                 setPartyInfoService(partyInfoService);
                 setPayloadEncoder(payloadEncoder);
                 setResendBatchPublisher(resendBatchPublisher);
+                setTransactionCount(transactionCount);
             }});
 
     }
