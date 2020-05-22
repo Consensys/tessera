@@ -1,26 +1,20 @@
 package com.quorum.tessera.recover.resend;
 
-import com.quorum.tessera.data.EncryptedTransaction;
+
 import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransactionUtils;
-import com.quorum.tessera.enclave.*;
-import com.quorum.tessera.encryption.EncryptorException;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PushBatchRequest;
-import com.quorum.tessera.partyinfo.ResendBatchRequest;
-import com.quorum.tessera.partyinfo.ResendBatchResponse;
-import com.quorum.tessera.service.Service;
-import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
+import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
 
 public class BatchResendManagerImpl implements BatchResendManager {
 
@@ -40,135 +34,82 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final PartyInfoService partyInfoService;
 
+    private final ResendBatchPublisher resendBatchPublisher;
+
     public BatchResendManagerImpl(
-            Enclave enclave,
-            StagingEntityDAO stagingEntityDAO,
-            EncryptedTransactionDAO encryptedTransactionDAO,
-            PartyInfoService partyInfoService) {
+        Enclave enclave,
+        StagingEntityDAO stagingEntityDAO,
+        EncryptedTransactionDAO encryptedTransactionDAO,
+        PartyInfoService partyInfoService,ResendBatchPublisher resendBatchPublisher) {
         this(
-                PayloadEncoder.create(),
-                Base64Codec.create(),
-                enclave,
-                stagingEntityDAO,
-                encryptedTransactionDAO,
-                partyInfoService);
+            PayloadEncoder.create(),
+            Base64Codec.create(),
+            enclave,
+            stagingEntityDAO,
+            encryptedTransactionDAO,
+            partyInfoService,
+            resendBatchPublisher);
     }
 
     public BatchResendManagerImpl(
-            PayloadEncoder payloadEncoder,
-            Base64Codec base64Decoder,
-            Enclave enclave,
-            StagingEntityDAO stagingEntityDAO,
-            EncryptedTransactionDAO encryptedTransactionDAO,
-            PartyInfoService partyInfoService) {
+        PayloadEncoder payloadEncoder,
+        Base64Codec base64Decoder,
+        Enclave enclave,
+        StagingEntityDAO stagingEntityDAO,
+        EncryptedTransactionDAO encryptedTransactionDAO,
+        PartyInfoService partyInfoService,ResendBatchPublisher resendBatchPublisher) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.base64Decoder = Objects.requireNonNull(base64Decoder);
         this.enclave = Objects.requireNonNull(enclave);
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
+        this.resendBatchPublisher = Objects.requireNonNull(resendBatchPublisher);
+
+
+    }
+
+    static int calculateBatchCount(long batchSize,long total) {
+        return (int) Math.ceil((double)total / batchSize);
     }
 
     @Override
     public ResendBatchResponse resendBatch(ResendBatchRequest request) {
 
-        validateEnclaveStatus();
-
         final int batchSize = request.getBatchSize();
         final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
         final PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
-        final AtomicLong messageCount = new AtomicLong(0);
-        final List<EncodedPayload> batch = new ArrayList<>(batchSize);
 
-        int offset = 0;
-        final int maxResult = BATCH_SIZE;
+        final long transactionCount = encryptedTransactionDAO.transactionCount();
+        final long batchCount = calculateBatchCount(batchSize,transactionCount);
 
-        while (offset < encryptedTransactionDAO.transactionCount()) {
-            // TODO this loop needs to be refactored to only pull the relevant records from DB (when
-            // EncryptedTransaction is normalized).
-            encryptedTransactionDAO.retrieveTransactions(offset, maxResult).stream()
-                    .map(EncryptedTransaction::getEncodedPayload)
-                    .map(payloadEncoder::decode)
-                    .filter(
-                            payload -> {
-                                final boolean isCurrentNodeSender =
-                                        payload.getRecipientKeys().contains(recipientPublicKey)
-                                                && enclave.getPublicKeys().contains(payload.getSenderKey());
-                                final boolean isRequestedNodeSender =
-                                        Objects.equals(payload.getSenderKey(), recipientPublicKey);
-                                return isCurrentNodeSender || isRequestedNodeSender;
-                            })
-                    .forEach(
-                            payload -> {
-                                EncodedPayload prunedPayload;
+        final BatchWorkflow batchWorkflow = BatchWorkflowFactory.newFactory(enclave,payloadEncoder,partyInfoService,resendBatchPublisher).create();
 
-                                if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
-                                    prunedPayload = payload;
-                                    if (payload.getRecipientKeys().isEmpty()) {
-                                        // TODO Should we stop the whole resend just because we could not find a key
-                                        // for a tx? Log instead?
-                                        // a malicious party may be able to craft TXs that prevent others from
-                                        // performing resends
-                                        final PublicKey decryptedKey =
-                                                searchForRecipientKey(payload)
-                                                        .orElseThrow(
-                                                                () -> {
-                                                                    final MessageHash hash =
-                                                                            MessageHashFactory.create()
-                                                                                    .createFromCipherText(
-                                                                                            payload.getCipherText());
-                                                                    return new RecipientKeyNotFoundException(
-                                                                            "No key found as recipient of message "
-                                                                                    + hash);
-                                                                });
+        IntStream.range(0, (int) batchCount)
+            .map(i -> i * batchSize)
+            .mapToObj(offset -> encryptedTransactionDAO.retrieveTransactions(offset,BATCH_SIZE))
+            .flatMap(List::stream)
+            .forEach(encryptedTransaction -> {
+                final BatchWorkflowContext context = new BatchWorkflowContext();
+                context.setEncryptedTransaction(encryptedTransaction);
+                context.setRecipientKey(recipientPublicKey);
+                context.setBatchSize(batchSize);
+                if(!batchWorkflow.execute(context)) {
+                    return;
+                }
+            });
 
-                                        prunedPayload = payloadEncoder.withRecipient(payload, decryptedKey);
-                                    }
-                                } else {
-                                    prunedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
-                                }
-
-                                batch.add(prunedPayload);
-                                messageCount.incrementAndGet();
-
-                                if (batch.size() == batchSize) {
-                                    partyInfoService.publishBatch(batch, recipientPublicKey);
-                                    batch.clear();
-                                }
-                            });
-            offset += maxResult;
-        }
-
-        if (batch.size() > 0) {
-            partyInfoService.publishBatch(batch, recipientPublicKey);
-        }
-
-        return new ResendBatchResponse(messageCount.get());
+        return new ResendBatchResponse(batchWorkflow.getPublishedMessageCount());
     }
 
     // TODO use some locking mechanism to make this more efficient
     @Override
     public synchronized void storeResendBatch(PushBatchRequest resendPushBatchRequest) {
         resendPushBatchRequest.getEncodedPayloads().stream()
-                .map(StagingTransactionUtils::fromRawPayload)
-                .forEach(stagingEntityDAO::save);
+            .map(StagingTransactionUtils::fromRawPayload)
+            .forEach(stagingEntityDAO::save);
     }
 
-    private void validateEnclaveStatus() {
-        if (enclave.status() == Service.Status.STOPPED) {
-            throw new EnclaveNotAvailableException();
-        }
-    }
 
-    private Optional<PublicKey> searchForRecipientKey(final EncodedPayload payload) {
-        for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
-            try {
-                enclave.unencryptTransaction(payload, potentialMatchingKey);
-                return Optional.of(potentialMatchingKey);
-            } catch (EnclaveNotAvailableException | IndexOutOfBoundsException | EncryptorException ex) {
-                LOGGER.debug("Attempted payload decryption using wrong key, discarding.");
-            }
-        }
-        return Optional.empty();
-    }
+
 }

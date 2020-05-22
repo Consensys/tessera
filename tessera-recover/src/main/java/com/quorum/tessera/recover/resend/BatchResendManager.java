@@ -31,7 +31,9 @@ public interface BatchResendManager {
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
 
+        ResendBatchPublisher resendBatchPublisher = ResendBatchPublisherFactory.newFactory(config).create(config);
+
         return new BatchResendManagerImpl(
-                enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService);
+                enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService,resendBatchPublisher);
     }
 }
