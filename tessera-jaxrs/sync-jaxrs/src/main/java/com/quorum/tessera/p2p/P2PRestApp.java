@@ -61,14 +61,14 @@ public class P2PRestApp extends TesseraRestApplication {
         TransactionManager transactionManager = TransactionManager.create(config);
         BatchResendManager batchResendManager = BatchResendManager.create(config);
 
-        final TransactionResource transactionResource = new TransactionResource(transactionManager);
+        final TransactionResource transactionResource = new TransactionResource(transactionManager, batchResendManager);
         final RecoveryResource recoveryResource = new RecoveryResource(batchResendManager);
 
         if (runtimeContext.isRecoveryMode()) {
             return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
         }
 
-        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource, recoveryResource);
+        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource);
     }
 
     @Override

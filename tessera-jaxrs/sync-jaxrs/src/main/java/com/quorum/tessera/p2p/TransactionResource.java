@@ -2,6 +2,7 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.recover.resend.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -30,10 +31,13 @@ public class TransactionResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
 
-    private final TransactionManager delegate;
+    private final TransactionManager transactionManager;
 
-    public TransactionResource(TransactionManager delegate) {
-        this.delegate = Objects.requireNonNull(delegate);
+    private final BatchResendManager batchResendManager;
+
+    public TransactionResource(TransactionManager transactionManager, BatchResendManager batchResendManager) {
+        this.transactionManager = Objects.requireNonNull(transactionManager);
+        this.batchResendManager = Objects.requireNonNull(batchResendManager);
     }
 
     @ApiOperation("Resend transactions for given key or message hash/recipient")
@@ -50,9 +54,30 @@ public class TransactionResource {
 
         LOGGER.debug("Received resend request");
 
-        ResendResponse response = delegate.resend(resendRequest);
+        ResendResponse response = transactionManager.resend(resendRequest);
         Response.ResponseBuilder builder = Response.status(Status.OK);
         response.getPayload().ifPresent(builder::entity);
+        return builder.build();
+    }
+
+    @ApiOperation("Resend transaction batches for given recipient key")
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "The transaction total that has been pushed", response = String.class),
+        @ApiResponse(code = 500, message = "General error")
+    })
+    @POST
+    @Path("resendBatch")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response resendBatch(
+            @ApiParam(name = "resendBatchRequest", required = true) @Valid @NotNull
+                    final ResendBatchRequest resendBatchRequest) {
+
+        LOGGER.debug("Received resend request");
+
+        ResendBatchResponse response = batchResendManager.resendBatch(resendBatchRequest);
+        Response.ResponseBuilder builder = Response.status(Response.Status.OK);
+        builder.entity(response);
         return builder.build();
     }
 
@@ -69,7 +94,7 @@ public class TransactionResource {
 
         LOGGER.debug("Received push request");
 
-        final MessageHash messageHash = delegate.storePayload(payload);
+        final MessageHash messageHash = transactionManager.storePayload(payload);
         LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
         // TODO: Return the query url not the string of the messageHAsh
         return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();

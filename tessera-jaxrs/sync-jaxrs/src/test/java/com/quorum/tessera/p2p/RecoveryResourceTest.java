@@ -1,8 +1,6 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.partyinfo.PushBatchRequest;
-import com.quorum.tessera.partyinfo.ResendBatchRequest;
-import com.quorum.tessera.partyinfo.ResendBatchResponse;
 import com.quorum.tessera.recover.resend.BatchResendManager;
 import org.junit.After;
 import org.junit.Before;
@@ -30,19 +28,6 @@ public class RecoveryResourceTest {
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(resendManager);
-    }
-
-    @Test
-    public void resendBatch() {
-        ResendBatchRequest resendRequest = mock(ResendBatchRequest.class);
-        ResendBatchResponse resendResponse = new ResendBatchResponse(1);
-
-        when(resendManager.resendBatch(resendRequest)).thenReturn(resendResponse);
-
-        Response result = recoveryResource.resendBatch(resendRequest);
-        assertThat(result.getStatus()).isEqualTo(200);
-        assertThat(result.getEntity()).isEqualTo(resendResponse);
-        verify(resendManager).resendBatch(resendRequest);
     }
 
     @Test
