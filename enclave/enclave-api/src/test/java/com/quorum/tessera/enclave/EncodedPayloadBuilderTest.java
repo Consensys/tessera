@@ -64,6 +64,13 @@ public class EncodedPayloadBuilderTest {
                                 "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="));
         assertThat(sample.getExecHash()).isEqualTo(execHash);
         assertThat(sample.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+
+        byte[] otherRecipientBox = "OTHETRBIX".getBytes();
+        EncodedPayload fromSample = EncodedPayload.Builder.from(sample).withRecipientBox(otherRecipientBox).build();
+
+        assertThat(fromSample.getRecipientBoxes()).hasSize(2)
+            .containsExactly(RecipientBox.from(recipientBox),RecipientBox.from(otherRecipientBox));
+
     }
 
     @Test
