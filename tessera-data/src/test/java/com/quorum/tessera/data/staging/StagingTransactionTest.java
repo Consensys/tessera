@@ -28,7 +28,10 @@ public class StagingTransactionTest {
         stagingTransaction2.setHash(encoder.encodeToString("newhash".getBytes()));
 
 
-        assertThat(stagingTransaction).isEqualTo(stagingTransaction1);
+        assertThat(stagingTransaction)
+            .isEqualTo(stagingTransaction1)
+            .hasSameHashCodeAs(stagingTransaction1);
+
         assertThat(stagingTransaction).isNotEqualTo(new Object());
         assertThat(stagingTransaction).isNotEqualTo(stagingTransaction2);
     }
@@ -39,4 +42,20 @@ public class StagingTransactionTest {
         st.onPersist();
         assertThat(st.getTimestamp()).isNotNull();
     }
+
+    @Test
+    public void equals() {
+
+        StagingTransaction txn = new StagingTransaction();
+        txn.setId(1L);
+        StagingTransaction otherTxn = new StagingTransaction();
+        otherTxn.setId(1L);
+        assertThat(txn).isEqualTo(otherTxn);
+
+        assertThat(txn).isNotEqualTo(null);
+        assertThat(txn).isNotEqualTo(new StagingTransaction());
+        assertThat(new StagingTransaction()).isNotEqualTo(new StagingTransaction());
+    }
+
+
 }
