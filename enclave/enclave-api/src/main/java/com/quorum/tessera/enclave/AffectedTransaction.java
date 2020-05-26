@@ -23,11 +23,11 @@ public class AffectedTransaction {
 
     public static class Builder {
 
-        private TxHash hash;
+        private byte[] hash;
 
         private EncodedPayload payload;
 
-        public Builder withHash(TxHash hash) {
+        public Builder withHash(byte[] hash) {
             this.hash = hash;
             return this;
         }
@@ -44,7 +44,8 @@ public class AffectedTransaction {
         }
 
         public AffectedTransaction build() {
-            return new AffectedTransaction(hash, payload);
+            TxHash txHash = new TxHash(hash);
+            return new AffectedTransaction(txHash, payload);
         }
     }
 

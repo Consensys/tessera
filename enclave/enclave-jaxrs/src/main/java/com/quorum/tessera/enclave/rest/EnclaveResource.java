@@ -155,7 +155,7 @@ public class EnclaveResource {
                         .map(
                                 keyValuePair ->
                                         AffectedTransaction.Builder.create()
-                                                .withHash(TxHash.from(keyValuePair.getKey()))
+                                                .withHash(keyValuePair.getKey())
                                                 .withPayload(PayloadEncoder.create().decode(keyValuePair.getValue()))
                                                 .build())
                         .collect(Collectors.toList());

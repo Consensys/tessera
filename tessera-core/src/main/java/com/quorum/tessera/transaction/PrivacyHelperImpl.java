@@ -53,7 +53,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
                 .map(
                         et ->
                             AffectedTransaction.Builder.create()
-                                .withHash(new TxHash(et.getHash().getHashBytes()))
+                                .withHash(et.getHash().getHashBytes())
                                 .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
                                 .build()
                 ).collect(Collectors.toList());
@@ -83,7 +83,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
             .map(
                 et ->
                     AffectedTransaction.Builder.create()
-                        .withHash(new TxHash(et.getHash().getHashBytes()))
+                        .withHash(et.getHash().getHashBytes())
                         .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
                         .build()
             ).collect(Collectors.toList());
