@@ -1,5 +1,6 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
@@ -8,10 +9,6 @@ import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.encryption.PublicKey;
@@ -1964,4 +1961,24 @@ public class TransactionManagerTest {
         verify(payloadEncoder).decode(input);
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     }
+
+    @Test
+    public void create() {
+
+        Config config = mock(Config.class);
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
+
+        JdbcConfig jdbcConfig = mock(JdbcConfig.class);
+        when(jdbcConfig.getUsername()).thenReturn("junit");
+        when(jdbcConfig.getPassword()).thenReturn("junit");
+        when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:junit");
+        when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+
+        TransactionManager transactionManager = TransactionManager.create(config);
+        assertThat(transactionManager).isNotNull();
+
+    }
+
 }

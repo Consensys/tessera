@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface TransactionManager {
 
@@ -47,22 +46,18 @@ public interface TransactionManager {
     static TransactionManager create(Config config) {
         LOGGER.debug("Creating TransactionManager with {}", config);
 
-        Optional<TransactionManager> transactionManagerOptional = ServiceLoaderUtil.load(TransactionManager.class);
-        if (transactionManagerOptional.isPresent()) {
-            return transactionManagerOptional.get();
-        }
-
-        PartyInfoService partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
-        Enclave enclave = EnclaveFactory.create().create(config);
-        EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
-        EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+        return ServiceLoaderUtil.load(TransactionManager.class).orElseGet(() -> {
+            PartyInfoService partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
+            Enclave enclave = EnclaveFactory.create().create(config);
+            EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
+            EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
+            EncryptedRawTransactionDAO encryptedRawTransactionDAO =
                 entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
-        ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
-        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO);
+            ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
+            PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO);
 
-        return new TransactionManagerImpl(
+            return new TransactionManagerImpl(
                 encryptedTransactionDAO,
                 enclave,
                 encryptedRawTransactionDAO,
@@ -70,5 +65,7 @@ public interface TransactionManager {
                 partyInfoService,
                 privacyHelper,
                 100);
+        });
+
     }
 }
