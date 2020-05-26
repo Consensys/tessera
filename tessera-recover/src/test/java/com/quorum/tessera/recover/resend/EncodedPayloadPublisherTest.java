@@ -1,6 +1,5 @@
 package com.quorum.tessera.recover.resend;
 
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.ResendBatchPublisher;
@@ -12,7 +11,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,8 +20,6 @@ public class EncodedPayloadPublisherTest {
 
     private EncodedPayloadPublisher encodedPayloadPublisher;
 
-    private Enclave enclave;
-
     private ResendBatchPublisher resendBatchPublisher;
 
     private final int batchSize = 9;
@@ -31,54 +27,37 @@ public class EncodedPayloadPublisherTest {
     @Before
     public void onSetUp() {
 
-        enclave = mock(Enclave.class);
         resendBatchPublisher = mock(ResendBatchPublisher.class);
 
-        encodedPayloadPublisher = new EncodedPayloadPublisher(enclave,resendBatchPublisher);
+        encodedPayloadPublisher = new EncodedPayloadPublisher(resendBatchPublisher);
 
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(enclave,resendBatchPublisher);
+        verifyNoMoreInteractions(resendBatchPublisher);
     }
 
-    @Test
-    public void executeDontSendToSelf() {
-        BatchWorkflowContext encryptedTransactionEvent = new BatchWorkflowContext();
-        encryptedTransactionEvent.setBatchSize(batchSize);
 
-        PublicKey recipientKey = mock(PublicKey.class);
-        encryptedTransactionEvent.setRecipientKey(recipientKey);
-
-        when(enclave.getPublicKeys()).thenReturn(Set.of(recipientKey));
-
-        encodedPayloadPublisher.execute(encryptedTransactionEvent);
-
-        verify(enclave).getPublicKeys();
-
-    }
 
     @Test
     public void executeSingleBatch() {
 
-        BatchWorkflowContext encryptedTransactionEvent = new BatchWorkflowContext();
-        encryptedTransactionEvent.setBatchSize(batchSize);
+        BatchWorkflowContext batchWorkflowContext = new BatchWorkflowContext();
+        batchWorkflowContext.setBatchSize(batchSize);
+        batchWorkflowContext.setExpectedTotal(999L);
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        encryptedTransactionEvent.setEncodedPayload(encodedPayload);
+        batchWorkflowContext.setEncodedPayload(encodedPayload);
         PublicKey recipientKey = mock(PublicKey.class);
         Recipient recipient = mock(Recipient.class);
         when(recipient.getUrl()).thenReturn("http://junit.com");
 
-        encryptedTransactionEvent.setRecipientKey(recipientKey);
-        encryptedTransactionEvent.setRecipient(recipient);
+        batchWorkflowContext.setRecipientKey(recipientKey);
+        batchWorkflowContext.setRecipient(recipient);
 
-        when(enclave.getPublicKeys()).thenReturn(Collections.EMPTY_SET);
-
-
-        boolean result = IntStream.range(0,batchSize).allMatch(i -> encodedPayloadPublisher.execute(encryptedTransactionEvent));
+        boolean result = IntStream.range(0,batchSize).allMatch(i -> encodedPayloadPublisher.execute(batchWorkflowContext));
 
         assertThat(result).isTrue();
 
@@ -87,7 +66,6 @@ public class EncodedPayloadPublisherTest {
         List<EncodedPayload> sent = new ArrayList<>(batchSize);
         Collections.fill(sent,encodedPayload);
 
-        verify(enclave,times(batchSize)).getPublicKeys();
         verify(resendBatchPublisher).publishBatch(sent,"http://junit.com");
 
     }
@@ -95,23 +73,22 @@ public class EncodedPayloadPublisherTest {
     @Test
     public void executePartialBatch() {
 
-        BatchWorkflowContext encryptedTransactionEvent = new BatchWorkflowContext();
-        encryptedTransactionEvent.setBatchSize(batchSize);
+        BatchWorkflowContext batchWorkflowContext = new BatchWorkflowContext();
+        batchWorkflowContext.setBatchSize(batchSize);
+        batchWorkflowContext.setExpectedTotal(999L);
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        encryptedTransactionEvent.setEncodedPayload(encodedPayload);
+        batchWorkflowContext.setEncodedPayload(encodedPayload);
         PublicKey recipientKey = mock(PublicKey.class);
         Recipient recipient = mock(Recipient.class);
         when(recipient.getUrl()).thenReturn("http://junit.com");
 
-        encryptedTransactionEvent.setRecipientKey(recipientKey);
-        encryptedTransactionEvent.setRecipient(recipient);
-
-        when(enclave.getPublicKeys()).thenReturn(Collections.EMPTY_SET);
+        batchWorkflowContext.setRecipientKey(recipientKey);
+        batchWorkflowContext.setRecipient(recipient);
 
 
         boolean result = IntStream.range(0,batchSize)
-            .allMatch(i -> encodedPayloadPublisher.execute(encryptedTransactionEvent));
+            .allMatch(i -> encodedPayloadPublisher.execute(batchWorkflowContext));
 
         assertThat(result).isTrue();
 
@@ -120,7 +97,6 @@ public class EncodedPayloadPublisherTest {
         List<EncodedPayload> sent = new ArrayList<>(batchSize);
         Collections.fill(sent,encodedPayload);
 
-        verify(enclave,times(batchSize)).getPublicKeys();
         verify(resendBatchPublisher).publishBatch(sent,"http://junit.com");
 
     }

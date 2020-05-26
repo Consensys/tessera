@@ -1,8 +1,6 @@
 package com.quorum.tessera.recover.resend;
 
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.ResendBatchPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,17 +12,13 @@ public class EncodedPayloadPublisher implements BatchWorkflowAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncodedPayloadPublisher.class);
 
-    private Enclave enclave;
-
     private List<EncodedPayload> payloads;
 
     private ResendBatchPublisher resendBatchPublisher;
 
     private long messageCounter = 0L;
 
-    public EncodedPayloadPublisher(Enclave enclave,
-                                   ResendBatchPublisher resendBatchPublisher) {
-        this.enclave = enclave;
+    public EncodedPayloadPublisher(ResendBatchPublisher resendBatchPublisher) {
         this.resendBatchPublisher = resendBatchPublisher;
         this.payloads = new ArrayList<>();
     }
@@ -34,18 +28,11 @@ public class EncodedPayloadPublisher implements BatchWorkflowAction {
 
         final int batchSize = event.getBatchSize();
 
-        final PublicKey recipientKey = event.getRecipientKey();
-
-        if (enclave.getPublicKeys().contains(recipientKey)) {
-            // we are trying to send something to ourselves - don't do it
-            LOGGER.debug(
-                "Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
-            return true;
-        }
-
         payloads.add(event.getEncodedPayload());
 
-        if((payloads.size() == batchSize)) {
+        long total = event.getExpectedTotal();
+
+        if((payloads.size() == batchSize || total <= payloads.size()) || messageCounter >= total) {
             resendBatchPublisher.publishBatch(payloads, event.getRecipient().getUrl());
             messageCounter += payloads.size();
             payloads.clear();

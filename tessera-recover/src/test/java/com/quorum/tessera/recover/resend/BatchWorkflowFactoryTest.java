@@ -29,7 +29,7 @@ public class BatchWorkflowFactoryTest {
     @Test
     public void loadMockBatchWorkflowFactory() {
 
-        BatchWorkflowFactory batchWorkflowFactory = BatchWorkflowFactory.newFactory(enclave, payloadEncoder, partyInfoService, resendBatchPublisher);
+        BatchWorkflowFactory batchWorkflowFactory = BatchWorkflowFactory.newFactory(enclave, payloadEncoder, partyInfoService, resendBatchPublisher,99L);
 
         assertThat(batchWorkflowFactory).isExactlyInstanceOf(MockBatchWorkflowFactory.class);
     }
@@ -42,6 +42,7 @@ public class BatchWorkflowFactoryTest {
         batchWorkflowFactory.setPayloadEncoder(payloadEncoder);
         batchWorkflowFactory.setEnclave(enclave);
         batchWorkflowFactory.setPartyInfoService(partyInfoService);
+        batchWorkflowFactory.setTransactionCount(999L);
 
         BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
 

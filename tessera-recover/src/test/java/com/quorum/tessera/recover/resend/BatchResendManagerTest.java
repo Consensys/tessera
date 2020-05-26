@@ -131,10 +131,10 @@ public class BatchResendManagerTest {
 
     @Test
     public void calculateBatchCount() {
-        long total = 10;
-        long batchSize = 3;
+        long numberOfRecords = 10;
+        long maxResults = 3;
 
-        int batchCount = BatchResendManagerImpl.calculateBatchCount(batchSize,total);
+        int batchCount = BatchResendManagerImpl.calculateBatchCount(maxResults,numberOfRecords);
 
         assertThat(batchCount).isEqualTo(4);
 
@@ -142,12 +142,12 @@ public class BatchResendManagerTest {
 
     @Test
     public void calculateBatchCountTotalLowerThanBatchSizeIsSingleBatch() {
-        long total = 10;
-        long batchSize = 15;
+        long numberOfRecords = 100;
+        long maxResults = 10;
 
-        int batchCount = BatchResendManagerImpl.calculateBatchCount(batchSize,total);
+        int batchCount = BatchResendManagerImpl.calculateBatchCount(maxResults,numberOfRecords);
 
-        assertThat(batchCount).isEqualTo(1);
+        assertThat(batchCount).isEqualTo(10);
 
     }
 

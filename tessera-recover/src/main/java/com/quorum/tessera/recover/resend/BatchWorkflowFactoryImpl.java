@@ -6,6 +6,7 @@ import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.ResendBatchPublisher;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 
 public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
@@ -18,10 +19,11 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
 
     private ResendBatchPublisher resendBatchPublisher;
 
+    private long transactionCount;
+
     public void setEnclave(Enclave enclave) {
         this.enclave = enclave;
     }
-
 
     public void setPayloadEncoder(PayloadEncoder payloadEncoder) {
         this.payloadEncoder = payloadEncoder;
@@ -35,6 +37,9 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
         this.resendBatchPublisher = resendBatchPublisher;
     }
 
+    public void setTransactionCount(long transactionCount) {
+        this.transactionCount = transactionCount;
+    }
 
     @Override
     public BatchWorkflow create() {
@@ -45,18 +50,26 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
         FindRecipientFromPartyInfo findRecipientFromPartyInfo = new FindRecipientFromPartyInfo(partyInfoService);
         FilterPayload filterPayload = new FilterPayload(enclave);
         SearchRecipentKeyForPayload searchRecipentKeyForPayload = new SearchRecipentKeyForPayload(enclave);
-        EncodedPayloadPublisher encodedPayloadPublisher = new EncodedPayloadPublisher(enclave, resendBatchPublisher);
+        SenderIsNotRecipient senderIsNotRecipient = new SenderIsNotRecipient(enclave);
+        EncodedPayloadPublisher encodedPayloadPublisher = new EncodedPayloadPublisher(resendBatchPublisher);
 
-        List<BatchWorkflowAction> handlers = List.of(validateEnclaveStatus, decodePayloadHandler,filterPayload, preparePayloadForRecipient, searchRecipentKeyForPayload, findRecipientFromPartyInfo, encodedPayloadPublisher);
+        List<BatchWorkflowAction> handlers = List.of(validateEnclaveStatus, decodePayloadHandler,filterPayload, preparePayloadForRecipient, searchRecipentKeyForPayload, findRecipientFromPartyInfo,senderIsNotRecipient, encodedPayloadPublisher);
 
         return new BatchWorkflow() {
 
+            private final AtomicLong filteredMessageCount = new AtomicLong(transactionCount);
+
             @Override
             public boolean execute(BatchWorkflowContext context) {
-                return handlers.stream()
+                boolean outcome = handlers.stream()
                     .filter(Predicate.not(h -> h.execute(context)))
                     .findFirst()
                     .isEmpty();
+
+                if(outcome) {
+                    context.setExpectedTotal(filteredMessageCount.decrementAndGet());
+                }
+                return outcome;
             }
 
             @Override

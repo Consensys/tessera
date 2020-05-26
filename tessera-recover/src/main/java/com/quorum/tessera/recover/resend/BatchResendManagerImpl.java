@@ -66,8 +66,8 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     }
 
-    static int calculateBatchCount(long batchSize,long total) {
-        return (int) Math.ceil((double)total / batchSize);
+    static int calculateBatchCount(long maxResults,long total) {
+        return (int) Math.ceil((double)total / maxResults);
     }
 
     @Override
@@ -80,7 +80,8 @@ public class BatchResendManagerImpl implements BatchResendManager {
         final long transactionCount = encryptedTransactionDAO.transactionCount();
         final long batchCount = calculateBatchCount(maxResults,transactionCount);
 
-        final BatchWorkflow batchWorkflow = BatchWorkflowFactory.newFactory(enclave,payloadEncoder,partyInfoService,resendBatchPublisher).create();
+        final BatchWorkflow batchWorkflow = BatchWorkflowFactory
+            .newFactory(enclave,payloadEncoder,partyInfoService,resendBatchPublisher,transactionCount).create();
 
         IntStream.range(0, (int) batchCount)
             .map(i -> i * maxResults)
