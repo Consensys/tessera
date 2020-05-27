@@ -77,7 +77,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
 
         hashesToFind.stream()
                 .filter(Predicate.not(foundHashes::contains))
-                .peek(txHash -> LOGGER.debug("Unable to find affectedContractTransaction {}", txHash));
+                .forEach(txHash -> LOGGER.debug("Unable to find affectedContractTransaction {}", txHash));
 
         return encryptedTransactions.stream()
             .map(
