@@ -73,9 +73,9 @@ public class ResendManagerImpl implements ResendManager {
             // lets compare it against the previous version of the message
             final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
             final boolean same =
-                    Arrays.equals(newDecrypted, oldDecrypted)
-                            && Arrays.equals(payload.getCipherText(), existing.getCipherText())
-                            && (payload.getPrivacyMode() == existing.getPrivacyMode());
+                Arrays.equals(payload.getCipherText(), existing.getCipherText())
+                    && (payload.getPrivacyMode() == existing.getPrivacyMode())
+                        && Arrays.equals(newDecrypted, oldDecrypted);
 
             if (!same) {
                 throw new IllegalArgumentException("Invalid payload provided");

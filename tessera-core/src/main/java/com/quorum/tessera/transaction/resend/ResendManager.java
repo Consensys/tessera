@@ -4,8 +4,8 @@ package com.quorum.tessera.transaction.resend;
 public interface ResendManager {
 
     /**
-     * Decodes, retrieves and/or creates an {@link com.quorum.tessera.transaction.model.EncryptedTransaction} based on
-     * currently stored contents of the node
+     * Decodes, retrieves and/or creates an {@link com.quorum.tessera.data.EncryptedTransaction} based on currently
+     * stored contents of the node
      *
      * @param message the message to be decoded and stored
      */
