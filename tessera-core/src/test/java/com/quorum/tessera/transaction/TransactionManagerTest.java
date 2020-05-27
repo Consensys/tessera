@@ -1389,7 +1389,7 @@ public class TransactionManagerTest {
         PublicKey recipientKey = PublicKey.from("RECIPIENTKEY".getBytes());
 
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
+        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(encodedPayload.getSenderKey()).thenReturn(senderKey);
         when(encodedPayload.getRecipientBoxes())
                 .thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
