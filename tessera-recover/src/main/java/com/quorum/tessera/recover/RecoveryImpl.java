@@ -92,10 +92,9 @@ public class RecoveryImpl implements Recovery {
         final AtomicInteger payloadCount = new AtomicInteger(0);
         final AtomicInteger syncFailureCount = new AtomicInteger(0);
 
-        int offset = 0;
         final int maxResult = BATCH_SIZE;
 
-        while (offset < stagingEntityDAO.countAll()) {
+        for (int offset = 0;offset < stagingEntityDAO.countAll();offset += maxResult) {
 
             final List<StagingTransaction> transactions =
                 stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(offset, maxResult);
@@ -118,8 +117,6 @@ public class RecoveryImpl implements Recovery {
                             return PrivacyMode.PRIVATE_STATE_VALIDATION == t.getPrivacyMode();
                         })
                     .findFirst());
-
-            offset += maxResult;
         }
 
         if (syncFailureCount.get() > 0) {
