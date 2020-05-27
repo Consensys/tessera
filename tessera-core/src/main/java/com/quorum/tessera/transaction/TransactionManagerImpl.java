@@ -327,13 +327,12 @@ public class TransactionManagerImpl implements TransactionManager {
             final EncodedPayload returnValue;
             if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
                 final PublicKey decryptedKey = searchForRecipientKey(payload).orElseThrow(RuntimeException::new);
-                payload.getRecipientKeys().add(decryptedKey);
-                returnValue = payload;
+                returnValue = EncodedPayload.Builder.from(payload)
+                    .withRecipientKey(decryptedKey)
+                    .build();
             } else {
-                // this is our tx
                 returnValue = payloadEncoder.forRecipient(payload, recipientPublicKey);
             }
-
             return new ResendResponse(payloadEncoder.encode(returnValue));
         }
     }
