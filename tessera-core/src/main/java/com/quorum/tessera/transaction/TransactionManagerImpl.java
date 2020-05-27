@@ -242,98 +242,110 @@ public class TransactionManagerImpl implements TransactionManager {
         return new SendResponse(encodedKey);
     }
 
+
+    protected ResendResponse resendAll(PublicKey recipientPublicKey) {
+        int offset = 0;
+
+        while (offset < encryptedTransactionDAO.transactionCount()) {
+
+            encryptedTransactionDAO.retrieveTransactions(offset, resendFetchSize).stream()
+                .map(EncryptedTransaction::getEncodedPayload)
+                .map(payloadEncoder::decode)
+                .filter(
+                    payload -> {
+                        final boolean isRecipient = payload.getRecipientKeys().contains(recipientPublicKey);
+                        final boolean isSender = Objects.equals(payload.getSenderKey(), recipientPublicKey);
+                        return isRecipient || isSender;
+                    })
+                .forEach(
+                    payload -> {
+                        final EncodedPayload prunedPayload;
+
+                        if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
+                            if (payload.getRecipientKeys().isEmpty()) {
+                                // TODO Should we stop the whole resend just because we could not find a key
+                                // for a tx? Log instead?
+                                // a malicious party may be able to craft TXs that prevent others from
+                                // performing resends
+                                final PublicKey decryptedKey =
+                                    searchForRecipientKey(payload)
+                                        .orElseThrow(
+                                            () -> {
+                                                final MessageHash hash =
+                                                    MessageHashFactory.create()
+                                                        .createFromCipherText(
+                                                            payload
+                                                                .getCipherText());
+                                                return new RecipientKeyNotFoundException(
+                                                    "No key found as recipient of message "
+                                                        + hash);
+                                            });
+
+                                prunedPayload = payloadEncoder.withRecipient(payload, decryptedKey);
+                            } else {
+                                prunedPayload = payload;
+                            }
+                        } else {
+                            prunedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
+                        }
+
+                        try {
+                            if (!enclave.getPublicKeys().contains(recipientPublicKey)) {
+                                partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
+                            }
+                        } catch (PublishPayloadException ex) {
+                            LOGGER.warn(
+                                "Unable to publish payload to recipient {} during resend",
+                                recipientPublicKey.encodeToBase64());
+                        }
+                    });
+
+            offset += resendFetchSize;
+        }
+
+        return new ResendResponse();
+    }
+
+    protected ResendResponse resendIndividual(PublicKey recipientPublicKey,MessageHash messageHash) {
+
+        final EncryptedTransaction encryptedTransaction =
+            encryptedTransactionDAO
+                .retrieveByHash(messageHash)
+                .orElseThrow(
+                    () ->
+                        new TransactionNotFoundException(
+                            "Message with hash " + messageHash + " was not found"));
+
+        final EncodedPayload payload = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
+
+        final EncodedPayload returnValue;
+        if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
+            final PublicKey decryptedKey = searchForRecipientKey(payload).orElseThrow(RuntimeException::new);
+            returnValue = EncodedPayload.Builder.from(payload)
+                .withRecipientKey(decryptedKey)
+                .build();
+        } else {
+            returnValue = payloadEncoder.forRecipient(payload, recipientPublicKey);
+        }
+        return new ResendResponse(payloadEncoder.encode(returnValue));
+
+    }
+
     @Override
     public ResendResponse resend(ResendRequest request) {
 
         final byte[] publicKeyData = base64Codec.decode(request.getPublicKey());
         PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
+
         if (request.getType() == ResendRequestType.ALL) {
+            return resendAll(recipientPublicKey);
 
-            int offset = 0;
-
-            while (offset < encryptedTransactionDAO.transactionCount()) {
-
-                encryptedTransactionDAO.retrieveTransactions(offset, resendFetchSize).stream()
-                        .map(EncryptedTransaction::getEncodedPayload)
-                        .map(payloadEncoder::decode)
-                        .filter(
-                                payload -> {
-                                    final boolean isRecipient = payload.getRecipientKeys().contains(recipientPublicKey);
-                                    final boolean isSender = Objects.equals(payload.getSenderKey(), recipientPublicKey);
-                                    return isRecipient || isSender;
-                                })
-                        .forEach(
-                                payload -> {
-                                    final EncodedPayload prunedPayload;
-
-                                    if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
-                                        if (payload.getRecipientKeys().isEmpty()) {
-                                            // TODO Should we stop the whole resend just because we could not find a key
-                                            // for a tx? Log instead?
-                                            // a malicious party may be able to craft TXs that prevent others from
-                                            // performing resends
-                                            final PublicKey decryptedKey =
-                                                    searchForRecipientKey(payload)
-                                                            .orElseThrow(
-                                                                    () -> {
-                                                                        final MessageHash hash =
-                                                                                MessageHashFactory.create()
-                                                                                        .createFromCipherText(
-                                                                                                payload
-                                                                                                        .getCipherText());
-                                                                        return new RecipientKeyNotFoundException(
-                                                                                "No key found as recipient of message "
-                                                                                        + hash);
-                                                                    });
-
-                                            prunedPayload = payloadEncoder.withRecipient(payload, decryptedKey);
-                                        } else {
-                                            prunedPayload = payload;
-                                        }
-                                    } else {
-                                        prunedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
-                                    }
-
-                                    try {
-                                        if (!enclave.getPublicKeys().contains(recipientPublicKey)) {
-                                            partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
-                                        }
-                                    } catch (PublishPayloadException ex) {
-                                        LOGGER.warn(
-                                                "Unable to publish payload to recipient {} during resend",
-                                                recipientPublicKey.encodeToBase64());
-                                    }
-                                });
-
-                offset += resendFetchSize;
-            }
-
-            return new ResendResponse();
         } else {
 
             final byte[] hashKey = base64Codec.decode(request.getKey());
             final MessageHash messageHash = new MessageHash(hashKey);
+            return resendIndividual(recipientPublicKey,messageHash);
 
-            final EncryptedTransaction encryptedTransaction =
-                    encryptedTransactionDAO
-                            .retrieveByHash(messageHash)
-                            .orElseThrow(
-                                    () ->
-                                            new TransactionNotFoundException(
-                                                    "Message with hash " + messageHash + " was not found"));
-
-            final EncodedPayload payload = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
-
-            final EncodedPayload returnValue;
-            if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
-                final PublicKey decryptedKey = searchForRecipientKey(payload).orElseThrow(RuntimeException::new);
-                returnValue = EncodedPayload.Builder.from(payload)
-                    .withRecipientKey(decryptedKey)
-                    .build();
-            } else {
-                returnValue = payloadEncoder.forRecipient(payload, recipientPublicKey);
-            }
-            return new ResendResponse(payloadEncoder.encode(returnValue));
         }
     }
 
