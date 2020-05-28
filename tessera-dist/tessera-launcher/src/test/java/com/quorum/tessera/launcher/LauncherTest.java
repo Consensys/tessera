@@ -10,7 +10,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-
 public class LauncherTest extends TestConfig {
 
     @Before
@@ -25,13 +24,14 @@ public class LauncherTest extends TestConfig {
         final List<TesseraServer> servers = MockTesseraServerFactory.getInstance().getHolder();
         assertThat(servers.size()).isEqualTo(3);
 
-        servers.forEach(s -> {
-            try {
-                verify(s).start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        servers.forEach(
+                s -> {
+                    try {
+                        verify(s).start();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
     }
 
     @Test
@@ -39,8 +39,7 @@ public class LauncherTest extends TestConfig {
 
         try {
             Launcher.RECOVERY.launchServer(serverConfig());
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
 
             final List<TesseraServer> servers = MockTesseraServerFactory.getInstance().getHolder();
 
@@ -50,23 +49,15 @@ public class LauncherTest extends TestConfig {
 
             Recovery recoveryManager = MockRecoveryFactory.getInstance().getHolder().get(0);
 
-            verify(recoveryManager).request();
-
-            verify(recoveryManager).stage();
-
-            verify(recoveryManager).sync();
-
+            verify(recoveryManager).recover();
         }
-
-
     }
 
     @Test
     public void testInvalidLaunch() {
         try {
             Launcher.NORMAL.launchServer(invalidConfig());
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             assertThat(ex).isInstanceOf(IllegalStateException.class).hasMessageContaining("Cant create app for ADMIN");
         }
     }

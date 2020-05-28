@@ -9,19 +9,18 @@ import java.util.Objects;
 public class StagingAffectedTransaction {
 
     @Id
-    @GeneratedValue(generator = "ATOMIC_LONG",strategy = GenerationType.AUTO)
+    @GeneratedValue(generator = "ATOMIC_LONG", strategy = GenerationType.AUTO)
     @Column(name = "ID")
     private Long id;
 
     @NotNull
     @ManyToOne
-    @JoinColumn(name = "TXN_ID", referencedColumnName = "ID",nullable = false)
+    @JoinColumn(name = "TXN_ID", referencedColumnName = "ID", nullable = false)
     private StagingTransaction sourceTransaction;
 
     @Basic
-    @Column(name = "AFFECTED_HASH", nullable = false, unique = false, updatable = false)
+    @Column(name = "AFFECTED_HASH", nullable = false, updatable = false)
     private String hash;
-
 
     public Long getId() {
         return id;
@@ -30,7 +29,6 @@ public class StagingAffectedTransaction {
     public void setId(Long id) {
         this.id = id;
     }
-
 
     public StagingTransaction getSourceTransaction() {
         return sourceTransaction;
@@ -48,13 +46,13 @@ public class StagingAffectedTransaction {
         this.hash = hash;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StagingAffectedTransaction that = (StagingAffectedTransaction) o;
-        return Objects.equals(sourceTransaction.getHash(), that.sourceTransaction.getHash())&& Objects.equals(hash, that.hash);
+        return Objects.equals(sourceTransaction.getHash(), that.sourceTransaction.getHash())
+                && Objects.equals(hash, that.hash);
     }
 
     @Override
