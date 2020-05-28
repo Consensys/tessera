@@ -9,6 +9,7 @@ import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import db.DatabaseServer;
 import db.SetupDatabase;
+import db.UncheckedSQLException;
 import exec.ExecManager;
 import exec.NodeExecManager;
 import exec.RecoveryExecManager;
@@ -26,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -106,7 +108,7 @@ public class RecoverIT {
 
             List<String> recipients =  partyHelper.getParties()
                 .map(Party::getPublicKey)
-                .filter(k -> Objects.equals(k,sender.getPublicKey()))
+                .filter(k -> !Objects.equals(k,sender.getPublicKey()))
                 .collect(Collectors.toList());
 
             sendRequest.setTo(recipients.toArray(new String[recipients.size()]));
@@ -121,6 +123,15 @@ public class RecoverIT {
 
         }
 
+
+        Arrays.stream(NodeAlias.values())
+
+            .forEach(a -> {
+            long count = doCount(a);
+            assertThat(count)
+                .describedAs(a + " should have 10 ")
+                .isEqualTo(10L);
+        });
 
 
     }
@@ -158,7 +169,7 @@ public class RecoverIT {
     }
 
 
-    private long doCount(NodeAlias nodeAlias) throws SQLException {
+    private long doCount(NodeAlias nodeAlias)  {
         Party party = partyHelper.findByAlias(nodeAlias);
         Connection connection = party.getDatabaseConnection();
         try(connection) {
@@ -173,6 +184,8 @@ public class RecoverIT {
                     return resultSet.getLong(1);
                 }
             }
+        }catch (SQLException ex) {
+            throw new UncheckedSQLException(ex);
         }}
 
 }
