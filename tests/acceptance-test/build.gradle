@@ -64,20 +64,20 @@ test {
 
     include(
             '**/RecoverIT.class',
-//           '**/RestSuiteHttpH2RemoteEnclave.class',
-//            '**/RestSuiteHttpHSQL.class',
-//            '**/RestSuiteUnixH2.class',
-//            '**/RestSuiteHttpSqllite.class',
-//            '**/RestSuiteHttpH2.class',
-//            '**/SendWithRemoteEnclaveReconnectIT.class',
-//            '**/RestSuiteHttpqlite.class',
-//            '**/CucumberWhitelistIT.class',
-//            '**/ConfigMigrationIT.class',
-//            '**/RestSuiteUnixH2.class',
-//            '**/CucumberFileKeyGenerationIT.class',
-//            '**/P2pTestSuite.class',
-//            '**/RunAwsIT.class',
-//            '**/RunAzureIT.class'
+           '**/RestSuiteHttpH2RemoteEnclave.class',
+            '**/RestSuiteHttpHSQL.class',
+            '**/RestSuiteUnixH2.class',
+            '**/RestSuiteHttpSqllite.class',
+            '**/RestSuiteHttpH2.class',
+            '**/SendWithRemoteEnclaveReconnectIT.class',
+            '**/RestSuiteHttpqlite.class',
+            '**/CucumberWhitelistIT.class',
+            '**/ConfigMigrationIT.class',
+            '**/RestSuiteUnixH2.class',
+            '**/CucumberFileKeyGenerationIT.class',
+            '**/P2pTestSuite.class',
+            '**/RunAwsIT.class',
+            '**/RunAzureIT.class'
     )
 
     if (project.hasProperty('excludeTests')) {
@@ -153,12 +153,12 @@ clean {
     delete buildDir
 }
 
-
 task list(dependsOn: configurations.compileClasspath) {
     doLast {
         println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
     }
 }
+
 
 
 test.dependsOn clean,copyJdbcJars,unzipDdl

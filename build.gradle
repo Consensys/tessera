@@ -370,10 +370,6 @@ subprojects {
     }
 
 
-    test {
-        exclude '**/*IT.class'
-    }
-
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
     check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification
 

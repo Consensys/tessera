@@ -106,7 +106,7 @@ public class RecoverIT {
 
             sendRequest.setFrom(sender.getPublicKey());
 
-            List<String> recipients =  partyHelper.getParties()
+            List<String> recipients = partyHelper.getParties()
                 .map(Party::getPublicKey)
                 .filter(k -> !Objects.equals(k,sender.getPublicKey()))
                 .collect(Collectors.toList());
@@ -169,7 +169,7 @@ public class RecoverIT {
     }
 
 
-    private long doCount(NodeAlias nodeAlias)  {
+    private long doCount(NodeAlias nodeAlias) {
         Party party = partyHelper.findByAlias(nodeAlias);
         Connection connection = party.getDatabaseConnection();
         try(connection) {
