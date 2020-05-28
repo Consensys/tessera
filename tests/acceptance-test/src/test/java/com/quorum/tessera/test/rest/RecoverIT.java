@@ -7,6 +7,7 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import cucumber.api.java8.No;
 import db.DatabaseServer;
 import db.SetupDatabase;
 import db.UncheckedSQLException;
@@ -27,10 +28,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -48,6 +46,8 @@ public class RecoverIT {
     private SetupDatabase setupDatabase;
 
     private PartyHelper partyHelper;
+
+    private static final long TXN_COUNT = 10;
 
     @Before
     public void startNetwork() throws Exception {
@@ -98,7 +98,7 @@ public class RecoverIT {
         executorService.shutdown();
 
         RestUtils utils = new RestUtils();
-        for(int i = 0;i < 10;i++) {
+        for(int i = 0;i < TXN_COUNT;i++) {
             SendRequest sendRequest = new SendRequest();
             sendRequest.setPayload(utils.createTransactionData());
 
@@ -144,9 +144,21 @@ public class RecoverIT {
     @Test
     public void doStuff() throws Exception {
 
-        NodeAlias nodeAlias = NodeAlias.A;
+        List<NodeAlias> aliases = Arrays.asList(NodeAlias.values());
+        Collections.shuffle(aliases);
 
-        assertThat(doCount(nodeAlias)).isEqualTo(10L);
+        for(NodeAlias nodeAlias : aliases) {
+            assertThat(doCount(nodeAlias)).isEqualTo(TXN_COUNT);
+
+            recoverNode(nodeAlias);
+
+        }
+
+    }
+
+
+    void recoverNode(NodeAlias nodeAlias) throws Exception {
+        assertThat(doCount(nodeAlias)).isEqualTo(TXN_COUNT);
 
         ExecManager execManager = executors.get(nodeAlias);
         execManager.stop();
@@ -156,15 +168,22 @@ public class RecoverIT {
         assertThat(doCount(nodeAlias)).isZero();
 
         RecoveryExecManager recoveryExecManager = new RecoveryExecManager(execManager.getConfigDescriptor());
-        executors.replace(NodeAlias.A,recoveryExecManager);
+
         Process process = recoveryExecManager.start();
 
         assertThat(true).isTrue();
 
         process.waitFor();
 
+        assertThat(doCount(nodeAlias)).isEqualTo(TXN_COUNT);
 
-        assertThat(doCount(nodeAlias)).isEqualTo(10L);
+        recoveryExecManager.stop();
+
+        NodeExecManager nodeExecManager = new NodeExecManager(execManager.getConfigDescriptor());
+
+        nodeExecManager.start();
+
+        executors.replace(nodeAlias,nodeExecManager);
 
     }
 
