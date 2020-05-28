@@ -3,7 +3,10 @@ package com.quorum.tessera.test.rest;
 import com.quorum.tessera.api.model.SendRequest;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
@@ -16,6 +19,8 @@ import exec.RecoveryExecManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import suite.*;
@@ -32,10 +37,11 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.*;
 
-
+@RunWith(Parameterized.class)
 public class RecoverIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecoverIT.class);
@@ -48,9 +54,18 @@ public class RecoverIT {
 
     private static final long TXN_COUNT = 10;
 
+    private Party sender;
+
+    private List<Party> recipients;
+
+    private final PrivacyMode privacyMode;
+
+    public RecoverIT(PrivacyMode privacyMode) {
+        this.privacyMode = privacyMode;
+    }
+
     @Before
     public void startNetwork() throws Exception {
-
         ExecutionContext executionContext =
             ExecutionContext.Builder.create()
                 .with(CommunicationType.REST)
@@ -58,10 +73,14 @@ public class RecoverIT {
                 .with(SocketType.HTTP)
                 .with(EnclaveType.LOCAL)
                 .with(EncryptorType.NACL)
-                .prefix(getClass().getSimpleName().toLowerCase())
+                .prefix(RecoverIT.class.getSimpleName().toLowerCase())
                 .createAndSetupContext();
 
         partyHelper = PartyHelper.create();
+        sender = partyHelper.findByAlias(NodeAlias.A);
+        recipients = partyHelper.getParties()
+            .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
+            .collect(Collectors.toList());
 
         String nodeId = NodeId.generate(executionContext);
         DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
@@ -96,35 +115,9 @@ public class RecoverIT {
         }
         executorService.shutdown();
 
-        RestUtils utils = new RestUtils();
-        for(int i = 0;i < TXN_COUNT;i++) {
-            SendRequest sendRequest = new SendRequest();
-            sendRequest.setPayload(utils.createTransactionData());
-
-            Party sender = partyHelper.findByAlias(NodeAlias.A);
-
-            sendRequest.setFrom(sender.getPublicKey());
-
-            List<String> recipients = partyHelper.getParties()
-                .map(Party::getPublicKey)
-                .filter(k -> !Objects.equals(k,sender.getPublicKey()))
-                .collect(Collectors.toList());
-
-            sendRequest.setTo(recipients.toArray(new String[recipients.size()]));
-            sendRequest.setPrivacyFlag(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
-
-           Response response = sender.getRestClientWebTarget()
-                .path("send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-           assertThat(response.getStatus()).isEqualTo(201);
-
-        }
-
+        sendTxns(privacyMode);
 
         Arrays.stream(NodeAlias.values())
-
             .forEach(a -> {
             long count = doCount(a);
             assertThat(count)
@@ -136,9 +129,70 @@ public class RecoverIT {
     }
 
     @After
-    public void stopNetwork() {
+    public void stopNetwork() throws Exception {
+        ExecutionContext.destroyContext();
         executors.values().forEach(ExecManager::stop);
+        setupDatabase.dropAll();
     }
+
+    byte[] createPayload(PrivacyMode privacyMode) {
+
+        if(privacyMode == PrivacyMode.STANDARD_PRIVATE) {
+            return new RestUtils().createTransactionData();
+        }
+        PublicKey senderKey = extractKey(sender);
+
+        List<PublicKey> recipientKeys = recipients.stream()
+            .map(RecoverIT::extractKey)
+            .collect(Collectors.toList());
+
+        PayloadEncoder payloadEncoder = PayloadEncoder.create();
+        EncodedPayload encodedPayload = EncodedPayload.Builder.create()
+            .withRecipientKeys(recipientKeys)
+            .withPrivacyMode(privacyMode)
+            .withSenderKey(senderKey)
+            .withCipherText("CIPHER".getBytes())
+            .withCipherTextNonce("NONCE".getBytes())
+            .withRecipientNonce("RECIPIENT_NONCE".getBytes())
+            .build();
+        return payloadEncoder.encode(encodedPayload);
+
+
+    }
+
+    static PublicKey extractKey(Party party) {
+        return Optional.of(party)
+            .map(Party::getPublicKey)
+            .map(Base64.getDecoder()::decode)
+            .map(PublicKey::from)
+            .get();
+    }
+
+    void sendTxns(PrivacyMode privacyMode) {
+
+        for(int i = 0;i < TXN_COUNT;i++) {
+            SendRequest sendRequest = new SendRequest();
+
+            sendRequest.setPayload(createPayload(privacyMode));
+            sendRequest.setFrom(sender.getPublicKey());
+
+            List<String> recipientList = recipients.stream()
+                .map(Party::getPublicKey)
+                .collect(Collectors.toList());
+
+            sendRequest.setTo(recipientList.toArray(new String[recipientList.size()]));
+            sendRequest.setPrivacyFlag(privacyMode.getPrivacyFlag());
+
+            Response response = sender.getRestClientWebTarget()
+                .path("send")
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+            assertThat(response.getStatus()).isEqualTo(201);
+        }
+    }
+
+
 
     @Test
     public void doStuff() throws Exception {
@@ -205,5 +259,10 @@ public class RecoverIT {
         }catch (SQLException ex) {
             throw new UncheckedSQLException(ex);
         }}
+
+        @Parameterized.Parameters(name = "Private mode : {0}")
+        public static Collection<PrivacyMode> privacyModes() {
+            return Arrays.asList(PrivacyMode.values());
+        }
 
 }
