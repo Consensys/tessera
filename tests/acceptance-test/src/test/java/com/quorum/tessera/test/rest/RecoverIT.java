@@ -7,7 +7,6 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import cucumber.api.java8.No;
 import db.DatabaseServer;
 import db.SetupDatabase;
 import db.UncheckedSQLException;
