@@ -3,7 +3,6 @@ package com.quorum.tessera.launcher;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.recover.Recovery;
 import com.quorum.tessera.recover.RecoveryFactory;
-import com.quorum.tessera.recover.RecoveryResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +16,7 @@ public class MockRecoveryFactory implements RecoveryFactory {
 
     public static MockRecoveryFactory instance = new MockRecoveryFactory();
 
-    public MockRecoveryFactory(){
-    }
+    public MockRecoveryFactory() {}
 
     @Override
     public Recovery create(Config config) {
@@ -27,9 +25,7 @@ public class MockRecoveryFactory implements RecoveryFactory {
 
     private Recovery create() {
         Recovery mockRecoveryManager = mock(Recovery.class);
-        when(mockRecoveryManager.request()).thenReturn(RecoveryResult.SUCCESS);
-        when(mockRecoveryManager.stage()).thenReturn(RecoveryResult.SUCCESS);
-        when(mockRecoveryManager.sync()).thenThrow(RuntimeException.class);
+        when(mockRecoveryManager.recover()).thenThrow(RuntimeException.class);
         instance.getHolder().add(mockRecoveryManager);
         return mockRecoveryManager;
     }
@@ -38,9 +34,8 @@ public class MockRecoveryFactory implements RecoveryFactory {
         return getInstance().holder;
     }
 
-
     public static MockRecoveryFactory getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new MockRecoveryFactory();
         }
         return instance;

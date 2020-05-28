@@ -4,9 +4,7 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.apps.TesseraAppFactory;
-import com.quorum.tessera.recover.Recovery;
 import com.quorum.tessera.recover.RecoveryFactory;
-import com.quorum.tessera.recover.RecoveryResult;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import org.slf4j.Logger;
@@ -18,7 +16,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public enum Launcher {
-
     NORMAL {
         @Override
         public void launchServer(Config config) throws Exception {
@@ -97,30 +94,12 @@ public enum Launcher {
             recoveryServer.start();
             LOGGER.debug("Started recovery server");
 
-            final Recovery recoveryManager = RecoveryFactory.newFactory().create(config);
-
             LOGGER.info("Waiting for nodes to synchronise with peers");
             Thread.sleep(10000);
 
-            LOGGER.debug("Requesting transactions from other nodes");
+            final int exitCode = RecoveryFactory.newFactory().create(config).recover();
 
-            RecoveryResult resendResult = recoveryManager.request();
-
-            LOGGER.info("Request resend result : {}", resendResult.toString());
-
-            LOGGER.debug("Perform staging of transactions");
-
-            RecoveryResult sortResult = recoveryManager.stage();
-
-            LOGGER.info("Staging result : {}", sortResult.toString());
-
-            LOGGER.debug("Perform synchronisation of transactions");
-
-            RecoveryResult syncResult = recoveryManager.sync();
-
-            LOGGER.info("Synchronisation result : {}", syncResult.toString());
-
-            System.exit(0);
+            System.exit(exitCode);
         }
     };
 
