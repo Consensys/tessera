@@ -92,12 +92,11 @@ public class RecoveryTest extends RecoveryTestCase {
     @Test
     public void testStagingSuccess() {
 
-        StagingTransaction st1 = mock(StagingTransaction.class);
-        StagingTransaction st2 = mock(StagingTransaction.class);
-        when(st1.getValidationStage()).thenReturn(1L);
-        when(st2.getValidationStage()).thenReturn(2L);
+        // Staging loop run 3 times until there is no record left
+        when(stagingEntityDAO.updateStageForBatch(anyInt(), eq(1L))).thenReturn(1);
+        when(stagingEntityDAO.updateStageForBatch(anyInt(), eq(2L))).thenReturn(1);
+        when(stagingEntityDAO.updateStageForBatch(anyInt(), eq(3L))).thenReturn(0);
 
-        when(stagingEntityDAO.updateStageForBatch(anyInt(), anyLong())).thenReturn(0);
         when(stagingEntityDAO.countAll()).thenReturn(2L);
         when(stagingEntityDAO.countStaged()).thenReturn(2L);
 
@@ -105,18 +104,13 @@ public class RecoveryTest extends RecoveryTestCase {
 
         assertThat(result).isEqualTo(RecoveryResult.SUCCESS);
 
-        verify(stagingEntityDAO).updateStageForBatch(anyInt(), anyLong());
+        verify(stagingEntityDAO, times(3)).updateStageForBatch(anyInt(), anyLong());
         verify(stagingEntityDAO).countAll();
         verify(stagingEntityDAO).countStaged();
     }
 
     @Test
     public void testStagingPartialSuccess() {
-
-        StagingTransaction st1 = mock(StagingTransaction.class);
-        StagingTransaction st2 = mock(StagingTransaction.class);
-        when(st1.getValidationStage()).thenReturn(1L);
-        when(st2.getValidationStage()).thenReturn(null);
 
         when(stagingEntityDAO.countAll()).thenReturn(2L);
         when(stagingEntityDAO.countStaged()).thenReturn(1L);
@@ -133,11 +127,6 @@ public class RecoveryTest extends RecoveryTestCase {
 
     @Test
     public void testStagingFailed() {
-
-        StagingTransaction st1 = mock(StagingTransaction.class);
-        StagingTransaction st2 = mock(StagingTransaction.class);
-        when(st1.getValidationStage()).thenReturn(null);
-        when(st2.getValidationStage()).thenReturn(null);
 
         when(stagingEntityDAO.updateStageForBatch(anyInt(), anyLong())).thenReturn(0);
 
@@ -274,5 +263,53 @@ public class RecoveryTest extends RecoveryTestCase {
 
         verify(transactionManager).storePayload("payload1".getBytes());
         verify(transactionManager).storePayload("payload2".getBytes());
+    }
+
+    @Test
+    public void testRecoverSuccess() {
+
+        final Recovery recovery = spy(Recovery.class);
+
+        when(recovery.request()).thenReturn(RecoveryResult.SUCCESS);
+        when(recovery.stage()).thenReturn(RecoveryResult.SUCCESS);
+        when(recovery.sync()).thenReturn(RecoveryResult.SUCCESS);
+
+        assertThat(recovery.recover()).isEqualTo(0);
+
+        verify(recovery).request();
+        verify(recovery).stage();
+        verify(recovery).sync();
+    }
+
+    @Test
+    public void testRecoverPartialSuccess() {
+
+        final Recovery recovery = spy(Recovery.class);
+
+        when(recovery.request()).thenReturn(RecoveryResult.PARTIAL_SUCCESS);
+        when(recovery.stage()).thenReturn(RecoveryResult.PARTIAL_SUCCESS);
+        when(recovery.sync()).thenReturn(RecoveryResult.SUCCESS);
+
+        assertThat(recovery.recover()).isEqualTo(1);
+
+        verify(recovery).request();
+        verify(recovery).stage();
+        verify(recovery).sync();
+    }
+
+    @Test
+    public void testRecoverFailed() {
+
+        final Recovery recovery = spy(Recovery.class);
+
+        when(recovery.request()).thenReturn(RecoveryResult.FAILURE);
+        when(recovery.stage()).thenReturn(RecoveryResult.PARTIAL_SUCCESS);
+        when(recovery.sync()).thenReturn(RecoveryResult.SUCCESS);
+
+        assertThat(recovery.recover()).isEqualTo(2);
+
+        verify(recovery).request();
+        verify(recovery).stage();
+        verify(recovery).sync();
     }
 }

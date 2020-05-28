@@ -8,7 +8,6 @@ import java.util.*;
 
 public abstract class RecoveryTestCase {
 
-
     protected PartyInfo getPartyInfo() {
 
         final String url = "http://myurl/";
@@ -18,10 +17,10 @@ public abstract class RecoveryTestCase {
         parties.add(new Party("http://party2"));
         parties.add(new Party("http://party3"));
         parties.add(new Party("http://party4"));
+        parties.add(new Party("http://myurl/"));
 
-        return new PartyInfo(url, Collections.emptySet(),parties);
+        return new PartyInfo(url, Collections.emptySet(), parties);
     }
-
 
     protected Config getConfig() {
         final Config config = new Config();
@@ -51,6 +50,4 @@ public abstract class RecoveryTestCase {
 
         return config;
     }
-
-
 }
