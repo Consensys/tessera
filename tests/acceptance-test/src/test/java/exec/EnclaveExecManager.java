@@ -145,4 +145,9 @@ public class EnclaveExecManager implements ExecManager {
         // EnclaveExecManager enclaveExecManager = new EnclaveExecManager(configFile);
         // enclaveExecManager.start(serverConfig);
     }
+
+    @Override
+    public ConfigDescriptor getConfigDescriptor() {
+        return configDescriptor;
+    }
 }
