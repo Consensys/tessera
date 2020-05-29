@@ -285,10 +285,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    public MessageHash storePayload(byte[] input) {
-
-        final EncodedPayload payload = payloadEncoder.decode(input);
-
+    public MessageHash storePayload(final EncodedPayload payload) {
         final MessageHash transactionHash =
                 Optional.of(payload)
                         .map(EncodedPayload::getCipherText)
@@ -296,13 +293,10 @@ public class TransactionManagerImpl implements TransactionManager {
                         .get();
 
         if (enclave.getPublicKeys().contains(payload.getSenderKey())) {
-
-            this.resendManager.acceptOwnMessage(input);
-
+            this.resendManager.acceptOwnMessage(payload);
         } else {
-
             // this is a tx from someone else
-            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, input));
+            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
             LOGGER.info("Stored payload with hash {}", transactionHash);
         }
 

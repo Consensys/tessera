@@ -260,19 +260,14 @@ public class TransactionManagerTest {
 
     @Test
     public void storePayloadAsRecipient() {
-
-        byte[] input = "SOMEDATA".getBytes();
-
         EncodedPayload payload = mock(EncodedPayload.class);
 
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
 
-        when(payloadEncoder.decode(input)).thenReturn(payload);
-
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(payload);
 
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(payloadEncoder).decode(input);
+        verify(payloadEncoder).encode(payload);
         verify(enclave).getPublicKeys();
     }
 
@@ -280,21 +275,17 @@ public class TransactionManagerTest {
     public void storePayloadWhenWeAreSender() {
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
-        final byte[] input = "SOMEDATA".getBytes();
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
         when(encodedPayload.getSenderKey()).thenReturn(senderKey);
         when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
         when(encodedPayload.getRecipientBoxes()).thenReturn(new ArrayList<>());
         when(encodedPayload.getRecipientKeys()).thenReturn(new ArrayList<>());
 
-        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
 
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(encodedPayload);
 
-        verify(resendManager).acceptOwnMessage(input);
-        verify(payloadEncoder).decode(input);
+        verify(resendManager).acceptOwnMessage(encodedPayload);
         verify(enclave).getPublicKeys();
     }
 

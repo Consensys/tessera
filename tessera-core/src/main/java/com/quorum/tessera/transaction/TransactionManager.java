@@ -1,5 +1,6 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.partyinfo.ResendRequest;
@@ -18,7 +19,7 @@ public interface TransactionManager {
 
     ResendResponse resend(ResendRequest request);
 
-    MessageHash storePayload(byte[] toByteArray);
+    MessageHash storePayload(EncodedPayload transactionPayload);
 
     ReceiveResponse receive(ReceiveRequest request);
 
