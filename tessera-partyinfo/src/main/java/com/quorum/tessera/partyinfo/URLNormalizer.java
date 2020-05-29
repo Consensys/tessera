@@ -12,7 +12,7 @@ public interface URLNormalizer {
                 return url + "/";
             }
         } catch (URISyntaxException ex) {
-            throw new RuntimeException("Invalid URL");
+            throw new RuntimeException(String.format("Invalid URL %s", url));
         }
         return url;
     }

@@ -26,6 +26,20 @@
 
     <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoService"
           factory-bean="partyInfoServiceFactory" factory-method="partyInfoService" />
+    <!-- Party Info management -->
+
+    <bean name="partyInfoStore" class="com.quorum.tessera.partyinfo.PartyInfoStore">
+        <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}"/>
+    </bean>
+
+    <bean name="knownPeerCheckerFactory" class="com.quorum.tessera.partyinfo.KnownPeerCheckerFactory"/>
+
+    <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
+        <constructor-arg ref="partyInfoStore"/>
+        <constructor-arg ref="enclave"/>
+        <constructor-arg ref="payloadPublisher"/>
+        <constructor-arg ref="knownPeerCheckerFactory"/>
+    </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
@@ -91,26 +105,4 @@
         </bean>
     </beans>
 
-<!--    <beans profile="enable-batch-sync">-->
-
-<!--        <bean id="processControl" class="com.quorum.tessera.transaction.resend.batch.ProcessControlImpl"/>-->
-
-<!--        <bean name="batchTransactionRequester" class="com.quorum.tessera.transaction.resend.batch.BatchTransactionRequesterImpl">-->
-<!--            <constructor-arg ref="enclave" />-->
-<!--            <constructor-arg ref="resendClient" />-->
-<!--            <constructor-arg value="1000" />-->
-<!--        </bean>-->
-
-<!--        <bean name="batchResendSync" class="com.quorum.tessera.transaction.resend.batch.BatchResendSync">-->
-
-<!--            <constructor-arg ref="partyInfoService"/>-->
-<!--            <constructor-arg ref="batchResendManager" />-->
-<!--            <constructor-arg value="#{ systemProperties['BATCH_RESEND_WAIT_TIME'] ?: 30000}" />-->
-
-<!--            <constructor-arg ref="processControl" />-->
-<!--            <constructor-arg ref="batchTransactionRequester" />-->
-
-<!--        </bean>-->
-<!--    </beans>-->
-    
 </beans>

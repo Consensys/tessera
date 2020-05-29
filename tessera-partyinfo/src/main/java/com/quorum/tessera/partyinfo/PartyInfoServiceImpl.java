@@ -28,8 +28,14 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final PayloadPublisher payloadPublisher;
 
+    private final KnownPeerCheckerFactory knownPeerCheckerFactory;
     private final ResendBatchPublisher resendBatchPublisher;
 
+    protected PartyInfoServiceImpl(
+            final PartyInfoStore partyInfoStore,
+            final Enclave enclave,
+            final PayloadPublisher payloadPublisher,
+            final KnownPeerCheckerFactory knownPeerCheckerFactory) {
     public PartyInfoServiceImpl(
             final PartyInfoStore partyInfoStore,
             final Enclave enclave,
@@ -38,6 +44,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.enclave = Objects.requireNonNull(enclave);
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
+        this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory);
         this.resendBatchPublisher = Objects.requireNonNull(resendBatchPublisher);
     }
 
@@ -106,10 +113,9 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         // if it one of our known peers
         final String incomingUrl = partyInfo.getUrl();
 
-        // TODO: should we just check peer is the same or with +"/", instead of just starts with?
-        if (peerUrls.stream().noneMatch(incomingUrl::startsWith)) {
-            final String message = String.format("Peer %s not found in known peer list", partyInfo.getUrl());
-            throw new AutoDiscoveryDisabledException(message);
+        final KnownPeerChecker knownPeerChecker = knownPeerCheckerFactory.create(peerUrls);
+        if (!knownPeerChecker.isKnown(incomingUrl)) {
+            throw new AutoDiscoveryDisabledException(String.format("%s is not a known peer", incomingUrl));
         }
 
         // filter out all keys that aren't from that node

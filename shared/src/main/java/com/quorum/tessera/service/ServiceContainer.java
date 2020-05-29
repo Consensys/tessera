@@ -63,7 +63,7 @@ public class ServiceContainer implements Runnable {
                 LOGGER.debug("Started service {}", service);
             } catch (Throwable ex) {
                 LOGGER.trace(null, ex);
-                LOGGER.warn(
+                LOGGER.error(
                         "Exception thrown : {} While starting service {}",
                         Optional.ofNullable(ex.getCause()).orElse(ex).getMessage(),
                         service);

@@ -18,6 +18,9 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
@@ -44,12 +47,18 @@ public class PartyInfoServiceTest {
 
     private ResendBatchPublisher resendBatchPublisher;
 
+    private KnownPeerChecker knownPeerChecker;
+
     @Before
-    public void onSetUp() throws URISyntaxException {
+    public void onSetUp() {
 
         this.partyInfoStore = mock(PartyInfoStore.class);
         this.enclave = mock(Enclave.class);
         this.payloadPublisher = mock(PayloadPublisher.class);
+        this.knownPeerChecker = mock(KnownPeerChecker.class);
+
+        final KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
+        when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
         this.resendBatchPublisher = mock(ResendBatchPublisher.class);
 
         RUNTIME_CONTEXT
@@ -57,6 +66,8 @@ public class PartyInfoServiceTest {
                 .setPeers(singletonList(java.net.URI.create("http://other-node.com:8080")))
                 .setRemoteKeyValidation(true);
 
+        this.partyInfoService =
+                new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
         this.partyInfoService =
                 new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, resendBatchPublisher);
 
@@ -93,6 +104,7 @@ public class PartyInfoServiceTest {
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(payloadPublisher);
+        verifyNoMoreInteractions(knownPeerChecker);
     }
 
     @Test
@@ -115,31 +127,36 @@ public class PartyInfoServiceTest {
 
     @Test
     public void autoDiscoveryDisabledUnknownPeer() {
-
         RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        when(knownPeerChecker.isKnown("http://SomeUnknownUri")).thenReturn(false);
 
-        final PartyInfo forUpdate = new PartyInfo("SomeUnknownUri", emptySet(), emptySet());
+        final PartyInfo forUpdate = new PartyInfo("http://SomeUnknownUri", emptySet(), emptySet());
 
         final Throwable throwable = catchThrowable(() -> partyInfoService.updatePartyInfo(forUpdate));
 
         assertThat(throwable)
                 .isInstanceOf(AutoDiscoveryDisabledException.class)
-                .hasMessage("Peer SomeUnknownUri not found in known peer list");
+                .hasMessage("http://SomeUnknownUri is not a known peer");
+
+        verify(knownPeerChecker).isKnown("http://SomeUnknownUri");
     }
 
     @Test
-    public void autoDiscoveryDisabledOnlyKnownKeysAdded() {
+    public void autoDiscoveryDisabledOnlySendersKeysAdded() {
 
         RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        when(knownPeerChecker.isKnown("http://known.com:8080")).thenReturn(true);
+        when(knownPeerChecker.isKnown("http://also-known.com:8080")).thenReturn(true);
 
-        Recipient known = new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080");
+        Recipient known = new Recipient(PublicKey.from("known".getBytes()), "http://known.com:8080");
+        Recipient alsoKnown = new Recipient(PublicKey.from("also-known".getBytes()), "http://also-known.com:8080");
         Recipient unknown = new Recipient(PublicKey.from("unknown".getBytes()), "http://unknown.com:8080");
 
-        final PartyInfo forUpdate = new PartyInfo("http://other-node.com:8080", Set.of(known, unknown), emptySet());
+        final PartyInfo forUpdate =
+                new PartyInfo("http://known.com:8080", Set.of(known, alsoKnown, unknown), emptySet());
 
-        assertThat(forUpdate.getRecipients()).hasSize(2);
+        assertThat(forUpdate.getRecipients()).hasSize(3);
 
-        // check that the only added keys were from that node (and our own)
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         partyInfoService.updatePartyInfo(forUpdate);
@@ -151,22 +168,20 @@ public class PartyInfoServiceTest {
 
         assertThat(allRegisteredKeys)
                 .hasSize(1)
-                .containsExactlyInAnyOrder(
-                        new Recipient(PublicKey.from("known".getBytes()), "http://other-node.com:8080"));
+                .containsExactlyInAnyOrder(new Recipient(PublicKey.from("known".getBytes()), "http://known.com:8080"));
 
         verify(partyInfoStore).getPartyInfo();
+        verify(knownPeerChecker).isKnown("http://known.com:8080");
     }
 
     @Test
     public void autoDiscoveryDisabledNoIncomingPeersAdded() {
-
         RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        when(knownPeerChecker.isKnown("http://other-node.com:8080")).thenReturn(true);
 
         final PartyInfo forUpdate =
                 new PartyInfo(
-                        "http://other-node.com:8080",
-                        emptySet(),
-                        Stream.of(new Party("known"), new Party("unknown")).collect(toSet()));
+                        "http://other-node.com:8080", emptySet(), Stream.of(new Party("unknown")).collect(toSet()));
 
         partyInfoService.updatePartyInfo(forUpdate);
 
@@ -175,6 +190,12 @@ public class PartyInfoServiceTest {
 
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore).store(captor.capture());
+
+        final PartyInfo captured = captor.getValue();
+        assertThat(captured.getParties()).hasSize(1);
+        assertThat(captured.getParties().iterator().next().getUrl()).isNotEqualTo("unknown");
+
+        verify(knownPeerChecker).isKnown("http://other-node.com:8080");
     }
 
     @Test
@@ -243,6 +264,19 @@ public class PartyInfoServiceTest {
         }
     }
 
+    @Test
+    public void createWithFactoryConstructor() throws Exception {
+
+        Set<Object> services =
+            Stream.of(mock(Enclave.class), mock(PayloadPublisher.class), mock(PartyInfoStore.class))
+                .collect(Collectors.toSet());
+
+        MockServiceLocator.createMockServiceLocator().setServices(services);
+
+        final PartyInfoServiceFactory factory = PartyInfoServiceFactory.create();
+
+        assertThat(new PartyInfoServiceImpl(factory)).isNotNull();
+    }
 
 
     @Test
@@ -276,26 +310,56 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
+    public void populateStoreStoresKeysFromEnclave() {
+        String p2pUrl = URI;
 
-        java.net.URI uri = java.net.URI.create(URI);
-        PartyInfoStore store = spy(PartyInfoStore.create(uri));
+        KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
+        when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
 
-        PartyInfoServiceImpl partyInfoService =
-                new PartyInfoServiceImpl(store, enclave, payloadPublisher, resendBatchPublisher);
+        PartyInfo current = mock(PartyInfo.class);
+        when(current.getUrl()).thenReturn(p2pUrl);
+        when(partyInfoStore.getPartyInfo()).thenReturn(current);
 
-        final Set<PublicKey> ourKeys =
+        final Set<PublicKey> ourEnclaveKeys =
                 Set.of(PublicKey.from("some-key".getBytes()), PublicKey.from("another-public-key".getBytes()));
 
-        when(enclave.getPublicKeys()).thenReturn(ourKeys);
+        when(enclave.getPublicKeys()).thenReturn(ourEnclaveKeys);
 
         partyInfoService.populateStore();
 
-        verify(store).store(any(PartyInfo.class));
+        ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
+        verify(partyInfoStore).store(captor.capture());
+        List<PartyInfo> captured = captor.getAllValues();
+
+        assertThat(captured).hasSize(1);
+
+        Set<Recipient> capturedRecipients = captured.get(0).getRecipients();
+        assertThat(capturedRecipients).hasSize(2);
+
+        String expectedAdvertisedUrl = String.format("%s/", p2pUrl);
+        Set<Recipient> expected =
+                Set.of(
+                        new Recipient(PublicKey.from("some-key".getBytes()), expectedAdvertisedUrl),
+                        new Recipient(PublicKey.from("another-public-key".getBytes()), expectedAdvertisedUrl));
+        assertThat(capturedRecipients).containsExactlyInAnyOrderElementsOf(expected);
 
         verify(enclave).getPublicKeys();
+        verify(partyInfoStore).getPartyInfo();
     }
 
+    @Test
+    public void connectionIssuesBubbleUp() {
+
+        final String url = "http://myurl";
+
+        when(enclave.getPublicKeys()).thenThrow(UncheckedIOException.class);
+
+        final Throwable throwable = catchThrowable(this.partyInfoService::syncKeys);
+        assertThat(throwable).isInstanceOf(UncheckedIOException.class);
+
+        verify(enclave).getPublicKeys();
+        verify(partyInfoStore).getAdvertisedUrl();
+    }
 
     @Test
     public void fetchedKeysAreAddedToStore() {
@@ -331,16 +395,24 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void connectionIssuesBubbleUp() {
+    public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
 
-        final String url = "http://myurl";
+        java.net.URI uri = java.net.URI.create(URI);
+        PartyInfoStore store = spy(PartyInfoStore.create(uri));
 
-        when(enclave.getPublicKeys()).thenThrow(UncheckedIOException.class);
+        PartyInfoServiceImpl partyInfoService =
+            new PartyInfoServiceImpl(store, enclave, payloadPublisher, resendBatchPublisher);
 
-        final Throwable throwable = catchThrowable(this.partyInfoService::syncKeys);
-        assertThat(throwable).isInstanceOf(UncheckedIOException.class);
+        final Set<PublicKey> ourKeys =
+            Set.of(PublicKey.from("some-key".getBytes()), PublicKey.from("another-public-key".getBytes()));
+
+        when(enclave.getPublicKeys()).thenReturn(ourKeys);
+
+        partyInfoService.populateStore();
+
+        verify(store).store(any(PartyInfo.class));
 
         verify(enclave).getPublicKeys();
-        verify(partyInfoStore).getAdvertisedUrl();
     }
+
 }

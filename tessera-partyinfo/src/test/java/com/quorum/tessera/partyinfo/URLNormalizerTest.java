@@ -1,11 +1,8 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.partyinfo.URLNormalizer;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.*;
 
 
 public class URLNormalizerTest {
@@ -24,10 +21,10 @@ public class URLNormalizerTest {
     @Test
     public void testInvalidUrl() {
         final String invalid = "!@£%$^";
-        assertThatExceptionOfType(RuntimeException.class)
-            .isThrownBy(() -> {
-                URLNormalizer.create().normalize(invalid);
-                failBecauseExceptionWasNotThrown(Exception.class);
-            });
+
+        Throwable ex = catchThrowable(() -> URLNormalizer.create().normalize(invalid));
+
+        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
+        assertThat(ex).hasMessage("Invalid URL " + invalid);
     }
 }

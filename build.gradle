@@ -79,7 +79,6 @@ allprojects {
                 compile "org.glassfish.jersey.core:jersey-common:2.27"
                 compile "org.eclipse.jetty:jetty-unixsocket:"+ jettyVersion
                 compile "org.eclipse.jetty:jetty-server:"+ jettyVersion
-                compile "org.eclipse.jetty.websocket:javax-websocket-server-impl:"+ jettyVersion
                 compile "org.eclipse.jetty:jetty-jndi:"+ jettyVersion
                 compile "org.eclipse.jetty:jetty-plus:"+ jettyVersion
 
@@ -113,6 +112,9 @@ allprojects {
                 compile "javax.annotation:javax.annotation-api:1.3.2"
 
                 compile "org.glassfish:jsonp-jaxrs:1.1.6"
+
+                implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.4'
+                implementation 'com.squareup.retrofit2:adapter-rxjava:2.5.0'
             }
         }
     }
@@ -168,7 +170,7 @@ subprojects {
 
 
     }
-    
+
     jacoco {
         toolVersion = "0.8.5"
     }
@@ -178,10 +180,7 @@ subprojects {
         lineEndings = 'unix'
 
         java {
-
-            target fileTree('**/*.java') {
-                exclude('enclave/enclave-websockets/**/*.java')
-            }
+            target fileTree('**/*.java')
             // indentWithSpaces(4)
             removeUnusedImports()
             // googleJavaFormat().aosp()

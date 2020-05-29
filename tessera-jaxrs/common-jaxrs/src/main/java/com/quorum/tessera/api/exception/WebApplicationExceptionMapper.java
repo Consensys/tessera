@@ -18,7 +18,7 @@ public class WebApplicationExceptionMapper implements ExceptionMapper<WebApplica
         LOGGER.debug("{}", exception.getClass());
         LOGGER.debug("{}", exception.getCause() == null ? "No cause" : exception.getCause().getClass());
 
-        LOGGER.error("{}", exception.getMessage());
+        LOGGER.warn("{}", exception.getMessage());
 
         final Response.Status returnStatus;
         try {
