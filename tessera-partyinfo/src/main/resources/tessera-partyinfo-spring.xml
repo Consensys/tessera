@@ -26,20 +26,6 @@
 
     <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoService"
           factory-bean="partyInfoServiceFactory" factory-method="partyInfoService" />
-    <!-- Party Info management -->
-
-    <bean name="partyInfoStore" class="com.quorum.tessera.partyinfo.PartyInfoStore">
-        <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}"/>
-    </bean>
-
-    <bean name="knownPeerCheckerFactory" class="com.quorum.tessera.partyinfo.KnownPeerCheckerFactory"/>
-
-    <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
-        <constructor-arg ref="partyInfoStore"/>
-        <constructor-arg ref="enclave"/>
-        <constructor-arg ref="payloadPublisher"/>
-        <constructor-arg ref="knownPeerCheckerFactory"/>
-    </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>

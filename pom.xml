@@ -323,7 +323,7 @@
 
                         <configuration>
                             <excludes>
-                                <exclude>com/quorum/tessera/launcher/Main*</exclude>
+                                <exclude>com/quorum/tessera/launcher/*</exclude>
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/passwords/ConsolePasswordReader*</exclude>
@@ -699,8 +699,8 @@
                 <artifactId>encryption-ec</artifactId>
                 <version>0.10.6-SNAPSHOT</version>
             </dependency>
-            
-            
+
+
             <dependency>
                 <groupId>com.jpmorgan.quorum</groupId>
                 <artifactId>tessera-context</artifactId>

@@ -29,7 +29,7 @@ public class SetupDatabase {
     public void setUp(NodeAlias nodeAlias) throws Exception {
         URL ddl = executionContext.getDbType().getDdl();
         List<String> lines = Files.readAllLines(Paths.get(ddl.toURI()));
-        try(Connection connection = getConnection(nodeAlias)) {
+        try (Connection connection = getConnection(nodeAlias)) {
             try (Statement statement = connection.createStatement()) {
                 for (String line : lines) {
                     LOGGER.trace("Create table SQL : {}", line);
@@ -37,7 +37,6 @@ public class SetupDatabase {
                 }
             }
         }
-
     }
 
     public void setUp() throws Exception {
@@ -67,24 +66,25 @@ public class SetupDatabase {
     }
 
     private Connection getConnection(NodeAlias nodeAlias) {
-        return executionContext.getConfigs().stream().filter(c -> c.getAlias() == nodeAlias)
-            .map(ConfigDescriptor::getConfig)
-            .map(Config::getJdbcConfig)
-            .map(
-                j -> {
-                    try {
-                        LOGGER.info("{}", j.getUrl());
-                        return DriverManager.getConnection(j.getUrl(), j.getUsername(), j.getPassword());
-                    } catch (SQLException ex) {
-                        throw new UncheckedSQLException(ex);
-                    }
-                }).findFirst().get();
+        return executionContext.getConfigs().stream()
+                .filter(c -> c.getAlias() == nodeAlias)
+                .map(ConfigDescriptor::getConfig)
+                .map(Config::getJdbcConfig)
+                .map(
+                        j -> {
+                            try {
+                                LOGGER.info("{}", j.getUrl());
+                                return DriverManager.getConnection(j.getUrl(), j.getUsername(), j.getPassword());
+                            } catch (SQLException ex) {
+                                throw new UncheckedSQLException(ex);
+                            }
+                        })
+                .findFirst()
+                .get();
     }
 
     private List<Connection> getConnections() {
-        return Arrays.stream(NodeAlias.values())
-            .map(this::getConnection)
-            .collect(Collectors.toList());
+        return Arrays.stream(NodeAlias.values()).map(this::getConnection).collect(Collectors.toList());
     }
 
     public void drop(NodeAlias nodeAlias) throws SQLException {
@@ -112,7 +112,6 @@ public class SetupDatabase {
                 }
             }
         }
-
     }
 
     public void dropAll() throws Exception {

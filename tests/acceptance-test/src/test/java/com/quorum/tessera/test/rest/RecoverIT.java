@@ -46,7 +46,7 @@ public class RecoverIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecoverIT.class);
 
-    private Map<NodeAlias,ExecManager> executors;
+    private Map<NodeAlias, ExecManager> executors;
 
     private SetupDatabase setupDatabase;
 
@@ -66,21 +66,23 @@ public class RecoverIT {
 
     @Before
     public void startNetwork() throws Exception {
-        ExecutionContext executionContext =
-            ExecutionContext.Builder.create()
-                .with(CommunicationType.REST)
-                .with(DBType.H2)
-                .with(SocketType.HTTP)
-                .with(EnclaveType.LOCAL)
-                .with(EncryptorType.NACL)
-                .prefix(RecoverIT.class.getSimpleName().toLowerCase())
-                .createAndSetupContext();
+        final ExecutionContext executionContext =
+                ExecutionContext.Builder.create()
+                        .with(CommunicationType.REST)
+                        .with(DBType.H2)
+                        .with(SocketType.HTTP)
+                        .with(EnclaveType.LOCAL)
+                        .with(EncryptorType.NACL)
+                        .prefix(RecoverIT.class.getSimpleName().toLowerCase())
+                        .createAndSetupContext();
 
         partyHelper = PartyHelper.create();
         sender = partyHelper.findByAlias(NodeAlias.A);
-        recipients = partyHelper.getParties()
-            .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
-            .collect(Collectors.toList());
+        recipients =
+                partyHelper
+                        .getParties()
+                        .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
+                        .collect(Collectors.toList());
 
         String nodeId = NodeId.generate(executionContext);
         DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
@@ -89,9 +91,10 @@ public class RecoverIT {
         setupDatabase = new SetupDatabase(executionContext);
         setupDatabase.setUp();
 
-       this.executors = executionContext.getConfigs().stream()
-            .map(NodeExecManager::new)
-           .collect(Collectors.toMap(e -> e.getConfigDescriptor().getAlias(),e -> e));
+        this.executors =
+                executionContext.getConfigs().stream()
+                        .map(NodeExecManager::new)
+                        .collect(Collectors.toMap(e -> e.getConfigDescriptor().getAlias(), e -> e));
 
         executors.values().forEach(ExecManager::start);
 
@@ -100,17 +103,17 @@ public class RecoverIT {
         final CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.submit(
-            () -> {
-                while (!partyInfoChecker.hasSynced()) {
-                    try {
-                        Thread.sleep(1000L);
-                    } catch (InterruptedException ex) {
+                () -> {
+                    while (!partyInfoChecker.hasSynced()) {
+                        try {
+                            Thread.sleep(1000L);
+                        } catch (InterruptedException ex) {
+                        }
                     }
-                }
-                partyInfoSyncLatch.countDown();
-            });
+                    partyInfoSyncLatch.countDown();
+                });
 
-        if(!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
+        if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
             fail("Unable to sync party info");
         }
         executorService.shutdown();
@@ -118,14 +121,11 @@ public class RecoverIT {
         sendTxns(privacyMode);
 
         Arrays.stream(NodeAlias.values())
-            .forEach(a -> {
-            long count = doCount(a);
-            assertThat(count)
-                .describedAs(a + " should have 10 ")
-                .isEqualTo(10L);
-        });
-
-
+                .forEach(
+                        a -> {
+                            long count = doCount(a);
+                            assertThat(count).describedAs(a + " should have 10 ").isEqualTo(10L);
+                        });
     }
 
     @After
@@ -137,62 +137,52 @@ public class RecoverIT {
 
     byte[] createPayload(PrivacyMode privacyMode) {
 
-        if(privacyMode == PrivacyMode.STANDARD_PRIVATE) {
+        if (privacyMode == PrivacyMode.STANDARD_PRIVATE) {
             return new RestUtils().createTransactionData();
         }
         PublicKey senderKey = extractKey(sender);
 
-        List<PublicKey> recipientKeys = recipients.stream()
-            .map(RecoverIT::extractKey)
-            .collect(Collectors.toList());
+        List<PublicKey> recipientKeys = recipients.stream().map(RecoverIT::extractKey).collect(Collectors.toList());
 
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
-        EncodedPayload encodedPayload = EncodedPayload.Builder.create()
-            .withRecipientKeys(recipientKeys)
-            .withPrivacyMode(privacyMode)
-            .withSenderKey(senderKey)
-            .withCipherText("CIPHER".getBytes())
-            .withCipherTextNonce("NONCE".getBytes())
-            .withRecipientNonce("RECIPIENT_NONCE".getBytes())
-            .build();
+        EncodedPayload encodedPayload =
+                EncodedPayload.Builder.create()
+                        .withRecipientKeys(recipientKeys)
+                        .withPrivacyMode(privacyMode)
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHER".getBytes())
+                        .withCipherTextNonce("NONCE".getBytes())
+                        .withRecipientNonce("RECIPIENT_NONCE".getBytes())
+                        .build();
         return payloadEncoder.encode(encodedPayload);
-
-
     }
 
     static PublicKey extractKey(Party party) {
-        return Optional.of(party)
-            .map(Party::getPublicKey)
-            .map(Base64.getDecoder()::decode)
-            .map(PublicKey::from)
-            .get();
+        return Optional.of(party).map(Party::getPublicKey).map(Base64.getDecoder()::decode).map(PublicKey::from).get();
     }
 
     void sendTxns(PrivacyMode privacyMode) {
 
-        for(int i = 0;i < TXN_COUNT;i++) {
+        for (int i = 0; i < TXN_COUNT; i++) {
             SendRequest sendRequest = new SendRequest();
 
             sendRequest.setPayload(createPayload(privacyMode));
             sendRequest.setFrom(sender.getPublicKey());
 
-            List<String> recipientList = recipients.stream()
-                .map(Party::getPublicKey)
-                .collect(Collectors.toList());
+            List<String> recipientList = recipients.stream().map(Party::getPublicKey).collect(Collectors.toList());
 
             sendRequest.setTo(recipientList.toArray(new String[recipientList.size()]));
             sendRequest.setPrivacyFlag(privacyMode.getPrivacyFlag());
 
-            Response response = sender.getRestClientWebTarget()
-                .path("send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            Response response =
+                    sender.getRestClientWebTarget()
+                            .path("send")
+                            .request()
+                            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
             assertThat(response.getStatus()).isEqualTo(201);
         }
     }
-
-
 
     @Test
     public void doStuff() throws Exception {
@@ -200,15 +190,12 @@ public class RecoverIT {
         List<NodeAlias> aliases = Arrays.asList(NodeAlias.values());
         Collections.shuffle(aliases);
 
-        for(NodeAlias nodeAlias : aliases) {
+        for (NodeAlias nodeAlias : aliases) {
             assertThat(doCount(nodeAlias)).isEqualTo(TXN_COUNT);
 
             recoverNode(nodeAlias);
-
         }
-
     }
-
 
     void recoverNode(NodeAlias nodeAlias) throws Exception {
         assertThat(doCount(nodeAlias)).isEqualTo(TXN_COUNT);
@@ -236,33 +223,31 @@ public class RecoverIT {
 
         nodeExecManager.start();
 
-        executors.replace(nodeAlias,nodeExecManager);
-
+        executors.replace(nodeAlias, nodeExecManager);
     }
-
 
     private long doCount(NodeAlias nodeAlias) {
         Party party = partyHelper.findByAlias(nodeAlias);
         Connection connection = party.getDatabaseConnection();
-        try(connection) {
+        try (connection) {
 
-            PreparedStatement preparedStatement
-                = connection.prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION");
+            PreparedStatement preparedStatement =
+                    connection.prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION");
 
             try (preparedStatement) {
                 ResultSet resultSet = preparedStatement.executeQuery();
-                try(resultSet) {
+                try (resultSet) {
                     assertThat(resultSet.next()).isTrue();
                     return resultSet.getLong(1);
                 }
             }
-        }catch (SQLException ex) {
+        } catch (SQLException ex) {
             throw new UncheckedSQLException(ex);
-        }}
-
-        @Parameterized.Parameters(name = "Private mode : {0}")
-        public static Collection<PrivacyMode> privacyModes() {
-            return Arrays.asList(PrivacyMode.values());
         }
+    }
 
+    @Parameterized.Parameters(name = "Private mode : {0}")
+    public static Collection<PrivacyMode> privacyModes() {
+        return Arrays.asList(PrivacyMode.values());
+    }
 }

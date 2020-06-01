@@ -43,7 +43,7 @@ public class EncodedPayload {
         this.recipientNonce = recipientNonce;
         this.recipientBoxes = recipientBoxes;
         this.recipientKeys = recipientKeys;
-        this.privacyMode = Objects.requireNonNull(privacyMode);
+        this.privacyMode = privacyMode;
         this.affectedContractTransactions = affectedContractTransactions;
         this.execHash = execHash;
     }
@@ -94,23 +94,24 @@ public class EncodedPayload {
 
         public static Builder from(EncodedPayload encodedPayload) {
 
-            final Map<TxHash,byte[]> affectedContractTransactionMap = encodedPayload.getAffectedContractTransactions().entrySet().stream()
-                .collect(Collectors.toMap(e -> e.getKey(),e -> e.getValue().getData()));
+            final Map<TxHash, byte[]> affectedContractTransactionMap =
+                    encodedPayload.getAffectedContractTransactions().entrySet().stream()
+                            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getData()));
 
-            return create()
-                .withPrivacyMode(encodedPayload.getPrivacyMode())
-                .withSenderKey(encodedPayload.getSenderKey())
-                .withRecipientNonce(encodedPayload.getRecipientNonce())
-                .withRecipientKeys(encodedPayload.getRecipientKeys())
-                .withRecipientBoxes(encodedPayload.getRecipientBoxes().stream().map(RecipientBox::getData).collect(Collectors.toList()))
-                .withPrivacyMode(encodedPayload.getPrivacyMode())
-                .withExecHash(encodedPayload.getExecHash())
-                .withCipherText(encodedPayload.getCipherText())
-                .withCipherTextNonce(encodedPayload.getCipherTextNonce())
-                .withAffectedContractTransactions(affectedContractTransactionMap);
-
+            return create().withPrivacyMode(encodedPayload.getPrivacyMode())
+                    .withSenderKey(encodedPayload.getSenderKey())
+                    .withRecipientNonce(encodedPayload.getRecipientNonce())
+                    .withRecipientKeys(encodedPayload.getRecipientKeys())
+                    .withRecipientBoxes(
+                            encodedPayload.getRecipientBoxes().stream()
+                                    .map(RecipientBox::getData)
+                                    .collect(Collectors.toList()))
+                    .withPrivacyMode(encodedPayload.getPrivacyMode())
+                    .withExecHash(encodedPayload.getExecHash())
+                    .withCipherText(encodedPayload.getCipherText())
+                    .withCipherTextNonce(encodedPayload.getCipherTextNonce())
+                    .withAffectedContractTransactions(affectedContractTransactionMap);
         }
-
 
         private PublicKey senderKey;
 
@@ -196,10 +197,14 @@ public class EncodedPayload {
 
         public EncodedPayload build() {
 
-            Map<TxHash,SecurityHash> affectedTxns = affectedContractTransactions.entrySet().stream()
-                .collect(Collectors.toUnmodifiableMap(e -> e.getKey(),e -> SecurityHash.from(e.getValue())));
+            Map<TxHash, SecurityHash> affectedTxns =
+                    affectedContractTransactions.entrySet().stream()
+                            .collect(
+                                    Collectors.toUnmodifiableMap(
+                                            e -> e.getKey(), e -> SecurityHash.from(e.getValue())));
 
-            List<RecipientBox> recipientBoxes = this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
+            List<RecipientBox> recipientBoxes =
+                    this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
 
             return new EncodedPayload(
                     senderKey,
@@ -219,25 +224,25 @@ public class EncodedPayload {
         }
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EncodedPayload that = (EncodedPayload) o;
-        return Objects.equals(senderKey, that.senderKey) &&
-            Arrays.equals(cipherText, that.cipherText) &&
-            Objects.equals(cipherTextNonce, that.cipherTextNonce) &&
-            Objects.equals(recipientBoxes, that.recipientBoxes) &&
-            Objects.equals(recipientNonce, that.recipientNonce) &&
-            Objects.equals(recipientKeys, that.recipientKeys) &&
-            privacyMode == that.privacyMode &&
-            Arrays.equals(execHash, that.execHash);
+        return Objects.equals(senderKey, that.senderKey)
+                && Arrays.equals(cipherText, that.cipherText)
+                && Objects.equals(cipherTextNonce, that.cipherTextNonce)
+                && Objects.equals(recipientBoxes, that.recipientBoxes)
+                && Objects.equals(recipientNonce, that.recipientNonce)
+                && Objects.equals(recipientKeys, that.recipientKeys)
+                && privacyMode == that.privacyMode
+                && Arrays.equals(execHash, that.execHash);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys, privacyMode);
+        int result =
+                Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys, privacyMode);
         result = 31 * result + Arrays.hashCode(cipherText);
         result = 31 * result + Arrays.hashCode(execHash);
         return result;

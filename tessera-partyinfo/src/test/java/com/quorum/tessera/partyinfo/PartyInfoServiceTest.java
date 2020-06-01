@@ -1,5 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
+import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.enclave.Enclave;
@@ -15,12 +16,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.UncheckedIOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
@@ -45,8 +45,6 @@ public class PartyInfoServiceTest {
 
     private PayloadPublisher payloadPublisher;
 
-    private ResendBatchPublisher resendBatchPublisher;
-
     private KnownPeerChecker knownPeerChecker;
 
     @Before
@@ -59,7 +57,6 @@ public class PartyInfoServiceTest {
 
         final KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
         when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
-        this.resendBatchPublisher = mock(ResendBatchPublisher.class);
 
         RUNTIME_CONTEXT
                 .setP2pServerUri(java.net.URI.create(URI))
@@ -68,8 +65,6 @@ public class PartyInfoServiceTest {
 
         this.partyInfoService =
                 new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
-        this.partyInfoService =
-                new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, resendBatchPublisher);
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
@@ -265,21 +260,6 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void createWithFactoryConstructor() throws Exception {
-
-        Set<Object> services =
-            Stream.of(mock(Enclave.class), mock(PayloadPublisher.class), mock(PartyInfoStore.class))
-                .collect(Collectors.toSet());
-
-        MockServiceLocator.createMockServiceLocator().setServices(services);
-
-        final PartyInfoServiceFactory factory = PartyInfoServiceFactory.create();
-
-        assertThat(new PartyInfoServiceImpl(factory)).isNotNull();
-    }
-
-
-    @Test
     public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIfToggleDisabled() {
         // setup services
         RUNTIME_CONTEXT.setRemoteKeyValidation(false).setDisablePeerDiscovery(false);
@@ -371,15 +351,16 @@ public class PartyInfoServiceTest {
         final PublicKey keyOne = PublicKey.from("KeyOne".getBytes());
         final PublicKey keyTwo = PublicKey.from("KeyTwo".getBytes());
 
-        when(enclave.getPublicKeys())
-            .thenReturn(Set.of(keyOne, keyTwo));
+        when(enclave.getPublicKeys()).thenReturn(Set.of(keyOne, keyTwo));
 
         final List<PartyInfo> result = new ArrayList<>(1);
-        doAnswer(invocation -> {
-            result.add(invocation.getArgument(0));
-            return null;
-        })
-            .when(partyInfoStore).store(any(PartyInfo.class));
+        doAnswer(
+                        invocation -> {
+                            result.add(invocation.getArgument(0));
+                            return null;
+                        })
+                .when(partyInfoStore)
+                .store(any(PartyInfo.class));
 
         partyInfoService.syncKeys();
 
@@ -387,7 +368,7 @@ public class PartyInfoServiceTest {
 
         final PartyInfo updatedStore = result.iterator().next();
         assertThat(updatedStore.getRecipients())
-            .containsExactlyInAnyOrder(new Recipient(keyOne, url), new Recipient(keyTwo, url));
+                .containsExactlyInAnyOrder(new Recipient(keyOne, url), new Recipient(keyTwo, url));
 
         verify(enclave).getPublicKeys();
         verify(partyInfoStore).getAdvertisedUrl();
@@ -395,16 +376,19 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void testStoreIsPopulatedWithOurKeys() throws URISyntaxException {
+    public void testStoreIsPopulatedWithOurKeys() {
 
         java.net.URI uri = java.net.URI.create(URI);
         PartyInfoStore store = spy(PartyInfoStore.create(uri));
 
+        final KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
+        when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
+
         PartyInfoServiceImpl partyInfoService =
-            new PartyInfoServiceImpl(store, enclave, payloadPublisher, resendBatchPublisher);
+                new PartyInfoServiceImpl(store, enclave, payloadPublisher, knownPeerCheckerFactory);
 
         final Set<PublicKey> ourKeys =
-            Set.of(PublicKey.from("some-key".getBytes()), PublicKey.from("another-public-key".getBytes()));
+                Set.of(PublicKey.from("some-key".getBytes()), PublicKey.from("another-public-key".getBytes()));
 
         when(enclave.getPublicKeys()).thenReturn(ourKeys);
 
@@ -414,5 +398,4 @@ public class PartyInfoServiceTest {
 
         verify(enclave).getPublicKeys();
     }
-
 }

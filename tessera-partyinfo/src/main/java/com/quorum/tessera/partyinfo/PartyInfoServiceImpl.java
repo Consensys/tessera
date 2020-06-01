@@ -29,23 +29,16 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     private final PayloadPublisher payloadPublisher;
 
     private final KnownPeerCheckerFactory knownPeerCheckerFactory;
-    private final ResendBatchPublisher resendBatchPublisher;
 
     protected PartyInfoServiceImpl(
             final PartyInfoStore partyInfoStore,
             final Enclave enclave,
             final PayloadPublisher payloadPublisher,
             final KnownPeerCheckerFactory knownPeerCheckerFactory) {
-    public PartyInfoServiceImpl(
-            final PartyInfoStore partyInfoStore,
-            final Enclave enclave,
-            final PayloadPublisher payloadPublisher,
-            final ResendBatchPublisher resendBatchPublisher) {
         this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
         this.enclave = Objects.requireNonNull(enclave);
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
         this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory);
-        this.resendBatchPublisher = Objects.requireNonNull(resendBatchPublisher);
     }
 
     @Override
@@ -74,8 +67,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         partyInfoStore.store(partyInfo);
         LOGGER.debug("Populated party info store {}", partyInfo);
     }
-
-
 
     @Override
     public PartyInfo getPartyInfo() {
@@ -166,7 +157,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         LOGGER.info("Published to {}", targetUrl);
     }
 
-
     /**
      * Fetches local public keys from the Enclave and adds them to the local store. This is useful when the Enclave is
      * remote and can restart with new keys independently of the Transaction Manager
@@ -178,9 +168,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         // fetch keys and create recipients
         final Set<Recipient> ourKeys =
-            this.enclave.getPublicKeys().stream()
-                .map(key -> new Recipient(key, advertisedUrl))
-                .collect(toSet());
+                this.enclave.getPublicKeys().stream().map(key -> new Recipient(key, advertisedUrl)).collect(toSet());
 
         // add to store
         this.partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, emptySet()));

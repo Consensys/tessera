@@ -360,20 +360,20 @@ public class PartyInfoResourceTest {
 
         PartyInfo partyInfo = new PartyInfo(url, recipients, parties);
 
-        byte[] payload = new byte[]{};
+        byte[] payload = new byte[] {};
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
 
         when(enclave.defaultPublicKey()).thenReturn(PublicKey.from("defaultKey".getBytes()));
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
         List<String> uuidList = new ArrayList<>();
         doAnswer(
-            (invocation) -> {
-                byte[] d = invocation.getArgument(0);
-                uuidList.add(new String(d));
-                return encodedPayload;
-            })
-            .when(enclave)
-            .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+                        (invocation) -> {
+                            byte[] d = invocation.getArgument(0);
+                            uuidList.add(new String(d));
+                            return encodedPayload;
+                        })
+                .when(enclave)
+                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), any(), any());
 
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("somedata".getBytes());
 
@@ -388,15 +388,18 @@ public class PartyInfoResourceTest {
         when(response.getStatus()).thenReturn(200);
         when(response.getEntity()).thenReturn("");
 
-        doAnswer(new Answer() {
-            private int i = 0;
+        doAnswer(
+                        new Answer() {
+                            private int i = 0;
 
-            public Object answer(InvocationOnMock invocation) {
-                String result = uuidList.get(i);
-                i++;
-                return result;
-            }
-        }).when(response).readEntity(String.class);
+                            public Object answer(InvocationOnMock invocation) {
+                                String result = uuidList.get(i);
+                                i++;
+                                return result;
+                            }
+                        })
+                .when(response)
+                .readEntity(String.class);
 
         when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
 
@@ -404,7 +407,8 @@ public class PartyInfoResourceTest {
         partyInfoResource.partyInfo(payload);
 
         ArgumentCaptor<byte[]> uuidCaptor = ArgumentCaptor.forClass(byte[].class);
-        verify(enclave, times(2)).encryptPayload(uuidCaptor.capture(), any(PublicKey.class), anyList());
+        verify(enclave, times(2))
+                .encryptPayload(uuidCaptor.capture(), any(PublicKey.class), anyList(), any(), any(), any());
         List<byte[]> capturedUUIDs = uuidCaptor.getAllValues();
         assertThat(capturedUUIDs).hasSize(2);
         assertThat(capturedUUIDs.get(0)).isNotEqualTo(capturedUUIDs.get(1));
