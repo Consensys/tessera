@@ -1,6 +1,4 @@
 package com.quorum.tessera.partyinfo;
-
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.enclave.Enclave;
@@ -20,7 +18,6 @@ import java.util.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.*;
