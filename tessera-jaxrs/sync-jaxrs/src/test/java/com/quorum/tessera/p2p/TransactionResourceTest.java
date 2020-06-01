@@ -1,5 +1,7 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -18,11 +20,14 @@ public class TransactionResourceTest {
 
     private TransactionManager transactionManager;
 
+    private PayloadEncoder payloadEncoder;
+
     @Before
     public void onSetup() {
+        this.transactionManager = mock(TransactionManager.class);
+        this.payloadEncoder = mock(PayloadEncoder.class);
 
-        transactionManager = mock(TransactionManager.class);
-        transactionResource = new TransactionResource(transactionManager);
+        this.transactionResource = new TransactionResource(transactionManager, payloadEncoder);
     }
 
     @After
@@ -32,22 +37,25 @@ public class TransactionResourceTest {
 
     @Test
     public void push() {
-        byte[] someData = "SomeData".getBytes();
-        Response result = transactionResource.push(someData);
+        final byte[] someData = "SomeData".getBytes();
+        final EncodedPayload payload = mock(EncodedPayload.class);
+        when(payloadEncoder.decode(someData)).thenReturn(payload);
+
+        final Response result = transactionResource.push(someData);
+
         assertThat(result.getStatus()).isEqualTo(201);
         assertThat(result.hasEntity()).isTrue();
-        verify(transactionManager).storePayload(someData);
+        verify(transactionManager).storePayload(payload);
     }
 
     @Test
     public void resend() {
-
         ResendRequest resendRequest = mock(ResendRequest.class);
         ResendResponse resendResponse = new ResendResponse("SUCCESS".getBytes());
-
         when(transactionManager.resend(resendRequest)).thenReturn(resendResponse);
 
         Response result = transactionResource.resend(resendRequest);
+
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("SUCCESS".getBytes());
         verify(transactionManager).resend(resendRequest);
