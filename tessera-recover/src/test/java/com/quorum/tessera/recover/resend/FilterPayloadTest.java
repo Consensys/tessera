@@ -15,7 +15,7 @@ import static org.mockito.Mockito.*;
 
 public class FilterPayloadTest {
 
-    private FilterPayload filterPayload;
+    private BatchWorkflowFilter filterPayload;
 
     private Enclave enclave;
 
@@ -31,46 +31,67 @@ public class FilterPayloadTest {
     }
 
     @Test
-    public void executeSenderIsReciever() {
+    public void testCurrentNodeIsSender() {
         BatchWorkflowContext context = new BatchWorkflowContext();
-        PublicKey publicKey = mock(PublicKey.class);
+        PublicKey sender = mock(PublicKey.class);
+        PublicKey recipient = mock(PublicKey.class);
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        when(encodedPayload.getSenderKey()).thenReturn(publicKey);
-        when(encodedPayload.getRecipientKeys()).thenReturn(List.of(publicKey));
+        when(encodedPayload.getSenderKey()).thenReturn(sender);
+        when(encodedPayload.getRecipientKeys()).thenReturn(List.of(sender, recipient));
 
         context.setEncodedPayload(encodedPayload);
-        context.setRecipientKey(publicKey);
+        context.setRecipientKey(recipient);
 
-        when(enclave.getPublicKeys()).thenReturn(Set.of(publicKey));
+        when(enclave.getPublicKeys()).thenReturn(Set.of(sender));
 
-        boolean result = filterPayload.filter(context);
+        boolean result = filterPayload.execute(context);
 
         assertThat(result).isTrue();
 
         verify(enclave).getPublicKeys();
-
     }
 
     @Test
-    public void executeRequestedNodeIsReciever() {
-
+    public void testRequestedNodeIsSender() {
         BatchWorkflowContext context = new BatchWorkflowContext();
+        PublicKey sender = mock(PublicKey.class);
+        PublicKey recipient = mock(PublicKey.class);
 
-        PublicKey publicKey = mock(PublicKey.class);
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        when(encodedPayload.getSenderKey()).thenReturn(publicKey);
-        when(encodedPayload.getRecipientKeys()).thenReturn(List.of(publicKey));
-        context.setEncodedPayload(encodedPayload);
-        context.setRecipientKey(publicKey);
+        when(encodedPayload.getSenderKey()).thenReturn(recipient);
+        when(encodedPayload.getRecipientKeys()).thenReturn(List.of(sender, recipient));
 
-        when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
+        context.setEncodedPayload(encodedPayload);
+        context.setRecipientKey(recipient);
+
+        when(enclave.getPublicKeys()).thenReturn(Set.of(sender));
 
         boolean result = filterPayload.filter(context);
 
         assertThat(result).isTrue();
 
         verify(enclave).getPublicKeys();
+    }
 
+    @Test
+    public void testIrrelevantPayload() {
+        BatchWorkflowContext context = new BatchWorkflowContext();
+        final PublicKey requester = mock(PublicKey.class);
+        final PublicKey recipient = mock(PublicKey.class);
+        final PublicKey thisNode = mock(PublicKey.class);
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getSenderKey()).thenReturn(thisNode);
+        when(encodedPayload.getRecipientKeys()).thenReturn(List.of(thisNode, recipient));
+
+        context.setEncodedPayload(encodedPayload);
+        context.setRecipientKey(requester);
+
+        when(enclave.getPublicKeys()).thenReturn(Set.of(thisNode));
+
+        boolean result = filterPayload.filter(context);
+
+        assertThat(result).isFalse();
     }
 }

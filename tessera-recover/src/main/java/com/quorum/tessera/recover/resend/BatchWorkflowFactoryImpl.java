@@ -53,7 +53,16 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
         SenderIsNotRecipient senderIsNotRecipient = new SenderIsNotRecipient(enclave);
         EncodedPayloadPublisher encodedPayloadPublisher = new EncodedPayloadPublisher(resendBatchPublisher);
 
-        List<BatchWorkflowAction> handlers = List.of(validateEnclaveStatus, decodePayloadHandler,filterPayload, preparePayloadForRecipient, searchRecipentKeyForPayload, findRecipientFromPartyInfo,senderIsNotRecipient, encodedPayloadPublisher);
+        List<BatchWorkflowAction> handlers =
+                List.of(
+                        validateEnclaveStatus,
+                        decodePayloadHandler,
+                        filterPayload,
+                        preparePayloadForRecipient,
+                        searchRecipentKeyForPayload,
+                        findRecipientFromPartyInfo,
+                        senderIsNotRecipient,
+                        encodedPayloadPublisher);
 
         return new BatchWorkflow() {
 
@@ -61,12 +70,14 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
 
             @Override
             public boolean execute(BatchWorkflowContext context) {
-                boolean outcome = handlers.stream()
-                    .filter(Predicate.not(h -> h.execute(context)))
-                    .findFirst()
-                    .isEmpty();
+                boolean outcome =
+                        handlers.stream()
+                                .filter(Predicate.not(h -> h.execute(context)))
+                                .peek(h -> System.out.println(h))
+                                .findFirst()
+                                .isEmpty();
 
-                if(outcome) {
+                if (outcome) {
                     context.setExpectedTotal(filteredMessageCount.decrementAndGet());
                 }
                 return outcome;
