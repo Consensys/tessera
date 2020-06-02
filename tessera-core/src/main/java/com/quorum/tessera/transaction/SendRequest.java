@@ -4,12 +4,13 @@ import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public interface SendRequest {
 
-    PublicKey getFrom();
+    PublicKey getSender();
 
-    List<PublicKey> getTo();
+    List<PublicKey> getRecipients();
 
     byte[] getPayload();
 
@@ -42,15 +43,20 @@ public interface SendRequest {
         }
 
         public SendRequest build() {
+
+            Objects.requireNonNull(from,"Sender is required");
+            Objects.requireNonNull(recipients,"Recipents are required");
+            Objects.requireNonNull(payload,"Payload is required");
+
             return new SendRequest() {
 
                 @Override
-                public PublicKey getFrom() {
+                public PublicKey getSender() {
                     return from;
                 }
 
                 @Override
-                public List<PublicKey> getTo() {
+                public List<PublicKey> getRecipients() {
                     return List.copyOf(recipients);
                 }
 

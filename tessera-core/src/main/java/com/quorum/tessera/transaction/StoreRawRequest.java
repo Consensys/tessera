@@ -3,12 +3,13 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public interface StoreRawRequest {
 
     byte[] getPayload();
 
-    PublicKey getFrom();
+    PublicKey getSender();
 
     class Builder {
 
@@ -30,8 +31,11 @@ public interface StoreRawRequest {
             return this;
         }
 
-
         public StoreRawRequest build() {
+
+            Objects.requireNonNull(payload,"Payload is required");
+            Objects.requireNonNull(sender,"Sender is required");
+
             return new StoreRawRequest() {
 
                 @Override
@@ -40,7 +44,7 @@ public interface StoreRawRequest {
                 }
 
                 @Override
-                public PublicKey getFrom() {
+                public PublicKey getSender() {
                     return sender;
                 }
             };

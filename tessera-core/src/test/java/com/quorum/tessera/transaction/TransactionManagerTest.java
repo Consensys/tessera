@@ -95,8 +95,8 @@ public class TransactionManagerTest {
 
         SendRequest sendRequest = mock(SendRequest.class);
         when(sendRequest.getPayload()).thenReturn(payload);
-        when(sendRequest.getFrom()).thenReturn(sender);
-        when(sendRequest.getTo()).thenReturn(List.of(receiver));
+        when(sendRequest.getSender()).thenReturn(sender);
+        when(sendRequest.getRecipients()).thenReturn(List.of(receiver));
 
         SendResponse result = transactionManager.send(sendRequest);
 
@@ -129,8 +129,8 @@ public class TransactionManagerTest {
 
         SendRequest sendRequest = mock(SendRequest.class);
         when(sendRequest.getPayload()).thenReturn(payload);
-        when(sendRequest.getFrom()).thenReturn(sender);
-        when(sendRequest.getTo()).thenReturn(List.of(receiver));
+        when(sendRequest.getSender()).thenReturn(sender);
+        when(sendRequest.getRecipients()).thenReturn(List.of(receiver));
 
         SendResponse result = transactionManager.send(sendRequest);
 
@@ -968,7 +968,7 @@ public class TransactionManagerTest {
 
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
         StoreRawRequest sendRequest = mock(StoreRawRequest.class);
-        when(sendRequest.getFrom()).thenReturn(PublicKey.from(sender));
+        when(sendRequest.getSender()).thenReturn(PublicKey.from(sender));
         when(sendRequest.getPayload()).thenReturn(payload);
 
         MessageHash expectedHash = messageHashFactory.createFromCipherText("CIPHERTEXT".getBytes());
@@ -1135,5 +1135,13 @@ public class TransactionManagerTest {
 
         verify(payloadEncoder).decode(input);
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+    }
+
+
+    @Test
+    public void defaultPublicKey() {
+        transactionManager.defaultPublicKey();
+        verify(enclave).defaultPublicKey();
+
     }
 }

@@ -266,7 +266,8 @@ public class TransactionResource {
 
         PublicKey recipient = Optional.of(request)
             .map(ReceiveRequest::getTo)
-            .filter(str -> !str.isEmpty())
+            .filter(Predicate.not(String::isEmpty))
+            .filter(Objects::nonNull)
             .map(decoder::decode)
             .map(PublicKey::from)
             .orElse(null);

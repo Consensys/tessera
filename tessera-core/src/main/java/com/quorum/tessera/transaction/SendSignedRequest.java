@@ -4,6 +4,7 @@ import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public interface SendSignedRequest {
 
@@ -32,6 +33,8 @@ public interface SendSignedRequest {
         }
 
         public SendSignedRequest build() {
+            Objects.requireNonNull(signedData,"Signed data is required");
+            Objects.requireNonNull(recipients,"recipients is required");
             return new SendSignedRequest() {
                 @Override
                 public byte[] getSignedData() {

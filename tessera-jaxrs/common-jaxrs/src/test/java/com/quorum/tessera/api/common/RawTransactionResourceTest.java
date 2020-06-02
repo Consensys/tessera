@@ -2,6 +2,7 @@ package com.quorum.tessera.api.common;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.api.StoreRawRequest;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
@@ -43,6 +44,7 @@ public class RawTransactionResourceTest {
         MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
         Set services = new HashSet();
         TransactionManager tm = mock(TransactionManager.class);
+        when(tm.defaultPublicKey()).thenReturn(mock(PublicKey.class));
         services.add(tm);
         serviceLocator.setServices(services);
 
@@ -54,7 +56,7 @@ public class RawTransactionResourceTest {
     private void invokeStoreAndCheck(RawTransactionResource rawTransactionResource, TransactionManager tm) {
         final StoreRawRequest storeRawRequest = new StoreRawRequest();
         storeRawRequest.setPayload("PAYLOAD".getBytes());
-
+        storeRawRequest.setFrom("Sender".getBytes());
         final Response result = rawTransactionResource.store(storeRawRequest);
 
         assertThat(result.getStatus()).isEqualTo(200);

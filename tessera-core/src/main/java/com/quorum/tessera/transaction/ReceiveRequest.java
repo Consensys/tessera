@@ -3,6 +3,7 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
 
+import java.util.Objects;
 import java.util.Optional;
 
 public interface ReceiveRequest {
@@ -34,6 +35,9 @@ public interface ReceiveRequest {
         }
 
         public ReceiveRequest build() {
+
+            Objects.requireNonNull(messageHash,"Message hash is required");
+
             return new ReceiveRequest() {
                 @Override
                 public MessageHash getTransactionHash() {

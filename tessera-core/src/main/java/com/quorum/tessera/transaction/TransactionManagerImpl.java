@@ -94,9 +94,9 @@ public class TransactionManagerImpl implements TransactionManager {
     public SendResponse send(SendRequest sendRequest) {
 
 
-        final PublicKey senderPublicKey = sendRequest.getFrom();
+        final PublicKey senderPublicKey = sendRequest.getSender();
         final List<PublicKey> recipientList = new ArrayList<>();
-        recipientList.addAll(sendRequest.getTo());
+        recipientList.addAll(sendRequest.getRecipients());
         recipientList.add(senderPublicKey);
         recipientList.addAll(enclave.getForwardingKeys());
 
@@ -334,7 +334,7 @@ public class TransactionManagerImpl implements TransactionManager {
         RawTransaction rawTransaction =
                 enclave.encryptRawPayload(
                         storeRequest.getPayload(),
-                        storeRequest.getFrom());
+                        storeRequest.getSender());
         MessageHash hash = messageHashFactory.createFromCipherText(rawTransaction.getEncryptedPayload());
 
         EncryptedRawTransaction encryptedRawTransaction =
