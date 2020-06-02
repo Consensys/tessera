@@ -1,7 +1,7 @@
 package com.quorum.tessera.api.common;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.api.model.StoreRawRequest;
+import com.quorum.tessera.api.StoreRawRequest;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
@@ -58,6 +58,7 @@ public class RawTransactionResourceTest {
         final Response result = rawTransactionResource.store(storeRawRequest);
 
         assertThat(result.getStatus()).isEqualTo(200);
-        verify(tm).store(storeRawRequest);
+        verify(tm).store(any());
+        verify(tm).defaultPublicKey();
     }
 }

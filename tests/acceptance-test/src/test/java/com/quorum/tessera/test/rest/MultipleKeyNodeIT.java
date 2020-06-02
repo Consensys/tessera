@@ -1,7 +1,7 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.api.model.ReceiveResponse;
-import com.quorum.tessera.api.model.SendResponse;
+import com.quorum.tessera.api.ReceiveResponse;
+import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.Party;
 import org.junit.Test;
 

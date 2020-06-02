@@ -1,8 +1,10 @@
 package com.quorum.tessera.api.common;
 
-import com.quorum.tessera.api.model.StoreRawRequest;
-import com.quorum.tessera.api.model.StoreRawResponse;
+
+import com.quorum.tessera.api.StoreRawRequest;
+import com.quorum.tessera.api.StoreRawResponse;
 import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -15,7 +17,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import java.util.Base64;
 import java.util.Objects;
+import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -49,7 +53,23 @@ public class RawTransactionResource {
     @Produces(APPLICATION_JSON)
     public Response store(
             @ApiParam(name = "storeRawRequest", required = true) @NotNull @Valid final StoreRawRequest request) {
-        final StoreRawResponse response = delegate.store(request);
+
+        PublicKey sender = Optional.of(request)
+            .map(StoreRawRequest::getFrom)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .map(Base64.getDecoder()::decode)
+            .map(PublicKey::from)
+            .orElse(delegate.defaultPublicKey());
+
+
+        com.quorum.tessera.transaction.StoreRawRequest storeRawRequest =
+            com.quorum.tessera.transaction.StoreRawRequest.Builder.create()
+                .withSender(sender)
+                .withPayload(request.getPayload())
+                .build();
+
+        final com.quorum.tessera.transaction.StoreRawResponse response = delegate.store(storeRawRequest);
 
         return Response.ok().type(APPLICATION_JSON).entity(response).build();
     }

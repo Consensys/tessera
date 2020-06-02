@@ -19,7 +19,7 @@
 
     <logger name="org.hibernate.validator" level="INFO" />
 
-    <root level="ALL">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
 

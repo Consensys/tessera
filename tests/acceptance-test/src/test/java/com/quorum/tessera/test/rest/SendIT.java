@@ -1,8 +1,9 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.api.model.ReceiveResponse;
-import com.quorum.tessera.api.model.SendRequest;
-import com.quorum.tessera.api.model.SendResponse;
+
+import com.quorum.tessera.api.ReceiveResponse;
+import com.quorum.tessera.api.SendRequest;
+import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.Party;
 import org.junit.Test;
 
@@ -69,7 +70,9 @@ public class SendIT {
 
         ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
 
-        assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
+        assertThat(receiveResponse.getPayload())
+            .describedAs("The response payload should be equal to the sent txn data")
+            .isEqualTo(transactionData);
 
         utils.findTransaction(result.getKey(), partyHelper.findByAlias("A"), partyHelper.findByAlias("B"))
                 .forEach(

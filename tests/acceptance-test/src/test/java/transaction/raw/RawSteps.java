@@ -1,6 +1,6 @@
 package transaction.raw;
 
-import com.quorum.tessera.api.model.ReceiveResponse;
+import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import static com.quorum.tessera.test.rest.RawHeaderName.RECIPIENTS;
