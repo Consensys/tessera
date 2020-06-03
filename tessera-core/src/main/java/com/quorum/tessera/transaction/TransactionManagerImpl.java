@@ -352,19 +352,15 @@ public class TransactionManagerImpl implements TransactionManager {
 
     @Override
     @Transactional
-    public boolean isSender(final String key) {
-        final byte[] hashBytes = base64Decoder.decode(key);
-        final MessageHash hash = new MessageHash(hashBytes);
+    public boolean isSender(final MessageHash hash) {
         final EncodedPayload payload = this.fetchPayload(hash);
         return enclave.getPublicKeys().contains(payload.getSenderKey());
     }
 
     @Override
     @Transactional
-    public List<PublicKey> getParticipants(final String ptmHash) {
-        final byte[] hashBytes = base64Decoder.decode(ptmHash);
-        final MessageHash hash = new MessageHash(hashBytes);
-        final EncodedPayload payload = this.fetchPayload(hash);
+    public List<PublicKey> getParticipants(final MessageHash transactionHash) {
+        final EncodedPayload payload = this.fetchPayload(transactionHash);
 
         // this includes the sender
         return payload.getRecipientKeys();
@@ -380,6 +376,6 @@ public class TransactionManagerImpl implements TransactionManager {
                 .retrieveByHash(hash)
                 .map(EncryptedTransaction::getEncodedPayload)
                 .map(payloadEncoder::decode)
-                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + hash + " was not found"));
+                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + base64Decoder.encodeToString(hash.getHashBytes()) + " was not found"));
     }
 }

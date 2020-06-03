@@ -25,9 +25,9 @@ public interface TransactionManager {
 
     StoreRawResponse store(StoreRawRequest storeRequest);
 
-    boolean isSender(String ptmHash);
+    boolean isSender(MessageHash transactionHash);
 
-    List<PublicKey> getParticipants(String ptmHash);
+    List<PublicKey> getParticipants(MessageHash transactionHash);
 
     /**
      * @see Enclave#defaultPublicKey()

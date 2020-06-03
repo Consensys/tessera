@@ -362,7 +362,11 @@ public class TransactionResource {
 
         LOGGER.debug("Received isSender API request for key {}", ptmHash);
 
-        boolean isSender = transactionManager.isSender(ptmHash);
+        MessageHash transactionHash = Optional.of(ptmHash)
+            .map(Base64.getDecoder()::decode)
+            .map(MessageHash::new).get();
+
+        boolean isSender = transactionManager.isSender(transactionHash);
 
         return Response.ok(isSender).build();
     }
@@ -373,8 +377,12 @@ public class TransactionResource {
 
         LOGGER.debug("Received participants list API request for key {}", ptmHash);
 
+        MessageHash transactionHash = Optional.of(ptmHash)
+            .map(Base64.getDecoder()::decode)
+            .map(MessageHash::new).get();
+
         final String participantList =
-                transactionManager.getParticipants(ptmHash).stream()
+                transactionManager.getParticipants(transactionHash).stream()
                         .map(PublicKey::encodeToBase64)
                         .collect(Collectors.joining(","));
 

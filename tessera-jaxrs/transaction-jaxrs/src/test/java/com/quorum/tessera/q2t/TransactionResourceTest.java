@@ -284,23 +284,32 @@ public class TransactionResourceTest {
 
     @Test
     public void isSenderDelegates() {
-        final String dummyPtmHash = "DUMMY_HASH";
 
-        Response response = transactionResource.isSender(dummyPtmHash);
+        when(transactionManager.isSender(any(MessageHash.class))).thenReturn(true);
+
+        Response response = transactionResource.isSender(Base64.getEncoder().encodeToString("DUMMY_HASH".getBytes()));
 
         assertThat(response.getStatus()).isEqualTo(200);
-
-        verify(transactionManager).isSender(dummyPtmHash);
+        assertThat(response.getEntity()).isEqualTo(true);
+        verify(transactionManager).isSender(any(MessageHash.class));
     }
 
     @Test
     public void getParticipantsDelegates() {
-        final String dummyPtmHash = "DUMMY_HASH";
+        byte[] data = "DUMMY_HASH".getBytes();
+
+        final String dummyPtmHash = Base64.getEncoder().encodeToString(data);
+
+        PublicKey recipient = mock(PublicKey.class);
+        when(recipient.encodeToBase64()).thenReturn("BASE64ENCODEKEY");
+
+        when(transactionManager.getParticipants(any(MessageHash.class)))
+            .thenReturn(List.of(recipient));
 
         Response response = transactionResource.getParticipants(dummyPtmHash);
 
         assertThat(response.getStatus()).isEqualTo(200);
-
-        verify(transactionManager).getParticipants(dummyPtmHash);
+        assertThat(response.getEntity()).isEqualTo("BASE64ENCODEKEY");
+        verify(transactionManager).getParticipants(any(MessageHash.class));
     }
 }
