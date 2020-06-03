@@ -17,7 +17,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import java.util.Base64;
 import java.util.Objects;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
@@ -54,10 +53,9 @@ public class RawTransactionResource {
             @ApiParam(name = "storeRawRequest", required = true) @NotNull @Valid final StoreRawRequest request) {
 
         PublicKey sender = request.getFrom()
-            .map(Base64.getDecoder()::decode)
+            .filter(Objects::nonNull)
             .map(PublicKey::from)
             .orElse(transactionManager.defaultPublicKey());
-
 
         com.quorum.tessera.transaction.StoreRawRequest storeRawRequest =
             com.quorum.tessera.transaction.StoreRawRequest.Builder.create()
