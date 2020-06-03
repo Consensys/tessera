@@ -168,8 +168,7 @@ public class TransactionResource {
             @NotNull @Size(min = 1) final byte[] payload)
             throws UnsupportedEncodingException {
 
-        PublicKey senderKey = Optional.of(sender)
-            .filter(Objects::nonNull)
+        PublicKey senderKey = Optional.ofNullable(sender)
             .filter(Predicate.not(String::isEmpty))
             .map(Base64.getDecoder()::decode)
             .map(PublicKey::from)
