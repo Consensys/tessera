@@ -299,9 +299,6 @@ public class TransactionResource {
 
         LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}", hash, recipientKey);
 
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(hash);
-        receiveRequest.setTo(recipientKey);
         MessageHash transactionHash = Optional.of(hash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
         PublicKey recipient = Optional.of(recipientKey).map(Base64.getDecoder()::decode).map(PublicKey::from).get();
         com.quorum.tessera.transaction.ReceiveRequest request = com.quorum.tessera.transaction.ReceiveRequest.Builder.create()
