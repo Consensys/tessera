@@ -300,7 +300,7 @@ public class TransactionResource {
         LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}", hash, recipientKey);
 
         MessageHash transactionHash = Optional.of(hash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
-        PublicKey recipient = Optional.of(recipientKey).map(Base64.getDecoder()::decode).map(PublicKey::from).get();
+        PublicKey recipient = Optional.ofNullable(recipientKey).map(Base64.getDecoder()::decode).map(PublicKey::from).orElse(null);
         com.quorum.tessera.transaction.ReceiveRequest request = com.quorum.tessera.transaction.ReceiveRequest.Builder.create()
             .withTransactionHash(transactionHash)
             .withRecipient(recipient)
