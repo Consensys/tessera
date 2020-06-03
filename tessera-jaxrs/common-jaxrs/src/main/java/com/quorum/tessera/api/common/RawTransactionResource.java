@@ -19,7 +19,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.Objects;
-import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -32,14 +31,14 @@ public class RawTransactionResource {
 
     public static final String ENDPOINT_STORE_RAW = "storeraw";
 
-    private final TransactionManager delegate;
+    private final TransactionManager transactionManager;
 
     public RawTransactionResource() {
         this(ServiceFactory.create().transactionManager());
     }
 
-    public RawTransactionResource(final TransactionManager delegate) {
-        this.delegate = Objects.requireNonNull(delegate);
+    public RawTransactionResource(final TransactionManager transactionManager) {
+        this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
     @ApiOperation(value = "Store raw private transaction payload")
@@ -54,13 +53,10 @@ public class RawTransactionResource {
     public Response store(
             @ApiParam(name = "storeRawRequest", required = true) @NotNull @Valid final StoreRawRequest request) {
 
-        PublicKey sender = Optional.of(request)
-            .map(StoreRawRequest::getFrom)
-            .filter(Optional::isPresent)
-            .map(Optional::get)
+        PublicKey sender = request.getFrom()
             .map(Base64.getDecoder()::decode)
             .map(PublicKey::from)
-            .orElse(delegate.defaultPublicKey());
+            .orElse(transactionManager.defaultPublicKey());
 
 
         com.quorum.tessera.transaction.StoreRawRequest storeRawRequest =
@@ -69,8 +65,9 @@ public class RawTransactionResource {
                 .withPayload(request.getPayload())
                 .build();
 
-        final com.quorum.tessera.transaction.StoreRawResponse response = delegate.store(storeRawRequest);
-
-        return Response.ok().type(APPLICATION_JSON).entity(response).build();
+        final com.quorum.tessera.transaction.StoreRawResponse response = transactionManager.store(storeRawRequest);
+        StoreRawResponse storeRawResponse = new StoreRawResponse();
+        storeRawResponse.setKey(response.getHash().getHashBytes());
+        return Response.ok().type(APPLICATION_JSON).entity(storeRawResponse).build();
     }
 }
