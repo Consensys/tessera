@@ -151,7 +151,7 @@ jobs:
           curl -L https://github.com/getgauge/gauge/releases/download/v1.0.7/gauge-1.0.7-linux.x86_64.zip -o gauge.zip
           sudo unzip -o gauge.zip -d /usr/local/bin
           cd quorum-acceptance-tests
-          gauge install
+          gauge install java --version 0.7.4
           cd
           echo "Installed gauge"
           echo "Start $TESSERA_JAR for 7 nodes"
