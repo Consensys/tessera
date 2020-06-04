@@ -15,7 +15,6 @@ public class StoreRawResponseTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getHash()).isSameAs(transactionHash);
-
     }
 
     @Test(expected = NullPointerException.class)

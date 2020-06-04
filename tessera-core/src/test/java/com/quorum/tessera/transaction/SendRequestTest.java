@@ -12,7 +12,6 @@ public class SendRequestTest {
 
     @Test
     public void buildWithEverything() {
-
         byte[] payload = "Payload".getBytes();
         PublicKey sender = mock(PublicKey.class);
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
@@ -27,20 +26,16 @@ public class SendRequestTest {
         assertThat(sendRequest.getSender()).isSameAs(sender);
         assertThat(sendRequest.getPayload()).containsExactly(payload);
         assertThat(sendRequest.getRecipients()).containsAll(recipients);
-
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithNothing() {
-
         SendRequest.Builder.create()
             .build();
-
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutPayload() {
-
         PublicKey sender = mock(PublicKey.class);
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
 
@@ -48,12 +43,10 @@ public class SendRequestTest {
             .withSender(sender)
             .withRecipients(recipients)
             .build();
-
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutSender() {
-
         byte[] payload = "Payload".getBytes();
 
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
@@ -62,12 +55,10 @@ public class SendRequestTest {
             .withPayload(payload)
             .withRecipients(recipients)
             .build();
-
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutRecipients() {
-
         byte[] payload = "Payload".getBytes();
         PublicKey sender = mock(PublicKey.class);
 
@@ -75,7 +66,5 @@ public class SendRequestTest {
             .withPayload(payload)
             .withSender(sender)
             .build();
-
-
     }
 }

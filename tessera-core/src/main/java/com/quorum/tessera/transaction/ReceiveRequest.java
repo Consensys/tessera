@@ -12,7 +12,6 @@ public interface ReceiveRequest {
 
     Optional<PublicKey> getRecipient();
 
-
     class Builder {
 
         private MessageHash messageHash;
@@ -29,13 +28,11 @@ public interface ReceiveRequest {
             return this;
         }
 
-
         public static Builder create() {
             return new Builder() {};
         }
 
         public ReceiveRequest build() {
-
             Objects.requireNonNull(messageHash,"Message hash is required");
 
             return new ReceiveRequest() {
@@ -51,8 +48,6 @@ public interface ReceiveRequest {
             };
         }
 
-
     }
-
 
 }

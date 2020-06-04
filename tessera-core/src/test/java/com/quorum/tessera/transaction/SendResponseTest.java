@@ -15,13 +15,10 @@ public class SendResponseTest {
 
         assertThat(response).isNotNull();
         assertThat(response.getTransactionHash()).isSameAs(transactionHash);
-
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithNothing() {
-
         SendResponse.from(null);
-
     }
 }

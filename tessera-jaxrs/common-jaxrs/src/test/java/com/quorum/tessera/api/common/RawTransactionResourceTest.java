@@ -51,6 +51,23 @@ public class RawTransactionResourceTest {
 
         assertThat(result.getStatus()).isEqualTo(200);
         verify(transactionManager).store(any());
+    }
+
+    @Test
+    public void storeUsingDefaultKey() {
+        com.quorum.tessera.transaction.StoreRawResponse response = mock(com.quorum.tessera.transaction.StoreRawResponse.class);
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("TXN".getBytes());
+        when(response.getHash()).thenReturn(transactionHash);
+        when(transactionManager.store(any())).thenReturn(response);
+        when(transactionManager.defaultPublicKey()).thenReturn(PublicKey.from("SENDER".getBytes()));
+
+        final StoreRawRequest storeRawRequest = new StoreRawRequest();
+        storeRawRequest.setPayload("PAYLOAD".getBytes());
+        final Response result = transactionResource.store(storeRawRequest);
+
+        assertThat(result.getStatus()).isEqualTo(200);
+        verify(transactionManager).store(any());
         verify(transactionManager).defaultPublicKey();
     }
 

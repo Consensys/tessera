@@ -1,6 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-
 import com.quorum.tessera.test.CucumberRawIT;
 import com.quorum.tessera.test.CucumberRestIT;
 import suite.TestSuite;

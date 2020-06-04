@@ -6,10 +6,8 @@ public interface ReceiveResponse {
 
     byte[] getUnencryptedTransactionData();
 
-
     static ReceiveResponse from(byte[] data) {
-        return () -> Arrays.copyOf(data,data.length);
+        return () -> Arrays.copyOf(data, data.length);
     }
-
 
 }

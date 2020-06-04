@@ -12,7 +12,6 @@ public class SendSignedRequestTest {
 
     @Test
     public void build() {
-
         byte[] signedData = "SignedData".getBytes();
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
 
@@ -24,7 +23,6 @@ public class SendSignedRequestTest {
         assertThat(request).isNotNull();
         assertThat(request.getSignedData()).containsExactly(signedData);
         assertThat(request.getRecipients()).hasSize(1).containsAll(recipients);
-
     }
 
     @Test(expected = NullPointerException.class)

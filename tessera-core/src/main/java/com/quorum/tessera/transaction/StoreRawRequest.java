@@ -32,15 +32,14 @@ public interface StoreRawRequest {
         }
 
         public StoreRawRequest build() {
-
-            Objects.requireNonNull(payload,"Payload is required");
-            Objects.requireNonNull(sender,"Sender is required");
+            Objects.requireNonNull(payload, "Payload is required");
+            Objects.requireNonNull(sender, "Sender is required");
 
             return new StoreRawRequest() {
 
                 @Override
                 public byte[] getPayload() {
-                    return Arrays.copyOf(payload,payload.length);
+                    return Arrays.copyOf(payload, payload.length);
                 }
 
                 @Override

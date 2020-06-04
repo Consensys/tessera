@@ -9,9 +9,8 @@ public interface SendResponse {
     MessageHash getTransactionHash();
 
     static SendResponse from(MessageHash messageHash) {
-        Objects.requireNonNull(messageHash,"Transaction hash is required");
+        Objects.requireNonNull(messageHash, "Transaction hash is required");
 
         return () -> messageHash;
     }
-
 }

@@ -9,8 +9,7 @@ public interface StoreRawResponse {
     MessageHash getHash();
 
     static StoreRawResponse from(MessageHash hash) {
-        Objects.requireNonNull(hash,"Transaction hash is required");
+        Objects.requireNonNull(hash, "Transaction hash is required");
         return () -> hash;
     }
-
 }

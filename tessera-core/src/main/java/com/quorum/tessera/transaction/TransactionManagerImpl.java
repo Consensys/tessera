@@ -93,7 +93,6 @@ public class TransactionManagerImpl implements TransactionManager {
     @Transactional
     public SendResponse send(SendRequest sendRequest) {
 
-
         final PublicKey senderPublicKey = sendRequest.getSender();
         final List<PublicKey> recipientList = new ArrayList<>();
         recipientList.addAll(sendRequest.getRecipients());
@@ -123,15 +122,12 @@ public class TransactionManagerImpl implements TransactionManager {
                     partyInfoService.publishPayload(outgoing, recipient);
                 });
 
-
         return SendResponse.from(transactionHash);
     }
 
     @Override
     @Transactional
     public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
-
-
         final List<PublicKey> recipientList = new ArrayList<>();
         recipientList.addAll(sendRequest.getRecipients());
         recipientList.addAll(enclave.getForwardingKeys());
@@ -163,7 +159,6 @@ public class TransactionManagerImpl implements TransactionManager {
                     final EncodedPayload toPublish = payloadEncoder.forRecipient(payload, recipient);
                     partyInfoService.publishPayload(toPublish, recipient);
                 });
-
 
         return SendResponse.from(messageHash);
     }

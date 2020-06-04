@@ -64,9 +64,9 @@ public class TransactionResource {
         Base64.Decoder base64Decoder = Base64.getDecoder();
 
         PublicKey sender = Optional.ofNullable(sendRequest.getFrom())
-            .map(Base64.getDecoder()::decode)
+            .map(base64Decoder::decode)
             .map(PublicKey::from)
-            .orElse(transactionManager.defaultPublicKey());
+            .orElseGet(transactionManager::defaultPublicKey);
 
         final byte[][] recipients =
             Stream.of(sendRequest)
@@ -90,7 +90,6 @@ public class TransactionResource {
             .map(MessageHash::getHashBytes)
             .map(Base64.getEncoder()::encodeToString)
             .get();
-
 
         final SendResponse sendResponse = Optional.of(response)
             .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
@@ -172,18 +171,16 @@ public class TransactionResource {
             .filter(Predicate.not(String::isEmpty))
             .map(Base64.getDecoder()::decode)
             .map(PublicKey::from)
-            .orElse(transactionManager.defaultPublicKey());
+            .orElseGet(transactionManager::defaultPublicKey);
 
         List<PublicKey> receipents =
             Stream.of(recipientKeys)
-             .filter(Objects::nonNull)
+            .filter(Objects::nonNull)
             .filter(s -> !Objects.equals("", s))
             .map(v -> v.split(","))
             .flatMap(Arrays::stream)
             .map(Base64.getDecoder()::decode)
             .map(PublicKey::from).collect(Collectors.toList());
-
-
 
         com.quorum.tessera.transaction.SendRequest request = com.quorum.tessera.transaction.SendRequest.Builder.create()
             .withSender(senderKey)
@@ -261,7 +258,6 @@ public class TransactionResource {
             .map(decoder::decode)
             .map(MessageHash::new)
             .get();
-
 
         PublicKey recipient = Optional.of(request)
             .map(ReceiveRequest::getTo)

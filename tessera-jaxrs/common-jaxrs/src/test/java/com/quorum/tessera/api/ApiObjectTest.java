@@ -18,13 +18,10 @@ public class ApiObjectTest {
             .build();
 
         validator.validate("com.quorum.tessera.api");
-
     }
 
     @Test
     public void nonEmptyConstructor() {
-
-
         assertThat(new ReceiveResponse("Data".getBytes())).isNotNull()
             .extracting(ReceiveResponse::getPayload).isNotNull();
 
@@ -42,8 +39,6 @@ public class ApiObjectTest {
             .isNotNull()
             .extracting(StoreRawResponse::getKey)
             .isNotNull();
-
-
     }
 
 }

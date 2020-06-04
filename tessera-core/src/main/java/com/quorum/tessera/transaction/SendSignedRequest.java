@@ -33,12 +33,13 @@ public interface SendSignedRequest {
         }
 
         public SendSignedRequest build() {
-            Objects.requireNonNull(signedData,"Signed data is required");
-            Objects.requireNonNull(recipients,"recipients is required");
+            Objects.requireNonNull(signedData, "Signed data is required");
+            Objects.requireNonNull(recipients, "recipients is required");
+
             return new SendSignedRequest() {
                 @Override
                 public byte[] getSignedData() {
-                    return Arrays.copyOf(signedData,signedData.length);
+                    return Arrays.copyOf(signedData, signedData.length);
                 }
 
                 @Override

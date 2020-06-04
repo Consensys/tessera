@@ -55,7 +55,7 @@ public class RawTransactionResource {
         PublicKey sender = request.getFrom()
             .filter(Objects::nonNull)
             .map(PublicKey::from)
-            .orElse(transactionManager.defaultPublicKey());
+            .orElseGet(transactionManager::defaultPublicKey);
 
         com.quorum.tessera.transaction.StoreRawRequest storeRawRequest =
             com.quorum.tessera.transaction.StoreRawRequest.Builder.create()

@@ -14,7 +14,6 @@ public interface SendRequest {
 
     byte[] getPayload();
 
-
     class Builder {
 
         private PublicKey from;
@@ -43,10 +42,9 @@ public interface SendRequest {
         }
 
         public SendRequest build() {
-
-            Objects.requireNonNull(from,"Sender is required");
-            Objects.requireNonNull(recipients,"Recipents are required");
-            Objects.requireNonNull(payload,"Payload is required");
+            Objects.requireNonNull(from, "Sender is required");
+            Objects.requireNonNull(recipients, "Recipients are required");
+            Objects.requireNonNull(payload, "Payload is required");
 
             return new SendRequest() {
 
@@ -62,11 +60,10 @@ public interface SendRequest {
 
                 @Override
                 public byte[] getPayload() {
-                    return Arrays.copyOf(payload,payload.length);
+                    return Arrays.copyOf(payload, payload.length);
                 }
             };
         }
-
 
     }
 
