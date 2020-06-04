@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.data.MessageHash;
@@ -35,12 +36,15 @@ public class TransactionResource {
 
     private final TransactionManager delegate;
 
+    private final PayloadEncoder encoder;
+
     public TransactionResource() {
-        this(ServiceFactory.create().transactionManager());
+        this(ServiceFactory.create().transactionManager(), PayloadEncoder.create());
     }
 
-    public TransactionResource(TransactionManager delegate) {
+    public TransactionResource(final TransactionManager delegate, final PayloadEncoder payloadEncoder) {
         this.delegate = Objects.requireNonNull(delegate);
+        this.encoder = Objects.requireNonNull(payloadEncoder);
     }
 
     @ApiOperation("Resend transactions for given key or message hash/recipient")
@@ -76,9 +80,9 @@ public class TransactionResource {
 
         LOGGER.debug("Received push request");
 
-        final MessageHash messageHash = delegate.storePayload(payload);
-        LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
-        // TODO: Return the query url not the string of the messageHAsh
+        final MessageHash messageHash = delegate.storePayload(encoder.decode(payload));
+        LOGGER.debug("Push request generated hash {}", messageHash);
+        // TODO: Return the query url not the string of the messageHash
         return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();
     }
 }

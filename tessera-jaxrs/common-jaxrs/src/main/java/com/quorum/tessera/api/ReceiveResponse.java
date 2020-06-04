@@ -1,8 +1,10 @@
-package com.quorum.tessera.api.model;
+package com.quorum.tessera.api;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
 import javax.xml.bind.annotation.XmlMimeType;
+
 /**
  * Model representation of a JSON body on outgoing HTTP requests
  *

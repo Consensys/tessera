@@ -1,7 +1,9 @@
 package com.quorum.tessera.api.common;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.api.model.StoreRawRequest;
+import com.quorum.tessera.api.StoreRawRequest;
+import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
@@ -35,7 +37,38 @@ public class RawTransactionResourceTest {
 
     @Test
     public void store() {
-        invokeStoreAndCheck(transactionResource, transactionManager);
+
+        com.quorum.tessera.transaction.StoreRawResponse response = mock(com.quorum.tessera.transaction.StoreRawResponse.class);
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("TXN".getBytes());
+        when(response.getHash()).thenReturn(transactionHash);
+        when(transactionManager.store(any())).thenReturn(response);
+
+        final StoreRawRequest storeRawRequest = new StoreRawRequest();
+        storeRawRequest.setPayload("PAYLOAD".getBytes());
+        storeRawRequest.setFrom("Sender".getBytes());
+        final Response result = transactionResource.store(storeRawRequest);
+
+        assertThat(result.getStatus()).isEqualTo(200);
+        verify(transactionManager).store(any());
+    }
+
+    @Test
+    public void storeUsingDefaultKey() {
+        com.quorum.tessera.transaction.StoreRawResponse response = mock(com.quorum.tessera.transaction.StoreRawResponse.class);
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("TXN".getBytes());
+        when(response.getHash()).thenReturn(transactionHash);
+        when(transactionManager.store(any())).thenReturn(response);
+        when(transactionManager.defaultPublicKey()).thenReturn(PublicKey.from("SENDER".getBytes()));
+
+        final StoreRawRequest storeRawRequest = new StoreRawRequest();
+        storeRawRequest.setPayload("PAYLOAD".getBytes());
+        final Response result = transactionResource.store(storeRawRequest);
+
+        assertThat(result.getStatus()).isEqualTo(200);
+        verify(transactionManager).store(any());
+        verify(transactionManager).defaultPublicKey();
     }
 
     @Test
@@ -43,21 +76,13 @@ public class RawTransactionResourceTest {
         MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
         Set services = new HashSet();
         TransactionManager tm = mock(TransactionManager.class);
+        when(tm.defaultPublicKey()).thenReturn(mock(PublicKey.class));
         services.add(tm);
         serviceLocator.setServices(services);
 
         RawTransactionResource tr = new RawTransactionResource();
-
-        invokeStoreAndCheck(tr, tm);
+        assertThat(tr).isNotNull();
     }
 
-    private void invokeStoreAndCheck(RawTransactionResource rawTransactionResource, TransactionManager tm) {
-        final StoreRawRequest storeRawRequest = new StoreRawRequest();
-        storeRawRequest.setPayload("PAYLOAD".getBytes());
 
-        final Response result = rawTransactionResource.store(storeRawRequest);
-
-        assertThat(result.getStatus()).isEqualTo(200);
-        verify(tm).store(storeRawRequest);
-    }
 }
