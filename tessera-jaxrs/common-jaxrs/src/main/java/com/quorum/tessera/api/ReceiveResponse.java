@@ -1,28 +1,21 @@
-package com.quorum.tessera.api.model;
+package com.quorum.tessera.api;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlMimeType;
 
 /**
- * Model representation of a JSON body on incoming HTTP requests
+ * Model representation of a JSON body on outgoing HTTP requests
  *
- * <p>Used when a new transaction is to be created where this node is the sender
+ * <p>Contains a Base64 encoded string that is the decrypting payload of a transaction
  */
 @ApiModel
-public class SendSignedRequest {
+public class ReceiveResponse {
 
     @XmlMimeType("base64Binary")
-    @Size(min = 1)
-    @NotNull
-    @ApiModelProperty("The hash of the stored payload to send to other parties.")
-    private byte[] hash;
-
-    @ApiModelProperty("Recipient public keys")
-    private String[] to;
+    @ApiModelProperty("Encode response servicing receive requests")
+    private byte[] payload;
 
     @ApiModelProperty("Privacy flag")
     private int privacyFlag;
@@ -33,20 +26,25 @@ public class SendSignedRequest {
     @ApiModelProperty("Execution hash")
     private String execHash;
 
-    public byte[] getHash() {
-        return hash;
+    public ReceiveResponse(
+            final byte[] payload,
+            final int privacyFlag,
+            final String[] affectedContractTransactions,
+            final String execHash) {
+        this.payload = payload;
+        this.privacyFlag = privacyFlag;
+        this.affectedContractTransactions = affectedContractTransactions;
+        this.execHash = execHash;
     }
 
-    public void setHash(byte[] hash) {
-        this.hash = hash;
+    public ReceiveResponse() {}
+
+    public byte[] getPayload() {
+        return payload;
     }
 
-    public String[] getTo() {
-        return to;
-    }
-
-    public void setTo(final String... to) {
-        this.to = to;
+    public void setPayload(final byte[] payload) {
+        this.payload = payload;
     }
 
     public int getPrivacyFlag() {

@@ -4,18 +4,17 @@ import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.cli.CLIExceptionCapturer;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.config.cli.admin.AdminCliAdapter;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.cli.admin.AdminCliAdapter;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.reflect.ReflectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
-import picocli.CommandLine.Model.CommandSpec;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -32,6 +31,7 @@ import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 public class PicoCliDelegate {
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);
 
     private final Validator validator =
@@ -49,22 +49,15 @@ public class PicoCliDelegate {
 
     public CliResult execute(String... args) throws Exception {
         LOGGER.debug("Execute with args [{}]", String.join(",", args));
-        final CommandSpec command = CommandSpec.forAnnotatedObject(TesseraCommand.class);
+        final CommandLine commandLine = new CommandLine(TesseraCommand.class);
 
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
 
-        final CommandLine.IFactory keyGenCommandFactory = new KeyGenCommandFactory();
-        CommandLine keyGenCommandLine = new CommandLine(KeyGenCommand.class, keyGenCommandFactory);
+        commandLine.addSubcommand(new CommandLine(CommandLine.HelpCommand.class));
+        commandLine.addSubcommand(new CommandLine(AdminCliAdapter.class));
+        commandLine.addSubcommand(new CommandLine(KeyGenCommand.class, new KeyGenCommandFactory()));
+        commandLine.addSubcommand(new CommandLine(KeyUpdateCommand.class, new KeyUpdateCommandFactory()));
 
-        final CommandLine.IFactory keyUpdateCommandFactory = new KeyUpdateCommandFactory();
-        CommandLine keyUpdateCommandLine = new CommandLine(KeyUpdateCommand.class, keyUpdateCommandFactory);
-
-        command.addSubcommand(null, new CommandLine(CommandLine.HelpCommand.class));
-        command.addSubcommand(null, new CommandLine(AdminCliAdapter.class));
-        command.addSubcommand(null, keyGenCommandLine);
-        command.addSubcommand(null, keyUpdateCommandLine);
-
-        final CommandLine commandLine = new CommandLine(command);
         commandLine
                 .registerConverter(Config.class, new ConfigConverter())
                 .registerConverter(ArgonOptions.class, new ArgonOptionsConverter())
@@ -104,37 +97,30 @@ public class PicoCliDelegate {
             LOGGER.debug("Executed with args [{}]", String.join(",", args));
             LOGGER.trace("Config {}", JaxbUtil.marshalToString(config));
             return new CliResult(0, false, config);
+        }
 
-        } else {
-            // there is a subcommand
-            CommandLine.ParseResult subParseResult = parseResult.subcommand();
+        // there is a subcommand
 
-            String[] subCmdAndArgs = subParseResult.originalArgs().toArray(new String[0]);
-
-            // print help as no args provided
-            if (subCmdAndArgs.length == 1) {
-                subParseResult.asCommandLineList().get(0).execute("help");
-                return new CliResult(0, true, null);
-            }
-
-            String[] subArgs = new String[subCmdAndArgs.length - 1];
-            System.arraycopy(subCmdAndArgs, 1, subArgs, 0, subArgs.length);
-
-            subParseResult.asCommandLineList().get(0).execute(subArgs);
-
-            // if an exception occurred, throw it to to the upper levels where it gets handled
-            if (mapper.getThrown() != null) {
-                throw mapper.getThrown();
-            }
-
+        // print help as no args provided
+        if (args.length == 1) {
+            final CommandLine.ParseResult subcommand = parseResult.subcommand();
+            subcommand.asCommandLineList().get(0).execute("help");
             return new CliResult(0, true, null);
         }
+
+        commandLine.execute(args);
+
+        // if an exception occurred, throw it to to the upper levels where it gets handled
+        if (mapper.getThrown() != null) {
+            throw mapper.getThrown();
+        }
+        return new CliResult(0, true, null);
     }
 
     private Config getConfigFromCLI(CommandLine.ParseResult parseResult) throws Exception {
         List<CommandLine.Model.ArgSpec> parsedArgs = parseResult.matchedArgs();
 
-        if (parsedArgs.size() == 0) {
+        if (parsedArgs.isEmpty()) {
             throw new NoTesseraCmdArgsException();
         }
 
@@ -182,7 +168,6 @@ public class PicoCliDelegate {
                     } catch (ReflectException ex) {
                         // Ignore error
                         LOGGER.debug("", ex);
-                        continue;
                     }
                 }
             }

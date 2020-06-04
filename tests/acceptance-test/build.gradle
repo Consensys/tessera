@@ -73,7 +73,7 @@ test {
             '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
             '**/ConfigMigrationIT.class',
-            '**/RestSuiteUnixH2.class',
+            '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',
@@ -153,12 +153,12 @@ clean {
     delete buildDir
 }
 
+
 task list(dependsOn: configurations.compileClasspath) {
     doLast {
         println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
     }
 }
-
 
 
 test.dependsOn clean,copyJdbcJars,unzipDdl

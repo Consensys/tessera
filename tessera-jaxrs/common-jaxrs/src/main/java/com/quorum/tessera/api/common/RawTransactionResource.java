@@ -1,7 +1,10 @@
 package com.quorum.tessera.api.common;
 
-import com.quorum.tessera.api.model.StoreRawRequest;
-import com.quorum.tessera.api.model.StoreRawResponse;
+
+import com.quorum.tessera.api.StoreRawRequest;
+import com.quorum.tessera.api.StoreRawResponse;
+import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -27,10 +30,14 @@ public class RawTransactionResource {
 
     public static final String ENDPOINT_STORE_RAW = "storeraw";
 
-    private final TransactionManager delegate;
+    private final TransactionManager transactionManager;
 
-    public RawTransactionResource(final TransactionManager delegate) {
-        this.delegate = Objects.requireNonNull(delegate);
+    public RawTransactionResource() {
+        this(ServiceFactory.create().transactionManager());
+    }
+
+    public RawTransactionResource(final TransactionManager transactionManager) {
+        this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
     @ApiOperation(value = "Store raw private transaction payload")
@@ -44,8 +51,21 @@ public class RawTransactionResource {
     @Produces(APPLICATION_JSON)
     public Response store(
             @ApiParam(name = "storeRawRequest", required = true) @NotNull @Valid final StoreRawRequest request) {
-        final StoreRawResponse response = delegate.store(request);
 
-        return Response.ok().type(APPLICATION_JSON).entity(response).build();
+        PublicKey sender = request.getFrom()
+            .filter(Objects::nonNull)
+            .map(PublicKey::from)
+            .orElseGet(transactionManager::defaultPublicKey);
+
+        com.quorum.tessera.transaction.StoreRawRequest storeRawRequest =
+            com.quorum.tessera.transaction.StoreRawRequest.Builder.create()
+                .withSender(sender)
+                .withPayload(request.getPayload())
+                .build();
+
+        final com.quorum.tessera.transaction.StoreRawResponse response = transactionManager.store(storeRawRequest);
+        StoreRawResponse storeRawResponse = new StoreRawResponse();
+        storeRawResponse.setKey(response.getHash().getHashBytes());
+        return Response.ok().type(APPLICATION_JSON).entity(storeRawResponse).build();
     }
 }

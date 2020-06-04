@@ -1,6 +1,10 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.partyinfo.*;
+import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.partyinfo.ResendResponse;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.recover.resend.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -17,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Objects;
+
 import static javax.ws.rs.core.MediaType.*;
 
 /**
@@ -34,6 +39,11 @@ public class TransactionResource {
     private final TransactionManager transactionManager;
 
     private final BatchResendManager batchResendManager;
+
+
+    public TransactionResource() {
+        this(ServiceFactory.create().transactionManager());
+    }
 
     public TransactionResource(TransactionManager transactionManager, BatchResendManager batchResendManager) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
@@ -54,7 +64,7 @@ public class TransactionResource {
 
         LOGGER.debug("Received resend request");
 
-        ResendResponse response = transactionManager.resend(resendRequest);
+        ResendResponse response = delegate.resend(resendRequest);
         Response.ResponseBuilder builder = Response.status(Status.OK);
         response.getPayload().ifPresent(builder::entity);
         return builder.build();
@@ -94,7 +104,7 @@ public class TransactionResource {
 
         LOGGER.debug("Received push request");
 
-        final MessageHash messageHash = transactionManager.storePayload(payload);
+        final MessageHash messageHash = transactionManager.storePayload(encoder.decode(payload));
         LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
         // TODO: Return the query url not the string of the messageHAsh
         return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();

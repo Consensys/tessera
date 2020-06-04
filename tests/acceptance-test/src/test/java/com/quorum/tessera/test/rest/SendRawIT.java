@@ -1,6 +1,6 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.api.model.ReceiveResponse;
+import com.quorum.tessera.api.ReceiveResponse;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
