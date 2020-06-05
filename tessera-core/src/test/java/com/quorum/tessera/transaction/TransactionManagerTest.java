@@ -19,6 +19,7 @@ import com.quorum.tessera.util.Base64Codec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -306,20 +307,22 @@ public class TransactionManagerTest {
         final PublicKey senderKey = PublicKey.from("PUBLICKEY".getBytes());
         final PublicKey recipientKey = PublicKey.from("RECIPIENTKEY".getBytes());
 
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getRecipientKeys()).thenReturn(new ArrayList<>());
         when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(singletonList(tx));
         when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
+        when(payloadEncoder.withRecipient(any(), any())).thenReturn(payload);
         when(enclave.getPublicKeys()).thenReturn(singleton(recipientKey));
         when(enclave.unencryptTransaction(payload, recipientKey)).thenReturn(new byte[0]);
 
-        final ResendRequest resendRequest = ResendRequest.Builder.create()
-            .withType(ResendRequestType.ALL)
+        final com.quorum.tessera.transaction.ResendRequest resendRequest = ResendRequest.Builder.create()
             .withRecipient(senderKey)
-            .build();
+            .withType(ResendRequestType.ALL).build();
 
-        ResendResponse result = transactionManager.resend(resendRequest);
+
+        com.quorum.tessera.transaction.ResendResponse result = transactionManager.resend(resendRequest);
 
         assertThat(result).isNotNull();
 
@@ -327,9 +330,10 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO, times(2)).transactionCount();
         verify(payloadEncoder).decode(encodedData);
         verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(senderKey));
-        verify(enclave).getPublicKeys();
+        verify(enclave, times(2)).getPublicKeys();
         verify(enclave).unencryptTransaction(payload, recipientKey);
         verify(payloadEncoder, never()).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
+        verify(payloadEncoder).withRecipient(any(EncodedPayload.class), any(PublicKey.class));
     }
 
     @Test
@@ -453,30 +457,38 @@ public class TransactionManagerTest {
 
         final List<PublicKey> recipients = new ArrayList<>();
 
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getRecipientKeys()).thenReturn(recipients);
         when(payload.getRecipientBoxes()).thenReturn(recipientBoxes);
+        when(payload.getCipherText()).thenReturn("ciphertext".getBytes());
 
         when(encryptedTransactionDAO.retrieveTransactions(anyInt(), anyInt())).thenReturn(singletonList(tx));
         when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
+        when(payloadEncoder.withRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
         when(enclave.getPublicKeys()).thenReturn(singleton(localKey));
 
-        final ResendRequest resendRequest = ResendRequest.Builder.create()
-            .withRecipient(senderKey)
-            .withType(ResendRequestType.ALL)
-            .build();
+        final com.quorum.tessera.transaction.ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withType(ResendRequestType.ALL).withRecipient(senderKey).build();
 
-        ResendResponse result = transactionManager.resend(resendRequest);
+
+        com.quorum.tessera.transaction.ResendResponse result = transactionManager.resend(resendRequest);
 
         assertThat(result).isNotNull();
-        verify(partyInfoService).publishPayload(eq(payload), eq(senderKey));
+        ArgumentCaptor<EncodedPayload> epAC = ArgumentCaptor.forClass(EncodedPayload.class);
+        verify(partyInfoService).publishPayload(epAC.capture(), eq(senderKey));
+        EncodedPayload ep = epAC.getValue();
+        verify(payloadEncoder).withRecipient(payload, localKey);
+        assertThat(ep.getRecipientBoxes()).hasSize(1).containsExactly(recipientBox);
+        assertThat(ep.getSenderKey()).isEqualTo(senderKey);
+        assertThat(ep.getCipherText()).containsExactly("ciphertext".getBytes());
         verify(payloadEncoder, never()).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
 
         verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
         verify(encryptedTransactionDAO, times(2)).transactionCount();
         verify(payloadEncoder).decode(encodedData);
-        verify(enclave).getPublicKeys();
+        verify(enclave, times(2)).getPublicKeys();
         verify(enclave).unencryptTransaction(payload, localKey);
     }
 
