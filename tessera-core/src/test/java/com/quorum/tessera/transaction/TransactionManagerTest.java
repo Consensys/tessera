@@ -18,7 +18,6 @@ import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Codec;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
