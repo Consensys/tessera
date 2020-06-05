@@ -26,17 +26,6 @@ public class ReceiveResponse {
     @ApiModelProperty("Execution hash")
     private String execHash;
 
-    public ReceiveResponse(
-            final byte[] payload,
-            final int privacyFlag,
-            final String[] affectedContractTransactions,
-            final String execHash) {
-        this.payload = payload;
-        this.privacyFlag = privacyFlag;
-        this.affectedContractTransactions = affectedContractTransactions;
-        this.execHash = execHash;
-    }
-
     public ReceiveResponse() {}
 
     public byte[] getPayload() {
