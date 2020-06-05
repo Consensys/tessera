@@ -44,10 +44,10 @@ public interface SendSignedRequest {
             return this;
         }
 
-        public Builder withSender(PublicKey from) {
-            this.from = from;
-            return this;
-        }
+//        public Builder withSender(PublicKey from) {
+//            this.from = from;
+//            return this;
+//        }
 
         public Builder withRecipients(List<PublicKey> recipients) {
             this.recipients = recipients;

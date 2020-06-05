@@ -15,6 +15,7 @@ public class ReceiveResponseTest {
             .withUnencryptedTransactionData(someData).build();
 
         assertThat(result.getUnencryptedTransactionData()).containsExactly(someData);
+        assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
     }
 
 }

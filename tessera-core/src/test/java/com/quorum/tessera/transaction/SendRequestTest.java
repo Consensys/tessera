@@ -1,9 +1,12 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -15,17 +18,24 @@ public class SendRequestTest {
         byte[] payload = "Payload".getBytes();
         PublicKey sender = mock(PublicKey.class);
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
-
+        MessageHash affectedTransaction = mock(MessageHash.class);
+        final byte[] execHash = "ExecHash".getBytes();
         SendRequest sendRequest = SendRequest.Builder.create()
             .withPayload(payload)
             .withSender(sender)
             .withRecipients(recipients)
+            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+            .withExecHash(execHash)
+            .withAffectedContractTransactions(Set.of(affectedTransaction))
             .build();
 
         assertThat(sendRequest).isNotNull();
         assertThat(sendRequest.getSender()).isSameAs(sender);
         assertThat(sendRequest.getPayload()).containsExactly(payload);
         assertThat(sendRequest.getRecipients()).containsAll(recipients);
+        assertThat(sendRequest.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        assertThat(sendRequest.getExecHash()).containsExactly(execHash);
+        assertThat(sendRequest.getAffectedContractTransactions()).containsExactly(affectedTransaction);
     }
 
     @Test(expected = NullPointerException.class)
