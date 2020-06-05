@@ -2,6 +2,8 @@ package com.quorum.tessera.recover;
 
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.Party;
@@ -34,15 +36,18 @@ public class RecoveryImpl implements Recovery {
 
     private final TransactionManager transactionManager;
 
+    private final PayloadEncoder payloadEncoder;
+
     public RecoveryImpl(
             StagingEntityDAO stagingEntityDAO,
             PartyInfoService partyInfoService,
             TransactionRequester transactionRequester,
-            TransactionManager transactionManager) {
+            TransactionManager transactionManager,PayloadEncoder payloadEncoder) {
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
         this.transactionRequester = Objects.requireNonNull(transactionRequester);
         this.transactionManager = Objects.requireNonNull(transactionManager);
+        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     }
 
     @Override
@@ -114,7 +119,8 @@ public class RecoveryImpl implements Recovery {
                                                 payloadCount.incrementAndGet();
                                                 byte[] payload = t.getPayload();
                                                 try {
-                                                    transactionManager.storePayload(payload);
+                                                    EncodedPayload encodedPayload = payloadEncoder.decode(payload);
+                                                    transactionManager.storePayload(encodedPayload);
                                                 } catch (PrivacyViolationException | StoreEntityException ex) {
                                                     LOGGER.error(
                                                             "An error occurred during batch resend sync stage.", ex);
