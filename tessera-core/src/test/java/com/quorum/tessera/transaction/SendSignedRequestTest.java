@@ -1,5 +1,6 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
@@ -18,6 +19,7 @@ public class SendSignedRequestTest {
         SendSignedRequest request = SendSignedRequest.Builder.create()
             .withSignedData(signedData)
             .withRecipients(recipients)
+            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
             .build();
 
         assertThat(request).isNotNull();

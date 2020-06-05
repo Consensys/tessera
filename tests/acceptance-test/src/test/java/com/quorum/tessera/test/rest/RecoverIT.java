@@ -1,6 +1,6 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.api.model.SendRequest;
+import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.enclave.EncodedPayload;

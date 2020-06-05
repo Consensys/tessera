@@ -25,23 +25,19 @@ public class PrivacyHelperImpl implements PrivacyHelper {
     }
 
     @Override
-    public List<AffectedTransaction> findAffectedContractTransactionsFromSendRequest(String[] affectedHashes) {
+    public List<AffectedTransaction> findAffectedContractTransactionsFromSendRequest(Set<MessageHash> affectedHashes) {
 
-        if (Objects.isNull(affectedHashes) || affectedHashes.length == 0) {
+        if (Objects.isNull(affectedHashes) || affectedHashes.isEmpty()) {
             return Collections.emptyList();
         }
 
-        final Set<MessageHash> hashesToFind =
-                Arrays.stream(affectedHashes)
-                        .map(Base64.getDecoder()::decode)
-                        .map(MessageHash::new)
-                        .collect(Collectors.toSet());
-
-        final List<EncryptedTransaction> encryptedTransactions = encryptedTransactionDAO.findByHashes(hashesToFind);
+        final List<EncryptedTransaction> encryptedTransactions = encryptedTransactionDAO.findByHashes(affectedHashes);
         final Set<MessageHash> foundHashes =
-            encryptedTransactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toSet());
+            encryptedTransactions.stream()
+                .map(EncryptedTransaction::getHash)
+                .collect(Collectors.toSet());
 
-        hashesToFind.stream()
+        affectedHashes.stream()
                 .filter(Predicate.not(foundHashes::contains))
                 .findAny()
                 .ifPresent(messageHash -> {

@@ -1,14 +1,17 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.data.EncryptedRawTransactionDAO;
+import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
-import com.quorum.tessera.partyinfo.ResendResponse;
-import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.resend.ResendManagerImpl;
 import org.slf4j.Logger;
@@ -41,7 +44,6 @@ public interface TransactionManager {
      * @return
      */
     PublicKey defaultPublicKey();
-    List<PublicKey> getParticipants(String ptmHash);
 
     Logger LOGGER = LoggerFactory.getLogger(TransactionManager.class);
 

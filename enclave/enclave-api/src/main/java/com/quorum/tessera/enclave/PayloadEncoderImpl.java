@@ -22,7 +22,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         final byte[] recipients = encodeArray(payload.getRecipientBoxes().stream().map(RecipientBox::getData).collect(Collectors.toUnmodifiableList()));
         final byte[] recipientBytes =
                 encodeArray(payload.getRecipientKeys().stream().map(PublicKey::getKeyBytes).collect(toList()));
-        final PrivacyMode privacyMode = Optional.of(payload.getPrivacyMode()).orElse(PrivacyMode.STANDARD_PRIVATE);
+        final PrivacyMode privacyMode = Optional.ofNullable(payload.getPrivacyMode()).orElse(PrivacyMode.STANDARD_PRIVATE);
         final byte[] privacyModeByte = encodeField(new byte[] {(byte) privacyMode.getPrivacyFlag()});
 
         final int affectedContractsPayloadLength =

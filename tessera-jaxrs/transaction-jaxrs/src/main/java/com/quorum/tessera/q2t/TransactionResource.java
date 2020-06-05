@@ -1,10 +1,10 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.constraint.PrivacyValid;
-import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.api.*;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
@@ -22,9 +22,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static javax.ws.rs.core.MediaType.*;
 
@@ -136,6 +137,7 @@ public class TransactionResource {
 
         com.quorum.tessera.transaction.SendSignedRequest request = com.quorum.tessera.transaction.SendSignedRequest.Builder.create()
             .withRecipients(recipients)
+            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
             .withSignedData(signedTransaction)
             .build();
 
@@ -168,18 +170,51 @@ public class TransactionResource {
                     final SendSignedRequest sendSignedRequest)
             throws UnsupportedEncodingException {
 
-        final SendResponse response = delegate.sendSignedTransaction(sendSignedRequest);
+        final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendSignedRequest.getPrivacyFlag());
 
-        final String encodedKey = response.getKey();
+        final List<PublicKey> recipients = Optional.ofNullable(sendSignedRequest.getTo())
+                                .map(Arrays::stream)
+                                .orElse(Stream.empty())
+                                    .map(Base64.getDecoder()::decode)
+                                    .map(PublicKey::from)
+                                    .collect(Collectors.toList());
 
-        LOGGER.debug("Encoded key: {}", encodedKey);
+        byte[] execHash = Optional.of(sendSignedRequest)
+            .map(SendSignedRequest::getExecHash)
+            .filter(Objects::nonNull)
+            .map(String::getBytes)
+            .orElse(null);
+
+        com.quorum.tessera.transaction.SendSignedRequest request = com.quorum.tessera.transaction.SendSignedRequest.Builder.create()
+            .withPrivacyMode(privacyMode)
+            .withSignedData(sendSignedRequest.getHash())
+            .withRecipients(recipients)
+            .withExecHash(execHash)
+            .build();
+
+        final com.quorum.tessera.transaction.SendResponse response = transactionManager.sendSignedTransaction(request);
+
+        final String endcodedTransactionHash = Optional.of(response)
+                                    .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
+                                    .map(MessageHash::getHashBytes)
+                                    .map(Base64.getEncoder()::encodeToString)
+                                    .get();
+
+        LOGGER.debug("Encoded key: {}", endcodedTransactionHash);
 
         URI location =
                 UriBuilder.fromPath("transaction")
-                        .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
+                        .path(URLEncoder.encode(endcodedTransactionHash, StandardCharsets.UTF_8.toString()))
                         .build();
 
-        return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(response).build();
+        SendResponse sendResponse = new SendResponse();
+        sendResponse.setKey(endcodedTransactionHash);
+
+        return Response.status(Status.CREATED)
+            .type(APPLICATION_JSON)
+            .location(location)
+            .entity(sendResponse)
+            .build();
     }
 
     @ApiOperation(value = "Send private transaction payload")
@@ -305,10 +340,19 @@ public class TransactionResource {
 
         com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(receiveRequest);
 
-        ReceiveResponse receiveResponse = Optional.of(response)
-            .map(com.quorum.tessera.transaction.ReceiveResponse::getUnencryptedTransactionData)
-            .map(ReceiveResponse::new)
-            .get();
+        ReceiveResponse receiveResponse = new ReceiveResponse();
+        receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
+        receiveResponse.setPayload(response.getUnencryptedTransactionData());
+        Optional.ofNullable(response.getExecHash())
+            .map(String::new)
+            .ifPresent(receiveResponse::setExecHash);
+
+        String[] affectedTransactions = response.getAffectedTransactions().stream()
+            .map(MessageHash::getHashBytes)
+            .map(Base64.getEncoder()::encodeToString)
+            .toArray(String[]::new);
+
+        receiveResponse.setAffectedContractTransactions(affectedTransactions);
 
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
     }
