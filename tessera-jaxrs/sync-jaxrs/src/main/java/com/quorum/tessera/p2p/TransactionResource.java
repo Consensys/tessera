@@ -8,6 +8,7 @@ import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.recover.resend.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.util.Base64Codec;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,13 +66,16 @@ public class TransactionResource {
         LOGGER.debug("Received resend request");
 
         PublicKey recipient = Optional.of(resendRequest)
-            .map(ResendRequest::getPublicKey)
-            .map(Base64.getDecoder()::decode).map(PublicKey::from)
-            .get();
+                                        .map(ResendRequest::getPublicKey)
+                                        .map(Base64Codec.create()::decode)
+                                        .map(PublicKey::from)
+                                        .get();
 
         MessageHash transactionHash = Optional.ofNullable(resendRequest)
-            .map(ResendRequest::getKey).map(Base64.getDecoder()::decode).map(MessageHash::new)
-            .orElse(null);
+                                                .map(ResendRequest::getKey)
+                                                .map(Base64.getDecoder()::decode)
+                                                .map(MessageHash::new)
+                                                .orElse(null);
 
         com.quorum.tessera.transaction.ResendRequest request = com.quorum.tessera.transaction.ResendRequest.Builder.create()
             .withType(resendRequest.getType())
