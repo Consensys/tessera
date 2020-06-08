@@ -87,7 +87,15 @@ public class PartyInfoServiceTest {
         verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(payloadPublisher);
 
-        reset(partyInfoStore, enclave, payloadPublisher);
+
+        org.mockito.Mockito.reset(partyInfoStore);
+        org.mockito.Mockito.reset(enclave);
+        org.mockito.Mockito.reset(payloadPublisher);
+
+
+        verifyZeroInteractions(partyInfoStore);
+        verifyZeroInteractions(enclave);
+        verifyZeroInteractions(payloadPublisher);
     }
 
     @After
