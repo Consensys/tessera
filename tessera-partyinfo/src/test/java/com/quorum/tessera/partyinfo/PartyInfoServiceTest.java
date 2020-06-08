@@ -63,6 +63,8 @@ public class PartyInfoServiceTest {
         this.partyInfoService =
                 new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
 
+        assertThat(partyInfoService).isNotNull();
+
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(payloadPublisher);
@@ -77,8 +79,12 @@ public class PartyInfoServiceTest {
 
         when(enclave.getPublicKeys()).thenReturn(ourKeys);
 
-        partyInfoService.populateStore();
 
+        try {
+            partyInfoService.populateStore();
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore).store(any(PartyInfo.class));
         verify(enclave).getPublicKeys();
