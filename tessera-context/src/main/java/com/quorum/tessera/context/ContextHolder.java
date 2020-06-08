@@ -1,5 +1,6 @@
 package com.quorum.tessera.context;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /*
@@ -15,10 +16,11 @@ enum ContextHolder {
     }
 
     protected ContextHolder setContext(RuntimeContext runtimeContext) {
+
         if (this.runtimeContext != null) {
             throw new IllegalStateException("RuntimeContext has already been stored");
         }
-        this.runtimeContext = runtimeContext;
+        this.runtimeContext = Objects.requireNonNull(runtimeContext,"Runtime context cannot be null");
         return this;
     }
 
