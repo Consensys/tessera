@@ -149,15 +149,13 @@ jobs:
       - run: |
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           export TESSERA_JAR=`ls $(pwd)/tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar`
-          cd
-          git clone https://github.com/jpmorganchase/quorum-examples.git
-          git clone https://github.com/jpmorganchase/quorum-acceptance-tests.git
-          echo "Install geth"
-          curl -L https://dl.bintray.com/quorumengineering/quorum/v2.6.0/geth_v2.6.0_linux_amd64.tar.gz -o geth.tar.gz
-          tar xvzf geth.tar.gz
-          sudo mv geth /usr/local/bin/
+          cd /home/runner/work/tessera/tessera/quorum
+          make all
+          export PATH=$PATH:$(pwd)/build/bin
+          cd /home/runner/work/tessera/tessera/
           geth version
           echo "Installed geth"
+
           echo "Install solc"
           curl -L https://github.com/ethereum/solidity/releases/download/v0.5.4/solc-static-linux -o solc
           sudo mv solc /usr/local/bin/
@@ -167,21 +165,22 @@ jobs:
           echo "Install gauge"
           curl -L https://github.com/getgauge/gauge/releases/download/v1.0.7/gauge-1.0.7-linux.x86_64.zip -o gauge.zip
           sudo unzip -o gauge.zip -d /usr/local/bin
-          cd quorum-acceptance-tests
-          gauge install java --version 0.7.4
-          cd
+
+          cd /home/runner/work/tessera/tessera/quorum-acceptance-tests
+          gauge install
+          cd /home/runner/work/tessera/tessera
           echo "Installed gauge"
           echo "Start $TESSERA_JAR for 7 nodes"
-          cd quorum-examples/examples/7nodes
+          cd /home/runner/work/tessera/tessera/quorum-examples/examples/7nodes
           ./tessera-init.sh
           ./init.sh istanbul
           ./start.sh istanbul tessera
-          cd ../../../
+          cd /home/runner/work/tessera/tessera
           echo "Started $TESSERA_JAR for 7 nodes"
           echo "Run quorum-acceptance-tests"
-          cd quorum-acceptance-tests
+          cd /home/runner/work/tessera/tessera/quorum-acceptance-tests
           cp config/application-local.7nodes.yml config/application-local.yml
-          SPRING_PROFILES_ACTIVE=local.7nodes mvn clean test -Dtags="basic || basic-istanbul || networks/typical::istanbul"
+          mvn test
           echo "Complete quorum-acceptance-tests"
         env:
           MAVEN_OPTS: -Xms1024m -Xmx2048m

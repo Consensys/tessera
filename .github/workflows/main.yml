@@ -134,8 +134,7 @@ jobs:
           restore-keys: |
             ${{env.MAVEN_REPO_CACHE_KEY}}
       - run: |
-
-          export TESSERA_JAR=~/.m2/repository/com/jpmorgan/quorum/tessera-app/0.11-SNAPSHOT/tessera-app-0.11-SNAPSHOT-app.jar
+          export TESSERA_JAR=`ls ~/.m2/repository/com/jpmorgan/quorum/tessera-app/*/tessera-app-*-app.jar`
 
           cd /home/runner/work/tessera/tessera/quorum
           make all
