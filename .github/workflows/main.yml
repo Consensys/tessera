@@ -110,19 +110,19 @@ jobs:
         with:
           repository: QuorumEngineering/quorum
           path: quorum
-          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
+#          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
           ref: feature/quorum-1.9.7-withPE
       - uses: actions/checkout@v2
         with:
           repository: QuorumEngineering/quorum-acceptance-tests
           path: quorum-acceptance-tests
-          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
+#          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
           ref: feature/quorum-1.9.7-withPE
       - uses: actions/checkout@v2
         with:
           repository: QuorumEngineering/quorum-examples
           path: quorum-examples
-          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
+#          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
           ref: feature/geth-1.9.7-withPE
       - uses: actions/setup-java@v1
         with:
