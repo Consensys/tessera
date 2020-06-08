@@ -30,6 +30,11 @@ jobs:
             key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
               ${{env.MAVEN_REPO_CACHE_KEY}}
+        - uses: actions/upload-artifact@v1
+          if: success()
+          with:
+            name: tessera-app-jar
+            path: tessera-dist/tessera-app/target/tessera-app-0.10.6-SNAPSHOT-app.jar
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -133,8 +138,12 @@ jobs:
           key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
             ${{env.MAVEN_REPO_CACHE_KEY}}
+      - uses: actions/download-artifact@v1
+        with:
+          name: tessera-app-jar
+          path: /tmp/tessera-app.jar
       - run: |
-          export TESSERA_JAR=`ls ~/.m2/repository/com/jpmorgan/quorum/tessera-app/*/tessera-app-*-app.jar`
+          export TESSERA_JAR=/tmp/tessera-app.jar
 
           cd /home/runner/work/tessera/tessera/quorum
           make all
