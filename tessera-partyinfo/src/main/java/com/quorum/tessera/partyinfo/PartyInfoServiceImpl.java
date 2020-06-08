@@ -35,17 +35,19 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             final Enclave enclave,
             final PayloadPublisher payloadPublisher,
             final KnownPeerCheckerFactory knownPeerCheckerFactory) {
-        this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
-        this.enclave = Objects.requireNonNull(enclave);
-        this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
-        this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory);
+        this.partyInfoStore = Objects.requireNonNull(partyInfoStore,"partyInfoStore is required");
+        this.enclave = Objects.requireNonNull(enclave,"enclave is required");
+        this.payloadPublisher = Objects.requireNonNull(payloadPublisher,"payloadPublisher is required");
+        this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory,"knownPeerCheckerFactory is required");
     }
 
     @Override
     public void populateStore() {
         LOGGER.debug("Populating store");
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
-        final String advertisedUrl = URLNormalizer.create().normalize(partyInfoStore.getPartyInfo().getUrl());
+
+        final String partyStoreUrl = partyInfoStore.getPartyInfo().getUrl();
+        final String advertisedUrl = URLNormalizer.create().normalize(partyStoreUrl);
         LOGGER.debug("Populate party info store for {}", advertisedUrl);
 
         final Set<Party> initialParties =
