@@ -12,6 +12,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UncheckedIOException;
 import java.util.*;
@@ -27,6 +29,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoServiceTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceTest.class);
 
     private static final String URI = "http://localhost:8080";
 
@@ -84,6 +88,7 @@ public class PartyInfoServiceTest {
             partyInfoService.populateStore();
         } catch (Throwable ex) {
             ex.printStackTrace();
+            LOGGER.error("HERE",ex);
         }
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore).store(any(PartyInfo.class));
