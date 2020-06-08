@@ -14,7 +14,7 @@ env:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
 
     steps:
     - uses: actions/checkout@v2
@@ -39,7 +39,7 @@ jobs:
         path: /home/runner/work/tessera/tessera/tessera-dist/tessera-app/build/libs/
 
   checkdependencies:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: [build]
     steps:
     - uses: actions/checkout@v2
@@ -55,7 +55,7 @@ jobs:
     - run: ./gradlew dependencyCheckAnalyze -x test
 
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: [build]
     steps:
     - uses: actions/checkout@v2
@@ -68,10 +68,10 @@ jobs:
           ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/setup-java@v1
       with:
-        java-version: 11.0.7
+        java-version: 11
     - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test
   itest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: [build]
     steps:
     - uses: actions/checkout@v2
@@ -93,7 +93,7 @@ jobs:
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
 
   remote_enclave_itest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: [build]
     steps:
       - uses: actions/checkout@v2
@@ -115,7 +115,7 @@ jobs:
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
 
   atest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: build
     steps:
       - uses: actions/checkout@v2

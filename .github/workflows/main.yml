@@ -12,7 +12,7 @@ env:
  
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     steps:
         - uses: actions/checkout@v2
         - uses: actions/setup-java@v1
@@ -36,7 +36,7 @@ jobs:
             name: tessera-app-jar
             path: tessera-dist/tessera-app/target/tessera-app-0.10.6-SNAPSHOT-app.jar
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: build
     steps:
       - uses: actions/checkout@v2
@@ -66,7 +66,7 @@ jobs:
           path: /home/runner/work/tessera/tessera/surefire-reports
             
   itest:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-16.04
       needs: build
       steps:
         - uses: actions/checkout@v2
@@ -87,7 +87,7 @@ jobs:
             path: /home/runner/work/tessera/tessera/tests/acceptance-test/target/failsafe-reports
 
   vaultTests:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-16.04
       needs: build
       steps:
         - uses: actions/checkout@v2
@@ -108,7 +108,7 @@ jobs:
             mvn verify -pl tests/acceptance-test -P vault-acceptance-tests
 
   atest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: [build]
     steps:
       - uses: actions/checkout@v2
