@@ -8,6 +8,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -89,6 +90,10 @@ public class PartyInfoServiceTest {
         } catch (Throwable ex) {
             ex.printStackTrace();
             LOGGER.error("HERE",ex);
+
+            assertThat(ex)
+               .describedAs(ExceptionUtils.getStackTrace(ex))
+                .isNull();
         }
         verify(partyInfoStore).getPartyInfo();
         verify(partyInfoStore).store(any(PartyInfo.class));
