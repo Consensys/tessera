@@ -26,7 +26,7 @@ public interface ReceiveResponse {
 
         private byte[] execHash;
 
-        private Set<MessageHash> affectedTransactions = Set.of();
+        private Set<MessageHash> affectedTransactions = Collections.emptySet();
 
         private Builder() {
         }
@@ -61,10 +61,6 @@ public interface ReceiveResponse {
 
             if(privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
                 Objects.requireNonNull(execHash,"Exec hash is required if privacy mode is PRIVATE_STATE_VALIDATION");
-            }
-
-            if(affectedTransactions == null) {
-                affectedTransactions = Collections.emptySet();
             }
 
             return new ReceiveResponse() {

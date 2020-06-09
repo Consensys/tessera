@@ -336,8 +336,7 @@ public class TransactionManagerImpl implements TransactionManager {
         } else {
             encodedPayload = payload;
         }
-        // TODO - remove extra logs
-        LOGGER.info(
+        LOGGER.debug(
                 "AffectedContractTransaction.size={} InvalidSecurityHashes.size={}",
                 affectedContractTransactions.size(),
                 invalidSecurityHashes.size());
