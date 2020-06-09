@@ -292,14 +292,13 @@ public class TransactionResource {
             .withRecipient(recipient)
             .withTransactionHash(transactionHash)
             .withRaw(Boolean.valueOf(isRaw))
-
             .build();
 
         com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(request);
 
         final ReceiveResponse receiveResponse = new ReceiveResponse();
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
-
+        receiveResponse.setAffectedContractTransactions(response.getAffectedTransactions().toArray(new String[0]));
         Optional.ofNullable(response.getExecHash())
             .map(String::new)
             .ifPresent(receiveResponse::setExecHash);

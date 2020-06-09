@@ -1,7 +1,6 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.*;
-import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -130,6 +129,40 @@ public class TransactionResourceTest {
         com.quorum.tessera.api.ReceiveResponse resultResponse = result.readEntity(com.quorum.tessera.api.ReceiveResponse.class);
         assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
         assertThat(resultResponse.getExecHash()).isNull();
+
+        verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
+
+    }
+
+    @Test
+    public void receiveFromParamsPrivateStateValidation() {
+
+        com.quorum.tessera.transaction.ReceiveResponse response = mock(com.quorum.tessera.transaction.ReceiveResponse.class);
+        when(response.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
+
+        when(response.getUnencryptedTransactionData()).thenReturn("Success".getBytes());
+        when(response.getExecHash()).thenReturn("execHash".getBytes());
+
+        when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(response);
+
+        String transactionHash = Base64.getEncoder().encodeToString("transactionHash".getBytes());
+
+        Response result = jersey
+            .target("transaction")
+            .path(transactionHash)
+            .request()
+            .get();
+
+        assertThat(result.getStatus()).isEqualTo(200);
+
+        com.quorum.tessera.api.ReceiveResponse resultResponse = result.readEntity(com.quorum.tessera.api.ReceiveResponse.class);
+        assertThat(resultResponse.getExecHash()).isEqualTo("execHash");
+        assertThat(resultResponse.getPrivacyFlag())
+            .isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION.getPrivacyFlag());
+
+        assertThat(resultResponse.getExecHash()).isNotNull();
+        assertThat(resultResponse.getAffectedContractTransactions()).isNotNull();
+        assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
 
