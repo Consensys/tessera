@@ -17,6 +17,8 @@ dependencies {
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.apache.commons:commons-lang3'
     compile 'javax.persistence:javax.persistence-api'
+    compile "javax.activation:javax.activation-api"
+    compile "com.sun.mail:javax.mail"
     compile project(':encryption:encryption-api')
 
     testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
@@ -28,6 +30,7 @@ dependencies {
     compile project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
+    testCompile "org.slf4j:jul-to-slf4j:1.7.5"
 }
 
 

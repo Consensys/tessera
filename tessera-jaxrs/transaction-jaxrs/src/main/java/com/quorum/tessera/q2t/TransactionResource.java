@@ -93,7 +93,8 @@ public class TransactionResource {
         final SendResponse sendResponse = Optional.of(response)
             .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
             .map(MessageHash::getHashBytes)
-            .map(Base64.getEncoder()::encodeToString).map(SendResponse::new).get();
+            .map(Base64.getEncoder()::encodeToString)
+            .map(SendResponse::new).get();
 
         final URI location =
                 UriBuilder.fromPath("transaction")
@@ -273,8 +274,9 @@ public class TransactionResource {
     @Path("/transaction/{hash}")
     @Produces(APPLICATION_JSON)
     public Response receive(
-            @ApiParam("Encoded hash used to decrypt the payload") @NotNull @Valid @PathParam("hash") final String hash,
-            @ApiParam("Encoded recipient key") @Valid @QueryParam("to") final String toStr) {
+        @ApiParam("Encoded hash used to decrypt the payload") @NotNull @Valid @PathParam("hash") final String hash,
+        @ApiParam("Encoded recipient key") @Valid @QueryParam("to") final String toStr,
+        @ApiParam("isRaw flag") @Valid @QueryParam("isRaw") final String isRaw) {
 
         Base64.Decoder base64Decoder = Base64.getDecoder();
         PublicKey recipient = Optional.ofNullable(toStr)
@@ -289,12 +291,20 @@ public class TransactionResource {
         com.quorum.tessera.transaction.ReceiveRequest request = com.quorum.tessera.transaction.ReceiveRequest.Builder.create()
             .withRecipient(recipient)
             .withTransactionHash(transactionHash)
+            .withRaw(Boolean.valueOf(isRaw))
+
             .build();
 
         com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(request);
 
-        ReceiveResponse receiveResponse = new ReceiveResponse();
+        final ReceiveResponse receiveResponse = new ReceiveResponse();
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
+
+        Optional.ofNullable(response.getExecHash())
+            .map(String::new)
+            .ifPresent(receiveResponse::setExecHash);
+
+        receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
 
         return Response
                 .status(Status.OK)
@@ -331,6 +341,7 @@ public class TransactionResource {
             com.quorum.tessera.transaction.ReceiveRequest.Builder.create()
                 .withTransactionHash(transactionHash)
                 .withRecipient(recipient)
+                .withRaw(request.isRaw())
                 .build();
 
         com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(receiveRequest);

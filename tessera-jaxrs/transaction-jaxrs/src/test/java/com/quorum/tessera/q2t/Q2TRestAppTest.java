@@ -28,8 +28,7 @@ public class Q2TRestAppTest {
     @Before
     public void setUp() throws Exception {
 
-        final Set services = new HashSet();
-        services.add(mock(Config.class));
+        final Set services = Set.of(mock(Config.class));
 
         serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);
