@@ -1,7 +1,6 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.*;
-import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -144,7 +143,6 @@ public class TransactionResourceTest {
         when(response.getUnencryptedTransactionData()).thenReturn("Success".getBytes());
         when(response.getExecHash()).thenReturn("execHash".getBytes());
 
-
         when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(response);
 
         String transactionHash = Base64.getEncoder().encodeToString("transactionHash".getBytes());
@@ -163,7 +161,7 @@ public class TransactionResourceTest {
             .isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION.getPrivacyFlag());
 
         assertThat(resultResponse.getExecHash()).isNotNull();
-        assertThat(resultResponse.getAffectedContractTransactions()).isNull();
+        assertThat(resultResponse.getAffectedContractTransactions()).isNotNull();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
