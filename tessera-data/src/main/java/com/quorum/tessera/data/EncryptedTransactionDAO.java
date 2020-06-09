@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 
 /** A data store for transactions that need to be retrieved later */
 public interface EncryptedTransactionDAO {
