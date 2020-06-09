@@ -4,6 +4,7 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyMode;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -57,9 +58,15 @@ public interface ReceiveResponse {
 
             Objects.requireNonNull(privacyMode,"Privacy mode is required");
             Objects.requireNonNull(unencryptedTransactionData,"unencrypted payload is required");
+
             if(privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
                 Objects.requireNonNull(execHash,"Exec hash is required if privacy mode is PRIVATE_STATE_VALIDATION");
             }
+
+            if(affectedTransactions == null) {
+                affectedTransactions = Collections.emptySet();
+            }
+
             return new ReceiveResponse() {
 
                 @Override

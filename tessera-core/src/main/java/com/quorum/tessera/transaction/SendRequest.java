@@ -74,8 +74,11 @@ public interface SendRequest {
             Objects.requireNonNull(recipients, "Recipients are required");
             Objects.requireNonNull(payload, "Payload is required");
             Objects.requireNonNull(privacyMode, "PrivacyMode is required");
-            Objects.requireNonNull(affectedContractTransactions, "AffectedContractTransactions is required");
-            Objects.requireNonNull(execHash, "ExecutionHash is required");
+
+            if(privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+                Objects.requireNonNull(affectedContractTransactions, "AffectedContractTransactions is required");
+                Objects.requireNonNull(execHash, "ExecutionHash is required");
+            }
 
             return new SendRequest() {
 

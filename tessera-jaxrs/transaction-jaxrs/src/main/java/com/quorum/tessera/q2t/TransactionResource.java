@@ -76,11 +76,30 @@ public class TransactionResource {
 
         final List<PublicKey> recipientList = Stream.of(recipients).map(PublicKey::from).collect(Collectors.toList());
 
+        Set<MessageHash> affectedTransactions = Stream.of(sendRequest)
+            .filter(s -> s.getAffectedContractTransactions() != null)
+            .map(SendRequest::getAffectedContractTransactions)
+            .flatMap(Arrays::stream)
+            .map(Base64.getDecoder()::decode)
+            .map(MessageHash::new)
+            .collect(Collectors.toSet());
+
+        final byte[] execHash = Optional.ofNullable(sendRequest.getExecHash())
+            .filter(s -> !s.isBlank())
+            .map(String::getBytes).orElse(new byte[0]);
+
+        PrivacyMode privacyMode = Optional.of(sendRequest)
+            .map(SendRequest::getPrivacyFlag)
+            .map(PrivacyMode::fromFlag)
+            .get();
+
         com.quorum.tessera.transaction.SendRequest request = com.quorum.tessera.transaction.SendRequest.Builder.create()
             .withRecipients(recipientList)
             .withSender(sender)
             .withPayload(sendRequest.getPayload())
-            .withExecHash(Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]))
+            .withExecHash(execHash)
+            .withPrivacyMode(privacyMode)
+            .withAffectedContractTransactions(affectedTransactions)
             .build();
 
         final com.quorum.tessera.transaction.SendResponse response = transactionManager.send(request);
@@ -248,6 +267,7 @@ public class TransactionResource {
             .withSender(senderKey)
             .withRecipients(receipents)
             .withPayload(payload)
+            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
             .build();
 
         final com.quorum.tessera.transaction.SendResponse sendResponse = transactionManager.send(request);
@@ -299,7 +319,12 @@ public class TransactionResource {
 
         final ReceiveResponse receiveResponse = new ReceiveResponse();
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
-        receiveResponse.setAffectedContractTransactions(response.getAffectedTransactions().toArray(new String[0]));
+        receiveResponse.setAffectedContractTransactions(
+            response.getAffectedTransactions().stream()
+                .map(MessageHash::getHashBytes)
+                .map(Base64.getEncoder()::encodeToString)
+                .toArray(String[]::new));
+
         Optional.ofNullable(response.getExecHash())
             .map(String::new)
             .ifPresent(receiveResponse::setExecHash);

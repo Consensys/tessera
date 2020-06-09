@@ -10,19 +10,24 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.ext.ExceptionMapper;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class TransactionResourceTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResourceTest.class);
 
     private JerseyTest jersey;
 
@@ -51,7 +56,10 @@ public class TransactionResourceTest {
                     return ResourceConfig.forApplication(new Application() {
                         @Override
                         public Set<Object> getSingletons() {
-                            return Set.of(transactionResource);
+                            return Set.of(transactionResource, (ExceptionMapper<Exception>) exception -> {
+                                LOGGER.error("",exception);
+                                return Response.serverError().build();
+                            });
                         }
                     });
                 }
@@ -139,7 +147,7 @@ public class TransactionResourceTest {
 
         com.quorum.tessera.transaction.ReceiveResponse response = mock(com.quorum.tessera.transaction.ReceiveResponse.class);
         when(response.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
-
+        when(response.getAffectedTransactions()).thenReturn(Collections.emptySet());
         when(response.getUnencryptedTransactionData()).thenReturn("Success".getBytes());
         when(response.getExecHash()).thenReturn("execHash".getBytes());
 
@@ -156,12 +164,12 @@ public class TransactionResourceTest {
         assertThat(result.getStatus()).isEqualTo(200);
 
         com.quorum.tessera.api.ReceiveResponse resultResponse = result.readEntity(com.quorum.tessera.api.ReceiveResponse.class);
+
         assertThat(resultResponse.getExecHash()).isEqualTo("execHash");
         assertThat(resultResponse.getPrivacyFlag())
             .isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION.getPrivacyFlag());
 
-        assertThat(resultResponse.getExecHash()).isNotNull();
-        assertThat(resultResponse.getAffectedContractTransactions()).isNotNull();
+        assertThat(resultResponse.getAffectedContractTransactions()).isNullOrEmpty();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
@@ -229,6 +237,7 @@ public class TransactionResourceTest {
 
         final SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+        sendRequest.setPrivacyFlag(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
 
         final PublicKey sender = mock(PublicKey.class);
         when(transactionManager.defaultPublicKey()).thenReturn(sender);
@@ -250,8 +259,8 @@ public class TransactionResourceTest {
                                 .request()
                                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
-
         assertThat(result.getStatus()).isEqualTo(201);
+
         assertThat(result.getLocation().getPath()).isEqualTo("/transaction/" + base64Encoder.encodeToString(txnData));
         SendResponse resultSendResponse = result.readEntity(SendResponse.class);
         assertThat(resultSendResponse.getKey());
