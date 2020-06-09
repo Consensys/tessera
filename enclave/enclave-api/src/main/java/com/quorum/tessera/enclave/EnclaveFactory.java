@@ -30,7 +30,7 @@ public interface EnclaveFactory {
 
     static Enclave createServer(Config config) {
 
-        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating enclave server");
+        LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating enclave server");
 
         EncryptorConfig encryptorConfig = config.getEncryptor();
         EncryptorFactory encryptorFactory = EncryptorFactory.newFactory(encryptorConfig.getType().name());
@@ -46,11 +46,11 @@ public interface EnclaveFactory {
 
         final Collection<PublicKey> forwardKeys = keyPairConverter.convert(config.getAlwaysSendTo());
 
-        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating enclave");
+        LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating enclave");
 
         Enclave enclave = new EnclaveImpl(encryptor, new KeyManagerImpl(keys, forwardKeys));
 
-        LoggerFactory.getLogger(EnclaveFactory.class).info("Created enclave {}", enclave);
+        LoggerFactory.getLogger(EnclaveFactory.class).debug("Created enclave {}", enclave);
 
         return enclave;
     }
@@ -65,13 +65,13 @@ public interface EnclaveFactory {
      * @return the {@link Enclave}, which may be either local or remote
      */
     default Enclave create(Config config) {
-        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating enclave");
+        LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating enclave");
         try {
             final Optional<ServerConfig> enclaveServerConfig =
                     config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.ENCLAVE).findAny();
 
             if (enclaveServerConfig.isPresent()) {
-                LoggerFactory.getLogger(EnclaveFactory.class).info("Creating remoted enclave");
+                LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating remoted enclave");
                 return EnclaveClientFactory.create().create(config);
             }
             return createServer(config);
@@ -82,7 +82,7 @@ public interface EnclaveFactory {
     }
 
     static EnclaveFactory create() {
-        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating EnclaveFactory");
+        LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating EnclaveFactory");
         return ServiceLoaderUtil.load(EnclaveFactory.class).orElse(new EnclaveFactory() {});
     }
 }
