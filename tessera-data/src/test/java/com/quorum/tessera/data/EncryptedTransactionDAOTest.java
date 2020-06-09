@@ -329,7 +329,7 @@ public class EncryptedTransactionDAOTest {
     }
 
     @Test
-    public void saveTransactionWithCallbackExceipt() throws Exception {
+    public void saveTransactionWithCallbackException() throws Exception {
 
         MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
         EncryptedTransaction transaction = new EncryptedTransaction();

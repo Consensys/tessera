@@ -102,12 +102,13 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
     }
 
     @Override
-    public void save(EncryptedTransaction transaction, Callable<Void> consumer) {
+    public <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer) {
 
-        entityManagerTemplate.execute(entityManager -> {
+        return entityManagerTemplate.execute(entityManager -> {
             entityManager.persist(transaction);
             try {
-                return consumer.call();
+                 consumer.call();
+                 return transaction;
             } catch (Exception e) {
                 throw new PersistenceException(e);
             }
