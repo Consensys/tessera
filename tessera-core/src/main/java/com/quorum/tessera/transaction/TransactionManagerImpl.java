@@ -142,14 +142,12 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(transactionHash,payloadData);
 
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        publish(recipientListNoDuplicate, payload);
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
 
         return SendResponse.from(transactionHash);
     }
 
-    void publish(List<PublicKey> recipientList, EncodedPayload payload) {
+    boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
         recipientList.stream()
                 .filter(k -> !enclave.getPublicKeys().contains(k))
                 .forEach(
@@ -157,6 +155,7 @@ public class TransactionManagerImpl implements TransactionManager {
                             final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
                             partyInfoService.publishPayload(outgoing, recipient);
                         });
+        return true;
     }
 
     @Override
@@ -202,9 +201,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        publish(recipientListNoDuplicate, payload);
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
 
         return SendResponse.from(messageHash);
     }
