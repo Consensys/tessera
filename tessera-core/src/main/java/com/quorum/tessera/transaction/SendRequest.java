@@ -69,9 +69,13 @@ public interface SendRequest {
         }
 
         public SendRequest build() {
+
             Objects.requireNonNull(from, "Sender is required");
             Objects.requireNonNull(recipients, "Recipients are required");
             Objects.requireNonNull(payload, "Payload is required");
+            Objects.requireNonNull(privacyMode, "PrivacyMode is required");
+            Objects.requireNonNull(affectedContractTransactions, "AffectedContractTransactions is required");
+            Objects.requireNonNull(execHash, "ExecutionHash is required");
 
             return new SendRequest() {
 
