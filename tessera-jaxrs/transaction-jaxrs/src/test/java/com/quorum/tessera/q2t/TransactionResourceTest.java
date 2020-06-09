@@ -240,6 +240,7 @@ public class TransactionResourceTest {
 
         final byte[] txnData = "TxnData".getBytes();
         when(messageHash.getHashBytes()).thenReturn(txnData);
+
         when(sendResponse.getTransactionHash()).thenReturn(messageHash);
 
         when(transactionManager.send(any(com.quorum.tessera.transaction.SendRequest.class))).thenReturn(sendResponse);
@@ -249,9 +250,11 @@ public class TransactionResourceTest {
                                 .request()
                                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
-        assertThat(result.getStatus()).isEqualTo(201);
 
+        assertThat(result.getStatus()).isEqualTo(201);
         assertThat(result.getLocation().getPath()).isEqualTo("/transaction/" + base64Encoder.encodeToString(txnData));
+        SendResponse resultSendResponse = result.readEntity(SendResponse.class);
+        assertThat(resultSendResponse.getKey());
 
         verify(transactionManager).send(any(com.quorum.tessera.transaction.SendRequest.class));
         verify(transactionManager).defaultPublicKey();

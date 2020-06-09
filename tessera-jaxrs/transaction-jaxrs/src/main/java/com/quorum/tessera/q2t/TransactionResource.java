@@ -80,6 +80,7 @@ public class TransactionResource {
             .withRecipients(recipientList)
             .withSender(sender)
             .withPayload(sendRequest.getPayload())
+            .withExecHash(Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]))
             .build();
 
         final com.quorum.tessera.transaction.SendResponse response = transactionManager.send(request);

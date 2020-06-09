@@ -50,7 +50,7 @@ public class SendSignedRequestTest {
 
         assertThat(request).isNotNull();
         assertThat(request.getSignedData()).containsExactly(signedData);
-        assertThat(request.getExecHash()).isNull();
+        assertThat(request.getExecHash()).isEmpty();
         assertThat(request.getRecipients()).hasSize(1).containsAll(recipients);
         assertThat(request.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
     }

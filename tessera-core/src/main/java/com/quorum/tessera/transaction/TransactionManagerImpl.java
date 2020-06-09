@@ -114,8 +114,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final PrivacyMode privacyMode = sendRequest.getPrivacyMode();
 
-        final byte[] execHash =
-                Optional.ofNullable(sendRequest.getExecHash()).orElse(new byte[0]);
+        final byte[] execHash = sendRequest.getExecHash();
 
         final List<AffectedTransaction> affectedContractTransactions =
                 privacyHelper.findAffectedContractTransactionsFromSendRequest(

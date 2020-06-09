@@ -31,7 +31,7 @@ public interface SendSignedRequest {
 
         private PrivacyMode privacyMode;
 
-        private byte[] execHash;
+        private byte[] execHash = new byte[0];
 
         private Set<MessageHash> affectedContractTransactions;
 
