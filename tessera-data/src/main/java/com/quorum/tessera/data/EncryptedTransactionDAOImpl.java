@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import javax.persistence.PersistenceException;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
@@ -96,6 +99,20 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
                     entityManager.remove(message);
                     return message;
                 });
+    }
+
+    @Override
+    public void save(EncryptedTransaction transaction, Callable<Void> consumer) {
+
+        entityManagerTemplate.execute(entityManager -> {
+            entityManager.persist(transaction);
+            try {
+                return consumer.call();
+            } catch (Exception e) {
+                throw new PersistenceException(e);
+            }
+        });
+
     }
 
     @Override
