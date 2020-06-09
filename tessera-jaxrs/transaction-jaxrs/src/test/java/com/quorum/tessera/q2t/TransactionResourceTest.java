@@ -78,42 +78,40 @@ public class TransactionResourceTest {
 
     }
 
-    @Ignore
     @Test
     public void receive() {
-        String key = Base64.getEncoder().encodeToString("KEY".getBytes());
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(key);
+            String key = Base64.getEncoder().encodeToString("KEY".getBytes());
+            ReceiveRequest receiveRequest = new ReceiveRequest();
+            receiveRequest.setKey(key);
 
-        String recipient = Base64.getEncoder().encodeToString("Bobby Sixkiller".getBytes());
+            String recipient = Base64.getEncoder().encodeToString("Bobby Sixkiller".getBytes());
 
-        receiveRequest.setTo(recipient);
+            receiveRequest.setTo(recipient);
 
-        ReceiveResponse receiveResponse = mock(ReceiveResponse.class);
+            ReceiveResponse receiveResponse = mock(ReceiveResponse.class);
 
-        when(receiveResponse.getAffectedTransactions()).thenReturn(Set.of());
-        when(receiveResponse.getUnencryptedTransactionData()).thenReturn("Result".getBytes());
-        when(receiveResponse.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+            when(receiveResponse.getAffectedTransactions()).thenReturn(Set.of());
+            when(receiveResponse.getUnencryptedTransactionData()).thenReturn("Result".getBytes());
+            when(receiveResponse.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
 
-        when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(receiveResponse);
+            when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(receiveResponse);
 
-        final Response result = jersey
-            .target("receive")
-            .request()
-            .post(Entity.entity(receiveRequest, MediaType.APPLICATION_JSON));
+            TransactionResource resource = new TransactionResource(transactionManager);
 
-        assertThat(result.getStatus()).isEqualTo(200);
+            final Response result = resource.receive(receiveRequest);
 
-        com.quorum.tessera.api.ReceiveResponse resultResponse = result.readEntity(com.quorum.tessera.api.ReceiveResponse.class);
+            assertThat(result.getStatus()).isEqualTo(200);
 
-        assertThat(resultResponse.getExecHash()).isNull();
-        assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
+            com.quorum.tessera.api.ReceiveResponse resultResponse = (com.quorum.tessera.api.ReceiveResponse) result.getEntity();
 
-        verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
+            assertThat(resultResponse.getExecHash()).isNull();
+            assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
+
+            verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
 
     }
 
-    @Ignore
+
     @Test
     public void receiveWithRecipient() {
         String key = Base64.getEncoder().encodeToString("KEY".getBytes());
@@ -126,15 +124,13 @@ public class TransactionResourceTest {
         when(transactionManager.receive(any())).thenReturn(receiveResponse);
         when(receiveResponse.getUnencryptedTransactionData()).thenReturn("Result".getBytes());
 
-        Response result = jersey
-            .target("receive")
-            .request()
-            .post(Entity.entity(receiveRequest, MediaType.APPLICATION_JSON));
-
+        TransactionResource resource = new TransactionResource(transactionManager);
+        final Response result = resource.receive(receiveRequest);
 
         assertThat(result.getStatus()).isEqualTo(200);
 
-        com.quorum.tessera.api.ReceiveResponse resultResponse = result.readEntity(com.quorum.tessera.api.ReceiveResponse.class);
+        com.quorum.tessera.api.ReceiveResponse resultResponse = (com.quorum.tessera.api.ReceiveResponse) result.getEntity();
+
         assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
         assertThat(resultResponse.getExecHash()).isNull();
 
