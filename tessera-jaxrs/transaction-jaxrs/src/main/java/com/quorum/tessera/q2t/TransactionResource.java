@@ -76,16 +76,13 @@ public class TransactionResource {
 
         final List<PublicKey> recipientList = Stream.of(recipients).map(PublicKey::from).collect(Collectors.toList());
 
-        Set<MessageHash> affectedTransactions = Stream.of(sendRequest)
-            .filter(s -> s.getAffectedContractTransactions() != null)
-            .map(SendRequest::getAffectedContractTransactions)
+        Set<MessageHash> affectedTransactions = Stream.ofNullable(sendRequest.getAffectedContractTransactions())
             .flatMap(Arrays::stream)
             .map(Base64.getDecoder()::decode)
             .map(MessageHash::new)
             .collect(Collectors.toSet());
 
         final byte[] execHash = Optional.ofNullable(sendRequest.getExecHash())
-            .filter(s -> !s.isBlank())
             .map(String::getBytes).orElse(new byte[0]);
 
         PrivacyMode privacyMode = Optional.of(sendRequest)
