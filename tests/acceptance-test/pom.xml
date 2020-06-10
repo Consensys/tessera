@@ -198,6 +198,7 @@
                         <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
+                        <include>RecoverIT</include>
                         <include>CucumberFileKeyGenerationIT</include>
                         <include>RestSuiteHttpH2</include>
                         <include>RestSuiteHttpHSQL</include>
