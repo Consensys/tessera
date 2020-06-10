@@ -1,6 +1,5 @@
 package com.quorum.tessera.data;
 
-import com.quorum.tessera.encryption.KeyNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
