@@ -96,7 +96,7 @@ public interface SendSignedRequest {
 
                 @Override
                 public byte[] getExecHash() {
-                    return execHash;
+                    return Arrays.copyOf(execHash,execHash.length);
                 }
 
                 @Override

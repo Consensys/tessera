@@ -165,7 +165,6 @@ public class RecoverIT {
 
         for (int i = 0; i < TXN_COUNT; i++) {
             SendRequest sendRequest = new SendRequest();
-
             sendRequest.setPayload(createPayload(privacyMode));
             sendRequest.setFrom(sender.getPublicKey());
 
@@ -173,6 +172,8 @@ public class RecoverIT {
 
             sendRequest.setTo(recipientList.toArray(new String[recipientList.size()]));
             sendRequest.setPrivacyFlag(privacyMode.getPrivacyFlag());
+            sendRequest.setExecHash("ExecHash");
+            sendRequest.setAffectedContractTransactions(new String[0]);
 
             Response response =
                     sender.getRestClientWebTarget()
@@ -229,6 +230,7 @@ public class RecoverIT {
     private long doCount(NodeAlias nodeAlias) {
         Party party = partyHelper.findByAlias(nodeAlias);
         Connection connection = party.getDatabaseConnection();
+
         try (connection) {
 
             PreparedStatement preparedStatement =
