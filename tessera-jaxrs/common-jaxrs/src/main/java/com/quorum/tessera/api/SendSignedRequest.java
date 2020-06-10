@@ -61,7 +61,7 @@ public class SendSignedRequest {
         return affectedContractTransactions;
     }
 
-    public void setAffectedContractTransactions(String[] affectedContractTransactions) {
+    public void setAffectedContractTransactions(String... affectedContractTransactions) {
         this.affectedContractTransactions = affectedContractTransactions;
     }
 

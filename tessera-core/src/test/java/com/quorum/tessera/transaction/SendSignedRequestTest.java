@@ -5,6 +5,7 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -20,14 +21,15 @@ public class SendSignedRequestTest {
 
         MessageHash affectedTransaction = mock(MessageHash.class);
 
-        SendSignedRequest request = SendSignedRequest.Builder.create()
-            .withSignedData(signedData)
-            .withExecHash("Exehash".getBytes())
-            .withRecipients(recipients)
-            .withAffectedContractTransactions(Set.of(affectedTransaction))
-
-            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-            .build();
+        SendSignedRequest request =
+                SendSignedRequest.Builder.create()
+                        .withSender(mock(PublicKey.class))
+                        .withSignedData(signedData)
+                        .withExecHash("Exehash".getBytes())
+                        .withRecipients(recipients)
+                        .withAffectedContractTransactions(Set.of(affectedTransaction))
+                        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .build();
 
         assertThat(request).isNotNull();
         assertThat(request.getAffectedContractTransactions()).containsOnly(affectedTransaction);
@@ -42,11 +44,14 @@ public class SendSignedRequestTest {
         byte[] signedData = "SignedData".getBytes();
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
 
-        SendSignedRequest request = SendSignedRequest.Builder.create()
-            .withSignedData(signedData)
-            .withRecipients(recipients)
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .build();
+        SendSignedRequest request =
+                SendSignedRequest.Builder.create()
+                        .withSignedData(signedData)
+                        .withRecipients(recipients)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedContractTransactions(Collections.emptySet())
+                        .withExecHash(new byte[0])
+                        .build();
 
         assertThat(request).isNotNull();
         assertThat(request.getSignedData()).containsExactly(signedData);
@@ -57,21 +62,27 @@ public class SendSignedRequestTest {
 
     @Test(expected = NullPointerException.class)
     public void buidlwithNothing() {
-        SendSignedRequest.Builder.create()
-            .build();
+        SendSignedRequest.Builder.create().build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buidlWithoutSignedData() {
-        SendSignedRequest.Builder.create()
-            .withRecipients(List.of(mock(PublicKey.class)))
-            .build();
+        SendSignedRequest.Builder.create().withRecipients(List.of(mock(PublicKey.class))).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutRecipients() {
+        SendSignedRequest.Builder.create().withSignedData("Data".getBytes()).build();
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void buildWithInvalidExecHash() {
         SendSignedRequest.Builder.create()
-            .withSignedData("Data".getBytes())
-            .build();
+                .withSignedData("Data".getBytes())
+                .withRecipients(Collections.emptyList())
+                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                .withAffectedContractTransactions(Collections.emptySet())
+                .withExecHash(new byte[0])
+                .build();
     }
 }

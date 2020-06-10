@@ -58,6 +58,5 @@ public interface EncryptedTransactionDAO {
      */
     void delete(MessageHash hash);
 
-
     <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer);
 }

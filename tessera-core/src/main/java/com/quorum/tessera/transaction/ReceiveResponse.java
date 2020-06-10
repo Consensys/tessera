@@ -24,12 +24,11 @@ public interface ReceiveResponse {
 
         private PrivacyMode privacyMode;
 
-        private byte[] execHash;
+        private byte[] execHash = new byte[0];
 
         private Set<MessageHash> affectedTransactions = Collections.emptySet();
 
-        private Builder() {
-        }
+        private Builder() {}
 
         public static Builder create() {
             return new Builder();
@@ -49,6 +48,7 @@ public interface ReceiveResponse {
             this.execHash = execHash;
             return this;
         }
+
         public Builder withAffectedTransactions(Set<MessageHash> affectedTransactions) {
             this.affectedTransactions = affectedTransactions;
             return this;
@@ -56,18 +56,20 @@ public interface ReceiveResponse {
 
         public ReceiveResponse build() {
 
-            Objects.requireNonNull(privacyMode,"Privacy mode is required");
-            Objects.requireNonNull(unencryptedTransactionData,"unencrypted payload is required");
+            Objects.requireNonNull(unencryptedTransactionData, "unencrypted payload is required");
+            Objects.requireNonNull(privacyMode, "Privacy mode is required");
 
-            if(privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
-                Objects.requireNonNull(execHash,"Exec hash is required if privacy mode is PRIVATE_STATE_VALIDATION");
+            if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+                if (execHash.length == 0) {
+                    throw new RuntimeException("ExecutionHash is required for PRIVATE_STATE_VALIDATION privacy mode");
+                }
             }
 
             return new ReceiveResponse() {
 
                 @Override
                 public byte[] getUnencryptedTransactionData() {
-                    return Arrays.copyOf(unencryptedTransactionData,unencryptedTransactionData.length);
+                    return Arrays.copyOf(unencryptedTransactionData, unencryptedTransactionData.length);
                 }
 
                 @Override
@@ -77,7 +79,7 @@ public interface ReceiveResponse {
 
                 @Override
                 public byte[] getExecHash() {
-                    return Arrays.copyOf(execHash,execHash.length);
+                    return Arrays.copyOf(execHash, execHash.length);
                 }
 
                 @Override
@@ -87,5 +89,4 @@ public interface ReceiveResponse {
             };
         }
     }
-
 }

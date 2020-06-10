@@ -32,7 +32,7 @@ public interface SendRequest {
 
         private byte[] execHash;
 
-        private Set<MessageHash> affectedContractTransactions = Collections.emptySet();
+        private Set<MessageHash> affectedContractTransactions;
 
         public static Builder create() {
             return new Builder() {};
@@ -74,10 +74,13 @@ public interface SendRequest {
             Objects.requireNonNull(recipients, "Recipients are required");
             Objects.requireNonNull(payload, "Payload is required");
             Objects.requireNonNull(privacyMode, "PrivacyMode is required");
+            Objects.requireNonNull(affectedContractTransactions, "AffectedContractTransactions is required");
+            Objects.requireNonNull(execHash, "ExecutionHash is required");
 
-            if(privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
-                Objects.requireNonNull(affectedContractTransactions, "AffectedContractTransactions is required");
-                Objects.requireNonNull(execHash, "ExecutionHash is required");
+            if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+                if (execHash.length == 0) {
+                    throw new RuntimeException("ExecutionHash is required for PRIVATE_STATE_VALIDATION privacy mode");
+                }
             }
 
             return new SendRequest() {
@@ -113,7 +116,5 @@ public interface SendRequest {
                 }
             };
         }
-
     }
-
 }

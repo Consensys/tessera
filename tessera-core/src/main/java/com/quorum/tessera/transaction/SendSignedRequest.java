@@ -31,7 +31,7 @@ public interface SendSignedRequest {
 
         private PrivacyMode privacyMode;
 
-        private byte[] execHash = new byte[0];
+        private byte[] execHash;
 
         private Set<MessageHash> affectedContractTransactions;
 
@@ -44,10 +44,10 @@ public interface SendSignedRequest {
             return this;
         }
 
-//        public Builder withSender(PublicKey from) {
-//            this.from = from;
-//            return this;
-//        }
+        public Builder withSender(PublicKey from) {
+            this.from = from;
+            return this;
+        }
 
         public Builder withRecipients(List<PublicKey> recipients) {
             this.recipients = recipients;
@@ -59,7 +59,6 @@ public interface SendSignedRequest {
             return this;
         }
 
-
         public Builder withExecHash(byte[] execHash) {
             this.execHash = execHash;
             return this;
@@ -69,13 +68,18 @@ public interface SendSignedRequest {
             this.privacyMode = privacyMode;
             return this;
         }
+
         public SendSignedRequest build() {
             Objects.requireNonNull(signedData, "Signed data is required");
             Objects.requireNonNull(recipients, "recipients is required");
-            Objects.requireNonNull(privacyMode,"privacyMode is required");
+            Objects.requireNonNull(privacyMode, "privacyMode is required");
+            Objects.requireNonNull(affectedContractTransactions, "affectedContractTransactions is required");
+            Objects.requireNonNull(execHash, "ExecutionHash is required");
 
-            if(privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
-                Objects.requireNonNull(execHash,"execHash is required for PRIVATE_STATE_VALIDATION privacy mode");
+            if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+                if (execHash.length == 0) {
+                    throw new RuntimeException("ExecutionHash is required for PRIVATE_STATE_VALIDATION privacy mode");
+                }
             }
 
             return new SendSignedRequest() {
@@ -96,7 +100,7 @@ public interface SendSignedRequest {
 
                 @Override
                 public byte[] getExecHash() {
-                    return Arrays.copyOf(execHash,execHash.length);
+                    return Arrays.copyOf(execHash, execHash.length);
                 }
 
                 @Override
@@ -105,7 +109,5 @@ public interface SendSignedRequest {
                 }
             };
         }
-
     }
-
 }

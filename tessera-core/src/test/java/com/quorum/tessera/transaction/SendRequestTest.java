@@ -5,6 +5,7 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -20,14 +21,15 @@ public class SendRequestTest {
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
         MessageHash affectedTransaction = mock(MessageHash.class);
         final byte[] execHash = "ExecHash".getBytes();
-        SendRequest sendRequest = SendRequest.Builder.create()
-            .withPayload(payload)
-            .withSender(sender)
-            .withRecipients(recipients)
-            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-            .withExecHash(execHash)
-            .withAffectedContractTransactions(Set.of(affectedTransaction))
-            .build();
+        SendRequest sendRequest =
+                SendRequest.Builder.create()
+                        .withPayload(payload)
+                        .withSender(sender)
+                        .withRecipients(recipients)
+                        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash(execHash)
+                        .withAffectedContractTransactions(Set.of(affectedTransaction))
+                        .build();
 
         assertThat(sendRequest).isNotNull();
         assertThat(sendRequest.getSender()).isSameAs(sender);
@@ -40,8 +42,7 @@ public class SendRequestTest {
 
     @Test(expected = NullPointerException.class)
     public void buildWithNothing() {
-        SendRequest.Builder.create()
-            .build();
+        SendRequest.Builder.create().build();
     }
 
     @Test(expected = NullPointerException.class)
@@ -49,10 +50,7 @@ public class SendRequestTest {
         PublicKey sender = mock(PublicKey.class);
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
 
-        SendRequest.Builder.create()
-            .withSender(sender)
-            .withRecipients(recipients)
-            .build();
+        SendRequest.Builder.create().withSender(sender).withRecipients(recipients).build();
     }
 
     @Test(expected = NullPointerException.class)
@@ -61,10 +59,7 @@ public class SendRequestTest {
 
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
 
-        SendRequest.Builder.create()
-            .withPayload(payload)
-            .withRecipients(recipients)
-            .build();
+        SendRequest.Builder.create().withPayload(payload).withRecipients(recipients).build();
     }
 
     @Test(expected = NullPointerException.class)
@@ -72,9 +67,22 @@ public class SendRequestTest {
         byte[] payload = "Payload".getBytes();
         PublicKey sender = mock(PublicKey.class);
 
+        SendRequest.Builder.create().withPayload(payload).withSender(sender).build();
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void buildWithInvalidExecHash() {
+
+        byte[] payload = "Payload".getBytes();
+        PublicKey sender = mock(PublicKey.class);
+
         SendRequest.Builder.create()
-            .withPayload(payload)
-            .withSender(sender)
-            .build();
+                .withPayload(payload)
+                .withSender(sender)
+                .withRecipients(Collections.emptyList())
+                .withAffectedContractTransactions(Collections.emptySet())
+                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                .withExecHash(new byte[0])
+                .build();
     }
 }
