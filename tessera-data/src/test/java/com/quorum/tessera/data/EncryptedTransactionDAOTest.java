@@ -353,6 +353,31 @@ public class EncryptedTransactionDAOTest {
         verify(callback).call();
     }
 
+    @Test
+    public void saveTransactionWithCallbackRuntimeException() throws Exception {
+
+        MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+        EncryptedTransaction transaction = new EncryptedTransaction();
+        transaction.setHash(transactionHash);
+        transaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+
+        Callable<Void> callback = mock(Callable.class);
+        when(callback.call()).thenThrow(new RuntimeException("OUCH"));
+
+        try {
+            encryptedTransactionDAO.save(transaction, callback);
+            failBecauseExceptionWasNotThrown(RuntimeException.class);
+        } catch (RuntimeException ex) {
+            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
+        }
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EncryptedTransaction result = entityManager.find(EncryptedTransaction.class, transactionHash);
+        assertThat(result).isNull();
+
+        verify(callback).call();
+    }
+
     @Parameterized.Parameters(name = "DB {0}")
     public static Collection<TestConfig> connectionDetails() {
         return List.of(TestConfig.values());
