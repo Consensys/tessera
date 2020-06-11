@@ -11,7 +11,7 @@ RUN cd /tessera && mvn clean -Dmaven.repo.local=/tessera/.m2/repository -DskipTe
 FROM adoptopenjdk/openjdk11:alpine
 
 RUN apk add bzip2=1.0.8-r1 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
-RUN apk add musl=1.1.24-r2 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
+RUN apk add musl=1.1.24-r8 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
 RUN apk add libbz2=1.0.8-r1 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
 RUN apk add libtasn1=4.15.0-r0 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
 RUN apk add libpng=1.6.37-r1 --update-cache --repository http://dl-cdn.alpinelinux.org/alpine/edge/main/ --allow-untrusted
