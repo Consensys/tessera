@@ -5,7 +5,6 @@ import org.junit.Test;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -35,6 +34,7 @@ public class RuntimeContextTest extends ContextTestCase {
         assertThat(runtimeContext.getPeers()).isEmpty();
         assertThat(runtimeContext.isRemoteKeyValidation()).isFalse();
         assertThat(runtimeContext.isUseWhiteList()).isFalse();
+        assertThat(runtimeContext.isBootstrapNode()).isFalse();
 
         assertThat(runtimeContext.isDisablePeerDiscovery()).isFalse();
 

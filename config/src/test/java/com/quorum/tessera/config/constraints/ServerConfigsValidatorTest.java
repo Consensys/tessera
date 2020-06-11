@@ -2,6 +2,7 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +21,7 @@ import static org.mockito.Mockito.*;
 
 public class ServerConfigsValidatorTest {
 
-    private Map<AppType, ServerConfig> serverConfigs = new HashMap<>();
+    private Map<AppType, ServerConfig> serverConfigsMap = new HashMap<>();
 
     private ConstraintValidatorContext cvc;
 
@@ -40,7 +41,7 @@ public class ServerConfigsValidatorTest {
             serverConfig.setInfluxConfig(null);
             serverConfig.setBindingAddress(null);
 
-            serverConfigs.put(appType, serverConfig);
+            serverConfigsMap.put(appType, serverConfig);
         }
 
         validator = new ServerConfigsValidator();
@@ -56,23 +57,29 @@ public class ServerConfigsValidatorTest {
 
     @Test
     public void isValidWhenServerConfigsIsNull() {
-        assertThat(validator.isValid(null, cvc)).isTrue();
+        Config config = new Config();
+        config.setServerConfigs(null);
+
+        assertThat(validator.isValid(config, cvc)).isTrue();
     }
 
     @Test
     public void isValidWhenValidDataIsSupplied() {
         List<ServerConfig> serverConfigList = serverConfigList();
+        Config config = new Config();
+        config.setServerConfigs(serverConfigList);
 
-        assertThat(validator.isValid(serverConfigList, cvc)).isTrue();
+        assertThat(validator.isValid(config, cvc)).isTrue();
     }
-
-
 
     @Test
     public void isNotValidWhenNoP2PServersAreDefined() {
         List<ServerConfig> serverConfigList =
                 serverConfigList().stream().filter(s -> s.getApp() != AppType.P2P).collect(Collectors.toList());
-        assertThat(validator.isValid(serverConfigList, cvc)).isFalse();
+        Config config = new Config();
+        config.setServerConfigs(serverConfigList);
+
+        assertThat(validator.isValid(config, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
     }
@@ -80,8 +87,11 @@ public class ServerConfigsValidatorTest {
     @Test
     public void isNotValidWhenTwoOrMoreP2PServersAreDefinedAndEnabled() {
         List<ServerConfig> serverConfigList = serverConfigList();
-        serverConfigList.add(serverConfigs.get(AppType.P2P));
-        assertThat(validator.isValid(serverConfigList, cvc)).isFalse();
+        serverConfigList.add(serverConfigsMap.get(AppType.P2P));
+        Config config = new Config();
+        config.setServerConfigs(serverConfigList);
+
+        assertThat(validator.isValid(config, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
     }
@@ -90,13 +100,27 @@ public class ServerConfigsValidatorTest {
     public void isNotValidWhenNoQ2TServersAreDefined() {
         List<ServerConfig> serverConfigList =
                 serverConfigList().stream().filter(s -> s.getApp() != AppType.Q2T).collect(Collectors.toList());
+        Config config = new Config();
+        config.setServerConfigs(serverConfigList);
 
-        assertThat(validator.isValid(serverConfigList, cvc)).isFalse();
+        assertThat(validator.isValid(config, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
         verify(cvc).buildConstraintViolationWithTemplate(eq("At least one Q2T server must be configured and enabled."));
     }
 
+    @Test
+    public void isNotValidWhenQ2TServersAreDefinedOnBootstrapNode() {
+        List<ServerConfig> serverConfigList = serverConfigList();
+        Config config = new Config();
+        config.setBootstrapNode(true);
+        config.setServerConfigs(serverConfigList);
+
+        assertThat(validator.isValid(config, cvc)).isFalse();
+        verify(cvc).disableDefaultConstraintViolation();
+        verify(cvc).buildConstraintViolationWithTemplate(eq("Q2T server cannot be specified on a bootstrap node."));
+    }
+
     private List<ServerConfig> serverConfigList() {
-        return new ArrayList<>(serverConfigs.values());
+        return new ArrayList<>(serverConfigsMap.values());
     }
 }
