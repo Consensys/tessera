@@ -12,20 +12,20 @@ Tessera is a stateless Java system that is used to enable the encryption, decryp
 
 Each Tessera node:
 
-* Generates and maintains a number of private/public key pairs
+* Generates and maintains a number of private/public key pairs.
 
-* Self manages and discovers all nodes in the network (i.e. their public keys) by connecting to as few as one other node
+* Self manages and discovers all nodes in the network (i.e. their public keys) by connecting to as few as one other node.
     
 * Provides Private and Public API interfaces for communication:
-    * Private API - This is used for communication with Quorum
-    * Public API - This is used for communication between Tessera peer nodes
+    * Private API - This is used for communication with Quorum.
+    * Public API - This is used for communication between Tessera peer nodes.
     
 * Provides two way SSL using TLS certificates and various trust models like Trust On First Use (TOFU), whitelist, 
     certificate authority, etc.
     
-* Supports IP whitelist
+* Supports IP whitelist.
   
-* Connects to any SQL DB which supports the JDBC client
+* Connects to any SQL DB which supports the JDBC client.
 
 ## Prerequisites
 - [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)<br/>
@@ -43,8 +43,8 @@ Each Tessera node:
 
 ## Building Tessera from source
 To build and install Tessera:
-1. Clone this repo
-1. Build using Maven (see below)
+1. Clone this repo.
+1. Build using Maven.(see below)
 
 
 ### Selecting an NaCl Implementation 
@@ -105,11 +105,11 @@ command line property.
 
 An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Configuration-overview) and includes details on all aspects of configuration including:
 * Cryptographic key config:
-    * Using existing private/public key pairs with Tessera
-    * How to use Tessera to generate new key pairs 
-* TLS config
-    * How to enable TLS
-    * Choosing a trust mode
+    * Using existing private/public key pairs with Tessera.
+    * How to use Tessera to generate new key pairs.
+* TLS config:
+    * How to enable TLS.
+    * Choosing a trust mode.
     
 #### Obfuscate database password in config file
 
