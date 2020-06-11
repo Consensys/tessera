@@ -9,18 +9,23 @@ import com.quorum.tessera.transaction.TransactionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import javax.ws.rs.ext.ExceptionMapper;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -44,8 +49,7 @@ public class TransactionResourceTest {
 
         transactionManager = mock(TransactionManager.class);
         TransactionResource transactionResource = new TransactionResource(transactionManager);
-        final Map<String, Object> initParams =
-                Map.of("jersey.config.beanValidation.enableOutputValidationErrorEntity.server", "true");
+
         jersey =
                 new JerseyTest() {
                     @Override
@@ -53,22 +57,7 @@ public class TransactionResourceTest {
                         forceSet(TestProperties.CONTAINER_PORT, "0");
                         enable(TestProperties.LOG_TRAFFIC);
                         enable(TestProperties.DUMP_ENTITY);
-
-                        return ResourceConfig.forApplication(
-                                        new Application() {
-                                            @Override
-                                            public Set<Object> getSingletons() {
-                                                return Set.of(
-                                                        transactionResource,
-                                                        (ExceptionMapper<Exception>)
-                                                                exception -> {
-                                                                    LOGGER.error("", exception);
-                                                                    exception.printStackTrace();
-                                                                    return Response.serverError().build();
-                                                                });
-                                            }
-                                        })
-                                .addProperties(initParams);
+                        return new ResourceConfig().register(transactionResource);
                     }
                 };
 
@@ -325,7 +314,7 @@ public class TransactionResourceTest {
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
 
-        StreamingOutput streamingOutput = output -> output.write("".getBytes());
+        StreamingOutput streamingOutput = output -> output.write("AA".getBytes());
 
         Response result =
                 jersey.target("sendsignedtx")
@@ -355,7 +344,7 @@ public class TransactionResourceTest {
                 jersey.target("sendsignedtx")
                         .request()
                         .header("c11n-to", null)
-                        .post(Entity.entity("".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                        .post(Entity.entity("AA".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.readEntity(String.class)).isEqualTo(Base64.getEncoder().encodeToString("KEY".getBytes()));
@@ -418,7 +407,7 @@ public class TransactionResourceTest {
                         .request()
                         .header("c11n-from", "")
                         .header("c11n-to", "someone")
-                        .post(Entity.entity("".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                        .post(Entity.entity("AA".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.readEntity(String.class)).isEqualTo(Base64.getEncoder().encodeToString(txnData));
@@ -444,9 +433,7 @@ public class TransactionResourceTest {
                         .request()
                         .header("c11n-from", "")
                         .header("c11n-to", "")
-                        .post(Entity.entity("".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
-
-        LOGGER.info("HERE {}", result);
+                        .post(Entity.entity("AA".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.readEntity(String.class)).isEqualTo(Base64.getEncoder().encodeToString(txnData));
@@ -471,7 +458,7 @@ public class TransactionResourceTest {
                         .request()
                         .header("c11n-from", "")
                         .header("c11n-to", null)
-                        .post(Entity.entity("".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
+                        .post(Entity.entity("AA".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.readEntity(String.class)).isEqualTo(Base64.getEncoder().encodeToString(txnData));
@@ -538,5 +525,65 @@ public class TransactionResourceTest {
         assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.readEntity(String.class)).isEqualTo("BASE64ENCODEKEY");
         verify(transactionManager).getParticipants(any(MessageHash.class));
+    }
+
+    @Test
+    public void validationSendPayloadCannotBeNullOrEmpty() {
+
+        Collection<Entity> nullAndEmpty =
+                List.of(
+                        Entity.entity(null, MediaType.APPLICATION_OCTET_STREAM_TYPE),
+                        Entity.entity(new byte[0], MediaType.APPLICATION_OCTET_STREAM_TYPE));
+
+        Map<String, Collection<Entity>> pathToEntityMapping =
+                Stream.of("sendsignedtx", "sendraw").collect(Collectors.toMap(s -> s, s -> nullAndEmpty));
+
+        pathToEntityMapping.entrySet().stream()
+                .forEach(
+                        e -> {
+                            e.getValue()
+                                    .forEach(
+                                            entity -> {
+                                                Response response =
+                                                        jersey.target(e.getKey())
+                                                                .request()
+                                                                .post(
+                                                                        Entity.entity(
+                                                                                null,
+                                                                                MediaType
+                                                                                        .APPLICATION_OCTET_STREAM_TYPE));
+                                                assertThat(response.getStatus()).isEqualTo(400);
+                                            });
+                        });
+    }
+
+    @Test
+    public void validationRecieveIsRawMustBeBoolean() {
+        Response response = jersey.target("transaction").path("MYHASH").queryParam("isRaw", "bogus").request().get();
+        assertThat(response.getStatus()).isEqualTo(400);
+    }
+
+    @Test
+    public void receiveRawValidations() {
+        assertThat(jersey.target("receiveraw").request().header("c11n-key", null).get().getStatus())
+                .describedAs("key header cannot be null")
+                .isEqualTo(400);
+
+        assertThat(jersey.target("receiveraw").request().get().getStatus()).isEqualTo(400);
+
+        assertThat(jersey.target("receiveraw").request().header("c11n-key", "notbase64").get().getStatus())
+                .describedAs("key header must be valid base64")
+                .isEqualTo(400);
+
+        String validBase64Encoded = Base64.getEncoder().encodeToString("VALIDKEY".getBytes());
+        assertThat(
+                        jersey.target("receiveraw")
+                                .request()
+                                .header("c11n-key", validBase64Encoded)
+                                .header("c11n-to", "notbase64")
+                                .get()
+                                .getStatus())
+                .describedAs("to header must be valid base64")
+                .isEqualTo(400);
     }
 }

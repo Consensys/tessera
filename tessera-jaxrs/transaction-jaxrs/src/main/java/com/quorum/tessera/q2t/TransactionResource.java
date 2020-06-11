@@ -1,7 +1,8 @@
 package com.quorum.tessera.q2t;
 
-import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.api.*;
+import com.quorum.tessera.api.constraint.PrivacyValid;
+import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -133,7 +135,8 @@ public class TransactionResource {
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
     public Response sendSignedTransaction(
-            @HeaderParam("c11n-to") final String recipientKeys, @NotNull @Size(min = 1) final byte[] signedTransaction)
+            @HeaderParam("c11n-to") final String recipientKeys,
+            @Valid @NotNull @Size(min = 1) final byte[] signedTransaction)
             throws UnsupportedEncodingException {
 
         final List<PublicKey> recipients =
@@ -245,9 +248,9 @@ public class TransactionResource {
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
     public Response sendRaw(
-            @HeaderParam("c11n-from") final String sender,
+            @HeaderParam("c11n-from") @Valid @ValidBase64 final String sender,
             @HeaderParam("c11n-to") final String recipientKeys,
-            @NotNull @Size(min = 1) final byte[] payload)
+            @NotNull @Size(min = 1) @Valid final byte[] payload)
             throws UnsupportedEncodingException {
 
         final PublicKey senderKey =
@@ -303,9 +306,14 @@ public class TransactionResource {
     @Path("/transaction/{hash}")
     @Produces(APPLICATION_JSON)
     public Response receive(
-            @ApiParam("Encoded hash used to decrypt the payload") @NotNull @Valid @PathParam("hash") final String hash,
-            @ApiParam("Encoded recipient key") @Valid @QueryParam("to") final String toStr,
-            @ApiParam("isRaw flag") @Valid @QueryParam("isRaw") final String isRaw) {
+            @ApiParam("Encoded hash used to decrypt the payload") @Valid @ValidBase64 @PathParam("hash")
+                    final String hash,
+            @ApiParam("Encoded recipient key") @QueryParam("to") final String toStr,
+            @ApiParam("isRaw flag")
+                    @Valid
+                    @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE, regexp = "^(true|false)$")
+                    @QueryParam("isRaw")
+                    final String isRaw) {
 
         Base64.Decoder base64Decoder = Base64.getDecoder();
         final PublicKey recipient =
@@ -395,8 +403,9 @@ public class TransactionResource {
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(APPLICATION_OCTET_STREAM)
     public Response receiveRaw(
-            @ApiParam("Encoded transaction hash") @NotNull @HeaderParam(value = "c11n-key") String hash,
-            @ApiParam("Encoded Recipient Public Key") @HeaderParam(value = "c11n-to") String recipientKey) {
+            @ApiParam("Encoded transaction hash") @ValidBase64 @NotNull @HeaderParam(value = "c11n-key") String hash,
+            @ApiParam("Encoded Recipient Public Key") @ValidBase64 @HeaderParam(value = "c11n-to")
+                    String recipientKey) {
 
         LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}", hash, recipientKey);
 
