@@ -28,8 +28,6 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     private final boolean useWhiteList;
 
-    private final boolean bootstrapNode;
-
     protected DefaultRuntimeContext(
             List<KeyPair> keys,
             KeyEncryptor keyEncryptor,
@@ -39,8 +37,7 @@ class DefaultRuntimeContext implements RuntimeContext {
             boolean remoteKeyValidation,
             URI p2pServerUri,
             boolean disablePeerDiscovery,
-            boolean useWhiteList,
-            boolean bootstrapNode) {
+            boolean useWhiteList) {
         this.keys = List.copyOf(keys);
         this.keyEncryptor = keyEncryptor;
         this.alwaysSendTo = List.copyOf(alwaysSendTo);
@@ -50,7 +47,6 @@ class DefaultRuntimeContext implements RuntimeContext {
         this.p2pServerUri = p2pServerUri;
         this.disablePeerDiscovery = disablePeerDiscovery;
         this.useWhiteList = useWhiteList;
-        this.bootstrapNode = bootstrapNode;
     }
 
     public List<KeyPair> getKeys() {
@@ -112,8 +108,6 @@ class DefaultRuntimeContext implements RuntimeContext {
                 + disablePeerDiscovery
                 + ", useWhiteList="
                 + useWhiteList
-                + ", bootstrapNode="
-                + bootstrapNode
                 + '}';
     }
 }

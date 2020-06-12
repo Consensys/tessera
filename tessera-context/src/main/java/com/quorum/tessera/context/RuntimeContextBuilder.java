@@ -34,8 +34,6 @@ public class RuntimeContextBuilder {
 
     private boolean useWhiteList;
 
-    private boolean bootstrapNode;
-
     private RuntimeContextBuilder() {}
 
     public static RuntimeContextBuilder create() {
@@ -87,11 +85,6 @@ public class RuntimeContextBuilder {
         return this;
     }
 
-    public RuntimeContextBuilder withBootstrapNode(boolean bootstrapNode) {
-        this.bootstrapNode = bootstrapNode;
-        return this;
-    }
-
     public RuntimeContext build() {
 
         LOGGER.debug("Building {}", this);
@@ -110,8 +103,7 @@ public class RuntimeContextBuilder {
                         remoteKeyValidation,
                         p2pServerUri,
                         disablePeerDiscovery,
-                        useWhiteList,
-                        bootstrapNode);
+                        useWhiteList);
         LOGGER.debug("Built {}", this);
         return instance;
     }
