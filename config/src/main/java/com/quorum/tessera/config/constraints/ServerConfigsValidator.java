@@ -17,7 +17,8 @@ public class ServerConfigsValidator implements ConstraintValidator<ValidServerCo
 
     @Override
     public boolean isValid(Config config, ConstraintValidatorContext constraintContext) {
-        if (config == null || config.getServerConfigs() == null || config.getServerConfigs().isEmpty()) {
+        // Note that null serverConfigs are actually prevented by `@ValidEitherServerConfigsOrServer` in Config
+        if (null == config || config.isServerConfigsNull()) {
             return true;
         }
 
@@ -29,10 +30,10 @@ public class ServerConfigsValidator implements ConstraintValidator<ValidServerCo
         final int q2TEnabledConfigsCount = counts.getOrDefault(AppType.Q2T, 0);
 
         if (p2PEnabledConfigsCount != 1) {
-            LOGGER.debug("Only one P2P server must be configured and enabled.");
+            LOGGER.debug("Exactly one P2P server must be configured.");
             constraintContext.disableDefaultConstraintViolation();
             constraintContext
-                    .buildConstraintViolationWithTemplate("Only one P2P server must be configured and enabled.")
+                    .buildConstraintViolationWithTemplate("Exactly one P2P server must be configured.")
                     .addConstraintViolation();
             return false;
         }
@@ -47,10 +48,11 @@ public class ServerConfigsValidator implements ConstraintValidator<ValidServerCo
                 return false;
             }
         } else if (q2TEnabledConfigsCount == 0) {
-            LOGGER.debug("At least one Q2T server must be configured and enabled.");
+            LOGGER.debug("At least one Q2T server must be configured or bootstrap mode enabled.");
             constraintContext.disableDefaultConstraintViolation();
             constraintContext
-                    .buildConstraintViolationWithTemplate("At least one Q2T server must be configured and enabled.")
+                    .buildConstraintViolationWithTemplate(
+                            "At least one Q2T server must be configured or bootstrap mode enabled.")
                     .addConstraintViolation();
             return false;
         }

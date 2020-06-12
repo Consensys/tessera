@@ -92,11 +92,6 @@ class DefaultRuntimeContext implements RuntimeContext {
     }
 
     @Override
-    public boolean isBootstrapNode() {
-        return bootstrapNode;
-    }
-
-    @Override
     public String toString() {
         return "DefaultRuntimeContext{"
                 + "keys="

@@ -37,6 +37,4 @@ public interface RuntimeContext {
     }
 
     boolean isUseWhiteList();
-
-    boolean isBootstrapNode();
 }

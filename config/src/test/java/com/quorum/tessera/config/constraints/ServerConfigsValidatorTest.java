@@ -56,6 +56,11 @@ public class ServerConfigsValidatorTest {
     }
 
     @Test
+    public void ignoreNullArg() {
+        assertThat(validator.isValid(null, cvc)).isTrue();
+    }
+
+    @Test
     public void isValidWhenServerConfigsIsNull() {
         Config config = new Config();
         config.setServerConfigs(null);
@@ -81,7 +86,7 @@ public class ServerConfigsValidatorTest {
 
         assertThat(validator.isValid(config, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
-        verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
+        verify(cvc).buildConstraintViolationWithTemplate(eq("Exactly one P2P server must be configured."));
     }
 
     @Test
@@ -93,7 +98,7 @@ public class ServerConfigsValidatorTest {
 
         assertThat(validator.isValid(config, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
-        verify(cvc).buildConstraintViolationWithTemplate(eq("Only one P2P server must be configured and enabled."));
+        verify(cvc).buildConstraintViolationWithTemplate(eq("Exactly one P2P server must be configured."));
     }
 
     @Test
@@ -105,7 +110,9 @@ public class ServerConfigsValidatorTest {
 
         assertThat(validator.isValid(config, cvc)).isFalse();
         verify(cvc).disableDefaultConstraintViolation();
-        verify(cvc).buildConstraintViolationWithTemplate(eq("At least one Q2T server must be configured and enabled."));
+        verify(cvc)
+                .buildConstraintViolationWithTemplate(
+                        eq("At least one Q2T server must be configured or bootstrap mode enabled."));
     }
 
     @Test

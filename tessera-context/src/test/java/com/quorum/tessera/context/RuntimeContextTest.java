@@ -34,7 +34,6 @@ public class RuntimeContextTest extends ContextTestCase {
         assertThat(runtimeContext.getPeers()).isEmpty();
         assertThat(runtimeContext.isRemoteKeyValidation()).isFalse();
         assertThat(runtimeContext.isUseWhiteList()).isFalse();
-        assertThat(runtimeContext.isBootstrapNode()).isFalse();
 
         assertThat(runtimeContext.isDisablePeerDiscovery()).isFalse();
 
