@@ -5,7 +5,6 @@ import org.junit.Test;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
