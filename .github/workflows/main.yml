@@ -3,7 +3,7 @@ name: Tessera Maven Build
 on:
   push:
     branches:
-      - psv_merge
+      - new-psv
   pull_request:
     branches:
       - new-psv
