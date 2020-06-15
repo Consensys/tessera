@@ -73,7 +73,7 @@ public class RecoverIT {
                         .with(SocketType.HTTP)
                         .with(EnclaveType.LOCAL)
                         .with(EncryptorType.NACL)
-                        .prefix(RecoverIT.class.getSimpleName().toLowerCase())
+                        .prefix(RecoverIT.class.getSimpleName().toLowerCase().concat("-").concat(privacyMode.name().toLowerCase()))
                         .createAndSetupContext();
 
         partyHelper = PartyHelper.create();
