@@ -1,15 +1,14 @@
 package com.quorum.tessera.q2t;
 
-import com.quorum.tessera.api.model.*;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.partyinfo.ResendResponse;
-import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.transaction.*;
 
 import java.util.List;
 
 public class MockTransactionManager implements TransactionManager {
+
     @Override
     public SendResponse send(SendRequest sendRequest) {
         return null;
@@ -21,7 +20,7 @@ public class MockTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void delete(DeleteRequest request) {
+    public void delete(MessageHash messageHash) {
 
     }
 
@@ -31,7 +30,7 @@ public class MockTransactionManager implements TransactionManager {
     }
 
     @Override
-    public MessageHash storePayload(byte[] toByteArray) {
+    public MessageHash storePayload(EncodedPayload transactionPayload) {
         return null;
     }
 
@@ -46,12 +45,17 @@ public class MockTransactionManager implements TransactionManager {
     }
 
     @Override
-    public boolean isSender(String ptmHash) {
+    public boolean isSender(MessageHash transactionHash) {
         return false;
     }
 
     @Override
-    public List<PublicKey> getParticipants(String ptmHash) {
+    public List<PublicKey> getParticipants(MessageHash transactionHash) {
+        return null;
+    }
+
+    @Override
+    public PublicKey defaultPublicKey() {
         return null;
     }
 }

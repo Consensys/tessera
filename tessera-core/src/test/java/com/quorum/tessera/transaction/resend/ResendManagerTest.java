@@ -49,8 +49,6 @@ public class ResendManagerTest {
 
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
-        final byte[] input = "SOMEDATA".getBytes();
-
         // A legacy payload has empty recipient and box
         final EncodedPayload encodedPayload =
                 EncodedPayload.Builder.create()
@@ -64,12 +62,11 @@ public class ResendManagerTest {
 
         final byte[] newEncryptedMasterKey = "newbox".getBytes();
 
-        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
         when(enclave.createNewRecipientBox(any(), any())).thenReturn(newEncryptedMasterKey);
 
-        resendManager.acceptOwnMessage(input);
+        resendManager.acceptOwnMessage(encodedPayload);
 
         ArgumentCaptor<EncodedPayload> payloadCapture = ArgumentCaptor.forClass(EncodedPayload.class);
 
@@ -87,7 +84,6 @@ public class ResendManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(payloadEncoder).decode(input);
         verify(enclave).getPublicKeys();
         verify(enclave).createNewRecipientBox(any(), any());
         verify(enclave).unencryptTransaction(encodedPayload, null);
@@ -95,8 +91,6 @@ public class ResendManagerTest {
 
     @Test
     public void storePayloadAsSenderWhenTxIsPresent() {
-
-        final byte[] incomingData = "incomingData".getBytes();
 
         final byte[] storedData = "SOMEDATA".getBytes();
         final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
@@ -135,10 +129,9 @@ public class ResendManagerTest {
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
         when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
 
-        resendManager.acceptOwnMessage(incomingData);
+        resendManager.acceptOwnMessage(encodedPayload);
 
         assertThat(encodedPayload.getRecipientKeys()).containsExactly(recipientKey2);
         assertThat(encodedPayload.getRecipientBoxes()).containsExactly(RecipientBox.from(recipientBox2));
@@ -164,7 +157,6 @@ public class ResendManagerTest {
         verify(encryptedTransactionDAO).update(et);
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(encodedPayload, null);
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
@@ -172,8 +164,6 @@ public class ResendManagerTest {
 
     @Test
     public void storePayloadAsSenderWhenTxIsPresentAndRecipientExisted() {
-
-        final byte[] incomingData = "incomingData".getBytes();
 
         final byte[] storedData = "SOMEDATA".getBytes();
         final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
@@ -193,17 +183,15 @@ public class ResendManagerTest {
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
         when(payloadEncoder.decode(storedData)).thenReturn(encodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
 
-        resendManager.acceptOwnMessage(incomingData);
+        resendManager.acceptOwnMessage(encodedPayload);
 
         assertThat(encodedPayload.getRecipientKeys()).containsExactly(recipientKey);
         assertThat(encodedPayload.getRecipientBoxes()).containsExactly(RecipientBox.from(recipientBox));
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(payloadEncoder).encode(any(EncodedPayload.class));
         verify(enclave).getPublicKeys();
         verify(enclave, times(2)).unencryptTransaction(encodedPayload, null);
@@ -212,8 +200,6 @@ public class ResendManagerTest {
 
     @Test
     public void storePayloadAsSenderWhenTxIsPresentPrivacyModeIsPSVAndRecipientsDifferThrows() {
-
-        final byte[] incomingData = "incomingData".getBytes();
 
         final byte[] storedData = "SOMEDATA".getBytes();
         final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
@@ -250,9 +236,8 @@ public class ResendManagerTest {
                 .thenReturn("data".getBytes());
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
         when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(incomingEncodedPayload);
 
-        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingData));
+        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingEncodedPayload));
 
         assertThat(throwable)
                 .isInstanceOf(PrivacyViolationException.class)
@@ -260,7 +245,6 @@ public class ResendManagerTest {
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
         verify(enclave).unencryptTransaction(incomingEncodedPayload, null);
@@ -268,8 +252,6 @@ public class ResendManagerTest {
 
     @Test
     public void storePayloadPsvExistingHasMoreRecipients() {
-
-        final byte[] incomingData = "incomingData".getBytes();
 
         final byte[] storedData = "SOMEDATA".getBytes();
         final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
@@ -306,9 +288,8 @@ public class ResendManagerTest {
             .thenReturn("data".getBytes());
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
         when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(incomingEncodedPayload);
 
-        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingData));
+        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingEncodedPayload));
 
         assertThat(throwable)
             .isInstanceOf(PrivacyViolationException.class)
@@ -316,7 +297,6 @@ public class ResendManagerTest {
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
         verify(enclave).unencryptTransaction(incomingEncodedPayload, null);
@@ -325,7 +305,6 @@ public class ResendManagerTest {
     @Test
     public void storePayloadPsvNewHasMoreRecipients() {
 
-        final byte[] incomingData = "incomingData".getBytes();
 
         final byte[] storedData = "SOMEDATA".getBytes();
         final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
@@ -362,9 +341,8 @@ public class ResendManagerTest {
             .thenReturn("data".getBytes());
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
         when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(incomingEncodedPayload);
 
-        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingData));
+        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingEncodedPayload));
 
         assertThat(throwable)
             .isInstanceOf(PrivacyViolationException.class)
@@ -372,7 +350,6 @@ public class ResendManagerTest {
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
         verify(enclave).unencryptTransaction(incomingEncodedPayload, null);
@@ -396,22 +373,19 @@ public class ResendManagerTest {
                         .build();
 
         when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("OTHER".getBytes())));
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
 
-        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(incomingData));
+        final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(encodedPayload));
 
         assertThat(throwable)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Message Q0lQSEVSVEVYVA== does not have one the nodes own keys as a sender");
 
         verify(enclave).getPublicKeys();
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 
     @Test
     public void invalidPayloadFromMaliciousRecipient() {
-        final byte[] incomingData = "incomingData".getBytes();
 
         final byte[] storedData = "SOMEDATA".getBytes();
         final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
@@ -439,17 +413,15 @@ public class ResendManagerTest {
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
         when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
         when(enclave.unencryptTransaction(existingEncodedPayload, null)).thenReturn("payload1".getBytes());
 
-        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(incomingData));
+        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(encodedPayload));
 
         assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage("Invalid payload provided");
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(encodedPayload, null);
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
@@ -488,17 +460,15 @@ public class ResendManagerTest {
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
         when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
         when(enclave.unencryptTransaction(existingEncodedPayload, null)).thenReturn("payload1".getBytes());
 
-        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(incomingData));
+        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(encodedPayload));
 
         assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage("Invalid payload provided");
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(encodedPayload, null);
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
@@ -506,7 +476,6 @@ public class ResendManagerTest {
 
     @Test
     public void invalidPayloadWithDifferentPrivacyFlag() {
-        final byte[] incomingData = "incomingData".getBytes();
 
         final byte[] storedData = "SOMEDATA".getBytes();
         final EncryptedTransaction et = new EncryptedTransaction(null, storedData);
@@ -539,17 +508,15 @@ public class ResendManagerTest {
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
         when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
         when(enclave.unencryptTransaction(existingEncodedPayload, null)).thenReturn("payload1".getBytes());
 
-        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(incomingData));
+        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(encodedPayload));
 
         assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage("Invalid payload provided");
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(encodedPayload, null);
         verify(enclave).unencryptTransaction(existingEncodedPayload, null);
@@ -557,7 +524,6 @@ public class ResendManagerTest {
 
     @Test
     public void undecryptablePayloadErrors() {
-        final byte[] incomingData = "incomingData".getBytes();
 
         final EncodedPayload encodedPayload =
                 EncodedPayload.Builder.create()
@@ -567,14 +533,12 @@ public class ResendManagerTest {
                         .withRecipientKeys(emptyList())
                         .build();
 
-        when(payloadEncoder.decode(incomingData)).thenReturn(encodedPayload);
         when(enclave.unencryptTransaction(encodedPayload, null)).thenThrow(IllegalArgumentException.class);
 
-        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(incomingData));
+        final Throwable throwable = catchThrowable(() -> resendManager.acceptOwnMessage(encodedPayload));
 
         assertThat(throwable).isInstanceOf(IllegalArgumentException.class).hasMessage(null);
 
-        verify(payloadEncoder).decode(incomingData);
         verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 

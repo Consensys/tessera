@@ -30,7 +30,7 @@ allprojects {
 
                 testCompile "junit:junit:4.12"
                 testCompile "org.assertj:assertj-core:3.9.1"
-                testCompile "org.mockito:mockito-core:2.23.0"
+                testCompile "org.mockito:mockito-core:3.3.3"
                 testCompile "com.openpojo:openpojo:0.8.10"
                 testCompile "com.github.stefanbirkner:system-rules:1.18.0"
                 testCompile "nl.jqno.equalsverifier:equalsverifier:3.1.5"
@@ -217,6 +217,9 @@ subprojects {
                 }
 
                 excludes = [
+                        'com.quorum.tessera.launcher.Launcher',
+                        'com.quorum.tessera.launcher.Launcher.*',
+                        'com.quorum.tessera.launcher.Main',
                         'com.quorum.tessera.config.migration.Main',
                         'com.quorum.tessera.data.migration.Main',
                         'com.quorum.tessera.passwords.ConsolePasswordReader',

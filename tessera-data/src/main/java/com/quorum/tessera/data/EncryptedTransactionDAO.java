@@ -3,6 +3,7 @@ package com.quorum.tessera.data;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 /** A data store for transactions that need to be retrieved later */
 public interface EncryptedTransactionDAO {
@@ -56,4 +57,6 @@ public interface EncryptedTransactionDAO {
      * @throws javax.persistence.EntityNotFoundException if there hash doesn't exist
      */
     void delete(MessageHash hash);
+
+    <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer);
 }

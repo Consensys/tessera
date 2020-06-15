@@ -1,40 +1,31 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.config.*;
-import com.quorum.tessera.enclave.*;
-import com.quorum.tessera.data.EncryptedRawTransactionDAO;
-import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.partyinfo.ResendRequestType;
-import com.quorum.tessera.partyinfo.ResendResponse;
-import com.quorum.tessera.api.model.*;
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
-import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.config.*;
+import com.quorum.tessera.data.*;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.Nonce;
-import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import com.quorum.tessera.partyinfo.PublishPayloadException;
-import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
+import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
-import com.quorum.tessera.data.EncryptedRawTransaction;
-import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Codec;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.*;
 
-import static java.util.Collections.*;
+import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -52,18 +43,16 @@ public class TransactionManagerTest {
 
     private ResendManager resendManager;
 
-    private PrivacyHelper privacyHelper;
-
     private Enclave enclave;
 
     private MessageHashFactory messageHashFactory = MessageHashFactory.create();
+
+    private PrivacyHelper privacyHelper;
 
     @Before
     public void onSetUp() {
         payloadEncoder = mock(PayloadEncoder.class);
         enclave = mock(Enclave.class);
-
-        when(enclave.findInvalidSecurityHashes(any(), any())).thenReturn(emptySet());
 
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
         encryptedRawTransactionDAO = mock(EncryptedRawTransactionDAO.class);
@@ -72,21 +61,21 @@ public class TransactionManagerTest {
         this.privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO);
 
         transactionManager =
-                new TransactionManagerImpl(
-                        Base64Codec.create(),
-                        payloadEncoder,
-                        encryptedTransactionDAO,
-                        partyInfoService,
-                        enclave,
-                        encryptedRawTransactionDAO,
-                        resendManager,
-                        privacyHelper,
-                        1000);
+            new TransactionManagerImpl(
+                Base64Codec.create(),
+                payloadEncoder,
+                encryptedTransactionDAO,
+                partyInfoService,
+                enclave,
+                encryptedRawTransactionDAO,
+                resendManager,
+                privacyHelper,
+                1000);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(payloadEncoder, encryptedTransactionDAO, partyInfoService, enclave);
+        verifyNoMoreInteractions(payloadEncoder, encryptedTransactionDAO, partyInfoService, enclave,resendManager);
     }
 
     @Test
@@ -95,20 +84,20 @@ public class TransactionManagerTest {
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
         when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-        when(encodedPayload.getCipherTextNonce()).thenReturn(new Nonce("NONCE".getBytes()));
-        when(encodedPayload.getRecipientNonce()).thenReturn(new Nonce("NONCE".getBytes()));
-        when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
 
-        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
+        when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
+
+
+
+        PublicKey sender = PublicKey.from("SENDER".getBytes());
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
 
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
 
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
+        SendRequest sendRequest = mock(SendRequest.class);
+        when(sendRequest.getPayload()).thenReturn(payload);
+        when(sendRequest.getSender()).thenReturn(sender);
+        when(sendRequest.getRecipients()).thenReturn(List.of(receiver));
 
         SendResponse result = transactionManager.send(sendRequest);
 
@@ -116,35 +105,69 @@ public class TransactionManagerTest {
 
         verify(enclave).encryptPayload(any(), any(), any(), any(), any(), any());
         verify(payloadEncoder).encode(encodedPayload);
-        verify(payloadEncoder, times(2)).forRecipient(eq(encodedPayload), any(PublicKey.class));
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(partyInfoService, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(2)).getPublicKeys();
     }
 
+    @Test
+    public void sendAlsoWithPublishCallbackCoverage() {
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
+
+        when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
+
+        doAnswer(invocation -> {
+            Callable callable = invocation.getArgument(1);
+            callable.call();
+            return mock(EncryptedTransaction.class);
+        }).when(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
+
+
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class),any(PublicKey.class))).thenReturn(encodedPayload);
+
+        PublicKey sender = PublicKey.from("SENDER".getBytes());
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
+
+        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
+
+        SendRequest sendRequest = mock(SendRequest.class);
+        when(sendRequest.getPayload()).thenReturn(payload);
+        when(sendRequest.getSender()).thenReturn(sender);
+        when(sendRequest.getRecipients()).thenReturn(List.of(receiver));
+
+        SendResponse result = transactionManager.send(sendRequest);
+
+        assertThat(result).isNotNull();
+
+        verify(enclave).encryptPayload(any(), any(), any(), any(), any(), any());
+        verify(payloadEncoder).encode(encodedPayload);
+        verify(payloadEncoder,times(2)).forRecipient(any(EncodedPayload.class),any(PublicKey.class));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
+        verify(enclave).getForwardingKeys();
+        verify(partyInfoService,times(2)).publishPayload(any(EncodedPayload.class),any(PublicKey.class));
+        verify(enclave,times(2)).getPublicKeys();
+    }
     @Test
     public void sendWithDuplicateRecipients() {
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
         when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-        when(encodedPayload.getCipherTextNonce()).thenReturn(new Nonce("NONCE".getBytes()));
-        when(encodedPayload.getRecipientNonce()).thenReturn(new Nonce("NONCE".getBytes()));
+
         when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
         when(enclave.getForwardingKeys()).thenReturn(Set.of(PublicKey.from("RECEIVER".getBytes())));
 
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
+        PublicKey sender = PublicKey.from("SENDER".getBytes());
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
 
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
 
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
+        SendRequest sendRequest = mock(SendRequest.class);
+        when(sendRequest.getPayload()).thenReturn(payload);
+        when(sendRequest.getSender()).thenReturn(sender);
+        when(sendRequest.getRecipients()).thenReturn(List.of(receiver));
 
         SendResponse result = transactionManager.send(sendRequest);
 
@@ -152,371 +175,45 @@ public class TransactionManagerTest {
 
         verify(enclave).encryptPayload(any(), any(), any(), any(), any(), any());
         verify(payloadEncoder).encode(encodedPayload);
-        verify(payloadEncoder, times(2)).forRecipient(eq(encodedPayload), any(PublicKey.class));
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(partyInfoService, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(2)).getPublicKeys();
+
     }
-
-    @Test
-    public void sendWithAffectedContractTransactionsNotFound() {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-
-        when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-        final String affectedTxHash =
-                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
-
-        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
-        sendRequest.setAffectedContractTransactions(new String[] {affectedTxHash});
-        sendRequest.setExecHash("execHash");
-
-        assertThatExceptionOfType(PrivacyViolationException.class)
-                .isThrownBy(
-                        () -> {
-                            transactionManager.send(sendRequest);
-                            failBecauseExceptionWasNotThrown(Exception.class);
-                        })
-                .withMessageContaining("Unable to find affectedContractTransaction")
-                .withMessageContaining(affectedTxHash);
-
-        verify(encryptedTransactionDAO).findByHashes(any());
-        verify(enclave).getForwardingKeys();
-    }
-
-    @Test
-    public void sendWithPrivateStateConsensusMismatched() {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-
-        when(enclave.encryptPayload(any(), any(), any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-        final String affectedTxHash =
-                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
-        final MessageHash messageHash = new MessageHash(new TxHash(affectedTxHash).getBytes());
-
-        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
-        sendRequest.setAffectedContractTransactions(new String[] {affectedTxHash});
-
-        EncryptedTransaction mockAffectedTransaction = mock(EncryptedTransaction.class);
-        when(mockAffectedTransaction.getHash()).thenReturn(messageHash);
-        EncodedPayload mockAffectedEncodedPayload = mock(EncodedPayload.class);
-        when(encryptedTransactionDAO.findByHashes(any())).thenReturn(List.of(mockAffectedTransaction));
-        when(mockAffectedTransaction.getEncodedPayload()).thenReturn("payload".getBytes());
-        when(payloadEncoder.decode("payload".getBytes())).thenReturn(mockAffectedEncodedPayload);
-        when(mockAffectedEncodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
-
-        assertThatExceptionOfType(PrivacyViolationException.class)
-                .describedAs("Psv flag mismatched")
-                .isThrownBy(
-                        () -> {
-                            transactionManager.send(sendRequest);
-                            failBecauseExceptionWasNotThrown(any());
-                        })
-                .withMessageContaining("Private state validation flag mismatched with Affected Txn")
-                .withMessageContaining(affectedTxHash);
-
-        verify(encryptedTransactionDAO).findByHashes(any());
-        //        verify(payloadEncoder).decode("payload".getBytes());
-        verify(enclave).getForwardingKeys();
-    }
-
-    @Ignore
-    public void sendWithAffectedContractNoPsv() {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
-
-        when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-        final String affectedTxHash =
-                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
-
-        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-
-        final MessageHash messageHash = new MessageHash(new TxHash(affectedTxHash).getBytes());
-
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
-        sendRequest.setPrivacyFlag(1);
-        sendRequest.setAffectedContractTransactions(new String[] {affectedTxHash});
-
-        EncryptedTransaction mockAffectedTransaction = mock(EncryptedTransaction.class);
-        EncodedPayload mockAffectedEncodedPayload = mock(EncodedPayload.class);
-        when(mockAffectedTransaction.getHash()).thenReturn(messageHash);
-        //        when(payloadEncoder.decode("payload".getBytes())).thenReturn(mockAffectedEncodedPayload);
-        when(mockAffectedTransaction.getEncodedPayload()).thenReturn(new byte[1]);
-        when(mockAffectedEncodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
-
-        when(encryptedTransactionDAO.findByHashes(any())).thenReturn(List.of(mockAffectedTransaction));
-
-        SendResponse result = transactionManager.send(sendRequest);
-
-        assertThat(result).isNotNull();
-
-        verify(enclave).encryptPayload(any(), any(), any(), any(), any(), any());
-        verify(payloadEncoder).encode(encodedPayload);
-        verify(payloadEncoder, times(2)).forRecipient(eq(encodedPayload), any(PublicKey.class));
-        verify(encryptedTransactionDAO).findByHashes(anyCollection());
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(partyInfoService, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave).getForwardingKeys();
-        verify(enclave, times(2)).getPublicKeys();
-    }
-
-    @Test
-    public void sendWithAffectedContractsAndRecipientsMismatched() {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
-        when(enclave.encryptPayload(any(), any(), any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-        final String affectedTxHash =
-                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
-        final MessageHash messageHash = new MessageHash(new TxHash(affectedTxHash).getBytes());
-
-        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
-        sendRequest.setPrivacyFlag(3);
-        sendRequest.setAffectedContractTransactions(new String[] {affectedTxHash});
-        sendRequest.setExecHash("execHash");
-
-        EncryptedTransaction mockAffectedTransaction = mock(EncryptedTransaction.class);
-        EncodedPayload mockAffectedEncodedPayload = mock(EncodedPayload.class);
-        when(mockAffectedTransaction.getHash()).thenReturn(messageHash);
-        when(encryptedTransactionDAO.findByHashes(any())).thenReturn(List.of(mockAffectedTransaction));
-        when(mockAffectedTransaction.getEncodedPayload()).thenReturn("payload".getBytes());
-        when(payloadEncoder.decode("payload".getBytes())).thenReturn(mockAffectedEncodedPayload);
-        when(mockAffectedEncodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
-
-        assertThatExceptionOfType(PrivacyViolationException.class)
-                .describedAs("Recipients mismatched")
-                .isThrownBy(
-                        () -> {
-                            transactionManager.send(sendRequest);
-                            failBecauseExceptionWasNotThrown(any());
-                        })
-                .withMessageContaining("Recipients mismatched for Affected Txn");
-
-        verify(encryptedTransactionDAO).findByHashes(any());
-        verify(enclave).getForwardingKeys();
-    }
-
-    @Test
-    public void sendWithAffectedContractAndItHasMoreRecipients() {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
-
-        when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        final String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        final String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-
-        List<PublicKey> recipientList = new ArrayList<>();
-        recipientList.add(PublicKey.from("SENDER".getBytes()));
-        recipientList.add(PublicKey.from("RECEIVER".getBytes()));
-        recipientList.add(PublicKey.from("SOME-OTHER-PARTICIPANT".getBytes()));
-
-        final String affectedTxHash =
-                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
-
-        final MessageHash messageHash = new MessageHash(new TxHash(affectedTxHash).getBytes());
-
-        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
-        sendRequest.setAffectedContractTransactions(new String[] {affectedTxHash});
-        sendRequest.setPrivacyFlag(3);
-
-        EncryptedTransaction mockAffectedTransaction = mock(EncryptedTransaction.class);
-        EncodedPayload mockAffectedEncodedPayload = mock(EncodedPayload.class);
-        when(mockAffectedTransaction.getHash()).thenReturn(messageHash);
-        when(encryptedTransactionDAO.findByHashes(any())).thenReturn(List.of(mockAffectedTransaction));
-        when(mockAffectedTransaction.getEncodedPayload()).thenReturn("payload".getBytes());
-        when(payloadEncoder.decode("payload".getBytes())).thenReturn(mockAffectedEncodedPayload);
-        when(mockAffectedEncodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
-        when(mockAffectedEncodedPayload.getRecipientKeys()).thenReturn(recipientList);
-
-        assertThatExceptionOfType(PrivacyViolationException.class)
-                .describedAs("Recipients mismatched")
-                .isThrownBy(
-                        () -> {
-                            transactionManager.send(sendRequest);
-                            failBecauseExceptionWasNotThrown(any());
-                        })
-                .withMessageContaining("Recipients mismatched for Affected Txn");
-
-        verify(encryptedTransactionDAO).findByHashes(any());
-        verify(enclave).getForwardingKeys();
-    }
-
-    @Ignore
-    public void sendWithAffectedContractsAndPsvCheck() {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-
-        when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        final String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        final String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-
-        List<PublicKey> recipientList = new ArrayList<>();
-        recipientList.add(PublicKey.from("SENDER".getBytes()));
-        recipientList.add(PublicKey.from("RECEIVER".getBytes()));
-
-        final String affectedTxHash =
-                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
-
-        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
-        sendRequest.setPrivacyFlag(3);
-        sendRequest.setAffectedContractTransactions(new String[] {affectedTxHash});
-        sendRequest.setExecHash("execHash");
-
-        EncryptedTransaction mockAffectedTransaction = mock(EncryptedTransaction.class);
-        MessageHash messageHash = new MessageHash();
-        messageHash.setHashBytes(Base64.getDecoder().decode(affectedTxHash));
-
-        EncodedPayload mockAffectedEncodedPayload = mock(EncodedPayload.class);
-        when(mockAffectedTransaction.getHash()).thenReturn(messageHash);
-        //        byte[] payloadBytes = "payload".getBytes();
-        //        when(payloadEncoder.decode(payloadBytes)).thenReturn(mockAffectedEncodedPayload);
-        when(mockAffectedTransaction.getEncodedPayload()).thenReturn(new byte[3]);
-        when(mockAffectedEncodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
-        when(mockAffectedEncodedPayload.getRecipientKeys()).thenReturn(recipientList);
-
-        when(encryptedTransactionDAO.findByHashes(any())).thenReturn(List.of(mockAffectedTransaction));
-
-        SendResponse result = transactionManager.send(sendRequest);
-
-        assertThat(result).isNotNull();
-
-        verify(enclave).encryptPayload(any(), any(), any(), any(), any(), any());
-
-        //        verify(payloadEncoder).decode(payloadBytes);
-        verify(payloadEncoder, times(2)).forRecipient(eq(encodedPayload), any(PublicKey.class));
-        verify(encryptedTransactionDAO).findByHashes(any());
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(partyInfoService, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave).getForwardingKeys();
-        verify(enclave, times(2)).getPublicKeys();
-    }
-
-    @Test
-    public void sendRecipientKeyNotKnownToNode() {
-
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-
-        when(enclave.encryptPayload(any(), any(), any(), any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        String sender = Base64.getEncoder().encodeToString("SENDER".getBytes());
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-
-        final Set<PublicKey> recipients =
-                Stream.of(Stream.of(receiver).map(Base64.getDecoder()::decode).toArray(byte[][]::new))
-                        .map(PublicKey::from)
-                        .collect(Collectors.toSet());
-
-        when(enclave.getPublicKeys()).thenReturn(recipients);
-
-        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setTo(receiver);
-        sendRequest.setPayload(payload);
-
-        SendResponse result = transactionManager.send(sendRequest);
-
-        assertThat(result).isNotNull();
-
-        verify(enclave).encryptPayload(any(), any(), any(), any(), any(), any());
-        verify(payloadEncoder).encode(encodedPayload);
-        verify(payloadEncoder).forRecipient(eq(encodedPayload), any(PublicKey.class));
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(partyInfoService).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave).getForwardingKeys();
-        verify(enclave, times(2)).getPublicKeys();
-    }
-
+/*
+        doAnswer(invocation -> {
+            Callable callable = invocation.getArgument(1);
+            callable.call();
+            return mock(EncryptedTransaction.class);
+        }).when(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
+
+
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class),any(PublicKey.class))).thenReturn(encodedPayload);
+ */
     @Test
     public void sendSignedTransaction() {
 
         EncodedPayload payload = mock(EncodedPayload.class);
 
         EncryptedRawTransaction encryptedRawTransaction =
-                new EncryptedRawTransaction(
-                        new MessageHash("HASH".getBytes()),
-                        "ENCRYPTED_PAYLOAD".getBytes(),
-                        "ENCRYPTED_KEY".getBytes(),
-                        "NONCE".getBytes(),
-                        "SENDER".getBytes());
+            new EncryptedRawTransaction(
+                new MessageHash("HASH".getBytes()),
+                "ENCRYPTED_PAYLOAD".getBytes(),
+                "ENCRYPTED_KEY".getBytes(),
+                "NONCE".getBytes(),
+                "SENDER".getBytes());
 
         when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedRawTransaction));
-
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
+            .thenReturn(Optional.of(encryptedRawTransaction));
 
         when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
 
         when(enclave.encryptPayload(any(RawTransaction.class), any(), any(), any(), any())).thenReturn(payload);
 
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
 
-        SendSignedRequest sendSignedRequest = new SendSignedRequest();
-        sendSignedRequest.setTo(receiver);
-        sendSignedRequest.setHash("HASH".getBytes());
-        sendSignedRequest.setAffectedContractTransactions(new String[] {});
-        sendSignedRequest.setPrivacyFlag(PrivacyMode.PRIVATE_STATE_VALIDATION.getPrivacyFlag());
+        SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
+        when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver));
+        when(sendSignedRequest.getSignedData()).thenReturn("HASH".getBytes());
 
         SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
 
@@ -524,14 +221,57 @@ public class TransactionManagerTest {
 
         verify(enclave).encryptPayload(any(RawTransaction.class), any(), any(), any(), any());
         verify(payloadEncoder).encode(payload);
-        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
-        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
-        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(2)).getPublicKeys();
+    }
+
+    @Test
+    public void sendSignedTransactionWithCallbackCoverage() {
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        EncryptedRawTransaction encryptedRawTransaction =
+            new EncryptedRawTransaction(
+                new MessageHash("HASH".getBytes()),
+                "ENCRYPTED_PAYLOAD".getBytes(),
+                "ENCRYPTED_KEY".getBytes(),
+                "NONCE".getBytes(),
+                "SENDER".getBytes());
+
+        when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
+            .thenReturn(Optional.of(encryptedRawTransaction));
+
+        doAnswer(invocation -> {
+            Callable callable = invocation.getArgument(1);
+            callable.call();
+            return mock(EncryptedTransaction.class);
+        }).when(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
+
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class),any(PublicKey.class))).thenReturn(payload);
+
+        when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
+
+        when(enclave.encryptPayload(any(RawTransaction.class), any(), any(), any(), any())).thenReturn(payload);
+
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
+
+        SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
+        when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver));
+        when(sendSignedRequest.getSignedData()).thenReturn("HASH".getBytes());
+
+        SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
+
+        assertThat(result).isNotNull();
+
+        verify(enclave).encryptPayload(any(RawTransaction.class), any(), any(), any(), any());
+        verify(payloadEncoder).encode(payload);
+        verify(payloadEncoder,times(2)).forRecipient(any(EncodedPayload.class),any(PublicKey.class));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
+        verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(enclave).getForwardingKeys();
+        verify(partyInfoService,times(2)).publishPayload(any(EncodedPayload.class),any(PublicKey.class));
+        verify(enclave,times(2)).getPublicKeys();
     }
 
     @Test
@@ -540,26 +280,25 @@ public class TransactionManagerTest {
         EncodedPayload payload = mock(EncodedPayload.class);
 
         EncryptedRawTransaction encryptedRawTransaction =
-                new EncryptedRawTransaction(
-                        new MessageHash("HASH".getBytes()),
-                        "ENCRYPTED_PAYLOAD".getBytes(),
-                        "ENCRYPTED_KEY".getBytes(),
-                        "NONCE".getBytes(),
-                        "SENDER".getBytes());
+            new EncryptedRawTransaction(
+                new MessageHash("HASH".getBytes()),
+                "ENCRYPTED_PAYLOAD".getBytes(),
+                "ENCRYPTED_KEY".getBytes(),
+                "NONCE".getBytes(),
+                "SENDER".getBytes());
 
         when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedRawTransaction));
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
+            .thenReturn(Optional.of(encryptedRawTransaction));
 
         when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
         when(enclave.getForwardingKeys()).thenReturn(Set.of(PublicKey.from("RECEIVER".getBytes())));
         when(enclave.encryptPayload(any(RawTransaction.class), any(), any(), any(), any())).thenReturn(payload);
 
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
 
-        SendSignedRequest sendSignedRequest = new SendSignedRequest();
-        sendSignedRequest.setTo(receiver);
-        sendSignedRequest.setHash("HASH".getBytes());
+        SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
+        when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver));
+        when(sendSignedRequest.getSignedData()).thenReturn("HASH".getBytes());
 
         SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
 
@@ -567,14 +306,9 @@ public class TransactionManagerTest {
 
         verify(enclave).encryptPayload(any(RawTransaction.class), any(), any(), any(), any());
         verify(payloadEncoder).encode(payload);
-        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
-        verify(payloadEncoder).forRecipient(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
-        verify(partyInfoService).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(2)).getPublicKeys();
     }
 
     @Test
@@ -582,10 +316,10 @@ public class TransactionManagerTest {
 
         when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
 
-        String receiver = Base64.getEncoder().encodeToString("RECEIVER".getBytes());
-        SendSignedRequest sendSignedRequest = new SendSignedRequest();
-        sendSignedRequest.setTo(receiver);
-        sendSignedRequest.setHash("HASH".getBytes());
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
+        SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
+        when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver));
+        when(sendSignedRequest.getSignedData()).thenReturn("HASH".getBytes());
 
         try {
             transactionManager.sendSignedTransaction(sendSignedRequest);
@@ -599,55 +333,44 @@ public class TransactionManagerTest {
     @Test
     public void delete() {
 
-        String encodedKey = Base64.getEncoder().encodeToString("SOMEKEY".getBytes());
+        MessageHash messageHash = mock(MessageHash.class);
 
-        DeleteRequest deleteRequest = new DeleteRequest();
-        deleteRequest.setKey(encodedKey);
-        transactionManager.delete(deleteRequest);
+        transactionManager.delete(messageHash);
 
-        verify(encryptedTransactionDAO).delete(any(MessageHash.class));
+        verify(encryptedTransactionDAO).delete(messageHash);
     }
 
     @Test
     public void storePayloadAsRecipient() {
-
-        byte[] input = "SOMEDATA".getBytes();
-
         EncodedPayload payload = mock(EncodedPayload.class);
 
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
 
-        when(payloadEncoder.decode(input)).thenReturn(payload);
-
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(payload);
 
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(payloadEncoder).decode(input);
+        verify(payloadEncoder).encode(payload);
         verify(enclave).getPublicKeys();
-        verify(enclave).findInvalidSecurityHashes(any(), any());
+        verify(enclave).findInvalidSecurityHashes(any(EncodedPayload.class),anyList());
     }
 
     @Test
     public void storePayloadWhenWeAreSender() {
         final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
-        final byte[] input = "SOMEDATA".getBytes();
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
         when(encodedPayload.getSenderKey()).thenReturn(senderKey);
         when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
         when(encodedPayload.getRecipientBoxes()).thenReturn(new ArrayList<>());
         when(encodedPayload.getRecipientKeys()).thenReturn(new ArrayList<>());
 
-        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
 
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(encodedPayload);
 
-        verify(resendManager).acceptOwnMessage(input);
-        verify(payloadEncoder).decode(input);
+        verify(resendManager).acceptOwnMessage(encodedPayload);
         verify(enclave).getPublicKeys();
-        verify(enclave).findInvalidSecurityHashes(any(), any());
+        verify(enclave).findInvalidSecurityHashes(any(EncodedPayload.class),anyList());
     }
 
     @Test
@@ -667,13 +390,13 @@ public class TransactionManagerTest {
         when(encodedPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(encodedPayload.getExecHash()).thenReturn(new byte[0]);
 
-        when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
 
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(encodedPayload);
 
-        verify(resendManager).acceptOwnMessage(input);
-        verify(payloadEncoder).decode(input);
+        verify(resendManager).acceptOwnMessage(encodedPayload);
+
         verify(enclave).getPublicKeys();
         verify(enclave).findInvalidSecurityHashes(any(), any());
     }
@@ -688,12 +411,10 @@ public class TransactionManagerTest {
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
 
-        when(payloadEncoder.decode(input)).thenReturn(payload);
-
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(payload);
 
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(payloadEncoder).decode(input);
+        verify(payloadEncoder).encode(payload);
         verify(enclave).getPublicKeys();
         verify(enclave).findInvalidSecurityHashes(any(), any());
     }
@@ -711,16 +432,16 @@ public class TransactionManagerTest {
 
         Map<TxHash, SecurityHash> affectedContractTransactionHashes = new HashMap<>();
         affectedContractTransactionHashes.put(
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-                SecurityHash.from("securityHash".getBytes()));
+            new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+            SecurityHash.from("securityHash".getBytes()));
 
         when(affectedContractTx.getEncodedPayload()).thenReturn(input);
         when(affectedContractTx.getHash())
-                .thenReturn(
-                        new MessageHash(
-                                new TxHash(
-                                                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==")
-                                        .getBytes()));
+            .thenReturn(
+                new MessageHash(
+                    new TxHash(
+                        "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==")
+                        .getBytes()));
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(affectedContractEncodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
@@ -728,17 +449,17 @@ public class TransactionManagerTest {
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(affectedContractEncodedPayload.getRecipientKeys()).thenReturn(Arrays.asList(senderKey));
 
-        when(payloadEncoder.decode(input)).thenReturn(payload);
+       // when(payloadEncoder.decode(input)).thenReturn(payload);
 
         when(encryptedTransactionDAO.findByHashes(any())).thenReturn(List.of(affectedContractTx));
         when(affectedContractTx.getEncodedPayload()).thenReturn(affectedContractPayload);
         when(payloadEncoder.decode(affectedContractPayload)).thenReturn(affectedContractEncodedPayload);
 
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(payload);
         // Ignore transaction - not save
         verify(encryptedTransactionDAO, times(0)).save(any(EncryptedTransaction.class));
         verify(encryptedTransactionDAO).findByHashes(any());
-        verify(payloadEncoder, times(1)).decode(any());
+        //verify(payloadEncoder, times(1)).decode(any());
     }
 
     @Test
@@ -752,13 +473,13 @@ public class TransactionManagerTest {
         final EncodedPayload affectedContractEncodedPayload = mock(EncodedPayload.class);
 
         final TxHash txHash =
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+            new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
 
         Map<TxHash, SecurityHash> affectedContractTransactionHashes = new HashMap<>();
         affectedContractTransactionHashes.put(txHash, SecurityHash.from("securityHash".getBytes()));
         affectedContractTransactionHashes.put(
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSr5J5hQ=="),
-                SecurityHash.from("bogus".getBytes()));
+            new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSr5J5hQ=="),
+            SecurityHash.from("bogus".getBytes()));
 
         when(affectedContractTx.getEncodedPayload()).thenReturn(input);
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
@@ -768,18 +489,15 @@ public class TransactionManagerTest {
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(affectedContractEncodedPayload.getRecipientKeys()).thenReturn(Arrays.asList(senderKey));
 
-        when(payloadEncoder.decode(input)).thenReturn(payload);
-
         when(encryptedTransactionDAO.findByHashes(List.of(new MessageHash(txHash.getBytes()))))
-                .thenReturn(List.of(affectedContractTx));
+            .thenReturn(List.of(affectedContractTx));
         when(affectedContractTx.getEncodedPayload()).thenReturn(affectedContractPayload);
         when(payloadEncoder.decode(affectedContractPayload)).thenReturn(affectedContractEncodedPayload);
 
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(payload);
         // Ignore transaction - not save
         verify(encryptedTransactionDAO, times(0)).save(any(EncryptedTransaction.class));
         verify(encryptedTransactionDAO).findByHashes(any());
-        verify(payloadEncoder, times(1)).decode(any());
     }
 
     @Test
@@ -794,13 +512,13 @@ public class TransactionManagerTest {
         final EncodedPayload affectedContractEncodedPayload = mock(EncodedPayload.class);
 
         final TxHash txHash =
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+            new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
 
         Map<TxHash, SecurityHash> affectedContractTransactionHashes = new HashMap<>();
         affectedContractTransactionHashes.put(txHash, SecurityHash.from("securityHash".getBytes()));
         affectedContractTransactionHashes.put(
-                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSr5J5hQ=="),
-                SecurityHash.from("bogus".getBytes()));
+            new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSr5J5hQ=="),
+            SecurityHash.from("bogus".getBytes()));
 
         when(affectedContractTx.getEncodedPayload()).thenReturn(input);
         when(affectedContractTx.getHash()).thenReturn(new MessageHash(txHash.getBytes()));
@@ -811,39 +529,34 @@ public class TransactionManagerTest {
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(affectedContractEncodedPayload.getRecipientKeys()).thenReturn(Arrays.asList(someOtherKey));
 
-        when(payloadEncoder.decode(input)).thenReturn(payload);
 
         when(encryptedTransactionDAO.findByHashes(any())).thenReturn(List.of(affectedContractTx));
         when(affectedContractTx.getEncodedPayload()).thenReturn(affectedContractPayload);
         when(payloadEncoder.decode(affectedContractPayload)).thenReturn(affectedContractEncodedPayload);
 
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(payload);
         // Ignore transaction - not save
         verify(encryptedTransactionDAO, times(0)).save(any(EncryptedTransaction.class));
         verify(encryptedTransactionDAO).findByHashes(any());
-        verify(payloadEncoder, times(1)).decode(any());
+
     }
 
     @Test
     public void storePayloadPsvWithInvalidSecurityHashes() {
-        byte[] input = "SOMEDATA".getBytes();
 
         EncodedPayload payload = mock(EncodedPayload.class);
-
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
 
-        when(payloadEncoder.decode(input)).thenReturn(payload);
-
         when(enclave.findInvalidSecurityHashes(any(), any()))
-                .thenReturn(singleton(new TxHash("invalidHash".getBytes())));
+            .thenReturn(singleton(new TxHash("invalidHash".getBytes())));
 
         assertThatExceptionOfType(PrivacyViolationException.class)
-                .describedAs("There are privacy violation for psv")
-                .isThrownBy(() -> transactionManager.storePayload(input))
-                .withMessageContaining("Invalid security hashes identified for PSC TX");
+            .describedAs("There are privacy violation for psv")
+            .isThrownBy(() -> transactionManager.storePayload(payload))
+            .withMessageContaining("Invalid security hashes identified for PSC TX");
 
-        verify(payloadEncoder).decode(input);
+
         verify(enclave).findInvalidSecurityHashes(any(), any());
     }
 
@@ -853,7 +566,7 @@ public class TransactionManagerTest {
         final byte[] input = "SOMEDATA".getBytes();
 
         Map<TxHash, SecurityHash> affectedTx =
-                Map.of(TxHash.from("invalidHash".getBytes()), SecurityHash.from("security".getBytes()));
+            Map.of(TxHash.from("invalidHash".getBytes()), SecurityHash.from("security".getBytes()));
 
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getSenderKey()).thenReturn(PublicKey.from("sender".getBytes()));
@@ -870,24 +583,21 @@ public class TransactionManagerTest {
         when(payload.getAffectedContractTransactions()).thenReturn(affectedTx);
         when(payload.getExecHash()).thenReturn("execHash".getBytes());
 
-        when(payloadEncoder.decode(input)).thenReturn(payload);
-
         ArgumentCaptor<EncodedPayload> payloadCaptor = ArgumentCaptor.forClass(EncodedPayload.class);
         when(enclave.findInvalidSecurityHashes(any(), any()))
-                .thenReturn(singleton(new TxHash("invalidHash".getBytes())));
+            .thenReturn(singleton(new TxHash("invalidHash".getBytes())));
 
-        transactionManager.storePayload(input);
+        transactionManager.storePayload(payload);
 
         verify(payloadEncoder).encode(payloadCaptor.capture());
         EncodedPayload sanitisedPayload = payloadCaptor.getValue();
 
         // Assert that the invalid ACOTH had been removed
         assertThat(sanitisedPayload.getAffectedContractTransactions().get(TxHash.from("invalidHash".getBytes())))
-                .isNull();
+            .isNull();
 
         verify(encryptedTransactionDAO).findByHashes(any());
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
-        verify(payloadEncoder).decode(input);
         verify(enclave).getPublicKeys();
         verify(enclave).findInvalidSecurityHashes(any(), any());
     }
@@ -912,11 +622,12 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(singleton(recipientKey));
         when(enclave.unencryptTransaction(payload, recipientKey)).thenReturn(new byte[0]);
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setPublicKey(senderKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.ALL);
+        final com.quorum.tessera.transaction.ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(senderKey)
+            .withType(ResendRequestType.ALL).build();
 
-        ResendResponse result = transactionManager.resend(resendRequest);
+
+        com.quorum.tessera.transaction.ResendResponse result = transactionManager.resend(resendRequest);
 
         assertThat(result).isNotNull();
 
@@ -947,9 +658,11 @@ public class TransactionManagerTest {
         when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setPublicKey(senderKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withType(ResendRequestType.ALL)
+            .withRecipient(senderKey)
+            .build();
+
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -978,9 +691,10 @@ public class TransactionManagerTest {
         when(encryptedTransactionDAO.transactionCount()).thenReturn(1L);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setPublicKey(recipientKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(recipientKey)
+            .withType(ResendRequestType.ALL)
+            .build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -1006,9 +720,10 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
         when(payloadEncoder.forRecipient(payload, recipientKey)).thenReturn(payload);
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setPublicKey(recipientKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withType(ResendRequestType.ALL)
+            .withRecipient(recipientKey)
+            .build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -1039,9 +754,11 @@ public class TransactionManagerTest {
 
         when(enclave.getPublicKeys()).thenReturn(singleton(recipientKey));
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setPublicKey(recipientKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(recipientKey)
+            .withType(ResendRequestType.ALL)
+            .build();
+
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -1084,9 +801,10 @@ public class TransactionManagerTest {
         when(prunedPayload.getRecipientBoxes()).thenReturn(singletonList(recipientBox));
         when(payloadEncoder.forRecipient(payload, recipientKey)).thenReturn(prunedPayload);
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setPublicKey(recipientKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(recipientKey)
+            .withType(ResendRequestType.ALL)
+            .build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -1127,11 +845,11 @@ public class TransactionManagerTest {
         when(payloadEncoder.withRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
         when(enclave.getPublicKeys()).thenReturn(singleton(localKey));
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setPublicKey(senderKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.ALL);
+        final com.quorum.tessera.transaction.ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withType(ResendRequestType.ALL).withRecipient(senderKey).build();
 
-        ResendResponse result = transactionManager.resend(resendRequest);
+
+        com.quorum.tessera.transaction.ResendResponse result = transactionManager.resend(resendRequest);
 
         assertThat(result).isNotNull();
         ArgumentCaptor<EncodedPayload> epAC = ArgumentCaptor.forClass(EncodedPayload.class);
@@ -1166,15 +884,16 @@ public class TransactionManagerTest {
         when(payload.getRecipientKeys()).thenReturn(new ArrayList<>());
         when(enclave.getPublicKeys()).thenReturn(emptySet());
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setPublicKey(senderKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(senderKey)
+            .withType(ResendRequestType.ALL)
+            .build();
 
         final Throwable throwable = catchThrowable(() -> transactionManager.resend(resendRequest));
 
         assertThat(throwable)
-                .isInstanceOf(RecipientKeyNotFoundException.class)
-                .hasMessage("No key found as recipient of message Q0lQSEVSVEVYVA==");
+            .isInstanceOf(RecipientKeyNotFoundException.class)
+            .hasMessage("No key found as recipient of message Q0lQSEVSVEVYVA==");
 
         verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
         verify(encryptedTransactionDAO, times(1)).transactionCount();
@@ -1198,13 +917,13 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(any())).thenReturn(encodedPayload);
 
         byte[] publicKeyBytes = "PUBLICKEY".getBytes();
-        String publicKeyEncoded = Base64.getEncoder().encodeToString(publicKeyBytes);
         PublicKey publicKey = PublicKey.from(publicKeyBytes);
         when(encodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(publicKey));
 
-        ResendRequest resendRequest = mock(ResendRequest.class);
-        when(resendRequest.getPublicKey()).thenReturn(publicKeyEncoded);
-        when(resendRequest.getType()).thenReturn(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(publicKey)
+            .withType(ResendRequestType.ALL)
+            .build();
 
         when(payloadEncoder.forRecipient(eq(encodedPayload), any(PublicKey.class))).thenReturn(encodedPayload);
 
@@ -1240,18 +959,19 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(otherTransactionBytes)).thenReturn(otherEncodedPayload);
 
         byte[] publicKeyBytes = "PUBLICKEY".getBytes();
-        String publicKeyEncoded = Base64.getEncoder().encodeToString(publicKeyBytes);
+
         PublicKey publicKey = PublicKey.from(publicKeyBytes);
         when(encodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(publicKey));
         when(otherEncodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(publicKey));
 
-        ResendRequest resendRequest = mock(ResendRequest.class);
-        when(resendRequest.getPublicKey()).thenReturn(publicKeyEncoded);
-        when(resendRequest.getType()).thenReturn(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(publicKey)
+            .withType(ResendRequestType.ALL)
+            .build();
 
         when(payloadEncoder.forRecipient(eq(encodedPayload), any(PublicKey.class))).thenReturn(encodedPayload);
         when(payloadEncoder.forRecipient(eq(otherEncodedPayload), any(PublicKey.class)))
-                .thenReturn(otherEncodedPayload);
+            .thenReturn(otherEncodedPayload);
 
         doThrow(new PublishPayloadException("msg")).when(partyInfoService).publishPayload(encodedPayload, publicKey);
 
@@ -1263,7 +983,7 @@ public class TransactionManagerTest {
         verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
         verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
         verify(encryptedTransactionDAO, times(2)).transactionCount();
-        verify(enclave, times(2)).getPublicKeys();
+        verify(enclave,times(2)).getPublicKeys();
     }
 
     @Test
@@ -1286,7 +1006,6 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(otherTransactionBytes)).thenReturn(otherEncodedPayload);
 
         byte[] publicKeyBytes = "PUBLICKEY".getBytes();
-        String publicKeyEncoded = Base64.getEncoder().encodeToString(publicKeyBytes);
         PublicKey publicKey = PublicKey.from(publicKeyBytes);
         when(encodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(publicKey));
         when(otherEncodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(publicKey));
@@ -1294,15 +1013,16 @@ public class TransactionManagerTest {
         when(payloadEncoder.forRecipient(encodedPayload, publicKey)).thenReturn(encodedPayload);
         when(payloadEncoder.forRecipient(otherEncodedPayload, publicKey)).thenReturn(otherEncodedPayload);
 
-        ResendRequest resendRequest = mock(ResendRequest.class);
-        when(resendRequest.getPublicKey()).thenReturn(publicKeyEncoded);
-        when(resendRequest.getType()).thenReturn(ResendRequestType.ALL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(publicKey)
+            .withType(ResendRequestType.ALL)
+            .build();
 
         doThrow(new PublishPayloadException("msg")).when(partyInfoService).publishPayload(encodedPayload, publicKey);
 
         doThrow(new PublishPayloadException("msg"))
-                .when(partyInfoService)
-                .publishPayload(otherEncodedPayload, publicKey);
+            .when(partyInfoService)
+            .publishPayload(otherEncodedPayload, publicKey);
 
         transactionManager.resend(resendRequest);
 
@@ -1313,7 +1033,7 @@ public class TransactionManagerTest {
         verify(payloadEncoder, times(2)).decode(any(byte[].class));
         verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
         verify(partyInfoService, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave, times(2)).getPublicKeys();
+        verify(enclave,times(2)).getPublicKeys();
     }
 
     @Test
@@ -1324,12 +1044,14 @@ public class TransactionManagerTest {
         String publicKeyData = Base64.getEncoder().encodeToString("PUBLICKEY".getBytes());
         PublicKey recipientKey = PublicKey.from(publicKeyData.getBytes());
 
-        byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("KEY".getBytes());
 
-        ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setKey(new String(keyData));
-        resendRequest.setPublicKey(recipientKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.INDIVIDUAL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(recipientKey)
+            .withHash(transactionHash)
+            .withType(ResendRequestType.INDIVIDUAL)
+            .build();
 
         try {
             transactionManager.resend(resendRequest);
@@ -1346,11 +1068,10 @@ public class TransactionManagerTest {
         final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(null, encodedPayloadData);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
 
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        when(encodedPayload.getRecipientBoxes())
-                .thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
 
         byte[] encodedOutcome = "SUCCESS".getBytes();
         PublicKey recipientKey = PublicKey.from("PUBLICKEY".getBytes());
@@ -1358,24 +1079,24 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(encodedPayloadData)).thenReturn(encodedPayload);
         when(payloadEncoder.forRecipient(encodedPayload, recipientKey)).thenReturn(encodedPayload);
 
-        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedOutcome);
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("KEY".getBytes());
 
-        final String messageHashb64 = Base64.getEncoder().encodeToString("KEY".getBytes());
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(recipientKey)
+            .withHash(transactionHash)
+            .withType(ResendRequestType.INDIVIDUAL)
+            .build();
 
-        ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setKey(messageHashb64);
-        resendRequest.setPublicKey(recipientKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.INDIVIDUAL);
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
         assertThat(result).isNotNull();
-        assertThat(result.getPayload()).contains(encodedOutcome);
+        assertThat(result.getPayload()).isSameAs(encodedPayload);
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(encodedPayloadData);
         verify(payloadEncoder).forRecipient(encodedPayload, recipientKey);
-        verify(payloadEncoder).encode(encodedPayload);
     }
 
     @Test
@@ -1389,52 +1110,48 @@ public class TransactionManagerTest {
         PublicKey recipientKey = PublicKey.from("RECIPIENTKEY".getBytes());
 
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+
         when(encodedPayload.getSenderKey()).thenReturn(senderKey);
-        when(encodedPayload.getRecipientBoxes())
-                .thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
+        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
         when(encodedPayload.getRecipientKeys()).thenReturn(new ArrayList<>());
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
         when(payloadEncoder.decode(encodedPayloadData)).thenReturn(encodedPayload);
-        when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn(encodedOutcome);
         when(enclave.getPublicKeys()).thenReturn(singleton(recipientKey));
         when(enclave.unencryptTransaction(any(), any())).thenReturn(new byte[0]);
 
-        final String messageHashb64 = Base64.getEncoder().encodeToString("KEY".getBytes());
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("KEY".getBytes());
 
-        final ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setKey(messageHashb64);
-        resendRequest.setPublicKey(senderKey.encodeToBase64());
-        resendRequest.setType(ResendRequestType.INDIVIDUAL);
+        final ResendRequest resendRequest = ResendRequest.Builder.create()
+            .withRecipient(senderKey)
+            .withHash(transactionHash)
+            .withType(ResendRequestType.INDIVIDUAL)
+            .build();
 
         final ResendResponse result = transactionManager.resend(resendRequest);
 
         assertThat(result).isNotNull();
-        assertThat(result.getPayload()).contains(encodedOutcome);
+        assertThat(result.getPayload()).isNotNull();
 
-        final ArgumentCaptor<EncodedPayload> captor = ArgumentCaptor.forClass(EncodedPayload.class);
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(encodedPayloadData);
-        verify(payloadEncoder).encode(captor.capture());
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(any(), any());
-        assertThat(captor.getValue().getRecipientKeys()).containsExactly(recipientKey);
     }
 
     @Test
     public void receive() {
 
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        String recipient = Base64.getEncoder().encodeToString("recipient".getBytes());
 
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
-        receiveRequest.setTo(recipient);
-
-        MessageHash messageHash = new MessageHash(keyData);
+        ReceiveRequest receiveRequest = mock(ReceiveRequest.class);
+        MessageHash messageHash = mock(MessageHash.class);
+        when(messageHash.getHashBytes()).thenReturn(keyData);
+        when(receiveRequest.getTransactionHash()).thenReturn(messageHash);
+        when(receiveRequest.getRecipient()).thenReturn(Optional.of(mock(PublicKey.class)));
 
         EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, keyData);
 
@@ -1444,7 +1161,7 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
 
         byte[] expectedOutcome = "Encrypted payload".getBytes();
 
@@ -1457,8 +1174,7 @@ public class TransactionManagerTest {
 
         assertThat(receiveResponse).isNotNull();
 
-        assertThat(receiveResponse.getPayload()).isEqualTo(expectedOutcome);
-        assertThat(receiveResponse.getExecHash()).isEqualTo("execHash");
+        assertThat(receiveResponse.getUnencryptedTransactionData()).isEqualTo(expectedOutcome);
 
         verify(payloadEncoder).decode(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
@@ -1469,18 +1185,18 @@ public class TransactionManagerTest {
     @Test
     public void receiveRawTransaction() {
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        String recipient = Base64.getEncoder().encodeToString("recipient".getBytes());
-
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
-        receiveRequest.setTo(recipient);
-        receiveRequest.setRaw(true);
-
+        PublicKey recipient = PublicKey.from("recipient".getBytes());
         MessageHash messageHash = new MessageHash(Base64.getDecoder().decode(keyData));
 
+        ReceiveRequest receiveRequest = ReceiveRequest.Builder.create()
+            .withRecipient(recipient)
+            .withRaw(true)
+            .withTransactionHash(messageHash)
+            .build();
+
         final EncryptedRawTransaction encryptedTransaction =
-                new EncryptedRawTransaction(
-                        messageHash, "payload".getBytes(), "key".getBytes(), "nonce".getBytes(), "sender".getBytes());
+            new EncryptedRawTransaction(
+                messageHash, "payload".getBytes(), "key".getBytes(), "nonce".getBytes(), "sender".getBytes());
 
         when(encryptedRawTransactionDAO.retrieveByHash(messageHash)).thenReturn(Optional.of(encryptedTransaction));
 
@@ -1488,7 +1204,7 @@ public class TransactionManagerTest {
 
         ReceiveResponse response = transactionManager.receive(receiveRequest);
 
-        assertThat(response.getPayload()).isEqualTo("response".getBytes());
+        assertThat(response.getUnencryptedTransactionData()).isEqualTo("response".getBytes());
 
         verify(enclave).unencryptRawPayload(any(RawTransaction.class));
     }
@@ -1496,39 +1212,38 @@ public class TransactionManagerTest {
     @Test
     public void receiveRawTransactionNotFound() {
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        String recipient = Base64.getEncoder().encodeToString("recipient".getBytes());
-
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
-        receiveRequest.setTo(recipient);
-        receiveRequest.setRaw(true);
-
+        PublicKey recipient = PublicKey.from("recipient".getBytes());
         MessageHash messageHash = new MessageHash(Base64.getDecoder().decode(keyData));
+        ReceiveRequest receiveRequest = ReceiveRequest.Builder.create()
+            .withTransactionHash(messageHash)
+            .withRecipient(recipient)
+            .withRaw(true)
+            .build();
 
         when(encryptedRawTransactionDAO.retrieveByHash(messageHash)).thenReturn(Optional.empty());
 
         assertThatExceptionOfType(TransactionNotFoundException.class)
-                .isThrownBy(() -> transactionManager.receive(receiveRequest));
+            .isThrownBy(() -> transactionManager.receive(receiveRequest));
     }
 
     @Test
     public void receiveWithAffectedContractTransactions() {
 
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        String recipient = Base64.getEncoder().encodeToString("recipient".getBytes());
-
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
-        receiveRequest.setTo(recipient);
-
+        PublicKey recipient = PublicKey.from("recipient".getBytes());
         MessageHash messageHash = new MessageHash(keyData);
+
+        ReceiveRequest receiveRequest = ReceiveRequest.Builder.create()
+            .withRecipient(recipient)
+            .withTransactionHash(messageHash)
+            .build();
 
         final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, keyData);
 
         final String b64AffectedTxHash =
-                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
+            "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
         final Map<TxHash, SecurityHash> affectedTxs =
-                Map.of(new TxHash(b64AffectedTxHash), SecurityHash.from("encoded".getBytes()));
+            Map.of(new TxHash(b64AffectedTxHash), SecurityHash.from("encoded".getBytes()));
 
         EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getExecHash()).thenReturn("execHash".getBytes());
@@ -1538,7 +1253,7 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
 
         byte[] expectedOutcome = "Encrypted payload".getBytes();
 
@@ -1551,9 +1266,9 @@ public class TransactionManagerTest {
 
         assertThat(receiveResponse).isNotNull();
 
-        assertThat(receiveResponse.getPayload()).isEqualTo(expectedOutcome);
-        assertThat(receiveResponse.getExecHash()).isEqualTo("execHash");
-        assertThat(receiveResponse.getAffectedContractTransactions()).hasSize(1).containsExactly(b64AffectedTxHash);
+        assertThat(receiveResponse.getUnencryptedTransactionData()).isEqualTo(expectedOutcome);
+        assertThat(receiveResponse.getExecHash()).isEqualTo("execHash".getBytes());
+        assertThat(receiveResponse.getAffectedTransactions()).hasSize(1);
 
         verify(payloadEncoder).decode(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
@@ -1564,12 +1279,15 @@ public class TransactionManagerTest {
     @Test
     public void receiveNoTransactionInDatabase() {
 
-        byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        String recipient = Base64.getEncoder().encodeToString("recipient".getBytes());
+        PublicKey recipient = PublicKey.from("recipient".getBytes());
 
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
-        receiveRequest.setTo(recipient);
+        MessageHash messageHash = mock(MessageHash.class);
+        when(messageHash.getHashBytes()).thenReturn("KEY".getBytes());
+
+
+        ReceiveRequest receiveRequest = mock(ReceiveRequest.class);
+        when(receiveRequest.getTransactionHash()).thenReturn(messageHash);
+        when(receiveRequest.getRecipient()).thenReturn(Optional.of(recipient));
 
         EncodedPayload payload = mock(EncodedPayload.class);
 
@@ -1588,14 +1306,15 @@ public class TransactionManagerTest {
     @Test
     public void receiveNoRecipientKeyFound() {
 
-        byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        String recipient = Base64.getEncoder().encodeToString("recipient".getBytes());
+        final byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
+        PublicKey recipient = PublicKey.from("recipient".getBytes());
 
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
-        receiveRequest.setTo(recipient);
+        MessageHash messageHash = mock(MessageHash.class);
+        when(messageHash.getHashBytes()).thenReturn("KEY".getBytes());
 
-        MessageHash messageHash = new MessageHash(keyData);
+        ReceiveRequest receiveRequest = mock(ReceiveRequest.class);
+        when(receiveRequest.getTransactionHash()).thenReturn(messageHash);
+        when(receiveRequest.getRecipient()).thenReturn(Optional.of(recipient));
 
         EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, keyData);
 
@@ -1604,13 +1323,13 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
 
         PublicKey publicKey = mock(PublicKey.class);
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(EncryptorException.class);
+            .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);
@@ -1627,13 +1346,15 @@ public class TransactionManagerTest {
     public void receiveHH() {
 
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        String recipient = Base64.getEncoder().encodeToString("recipient".getBytes());
+        PublicKey recipient = PublicKey.from("recipient".getBytes());
 
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
-        receiveRequest.setTo(recipient);
+        MessageHash messageHash = mock(MessageHash.class);
+        when(messageHash.getHashBytes()).thenReturn("KEY".getBytes());
 
-        MessageHash messageHash = new MessageHash(keyData);
+        ReceiveRequest receiveRequest = mock(ReceiveRequest.class);
+        when(receiveRequest.getRecipient()).thenReturn(Optional.of(recipient));
+        when(receiveRequest.getTransactionHash()).thenReturn(messageHash);
+
 
         EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, null);
 
@@ -1642,7 +1363,7 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload).thenReturn(null);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
 
         byte[] expectedOutcome = "Encrypted payload".getBytes();
 
@@ -1662,25 +1383,27 @@ public class TransactionManagerTest {
     public void receiveNullRecipientThrowsNoRecipientKeyFound() {
 
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
 
-        MessageHash messageHash = new MessageHash(keyData);
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("KEY".getBytes());
+        ReceiveRequest receiveRequest = mock(ReceiveRequest.class);
+        when(receiveRequest.getRecipient()).thenReturn(Optional.empty());
+        when(receiveRequest.getTransactionHash()).thenReturn(transactionHash);
 
-        EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, keyData);
+        EncryptedTransaction encryptedTransaction = new EncryptedTransaction(transactionHash, keyData);
 
         EncodedPayload payload = mock(EncodedPayload.class);
 
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
 
         PublicKey publicKey = mock(PublicKey.class);
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(EncryptorException.class);
+            .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);
@@ -1697,25 +1420,25 @@ public class TransactionManagerTest {
     public void receiveEmptyRecipientThrowsNoRecipientKeyFound() {
 
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(new String(keyData));
-        receiveRequest.setTo("");
-        MessageHash messageHash = new MessageHash(keyData);
+        ReceiveRequest receiveRequest = mock(ReceiveRequest.class);
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("KEY".getBytes());
+        when(receiveRequest.getTransactionHash()).thenReturn(transactionHash);
 
-        EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, keyData);
+        EncryptedTransaction encryptedTransaction = new EncryptedTransaction(transactionHash, keyData);
 
         EncodedPayload payload = mock(EncodedPayload.class);
 
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+            .thenReturn(Optional.of(encryptedTransaction));
 
         PublicKey publicKey = mock(PublicKey.class);
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
         when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenThrow(EncryptorException.class);
+            .thenThrow(EncryptorException.class);
 
         try {
             transactionManager.receive(receiveRequest);
@@ -1732,72 +1455,79 @@ public class TransactionManagerTest {
     public void storeRaw() {
         byte[] sender = "SENDER".getBytes();
         RawTransaction rawTransaction =
-                new RawTransaction(
-                        "CIPHERTEXT".getBytes(),
-                        "SomeKey".getBytes(),
-                        new Nonce("nonce".getBytes()),
-                        PublicKey.from(sender));
+            new RawTransaction(
+                "CIPHERTEXT".getBytes(),
+                "SomeKey".getBytes(),
+                new Nonce("nonce".getBytes()),
+                PublicKey.from(sender));
+
         when(enclave.encryptRawPayload(any(), any())).thenReturn(rawTransaction);
+
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-        StoreRawRequest sendRequest = new StoreRawRequest();
-        sendRequest.setFrom(sender);
-        sendRequest.setPayload(payload);
+        StoreRawRequest sendRequest = mock(StoreRawRequest.class);
+        when(sendRequest.getSender()).thenReturn(PublicKey.from(sender));
+        when(sendRequest.getPayload()).thenReturn(payload);
+
         MessageHash expectedHash = messageHashFactory.createFromCipherText("CIPHERTEXT".getBytes());
 
         StoreRawResponse result = transactionManager.store(sendRequest);
 
         assertThat(result).isNotNull();
-        assertThat(result.getKey()).containsExactly(expectedHash.getHashBytes());
+        assertThat(result.getHash().getHashBytes()).containsExactly(expectedHash.getHashBytes());
 
         verify(enclave).encryptRawPayload(eq(payload), eq(PublicKey.from(sender)));
         verify(encryptedRawTransactionDAO)
-                .save(
-                        argThat(
-                                et -> {
-                                    assertThat(et.getEncryptedKey()).containsExactly("SomeKey".getBytes());
-                                    assertThat(et.getEncryptedPayload()).containsExactly("CIPHERTEXT".getBytes());
-                                    assertThat(et.getHash()).isEqualTo(expectedHash);
-                                    assertThat(et.getNonce()).containsExactly("nonce".getBytes());
-                                    assertThat(et.getSender()).containsExactly(sender);
-                                    return true;
-                                }));
+            .save(
+                argThat(
+                    et -> {
+                        assertThat(et.getEncryptedKey()).containsExactly("SomeKey".getBytes());
+                        assertThat(et.getEncryptedPayload()).containsExactly("CIPHERTEXT".getBytes());
+                        assertThat(et.getHash()).isEqualTo(expectedHash);
+                        assertThat(et.getNonce()).containsExactly("nonce".getBytes());
+                        assertThat(et.getSender()).containsExactly(sender);
+                        return true;
+                    }));
     }
 
-    @Test
+    @Test(expected = NullPointerException.class)
     public void storeRawWithEmptySender() {
         byte[] sender = "SENDER".getBytes();
         RawTransaction rawTransaction =
-                new RawTransaction(
-                        "CIPHERTEXT".getBytes(),
-                        "SomeKey".getBytes(),
-                        new Nonce("nonce".getBytes()),
-                        PublicKey.from(sender));
+            new RawTransaction(
+                "CIPHERTEXT".getBytes(),
+                "SomeKey".getBytes(),
+                new Nonce("nonce".getBytes()),
+                PublicKey.from(sender));
         when(enclave.encryptRawPayload(any(), any())).thenReturn(rawTransaction);
         when(enclave.defaultPublicKey()).thenReturn(PublicKey.from(sender));
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-        StoreRawRequest sendRequest = new StoreRawRequest();
-        sendRequest.setPayload(payload);
+        StoreRawRequest sendRequest = StoreRawRequest.Builder.create()
+            .withPayload(payload)
+            .build();
+
         MessageHash expectedHash = messageHashFactory.createFromCipherText("CIPHERTEXT".getBytes());
 
-        StoreRawResponse result = transactionManager.store(sendRequest);
+        try {
+            transactionManager.store(sendRequest);
+            failBecauseExceptionWasNotThrown(NullPointerException.class);
+        } catch (NullPointerException ex) {
+            assertThat(ex).hasMessage("Sender is required");
+            verify(enclave).encryptRawPayload(eq(payload), eq(PublicKey.from(sender)));
+            verify(enclave).defaultPublicKey();
 
-        assertThat(result).isNotNull();
-        assertThat(result.getKey()).containsExactly(expectedHash.getHashBytes());
-
-        verify(enclave).encryptRawPayload(eq(payload), eq(PublicKey.from(sender)));
-        verify(enclave).defaultPublicKey();
-
-        verify(encryptedRawTransactionDAO)
+            verify(encryptedRawTransactionDAO)
                 .save(
-                        argThat(
-                                et -> {
-                                    assertThat(et.getEncryptedKey()).containsExactly("SomeKey".getBytes());
-                                    assertThat(et.getEncryptedPayload()).containsExactly("CIPHERTEXT".getBytes());
-                                    assertThat(et.getHash()).isEqualTo(expectedHash);
-                                    assertThat(et.getNonce()).containsExactly("nonce".getBytes());
-                                    assertThat(et.getSender()).containsExactly(sender);
-                                    return true;
-                                }));
+                    argThat(
+                        et -> {
+                            assertThat(et.getEncryptedKey()).containsExactly("SomeKey".getBytes());
+                            assertThat(et.getEncryptedPayload()).containsExactly("CIPHERTEXT".getBytes());
+                            assertThat(et.getHash()).isEqualTo(expectedHash);
+                            assertThat(et.getNonce()).containsExactly("nonce".getBytes());
+                            assertThat(et.getSender()).containsExactly(sender);
+                            return true;
+                        }));
+        }
+
     }
 
     @Test
@@ -1811,17 +1541,16 @@ public class TransactionManagerTest {
         config.setServerConfigs(Arrays.asList(serverConfig));
 
         serviceLocator.setServices(
-                Stream.of(config, partyInfoService, enclave, partyInfoService).collect(Collectors.toSet()));
+            Stream.of(config, partyInfoService, enclave, partyInfoService).collect(Collectors.toSet()));
 
         TransactionManager tm =
-                new TransactionManagerImpl(
-                        encryptedTransactionDAO,
-                        enclave,
-                        encryptedRawTransactionDAO,
-                        resendManager,
-                        partyInfoService,
-                        privacyHelper,
-                        1000);
+            new TransactionManagerImpl(
+                encryptedTransactionDAO,
+                enclave,
+                encryptedRawTransactionDAO,
+                resendManager,
+                partyInfoService,privacyHelper,
+                1000);
 
         assertThat(tm).isNotNull();
     }
@@ -1845,122 +1574,126 @@ public class TransactionManagerTest {
 
     @Test
     public void isSenderThrowsOnMissingTransaction() {
-        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
 
-        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("DUMMY_TRANSACTION".getBytes());
 
-        final Throwable throwable = catchThrowable(() -> transactionManager.isSender(key));
+        when(encryptedTransactionDAO.retrieveByHash(transactionHash)).thenReturn(Optional.empty());
+
+        final Throwable throwable = catchThrowable(() -> transactionManager.isSender(transactionHash));
 
         assertThat(throwable)
-                .isInstanceOf(TransactionNotFoundException.class)
-                .hasMessage("Message with hash RFVNTVlfVFJBTlNBQ1RJT04= was not found");
+            .isInstanceOf(TransactionNotFoundException.class)
+            .hasMessage("Message with hash RFVNTVlfVFJBTlNBQ1RJT04= was not found");
 
-        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(encryptedTransactionDAO).retrieveByHash(transactionHash);
     }
 
     @Test
-    public void isSenderReturnsFalseIfNotSender() {
-        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
-
-        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
+    public void isSenderReturnsFalseIfSenderNotFoundInPublicKeys() {
+        final MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("DUMMY_TRANSACTION".getBytes());
 
         final byte[] input = "SOMEDATA".getBytes();
-        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
-        final EncodedPayload encodedPayload =
-                EncodedPayload.Builder.create()
-                        .withSenderKey(senderKey)
-                        .withCipherText("CIPHERTEXT".getBytes())
-                        .withRecipientBoxes(new ArrayList<>())
-                        .withRecipientKeys(new ArrayList<>())
-                        .build();
 
-        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+        final EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
+        when(encryptedTransaction.getEncodedPayload()).thenReturn(input);
+
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        PublicKey sender = mock(PublicKey.class);
+        when(encodedPayload.getSenderKey()).thenReturn(sender);
+
+        when(encryptedTransactionDAO.retrieveByHash(transactionHash))
+            .thenReturn(Optional.of(encryptedTransaction));
+
         when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+
         when(enclave.getPublicKeys()).thenReturn(emptySet());
 
-        final boolean isSender = transactionManager.isSender(key);
+        final boolean isSender = transactionManager.isSender(transactionHash);
 
         assertThat(isSender).isFalse();
 
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).decode(input);
-        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(encryptedTransactionDAO).retrieveByHash(transactionHash);
     }
 
     @Test
     public void isSenderReturnsTrueIfSender() {
-        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
 
-        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("DUMMY_TRANSACTION".getBytes());
 
         final byte[] input = "SOMEDATA".getBytes();
-        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
-        final EncodedPayload encodedPayload =
-                EncodedPayload.Builder.create()
-                        .withSenderKey(senderKey)
-                        .withCipherText("CIPHERTEXT".getBytes())
-                        .withRecipientBoxes(new ArrayList<>())
-                        .withRecipientKeys(new ArrayList<>())
-                        .build();
+        final EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
+        when(encryptedTransaction.getEncodedPayload()).thenReturn(input);
 
-        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+        final PublicKey senderKey = mock(PublicKey.class);
+
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getSenderKey()).thenReturn(senderKey);
+        when(encryptedTransactionDAO.retrieveByHash(transactionHash))
+            .thenReturn(Optional.of(encryptedTransaction));
+
         when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
-        when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
 
-        final boolean isSender = transactionManager.isSender(key);
+        when(enclave.getPublicKeys()).thenReturn(Set.of(senderKey));
+
+        final boolean isSender = transactionManager.isSender(transactionHash);
 
         assertThat(isSender).isTrue();
 
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).decode(input);
-        verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(encryptedTransactionDAO).retrieveByHash(transactionHash);
     }
 
     @Test
     public void getParticipantsThrowsOnMissingTransaction() {
-        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
+
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("DUMMY_TRANSACTION".getBytes());
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
 
-        final Throwable throwable = catchThrowable(() -> transactionManager.getParticipants(key));
+        final Throwable throwable = catchThrowable(() -> transactionManager.getParticipants(transactionHash));
 
         assertThat(throwable)
-                .isInstanceOf(TransactionNotFoundException.class)
-                .hasMessage("Message with hash RFVNTVlfVFJBTlNBQ1RJT04= was not found");
+            .isInstanceOf(TransactionNotFoundException.class)
+            .hasMessage("Message with hash RFVNTVlfVFJBTlNBQ1RJT04= was not found");
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     }
 
     @Test
     public void getParticipantsReturnsAllRecipients() {
-        final String key = Base64.getEncoder().encodeToString("DUMMY_TRANSACTION".getBytes());
 
-        final PublicKey senderKey = PublicKey.from("PUBLIC_KEY".getBytes());
-        final PublicKey recipientKey = PublicKey.from("RECIPIENTS".getBytes());
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("DUMMY_TRANSACTION".getBytes());
+
+        final PublicKey senderKey = mock(PublicKey.class);
+        final PublicKey recipientKey = mock(PublicKey.class);
 
         final byte[] input = "SOMEDATA".getBytes();
-        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction(new MessageHash(input), input);
-        final EncodedPayload encodedPayload =
-                EncodedPayload.Builder.create()
-                        .withSenderKey(senderKey)
-                        .withCipherText("CIPHERTEXT".getBytes())
-                        .withRecipientBoxes(new ArrayList<>())
-                        .withRecipientKeys(Arrays.asList(senderKey, recipientKey))
-                        .build();
+        final EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
+        final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getRecipientKeys()).thenReturn(List.of(senderKey,recipientKey));
+        when(encryptedTransaction.getEncodedPayload()).thenReturn(input);
 
-        when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedTransaction));
+        when(encryptedTransactionDAO.retrieveByHash(transactionHash))
+            .thenReturn(Optional.of(encryptedTransaction));
+
         when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
 
-        final List<PublicKey> participants = transactionManager.getParticipants(key);
+        final List<PublicKey> participants = transactionManager.getParticipants(transactionHash);
 
         assertThat(participants).containsExactlyInAnyOrder(senderKey, recipientKey);
 
         verify(payloadEncoder).decode(input);
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     }
+
 
     @Test
     public void create() {
@@ -1980,5 +1713,33 @@ public class TransactionManagerTest {
         assertThat(transactionManager).isNotNull();
 
     }
+
+    @Test
+    public void defaultPublicKey() {
+        transactionManager.defaultPublicKey();
+        verify(enclave).defaultPublicKey();
+
+    }
+
+    @Test
+    public void publish() {
+
+        PublicKey reipcient = mock(PublicKey.class);
+        List<PublicKey> recipients = List.of(reipcient);
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
+        when(payloadEncoder.forRecipient(payload,reipcient)).thenReturn(payload);
+
+        TransactionManagerImpl.class.cast(transactionManager).publish(recipients,payload);
+
+        verify(enclave).getPublicKeys();
+        verify(payloadEncoder).forRecipient(payload,reipcient);
+        verify(partyInfoService).publishPayload(payload,reipcient);
+
+    }
+
+
+
 
 }

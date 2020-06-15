@@ -1,7 +1,7 @@
 package com.quorum.tessera.api.constraint;
 
-import com.quorum.tessera.api.model.SendRequest;
-import com.quorum.tessera.api.model.SendSignedRequest;
+import com.quorum.tessera.api.SendRequest;
+import com.quorum.tessera.api.SendSignedRequest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -8,10 +8,12 @@ import org.junit.runners.Parameterized;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
 public class EncryptedTransactionDAOTest {
@@ -304,6 +306,76 @@ public class EncryptedTransactionDAOTest {
         List<EncryptedTransaction> results = encryptedTransactionDAO.findByHashes(Collections.EMPTY_LIST);
 
         assertThat(results).isEmpty();
+    }
+
+
+    @Test
+    public void saveTransactionWithCallback() throws Exception {
+
+        MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+        EncryptedTransaction transaction = new EncryptedTransaction();
+        transaction.setHash(transactionHash);
+        transaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+
+        Callable<Void> callback = mock(Callable.class);
+
+        encryptedTransactionDAO.save(transaction,callback);
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EncryptedTransaction result = entityManager.find(EncryptedTransaction.class, transactionHash);
+        assertThat(result).isNotNull();
+
+        verify(callback).call();
+    }
+
+    @Test
+    public void saveTransactionWithCallbackException() throws Exception {
+
+        MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+        EncryptedTransaction transaction = new EncryptedTransaction();
+        transaction.setHash(transactionHash);
+        transaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+
+        Callable<Void> callback = mock(Callable.class);
+        when(callback.call()).thenThrow(new Exception("OUCH"));
+
+        try {
+            encryptedTransactionDAO.save(transaction, callback);
+            failBecauseExceptionWasNotThrown(PersistenceException.class);
+        } catch (PersistenceException ex) {
+            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
+        }
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EncryptedTransaction result = entityManager.find(EncryptedTransaction.class, transactionHash);
+        assertThat(result).isNull();
+
+        verify(callback).call();
+    }
+
+    @Test
+    public void saveTransactionWithCallbackRuntimeException() throws Exception {
+
+        MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+        EncryptedTransaction transaction = new EncryptedTransaction();
+        transaction.setHash(transactionHash);
+        transaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+
+        Callable<Void> callback = mock(Callable.class);
+        when(callback.call()).thenThrow(new RuntimeException("OUCH"));
+
+        try {
+            encryptedTransactionDAO.save(transaction, callback);
+            failBecauseExceptionWasNotThrown(RuntimeException.class);
+        } catch (RuntimeException ex) {
+            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
+        }
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final EncryptedTransaction result = entityManager.find(EncryptedTransaction.class, transactionHash);
+        assertThat(result).isNull();
+
+        verify(callback).call();
     }
 
     @Parameterized.Parameters(name = "DB {0}")

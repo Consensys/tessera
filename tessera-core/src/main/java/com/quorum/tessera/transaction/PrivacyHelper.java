@@ -1,5 +1,6 @@
 package com.quorum.tessera.transaction;
 
+import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.AffectedTransaction;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PrivacyMode;
@@ -11,7 +12,7 @@ import java.util.Set;
 public interface PrivacyHelper {
 
 
-    List<AffectedTransaction> findAffectedContractTransactionsFromSendRequest(String[] affectedHashes);
+    List<AffectedTransaction> findAffectedContractTransactionsFromSendRequest(Set<MessageHash> affectedHashes);
 
     List<AffectedTransaction> findAffectedContractTransactionsFromPayload(EncodedPayload payload);
 

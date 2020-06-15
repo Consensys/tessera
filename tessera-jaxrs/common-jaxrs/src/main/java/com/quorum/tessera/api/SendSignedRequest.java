@@ -1,19 +1,28 @@
-package com.quorum.tessera.api.model;
+package com.quorum.tessera.api;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlMimeType;
+
 /**
- * Model representation of a JSON body on outgoing HTTP requests
+ * Model representation of a JSON body on incoming HTTP requests
  *
- * <p>Contains a Base64 encoded string that is the decrypting payload of a transaction
+ * <p>Used when a new transaction is to be created where this node is the sender
  */
 @ApiModel
-public class ReceiveResponse {
+public class SendSignedRequest {
 
     @XmlMimeType("base64Binary")
-    @ApiModelProperty("Encode response servicing receive requests")
-    private byte[] payload;
+    @Size(min = 1)
+    @NotNull
+    @ApiModelProperty("The hash of the stored payload to send to other parties.")
+    private byte[] hash;
+
+    @ApiModelProperty("Recipient public keys")
+    private String[] to;
 
     @ApiModelProperty("Privacy flag")
     private int privacyFlag;
@@ -24,25 +33,20 @@ public class ReceiveResponse {
     @ApiModelProperty("Execution hash")
     private String execHash;
 
-    public ReceiveResponse(
-            final byte[] payload,
-            final int privacyFlag,
-            final String[] affectedContractTransactions,
-            final String execHash) {
-        this.payload = payload;
-        this.privacyFlag = privacyFlag;
-        this.affectedContractTransactions = affectedContractTransactions;
-        this.execHash = execHash;
+    public byte[] getHash() {
+        return hash;
     }
 
-    public ReceiveResponse() {}
-
-    public byte[] getPayload() {
-        return payload;
+    public void setHash(byte[] hash) {
+        this.hash = hash;
     }
 
-    public void setPayload(final byte[] payload) {
-        this.payload = payload;
+    public String[] getTo() {
+        return to;
+    }
+
+    public void setTo(final String... to) {
+        this.to = to;
     }
 
     public int getPrivacyFlag() {
@@ -57,7 +61,7 @@ public class ReceiveResponse {
         return affectedContractTransactions;
     }
 
-    public void setAffectedContractTransactions(String[] affectedContractTransactions) {
+    public void setAffectedContractTransactions(String... affectedContractTransactions) {
         this.affectedContractTransactions = affectedContractTransactions;
     }
 

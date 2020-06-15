@@ -38,20 +38,20 @@ public class PrivacyHelperTest {
     @Test
     public void findAffectedContractTransactionsFromSendRequestFound() {
 
-        final String hash1 = Base64.getEncoder().encodeToString("hash1".getBytes());
-        final String hash2 = Base64.getEncoder().encodeToString("hash2".getBytes());
+        final MessageHash hash1 = mock(MessageHash.class);
+        final MessageHash hash2 = mock(MessageHash.class);
 
         EncryptedTransaction et1 = mock(EncryptedTransaction.class);
         when(et1.getEncodedPayload()).thenReturn("payload1".getBytes());
-        when(et1.getHash()).thenReturn(new MessageHash("hash1".getBytes()));
+        when(et1.getHash()).thenReturn(hash1);
         EncryptedTransaction et2 = mock(EncryptedTransaction.class);
         when(et2.getEncodedPayload()).thenReturn("payload2".getBytes());
-        when(et2.getHash()).thenReturn(new MessageHash("hash2".getBytes()));
+        when(et2.getHash()).thenReturn(hash2);
 
         when(encryptedTransactionDAO.findByHashes(anyCollection())).thenReturn(List.of(et1, et2));
 
         List<AffectedTransaction> affectedTransactions =
-                privacyHelper.findAffectedContractTransactionsFromSendRequest(new String[] {hash1, hash2});
+                privacyHelper.findAffectedContractTransactionsFromSendRequest(Set.of(hash1,hash2));
 
         assertThat(affectedTransactions).isNotNull();
         assertThat(affectedTransactions.size()).isEqualTo(2);
@@ -62,8 +62,8 @@ public class PrivacyHelperTest {
     @Test
     public void findAffectedContractTransactionsFromSendRequestNotFound() {
 
-        final String hash1 = Base64.getEncoder().encodeToString("hash1".getBytes());
-        final String hash2 = Base64.getEncoder().encodeToString("hash2".getBytes());
+        final MessageHash hash1 = mock(MessageHash.class);
+        final MessageHash hash2 = mock(MessageHash.class);
 
         EncryptedTransaction et1 = mock(EncryptedTransaction.class);
         when(et1.getEncodedPayload()).thenReturn("payload1".getBytes());
@@ -74,11 +74,10 @@ public class PrivacyHelperTest {
         assertThatExceptionOfType(PrivacyViolationException.class)
                 .isThrownBy(
                         () -> {
-                            privacyHelper.findAffectedContractTransactionsFromSendRequest(new String[] {hash1, hash2});
+                            privacyHelper.findAffectedContractTransactionsFromSendRequest(Set.of(hash1, hash2));
                             failBecauseExceptionWasNotThrown(Exception.class);
                         })
-                .withMessageContaining("Unable to find affectedContractTransaction")
-                .withMessageContaining(hash2);
+                .withMessageContaining("Unable to find affectedContractTransaction");
 
         verify(encryptedTransactionDAO).findByHashes(any());
     }
@@ -424,7 +423,7 @@ public class PrivacyHelperTest {
     @Test
     public void returnsEmptyList() {
         assertThat(privacyHelper.findAffectedContractTransactionsFromSendRequest(null)).hasSize(0);
-        assertThat(privacyHelper.findAffectedContractTransactionsFromSendRequest(new String[0])).hasSize(0);
+        assertThat(privacyHelper.findAffectedContractTransactionsFromSendRequest(Collections.EMPTY_SET)).hasSize(0);
 
         EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getAffectedContractTransactions()).thenReturn(emptyMap());

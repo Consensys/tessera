@@ -4,7 +4,6 @@ import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import java.util.HashSet;
 import java.util.Set;
 import javax.ws.rs.core.Application;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,8 +27,7 @@ public class Q2TRestAppTest {
     @Before
     public void setUp() throws Exception {
 
-        final Set services = new HashSet();
-        services.add(mock(Config.class));
+        final Set services = Set.of(mock(Config.class));
 
         serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);
