@@ -68,7 +68,7 @@ test {
             '**/RestSuiteHttpHSQL.class',
             '**/RestSuiteUnixH2.class',
             '**/RestSuiteHttpSqllite.class',
-            '**/RestSuiteHttpH2.class',ConfigMigrationSteps.
+            '**/RestSuiteHttpH2.class',
             '**/SendWithRemoteEnclaveReconnectIT.class',
             '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
