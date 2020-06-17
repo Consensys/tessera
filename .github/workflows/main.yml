@@ -1,18 +1,18 @@
 name: Tessera Maven Build
 
-on:
+on: 
   push:
-    branches:
-      - new-psv
+    branches: 
+      - master
   pull_request:
-    branches:
-      - new-psv
+    branches: 
+      - master
 env: 
   MAVEN_REPO_CACHE_KEY: ${{ github.run_id }}-maven-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
  
 jobs:
   build:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v2
         - uses: actions/setup-java@v1
@@ -23,20 +23,20 @@ jobs:
            mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -B
            mvn dependency:go-offline -B
            mvn dependency:resolve-plugins -B
-
         - uses: actions/cache@v1
           with:
             path: ~/.m2/repository
             key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
               ${{env.MAVEN_REPO_CACHE_KEY}}
-        - uses: actions/upload-artifact@v1
-          if: success()
+        - uses: homoluctus/slatify@v2.1.2
+          if: failure()
           with:
-            name: tessera-app-jar
-            path: tessera-dist/tessera-app/target/tessera-app-0.10.6-SNAPSHOT-app.jar
+            type: ${{job.status}}
+            job_name: Build no checks
+            url: ${{ secrets.SLACK_WEBHOOK }}
   test:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
     needs: build
     steps:
       - uses: actions/checkout@v2
@@ -49,24 +49,21 @@ jobs:
           key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
             ${{env.MAVEN_REPO_CACHE_KEY}}
-      - run:  mvn package -pl \!tests/acceptance-test  
+      - run: mvn package -pl \!tests/acceptance-test
       - uses: codecov/codecov-action@v1
         with:
           token: ${{secrets.CODECOV_TOKEN}}
           flags: unittests
           fail_ci_if_error: true
-      - run: |
-          mkdir -p /home/runner/work/tessera/tessera/surefire-reports
-          cp -u **/target/surefire-reports/* /home/runner/work/tessera/tessera/surefire-reports/
-        if: failure()
-      - uses: actions/upload-artifact@v1
+      - uses: homoluctus/slatify@v2.1.2
         if: failure()
         with:
-          name: junit-reports
-          path: /home/runner/work/tessera/tessera/surefire-reports
-            
+          type: ${{job.status}}
+          job_name: Unit tests
+          url: ${{ secrets.SLACK_WEBHOOK }}
+
   itest:
-      runs-on: ubuntu-16.04
+      runs-on: ubuntu-latest
       needs: build
       steps:
         - uses: actions/checkout@v2
@@ -79,15 +76,18 @@ jobs:
             key: ${{env.MAVEN_REPO_CACHE_KEY}}
             restore-keys: |
               ${{env.MAVEN_REPO_CACHE_KEY}}
-        - run: mvn verify -pl tests/acceptance-test
-        - uses: actions/upload-artifact@v1
+        - run: |
+           mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
+           mvn verify -pl tests/acceptance-test
+        - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
-            name: itest-failsafe-reports
-            path: /home/runner/work/tessera/tessera/tests/acceptance-test/target/failsafe-reports
+            type: ${{job.status}}
+            job_name: Integration tests
+            url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
-      runs-on: ubuntu-16.04
+      runs-on: ubuntu-latest
       needs: build
       steps:
         - uses: actions/checkout@v2
@@ -105,30 +105,20 @@ jobs:
             mkdir -p vault/bin && pushd $_
             unzip /tmp/vault_1.2.2_linux_amd64.zip
             export PATH=$PATH:$PWD && popd
+            mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
             mvn verify -pl tests/acceptance-test -P vault-acceptance-tests
+        - uses: homoluctus/slatify@v2.1.2
+          if: failure()
+          with:
+            type: ${{job.status}}
+            job_name: Vault integration tests
+            url: ${{ secrets.SLACK_WEBHOOK }}
 
   atest:
-    runs-on: ubuntu-16.04
-    needs: [build]
+    runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v2
-        with:
-          repository: QuorumEngineering/quorum
-          path: quorum
-#          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
-          ref: feature/quorum-1.9.7-withPE
-      - uses: actions/checkout@v2
-        with:
-          repository: QuorumEngineering/quorum-acceptance-tests
-          path: quorum-acceptance-tests
-#          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
-          ref: feature/quorum-1.9.7-withPE
-      - uses: actions/checkout@v2
-        with:
-          repository: QuorumEngineering/quorum-examples
-          path: quorum-examples
-#          token: 889164eb89db2348e0d26aed4c1e4a47a1a5c98a
-          ref: feature/geth-1.9.7-withPE
       - uses: actions/setup-java@v1
         with:
           java-version: 11
@@ -138,57 +128,30 @@ jobs:
           key: ${{env.MAVEN_REPO_CACHE_KEY}}
           restore-keys: |
             ${{env.MAVEN_REPO_CACHE_KEY}}
-      - uses: actions/download-artifact@v1
-        with:
-          name: tessera-app-jar
-          path: /tmp/tessera-app.jar
       - run: |
-          export TESSERA_JAR=/tmp/tessera-app.jar
-
-          cd /home/runner/work/tessera/tessera/quorum
-          make all
-          export PATH=$PATH:$(pwd)/build/bin
-          cd /home/runner/work/tessera/tessera/
-          geth version
-          echo "Installed geth"
-          
-          echo "Install solc"
-          curl -L https://github.com/ethereum/solidity/releases/download/v0.5.4/solc-static-linux -o solc
-          sudo mv solc /usr/local/bin/
-          sudo chmod 755 /usr/local/bin/solc
-          solc --version
-          echo "Installed solc"
-          echo "Install gauge"
-          curl -L https://github.com/getgauge/gauge/releases/download/v1.0.7/gauge-1.0.7-linux.x86_64.zip -o gauge.zip
-          sudo unzip -o gauge.zip -d /usr/local/bin
-
-          cd /home/runner/work/tessera/tessera/quorum-acceptance-tests
-          gauge install
-          cd /home/runner/work/tessera/tessera
-          echo "Installed gauge"
-          echo "Start $TESSERA_JAR for 7 nodes"
-          cd /home/runner/work/tessera/tessera/quorum-examples/examples/7nodes
-          ./tessera-init.sh
-          ./init.sh istanbul
-          ./start.sh istanbul tessera
-          cd /home/runner/work/tessera/tessera
-          echo "Started $TESSERA_JAR for 7 nodes"
-          echo "Run quorum-acceptance-tests"
-          cd /home/runner/work/tessera/tessera/quorum-acceptance-tests
-          cp config/application-local.7nodes.yml config/application-local.yml
-          mvn test
-          echo "Complete quorum-acceptance-tests"
-        env:
-          MAVEN_OPTS: -Xms1024m -Xmx2048m
-
-      - uses: actions/upload-artifact@v1
+          mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B -ntp
+      - uses: docker/build-push-action@v1
+        with:
+          repository: quorumengineering/tessera
+          tags: latest
+          push: false
+          dockerfile: .github/workflows/DockerfileTest
+          build_args: JAR_FILE=tessera-dist/tessera-app/target/*-app.jar
+      - run:
+          docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="basic || basic-istanbul || networks/typical::istanbul" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
+      - uses: homoluctus/slatify@v2.1.2
         if: failure()
         with:
-            name: gauge-report
-            path: /home/runner/work/tessera/tessera/quorum-acceptance-tests/src/site/resources/reports/html-report/
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-            name: quorum-examples-logs
-            path: /home/runner/work/tessera/tessera/quorum-examples/examples/7nodes/qdata/logs
+          type: ${{job.status}}
+          job_name: Acceptance tests
+          url: ${{ secrets.SLACK_WEBHOOK }}
 
+  slackNotification:
+    runs-on: ubuntu-latest
+    needs: [build,atest,itest,test,vaultTests]
+    steps:
+    - uses: homoluctus/slatify@v2.1.2
+      with:
+        type: ${{job.status}}
+        job_name: Build
+        url: ${{ secrets.SLACK_WEBHOOK }}
