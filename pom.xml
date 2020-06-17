@@ -27,10 +27,6 @@
         of private transactions for Quorum.
     </description>
 
-    <ciManagement>
-        <url>https://travis-ci.com/jpmorganchase/tessera</url>
-    </ciManagement>
-
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
