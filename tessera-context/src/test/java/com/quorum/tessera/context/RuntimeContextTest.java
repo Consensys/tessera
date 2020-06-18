@@ -44,7 +44,7 @@ public class RuntimeContextTest extends ContextTestCase {
     @Test
     public void getInstance() {
         RuntimeContext runtimeContext = mock(RuntimeContext.class);
-        ContextHolder.INSTANCE.setContext(runtimeContext);
+        DefaultContextHolder.INSTANCE.setContext(runtimeContext);
         assertThat(runtimeContext).isSameAs(RuntimeContext.getInstance());
     }
 }

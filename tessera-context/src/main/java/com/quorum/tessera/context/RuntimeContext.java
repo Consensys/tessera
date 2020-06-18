@@ -27,7 +27,7 @@ public interface RuntimeContext {
     URI getP2pServerUri();
 
     static RuntimeContext getInstance() {
-        return ContextHolder.INSTANCE.getContext().get();
+        return ContextHolder.getInstance().getContext().get();
     }
 
     boolean isDisablePeerDiscovery();

@@ -35,7 +35,7 @@ public class CreateContextInvocationHandlerTest extends ContextTestCase {
 
         verify(factory).create(config);
 
-        assertThat(ContextHolder.INSTANCE.getContext().get()).isSameAs(runtimeContext);
+        assertThat(DefaultContextHolder.INSTANCE.getContext().get()).isSameAs(runtimeContext);
 
         verifyNoMoreInteractions(factory);
     }
@@ -93,7 +93,7 @@ public class CreateContextInvocationHandlerTest extends ContextTestCase {
         RuntimeContextFactory factory = mock(RuntimeContextFactory.class);
         RuntimeContext runtimeContext = mock(RuntimeContext.class);
         when(factory.create(config)).thenReturn(runtimeContext);
-        ContextHolder.INSTANCE.setContext(runtimeContext);
+        DefaultContextHolder.INSTANCE.setContext(runtimeContext);
 
         CreateContextInvocationHandler handler = new CreateContextInvocationHandler(factory);
 
@@ -110,7 +110,7 @@ public class CreateContextInvocationHandlerTest extends ContextTestCase {
 
         verify(factory).create(config);
 
-        assertThat(ContextHolder.INSTANCE.getContext().get()).isSameAs(runtimeContext);
+        assertThat(DefaultContextHolder.INSTANCE.getContext().get()).isSameAs(runtimeContext);
 
         verifyNoMoreInteractions(factory);
     }

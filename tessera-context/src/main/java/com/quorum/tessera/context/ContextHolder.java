@@ -1,27 +1,16 @@
 package com.quorum.tessera.context;
 
-import java.util.Objects;
+import com.quorum.tessera.ServiceLoaderUtil;
+
 import java.util.Optional;
 
-/*
-RuntimeContextFactory and RuntimeContext instance
- */
-enum ContextHolder {
-    INSTANCE;
+public interface ContextHolder {
 
-    private RuntimeContext runtimeContext;
+    Optional<RuntimeContext> getContext();
 
-    protected Optional<RuntimeContext> getContext() {
-        return Optional.ofNullable(runtimeContext);
-    }
-
-    protected ContextHolder setContext(RuntimeContext runtimeContext) {
-
-        if (this.runtimeContext != null) {
-            throw new IllegalStateException("RuntimeContext has already been stored");
-        }
-        this.runtimeContext = Objects.requireNonNull(runtimeContext,"Runtime context cannot be null");
-        return this;
+    static ContextHolder getInstance() {
+        return ServiceLoaderUtil.load(ContextHolder.class)
+            .orElse(DefaultContextHolder.INSTANCE);
     }
 
 }
