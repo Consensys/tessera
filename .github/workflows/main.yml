@@ -12,7 +12,7 @@ env:
  
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     steps:
         - uses: actions/checkout@v2
         - uses: actions/setup-java@v1
@@ -36,7 +36,7 @@ jobs:
             job_name: Build no checks
             url: ${{ secrets.SLACK_WEBHOOK }}
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: build
     steps:
       - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   itest:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-16.04
       needs: build
       steps:
         - uses: actions/checkout@v2
@@ -87,7 +87,7 @@ jobs:
             url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
-      runs-on: ubuntu-latest
+      runs-on: ubuntu-16.04
       needs: build
       steps:
         - uses: actions/checkout@v2
@@ -115,7 +115,7 @@ jobs:
             url: ${{ secrets.SLACK_WEBHOOK }}
 
   atest:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: build
     steps:
       - uses: actions/checkout@v2
@@ -147,7 +147,7 @@ jobs:
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   slackNotification:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-16.04
     needs: [build,atest,itest,test,vaultTests]
     steps:
     - uses: homoluctus/slatify@v2.1.2
