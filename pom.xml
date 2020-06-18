@@ -331,6 +331,7 @@
                                 <exclude>com/quorum/tessera/key/vault/azure/AzureKeyVaultClientDelegate*</exclude>
                                 <exclude>com/quorum/tessera/key/vault/hashicorp/KeyValueOperationsDelegateFactory*</exclude>
                                 <exclude>com/quorum/tessera/enclave/rest/Main*</exclude>
+                                <exclude>com/quorum/tessera/context/RuntimeContextFactory*</exclude>
                             </excludes>
 
                             <rules>
