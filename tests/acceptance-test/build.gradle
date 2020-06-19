@@ -32,7 +32,7 @@ dependencies {
 
     testCompile 'org.xerial:sqlite-jdbc:3.23.1'
     testCompile 'org.hsqldb:hsqldb:2.4.1'
-    testCompile 'com.github.tomakehurst:wiremock-jre8:2.25.1'
+    testCompile 'com.github.tomakehurst:wiremock-jre8:2.26.3'
     testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
     testCompile 'org.assertj:assertj-core:3.9.1'
     testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
