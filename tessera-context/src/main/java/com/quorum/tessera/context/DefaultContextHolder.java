@@ -15,13 +15,12 @@ enum DefaultContextHolder implements ContextHolder {
         return Optional.ofNullable(runtimeContext);
     }
 
-    protected DefaultContextHolder setContext(RuntimeContext runtimeContext) {
+    public void setContext(RuntimeContext runtimeContext) {
 
         if (this.runtimeContext != null) {
             throw new IllegalStateException("RuntimeContext has already been stored");
         }
         this.runtimeContext = Objects.requireNonNull(runtimeContext,"Runtime context cannot be null");
-        return this;
     }
 
 }

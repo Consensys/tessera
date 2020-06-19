@@ -33,7 +33,7 @@ public class IPWhitelistFilterTest {
     @Before
     public void init() throws URISyntaxException {
         runtimeContext = mock(RuntimeContext.class);
-        MockRuntimeContextFactory.setContext(runtimeContext);
+        MockRuntimeContextFactory.setMockContext(runtimeContext);
 
         when(runtimeContext.getPeers()).thenReturn(singletonList(URI.create("http://whitelistedHost:8080")));
         when(runtimeContext.isUseWhiteList()).thenReturn(true);

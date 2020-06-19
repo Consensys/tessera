@@ -8,6 +8,8 @@ public interface ContextHolder {
 
     Optional<RuntimeContext> getContext();
 
+    void setContext(RuntimeContext runtimeContext);
+
     static ContextHolder getInstance() {
         return ServiceLoaderUtil.load(ContextHolder.class)
             .orElse(DefaultContextHolder.INSTANCE);

@@ -24,8 +24,22 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRuntimeContextFactory.class);
 
+    private final ContextHolder contextHolder;
+
+    DefaultRuntimeContextFactory() {
+        this(ContextHolder.getInstance());
+    }
+
+    DefaultRuntimeContextFactory(ContextHolder contextHolder) {
+        this.contextHolder = Objects.requireNonNull(contextHolder);
+    }
+
     @Override
     public RuntimeContext create(Config config) {
+        Optional<RuntimeContext> storedContext = contextHolder.getContext();
+        if(storedContext.isPresent()) {
+            return storedContext.get();
+        }
 
         EncryptorConfig encryptorConfig =
                 Optional.ofNullable(config.getEncryptor())
@@ -96,6 +110,8 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
                         .withUseWhiteList(config.isUseWhiteList())
                         .withRecoveryMode(config.isRecoveryMode())
                         .build();
+
+        contextHolder.setContext(context);
 
         return context;
     }

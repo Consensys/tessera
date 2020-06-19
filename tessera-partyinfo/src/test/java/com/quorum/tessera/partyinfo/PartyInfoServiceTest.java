@@ -1,5 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.context.ContextHolder;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -43,9 +44,7 @@ public class PartyInfoServiceTest {
     @Before
     public void onSetUp() {
 
-        runtimeContext = RuntimeContext.getInstance();
-        MockContextHolder.setContext(runtimeContext);
-
+        runtimeContext = ContextHolder.getInstance().getContext().get();
         this.partyInfoStore = mock(PartyInfoStore.class);
         this.enclave = mock(Enclave.class);
         this.payloadPublisher = mock(PayloadPublisher.class);

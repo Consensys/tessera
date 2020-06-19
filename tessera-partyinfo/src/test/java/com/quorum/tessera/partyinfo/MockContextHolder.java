@@ -11,7 +11,8 @@ public class MockContextHolder implements ContextHolder {
 
     static ThreadLocal<RuntimeContext> runtimeContextThreadLocal = ThreadLocal.withInitial(() -> mock(RuntimeContext.class));
 
-    static void setContext(RuntimeContext runtimeContext) {
+    @Override
+    public void setContext(RuntimeContext runtimeContext) {
         runtimeContextThreadLocal.set(runtimeContext);
     }
 
