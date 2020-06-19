@@ -154,4 +154,19 @@ public class EnclaveFactoryTest {
             assertThat(ex).hasMessage("OUCH");
         }
     }
+
+    @Test
+    public void callCreateWithStoreInstance() {
+
+        Enclave storedEnclave = mock(Enclave.class);
+        MockEnclaveHolder.setMockEnclave(storedEnclave);
+
+        Enclave enclave = enclaveFactory.create(mock(Config.class));
+
+        assertThat(enclave).isSameAs(storedEnclave);
+
+        MockEnclaveHolder.reset();
+
+    }
+
 }
