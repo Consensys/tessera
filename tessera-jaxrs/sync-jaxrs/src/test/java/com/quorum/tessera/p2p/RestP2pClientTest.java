@@ -28,6 +28,7 @@ public class RestP2pClientTest {
     public void sendPartyInfo() {
 
         Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
+        when(m.header(any(), any())).thenReturn(m);
 
         byte[] responseData = "Result".getBytes();
         Response response = mock(Response.class);
@@ -62,7 +63,7 @@ public class RestP2pClientTest {
     public void sendPartyInfoReturns201() {
 
         Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
-
+        when(m.header(any(), any())).thenReturn(m);
         byte[] responseData = "Result".getBytes();
 
         Response response = mock(Response.class);
@@ -97,7 +98,7 @@ public class RestP2pClientTest {
     public void sendPartyInfoReturns400() {
 
         Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
-
+        when(m.header(any(), any())).thenReturn(m);
         byte[] responseData = "Result".getBytes();
 
         Response response = mock(Response.class);

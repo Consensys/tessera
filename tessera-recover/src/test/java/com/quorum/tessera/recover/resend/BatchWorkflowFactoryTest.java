@@ -76,7 +76,7 @@ public class BatchWorkflowFactoryTest {
         when(enclave.getPublicKeys()).thenReturn(Set.of(ownedKey));
 
         PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(Set.of(new Recipient(recipientKey, "url")));
+        when(partyInfo.getRecipients()).thenReturn(Set.of(Recipient.of(recipientKey, "url")));
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 

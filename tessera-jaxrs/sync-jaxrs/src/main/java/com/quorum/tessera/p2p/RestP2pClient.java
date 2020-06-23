@@ -26,14 +26,14 @@ public class RestP2pClient implements P2pClient {
         LOGGER.debug("Sending Transaction via /push to peer {}", targetUrl);
 
         try (Response response =
-                 client.target(targetUrl)
-                     .path("/push")
-                     .request()
-                     .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
+                client.target(targetUrl)
+                        .path("/push")
+                        .request()
+                        .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
 
             final int returnStatusCode = response.getStatus();
             if (Response.Status.OK.getStatusCode() != returnStatusCode
-                && Response.Status.CREATED.getStatusCode() != returnStatusCode) {
+                    && Response.Status.CREATED.getStatusCode() != returnStatusCode) {
                 LOGGER.warn("Push returned status code for peer {} was {}", targetUrl, returnStatusCode);
                 return null;
             }
@@ -48,14 +48,14 @@ public class RestP2pClient implements P2pClient {
         LOGGER.debug("Sending PartyInfo to peer {}", targetUrl);
 
         try (Response response =
-                 client.target(targetUrl)
-                     .path("/partyinfo")
-                     .request()
-                     .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
+                client.target(targetUrl)
+                        .path("/partyinfo")
+                        .request()
+                        .header("Accepts-EnhancedPrivacy", true)
+                        .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
 
             final int returnStatusCode = response.getStatus();
-            if (Status.OK.getStatusCode() != returnStatusCode
-                && Status.CREATED.getStatusCode() != returnStatusCode) {
+            if (Status.OK.getStatusCode() != returnStatusCode && Status.CREATED.getStatusCode() != returnStatusCode) {
                 LOGGER.warn("PartyInfo returned status code for peer {} was {}", targetUrl, returnStatusCode);
                 return false;
             }

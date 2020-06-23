@@ -78,13 +78,13 @@ public class PartyInfoResourceTest {
                         "http://localhost:9001/",
                         new HashSet<>(
                                 Arrays.asList(
-                                        new Recipient(
+                                        Recipient.of(
                                                 PublicKey.from(
                                                         Base64.getDecoder()
                                                                 .decode(
                                                                         "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
                                                 "http://localhost:9001/"),
-                                        new Recipient(
+                                        Recipient.of(
                                                 PublicKey.from(
                                                         Base64.getDecoder()
                                                                 .decode(
@@ -121,7 +121,7 @@ public class PartyInfoResourceTest {
 
         byte[] payload = message.getBytes();
 
-        Recipient recipient = new Recipient(recipientKey, url);
+        Recipient recipient = Recipient.of(recipientKey, url);
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
@@ -162,7 +162,7 @@ public class PartyInfoResourceTest {
 
         when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
 
-        Response result = partyInfoResource.partyInfo(payload);
+        Response result = partyInfoResource.partyInfo(payload, false);
 
         assertThat(result.getStatus()).isEqualTo(200);
 
@@ -219,7 +219,7 @@ public class PartyInfoResourceTest {
 
         byte[] payload = message.getBytes();
 
-        Recipient recipient = new Recipient(recipientKey, url);
+        Recipient recipient = Recipient.of(recipientKey, url);
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
@@ -252,7 +252,7 @@ public class PartyInfoResourceTest {
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
         try {
-            partyInfoResource.partyInfo(payload);
+            partyInfoResource.partyInfo(payload, false);
             failBecauseExceptionWasNotThrown(SecurityException.class);
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
@@ -276,7 +276,7 @@ public class PartyInfoResourceTest {
 
         byte[] payload = message.getBytes();
 
-        Recipient recipient = new Recipient(recipientKey, url);
+        Recipient recipient = Recipient.of(recipientKey, url);
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
@@ -305,7 +305,7 @@ public class PartyInfoResourceTest {
                 .thenThrow(new UncheckedIOException(new IOException("GURU meditation")));
 
         try {
-            partyInfoResource.partyInfo(payload);
+            partyInfoResource.partyInfo(payload, false);
             failBecauseExceptionWasNotThrown(SecurityException.class);
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
@@ -327,7 +327,7 @@ public class PartyInfoResourceTest {
         final String otherurl = "http://www.randomaddress.com";
         final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
         final Set<Recipient> recipientList =
-                new HashSet<>(Arrays.asList(new Recipient(recipientKey, url), new Recipient(recipientKey, otherurl)));
+                new HashSet<>(Arrays.asList(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl)));
         final PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
 
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
@@ -337,7 +337,7 @@ public class PartyInfoResourceTest {
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
         when(partyInfoParser.to(captor.capture())).thenReturn(serialisedData);
 
-        final Response callResponse = partyInfoResource.partyInfo(payload);
+        final Response callResponse = partyInfoResource.partyInfo(payload, false);
         final byte[] data = (byte[]) callResponse.getEntity();
 
         assertThat(captor.getValue().getUrl()).isEqualTo(url);
@@ -355,8 +355,8 @@ public class PartyInfoResourceTest {
         String url = "http://bogus";
         Set<Party> parties = Collections.emptySet();
         Set<Recipient> recipients = new HashSet<>();
-        recipients.add(new Recipient(mock(PublicKey.class), url));
-        recipients.add(new Recipient(mock(PublicKey.class), url));
+        recipients.add(Recipient.of(mock(PublicKey.class), url));
+        recipients.add(Recipient.of(mock(PublicKey.class), url));
 
         PartyInfo partyInfo = new PartyInfo(url, recipients, parties);
 
@@ -404,7 +404,7 @@ public class PartyInfoResourceTest {
         when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
 
         // the test
-        partyInfoResource.partyInfo(payload);
+        partyInfoResource.partyInfo(payload, false);
 
         ArgumentCaptor<byte[]> uuidCaptor = ArgumentCaptor.forClass(byte[].class);
         verify(enclave, times(2))

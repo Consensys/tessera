@@ -146,6 +146,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
+
         recipientList.stream()
                 .filter(k -> !enclave.getPublicKeys().contains(k))
                 .forEach(

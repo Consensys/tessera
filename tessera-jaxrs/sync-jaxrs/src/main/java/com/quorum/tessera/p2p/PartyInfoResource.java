@@ -84,7 +84,9 @@ public class PartyInfoResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @ApiOperation(value = "Request public key/url of other nodes")
     @ApiResponses({@ApiResponse(code = 200, message = "Encoded PartyInfo Data", response = byte[].class)})
-    public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
+    public Response partyInfo(
+            @ApiParam(required = true) final byte[] payload,
+            @HeaderParam("Accepts-EnhancedPrivacy") final boolean acceptsEnhancedPrivacy) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
 
@@ -157,6 +159,7 @@ public class PartyInfoResource {
         final Set<Recipient> recipients =
                 partyInfo.getRecipients().stream()
                         .filter(isSendingUrl.and(isValidRecipientKey))
+                        .map(r -> Recipient.from(r, acceptsEnhancedPrivacy))
                         .collect(Collectors.toSet());
 
         LOGGER.debug("Found keys from {} after key validation: {}", url, recipients);

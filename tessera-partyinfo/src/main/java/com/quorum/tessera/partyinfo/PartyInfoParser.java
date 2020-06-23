@@ -17,17 +17,14 @@ import java.util.stream.Collectors;
 import static java.lang.Math.toIntExact;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-/**
- * A parser for PartyInfo node discovery information
- */
+/** A parser for PartyInfo node discovery information */
 public interface PartyInfoParser extends BinaryEncoder {
 
     /**
      * Decodes a set of PartyInfo to the format that is shared between nodes
      *
      * @param encoded the encoded information that needs to be read
-     * @return the decoded {@link PartyInfo} which contains the other nodes
-     * information
+     * @return the decoded {@link PartyInfo} which contains the other nodes information
      */
     default PartyInfo from(final byte[] encoded) {
 
@@ -60,7 +57,7 @@ public interface PartyInfoParser extends BinaryEncoder {
             byteBuffer.get(urlValueData);
             final String recipientUrl = new String(urlValueData, UTF_8);
 
-            recipients.add(new Recipient(PublicKey.from(recipientKeyBytes), recipientUrl));
+            recipients.add(Recipient.of(PublicKey.from(recipientKeyBytes), recipientUrl));
         }
 
         final int partyCount = toIntExact(byteBuffer.getLong());
@@ -80,45 +77,41 @@ public interface PartyInfoParser extends BinaryEncoder {
     }
 
     /**
-     * Encodes a {@link PartyInfo} object to the defined structure that is
-     * shared between nodes
-     * <p>
-     * The result can be feed into {@link PartyInfoParser#from(byte[])} to
-     * produce the input to this function.
+     * Encodes a {@link PartyInfo} object to the defined structure that is shared between nodes
+     *
+     * <p>The result can be feed into {@link PartyInfoParser#from(byte[])} to produce the input to this function.
      *
      * @param partyInfo the information to encode
      * @return the encoded result that should be shared with other nodes
      */
     default byte[] to(final PartyInfo partyInfo) {
 
-        //prefix and url bytes
+        // prefix and url bytes
         final byte[] url = encodeField(partyInfo.getUrl().getBytes(UTF_8));
 
-        //each element in the list is one encoded element from the map
-        //so the prefix is always 2 (2 elements) and
-        final byte[] recipients = partyInfo.getRecipients()
-            .stream()
-            .map(r -> {
-                final byte[] encodedKey = encodeField(r.getKey().getKeyBytes());
-                final byte[] encodedUrl = encodeField(r.getUrl().getBytes(UTF_8));
-                return ArrayUtils.addAll(encodedKey, encodedUrl);
-            }).reduce(new byte[0], ArrayUtils::addAll);
+        // each element in the list is one encoded element from the map
+        // so the prefix is always 2 (2 elements) and
+        final byte[] recipients =
+                partyInfo.getRecipients().stream()
+                        .map(
+                                r -> {
+                                    final byte[] encodedKey = encodeField(r.getKey().getKeyBytes());
+                                    final byte[] encodedUrl = encodeField(r.getUrl().getBytes(UTF_8));
+                                    return ArrayUtils.addAll(encodedKey, encodedUrl);
+                                })
+                        .reduce(new byte[0], ArrayUtils::addAll);
 
-        final List<byte[]> parties = partyInfo.getParties()
-            .stream()
-            .map(p -> p.getUrl().getBytes(UTF_8))
-            .collect(Collectors.toList());
+        final List<byte[]> parties =
+                partyInfo.getParties().stream().map(p -> p.getUrl().getBytes(UTF_8)).collect(Collectors.toList());
 
         final byte[] partiesBytes = encodeArray(parties);
 
-        return ByteBuffer
-            .allocate(url.length + Long.BYTES + recipients.length + partiesBytes.length)
-            .put(url)
-            .putLong(partyInfo.getRecipients().size())
-            .put(recipients)
-            .put(partiesBytes)
-            .array();
-
+        return ByteBuffer.allocate(url.length + Long.BYTES + recipients.length + partiesBytes.length)
+                .put(url)
+                .putLong(partyInfo.getRecipients().size())
+                .put(recipients)
+                .put(partiesBytes)
+                .array();
     }
 
     /**
@@ -127,22 +120,20 @@ public interface PartyInfoParser extends BinaryEncoder {
      * @return a default parser
      */
     static PartyInfoParser create() {
-        return new PartyInfoParser() {
-        };
+        return new PartyInfoParser() {};
     }
 
     static void checkLength(long value) {
         Optional.of(value)
-            .filter(v -> v >= 0)
-            .filter(v -> v < Long.MAX_VALUE - 1)
-            .orElseThrow(() -> new PartyInfoParserException("Invalid length " + value));
+                .filter(v -> v >= 0)
+                .filter(v -> v < Long.MAX_VALUE - 1)
+                .orElseThrow(() -> new PartyInfoParserException("Invalid length " + value));
     }
 
     static void checkLength(int value) {
         Optional.of(value)
-            .filter(v -> v >= 0)
-            .filter(v -> v < Integer.MAX_VALUE - 1)
-            .orElseThrow(() -> new PartyInfoParserException("Invalid length " + value));
+                .filter(v -> v >= 0)
+                .filter(v -> v < Integer.MAX_VALUE - 1)
+                .orElseThrow(() -> new PartyInfoParserException("Invalid length " + value));
     }
-
 }

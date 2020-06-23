@@ -47,4 +47,26 @@ public class RecoveryResource {
         LOGGER.debug("Push batch processed successfully");
         return Response.status(Response.Status.OK).build();
     }
+
+    //    @ApiOperation(value = "Transmit encrypted payload between P2PRestApp Nodes")
+    //    @ApiResponses({
+    //        @ApiResponse(code = 201, message = "Key created status"),
+    //        @ApiResponse(code = 500, message = "General error")
+    //    })
+    //    @POST
+    //    @Path("push")
+    //    @Consumes(APPLICATION_OCTET_STREAM)
+    //    public Response push(
+    //            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload) {
+    //
+    //        LOGGER.debug("Received a push from legacy Tessera data recovery flow");
+    //
+    //        final PushBatchRequest request = new PushBatchRequest();
+    //        request.setEncodedPayloads(List.of(payload));
+    //
+    //        batchResendManager.storeResendBatch(request);
+    //
+    //        LOGGER.debug("Push transaction processed successfully");
+    //        return Response.status(Response.Status.OK).build();
+    //    }
 }

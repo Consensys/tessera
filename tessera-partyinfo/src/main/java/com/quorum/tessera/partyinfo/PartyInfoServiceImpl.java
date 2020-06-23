@@ -3,6 +3,7 @@ package com.quorum.tessera.partyinfo;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
@@ -10,6 +11,7 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,10 +37,11 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             final Enclave enclave,
             final PayloadPublisher payloadPublisher,
             final KnownPeerCheckerFactory knownPeerCheckerFactory) {
-        this.partyInfoStore = Objects.requireNonNull(partyInfoStore,"partyInfoStore is required");
-        this.enclave = Objects.requireNonNull(enclave,"enclave is required");
-        this.payloadPublisher = Objects.requireNonNull(payloadPublisher,"payloadPublisher is required");
-        this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory,"knownPeerCheckerFactory is required");
+        this.partyInfoStore = Objects.requireNonNull(partyInfoStore, "partyInfoStore is required");
+        this.enclave = Objects.requireNonNull(enclave, "enclave is required");
+        this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
+        this.knownPeerCheckerFactory =
+                Objects.requireNonNull(knownPeerCheckerFactory, "knownPeerCheckerFactory is required");
     }
 
     @Override
@@ -62,7 +65,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         final Set<Recipient> ourKeys =
                 enclave.getPublicKeys().stream()
                         .peek(o -> LOGGER.debug("{}", o))
-                        .map(key -> new Recipient(key, advertisedUrl))
+                        .map(key -> Recipient.of(key, advertisedUrl))
                         .collect(toSet());
 
         PartyInfo partyInfo = new PartyInfo(advertisedUrl, ourKeys, initialParties);
@@ -150,6 +153,12 @@ public class PartyInfoServiceImpl implements PartyInfoService {
                                         new KeyNotFoundException(
                                                 "Recipient not found for key: " + recipientKey.encodeToBase64()));
 
+        if (PrivacyMode.STANDARD_PRIVATE != payload.getPrivacyMode()
+                && !retrievedRecipientFromStore.acceptsEnhancedPrivacy()) {
+            throw new EnhancedPrivacyNotSupportedException(
+                    "Transactions with enhanced privacy is not currently supported on recipient " + recipientKey.encodeToBase64());
+        }
+
         final String targetUrl = retrievedRecipientFromStore.getUrl();
 
         LOGGER.info("Publishing message to {}", targetUrl);
@@ -170,7 +179,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         // fetch keys and create recipients
         final Set<Recipient> ourKeys =
-                this.enclave.getPublicKeys().stream().map(key -> new Recipient(key, advertisedUrl)).collect(toSet());
+                this.enclave.getPublicKeys().stream().map(key -> Recipient.of(key, advertisedUrl)).collect(toSet());
 
         // add to store
         this.partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, emptySet()));

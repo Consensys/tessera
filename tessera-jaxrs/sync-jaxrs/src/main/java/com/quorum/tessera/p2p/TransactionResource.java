@@ -45,7 +45,10 @@ public class TransactionResource {
 
     private final PayloadEncoder payloadEncoder;
 
-    public TransactionResource(TransactionManager transactionManager, BatchResendManager batchResendManager,PayloadEncoder payloadEncoder) {
+    public TransactionResource(
+            TransactionManager transactionManager,
+            BatchResendManager batchResendManager,
+            PayloadEncoder payloadEncoder) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
         this.batchResendManager = Objects.requireNonNull(batchResendManager);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
@@ -65,30 +68,30 @@ public class TransactionResource {
 
         LOGGER.debug("Received resend request");
 
-        PublicKey recipient = Optional.of(resendRequest)
-                                        .map(ResendRequest::getPublicKey)
-                                        .map(Base64Codec.create()::decode)
-                                        .map(PublicKey::from)
-                                        .get();
+        PublicKey recipient =
+                Optional.of(resendRequest)
+                        .map(ResendRequest::getPublicKey)
+                        .map(Base64Codec.create()::decode)
+                        .map(PublicKey::from)
+                        .get();
 
-        MessageHash transactionHash = Optional.ofNullable(resendRequest)
-                                                .map(ResendRequest::getKey)
-                                                .map(Base64.getDecoder()::decode)
-                                                .map(MessageHash::new)
-                                                .orElse(null);
+        MessageHash transactionHash =
+                Optional.ofNullable(resendRequest)
+                        .map(ResendRequest::getKey)
+                        .map(Base64.getDecoder()::decode)
+                        .map(MessageHash::new)
+                        .orElse(null);
 
-        com.quorum.tessera.transaction.ResendRequest request = com.quorum.tessera.transaction.ResendRequest.Builder.create()
-            .withType(resendRequest.getType())
-            .withRecipient(recipient)
-            .withHash(transactionHash)
-            .build();
-
+        com.quorum.tessera.transaction.ResendRequest request =
+                com.quorum.tessera.transaction.ResendRequest.Builder.create()
+                        .withType(resendRequest.getType())
+                        .withRecipient(recipient)
+                        .withHash(transactionHash)
+                        .build();
 
         com.quorum.tessera.transaction.ResendResponse response = transactionManager.resend(request);
         Response.ResponseBuilder builder = Response.status(Status.OK);
-        Optional.ofNullable(response.getPayload())
-            .map(payloadEncoder::encode)
-            .ifPresent(builder::entity);
+        Optional.ofNullable(response.getPayload()).map(payloadEncoder::encode).ifPresent(builder::entity);
         return builder.build();
     }
 
@@ -128,7 +131,7 @@ public class TransactionResource {
 
         EncodedPayload encodedPayload = payloadEncoder.decode(payload);
         final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
-        LOGGER.debug("Push request generated hash {}", Objects.toString(messageHash));
+        LOGGER.debug("Push request generated hash {}", messageHash);
         // TODO: Return the query url not the string of the messageHAsh
         return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();
     }
