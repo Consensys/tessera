@@ -4,4 +4,5 @@ dependencies {
     compile project(':config')
     compile project(':shared')
     compile project(':key-vault:key-vault-api')
+    testRuntimeOnly project(':encryption:encryption-ec')
 }
