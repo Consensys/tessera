@@ -1,9 +1,10 @@
 package com.quorum.tessera.encryption;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class EncryptorFactoryTest {
 
@@ -21,5 +22,13 @@ public class EncryptorFactoryTest {
         final Encryptor result = this.encryptorFactory.create();
 
         assertThat(result).isNotNull().isSameAs(MockEncryptor.INSTANCE);
+    }
+
+    @Test
+    public void exceptionIfServiceNotFound() {
+        Throwable ex = catchThrowable(() -> EncryptorFactory.newFactory("NOTAVAILABLE"));
+
+        assertThat(ex).isExactlyInstanceOf(EncryptorFactoryNotFoundException.class);
+        assertThat(ex).hasMessageContaining("NOTAVAILABLE");
     }
 }
