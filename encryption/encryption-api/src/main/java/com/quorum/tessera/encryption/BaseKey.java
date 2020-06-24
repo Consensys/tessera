@@ -33,16 +33,16 @@ public abstract class BaseKey implements Key {
     }
 
     @Override
-    public final String toString() {
+    public String toString() {
 
         final String typeName = Stream.of(getClass())
             .map(Class::getInterfaces)
             .flatMap(Stream::of)
-            .map(Class::getSimpleName)
+            .map(Class::getName)
             .findFirst()
             .get();
 
-        return String.format("%s[%s]", typeName, encodeToBase64());
+        return typeName + "@" + Integer.toHexString(hashCode());
     }
 
 }
