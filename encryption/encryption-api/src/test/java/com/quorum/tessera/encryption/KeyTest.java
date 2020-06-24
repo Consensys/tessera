@@ -1,13 +1,15 @@
 package com.quorum.tessera.encryption;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import static org.assertj.core.api.Assertions.*;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(Parameterized.class)
 public class KeyTest {
@@ -34,7 +36,15 @@ public class KeyTest {
 
         assertThat(key.encodeToBase64()).isEqualTo(base64Value);
 
-        assertThat(key.toString()).isEqualTo(type.getSimpleName() + "[" + base64Value + "]");
+        if(this.type == PublicKey.class) {
+            assertThat(key.toString())
+                .isEqualTo("PublicKey[" + base64Value + "]");
+        } else {
+            assertThat(key.toString())
+                .isNotNull()
+                .doesNotContain(base64Value)
+                .contains(type.getSimpleName());
+        }
 
         assertThat(key.hashCode()).isEqualTo(Arrays.hashCode(data));
 
@@ -50,7 +60,7 @@ public class KeyTest {
         assertThat(key).isEqualTo(otherKeyWithSameData);
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "{0}")
     public static List<Class<? extends Key>> cases() {
         return Arrays.asList(MasterKey.class, SharedKey.class, PrivateKey.class, PublicKey.class);
     }
