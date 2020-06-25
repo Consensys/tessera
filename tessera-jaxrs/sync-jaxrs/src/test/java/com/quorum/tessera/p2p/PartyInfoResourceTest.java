@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -337,7 +338,7 @@ public class PartyInfoResourceTest {
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
         when(partyInfoParser.to(captor.capture())).thenReturn(serialisedData);
 
-        final Response callResponse = partyInfoResource.partyInfo(payload, false);
+        final Response callResponse = partyInfoResource.partyInfo(payload, true);
         final byte[] data = (byte[]) callResponse.getEntity();
 
         assertThat(captor.getValue().getUrl()).isEqualTo(url);
@@ -346,7 +347,21 @@ public class PartyInfoResourceTest {
         assertThat(new String(data)).isEqualTo("SERIALISED");
         verify(partyInfoParser).from(payload);
         verify(partyInfoParser).to(any(PartyInfo.class));
-        verify(partyInfoService).updatePartyInfo(partyInfo);
+
+        final ArgumentCaptor<PartyInfo> modifiedPartyInfoCaptor = ArgumentCaptor.forClass(PartyInfo.class);
+
+        verify(partyInfoService).updatePartyInfo(modifiedPartyInfoCaptor.capture());
+        final PartyInfo modified = modifiedPartyInfoCaptor.getValue();
+
+        assertThat(modified.getUrl()).isEqualTo(url);
+
+        Set<Recipient> updatedRecipients = modified.getRecipients();
+        assertThat(updatedRecipients)
+                .containsExactlyInAnyOrder(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl));
+        assertThat(updatedRecipients.stream().anyMatch(Predicate.not(Recipient::acceptsEnhancedPrivacy))).isFalse();
+
+        assertThat(modified.getParties()).isEmpty();
+
         verify(partyInfoService).getPartyInfo();
     }
 

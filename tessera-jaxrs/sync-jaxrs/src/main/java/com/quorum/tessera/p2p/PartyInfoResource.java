@@ -94,7 +94,15 @@ public class PartyInfoResource {
 
         if (!enableKeyValidation) {
             LOGGER.debug("Key validation not enabled, passing PartyInfo through");
-            partyInfoService.updatePartyInfo(partyInfo);
+
+            final Set<Recipient> updatedRecipients =
+                    partyInfo.getRecipients().stream()
+                            .map(r -> Recipient.from(r, acceptsEnhancedPrivacy))
+                            .collect(Collectors.toSet());
+
+            final PartyInfo modified = new PartyInfo(partyInfo.getUrl(), updatedRecipients, partyInfo.getParties());
+
+            partyInfoService.updatePartyInfo(modified);
 
             // create an empty party info object with our URL to send back
             // this is used by older versions (before 0.10.0), but we don't want to give any info back
