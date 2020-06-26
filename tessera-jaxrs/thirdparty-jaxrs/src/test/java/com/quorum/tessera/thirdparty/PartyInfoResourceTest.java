@@ -43,7 +43,7 @@ public class PartyInfoResourceTest {
     public void getPartyInfoKeys() {
 
         final String partyInfoJson =
-            "{\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
+                "{\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
 
         final Party partyWithoutTimestamp = new Party("http://localhost:9006/");
         final Party partyWithTimestamp = new Party("http://localhost:9005/");
@@ -54,13 +54,13 @@ public class PartyInfoResourceTest {
                         "http://localhost:9001/",
                         new HashSet<>(
                                 Arrays.asList(
-                                        new Recipient(
+                                        Recipient.of(
                                                 PublicKey.from(
                                                         Base64.getDecoder()
                                                                 .decode(
                                                                         "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
                                                 "http://localhost:9001/"),
-                                        new Recipient(
+                                        Recipient.of(
                                                 PublicKey.from(
                                                         Base64.getDecoder()
                                                                 .decode(

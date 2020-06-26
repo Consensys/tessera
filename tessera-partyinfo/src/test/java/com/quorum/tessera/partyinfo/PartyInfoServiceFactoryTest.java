@@ -1,50 +1,46 @@
 package com.quorum.tessera.partyinfo;
 
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.enclave.Enclave;
+
+import com.quorum.tessera.config.*;
 import org.junit.Test;
+
+import java.net.URI;
 import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PartyInfoServiceFactoryTest {
 
     @Test
-    public void loadServicesFromLocator() throws Exception {
+    public void createAndLoadStoredInstance() {
+        Config config = mock(Config.class);
+        when(config.getEncryptor()).thenReturn(EncryptorConfig.getDefault());
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(keyConfiguration.getKeyData()).thenReturn(Collections.emptyList());
+        when(config.getKeys()).thenReturn(keyConfiguration);
 
-        ResendManager resendManager = mock(ResendManager.class);
-        PayloadPublisher payloadPublisher = mock(PayloadPublisher.class);
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
+        when(serverConfig.getServerUri()).thenReturn(URI.create("http://someplace.com"));
+        when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
-        Enclave enclave = mock(Enclave.class);
+        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create(config);
+
+        assertThat(partyInfoServiceFactory)
+            .isNotNull().isSameAs(PartyInfoServiceFactory.create(config));
+
+    }
+
+    @Test
+    public void createAndGet() {
         PartyInfoService partyInfoService = mock(PartyInfoService.class);
-        PartyInfoStore store = mock(PartyInfoStore.class);
-
-        Set<Object> services =
-                Stream.of(payloadPublisher, enclave, partyInfoService, resendManager, store)
-                        .collect(Collectors.toSet());
-
-        final MockServiceLocator mockServiceLocator = MockServiceLocator.createMockServiceLocator();
-        mockServiceLocator.setServices(services);
-
-        final PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
+        PartyInfoServiceFactory partyInfoServiceFactory = new PartyInfoServiceFactoryImpl(partyInfoService);
 
         assertThat(partyInfoServiceFactory.partyInfoService()).isSameAs(partyInfoService);
-        assertThat(partyInfoServiceFactory.enclave()).isSameAs(enclave);
-        assertThat(partyInfoServiceFactory.payloadPublisher()).isSameAs(payloadPublisher);
-        assertThat(partyInfoServiceFactory.resendManager()).isSameAs(resendManager);
-        assertThat(partyInfoServiceFactory.partyInfoStore()).isSameAs(store);
+
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void loadServicesFromLocatorServiceNotFoundThrowsIllegalStateException() {
-        MockServiceLocator.createMockServiceLocator().setServices(Collections.emptySet());
 
-        final PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
-
-        partyInfoServiceFactory.partyInfoService();
-    }
 }

@@ -60,7 +60,7 @@ public interface PartyInfoParser extends BinaryEncoder {
             byteBuffer.get(urlValueData);
             final String recipientUrl = new String(urlValueData, UTF_8);
 
-            recipients.add(new Recipient(PublicKey.from(recipientKeyBytes), recipientUrl));
+            recipients.add(Recipient.of(PublicKey.from(recipientKeyBytes), recipientUrl));
         }
 
         final int partyCount = toIntExact(byteBuffer.getLong());

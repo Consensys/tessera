@@ -71,7 +71,7 @@ public class EnclaveTest {
 
         Nonce cipherTextNonce = mock(Nonce.class);
 
-        byte[] recipientBox = "RecipientBox".getBytes();
+        RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
 
         Nonce recipientNonce = mock(Nonce.class);
 
@@ -124,7 +124,7 @@ public class EnclaveTest {
 
         Nonce cipherTextNonce = mock(Nonce.class);
 
-        byte[] recipientBox = "RecipientBox".getBytes();
+        RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
 
         Nonce recipientNonce = mock(Nonce.class);
 
@@ -193,14 +193,18 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        EncodedPayload result = enclave.encryptPayload(message, senderPublicKey, Arrays.asList(recipientPublicKey));
+        EncodedPayload result =
+                enclave.encryptPayload(
+                        message,
+                        senderPublicKey,
+                        Arrays.asList(recipientPublicKey));
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
         assertThat(result.getCipherText()).isEqualTo(cipherText);
         assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
-        assertThat(result.getRecipientBoxes()).containsExactly(encryptedMasterKeys);
+        assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
 
         verify(nacl).createMasterKey();
         verify(nacl, times(2)).randomNonce();
@@ -254,7 +258,7 @@ public class EnclaveTest {
         assertThat(result.getCipherText()).isEqualTo(cipherText);
         assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
-        assertThat(result.getRecipientBoxes()).containsExactly(encryptedMasterKeys);
+        assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
 
         verify(nacl).randomNonce();
         verify(nacl).openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender);
@@ -345,7 +349,7 @@ public class EnclaveTest {
         final PrivateKey privateKey = PrivateKey.from("sender-priv".getBytes());
         final SharedKey recipientSenderShared = SharedKey.from("shared-one".getBytes());
         final SharedKey senderShared = SharedKey.from("shared-two".getBytes());
-        final byte[] closedbox = "closed".getBytes();
+        final RecipientBox closedbox = RecipientBox.from("closed".getBytes());
         final byte[] openbox = "open".getBytes();
         final Nonce nonce = new Nonce("nonce".getBytes());
 
@@ -359,7 +363,7 @@ public class EnclaveTest {
 
         when(nacl.computeSharedKey(publicKey, privateKey)).thenReturn(recipientSenderShared);
         when(nacl.computeSharedKey(senderKey, privateKey)).thenReturn(senderShared);
-        when(nacl.openAfterPrecomputation(closedbox, nonce, recipientSenderShared)).thenReturn(openbox);
+        when(nacl.openAfterPrecomputation(closedbox.getData(), nonce, recipientSenderShared)).thenReturn(openbox);
         when(nacl.sealAfterPrecomputation(openbox, nonce, senderShared)).thenReturn("newbox".getBytes());
         when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(privateKey);
 
@@ -369,7 +373,7 @@ public class EnclaveTest {
 
         verify(nacl).computeSharedKey(publicKey, privateKey);
         verify(nacl).computeSharedKey(senderKey, privateKey);
-        verify(nacl).openAfterPrecomputation(closedbox, nonce, recipientSenderShared);
+        verify(nacl).openAfterPrecomputation(closedbox.getData(), nonce, recipientSenderShared);
         verify(nacl).sealAfterPrecomputation(openbox, nonce, senderShared);
         verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderKey);
     }

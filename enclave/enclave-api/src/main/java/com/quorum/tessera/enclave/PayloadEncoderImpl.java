@@ -6,6 +6,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -20,7 +21,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         final byte[] cipherText = encodeField(payload.getCipherText());
         final byte[] nonce = encodeField(payload.getCipherTextNonce().getNonceBytes());
         final byte[] recipientNonce = encodeField(payload.getRecipientNonce().getNonceBytes());
-        final byte[] recipients = encodeArray(payload.getRecipientBoxes());
+        final byte[] recipients = encodeArray(payload.getRecipientBoxes().stream().map(RecipientBox::getData).collect(Collectors.toUnmodifiableList()));
         final byte[] recipientBytes =
                 encodeArray(payload.getRecipientKeys().stream().map(PublicKey::getKeyBytes).collect(toList()));
 
@@ -110,7 +111,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
         }
 
         final int recipientIndex = payload.getRecipientKeys().indexOf(recipient);
-        final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex);
+        final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex).getData();
 
         return EncodedPayload.Builder.create()
                 .withSenderKey(payload.getSenderKey())
@@ -120,5 +121,14 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
                 .withRecipientNonce(payload.getRecipientNonce())
                 .withRecipientKeys(emptyList())
                 .build();
+    }
+
+    @Override
+    public EncodedPayload withRecipient(final EncodedPayload payload, final PublicKey recipient) {
+        // this method is to be used for adding a recipient to an EncodedPayload that does not have any.
+        if (!payload.getRecipientKeys().isEmpty()) {
+            return payload;
+        }
+        return EncodedPayload.Builder.from(payload).withRecipientKey(recipient).build();
     }
 }

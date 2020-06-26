@@ -2,8 +2,9 @@ package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import java.util.ArrayList;
-import java.util.List;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /** This class contains the data that is sent to other nodes */
 public class EncodedPayload {
@@ -14,7 +15,7 @@ public class EncodedPayload {
 
     private final Nonce cipherTextNonce;
 
-    private final List<byte[]> recipientBoxes;
+    private final List<RecipientBox> recipientBoxes;
 
     private final Nonce recipientNonce;
 
@@ -24,7 +25,7 @@ public class EncodedPayload {
             final PublicKey senderKey,
             final byte[] cipherText,
             final Nonce cipherTextNonce,
-            final List<byte[]> recipientBoxes,
+            final List<RecipientBox> recipientBoxes,
             final Nonce recipientNonce,
             final List<PublicKey> recipientKeys) {
         this.senderKey = senderKey;
@@ -47,8 +48,8 @@ public class EncodedPayload {
         return cipherTextNonce;
     }
 
-    public List<byte[]> getRecipientBoxes() {
-        return recipientBoxes;
+    public List<RecipientBox> getRecipientBoxes() {
+        return Collections.unmodifiableList(recipientBoxes);
     }
 
     public Nonce getRecipientNonce() {
@@ -65,6 +66,20 @@ public class EncodedPayload {
 
         public static Builder create() {
             return new Builder();
+        }
+
+        public static Builder from(EncodedPayload encodedPayload) {
+
+            return create()
+                    .withSenderKey(encodedPayload.getSenderKey())
+                    .withRecipientNonce(encodedPayload.getRecipientNonce())
+                    .withRecipientKeys(encodedPayload.getRecipientKeys())
+                    .withRecipientBoxes(
+                            encodedPayload.getRecipientBoxes().stream()
+                                    .map(RecipientBox::getData)
+                                    .collect(Collectors.toList()))
+                    .withCipherText(encodedPayload.getCipherText())
+                    .withCipherTextNonce(encodedPayload.getCipherTextNonce());
         }
 
         private PublicKey senderKey;
@@ -89,8 +104,13 @@ public class EncodedPayload {
             return this;
         }
 
+        public Builder withRecipientKey(PublicKey publicKey) {
+            this.recipientKeys.add(publicKey);
+            return this;
+        }
+
         public Builder withRecipientKeys(final List<PublicKey> recipientKeys) {
-            this.recipientKeys = recipientKeys;
+            this.recipientKeys.addAll(recipientKeys);
             return this;
         }
 
@@ -120,8 +140,37 @@ public class EncodedPayload {
         }
 
         public EncodedPayload build() {
+            List<RecipientBox> recipientBoxes =
+                this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
+
             return new EncodedPayload(
                     senderKey, cipherText, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
         }
+
+        public Builder withRecipientBox(byte[] newbox) {
+            this.recipientBoxes.add(newbox);
+            return this;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EncodedPayload that = (EncodedPayload) o;
+        return Objects.equals(senderKey, that.senderKey)
+            && Arrays.equals(cipherText, that.cipherText)
+            && Objects.equals(cipherTextNonce, that.cipherTextNonce)
+            && Objects.equals(recipientBoxes, that.recipientBoxes)
+            && Objects.equals(recipientNonce, that.recipientNonce)
+            && Objects.equals(recipientKeys, that.recipientKeys);
+    }
+
+    @Override
+    public int hashCode() {
+        int result =
+            Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
+        result = 31 * result + Arrays.hashCode(cipherText);
+        return result;
     }
 }

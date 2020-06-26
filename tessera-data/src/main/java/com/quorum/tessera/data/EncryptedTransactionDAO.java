@@ -1,7 +1,9 @@
 package com.quorum.tessera.data;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 /** A data store for transactions that need to be retrieved later */
 public interface EncryptedTransactionDAO {
@@ -13,6 +15,14 @@ public interface EncryptedTransactionDAO {
      * @return The entity that was persisted
      */
     EncryptedTransaction save(EncryptedTransaction entity);
+
+    /**
+     * Update an existing Encrypted Transaction All fields are required to be non-null on the entity
+     *
+     * @param entity The entity to be merged
+     * @return The entity that was merged
+     */
+    EncryptedTransaction update(EncryptedTransaction entity);
 
     /**
      * Retrieve a transaction based on its hash
@@ -31,6 +41,8 @@ public interface EncryptedTransactionDAO {
      */
     List<EncryptedTransaction> retrieveTransactions(int offset, int maxResult);
 
+    List<EncryptedTransaction> findByHashes(Collection<MessageHash> messageHash);
+
     /**
      * Retrieve the total transaction count.
      *
@@ -45,4 +57,6 @@ public interface EncryptedTransactionDAO {
      * @throws javax.persistence.EntityNotFoundException if there hash doesn't exist
      */
     void delete(MessageHash hash);
+
+    <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer);
 }

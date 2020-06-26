@@ -1,17 +1,20 @@
 package com.quorum.tessera.transaction;
 
+
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.*;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PublishPayloadException;
+import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
-import com.quorum.tessera.util.Base64Decoder;
+import com.quorum.tessera.transaction.resend.ResendManager;
+import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +33,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final Base64Decoder base64Decoder;
+    private final Base64Codec base64Codec;
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
@@ -54,7 +57,7 @@ public class TransactionManagerImpl implements TransactionManager {
             PartyInfoService partyInfoService,
             int resendFetchSize) {
         this(
-                Base64Decoder.create(),
+                Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
                 partyInfoService,
@@ -68,7 +71,7 @@ public class TransactionManagerImpl implements TransactionManager {
     Only use for tests
     */
     public TransactionManagerImpl(
-            Base64Decoder base64Decoder,
+            Base64Codec base64Codec,
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PartyInfoService partyInfoService,
@@ -77,7 +80,7 @@ public class TransactionManagerImpl implements TransactionManager {
             ResendManager resendManager,
             int resendFetchSize) {
 
-        this.base64Decoder = Objects.requireNonNull(base64Decoder, "base64Decoder is required");
+        this.base64Codec = Objects.requireNonNull(base64Codec, "base64Decoder is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
@@ -90,7 +93,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public SendResponse send(SendRequest sendRequest) {
 
         final PublicKey senderPublicKey = sendRequest.getSender();
@@ -125,8 +127,19 @@ public class TransactionManagerImpl implements TransactionManager {
         return SendResponse.from(transactionHash);
     }
 
+    boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
+
+        recipientList.stream()
+            .filter(k -> !enclave.getPublicKeys().contains(k))
+            .forEach(
+                recipient -> {
+                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
+                    partyInfoService.publishPayload(outgoing, recipient);
+                });
+        return true;
+    }
+
     @Override
-    @Transactional
     public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
         final List<PublicKey> recipientList = new ArrayList<>();
         recipientList.addAll(sendRequest.getRecipients());
@@ -166,8 +179,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public ResendResponse resend(ResendRequest request) {
 
-        final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
-        PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
+        PublicKey recipientPublicKey = request.getRecipient();
         if (request.getType() == ResendRequestType.ALL) {
 
             int offset = 0;
@@ -222,11 +234,10 @@ public class TransactionManagerImpl implements TransactionManager {
                 offset += resendFetchSize;
             }
 
-            return new ResendResponse();
+            return ResendResponse.Builder.create().build();
         } else {
 
-            final byte[] hashKey = base64Decoder.decode(request.getKey());
-            final MessageHash messageHash = new MessageHash(hashKey);
+            final MessageHash messageHash = request.getHash();
 
             final EncryptedTransaction encryptedTransaction =
                     encryptedTransactionDAO
@@ -248,12 +259,13 @@ public class TransactionManagerImpl implements TransactionManager {
                 returnValue = payloadEncoder.forRecipient(payload, recipientPublicKey);
             }
 
-            return new ResendResponse(payloadEncoder.encode(returnValue));
+            return ResendResponse.Builder.create().withPayload(returnValue).build();
         }
     }
 
     @Override
     public MessageHash storePayload(final EncodedPayload payload) {
+
         final MessageHash transactionHash =
                 Optional.of(payload)
                         .map(EncodedPayload::getCipherText)
@@ -272,14 +284,12 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public void delete(MessageHash messageHash) {
         LOGGER.info("Received request to delete message with hash {}", messageHash);
         this.encryptedTransactionDAO.delete(messageHash);
     }
 
     @Override
-    @Transactional
     public ReceiveResponse receive(ReceiveRequest request) {
 
         final MessageHash hash = request.getTransactionHash();
@@ -323,7 +333,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public StoreRawResponse store(StoreRawRequest storeRequest) {
 
         RawTransaction rawTransaction =
@@ -346,14 +355,12 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public boolean isSender(final MessageHash hash) {
         final EncodedPayload payload = this.fetchPayload(hash);
         return enclave.getPublicKeys().contains(payload.getSenderKey());
     }
 
     @Override
-    @Transactional
     public List<PublicKey> getParticipants(final MessageHash transactionHash) {
         final EncodedPayload payload = this.fetchPayload(transactionHash);
 
@@ -371,6 +378,13 @@ public class TransactionManagerImpl implements TransactionManager {
                 .retrieveByHash(hash)
                 .map(EncryptedTransaction::getEncodedPayload)
                 .map(payloadEncoder::decode)
-                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + base64Decoder.encodeToString(hash.getHashBytes()) + " was not found"));
+                .orElseThrow(
+                        () ->
+                                new TransactionNotFoundException(
+                                        "Message with hash "
+                                                + base64Codec.encodeToString(hash.getHashBytes())
+                                                + " was not found"));
     }
+
+
 }
