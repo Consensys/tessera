@@ -2,12 +2,8 @@ package com.quorum.tessera.q2t;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import com.quorum.tessera.transaction.TransactionManager;
-import java.util.HashSet;
-import java.util.Set;
-import javax.ws.rs.core.Application;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -15,7 +11,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import javax.ws.rs.core.Application;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class Q2TRestAppTest {
 
@@ -28,8 +28,7 @@ public class Q2TRestAppTest {
     @Before
     public void setUp() throws Exception {
 
-        final Set services = new HashSet();
-        services.add(mock(TransactionManager.class));
+        final Set services = Set.of(mock(Config.class));
 
         serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);

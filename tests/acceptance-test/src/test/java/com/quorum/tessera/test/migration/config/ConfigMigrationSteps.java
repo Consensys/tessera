@@ -8,10 +8,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -34,7 +31,13 @@ public class ConfigMigrationSteps implements En {
         When(
                 "the Config Migration Utility is run with tomlfile (.+) and --outputfile option",
                 (String toml) -> {
-                    final String jarfile = System.getProperty("config-migration-app.jar");
+                    final String jarfile =
+                            Optional.of("config-migration-app.jar")
+                                    .map(System::getProperty)
+                                    .orElseThrow(
+                                            () ->
+                                                    new IllegalStateException(
+                                                            "Unable to find config-migration-app.jar system property"));
 
                     outputFile = Paths.get("target", UUID.randomUUID().toString());
 

@@ -1,4 +1,4 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 

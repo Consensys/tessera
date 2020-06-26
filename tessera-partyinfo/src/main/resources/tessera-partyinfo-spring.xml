@@ -20,29 +20,12 @@
     </bean>
 
 
-    <bean id="payloadPublisherFactory" class="com.quorum.tessera.partyinfo.PayloadPublisherFactory" factory-method="newFactory">
-        <constructor-arg ref="config" />
+    <bean name="partyInfoServiceFactory" class="com.quorum.tessera.partyinfo.PartyInfoServiceFactory" factory-method="create">
+        <constructor-arg ref="config"/>
     </bean>
 
-    <bean id="payloadPublisher" class="com.quorum.tessera.partyinfo.PayloadPublisher" 
-          factory-bean="payloadPublisherFactory" factory-method="create">
-        <constructor-arg ref="config" />
-    </bean>
-
-    <!-- Party Info management -->
-
-    <bean name="partyInfoStore" class="com.quorum.tessera.partyinfo.PartyInfoStore">
-        <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}"/>
-    </bean>
-
-    <bean name="knownPeerCheckerFactory" class="com.quorum.tessera.partyinfo.KnownPeerCheckerFactory"/>
-
-    <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoServiceImpl">
-        <constructor-arg ref="partyInfoStore"/>
-        <constructor-arg ref="enclave"/>
-        <constructor-arg ref="payloadPublisher"/>
-        <constructor-arg ref="knownPeerCheckerFactory"/>
-    </bean>
+    <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoService"
+          factory-bean="partyInfoServiceFactory" factory-method="partyInfoService" />
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
@@ -62,16 +45,14 @@
         <constructor-arg value="5000"/>
     </bean>
 
-    <bean id="resendManager" class="com.quorum.tessera.partyinfo.ResendManagerImpl">
-        <constructor-arg ref="encryptedTransactionDAO" />
-        <constructor-arg ref="enclave" />
-    </bean>
+<!--    <bean id="resendManager" class="com.quorum.tessera.transaction.resend.ResendManagerImpl">-->
+<!--        <constructor-arg ref="encryptedTransactionDAO" />-->
+<!--        <constructor-arg ref="enclave" />-->
+<!--    </bean>-->
 
     <!-- Local key sync -->
     <bean name="enclaveKeySynchroniser" class="com.quorum.tessera.partyinfo.EnclaveKeySynchroniser">
-        <constructor-arg ref="enclave" />
-        <constructor-arg ref="partyInfoStore" />
-        <constructor-arg value="#{config.getP2PServerConfig().getServerUri()}" />
+        <constructor-arg ref="partyInfoService" />
     </bean>
 
     <bean name="enclaveKeySynchroniserExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
@@ -109,5 +90,5 @@
             <constructor-arg value="5000"/>
         </bean>
     </beans>
-    
+
 </beans>

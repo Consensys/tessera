@@ -10,6 +10,10 @@ import java.util.Objects;
  * <p>The key is the transaction hash, and the value an a fully encoded {@link
  * com.quorum.tessera.enclave.EncodedPayload}
  */
+@NamedQueries({
+    @NamedQuery(name = "EncryptedTransaction.FindByHash",query = "SELECT et FROM EncryptedTransaction et WHERE et.hash.hashBytes = :hash"),
+    @NamedQuery(name="EncryptedTransaction.FindAll",query = "select et from EncryptedTransaction et order by et.timestamp,et.hash")
+})
 @Entity
 @Table(name = "ENCRYPTED_TRANSACTION")
 public class EncryptedTransaction implements Serializable {

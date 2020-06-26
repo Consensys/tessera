@@ -2,19 +2,21 @@ package com.quorum.tessera.core.api;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PayloadPublisher;
-import com.quorum.tessera.partyinfo.ResendManager;
+import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
-import java.util.HashSet;
-import java.util.Set;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.transaction.resend.ResendManager;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ServiceFactoryTest {
@@ -41,11 +43,7 @@ public class ServiceFactoryTest {
         serviceFactory = (ServiceFactoryImpl) ServiceFactory.create();
     }
 
-    @Test
-    public void enclave() {
-        Enclave enclave = serviceFactory.enclave();
-        assertThat(enclave).isNotNull();
-    }
+
 
     @Test
     public void transactionManager() {
@@ -53,17 +51,7 @@ public class ServiceFactoryTest {
         assertThat(transactionManager).isNotNull();
     }
 
-    @Test
-    public void partyInfoService() {
-        PartyInfoService partyInfoService = serviceFactory.partyInfoService();
-        assertThat(partyInfoService).isNotNull();
-    }
 
-    @Test
-    public void encryptedTransactionDAO() {
-        EncryptedTransactionDAO encryptedTransactionDAO = serviceFactory.encryptedTransactionDAO();
-        assertThat(encryptedTransactionDAO).isNotNull();
-    }
 
     @Test(expected = IllegalStateException.class)
     public void findNoServiceFoundThrowsIllegalState() {
@@ -73,22 +61,11 @@ public class ServiceFactoryTest {
 
     static class NonExistentService {}
 
-    @Test
-    public void findEncryptedRawTransactionDAO() {
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO = serviceFactory.encryptedRawTransactionDAO();
-        assertThat(encryptedRawTransactionDAO).isNotNull();
-    }
+
 
     @Test
-    public void findResendManager() {
-        ResendManager resendManager = serviceFactory.resendManager();
-        assertThat(resendManager).isNotNull();
+    public void findConfig() {
+        Config config = serviceFactory.config();
+        assertThat(config).isNotNull();
     }
-
-    @Test
-    public void findPayloadPublisher() {
-        PayloadPublisher payloadPublisher = serviceFactory.payloadPublisher();
-        assertThat(payloadPublisher).isNotNull();
-    }
-
 }

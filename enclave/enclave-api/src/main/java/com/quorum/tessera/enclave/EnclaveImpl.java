@@ -1,19 +1,17 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.encryption.Encryptor;
-import com.quorum.tessera.encryption.KeyManager;
-import com.quorum.tessera.encryption.MasterKey;
-import com.quorum.tessera.encryption.Nonce;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
-import static java.util.Collections.singletonList;
+import com.quorum.tessera.encryption.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EnclaveImpl implements Enclave {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveImpl.class);
 
     private final Encryptor encryptor;
 
@@ -56,11 +54,11 @@ public class EnclaveImpl implements Enclave {
         final MasterKey master =
                 this.getMasterKey(
                         payload.getRecipientKeys().get(0), payload.getSenderKey(),
-                        payload.getRecipientNonce(), payload.getRecipientBoxes().get(0));
+                        payload.getRecipientNonce(), payload.getRecipientBoxes().get(0).getData());
 
         final List<byte[]> sealedMasterKeyList =
                 this.buildRecipientMasterKeys(
-                        payload.getSenderKey(), singletonList(publicKey), payload.getRecipientNonce(), master);
+                        payload.getSenderKey(), List.of(publicKey), payload.getRecipientNonce(), master);
 
         return sealedMasterKeyList.get(0);
     }
@@ -137,11 +135,11 @@ public class EnclaveImpl implements Enclave {
 
         final SharedKey sharedKey = encryptor.computeSharedKey(recipientPubKey, senderPrivKey);
 
-        final byte[] recipientBox = payload.getRecipientBoxes().iterator().next();
+        final RecipientBox recipientBox = payload.getRecipientBoxes().iterator().next();
 
         final Nonce recipientNonce = payload.getRecipientNonce();
 
-        final byte[] masterKeyBytes = encryptor.openAfterPrecomputation(recipientBox, recipientNonce, sharedKey);
+        final byte[] masterKeyBytes = encryptor.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
 
         final MasterKey masterKey = MasterKey.from(masterKeyBytes);
 

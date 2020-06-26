@@ -78,13 +78,13 @@ public class PartyInfoResourceTest {
                         "http://localhost:9001/",
                         new HashSet<>(
                                 Arrays.asList(
-                                        new Recipient(
+                                        Recipient.of(
                                                 PublicKey.from(
                                                         Base64.getDecoder()
                                                                 .decode(
                                                                         "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
                                                 "http://localhost:9001/"),
-                                        new Recipient(
+                                        Recipient.of(
                                                 PublicKey.from(
                                                         Base64.getDecoder()
                                                                 .decode(
@@ -121,7 +121,7 @@ public class PartyInfoResourceTest {
 
         byte[] payload = message.getBytes();
 
-        Recipient recipient = new Recipient(recipientKey, url);
+        Recipient recipient = Recipient.of(recipientKey, url);
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
@@ -219,7 +219,7 @@ public class PartyInfoResourceTest {
 
         byte[] payload = message.getBytes();
 
-        Recipient recipient = new Recipient(recipientKey, url);
+        Recipient recipient = Recipient.of(recipientKey, url);
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
@@ -275,7 +275,7 @@ public class PartyInfoResourceTest {
 
         byte[] payload = message.getBytes();
 
-        Recipient recipient = new Recipient(recipientKey, url);
+        Recipient recipient = Recipient.of(recipientKey, url);
 
         Set<Recipient> recipientList = Collections.singleton(recipient);
 
@@ -325,7 +325,7 @@ public class PartyInfoResourceTest {
         final String otherurl = "http://www.randomaddress.com";
         final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
         final Set<Recipient> recipientList =
-                new HashSet<>(Arrays.asList(new Recipient(recipientKey, url), new Recipient(recipientKey, otherurl)));
+                new HashSet<>(Arrays.asList(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl)));
         final PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
 
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
@@ -344,7 +344,20 @@ public class PartyInfoResourceTest {
         assertThat(new String(data)).isEqualTo("SERIALISED");
         verify(partyInfoParser).from(payload);
         verify(partyInfoParser).to(any(PartyInfo.class));
-        verify(partyInfoService).updatePartyInfo(partyInfo);
+
+        final ArgumentCaptor<PartyInfo> modifiedPartyInfoCaptor = ArgumentCaptor.forClass(PartyInfo.class);
+
+        verify(partyInfoService).updatePartyInfo(modifiedPartyInfoCaptor.capture());
+        final PartyInfo modified = modifiedPartyInfoCaptor.getValue();
+
+        assertThat(modified.getUrl()).isEqualTo(url);
+
+        Set<Recipient> updatedRecipients = modified.getRecipients();
+        assertThat(updatedRecipients)
+                .containsExactlyInAnyOrder(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl));
+
+        assertThat(modified.getParties()).isEmpty();
+
         verify(partyInfoService).getPartyInfo();
     }
 
@@ -353,8 +366,8 @@ public class PartyInfoResourceTest {
         String url = "http://bogus";
         Set<Party> parties = Collections.emptySet();
         Set<Recipient> recipients = new HashSet<>();
-        recipients.add(new Recipient(mock(PublicKey.class), url));
-        recipients.add(new Recipient(mock(PublicKey.class), url));
+        recipients.add(Recipient.of(mock(PublicKey.class), url));
+        recipients.add(Recipient.of(mock(PublicKey.class), url));
 
         PartyInfo partyInfo = new PartyInfo(url, recipients, parties);
 

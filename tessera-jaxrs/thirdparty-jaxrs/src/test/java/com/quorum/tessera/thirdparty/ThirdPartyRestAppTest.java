@@ -1,11 +1,9 @@
 package com.quorum.tessera.thirdparty;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import com.quorum.tessera.transaction.TransactionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -33,9 +31,7 @@ public class ThirdPartyRestAppTest {
         serviceLocator = (MockServiceLocator) ServiceLocator.create();
 
         Set services = new HashSet();
-        services.add(mock(IPWhitelistFilter.class));
-        services.add(mock(TransactionManager.class));
-        services.add(mock(PartyInfoService.class));
+        services.add(mock(Config.class));
 
         serviceLocator.setServices(services);
 
