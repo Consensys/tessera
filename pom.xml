@@ -28,7 +28,7 @@
     </description>
 
     <ciManagement>
-        <url>https://travis-ci.com/jpmorganchase/tessera</url>
+        <url>https://github.com/jpmorganchase/tessera/actions</url>
     </ciManagement>
 
     <licenses>
