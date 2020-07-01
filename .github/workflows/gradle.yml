@@ -88,7 +88,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
        java-version: 11
-    - run: ./gradlew :tests:acceptance-test:test -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class"
+    - run: ./gradlew :tests:acceptance-test:test -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class,**/SendWithRemoteEnclaveReconnectIT.class"
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
@@ -118,7 +118,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave
+      - run: ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave,SendWithRemoteEnclaveReconnectIT
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
