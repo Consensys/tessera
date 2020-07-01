@@ -76,9 +76,10 @@ jobs:
         key: ${{ env.GRADLE_CACHE_KEY }}
         restore-keys: |
           ${{ env.GRADLE_CACHE_KEY }}
-    - uses: actions/download-artifact@v1
+    - uses: actions/download-artifact@v2
       with:
         name: tessera-dists
+        path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
     - uses: actions/setup-java@v1
       with:
        java-version: 11
