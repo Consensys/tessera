@@ -78,7 +78,7 @@ jobs:
           ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/download-artifact@v1
       with:
-        - name: tessera-dists
+        name: tessera-dists
     - uses: actions/setup-java@v1
       with:
        java-version: 11
