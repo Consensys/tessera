@@ -276,7 +276,7 @@ subprojects {
                 pom {
                     groupId = 'com.jpmorgan.quorum'
 //                    description = 'A concise description of my library'
-                    url = 'https://github.com/jpmorganchase/tessera'
+                    url = 'https://github.com/melowe/tessera'
                     licenses {
                         license {
                             name = 'The Apache License, Version 2.0'
@@ -318,9 +318,9 @@ subprojects {
                     }
 
                     scm {
-                        connection = 'scm:git:https://github.com/jpmorganchase/tessera.git'
-                        developerConnection = 'scm:git:https://github.com/jpmorganchase/tessera.git'
-                        url = 'https://github.com/jpmorganchase/tessera'
+                        connection = 'scm:git:https://github.com/melowe/tessera.git'
+                        developerConnection = 'scm:git:https://github.com/melowe/tessera.git'
+                        url = 'https://github.com/melowe/tessera'
                         tag = 'HEAD'
                     }
 
@@ -370,7 +370,7 @@ subprojects {
     }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
-    check.dependsOn checkstyleMain, checkstyleTest, dependencyCheckAnalyze, spotlessCheck, jacocoTestCoverageVerification
+    check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification
 
 }
 
