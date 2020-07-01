@@ -8,7 +8,7 @@ dependencies {
    // testCompile project(':tessera-dist:tessera-launcher')
     testCompile project(path: ':tessera-dist')
 
-  //  testCompile project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
+    testCompile project(':enclave:enclave-jaxrs')
   //  testCompile project(path: ':config-migration', configuration: 'shadow')
 
     testCompile project(':enclave:enclave-api')
@@ -57,21 +57,21 @@ test {
 
     systemProperty 'application.jar',"${buildDir}/unpacked/dist/tessera-"+ project.version +"/bin/tessera"
 
-    systemProperty 'enclave.jaxrs.server.jar',project.configurations.testCompileClasspath.find { it.name.startsWith('enclave-jaxrs') }
+    systemProperty 'enclave.jaxrs.server.jar',"${buildDir}/unpacked/dist/enclave-jaxrs-"+ project.version +"/bin/enclave-jaxrs"
     systemProperty 'jdbc.hsql.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
     systemProperty 'jdbc.sqlite.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
     systemProperty 'jdbc.dir',"${buildDir}/ext"
 
     include(
-//           '**/RestSuiteHttpH2RemoteEnclave.class',
-//            '**/RestSuiteHttpHSQL.class',
+            '**/RestSuiteHttpH2RemoteEnclave.class',
+////            '**/RestSuiteHttpHSQL.class',
             '**/RestSuiteUnixH2.class',
-//            '**/RestSuiteHttpSqllite.class',
+////            '**/RestSuiteHttpSqllite.class',
             '**/RestSuiteHttpH2.class',
-//            '**/SendWithRemoteEnclaveReconnectIT.class',
-//            '**/RestSuiteHttpqlite.class',
+            '**/SendWithRemoteEnclaveReconnectIT.class',
+////            '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
-//            '**/ConfigMigrationIT.class',
+////            '**/ConfigMigrationIT.class',
             '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
@@ -115,12 +115,12 @@ task unzipTessera(type: Copy) {
 
 }
 
-//task unzipEnclave(type: Copy) {
-//    def zipFile = file(project(':enclave:enclave-jaxrs').distZip.outputs.files.getFiles()[0])
-//    def outputDir = file("${buildDir}/unpacked/dist")
-//    from zipTree(zipFile)
-//    into outputDir
-//}
+task unzipEnclave(type: Copy) {
+    def zipFile = file(project(':enclave:enclave-jaxrs').distZip.outputs.files.getFiles()[0])
+    def outputDir = file("${buildDir}/unpacked/dist")
+    from zipTree(zipFile)
+    into outputDir
+}
 
 
 task unzipDdl(type:Copy) {
@@ -160,5 +160,5 @@ task list(dependsOn: configurations.compileClasspath) {
 }
 
 
-test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera
+test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave
 

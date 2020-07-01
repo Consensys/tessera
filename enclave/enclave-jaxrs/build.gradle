@@ -1,13 +1,11 @@
 plugins {
- //   id 'application'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
-    id 'java'
+    id 'application'
 }
 
-//application {
-//    mainClassName = 'com.quorum.tessera.enclave.rest.Main'
-//    applicationDefaultJvmArgs = ['-Dtessera.cli.type=ENCLAVE']
-//}
+application {
+    mainClassName = 'com.quorum.tessera.enclave.rest.Main'
+    applicationDefaultJvmArgs = ['-Dtessera.cli.type=ENCLAVE']
+}
 
 dependencies {
     compile "org.slf4j:slf4j-api"
@@ -54,26 +52,3 @@ dependencies {
 }
 
 description = 'enclave-jaxrs'
-
-
-
-shadowJar {
-    classifier = 'server'
-    mergeServiceFiles()
-    manifest {
-        inheritFrom project.tasks.jar.manifest
-    }
-}
-
-
-jar {
-    manifest {
-        attributes 'Tessera-Version': version,
-                "Implementation-Version": version,
-                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
-                'Main-Class' : 'com.quorum.tessera.enclave.rest.Main'
-
-    }
-}
-
-build.dependsOn shadowJar
