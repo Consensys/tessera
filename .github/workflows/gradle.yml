@@ -29,8 +29,8 @@ jobs:
     - uses: actions/upload-artifact@v1
       if: success()
       with:
-        name: tessera-jars
-        path: /home/runner/work/tessera/tessera/tessera-dist/tessera-app/build/libs/
+        name: tessera-dists
+        path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
   
   checkdependencies: 
     runs-on: ubuntu-latest
@@ -86,27 +86,27 @@ jobs:
        name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
 
-  remote_enclave_itest:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ env.GRADLE_CACHE_KEY }}
-          restore-keys: |
-            ${{ env.GRADLE_CACHE_KEY }}
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - run: ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: remote_enclave_itest-junit-report
-          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+#  remote_enclave_itest:
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    steps:
+#      - uses: actions/checkout@v2
+#
+#      - uses: actions/cache@v1
+#        with:
+#          path: ~/.gradle/caches
+#          key: ${{ env.GRADLE_CACHE_KEY }}
+#          restore-keys: |
+#            ${{ env.GRADLE_CACHE_KEY }}
+#      - uses: actions/setup-java@v1
+#        with:
+#          java-version: 11
+#      - run: ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave
+#      - uses: actions/upload-artifact@v1
+#        if: failure()
+#        with:
+#          name: remote_enclave_itest-junit-report
+#          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
 
 #  atest:
 #    runs-on: ubuntu-latest
