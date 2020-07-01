@@ -85,10 +85,10 @@ jobs:
       with:
         name: tessera-dists
         path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
-        - uses: actions/download-artifact@v2
-          with:
-            name: enclave-dists
-            path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+    - uses: actions/download-artifact@v2
+      with:
+        name: enclave-dists
+        path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
     - uses: actions/setup-java@v1
       with:
        java-version: 11
