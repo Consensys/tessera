@@ -95,7 +95,7 @@ public class NodeExecManager implements ExecManager {
 
         LOGGER.info("EXT DIR : {}", System.getProperty("jdbc.dir"));
         if (System.getProperties().containsKey("jdbc.dir")) {
-            javaOpts += " -Djava.ext.dirs=" + System.getProperty("jdbc.dir");
+          //  javaOpts += " -Djava.ext.dirs=" + System.getProperty("jdbc.dir");
         }
 
         Map<String, String> env = new HashMap<>();

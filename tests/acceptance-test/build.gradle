@@ -5,11 +5,11 @@ dependencies {
     testCompile project(':tessera-core')
     testCompile project(':security')
     testCompile project(':tessera-partyinfo')
-    testCompile project(':tessera-dist:tessera-launcher')
+   // testCompile project(':tessera-dist:tessera-launcher')
+    testCompile project(path: ':tessera-dist')
 
-    testCompile project(path: ':tessera-dist:tessera-app', configuration: 'shadow')
-    testCompile project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
-    testCompile project(path: ':config-migration', configuration: 'shadow')
+  //  testCompile project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
+  //  testCompile project(path: ':config-migration', configuration: 'shadow')
 
     testCompile project(':enclave:enclave-api')
     testCompile project(':encryption:encryption-api')
@@ -55,7 +55,7 @@ sourceSets {
 
 test {
 
-    systemProperty 'application.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('tessera-app')}
+    systemProperty 'application.jar',"${buildDir}/unpacked/dist/tessera-"+ project.version +"/bin/tessera"
 
     systemProperty 'enclave.jaxrs.server.jar',project.configurations.testCompileClasspath.find { it.name.startsWith('enclave-jaxrs') }
     systemProperty 'jdbc.hsql.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
@@ -63,15 +63,15 @@ test {
     systemProperty 'jdbc.dir',"${buildDir}/ext"
 
     include(
-           '**/RestSuiteHttpH2RemoteEnclave.class',
-            '**/RestSuiteHttpHSQL.class',
+//           '**/RestSuiteHttpH2RemoteEnclave.class',
+//            '**/RestSuiteHttpHSQL.class',
             '**/RestSuiteUnixH2.class',
-            '**/RestSuiteHttpSqllite.class',
+//            '**/RestSuiteHttpSqllite.class',
             '**/RestSuiteHttpH2.class',
-            '**/SendWithRemoteEnclaveReconnectIT.class',
-            '**/RestSuiteHttpqlite.class',
+//            '**/SendWithRemoteEnclaveReconnectIT.class',
+//            '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
-            '**/ConfigMigrationIT.class',
+//            '**/ConfigMigrationIT.class',
             '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
@@ -107,13 +107,13 @@ test {
 
 }
 
-//task unzipTessera(type: Copy) {
-//    def zipFile = file(project(':tessera-dist:tessera-app').distZip.outputs.files.getFiles()[0])
-//    def outputDir = file("${buildDir}/unpacked/dist")
-//    from zipTree(zipFile)
-//    into outputDir
-//
-//}
+task unzipTessera(type: Copy) {
+    def zipFile = file(project(':tessera-dist').distZip.outputs.files.getFiles()[0])
+    def outputDir = file("${buildDir}/unpacked/dist")
+    from zipTree(zipFile)
+    into outputDir
+
+}
 
 //task unzipEnclave(type: Copy) {
 //    def zipFile = file(project(':enclave:enclave-jaxrs').distZip.outputs.files.getFiles()[0])
@@ -160,5 +160,5 @@ task list(dependsOn: configurations.compileClasspath) {
 }
 
 
-test.dependsOn clean,copyJdbcJars,unzipDdl
+test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera
 
