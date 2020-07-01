@@ -36,7 +36,7 @@ public class Utils {
         ProcessBuilder processBuilder = new ProcessBuilder(args);
 
         processBuilder.redirectErrorStream(false);
-        LOGGER.info("Starting {}", String.join(",", args));
+        LOGGER.info("HERE Starting {}", String.join(",", args));
         Process process = processBuilder.start();
 
         ExecutionResult executionResult = new ExecutionResult();

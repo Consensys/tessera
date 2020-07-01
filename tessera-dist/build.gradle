@@ -1,8 +1,9 @@
 plugins {
     id 'application'
 }
-
+applicationName = 'tessera'
 application {
+
     mainClassName = 'com.quorum.tessera.launcher.Main'
     applicationDefaultJvmArgs = ['-Dtessera.cli.type=CONFIG']
 }
@@ -11,7 +12,6 @@ dependencies {
     compile "com.h2database:h2"
     compile 'org.apache.commons:commons-lang3:3.7'
     compile project(':config')
-    compile project(':tessera-dist:tessera-launcher')
     compile project(':argon2')
     compile project(':encryption:encryption-api')
     compile project(':security')
