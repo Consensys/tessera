@@ -1,14 +1,12 @@
 
 plugins {
-    //id 'application'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
-    id 'java'
+    id 'application'
 }
 
-//application {
-//    mainClassName = 'com.quorum.tessera.data.migration.Main'
-//    applicationDefaultJvmArgs = ['-Dtessera.cli.type=DATA_MIGRATION']
-//}
+application {
+    mainClassName = 'com.quorum.tessera.data.migration.Main'
+    applicationDefaultJvmArgs = ['-Dtessera.cli.type=DATA_MIGRATION']
+}
 
 dependencies {
     compile 'info.picocli:picocli'
@@ -16,14 +14,14 @@ dependencies {
     compile project(':config')
     compile project(':ddls')
     compile project(':cli:cli-api')
-    compile 'commons-codec:commons-codec:1.6'
-    compile 'commons-io:commons-io:2.6'
+    compile 'commons-codec:commons-codec'
+    compile 'commons-io:commons-io'
     compile 'org.bouncycastle:bcpkix-jdk15on'
-    runtimeOnly 'org.xerial:sqlite-jdbc:3.23.1'
-    runtimeOnly 'com.h2database:h2:1.4.200'
-    testImplementation 'com.mockrunner:mockrunner-jdbc:2.0.1'
-    testImplementation 'org.xerial:sqlite-jdbc:3.23.1'
-    testImplementation 'com.h2database:h2:1.4.200'
+    runtimeOnly 'org.xerial:sqlite-jdbc'
+    runtimeOnly 'com.h2database:h2'
+    testImplementation 'com.mockrunner:mockrunner-jdbc'
+    testImplementation 'org.xerial:sqlite-jdbc'
+    testCompile 'com.h2database:h2'
 }
 
 task unzipDdl(type:Copy) {
@@ -32,25 +30,5 @@ task unzipDdl(type:Copy) {
     from zipTree(zipFile)
     into outputDir
 }
-
-shadowJar {
-    classifier = 'cli'
-    mergeServiceFiles()
-    manifest {
-        inheritFrom project.tasks.jar.manifest
-    }
-}
-
-
-jar {
-    manifest {
-        attributes 'Tessera-Version': version,
-                "Implementation-Version": version,
-                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
-                'Main-Class' : 'com.quorum.tessera.data.migration.Main'
-
-    }
-}
-
 processResources.dependsOn unzipDdl
-build.dependsOn shadowJar
+

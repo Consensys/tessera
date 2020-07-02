@@ -91,9 +91,9 @@ allprojects {
                 compile "org.springframework:spring-orm:"+ springVersion
 
                 compile "org.bouncycastle:bcprov-jdk15on:1.61"
+
                 compile "com.h2database:h2:1.4.200"
                 compile "com.zaxxer:HikariCP:3.2.0"
-
                 compile "org.hsqldb:hsqldb:2.4.1"
                 compile "org.xerial:sqlite-jdbc:3.23.1"
 

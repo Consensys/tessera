@@ -14,9 +14,7 @@ dependencies {
     compile 'org.bouncycastle:bcpkix-jdk15on:1.61'
     compile project(':encryption:encryption-api')
 
-    runtimeOnly 'org.springframework:spring-orm:5.1.2.RELEASE'
-
-    testCompile 'org.springframework:spring-test:5.1.2.RELEASE'
+  //  testCompile 'org.springframework:spring-test:5.1.2.RELEASE'
     testCompile project(':cli:cli-api')
     testImplementation project(':test-utils:mock-service-locator')
     compileOnly 'javax.inject:javax.inject:1'
