@@ -4,13 +4,14 @@ plugins {
     id 'com.diffplug.gradle.spotless' version '3.25.0'
     id 'com.github.ben-manes.versions' version '0.8'
     id 'checkstyle'
-
 }
 
 def jettyVersion = "9.4.25.v20191220"
 def springVersion = "5.2.3.RELEASE"
 def eclipselinkVersion = "2.7.7"
 def jerseyVersion = "2.27"
+def slf4jVersion = "1.7.5"
+def logbackVersion = "1.2.3"
 allprojects {
     group = 'com.melowe.tessera'
 
@@ -18,22 +19,21 @@ allprojects {
 
         dependencies {
             constraints {
-
-                compile "org.slf4j:slf4j-api:1.7.5"
-                runtimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
-                runtimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
-                runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
-                runtimeOnly "ch.qos.logback:logback-core:1.2.3"
+                compile "org.slf4j:slf4j-api:"+ slf4jVersion
+                runtimeOnly "org.slf4j:jcl-over-slf4j:"+ slf4jVersion
+                runtimeOnly "org.slf4j:jul-to-slf4j:"+ slf4jVersion
+                runtimeOnly "ch.qos.logback:logback-classic:"+ logbackVersion
+                runtimeOnly "ch.qos.logback:logback-core:"+ logbackVersion
 
                 runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy:"+ eclipselinkVersion
                 compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipselinkVersion
                 compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipselinkVersion
 
                 testCompile "junit:junit:4.12"
-                testCompile "org.assertj:assertj-core:3.9.1"
-                testCompile "org.mockito:mockito-core:2.23.0"
+                testCompile "org.assertj:assertj-core:3.16.1"
+                testCompile "org.mockito:mockito-core:2.28.2"
                 testCompile "com.openpojo:openpojo:0.8.10"
-                testCompile "com.github.stefanbirkner:system-rules:1.18.0"
+                testCompile "com.github.stefanbirkner:system-rules:1.19.0"
                 testCompile "nl.jqno.equalsverifier:equalsverifier:3.1.5"
                 testCompile "com.mockrunner:mockrunner-jdbc:2.0.1"
 
