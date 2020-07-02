@@ -5,7 +5,7 @@ import cucumber.api.CucumberOptions;
 @CucumberOptions(
     glue = "transaction.raw",
     tags = "@raw",
-    plugin = {"json:target/cucumber/raw.json"}
+    plugin = {"json:build/cucumber/raw.json"}
 )
 public class CucumberRawIT extends CucumberTestCase {
 
