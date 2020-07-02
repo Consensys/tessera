@@ -9,10 +9,6 @@ dependencies {
     runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa'
     runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.extension'
 
-    testImplementation 'org.springframework:spring-context:5.1.2.RELEASE'
-    testImplementation 'org.springframework:spring-orm:5.1.2.RELEASE'
-    testImplementation 'org.springframework:spring-test:5.1.2.RELEASE'
-
     testImplementation 'org.hsqldb:hsqldb:2.4.1'
     testImplementation 'org.xerial:sqlite-jdbc:3.23.1'
     compileOnly 'javax.persistence:javax.persistence-api:2.2'
