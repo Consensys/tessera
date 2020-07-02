@@ -10,7 +10,7 @@ application {
 
 dependencies {
     compile "com.h2database:h2"
-    compile 'org.apache.commons:commons-lang3:3.7'
+    compile 'org.apache.commons:commons-lang3'
     compile project(':config')
     compile project(':argon2')
     compile project(':encryption:encryption-api')
@@ -26,10 +26,8 @@ dependencies {
     compile project(':tessera-jaxrs:thirdparty-jaxrs')
     compile project(':enclave:enclave-jaxrs')
     compile project(':service-locator:service-locator-spring')
-//    runtime 'org.slf4j:jcl-over-slf4j'
-//    runtime 'org.slf4j:jul-to-slf4j'
     compile project(':server:jersey-server')
-    compile 'org.glassfish.jersey.media:jersey-media-json-processing:2.27'
+    compile 'org.glassfish.jersey.media:jersey-media-json-processing'
     compile project(':encryption:encryption-jnacl')
 
     compile "org.bouncycastle:bcpkix-jdk15on"

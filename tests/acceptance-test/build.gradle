@@ -8,7 +8,7 @@ dependencies {
     testCompile project(path: ':tessera-dist')
 
     testCompile project(':enclave:enclave-jaxrs')
-  //  testCompile project(path: ':config-migration', configuration: 'shadow')
+    testCompile project(':config-migration')
 
     testCompile project(':enclave:enclave-api')
     testCompile project(':encryption:encryption-api')
@@ -70,7 +70,7 @@ test {
             '**/SendWithRemoteEnclaveReconnectIT.class',
 ////            '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
-////            '**/ConfigMigrationIT.class',
+//            '**/ConfigMigrationIT.class',
             '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
