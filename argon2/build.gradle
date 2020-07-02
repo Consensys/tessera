@@ -1,6 +1,6 @@
 
 dependencies {
-    compile 'de.mkammerer:argon2-jvm:2.5'
+    compile 'de.mkammerer:argon2-jvm'
     compile project(':shared')
 }
 

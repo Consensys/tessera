@@ -43,5 +43,15 @@ public class OpenPojoTest {
                 .suppress(STRICT_INHERITANCE, NONFINAL_FIELDS)
                 .forClass(FeatureToggles.class)
                 .verify();
+
+        EqualsVerifier.configure()
+            .suppress(STRICT_INHERITANCE, NONFINAL_FIELDS)
+            .forClass(EncryptorConfig.class).usingGetClass()
+            .verify();
+
+        EqualsVerifier.configure()
+            .suppress(STRICT_INHERITANCE, NONFINAL_FIELDS)
+            .forClass(Peer.class).usingGetClass()
+            .verify();
     }
 }
