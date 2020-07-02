@@ -4,6 +4,7 @@ import com.quorum.tessera.ServiceLoaderUtil;
 import java.util.Set;
 
 /** Creates a set of services that are configured */
+@Deprecated
 public interface ServiceLocator {
 
     /**

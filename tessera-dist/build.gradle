@@ -16,7 +16,7 @@ dependencies {
     compile project(':encryption:encryption-api')
     compile project(':security')
     compile project(':server:server-api')
-    compile project(':service-locator:service-locator-api')
+
     compile project(':tessera-core')
     compile project(':cli:cli-api')
     compile project(':cli:config-cli')
@@ -25,6 +25,8 @@ dependencies {
     compile project(':tessera-jaxrs:transaction-jaxrs')
     compile project(':tessera-jaxrs:thirdparty-jaxrs')
     compile project(':enclave:enclave-jaxrs')
+
+    compile project(':service-locator:service-locator-api')
     compile project(':service-locator:service-locator-spring')
     compile project(':server:jersey-server')
     compile 'org.glassfish.jersey.media:jersey-media-json-processing'
