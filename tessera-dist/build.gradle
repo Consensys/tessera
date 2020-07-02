@@ -3,7 +3,6 @@ plugins {
 }
 applicationName = 'tessera'
 application {
-
     mainClassName = 'com.quorum.tessera.launcher.Main'
     applicationDefaultJvmArgs = ['-Dtessera.cli.type=CONFIG']
 }
@@ -39,3 +38,5 @@ dependencies {
 dependencyCheck {
     failBuildOnCVSS = 0
 }
+
+
