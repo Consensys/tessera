@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation project(':tessera-jaxrs:common-jaxrs')
-    implementation project(':config')
-    implementation project(':shared')
+    compile project(':tessera-jaxrs:common-jaxrs')
+    compile project(':config')
+    compile project(':shared')
     compile project(':tessera-core')
     compile project(':enclave:enclave-api')
     compile project(':encryption:encryption-api')
