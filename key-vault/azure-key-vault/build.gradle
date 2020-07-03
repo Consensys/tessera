@@ -1,4 +1,14 @@
+plugins {
+    id 'distribution'
+}
 
+distributions {
+    main {
+        contents {
+            from jar
+        }
+    }
+}
 
 dependencyCheck {
     failBuildOnCVSS = 11

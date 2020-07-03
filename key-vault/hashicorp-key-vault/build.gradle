@@ -1,10 +1,21 @@
+plugins {
+    id 'distribution'
+}
+
+distributions {
+    main {
+        contents {
+            from jar
+        }
+    }
+}
 
 dependencyCheck {
     failBuildOnCVSS = 11
 }
 
 dependencies {
-    compile project(':config')
+    implementation project(':config')
     compile project(':key-vault:key-vault-api')
     compile 'org.springframework.vault:spring-vault-core:2.1.5.RELEASE'
     compile 'com.squareup.okhttp3:okhttp:3.12.3'
