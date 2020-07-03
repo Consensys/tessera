@@ -1,5 +1,5 @@
 plugins {
-    id "com.benjaminsproule.swagger" version "1.0.7"
+    id "com.benjaminsproule.swagger" version "1.0.8"
 }
 
 

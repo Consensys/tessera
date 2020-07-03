@@ -1,13 +1,14 @@
 plugins {
-    id "com.benjaminsproule.swagger" version "1.0.7"
+    id "com.benjaminsproule.swagger" version "1.0.8"
 }
 
 dependencies {
-    compile project(':tessera-jaxrs:common-jaxrs')
-    compile project(':config')
-    compile project(':shared')
-    compile project(':tessera-core')
+    implementation project(':tessera-jaxrs:common-jaxrs')
+    implementation project(':config')
+    implementation project(':shared')
+    implementation project(':tessera-core')
     compile project(':enclave:enclave-api')
+    compile project(':encryption:encryption-api')
 
     implementation "org.hibernate:hibernate-validator:6.0.2.Final"
 
@@ -17,7 +18,6 @@ dependencies {
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.apache.commons:commons-lang3'
     compile 'javax.persistence:javax.persistence-api'
-    compile project(':encryption:encryption-api')
 
     testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
     testRuntimeOnly "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
