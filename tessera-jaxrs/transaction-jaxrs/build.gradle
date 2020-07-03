@@ -6,7 +6,7 @@ dependencies {
     implementation project(':tessera-jaxrs:common-jaxrs')
     implementation project(':config')
     implementation project(':shared')
-    implementation project(':tessera-core')
+    compile project(':tessera-core')
     compile project(':enclave:enclave-api')
     compile project(':encryption:encryption-api')
 
