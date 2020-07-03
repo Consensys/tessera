@@ -1,6 +1,5 @@
 
 
-
 dependencies {
     implementation project(':service-locator:service-locator-api')
     implementation project(':shared')
