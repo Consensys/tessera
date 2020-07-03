@@ -1,3 +1,14 @@
+plugins {
+    id 'distribution'
+}
+
+distributions {
+    main {
+        contents {
+            from jar
+        }
+    }
+}
 
 def nettyVersion = "4.1.46.Final"
 
@@ -23,3 +34,5 @@ dependencies {
     compile 'io.netty:netty-transport-native-unix-common:'+ nettyVersion
     compile 'io.netty:netty-transport-native-epoll:'+ nettyVersion +':linux-x86_64'
 }
+
+
