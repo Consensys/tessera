@@ -1,6 +1,6 @@
 
 dependencies {
-    compile 'info.picocli:picocli:4.0'
+    implementation 'info.picocli:picocli'
     compile project(':encryption:encryption-api')
     compile project(':config')
     compile project(':shared')

@@ -4,6 +4,7 @@ plugins {
 
 
 dependencies {
+    implementation project(':config')
     implementation project(':shared')
     implementation project(':enclave:enclave-api')
     implementation project(':encryption:encryption-api')

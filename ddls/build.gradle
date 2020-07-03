@@ -1,16 +1,18 @@
 dependencies {
     implementation project(':tessera-data')
+
+    compile "javax.persistence:javax.persistence-api"
+
     implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
     implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
-    implementation "javax.persistence:javax.persistence-api"
-    implementation "com.h2database:h2:1.4.200"
-    implementation "com.zaxxer:HikariCP:3.2.0"
-    implementation "org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3"
-    implementation "org.eclipse.persistence:org.eclipse.persistence.extension:2.7.3"
-    implementation "org.hsqldb:hsqldb:2.4.1"
-    implementation "org.xerial:sqlite-jdbc:3.23.1"
-    implementation "javax.persistence:javax.persistence-api:2.2"
-    implementation "javax.transaction:javax.transaction-api:1.3"
+    implementation "com.h2database:h2"
+    implementation "com.zaxxer:HikariCP"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+    implementation "org.hsqldb:hsqldb"
+    implementation "org.xerial:sqlite-jdbc"
+
+    compile "javax.transaction:javax.transaction-api"
 }
 
 

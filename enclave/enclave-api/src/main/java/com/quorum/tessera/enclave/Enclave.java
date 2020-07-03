@@ -71,7 +71,7 @@ public interface Enclave extends Service {
 
     /**
      * Decrypt a transaction and fetch the original message using the given
-     * public key. Throws an {@link com.quorum.tessera.nacl.NaclException} if
+     * public key. Throws an Exception if
      * the provided public key OR one of the Enclave's managed keys cannot be
      * used to decrypt the payload
      *

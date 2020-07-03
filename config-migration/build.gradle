@@ -9,9 +9,9 @@ application {
 
 
 dependencies {
-    compile 'org.glassfish:javax.json:1.1.2'
-    compile 'info.picocli:picocli:4.0.4'
-    compile 'com.moandjiezana.toml:toml4j:0.7.2'
+    compile 'org.glassfish:javax.json'
+    compile 'info.picocli:picocli'
+    compile 'com.moandjiezana.toml:toml4j'
     compile project(':config')
     compile project(':cli:cli-api')
     compile project(':shared')

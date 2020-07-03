@@ -37,18 +37,18 @@ allprojects {
                 testImplementation "nl.jqno.equalsverifier:equalsverifier:3.1.5"
                 testImplementation "com.mockrunner:mockrunner-jdbc:2.0.4"
 
-                compile "commons-cli:commons-cli:1.4"
-                compile "commons-codec:commons-codec:1.6"
-                compile "commons-io:commons-io:2.6"
-                compile "org.apache.commons:commons-lang3:3.7"
+                implementation "commons-cli:commons-cli:1.4"
+                implementation "commons-codec:commons-codec:1.6"
+                implementation "commons-io:commons-io:2.6"
+                implementation "org.apache.commons:commons-lang3:3.7"
 
                 compile "com.github.jnr:jnr-unixsocket:0.28"
                 compile "de.mkammerer:argon2-jvm:2.5"
 
-                compile "info.picocli:picocli:4.0.4"
+                implementation "info.picocli:picocli:4.0.4"
                 compile "org.jasypt:jasypt:1.9.3"
-                compile "com.moandjiezana.toml:toml4j:0.7.2"
-                compile "org.bouncycastle:bcpkix-jdk15on:1.61"
+                implementation "com.moandjiezana.toml:toml4j:0.7.2"
+                implementation "org.bouncycastle:bcpkix-jdk15on:1.61"
 
                 compile "org.glassfish.jersey.inject:jersey-hk2:"+ jerseyVersion
                 compile "org.glassfish.jersey.media:jersey-media-json-processing:"+ jerseyVersion
