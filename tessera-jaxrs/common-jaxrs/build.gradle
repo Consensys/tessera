@@ -1,18 +1,25 @@
+plugins {
+    id "java-library"
+}
 
 dependencies {
 
-    compile project(':tessera-jaxrs:jaxrs-client')
-    compile project(':tessera-core')
-    compile project(':tessera-partyinfo')
-    compile project(':enclave:enclave-api')
-    compile project(':config')
-    compile project(':shared')
-    compile 'javax.ws.rs:javax.ws.rs-api'
-    compile 'io.swagger:swagger-annotations'
+    implementation project(':tessera-jaxrs:jaxrs-client')
+    implementation project(':tessera-core')
+    implementation project(':tessera-data')
+    implementation project(':tessera-context')
 
-    compile 'javax.servlet:javax.servlet-api'
-    compile 'org.apache.commons:commons-lang3'
-    compile 'javax.persistence:javax.persistence-api'
+
+    implementation project(':tessera-partyinfo')
+    api project(':enclave:enclave-api')
+    implementation project(':config')
+    implementation project(':shared')
+    api 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'io.swagger:swagger-annotations'
+
+    api 'javax.servlet:javax.servlet-api'
+    implementation 'org.apache.commons:commons-lang3'
+    api 'javax.persistence:javax.persistence-api'
     compile project(':encryption:encryption-api')
 
     testCompile 'org.slf4j:jul-to-slf4j:1.7.5'
@@ -22,7 +29,7 @@ dependencies {
     testCompile 'org.bouncycastle:bcprov-jdk15on'
     testCompile project(':server:jersey-server')
 
-    compile project(':service-locator:service-locator-api')
+    api project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
 

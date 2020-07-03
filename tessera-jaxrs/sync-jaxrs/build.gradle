@@ -1,22 +1,25 @@
 plugins {
     id "com.benjaminsproule.swagger" version "1.0.8"
+    id "java-library"
 }
 
 dependencies {
-    compile project(':tessera-jaxrs:common-jaxrs')
-    compile project(':security')
-    compile project(':shared')
-    compile project(':config')
-    compile project(':enclave:enclave-api')
+
+    implementation project(':tessera-jaxrs:common-jaxrs')
+    implementation project(':security')
+    implementation project(':shared')
+    implementation project(':config')
+    implementation project(':enclave:enclave-api')
     compile project(':encryption:encryption-api')
-    compile project(':tessera-jaxrs:jaxrs-client')
-    compile 'io.swagger:swagger-annotations'
-    compile project(':tessera-core')
-    compile project(':tessera-partyinfo')
-    compile project(':tessera-data')
-    compile 'javax.ws.rs:javax.ws.rs-api'
-    compile project(':tessera-jaxrs:common-jaxrs')
-    compile 'org.glassfish:javax.json'
+    implementation project(':tessera-jaxrs:jaxrs-client')
+    implementation 'io.swagger:swagger-annotations'
+    implementation project(':tessera-core')
+    implementation project(':tessera-partyinfo')
+    implementation project(':tessera-data')
+    implementation project(':tessera-context')
+
+    api 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'org.glassfish:javax.json'
 
     testCompile project(':test-utils:mock-jaxrs')
     testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
@@ -87,6 +90,7 @@ swagger {
 task loaddeps() {
 
         def urls = []
+
         project.configurations.compileClasspath.resolve().flatten().each {
             urls += it.toURI().toURL()
         }
