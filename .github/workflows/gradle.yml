@@ -68,7 +68,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
        java-version: 11
-    - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test
+    - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test -x generateSwaggerDocumentation
   itest: 
     runs-on: ubuntu-latest
     needs: [build]
@@ -92,7 +92,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
        java-version: 11
-    - run: ./gradlew :tests:acceptance-test:test -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class,**/SendWithRemoteEnclaveReconnectIT.class"
+    - run: ./gradlew :tests:acceptance-test:test -x generateSwaggerDocumentation -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class,**/SendWithRemoteEnclaveReconnectIT.class"
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
@@ -128,7 +128,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew :tests:acceptance-test:test --tests "*Remote*"
+      - run: ./gradlew :tests:acceptance-test:test -x generateSwaggerDocumentation --tests "*Remote*"
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
