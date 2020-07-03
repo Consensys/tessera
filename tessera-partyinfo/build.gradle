@@ -4,21 +4,23 @@ plugins {
 
 dependencies {
 
-    api 'javax.transaction:javax.transaction-api'
-
-    compile project(':encryption:encryption-api')
+    implementation 'javax.transaction:javax.transaction-api'
+    implementation project(':encryption:encryption-api')
     implementation project(':shared')
     implementation project(':config')
-    compile project(':enclave:enclave-api')
+    implementation project(':enclave:enclave-api')
     implementation project(':tessera-context')
 
     implementation 'io.swagger:swagger-annotations'
     implementation project(':tessera-data')
     implementation 'org.apache.commons:commons-lang3'
 
-    api project(':service-locator:service-locator-api')
+    implementation project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
+
+    testCompileOnly "javax.ws.rs:javax.ws.rs-api"
+
 }
 
 

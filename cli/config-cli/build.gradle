@@ -1,16 +1,21 @@
+plugins {
+    id "java-library"
+}
 
 dependencies {
     implementation 'info.picocli:picocli'
-    compile project(':encryption:encryption-api')
-    compile project(':config')
-    compile project(':shared')
-    compile project(':cli:cli-api')
-    compile project(':key-generation')
-    compile project(':tessera-jaxrs:jaxrs-client')
-    compile 'javax.ws.rs:javax.ws.rs-api'
+    implementation project(':encryption:encryption-api')
+    implementation project(':config')
+    implementation project(':shared')
+    implementation project(':cli:cli-api')
+    implementation project(':key-generation')
+
+    implementation project(':tessera-jaxrs:jaxrs-client')
+    implementation 'javax.ws.rs:javax.ws.rs-api'
+    implementation "javax.xml.bind:jaxb-api"
 
     runtimeOnly project(':encryption:encryption-jnacl')
-
+    implementation "javax.validation:validation-api"
     testCompile project(':tests:test-util')
-    testCompile 'org.hibernate:hibernate-validator'
+    runtimeOnly 'org.hibernate:hibernate-validator'
 }

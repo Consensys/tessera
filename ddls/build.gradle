@@ -1,7 +1,7 @@
 dependencies {
     implementation project(':tessera-data')
 
-    compile "javax.persistence:javax.persistence-api"
+    implementation "javax.persistence:javax.persistence-api"
 
     implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
     implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
@@ -12,7 +12,7 @@ dependencies {
     implementation "org.hsqldb:hsqldb"
     implementation "org.xerial:sqlite-jdbc"
 
-    compile "javax.transaction:javax.transaction-api"
+    implementation "javax.transaction:javax.transaction-api"
 }
 
 

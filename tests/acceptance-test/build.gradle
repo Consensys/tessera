@@ -1,8 +1,10 @@
-
+plugins {
+    id "java-library"
+}
 
 dependencies {
-
     testCompile project(':tessera-core')
+    testCompile project(':tessera-context')
     testCompile project(':security')
     testCompile project(':tessera-partyinfo')
     testCompile project(path: ':tessera-dist')

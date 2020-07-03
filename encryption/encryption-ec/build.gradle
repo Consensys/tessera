@@ -1,6 +1,10 @@
+plugins {
+    id "java-library"
+}
+
 dependencies {
-    compile project(':encryption:encryption-api')
-    compile 'org.bouncycastle:bcpkix-jdk15on'
+    implementation project(':encryption:encryption-api')
+    implementation 'org.bouncycastle:bcpkix-jdk15on'
 }
 
 

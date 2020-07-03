@@ -10,7 +10,7 @@ dependencies {
     implementation project(':shared')
     implementation project(':config')
     implementation project(':enclave:enclave-api')
-    compile project(':encryption:encryption-api')
+    implementation project(':encryption:encryption-api')
     implementation project(':tessera-jaxrs:jaxrs-client')
     implementation 'io.swagger:swagger-annotations'
     implementation project(':tessera-core')
@@ -18,7 +18,7 @@ dependencies {
     implementation project(':tessera-data')
     implementation project(':tessera-context')
 
-    api 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'javax.ws.rs:javax.ws.rs-api'
     implementation 'org.glassfish:javax.json'
 
     testCompile project(':test-utils:mock-jaxrs')
@@ -29,7 +29,7 @@ dependencies {
     testCompile "org.glassfish.jersey.inject:jersey-hk2:2.27"
 
 
-    compile project(':service-locator:service-locator-api')
+    implementation project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
 }
