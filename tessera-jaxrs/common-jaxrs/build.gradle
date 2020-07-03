@@ -11,16 +11,18 @@ dependencies {
 
 
     implementation project(':tessera-partyinfo')
-    api project(':enclave:enclave-api')
+    implementation project(':enclave:enclave-api')
     implementation project(':config')
     implementation project(':shared')
-    api 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'javax.ws.rs:javax.ws.rs-api'
     implementation 'io.swagger:swagger-annotations'
 
-    api 'javax.servlet:javax.servlet-api'
+    implementation 'javax.servlet:javax.servlet-api'
     implementation 'org.apache.commons:commons-lang3'
-    api 'javax.persistence:javax.persistence-api'
-    compile project(':encryption:encryption-api')
+    implementation 'javax.persistence:javax.persistence-api'
+    implementation project(':encryption:encryption-api')
+
+    implementation "javax.xml.bind:jaxb-api"
 
     testCompile 'org.slf4j:jul-to-slf4j:1.7.5'
     testCompile 'org.glassfish.jersey.media:jersey-media-json-processing'
@@ -29,7 +31,7 @@ dependencies {
     testCompile 'org.bouncycastle:bcprov-jdk15on'
     testCompile project(':server:jersey-server')
 
-    api project(':service-locator:service-locator-api')
+    implementation project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
 

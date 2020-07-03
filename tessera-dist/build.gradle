@@ -8,30 +8,32 @@ application {
 }
 
 dependencies {
-    compile "com.h2database:h2"
-    compile 'org.apache.commons:commons-lang3'
-    compile project(':config')
-    compile project(':argon2')
-    compile project(':encryption:encryption-api')
-    compile project(':security')
-    compile project(':server:server-api')
+    implementation "com.h2database:h2"
+    implementation 'org.apache.commons:commons-lang3'
+    implementation project(':config')
+    implementation project(':argon2')
+    implementation project(':encryption:encryption-api')
+    implementation project(':security')
+    implementation project(':server:server-api')
 
-    compile project(':tessera-core')
-    compile project(':cli:cli-api')
-    compile project(':cli:config-cli')
-    compile project(':tessera-partyinfo')
-    compile project(':tessera-jaxrs:sync-jaxrs')
-    compile project(':tessera-jaxrs:transaction-jaxrs')
-    compile project(':tessera-jaxrs:thirdparty-jaxrs')
-    compile project(':enclave:enclave-jaxrs')
+    implementation project(':tessera-core')
+    implementation project(':cli:cli-api')
+    implementation project(':cli:config-cli')
+    implementation project(':tessera-partyinfo')
+    implementation project(':tessera-jaxrs:sync-jaxrs')
+    implementation project(':tessera-jaxrs:transaction-jaxrs')
+    implementation project(':tessera-jaxrs:thirdparty-jaxrs')
+    implementation project(':enclave:enclave-jaxrs')
 
-    compile project(':service-locator:service-locator-api')
-    compile project(':service-locator:service-locator-spring')
-    compile project(':server:jersey-server')
-    compile 'org.glassfish.jersey.media:jersey-media-json-processing'
-    compile project(':encryption:encryption-jnacl')
+    implementation project(':service-locator:service-locator-api')
+    implementation project(':service-locator:service-locator-spring')
+    implementation project(':server:jersey-server')
+    implementation 'org.glassfish.jersey.media:jersey-media-json-processing'
+    implementation project(':encryption:encryption-jnacl')
 
-    compile "org.bouncycastle:bcpkix-jdk15on"
+    implementation project(':tessera-context')
+
+    implementation "org.bouncycastle:bcpkix-jdk15on"
 
 }
 

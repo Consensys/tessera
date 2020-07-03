@@ -1,9 +1,12 @@
+plugins {
+    id "java-library"
+}
 
 dependencies {
-    compile project(':server:server-api')
-    compile project(':config')
-    compile project(':security')
-
+    implementation project(':server:server-api')
+    implementation project(':config')
+    implementation project(':security')
+    implementation "javax.xml.bind:jaxb-api"
     implementation 'org.glassfish.jersey.media:jersey-media-moxy:2.27'
     implementation 'org.glassfish.jersey.core:jersey-server:2.27'
     implementation 'org.glassfish.jersey.ext:jersey-bean-validation:2.27'

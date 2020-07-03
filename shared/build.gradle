@@ -1,5 +1,9 @@
+plugins {
+    id "java-library"
+}
+
 dependencies {
-    compile "javax.xml.bind:jaxb-api"
+    implementation "javax.xml.bind:jaxb-api"
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
-    compile "javax.annotation:javax.annotation-api"
+    implementation "javax.annotation:javax.annotation-api"
 }

@@ -1,12 +1,16 @@
+plugins {
+    id "java-library"
+}
+
 
 dependencies {
     implementation 'info.picocli:picocli'
     implementation 'org.apache.commons:commons-lang3'
-    compile project(':config')
-    compile project(':shared')
-    compile project(':tessera-context')
-    compile project(':encryption:encryption-api')
-    testCompile project(':tests:test-util')
+    implementation project(':config')
+    implementation project(':shared')
+    implementation project(':tessera-context')
+    implementation project(':encryption:encryption-api')
+    testImplementation project(':tests:test-util')
 }
 
 description = 'cli-api'

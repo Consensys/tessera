@@ -10,26 +10,28 @@ application {
 dependencies {
 
     implementation "info.picocli:picocli"
+    implementation "javax.xml.bind:jaxb-api"
 
-    compile "org.slf4j:slf4j-api"
+    implementation "org.slf4j:slf4j-api"
     runtimeOnly "org.slf4j:jul-to-slf4j"
     runtimeOnly 'org.slf4j:jcl-over-slf4j'
 
     implementation project(':config')
     implementation project(':shared')
 
-    compile project(':encryption:encryption-api')
-    compile project(':enclave:enclave-api')
+    implementation project(':encryption:encryption-api')
+    implementation project(':enclave:enclave-api')
     implementation project(':enclave:enclave-server')
-    compile 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'javax.ws.rs:javax.ws.rs-api'
     implementation 'org.apache.commons:commons-lang3'
 
     implementation 'org.glassfish:javax.json'
 
-    compile project(':tessera-jaxrs:jaxrs-client')
+    implementation project(':tessera-jaxrs:jaxrs-client')
+    implementation project(':tessera-context')
 
-    compile project(':server:server-api')
-    compile project(':cli:cli-api')
+    implementation project(':server:server-api')
+    implementation project(':cli:cli-api')
 
     testImplementation project(':server:jersey-server')
 
