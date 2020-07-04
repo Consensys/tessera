@@ -15,11 +15,12 @@ import static org.mockito.Mockito.when;
 public class PartyInfoServiceFactoryTest {
 
 
-    PartyInfoServiceFactory partyInfoServiceFactory;
+    private PartyInfoServiceFactory partyInfoServiceFactory;
 
     @Before
     public void onSetUp() {
-        partyInfoServiceFactory = new PartyInfoServiceFactoryImpl();
+        partyInfoServiceFactory = PartyInfoServiceFactory.create();
+        assertThat(partyInfoServiceFactory).isExactlyInstanceOf(PartyInfoServiceFactoryImpl.class);
     }
 
     @Test
@@ -35,9 +36,13 @@ public class PartyInfoServiceFactoryTest {
         when(serverConfig.getServerUri()).thenReturn(URI.create("http://someplace.com"));
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
-        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
+        PartyInfoService partyInfoService = partyInfoServiceFactory.create(config);
 
-        assertThat(partyInfoServiceFactory).isNotNull();
+        assertThat(partyInfoService).isNotNull();
+
+        PartyInfoService anotherPartyInfoService = partyInfoServiceFactory.create(config);
+
+        assertThat(partyInfoService).isSameAs(anotherPartyInfoService);
 
     }
 
