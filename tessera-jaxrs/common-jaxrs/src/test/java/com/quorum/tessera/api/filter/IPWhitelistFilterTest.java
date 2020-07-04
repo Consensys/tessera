@@ -1,9 +1,7 @@
 package com.quorum.tessera.api.filter;
 
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.mock.MockRuntimeContextFactory;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,7 +13,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -107,8 +104,6 @@ public class IPWhitelistFilterTest {
     @Test
     public void defaultConstructor() {
         when(runtimeContext.isUseWhiteList()).thenReturn(Boolean.TRUE);
-        MockServiceLocator mockServiceLocator = (MockServiceLocator) ServiceLocator.create();
-        mockServiceLocator.setServices(Collections.singleton(runtimeContext));
 
         assertThat(new IPWhitelistFilter()).isNotNull();
     }

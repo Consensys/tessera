@@ -44,6 +44,9 @@ public class PartyInfoServiceFactoryTest {
 
         assertThat(partyInfoService).isSameAs(anotherPartyInfoService);
 
+        assertThat(partyInfoService).isSameAs(partyInfoServiceFactory.partyInfoService().get());
+
+
     }
 
 

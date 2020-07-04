@@ -1,9 +1,6 @@
 package com.quorum.tessera.thirdparty;
 
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -12,28 +9,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.core.Application;
-import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class ThirdPartyRestAppTest {
 
     private JerseyTest jersey;
 
-    private MockServiceLocator serviceLocator;
-
     private ThirdPartyRestApp thirdParty;
 
     @Before
     public void setUp() throws Exception {
-        serviceLocator = (MockServiceLocator) ServiceLocator.create();
-
-        Set services = new HashSet();
-        services.add(mock(Config.class));
-
-        serviceLocator.setServices(services);
 
         thirdParty = new ThirdPartyRestApp();
 

@@ -12,9 +12,11 @@ import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
-import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.transaction.TransactionManagerFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +26,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.*;
 import java.util.stream.Collectors;
-
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 /** The main entry point for the application. This just starts up the application in the embedded container. */
 public class Main {
 
@@ -58,21 +61,17 @@ public class Main {
 
             RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
 
-            LOGGER.debug("Creating service locator");
-            ServiceLocator serviceLocator = ServiceLocator.create();
-            LOGGER.debug("Created service locator {}", serviceLocator);
+            EnclaveFactory enclaveFactory = EnclaveFactory.create();
+            enclaveFactory.create(config);
 
-            Set<Object> services = serviceLocator.getServices();
+            PartyInfoService partyInfoService = PartyInfoServiceFactory.create().create(config);
+            partyInfoService.populateStore();
 
-            LOGGER.debug("Created {} services", services.size());
 
-            services.forEach(o -> LOGGER.debug("Service : {}", o));
+            TransactionManagerFactory.create().create(config);
 
-            services.stream()
-                    .filter(PartyInfoService.class::isInstance)
-                    .map(PartyInfoService.class::cast)
-                    .findAny()
-                    .ifPresent(p -> p.populateStore());
+            ApplicationContext springContext = new ClassPathXmlApplicationContext("tessera-spring.xml");
+
 
             runWebServer(config);
 

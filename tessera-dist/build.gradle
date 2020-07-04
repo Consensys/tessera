@@ -16,7 +16,7 @@ dependencies {
     implementation project(':encryption:encryption-api')
     implementation project(':security')
     implementation project(':server:server-api')
-
+    implementation project(':enclave:enclave-api')
     implementation project(':tessera-core')
     implementation project(':cli:cli-api')
     implementation project(':cli:config-cli')
@@ -35,6 +35,9 @@ dependencies {
     implementation project(':tessera-context')
 
     implementation "org.bouncycastle:bcpkix-jdk15on"
+
+    implementation "org.springframework:spring-context"
+
 
 }
 

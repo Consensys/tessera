@@ -3,8 +3,6 @@ package com.quorum.tessera.thirdparty;
 import com.quorum.tessera.api.common.RawTransactionResource;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -26,14 +24,8 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
     private final TransactionManager transactionManager;
 
     public ThirdPartyRestApp() {
-        final ServiceFactory serviceFactory = ServiceFactory.create();
-
-        Config config = serviceFactory.config();
-
-        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
-
-        this.partyInfoService = partyInfoServiceFactory.create(config);
-        this.transactionManager = TransactionManagerFactory.create().create(config);
+        this.partyInfoService = PartyInfoServiceFactory.create().partyInfoService().get();
+        this.transactionManager = TransactionManagerFactory.create().transactionManager().get();
     }
 
     @Override

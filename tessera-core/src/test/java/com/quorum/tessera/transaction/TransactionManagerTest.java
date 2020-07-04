@@ -1,8 +1,6 @@
 package com.quorum.tessera.transaction;
 
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.base64.Base64Codec;
-import com.quorum.tessera.config.*;
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
@@ -11,7 +9,6 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
 import com.quorum.tessera.partyinfo.ResendRequestType;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -20,8 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
@@ -140,16 +135,7 @@ public class TransactionManagerTest {
         verify(enclave).getForwardingKeys();
 
     }
-    /*
-            doAnswer(invocation -> {
-                Callable callable = invocation.getArgument(1);
-                callable.call();
-                return mock(EncryptedTransaction.class);
-            }).when(encryptedTransactionDAO).save(any(EncryptedTransaction.class),any(Callable.class));
 
-
-            when(payloadEncoder.forRecipient(any(EncodedPayload.class),any(PublicKey.class))).thenReturn(encodedPayload);
-     */
     @Test
     public void sendSignedTransaction() {
         EncodedPayload payload = mock(EncodedPayload.class);
@@ -1047,16 +1033,6 @@ public class TransactionManagerTest {
 
     @Test
     public void constructWithLessArgs() {
-        final MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
-
-        final Config config = new Config();
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setCommunicationType(CommunicationType.REST);
-        serverConfig.setApp(AppType.P2P);
-        config.setServerConfigs(Arrays.asList(serverConfig));
-
-        serviceLocator.setServices(
-            Stream.of(config, partyInfoService, enclave, partyInfoService).collect(Collectors.toSet()));
 
         TransactionManager tm =
             new TransactionManagerImpl(
