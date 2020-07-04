@@ -1,4 +1,4 @@
-package com.quorum.tessera.util.exception;
+package com.quorum.tessera.base64;
 
 import com.quorum.tessera.exception.TesseraException;
 

@@ -1,6 +1,6 @@
 package com.quorum.tessera.api.exception;
 
-import com.quorum.tessera.util.exception.DecodingException;
+import com.quorum.tessera.base64.DecodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
