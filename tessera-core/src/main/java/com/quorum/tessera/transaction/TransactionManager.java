@@ -1,21 +1,9 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.data.EncryptedRawTransactionDAO;
-import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
-import com.quorum.tessera.transaction.resend.ResendManager;
-import com.quorum.tessera.transaction.resend.ResendManagerImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -45,30 +33,5 @@ public interface TransactionManager {
      */
     PublicKey defaultPublicKey();
 
-    Logger LOGGER = LoggerFactory.getLogger(TransactionManager.class);
 
-    static TransactionManager create(Config config) {
-        LOGGER.debug("Creating TransactionManager with {}", config);
-
-        return ServiceLoaderUtil.load(TransactionManager.class).orElseGet(() -> {
-            PartyInfoService partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
-            Enclave enclave = EnclaveFactory.create().create(config);
-            EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
-            EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
-            EncryptedRawTransactionDAO encryptedRawTransactionDAO =
-                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
-
-
-            ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
-
-            return new TransactionManagerImpl(
-                encryptedTransactionDAO,
-                enclave,
-                encryptedRawTransactionDAO,
-                resendManager,
-                partyInfoService,
-                100);
-        });
-
-    }
 }

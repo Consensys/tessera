@@ -14,6 +14,7 @@ import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
@@ -39,7 +40,8 @@ public class P2PRestApp extends TesseraRestApplication {
     public P2PRestApp() {
         final ServiceFactory serviceFactory = ServiceFactory.create();
         this.config = serviceFactory.config();
-        this.partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
+        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
+        this.partyInfoService = partyInfoServiceFactory.create(config);
         this.enclave = EnclaveFactory.create().create(config);
     }
 
@@ -58,7 +60,8 @@ public class P2PRestApp extends TesseraRestApplication {
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
-        TransactionManager transactionManager = TransactionManager.create(config);
+        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
+        TransactionManager transactionManager = transactionManagerFactory.create(config);
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
         final TransactionResource transactionResource = new TransactionResource(transactionManager,payloadEncoder);
