@@ -3,9 +3,9 @@ package com.quorum.tessera.api.common;
 
 import com.quorum.tessera.api.StoreRawRequest;
 import com.quorum.tessera.api.StoreRawResponse;
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,8 @@ public class RawTransactionResource {
     private final TransactionManager transactionManager;
 
     public RawTransactionResource() {
-        this(ServiceFactory.create().transactionManager());
+        this(TransactionManagerFactory.create().transactionManager()
+            .orElseThrow(() -> new IllegalStateException("Transaction manager has not been initialsied.")));
     }
 
     public RawTransactionResource(final TransactionManager transactionManager) {
@@ -51,6 +52,8 @@ public class RawTransactionResource {
     @Produces(APPLICATION_JSON)
     public Response store(
             @ApiParam(name = "storeRawRequest", required = true) @NotNull @Valid final StoreRawRequest request) {
+
+
 
         PublicKey sender = request.getFrom()
             .filter(Objects::nonNull)

@@ -7,6 +7,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.*;
 
 import java.util.List;
+import java.util.Optional;
 
 public class MockTransactionManager implements TransactionManager,TransactionManagerFactory {
 
@@ -63,5 +64,10 @@ public class MockTransactionManager implements TransactionManager,TransactionMan
     @Override
     public TransactionManager create(Config config) {
         return this;
+    }
+
+    @Override
+    public Optional<TransactionManager> transactionManager() {
+        return Optional.of(this);
     }
 }

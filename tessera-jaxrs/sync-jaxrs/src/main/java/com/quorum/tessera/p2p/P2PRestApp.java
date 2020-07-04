@@ -4,9 +4,7 @@ import com.quorum.tessera.api.filter.GlobalFilter;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -35,14 +33,9 @@ public class P2PRestApp extends TesseraRestApplication {
 
     private final Enclave enclave;
 
-    private final Config config;
-
     public P2PRestApp() {
-        final ServiceFactory serviceFactory = ServiceFactory.create();
-        this.config = serviceFactory.config();
-        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
-        this.partyInfoService = partyInfoServiceFactory.create(config);
-        this.enclave = EnclaveFactory.create().create(config);
+        this.partyInfoService = PartyInfoServiceFactory.create().partyInfoService().get();
+        this.enclave = EnclaveFactory.create().enclave().get();
     }
 
     @Override
@@ -61,7 +54,7 @@ public class P2PRestApp extends TesseraRestApplication {
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
         TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-        TransactionManager transactionManager = transactionManagerFactory.create(config);
+        TransactionManager transactionManager = transactionManagerFactory.transactionManager().get();
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
         final TransactionResource transactionResource = new TransactionResource(transactionManager,payloadEncoder);

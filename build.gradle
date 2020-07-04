@@ -133,6 +133,7 @@ subprojects {
         implementation 'org.slf4j:slf4j-api'
         runtimeOnly 'ch.qos.logback:logback-classic'
         runtimeOnly 'ch.qos.logback:logback-core'
+        implementation "javax.xml.bind:jaxb-api"
 
         testCompile 'junit:junit'
         testCompile 'org.assertj:assertj-core'

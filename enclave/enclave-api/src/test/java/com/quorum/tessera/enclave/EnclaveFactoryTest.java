@@ -169,4 +169,17 @@ public class EnclaveFactoryTest {
 
     }
 
+    @Test
+    public void callGetEnclaveithStoreInstance() {
+
+        Enclave storedEnclave = mock(Enclave.class);
+        MockEnclaveHolder.setMockEnclave(storedEnclave);
+
+        Enclave enclave = enclaveFactory.enclave().get();
+
+        assertThat(enclave).isSameAs(storedEnclave);
+
+        MockEnclaveHolder.reset();
+
+    }
 }

@@ -32,6 +32,9 @@ public class TransactionManagerFactoryTest {
         TransactionManager transactionManager = result.create(config);
         assertThat(transactionManager).isNotNull();
 
+        assertThat(result.create(config)).isSameAs(transactionManager);
+        assertThat(result.transactionManager().get()).isSameAs(transactionManager);
+
 
     }
 

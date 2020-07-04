@@ -6,9 +6,10 @@ import com.quorum.tessera.enclave.EnclaveFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
+class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
 
     private static final AtomicReference<PartyInfoService> REF = new AtomicReference<>();
 
@@ -23,14 +24,9 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
             LOGGER.info("Create party info service from {} . Factory {}",config,this);
 
             Enclave enclave = EnclaveFactory.create().create(config);
-            PayloadPublisher payloadPublisher =
-                PayloadPublisherFactory.newFactory(config).create(config);
-            PartyInfoStore partyInfoStore =
-                PartyInfoStore.create(
-                    config.getP2PServerConfig().getServerUri());
-            KnownPeerCheckerFactory knownPeerCheckerFactory =
-                new KnownPeerCheckerFactory();
-
+            PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
+            PartyInfoStore partyInfoStore = PartyInfoStore.create(config.getP2PServerConfig().getServerUri());
+            KnownPeerCheckerFactory knownPeerCheckerFactory = new KnownPeerCheckerFactory();
 
             PartyInfoService partyInfoService = new PartyInfoServiceImpl(
                 partyInfoStore,
@@ -42,11 +38,12 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
         } else {
             LOGGER.info("Looked up existing [{},{}]",config,this);
         }
-
-
-
         return REF.get();
+    }
 
+    @Override
+    public Optional<PartyInfoService> partyInfoService() {
+        return Optional.ofNullable(REF.get());
     }
 
 }
