@@ -1210,24 +1210,7 @@ public class TransactionManagerTest {
     }
 
 
-    @Test
-    public void create() {
 
-        Config config = mock(Config.class);
-        ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
-        when(config.getP2PServerConfig()).thenReturn(serverConfig);
-
-        JdbcConfig jdbcConfig = mock(JdbcConfig.class);
-        when(jdbcConfig.getUsername()).thenReturn("junit");
-        when(jdbcConfig.getPassword()).thenReturn("junit");
-        when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:junit");
-        when(config.getJdbcConfig()).thenReturn(jdbcConfig);
-
-        TransactionManager transactionManager = TransactionManager.create(config);
-        assertThat(transactionManager).isNotNull();
-
-    }
 
     @Test
     public void defaultPublicKey() {
