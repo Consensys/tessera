@@ -1,6 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
+import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
@@ -14,7 +15,6 @@ import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.resend.ResendManager;
-import com.quorum.tessera.util.Base64Codec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

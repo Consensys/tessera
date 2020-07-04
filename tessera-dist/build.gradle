@@ -1,5 +1,6 @@
 plugins {
-    id 'application'
+    id "application"
+    id "org.owasp.dependencycheck"
 }
 applicationName = 'tessera'
 application {
@@ -40,5 +41,6 @@ dependencies {
 dependencyCheck {
     failBuildOnCVSS = 0
 }
+
 
 

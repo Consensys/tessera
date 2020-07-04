@@ -1,6 +1,5 @@
-package com.quorum.tessera.util;
+package com.quorum.tessera.base64;
 
-import com.quorum.tessera.util.exception.DecodingException;
 import org.junit.Test;
 
 import java.util.Base64;

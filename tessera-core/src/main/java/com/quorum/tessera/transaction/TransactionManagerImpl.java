@@ -1,6 +1,7 @@
 package com.quorum.tessera.transaction;
 
 
+import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
@@ -11,7 +12,6 @@ import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.resend.ResendManager;
-import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
