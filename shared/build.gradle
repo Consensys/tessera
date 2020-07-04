@@ -5,5 +5,7 @@ plugins {
 dependencies {
     implementation "javax.xml.bind:jaxb-api"
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
+    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
+
     implementation "javax.annotation:javax.annotation-api"
 }
