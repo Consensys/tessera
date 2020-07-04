@@ -20,12 +20,12 @@
     </bean>
 
 
-    <bean name="partyInfoServiceFactory" class="com.quorum.tessera.partyinfo.PartyInfoServiceFactory" factory-method="create">
-        <constructor-arg ref="config"/>
-    </bean>
+    <bean name="partyInfoServiceFactory" class="com.quorum.tessera.partyinfo.PartyInfoServiceFactory" factory-method="create" />
 
     <bean name="partyInfoService" class="com.quorum.tessera.partyinfo.PartyInfoService"
-          factory-bean="partyInfoServiceFactory" factory-method="partyInfoService" />
+          factory-bean="partyInfoServiceFactory" factory-method="create">
+        <constructor-arg ref="config"/>
+    </bean>
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.partyinfo.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
