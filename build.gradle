@@ -133,7 +133,6 @@ subprojects {
         implementation 'org.slf4j:slf4j-api'
         runtimeOnly 'ch.qos.logback:logback-classic'
         runtimeOnly 'ch.qos.logback:logback-core'
-        runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
 
         testCompile 'junit:junit'
         testCompile 'org.assertj:assertj-core'
