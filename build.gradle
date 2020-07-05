@@ -143,8 +143,8 @@ subprojects {
     }
 
     test {
-        systemProperty("jakarta.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
-        systemProperty("jakarta.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
+        systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
+        systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
     }
     checkstyle {
         configFile project.getRootProject().file('checkstyle.xml')
