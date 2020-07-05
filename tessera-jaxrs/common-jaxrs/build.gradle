@@ -31,11 +31,6 @@ dependencies {
     testCompile 'org.bouncycastle:bcprov-jdk15on'
     testCompile project(':server:jersey-server')
 
-    implementation project(':service-locator:service-locator-api')
-    runtimeOnly project(':service-locator:service-locator-spring')
-    testImplementation project(':test-utils:mock-service-locator')
-
-
 }
 
 jar {

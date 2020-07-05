@@ -15,10 +15,6 @@ dependencies {
     implementation project(':tessera-data')
     implementation 'org.apache.commons:commons-lang3'
 
-    implementation project(':service-locator:service-locator-api')
-    runtimeOnly project(':service-locator:service-locator-spring')
-    testImplementation project(':test-utils:mock-service-locator')
-
     testCompileOnly "javax.ws.rs:javax.ws.rs-api"
 
 }
