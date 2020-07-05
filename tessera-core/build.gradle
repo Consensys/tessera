@@ -20,7 +20,6 @@ dependencies {
     implementation 'org.bouncycastle:bcpkix-jdk15on'
 
     testCompile project(':cli:cli-api')
-    testImplementation project(':test-utils:mock-service-locator')
 
     compileOnly 'javax.inject:javax.inject'
     testImplementation 'javax.inject:javax.inject'
@@ -30,11 +29,6 @@ dependencies {
 
     compile 'javax.validation:validation-api'
     implementation "org.hibernate:hibernate-validator"
-
-    compile project(':service-locator:service-locator-api')
-    runtimeOnly project(':service-locator:service-locator-spring')
-    testImplementation project(':test-utils:mock-service-locator')
-
 
 }
 

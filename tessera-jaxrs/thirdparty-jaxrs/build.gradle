@@ -23,9 +23,6 @@ dependencies {
     testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-moxy'
     testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2:2.27"
 
-    implementation project(':service-locator:service-locator-api')
-    runtimeOnly project(':service-locator:service-locator-spring')
-    testImplementation project(':test-utils:mock-service-locator')
     testImplementation project(':tessera-data')
     testImplementation project(':enclave:enclave-api')
 }

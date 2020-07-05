@@ -26,8 +26,6 @@ dependencies {
     implementation project(':tessera-jaxrs:thirdparty-jaxrs')
     implementation project(':enclave:enclave-jaxrs')
 
-    implementation project(':service-locator:service-locator-api')
-    implementation project(':service-locator:service-locator-spring')
     implementation project(':server:jersey-server')
     implementation 'org.glassfish.jersey.media:jersey-media-json-processing'
     implementation project(':encryption:encryption-jnacl')

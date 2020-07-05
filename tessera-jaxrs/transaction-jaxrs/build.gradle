@@ -13,10 +13,10 @@ dependencies {
     implementation project(':tessera-data')
     implementation project(':tessera-context')
 
-    api 'javax.persistence:javax.persistence-api'
+    implementation 'javax.persistence:javax.persistence-api'
     implementation "org.hibernate:hibernate-validator"
 
-    api 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'javax.ws.rs:javax.ws.rs-api'
     implementation 'io.swagger:swagger-annotations'
 
     compile 'javax.servlet:javax.servlet-api'
@@ -29,9 +29,6 @@ dependencies {
     testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-moxy'
     testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2"
 
-    api project(':service-locator:service-locator-api')
-    implementation project(':service-locator:service-locator-spring')
-    testImplementation project(':test-utils:mock-service-locator')
 }
 
 
