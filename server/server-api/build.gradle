@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation project(':shared')
-    implementation project(':config')
-    implementation project(':tessera-context')
+    implementation project(":shared")
+    implementation project(":config")
+    implementation project(":tessera-context")
 }
 
-description = 'server-api'
+description = "server-api"

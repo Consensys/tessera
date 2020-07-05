@@ -3,51 +3,50 @@ plugins {
 }
 
 dependencies {
-    testCompile project(':tessera-core')
-    testCompile project(':tessera-context')
-    testCompile project(':security')
-    testCompile project(':tessera-partyinfo')
-    testCompile project(path: ':tessera-dist')
+    testImplementation project(":tessera-core")
+    testImplementation project(":tessera-context")
+    testImplementation project(":security")
+    testImplementation project(":tessera-partyinfo")
+    testImplementation project(path: ":tessera-dist")
 
-    testCompile project(':enclave:enclave-jaxrs')
-    testCompile project(':config-migration')
+    testImplementation project(":enclave:enclave-jaxrs")
+    testImplementation project(":config-migration")
 
-    testCompile project(':enclave:enclave-api')
-    testCompile project(':encryption:encryption-api')
-    testCompile project(':tessera-jaxrs:common-jaxrs')
-    testCompile project(':tessera-jaxrs:jaxrs-client')
-    testCompile project(':shared')
-    testCompile project(':config')
-    testCompile project(':tests:test-util')
+    testImplementation project(":enclave:enclave-api")
+    testImplementation project(":encryption:encryption-api")
+    testImplementation project(":tessera-jaxrs:common-jaxrs")
+    testImplementation project(":tessera-jaxrs:jaxrs-client")
+    testImplementation project(":shared")
+    testImplementation project(":config")
+    testImplementation project(":tests:test-util")
 
-    testCompile project(':ddls')
+    testImplementation project(":ddls")
 
-    testCompile "org.slf4j:slf4j-api:1.7.5"
-    testRuntimeOnly "ch.qos.logback:logback-classic:1.2.3"
-    testRuntimeOnly "ch.qos.logback:logback-core:1.2.3"
-    testRuntimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
-    testRuntimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
+    testImplementation "org.slf4j:slf4j-api"
+    testRuntimeOnly "ch.qos.logback:logback-classic"
+    testRuntimeOnly "ch.qos.logback:logback-core"
+    testRuntimeOnly "org.slf4j:jcl-over-slf4j"
+    testRuntimeOnly "org.slf4j:jul-to-slf4j"
 
-    testCompile 'io.cucumber:cucumber-junit:4.0.1'
-    testCompile 'io.cucumber:cucumber-java8:4.0.1'
+    testImplementation "io.cucumber:cucumber-junit:4.0.1"
+    testImplementation "io.cucumber:cucumber-java8:4.0.1"
 
-    testCompile 'org.xerial:sqlite-jdbc:3.23.1'
-    testCompile 'org.hsqldb:hsqldb:2.4.1'
-    testCompile 'com.github.tomakehurst:wiremock-jre8:2.24.1'
-    testCompile 'jakarta.ws.rs:jakarta.ws.rs-api:2.1'
-    testCompile 'org.assertj:assertj-core:3.9.1'
-    testCompile 'jakarta.ws.rs:jakarta.ws.rs-api:2.1'
-    testCompile 'com.github.jnr:jnr-unixsocket:0.25'
-    testCompile 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
+    testImplementation "org.xerial:sqlite-jdbc"
+    testImplementation "org.hsqldb:hsqldb"
+    testImplementation "com.github.tomakehurst:wiremock-jre8"
+    testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "com.github.jnr:jnr-unixsocket"
+    testRuntime "org.eclipse.persistence:org.eclipse.persistence.moxy"
 }
 
 sourceSets {
         test {
             java {
-                srcDir 'src/test/java'
+                srcDir "src/test/java"
             }
             resources {
-                srcDir 'src/test/resources'
+                srcDir "src/test/resources"
             }
         }
 }
@@ -56,38 +55,38 @@ sourceSets {
 
 test {
 
-    systemProperty 'application.jar',"${buildDir}/unpacked/dist/tessera-"+ project.version +"/bin/tessera"
+    systemProperty "application.jar","${buildDir}/unpacked/dist/tessera-"+ project.version +"/bin/tessera"
 
-    systemProperty 'enclave.jaxrs.server.jar',"${buildDir}/unpacked/dist/enclave-jaxrs-"+ project.version +"/bin/enclave-jaxrs"
-    systemProperty 'jdbc.hsql.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
-    systemProperty 'jdbc.sqlite.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
-    systemProperty 'jdbc.dir',"${buildDir}/ext"
+    systemProperty "enclave.jaxrs.server.jar","${buildDir}/unpacked/dist/enclave-jaxrs-"+ project.version +"/bin/enclave-jaxrs"
+    systemProperty "jdbc.hsql.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
+    systemProperty "jdbc.sqlite.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
+    systemProperty "jdbc.dir","${buildDir}/ext"
 
     include(
-            '**/RestSuiteHttpH2RemoteEnclave.class',
-////            '**/RestSuiteHttpHSQL.class',
-            '**/RestSuiteUnixH2.class',
-////            '**/RestSuiteHttpSqllite.class',
-            '**/RestSuiteHttpH2.class',
-            '**/SendWithRemoteEnclaveReconnectIT.class',
-////            '**/RestSuiteHttpqlite.class',
-            '**/CucumberWhitelistIT.class',
-//            '**/ConfigMigrationIT.class',
-            '**/P2pTestSuite.class',
-            '**/CucumberFileKeyGenerationIT.class',
-            '**/P2pTestSuite.class',
-            '**/RunAwsIT.class',
-            '**/RunAzureIT.class'
+            "**/RestSuiteHttpH2RemoteEnclave.class",
+////            "**/RestSuiteHttpHSQL.class",
+            "**/RestSuiteUnixH2.class",
+////            "**/RestSuiteHttpSqllite.class",
+            "**/RestSuiteHttpH2.class",
+            "**/SendWithRemoteEnclaveReconnectIT.class",
+////            "**/RestSuiteHttpqlite.class",
+            "**/CucumberWhitelistIT.class",
+//            "**/ConfigMigrationIT.class",
+            "**/P2pTestSuite.class",
+            "**/CucumberFileKeyGenerationIT.class",
+            "**/P2pTestSuite.class",
+            "**/RunAwsIT.class",
+            "**/RunAzureIT.class"
     )
 
-    if (project.hasProperty('excludeTests')) {
-        exclude project.property('excludeTests')
+    if (project.hasProperty("excludeTests")) {
+        exclude project.property("excludeTests")
     }
 
 }
 
 task unzipTessera(type: Copy) {
-    def zipFile = file(project(':tessera-dist').distZip.outputs.files.getFiles()[0])
+    def zipFile = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
     into outputDir
@@ -95,7 +94,7 @@ task unzipTessera(type: Copy) {
 }
 
 task unzipEnclave(type: Copy) {
-    def zipFile = file(project(':enclave:enclave-jaxrs').distZip.outputs.files.getFiles()[0])
+    def zipFile = file(project(":enclave:enclave-jaxrs").distZip.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
     into outputDir
@@ -103,7 +102,7 @@ task unzipEnclave(type: Copy) {
 
 
 task unzipDdl(type:Copy) {
-    def zipFile = file(project(':ddls').jar.outputs.files.getFiles()[0])
+    def zipFile = file(project(":ddls").jar.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/resources/test/ddls")
     from zipTree(zipFile)
     into outputDir

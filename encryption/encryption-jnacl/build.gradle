@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation project(':encryption:encryption-api')
-    implementation 'eu.neilalexander:jnacl'
+    implementation project(":encryption:encryption-api")
+    implementation "eu.neilalexander:jnacl"
 }
 
-description = 'encryption-jnacl'
+description = "encryption-jnacl"

@@ -1,5 +1,5 @@
 plugins {
-    id 'distribution'
+    id "distribution"
 }
 
 distributions {
@@ -15,8 +15,8 @@ dependencyCheck {
 }
 
 dependencies {
-    implementation project(':config')
-    implementation project(':key-vault:key-vault-api')
-    implementation 'org.springframework.vault:spring-vault-core:2.1.5.RELEASE'
-    implementation 'com.squareup.okhttp3:okhttp:3.12.3'
+    implementation project(":config")
+    implementation project(":key-vault:key-vault-api")
+    implementation "org.springframework.vault:spring-vault-core:2.1.5.RELEASE"
+    implementation "com.squareup.okhttp3:okhttp:3.12.3"
 }

@@ -4,7 +4,6 @@ plugins {
 
 dependencies {
 
-
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
     implementation "org.glassfish:jakarta.json"
     implementation "jakarta.validation:jakarta.validation-api"
@@ -22,12 +21,9 @@ dependencies {
     runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
 
-    testRuntime "org.eclipse.persistence:org.eclipse.persistence.moxy"
-    testRuntime "org.glassfish.jaxb:jaxb-runtime"
-
 }
 
-description = 'config'
+description = "config"
 
 jar {
 

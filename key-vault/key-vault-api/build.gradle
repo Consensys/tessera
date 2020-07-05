@@ -3,6 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation project(':shared')
-    implementation project(':config')
+    implementation project(":shared")
+    implementation project(":config")
 }

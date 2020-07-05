@@ -1,5 +1,8 @@
+plugins {
+    id "java-library"
+}
 
 dependencies {
-    implementation 'org.mockito:mockito-core:2.23.0'
-    implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
+    implementation "org.mockito:mockito-core"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
 }

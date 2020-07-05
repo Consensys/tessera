@@ -4,13 +4,13 @@ plugins {
 
 
 dependencies {
-    implementation 'info.picocli:picocli'
-    implementation 'org.apache.commons:commons-lang3'
-    implementation project(':config')
-    implementation project(':shared')
-    implementation project(':tessera-context')
-    implementation project(':encryption:encryption-api')
-    testImplementation project(':tests:test-util')
+    implementation "info.picocli:picocli"
+    implementation "org.apache.commons:commons-lang3"
+    implementation project(":config")
+    implementation project(":shared")
+    implementation project(":tessera-context")
+    implementation project(":encryption:encryption-api")
+    testImplementation project(":tests:test-util")
 }
 
-description = 'cli-api'
+description = "cli-api"
