@@ -1,6 +1,6 @@
 package com.quorum.tessera.sync;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;

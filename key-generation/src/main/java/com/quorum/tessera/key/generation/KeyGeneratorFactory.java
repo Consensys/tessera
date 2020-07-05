@@ -1,6 +1,6 @@
 package com.quorum.tessera.key.generation;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.KeyVaultConfig;
 

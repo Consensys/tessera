@@ -1,6 +1,6 @@
 package com.quorum.tessera.key.vault;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;

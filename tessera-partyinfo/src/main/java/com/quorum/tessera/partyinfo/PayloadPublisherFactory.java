@@ -1,6 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 

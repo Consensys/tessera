@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.KeyDataUtil;

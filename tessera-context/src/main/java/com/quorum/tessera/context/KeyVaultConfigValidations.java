@@ -1,6 +1,6 @@
 package com.quorum.tessera.context;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import javax.validation.ConstraintViolation;

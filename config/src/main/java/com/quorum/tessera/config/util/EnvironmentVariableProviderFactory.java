@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.util;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 
 /** Exists to enable the loading of a mocked EnvironmentVariableProvider in tests */
 public interface EnvironmentVariableProviderFactory {

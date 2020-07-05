@@ -1,6 +1,6 @@
 package com.quorum.tessera.enclave.server;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;

@@ -1,6 +1,6 @@
 package com.quorum.tessera.argon2;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 
 /** Provides hashing functions using the Argon2 class of algorithms. */
 public interface Argon2 {
