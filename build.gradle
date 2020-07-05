@@ -133,14 +133,14 @@ subprojects {
         implementation 'org.slf4j:slf4j-api'
         runtimeOnly 'ch.qos.logback:logback-classic'
         runtimeOnly 'ch.qos.logback:logback-core'
-        implementation "javax.xml.bind:jaxb-api"
+        implementation "javax.xml.bind:jaxb-api" //only for annoying javadoc noise
 
-        testCompile 'junit:junit'
-        testCompile 'org.assertj:assertj-core'
-        testCompile 'org.mockito:mockito-core'
-        testCompile 'com.openpojo:openpojo'
-        testCompile 'com.github.stefanbirkner:system-rules'
-        testCompile 'nl.jqno.equalsverifier:equalsverifier'
+        testImplementation 'junit:junit'
+        testImplementation 'org.assertj:assertj-core'
+        testImplementation 'org.mockito:mockito-core'
+        testImplementation 'com.openpojo:openpojo'
+        testImplementation 'com.github.stefanbirkner:system-rules'
+        testImplementation 'nl.jqno.equalsverifier:equalsverifier'
     }
 
     test {

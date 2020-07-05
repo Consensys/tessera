@@ -15,5 +15,4 @@ dependencies {
     implementation "javax.validation:validation-api"
 
     runtimeOnly "org.hibernate:hibernate-validator"
-    testCompile group: 'junit', name: 'junit', version: '4.12'
 }
