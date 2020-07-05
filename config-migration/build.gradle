@@ -1,23 +1,23 @@
 plugins {
-    id 'application'
+    id "application"
 }
 
 application {
-    mainClassName = 'com.quorum.tessera.config.migration.Main'
-    applicationDefaultJvmArgs = ['-Dtessera.cli.type=CONFIG_MIGRATION']
+    mainClassName = "com.quorum.tessera.config.migration.Main"
+    applicationDefaultJvmArgs = ["-Dtessera.cli.type=CONFIG_MIGRATION"]
 }
 
 
 dependencies {
-    compile 'org.glassfish:jakarta.json'
-    compile 'info.picocli:picocli'
-    compile 'com.moandjiezana.toml:toml4j'
-    compile project(':config')
-    compile project(':cli:cli-api')
-    compile project(':shared')
+    compile "org.glassfish:jakarta.json"
+    compile "info.picocli:picocli"
+    compile "com.moandjiezana.toml:toml4j"
+    compile project(":config")
+    compile project(":cli:cli-api")
+    compile project(":shared")
     implementation "org.hibernate:hibernate-validator"
-    testImplementation project(':tests:test-util')
+    testImplementation project(":tests:test-util")
 }
 
-description = 'config-migration'
+description = "config-migration"
 

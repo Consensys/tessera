@@ -1,5 +1,5 @@
 dependencies {
-    implementation project(':tessera-data')
+    implementation project(":tessera-data")
 
     implementation "jakarta.persistence:jakarta.persistence-api"
 
@@ -19,13 +19,13 @@ dependencies {
 sourceSets {
     main {
         resources {
-            srcDir 'create-table'
+            srcDir "create-table"
         }
     }
 }
 
 //task unpackPre(type:Copy) {
-//    def zipFile = file(project(':tessera-data').jar.outputs.files.getFiles()[0])
+//    def zipFile = file(project(":tessera-data").jar.outputs.files.getFiles()[0])
 //    def outputDir = file("${buildDir}/resources/main")
 //    from zipTree(zipFile)
 //    into outputDir

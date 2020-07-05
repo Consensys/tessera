@@ -1,44 +1,42 @@
 plugins {
-    id 'java-library'
+    id "java-library"
 }
 
 dependencies {
 
-    implementation project(':tessera-data')
-    implementation project(':shared')
-    implementation project(':tessera-context')
-    implementation project(':tessera-partyinfo')
-    implementation project(':config')
-    implementation project(':key-vault:key-vault-api')
-    implementation project(':encryption:encryption-api')
-    implementation project(':enclave:enclave-api')
+    implementation project(":tessera-data")
+    implementation project(":shared")
+    implementation project(":tessera-context")
+    implementation project(":tessera-partyinfo")
+    implementation project(":config")
+    implementation project(":key-vault:key-vault-api")
+    implementation project(":encryption:encryption-api")
+    implementation project(":enclave:enclave-api")
 
-    implementation 'io.swagger:swagger-annotations'
-    implementation 'jakarta.transaction:jakarta.transaction-api'
+    implementation "io.swagger:swagger-annotations"
+    implementation "jakarta.transaction:jakarta.transaction-api"
     implementation "jakarta.annotation:jakarta.annotation-api"
 
-    implementation 'org.bouncycastle:bcpkix-jdk15on'
+    implementation "org.bouncycastle:bcpkix-jdk15on"
 
-    testCompile project(':cli:cli-api')
+    testCompile project(":cli:cli-api")
 
-   // compileOnly 'jakarta.inject:jakarta.inject'
-   // testImplementation 'jakarta.inject:jakarta.inject'
 
     testCompile "jakarta.persistence:jakarta.persistence-api"
     testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
 
-    compile 'jakarta.validation:jakarta.validation-api'
+    compile "jakarta.validation:jakarta.validation-api"
     implementation "org.hibernate:hibernate-validator"
 
 }
 
-description = 'tessera-core'
+description = "tessera-core"
 
 
 sourceSets {
     test {
         java {
-            exclude '**/*IT'
+            exclude "**/*IT"
 
         }
     }

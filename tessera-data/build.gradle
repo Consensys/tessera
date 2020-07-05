@@ -1,28 +1,26 @@
 plugins {
-    id 'java-library'
+    id "java-library"
 }
 
 
 dependencies {
-    implementation project(':config')
-    implementation project(':shared')
-    implementation project(':enclave:enclave-api')
-    implementation project(':encryption:encryption-api')
-    implementation 'jakarta.transaction:jakarta.transaction-api'
-    implementation 'org.bouncycastle:bcprov-jdk15on'
-    runtimeOnly 'com.h2database:h2'
-    runtimeOnly 'com.zaxxer:HikariCP'
-    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa'
-    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.extension'
+    implementation project(":config")
+    implementation project(":shared")
+    implementation project(":enclave:enclave-api")
+    implementation project(":encryption:encryption-api")
+    implementation "jakarta.transaction:jakarta.transaction-api"
+    implementation "org.bouncycastle:bcprov-jdk15on"
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "com.zaxxer:HikariCP"
+    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.extension"
 
-    testImplementation 'org.hsqldb:hsqldb'
-    testImplementation 'org.xerial:sqlite-jdbc'
+    testImplementation "org.hsqldb:hsqldb"
+    testImplementation "org.xerial:sqlite-jdbc"
 
-    implementation 'jakarta.persistence:jakarta.persistence-api'
-    //compileOnly 'jakarta.inject:jakarta.inject'
+    implementation "jakarta.persistence:jakarta.persistence-api"
 
-    testImplementation 'jakarta.persistence:jakarta.persistence-api'
-   // testImplementation 'jakarta.inject:jakarta.inject'
+    testImplementation "jakarta.persistence:jakarta.persistence-api"
     testImplementation "com.zaxxer:HikariCP"
 
 

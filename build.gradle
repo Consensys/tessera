@@ -1,20 +1,25 @@
 plugins {
     id "org.owasp.dependencycheck" version "5.3.2.1"
-    id 'jacoco'
-    id 'com.diffplug.gradle.spotless' version '3.25.0'
-    id 'com.github.ben-manes.versions' version '0.8'
-    id 'checkstyle'
+    id "jacoco"
+    id "com.diffplug.gradle.spotless" version "3.25.0"
+    id "com.github.ben-manes.versions" version "0.8"
+    id "checkstyle"
 }
 
 def jettyVersion = "9.4.25.v20191220"
 def springVersion = "5.2.3.RELEASE"
 def eclipselinkVersion = "2.7.7"
 def jerseyVersion = "2.27"
-def slf4jVersion = "1.7.5"
+def slf4jVersion = "1.7.30"
 def logbackVersion = "1.2.3"
-allprojects {
-    group = 'com.melowe.tessera'
 
+allprojects {
+    group = "com.melowe.tessera"
+    plugins.withType(JavaPlugin).configureEach {
+        java {
+            modularity.inferModulePath = true
+        }
+    }
     plugins.withType(JavaPlugin).whenPluginAdded {
 
         dependencies {
@@ -25,6 +30,9 @@ allprojects {
                 runtimeOnly "ch.qos.logback:logback-classic:"+ logbackVersion
                 runtimeOnly "ch.qos.logback:logback-core:"+ logbackVersion
 
+                implementation "org.slf4j:jul-to-slf4j:"+ slf4jVersion //required by jersey server
+                testImplementation "org.slf4j:jul-to-slf4j:"+ slf4jVersion //required by enclave jaxrs module
+
                 implementation "org.eclipse.persistence:org.eclipse.persistence.moxy:"+ eclipselinkVersion
                 implementation "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipselinkVersion
                 implementation "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipselinkVersion
@@ -32,6 +40,9 @@ allprojects {
                 testImplementation "junit:junit:4.13"
                 testImplementation "org.assertj:assertj-core:3.9.1"
                 testImplementation "org.mockito:mockito-core:2.28.2"
+
+                implementation "org.mockito:mockito-core:2.28.2" //required by mock jaxrs module
+
                 testImplementation "com.openpojo:openpojo:0.8.10"
                 testImplementation "com.github.stefanbirkner:system-rules:1.19.0"
                 testImplementation "nl.jqno.equalsverifier:equalsverifier:3.1.5"
@@ -113,42 +124,43 @@ allprojects {
 
 subprojects {
 
-    apply plugin: 'java'
-    apply plugin: 'com.diffplug.gradle.spotless'
-    apply plugin: 'maven-publish'
-    apply plugin: 'jacoco'
-    apply plugin: 'checkstyle'
-    apply plugin: 'org.owasp.dependencycheck'
+    apply plugin: "java"
+    apply plugin: "com.diffplug.gradle.spotless"
+    apply plugin: "maven-publish"
+    apply plugin: "jacoco"
+    apply plugin: "checkstyle"
+    apply plugin: "org.owasp.dependencycheck"
 
     repositories {
         mavenLocal()
         maven {
-            url = 'https://repo.maven.apache.org/maven2'
+            url = "https://repo.maven.apache.org/maven2"
         }
     }
 
     dependencies {
 
-        implementation 'org.slf4j:slf4j-api'
-        runtimeOnly 'ch.qos.logback:logback-classic'
-        runtimeOnly 'ch.qos.logback:logback-core'
+        implementation "org.slf4j:slf4j-api"
+        runtimeOnly "ch.qos.logback:logback-classic"
+        runtimeOnly "ch.qos.logback:logback-core"
         implementation "jakarta.xml.bind:jakarta.xml.bind-api" //only for annoying javadoc noise
 
-        testImplementation 'junit:junit'
-        testImplementation 'org.assertj:assertj-core'
-        testImplementation 'org.mockito:mockito-core'
-        testImplementation 'com.openpojo:openpojo'
-        testImplementation 'com.github.stefanbirkner:system-rules'
-        testImplementation 'nl.jqno.equalsverifier:equalsverifier'
+        testImplementation "junit:junit"
+        testImplementation "org.assertj:assertj-core"
+        testImplementation "org.mockito:mockito-core"
+        testImplementation "com.openpojo:openpojo"
+        testImplementation "com.github.stefanbirkner:system-rules"
+        testImplementation "nl.jqno.equalsverifier:equalsverifier"
     }
 
     test {
         systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
         systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
     }
+    
     checkstyle {
-        configFile project.getRootProject().file('checkstyle.xml')
-        configProperties.put('checkstyle.suppressions.file',project.getRootProject().file('checkstyle-suppressions.xml'))
+        configFile project.getRootProject().file("checkstyle.xml")
+        configProperties.put("checkstyle.suppressions.file",project.getRootProject().file("checkstyle-suppressions.xml"))
         dependencies{
             checkstyle "com.puppycrawl.tools:checkstyle:8.34"
             checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
@@ -160,8 +172,8 @@ subprojects {
 
     dependencyCheck {
         failBuildOnCVSS = 0
-        suppressionFile = project.getRootProject().file('cvss-suppressions.xml')
-      //  analyzedTypes = ['zip']
+        suppressionFile = project.getRootProject().file("cvss-suppressions.xml")
+      //  analyzedTypes = ["zip"]
     }
     
     jacoco {
@@ -170,16 +182,16 @@ subprojects {
 
     spotless {
 
-        lineEndings = 'unix'
+        lineEndings = "unix"
 
         java {
-            target fileTree('**/*.java')
+            target fileTree("**/*.java")
             // indentWithSpaces(4)
             removeUnusedImports()
             // googleJavaFormat().aosp()
         }
         groovyGradle {
-            target '*.gradle'
+            target "*.gradle"
             indentWithSpaces(4)
             paddedCell()
         }
@@ -194,26 +206,26 @@ subprojects {
     jacocoTestCoverageVerification {
         violationRules {
             rule {
-                element = 'CLASS'
+                element = "CLASS"
                 limit {
-                    counter = 'LINE'
-                    value = 'COVEREDRATIO'
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
                     minimum = 1.0
                 }
                 limit {
-                    counter = 'INSTRUCTION'
-                    value = 'COVEREDRATIO'
+                    counter = "INSTRUCTION"
+                    value = "COVEREDRATIO"
                     minimum = 1.0
                 }
 
                 excludes = [
-                        'com.quorum.tessera.config.migration.Main',
-                        'com.quorum.tessera.data.migration.Main',
-                        'com.quorum.tessera.passwords.ConsolePasswordReader',
-                        'com.quorum.tessera.passwords.PasswordReaderFactory',
-                        'com.quorum.tessera.enclave.rest.Main',
-                        'com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate',
-                        'com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory'
+                        "com.quorum.tessera.config.migration.Main",
+                        "com.quorum.tessera.data.migration.Main",
+                        "com.quorum.tessera.passwords.ConsolePasswordReader",
+                        "com.quorum.tessera.passwords.PasswordReaderFactory",
+                        "com.quorum.tessera.enclave.rest.Main",
+                        "com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate",
+                        "com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory"
                 ]
             }
 
@@ -225,24 +237,24 @@ subprojects {
     sourceSets {
         main {
             java {
-                srcDir 'src/main/java'
+                srcDir "src/main/java"
             }
             resources {
-                srcDir 'src/main/resources'
+                srcDir "src/main/resources"
             }
         }
         test {
             java {
-                srcDir 'src/test/java'
+                srcDir "src/test/java"
 
             }
             resources {
-                srcDir 'src/test/resources'
+                srcDir "src/test/resources"
             }
         }
     }
 
-    sourceCompatibility = '11'
+    sourceCompatibility = "11"
 
     java {
         withJavadocJar()
@@ -252,7 +264,7 @@ subprojects {
     javadoc {
         failOnError false
         if(JavaVersion.current().isJava9Compatible()) {
-            options.addBooleanOption('html5', true)
+            options.addBooleanOption("html5", true)
         }
     }
 
@@ -268,54 +280,54 @@ subprojects {
                 }
 
                 pom {
-                    groupId = 'com.jpmorgan.quorum'
-//                    description = 'A concise description of my library'
-                    url = 'https://github.com/melowe/tessera'
+                    groupId = "com.jpmorgan.quorum"
+//                    description = "A concise description of my library"
+                    url = "https://github.com/melowe/tessera"
                     licenses {
                         license {
-                            name = 'The Apache License, Version 2.0'
-                            url = 'LICENSE'
+                            name = "The Apache License, Version 2.0"
+                            url = "LICENSE"
                         }
                     }
                     developers {
                         developer {
-                            id = 'melowe'
-                            name = 'Mark Lowe'
-                            email = 'melowe.quorum@gmail.com'
+                            id = "melowe"
+                            name = "Mark Lowe"
+                            email = "melowe.quorum@gmail.com"
                         }
                         developer {
-                            id = 'prd-fox'
-                            name = 'Peter Fox'
-                            email = 'peter.rd.fox@gmail.com'
+                            id = "prd-fox"
+                            name = "Peter Fox"
+                            email = "peter.rd.fox@gmail.com"
                         }
                         developer {
-                            id = 'namtruong'
-                            name = 'Nam Truong'
-                            email = 'nam.p.truong@gmail.com'
+                            id = "namtruong"
+                            name = "Nam Truong"
+                            email = "nam.p.truong@gmail.com"
                         }
                         developer {
-                            id = 'SatpalSandhu61'
-                            name = 'Satpal Sandhu'
-                            email = 'quorum@satpal.co.uk'
+                            id = "SatpalSandhu61"
+                            name = "Satpal Sandhu"
+                            email = "quorum@satpal.co.uk"
                         }
                         developer {
-                            id = 'chrishounsom'
-                            name = 'Chris Hounsom'
-                            email = 'chrishounsom@icloud.com'
+                            id = "chrishounsom"
+                            name = "Chris Hounsom"
+                            email = "chrishounsom@icloud.com"
                         }
                         developer {
-                            id = 'nicolae-leonte-go'
-                            name = 'Nicolae Leonte'
-                            email = 'nicolae.leonte.go@gmail.com'
+                            id = "nicolae-leonte-go"
+                            name = "Nicolae Leonte"
+                            email = "nicolae.leonte.go@gmail.com"
                         }
 
                     }
 
                     scm {
-                        connection = 'scm:git:https://github.com/melowe/tessera.git'
-                        developerConnection = 'scm:git:https://github.com/melowe/tessera.git'
-                        url = 'https://github.com/melowe/tessera'
-                        tag = 'HEAD'
+                        connection = "scm:git:https://github.com/melowe/tessera.git"
+                        developerConnection = "scm:git:https://github.com/melowe/tessera.git"
+                        url = "https://github.com/melowe/tessera"
+                        tag = "HEAD"
                     }
 
                     repositories {
@@ -323,15 +335,15 @@ subprojects {
 
                             //https://oss.sonatype.org/service/local/staging/deploy/maven2
                             // change URLs to point to your repos, e.g. http://my.org/repo
-                            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'//"$buildDir/repos/releases"
-                            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots' //"$buildDir/repos/snapshots"
-                            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"//"$buildDir/repos/releases"
+                            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots" //"$buildDir/repos/snapshots"
+                            url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
 
 
                             credentials {
                                 if(project.hasProperty("ossrhUsername") && project.hasProperty("ossrhPassword")) {
-                                    username = property('ossrhUsername')
-                                    password = property('ossrhPassword')
+                                    username = property("ossrhUsername")
+                                    password = property("ossrhPassword")
                                 }
                             }
 
@@ -343,7 +355,7 @@ subprojects {
     }
 
 
-    apply plugin: 'signing'
+    apply plugin: "signing"
 
     signing {
         useGpgCmd()
@@ -351,7 +363,7 @@ subprojects {
     }
 
     tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
+        options.encoding = "UTF-8"
     }
 
     tasks.withType(GenerateModuleMetadata) {
@@ -359,7 +371,7 @@ subprojects {
     }
 
     test {
-        exclude '**/*IT.class'
+        exclude "**/*IT.class"
     }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport

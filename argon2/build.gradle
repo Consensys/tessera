@@ -3,10 +3,10 @@ plugins {
 }
 
 dependencies {
-    implementation 'de.mkammerer:argon2-jvm'
-    implementation project(':shared')
+    implementation "de.mkammerer:argon2-jvm"
+    implementation project(":shared")
 }
 
-description = 'argon2'
+description = "argon2"
 
 

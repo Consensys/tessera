@@ -4,16 +4,16 @@ plugins {
 
 dependencies {
 
-    implementation 'jakarta.transaction:jakarta.transaction-api'
-    implementation project(':encryption:encryption-api')
-    implementation project(':shared')
-    implementation project(':config')
-    implementation project(':enclave:enclave-api')
-    implementation project(':tessera-context')
+    implementation "jakarta.transaction:jakarta.transaction-api"
+    implementation project(":encryption:encryption-api")
+    implementation project(":shared")
+    implementation project(":config")
+    implementation project(":enclave:enclave-api")
+    implementation project(":tessera-context")
 
-    implementation 'io.swagger:swagger-annotations'
-    implementation project(':tessera-data')
-    implementation 'org.apache.commons:commons-lang3'
+    implementation "io.swagger:swagger-annotations"
+    implementation project(":tessera-data")
+    implementation "org.apache.commons:commons-lang3"
 
     testCompileOnly "jakarta.ws.rs:jakarta.ws.rs-api"
 

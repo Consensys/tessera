@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation project(':encryption:encryption-api')
-    implementation 'org.bouncycastle:bcpkix-jdk15on'
+    implementation project(":encryption:encryption-api")
+    implementation "org.bouncycastle:bcpkix-jdk15on"
 }
 
 
-description = 'encryption-ec'
+description = "encryption-ec"

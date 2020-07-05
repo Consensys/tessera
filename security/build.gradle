@@ -3,11 +3,11 @@ plugins {
 }
 
 dependencies {
-    implementation project(':config')
-    implementation project(':shared')
+    implementation project(":config")
+    implementation project(":shared")
     implementation "org.bouncycastle:bcpkix-jdk15on"
     implementation "org.cryptacular:cryptacular"
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 }
 
-description = 'security'
+description = "security"
