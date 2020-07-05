@@ -13,13 +13,13 @@ dependencies {
     implementation project(':tessera-data')
     implementation project(':tessera-context')
 
-    implementation 'javax.persistence:javax.persistence-api'
+    implementation 'jakarta.persistence:jakarta.persistence-api'
     implementation "org.hibernate:hibernate-validator"
 
-    implementation 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
     implementation 'io.swagger:swagger-annotations'
 
-    compile 'javax.servlet:javax.servlet-api'
+    compile 'jakarta.servlet:jakarta.servlet-api'
     implementation 'org.apache.commons:commons-lang3'
 
 

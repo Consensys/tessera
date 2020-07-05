@@ -13,9 +13,9 @@ dependencies {
     implementation project(':tessera-context')
     implementation project(':tessera-data')
     implementation 'io.swagger:swagger-annotations'
-    implementation 'javax.ws.rs:javax.ws.rs-api'
-    implementation 'org.glassfish:javax.json'
-    implementation "javax.xml.bind:jaxb-api"
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
+    implementation 'org.glassfish:jakarta.json'
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
     testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
     testRuntimeOnly "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"

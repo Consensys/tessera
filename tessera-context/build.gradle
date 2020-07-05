@@ -11,8 +11,8 @@ dependencies {
     implementation project(':enclave:enclave-api')
     implementation project(':security')
 
-    implementation "javax.ws.rs:javax.ws.rs-api"
-    implementation "javax.validation:validation-api"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.validation:jakarta.validation-api"
 
     runtimeOnly "org.hibernate:hibernate-validator"
 }

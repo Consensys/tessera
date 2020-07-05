@@ -3,9 +3,9 @@ plugins {
 }
 
 dependencies {
-    implementation "javax.xml.bind:jaxb-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
-    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
+    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
 
-    implementation "javax.annotation:javax.annotation-api"
+    implementation "jakarta.annotation:jakarta.annotation-api"
 }

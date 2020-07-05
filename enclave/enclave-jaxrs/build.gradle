@@ -10,7 +10,7 @@ application {
 dependencies {
 
     implementation "info.picocli:picocli"
-    implementation "javax.xml.bind:jaxb-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
     implementation "org.slf4j:slf4j-api"
     runtimeOnly "org.slf4j:jul-to-slf4j"
@@ -22,10 +22,10 @@ dependencies {
     implementation project(':encryption:encryption-api')
     implementation project(':enclave:enclave-api')
     implementation project(':enclave:enclave-server')
-    implementation 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
     implementation 'org.apache.commons:commons-lang3'
 
-    implementation 'org.glassfish:javax.json'
+    implementation 'org.glassfish:jakarta.json'
 
     implementation project(':tessera-jaxrs:jaxrs-client')
     implementation project(':tessera-context')
@@ -38,7 +38,7 @@ dependencies {
     runtimeOnly 'org.glassfish.jersey.inject:jersey-hk2'
     runtimeOnly 'org.glassfish.jersey.media:jersey-media-json-processing'
     runtimeOnly 'org.glassfish.jersey.media:jersey-media-moxy'
-    runtimeOnly 'com.sun.mail:javax.mail'
+    runtimeOnly 'com.sun.mail:jakarta.mail'
     runtimeOnly 'org.bouncycastle:bcprov-jdk15on'
     runtimeOnly project(':server:jersey-server')
 
@@ -51,13 +51,13 @@ dependencies {
 
     testImplementation 'org.springframework:spring-test'
 
-    testImplementation 'javax.ws.rs:javax.ws.rs-api'
+    testImplementation 'jakarta.ws.rs:jakarta.ws.rs-api'
 
     runtimeOnly 'org.glassfish.hk2:hk2-api'
 
     testCompile 'org.slf4j:jul-to-slf4j:1.7.5'//TODO: workout how to remove
 
-    testImplementation 'com.sun.mail:javax.mail'
+    testImplementation 'com.sun.mail:jakarta.mail'
     testImplementation 'org.bouncycastle:bcprov-jdk15on'
 }
 

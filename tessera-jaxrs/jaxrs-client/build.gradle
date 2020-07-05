@@ -8,7 +8,7 @@ dependencies {
     implementation project(':config')
     implementation project(':security')
     implementation project(':tessera-context')
-    implementation 'javax.ws.rs:javax.ws.rs-api'
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
     implementation project(':server:jaxrs-client-unixsocket')
 
     testImplementation "org.eclipse.jetty:jetty-unixsocket"

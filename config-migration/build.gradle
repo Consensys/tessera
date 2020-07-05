@@ -9,7 +9,7 @@ application {
 
 
 dependencies {
-    compile 'org.glassfish:javax.json'
+    compile 'org.glassfish:jakarta.json'
     compile 'info.picocli:picocli'
     compile 'com.moandjiezana.toml:toml4j'
     compile project(':config')
