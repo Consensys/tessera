@@ -1,6 +1,6 @@
 package com.quorum.tessera.data;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 
 public interface MessageHashFactory {

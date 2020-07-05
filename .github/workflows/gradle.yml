@@ -36,6 +36,22 @@ jobs:
       with:
         name: tessera-dists
         path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+    - uses: actions/upload-artifact@v1
+      if: success()
+      with:
+        name: aws-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vaults/aws-key-vault/build/distributions/
+    - uses: actions/upload-artifact@v1
+      if: success()
+      with:
+        name: azure-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vaults/azure-key-vault/build/distributions/
+    - uses: actions/upload-artifact@v1
+      if: success()
+      with:
+        name: hashicorp-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vaults/hashicorp-key-vault/build/distributions/
+
 
   checkdependencies: 
     runs-on: ubuntu-latest

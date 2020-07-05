@@ -1,6 +1,6 @@
 package com.quorum.tessera.io;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 
 import java.io.InputStream;
 import java.io.OutputStream;

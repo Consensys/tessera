@@ -1,4 +1,4 @@
-package com.quorum.tessera;
+package com.quorum.tessera.loader;
 
 import java.util.Optional;
 import java.util.ServiceLoader;

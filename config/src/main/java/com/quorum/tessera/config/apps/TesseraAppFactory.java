@@ -1,6 +1,6 @@
 package com.quorum.tessera.config.apps;
 
-import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import org.slf4j.Logger;

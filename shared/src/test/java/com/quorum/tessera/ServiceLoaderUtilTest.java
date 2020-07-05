@@ -2,6 +2,7 @@ package com.quorum.tessera;
 
 import com.acme.DefaultTestService;
 import com.acme.TestService;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 import org.junit.Test;
 
 import java.util.Optional;
