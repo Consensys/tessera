@@ -1,3 +1,3 @@
 dependencies {
-    compileOnly 'org.glassfish:javax.el'
+    compileOnly 'org.glassfish:jakarta.el'
 }

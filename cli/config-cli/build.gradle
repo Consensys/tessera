@@ -11,11 +11,10 @@ dependencies {
     implementation project(':key-generation')
 
     implementation project(':tessera-jaxrs:jaxrs-client')
-    implementation 'javax.ws.rs:javax.ws.rs-api'
-    implementation "javax.xml.bind:jaxb-api"
+    implementation 'jakarta.ws.rs:jakarta.ws.rs-api'
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-    runtimeOnly project(':encryption:encryption-jnacl')
-    implementation "javax.validation:validation-api"
+    implementation "jakarta.validation:jakarta.validation-api"
     testCompile project(':tests:test-util')
     runtimeOnly 'org.hibernate:hibernate-validator'
 }

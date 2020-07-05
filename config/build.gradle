@@ -3,21 +3,27 @@ plugins {
 }
 
 dependencies {
-    implementation "javax.xml.bind:jaxb-api"
 
-    implementation "javax.ws.rs:javax.ws.rs-api"
-    implementation 'org.glassfish:javax.json'
-    implementation 'javax.validation:validation-api'
+
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "org.glassfish:jakarta.json"
+    implementation "jakarta.validation:jakarta.validation-api"
     implementation project(':shared')
     implementation project(':argon2')
     implementation project(':encryption:encryption-api')
-    implementation 'org.apache.commons:commons-lang3'
-    implementation 'org.jasypt:jasypt'
-    runtimeOnly 'org.glassfish:javax.el'
+    implementation "org.apache.commons:commons-lang3"
+    implementation "org.jasypt:jasypt"
+    runtimeOnly "org.glassfish:jakarta.el"
     runtimeOnly project(':encryption:encryption-jnacl')
     testCompile project(':tests:test-util')
-    testCompile 'org.hibernate:hibernate-validator'
-    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
+    testCompile "org.hibernate:hibernate-validator"
+
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
+    runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
+
+    testRuntime "org.eclipse.persistence:org.eclipse.persistence.moxy"
+    testRuntime "org.glassfish.jaxb:jaxb-runtime"
 
 }
 
@@ -34,4 +40,6 @@ jar {
     }
 
 }
+
+
 

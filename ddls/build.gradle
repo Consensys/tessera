@@ -1,7 +1,7 @@
 dependencies {
     implementation project(':tessera-data')
 
-    implementation "javax.persistence:javax.persistence-api"
+    implementation "jakarta.persistence:jakarta.persistence-api"
 
     implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
     implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
@@ -12,7 +12,7 @@ dependencies {
     implementation "org.hsqldb:hsqldb"
     implementation "org.xerial:sqlite-jdbc"
 
-    implementation "javax.transaction:javax.transaction-api"
+    implementation "jakarta.transaction:jakarta.transaction-api"
 }
 
 
@@ -36,22 +36,22 @@ sourceSets {
 //    props.put("eclipselink.ddlgen-terminate-statement", "true")
 //    props.put("eclipselink.weaving", "false")
 //    props.put("eclipselink.logging.level", "INFO")
-//    props.put("javax.persistence.schema-generation.scripts.action", "create")
+//    props.put("jakarta.persistence.schema-generation.scripts.action", "create")
 //
 //    def sqliteProperties = new Properties(props)
-//    sqliteProperties.put("javax.persistence.jdbc.url","jdbc:sqlite::memory:")
-//    sqliteProperties.put("javax.persistence.jdbc.user","sa")
-//    sqliteProperties.put("javax.persistence.jdbc.password","")
-//    sqliteProperties.put("javax.persistence.schema-generation.scripts.create-target","${buildDir}/resources/main/sqlite-ddl.sql")
+//    sqliteProperties.put("jakarta.persistence.jdbc.url","jdbc:sqlite::memory:")
+//    sqliteProperties.put("jakarta.persistence.jdbc.user","sa")
+//    sqliteProperties.put("jakarta.persistence.jdbc.password","")
+//    sqliteProperties.put("jakarta.persistence.schema-generation.scripts.create-target","${buildDir}/resources/main/sqlite-ddl.sql")
 //
 //    def h2Properties = new Properties(props)
-//    h2Properties.put("javax.persistence.jdbc.url","jdbc:h2:mem:")
-//    h2Properties.put("javax.persistence.jdbc.user","sa")
-//    h2Properties.put("javax.persistence.jdbc.password","")
-//    h2Properties.put("javax.persistence.schema-generation.scripts.create-target","${buildDir}/resources/main/h2-ddl.sql")
+//    h2Properties.put("jakarta.persistence.jdbc.url","jdbc:h2:mem:")
+//    h2Properties.put("jakarta.persistence.jdbc.user","sa")
+//    h2Properties.put("jakarta.persistence.jdbc.password","")
+//    h2Properties.put("jakarta.persistence.schema-generation.scripts.create-target","${buildDir}/resources/main/h2-ddl.sql")
 //    doLast() {
 //
-//       javax.persistence.Persistence.generateSchema("tessera", h2Properties)
+//       jakarta.persistence.Persistence.generateSchema("tessera", h2Properties)
 //        System.out.println("DO HERE")
 //        System.out.println("AND DO HERE")
 //    }

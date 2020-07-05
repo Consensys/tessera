@@ -14,20 +14,20 @@ dependencies {
     implementation project(':enclave:enclave-api')
 
     implementation 'io.swagger:swagger-annotations'
-    implementation 'javax.transaction:javax.transaction-api'
-    implementation "javax.annotation:javax.annotation-api"
+    implementation 'jakarta.transaction:jakarta.transaction-api'
+    implementation "jakarta.annotation:jakarta.annotation-api"
 
     implementation 'org.bouncycastle:bcpkix-jdk15on'
 
     testCompile project(':cli:cli-api')
 
-    compileOnly 'javax.inject:javax.inject'
-    testImplementation 'javax.inject:javax.inject'
+   // compileOnly 'jakarta.inject:jakarta.inject'
+   // testImplementation 'jakarta.inject:jakarta.inject'
 
-    testCompile "javax.persistence:javax.persistence-api"
+    testCompile "jakarta.persistence:jakarta.persistence-api"
     testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
 
-    compile 'javax.validation:validation-api'
+    compile 'jakarta.validation:jakarta.validation-api'
     implementation "org.hibernate:hibernate-validator"
 
 }
