@@ -117,6 +117,7 @@ allprojects {
                 implementation "jakarta.validation:jakarta.validation-api:2.0.2"
                 implementation "org.hibernate:hibernate-validator:6.1.5.Final"
 
+                implementation 'com.github.tomakehurst:wiremock:2.27.1'
             }
         }
     }

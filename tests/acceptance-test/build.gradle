@@ -33,7 +33,7 @@ dependencies {
 
     testImplementation "org.xerial:sqlite-jdbc"
     testImplementation "org.hsqldb:hsqldb"
-    testImplementation "com.github.tomakehurst:wiremock-jre8"
+    testImplementation 'com.github.tomakehurst:wiremock:2.27.1'
     testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
     testImplementation "org.assertj:assertj-core"
     testImplementation "com.github.jnr:jnr-unixsocket"
