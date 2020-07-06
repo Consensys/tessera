@@ -14,8 +14,8 @@ dependencies {
     implementation "org.jasypt:jasypt"
     runtimeOnly "org.glassfish:jakarta.el"
     runtimeOnly project(':encryption:encryption-jnacl')
-    testCompile project(':tests:test-util')
-    testCompile "org.hibernate:hibernate-validator"
+    testImplementation project(':tests:test-util')
+    testImplementation "org.hibernate:hibernate-validator"
 
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
     runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
