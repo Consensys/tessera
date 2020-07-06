@@ -1,5 +1,5 @@
 plugins {
-    id "distribution"
+    id "java-library-distribution"
 }
 
 distributions {
