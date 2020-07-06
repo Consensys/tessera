@@ -1,13 +1,5 @@
 plugins {
-    id "distribution"
-}
-
-distributions {
-    main {
-        contents {
-            from jar
-        }
-    }
+    id "java-library-distribution"
 }
 
 dependencyCheck {
