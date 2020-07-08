@@ -6,8 +6,22 @@ dependencies {
     implementation project(":config")
     implementation project(":shared")
     implementation "org.bouncycastle:bcpkix-jdk15on"
+    implementation "org.bouncycastle:bcprov-jdk15on"
+
     implementation "org.cryptacular:cryptacular"
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 }
 
 description = "security"
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                "--module-path", classpath.asPath,
+                "--add-modules", "cryptacular",
+        ]
+        classpath = files()
+    }
+}
+
+

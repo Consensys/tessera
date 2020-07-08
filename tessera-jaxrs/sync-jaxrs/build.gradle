@@ -101,3 +101,12 @@ task loaddeps() {
 generateSwaggerDocumentation.dependsOn(loaddeps)
 jar.dependsOn(generateSwaggerDocumentation)
 
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                "--module-path", classpath.asPath,
+                "--add-modules", "swagger.annotations"
+        ]
+        classpath = files()
+    }
+}

@@ -1,4 +1,4 @@
-package com.quorum.tessera.server.jaxrs;
+package com.quorum.tessera.server.jersey;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;

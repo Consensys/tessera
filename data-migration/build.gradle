@@ -24,6 +24,16 @@ dependencies {
     testCompile "com.h2database:h2"
 }
 
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "commons.codec",
+//        ]
+//        classpath = files()
+//    }
+//}
+
 task unzipDdl(type:Copy) {
     def zipFile = file(project(":ddls").jar.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/resources/test/ddls")

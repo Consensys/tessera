@@ -1,9 +1,10 @@
-package com.quorum.tessera.server;
+package com.quorum.tessera.server.jersey;
 
 import com.jpmorgan.quorum.server.utils.ServerUtils;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.jaxrs.CorsDomainResponseFilter;
 import com.quorum.tessera.server.jaxrs.LoggingFilter;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;

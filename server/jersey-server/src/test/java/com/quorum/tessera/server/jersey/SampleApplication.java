@@ -1,4 +1,4 @@
-package com.quorum.tessera.server.jaxrs;
+package com.quorum.tessera.server.jersey;
 
 import java.util.Collections;
 import java.util.Set;

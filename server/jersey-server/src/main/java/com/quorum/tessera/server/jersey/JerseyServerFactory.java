@@ -1,13 +1,15 @@
-package com.quorum.tessera.server;
+package com.quorum.tessera.server.jersey;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.apps.TesseraApp;
+import com.quorum.tessera.server.TesseraServer;
+import com.quorum.tessera.server.TesseraServerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
 import javax.ws.rs.core.Application;
+import java.util.Set;
 
 /** Creates Grizzly and Jersey implementations of the {@link TesseraServer} */
 public class JerseyServerFactory implements TesseraServerFactory<Object> {

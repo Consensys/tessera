@@ -15,3 +15,15 @@ dependencies {
 }
 
 description = "jaxrs-client-unixsocket"
+
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                "--module-path", classpath.asPath,
+                "--add-modules", "jersey.client",
+                "--add-modules", "jersey.common"
+        ]
+        classpath = files()
+    }
+}

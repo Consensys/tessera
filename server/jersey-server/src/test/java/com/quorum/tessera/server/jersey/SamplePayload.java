@@ -1,4 +1,4 @@
-package com.quorum.tessera.server.jaxrs;
+package com.quorum.tessera.server.jersey;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
