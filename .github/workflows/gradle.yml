@@ -41,11 +41,11 @@ jobs:
       with:
         name: aws-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
-#    - uses: actions/upload-artifact@v1
-#      if: success()
-#      with:
-#        name: azure-key-vault-dist
-#        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+    - uses: actions/upload-artifact@v1
+      if: success()
+      with:
+        name: azure-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
     - uses: actions/upload-artifact@v1
       if: success()
       with:
