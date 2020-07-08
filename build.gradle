@@ -107,6 +107,7 @@ allprojects {
                 implementation "jakarta.persistence:jakarta.persistence-api:2.2.3"
                 implementation "jakarta.inject:jakarta.inject-api:1.0.1"
                 implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
+
                 implementation "jakarta.activation:jakarta.activation-api:1.2.0"
                 implementation "com.sun.activation:jakarta.activation-api:1.2.1"
 
@@ -118,6 +119,8 @@ allprojects {
                 implementation "org.glassfish.jaxb:jaxb-runtime:2.3.3"
                 implementation "org.glassfish:jsonp-jaxrs:1.1.6"
                 implementation "org.glassfish:jakarta.json:1.1.6"
+
+                implementation "jakarta.el:jakarta.el-api:3.0.3"
                 implementation "org.glassfish:jakarta.el:3.0.3"
 
                 implementation "jakarta.validation:jakarta.validation-api:2.0.2"
@@ -150,7 +153,7 @@ subprojects {
     task allDeps(type: DependencyReportTask) {}
 
     configurations.all {
-        resolutionStrategy.eachDependency {DependencyResolveDetails details ->
+        resolutionStrategy.eachDependency {details ->
             if(details.requested.group == "javax.servlet" && details.requested.name == "javax.servlet-api") {
                 details.useTarget("jakarta.servlet:jakarta.servlet-api:4.0.4")
             }
@@ -158,6 +161,41 @@ subprojects {
                 details.useTarget("jakarta.validation:jakarta.validation-api:2.0.2")
             }
 
+            if(details.requested.group == "javax.ws.rs") {
+                details.useTarget("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6")
+            }
+            if(details.requested.group == "javax.activation") {
+                details.useTarget("jakarta.activation:jakarta.activation-api:1.2.0")
+            }
+            if(details.requested.group == "javax.annotation") {
+                details.useTarget("jakarta.annotation:jakarta.annotation-api:1.3.5")
+            }
+
+            if(details.requested.name.startsWith("javax.el")) {
+
+                if(details.requested.group == "javax.el") {
+                    //details.useTarget("jakarta.el:jakarta.el-api:3.0.3")
+                    details.useTarget("org.glassfish:jakarta.el:3.0.3")
+                }
+                if(details.requested.group.startsWith("org.glassfish")) {
+                    details.useTarget("org.glassfish:jakarta.el:3.0.3")
+                }
+
+            }
+
+            if(details.requested.name == "javax.inject") {
+                details.useTarget("jakarta.inject:jakarta.inject-api:1.0.1")
+            }
+
+            if(details.requested.name == "javax.json") {
+                if(details.requested.group == "org.glassfish") {
+                    details.useTarget("org.glassfish:jakarta.json:1.1.6")
+                }
+                if(details.requested.group == "javax.json") {
+                    //details.useTarget("jakarta.json:jakarta.json-api:1.1.6")
+                    details.useTarget("org.glassfish:jakarta.json:1.1.6")
+                }
+            }
 
         }
     }

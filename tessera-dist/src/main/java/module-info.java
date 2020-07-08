@@ -12,5 +12,4 @@ module tessera.tessera.dist.main {
     requires tessera.tessera.context.main;
     requires tessera.tessera.core.main;
     requires tessera.tessera.partyinfo.main;
-    requires org.glassfish.java.json;
 }
