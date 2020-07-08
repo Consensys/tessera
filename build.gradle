@@ -152,15 +152,10 @@ subprojects {
     configurations.all {
         resolutionStrategy.eachDependency {DependencyResolveDetails details ->
             if(details.requested.group == "javax.servlet" && details.requested.name == "javax.servlet-api") {
-                def servletJar = project.configurations.compileCompileClasspath.find { it.name.startsWith("jakarta.servlet")}
-
-                details.useTarget(servletJar.toString())
+                details.useTarget("jakarta.servlet:jakarta.servlet-api:4.0.4")
             }
-            //javax.validation
             if(details.requested.group == "javax.validation") {
-                def validationJar = project.configurations.compileCompileClasspath.find { it.name.startsWith("jakarta.validation")}
-
-                details.useTarget(validationJar.toString())
+                details.useTarget("jakarta.validation:jakarta.validation-api:2.0.2")
             }
 
 
