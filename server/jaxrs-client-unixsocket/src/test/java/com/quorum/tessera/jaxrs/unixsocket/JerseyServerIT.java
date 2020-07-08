@@ -2,7 +2,7 @@ package com.quorum.tessera.jaxrs.unixsocket;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.server.JerseyServer;
+import com.quorum.tessera.server.jersey.JerseyServer;
 import org.glassfish.jersey.client.ClientConfig;
 import org.junit.After;
 import org.junit.Before;

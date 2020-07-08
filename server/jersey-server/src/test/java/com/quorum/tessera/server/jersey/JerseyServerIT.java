@@ -1,11 +1,11 @@
-package com.quorum.tessera.server.jaxrs;
+package com.quorum.tessera.server.jersey;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.CrossDomainConfig;
 
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.server.JerseyServer;
+
 import java.net.URI;
 import java.util.Arrays;
 import javax.ws.rs.client.ClientBuilder;

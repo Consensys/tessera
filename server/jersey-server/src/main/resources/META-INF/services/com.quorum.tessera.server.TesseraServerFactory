@@ -1,1 +1,1 @@
-com.quorum.tessera.server.JerseyServerFactory
+com.quorum.tessera.server.jersey.JerseyServerFactory

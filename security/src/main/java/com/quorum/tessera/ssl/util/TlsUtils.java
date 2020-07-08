@@ -73,10 +73,14 @@ public interface TlsUtils {
 
         builder.addExtension(Extension.subjectAlternativeName, false, new GeneralNames(subjectAlternativeNames));
 
-        ContentSigner contentSigner = new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).build(privateKey);
+        ContentSigner contentSigner = new JcaContentSignerBuilder(SIGNATURE_ALGORITHM)
+            .build(privateKey);
+
         X509CertificateHolder certHolder = builder.build(contentSigner);
         X509Certificate certificate =
-                new JcaX509CertificateConverter().setProvider(provider).getCertificate(certHolder);
+                new JcaX509CertificateConverter()
+                    .setProvider(provider)
+                    .getCertificate(certHolder);
 
         certificate.verify(publicKey);
 

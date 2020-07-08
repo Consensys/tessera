@@ -37,5 +37,17 @@ jar {
 
 }
 
+compileJava {
+    //inputs.property("moduleName", moduleName)
+    doFirst {
+        options.compilerArgs = [
+                '--module-path', classpath.asPath,
+                '--add-modules', 'jasypt',
+        ]
+        classpath = files()
+    }
+}
+
+
 
 

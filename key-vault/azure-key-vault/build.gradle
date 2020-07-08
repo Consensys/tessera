@@ -2,6 +2,8 @@ plugins {
     id "java-library-distribution"
 }
 
+
+
 distributions {
     main {
         contents {
@@ -20,4 +22,8 @@ dependencies {
     implementation "com.microsoft.azure:azure-keyvault:1.2.2"
     implementation "com.microsoft.azure:adal4j:1.6.3"
     implementation project(":key-vault:key-vault-api")
+   // implementation "okhttp3"
+
+    implementation ("com.squareup.okhttp3:okhttp:3.12.3")
+
 }

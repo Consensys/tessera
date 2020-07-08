@@ -14,3 +14,13 @@ test {
         project.hasProperty("kaliumTest")
     }
 }
+
+compileJava {
+    doFirst {
+        options.compilerArgs = [
+                "--module-path", classpath.asPath,
+                "--add-modules", "kalium",
+        ]
+        classpath = files()
+    }
+}

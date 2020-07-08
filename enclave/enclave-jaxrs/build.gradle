@@ -40,7 +40,7 @@ dependencies {
     runtimeOnly "org.glassfish.jersey.media:jersey-media-moxy"
     runtimeOnly "com.sun.mail:jakarta.mail"
     runtimeOnly "org.bouncycastle:bcprov-jdk15on"
-    runtimeOnly project(":server:jersey-server")
+    implementation project(":server:jersey-server")
 
     testImplementation "org.glassfish.jersey.core:jersey-server"
     testImplementation "org.glassfish.jersey.test-framework:jersey-test-framework-core"
