@@ -228,9 +228,6 @@ subprojects {
             checkstyle "com.puppycrawl.tools:checkstyle:8.34"
             checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
         }
-
-
-
     }
 
     dependencyCheck {
@@ -345,7 +342,7 @@ subprojects {
                 pom {
                     groupId = "com.jpmorgan.quorum"
 //                    description = "A concise description of my library"
-                    url = "https://github.com/melowe/tessera"
+                    url = "https://github.com/jpmorganchase/tessera"
                     licenses {
                         license {
                             name = "The Apache License, Version 2.0"
@@ -387,9 +384,9 @@ subprojects {
                     }
 
                     scm {
-                        connection = "scm:git:https://github.com/melowe/tessera.git"
-                        developerConnection = "scm:git:https://github.com/melowe/tessera.git"
-                        url = "https://github.com/melowe/tessera"
+                        connection = "scm:git:https://github.com/jpmorganchase/tessera.git"
+                        developerConnection = "scm:git:https://github.com/jpmorganchase/tessera.git"
+                        url = "https://github.com/jpmorganchase/tessera"
                         tag = "HEAD"
                     }
 

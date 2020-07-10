@@ -1,11 +1,15 @@
 plugins {
-    id "java-library-distribution"
+    id "application"
 }
 
 def nettyVersion = "4.1.46.Final"
 
 dependencyCheck {
     failBuildOnCVSS = 11
+}
+
+application {
+    startScripts.enabled = false
 }
 
 dependencies {
@@ -26,5 +30,4 @@ dependencies {
     implementation "io.netty:netty-transport-native-unix-common:"+ nettyVersion
     implementation "io.netty:netty-transport-native-epoll:"+ nettyVersion +":linux-x86_64"
 }
-
 

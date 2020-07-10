@@ -20,6 +20,8 @@ dependencies {
     testImplementation project(":config")
     testImplementation project(":tests:test-util")
 
+    testImplementation project(":key-vault:aws-key-vault")
+
     testImplementation project(":ddls")
 
     testImplementation "org.slf4j:slf4j-api"
@@ -33,7 +35,7 @@ dependencies {
 
     testImplementation "org.xerial:sqlite-jdbc"
     testImplementation "org.hsqldb:hsqldb"
-    testImplementation 'com.github.tomakehurst:wiremock:2.27.1'
+    testImplementation "com.github.tomakehurst:wiremock-jre8:2.25.1"
     testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
     testImplementation "org.assertj:assertj-core"
     testImplementation "com.github.jnr:jnr-unixsocket"
@@ -62,6 +64,9 @@ test {
     systemProperty "jdbc.sqlite.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
     systemProperty "jdbc.dir","${buildDir}/ext"
 
+    systemProperty "keyvault.aws.dist","${buildDir}/unpacked/dist/aws-key-vault-"+ project.version +"/lib/"
+    systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-"+ project.version +"/lib/"
+
     include(
            "**/RestSuiteHttpH2RemoteEnclave.class",
            "**/RestSuiteHttpHSQL.class",
@@ -75,13 +80,28 @@ test {
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
             "**/P2pTestSuite.class",
-            "**/RunAwsIT.class",
-            "**/RunAzureIT.class"
+            "**/VaultTestSuite.class"
     )
 
     if (project.hasProperty("excludeTests")) {
         exclude project.property("excludeTests")
     }
+
+}
+
+task unzipAzureKeyVault(type: Copy) {
+    def zipFile = file(project(":key-vault:azure-key-vault").distZip.outputs.files.getFiles()[0])
+    def outputDir = file("${buildDir}/unpacked/dist")
+    from zipTree(zipFile)
+    into outputDir
+
+}
+
+task unzipAwsKeyVault(type: Copy) {
+    def zipFile = file(project(":key-vault:aws-key-vault").distZip.outputs.files.getFiles()[0])
+    def outputDir = file("${buildDir}/unpacked/dist")
+    from zipTree(zipFile)
+    into outputDir
 
 }
 
@@ -129,5 +149,5 @@ task list(dependsOn: configurations.compileClasspath) {
 }
 
 
-test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave
+test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave,unzipAwsKeyVault,unzipAzureKeyVault
 

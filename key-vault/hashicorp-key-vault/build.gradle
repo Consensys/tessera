@@ -1,5 +1,9 @@
 plugins {
-    id "java-library-distribution"
+    id "application"
+}
+
+application {
+    startScripts.enabled = false
 }
 
 dependencyCheck {

@@ -6,7 +6,10 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.util.ElUtil;
 import cucumber.api.java8.En;
+import exec.ExecArgsBuilder;
 import exec.NodeExecManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -21,12 +24,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,15 +32,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AwsStepDefs implements En {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AwsStepDefs.class);
 
     private static final String AWS_SECRETS_MANAGER_URL = "/";
     private static final String AWS_REGION = "AWS_REGION";
@@ -137,27 +133,26 @@ public class AwsStepDefs implements En {
 
                     final URL truststore = getClass().getResource("/certificates/truststore.jks");
 
-                    List<String> args =
-                            new ArrayList<>(
-                                    Arrays.asList(
-                                            "java",
-                                            // we set the truststore so that Tessera can trust the wiremock server
-                                            "-Djavax.net.ssl.trustStore=" + truststore.getFile(),
-                                            "-Djavax.net.ssl.trustStorePassword=testtest",
-                                            "-Dspring.profiles.active=disable-unixsocket",
-                                            "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                                            "-Daws.region=a-region",
-                                            "-Daws.accessKeyId=an-id",
-                                            "-Daws.secretAccessKey=a-key",
-                                            "-Ddebug=true",
-                                            "-jar",
-                                            jarfile,
-                                            "-configfile",
-                                            tempTesseraConfig.toString(),
-                                            "-pidfile",
-                                            pid.toAbsolutePath().toString(),
-                                            "-jdbc.autoCreateTables",
-                                            "true"));
+
+                    Path distDirectory = Optional.of("keyvault.aws.dist")
+                        .map(Paths::get).get();
+
+                    ExecArgsBuilder execArgsBuilder = new ExecArgsBuilder()
+                        .withJvmArg("-Djavax.net.ssl.trustStore=" + truststore.getFile())
+                        .withJvmArg("-Djavax.net.ssl.trustStorePassword=testtest")
+                        .withJvmArg("-Dspring.profiles.active=disable-unixsocket")
+                        .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
+                        .withJvmArg("-Daws.region=a-region")
+                        .withJvmArg("-Daws.accessKeyId=an-id")
+                        .withJvmArg("-Daws.secretAccessKey=a-keyd")
+                        .withJvmArg("-Ddebug=true")
+                        .withStartScriptOrExecutableJarFile(Paths.get(jarfile))
+                        .withArg("-configfile",tempTesseraConfig.toString())
+                        .withArg("-pidfile", pid.toAbsolutePath().toString())
+                        .withArg("-jdbc.autoCreateTables", "true")
+                        .withClassPathItem(distDirectory.resolve("*"));
+
+                    List<String> args = execArgsBuilder.build();
 
                     startTessera(args, tempTesseraConfig);
                 });
@@ -213,21 +208,22 @@ public class AwsStepDefs implements En {
 
                     String formattedArgs = String.format(cliArgs, wireMockServer.get().baseUrl());
 
-                    List<String> args = new ArrayList<>();
-                    args.addAll(
-                            Arrays.asList(
-                                    "java",
-                                    // we set the truststore so that Tessera can trust the wiremock server
-                                    "-Djavax.net.ssl.trustStore=" + truststore.getFile(),
-                                    "-Djavax.net.ssl.trustStorePassword=testtest",
-                                    "-Dspring.profiles.active=disable-unixsocket",
-                                    "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                                    "-Ddebug=true",
-                                    "-Daws.region=a-region",
-                                    "-Daws.accessKeyId=an-id",
-                                    "-Daws.secretAccessKey=a-key",
-                                    "-jar",
-                                    jarfile));
+                    Path distDirectory = Optional.of("keyvault.aws.dist")
+                        .map(System::getProperty)
+                        .map(Paths::get).get().resolve("*");
+
+                    final List<String> args = new ExecArgsBuilder()
+                        .withJvmArg("-Djavax.net.ssl.trustStore=" + truststore.getFile())
+                        .withJvmArg("-Djavax.net.ssl.trustStorePassword=testtest")
+                        .withJvmArg("-Dspring.profiles.active=disable-unixsocket")
+                        .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
+                        .withJvmArg("-Ddebug=true")
+                        .withJvmArg("-Daws.region=a-region")
+                        .withJvmArg("-Daws.accessKeyId=an-id")
+                        .withJvmArg("-Daws.secretAccessKey=a-key")
+                        .withStartScriptOrJarFile(Paths.get(jarfile))
+                        .withClassPathItem(distDirectory).build();
+
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
 
                     startTessera(args, null); // node is not started during keygen so do not want to verify

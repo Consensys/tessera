@@ -107,49 +107,26 @@ public class ExecArgsBuilder {
 
     public List<String> build() {
 
-        List<String> tokens = new ArrayList<>();
+        final List<String> tokens = new ArrayList<>();
+        tokens.add(startScript.toAbsolutePath().toString());
 
-        if (startScript == null) {//TODO: Remove this and assume script
-            tokens.add("java");
-            jvmArgList.forEach(tokens::add);
-            if (!classpathItems.isEmpty()) {
-                tokens.add("-cp");
+        final String classpathStr =
+            classpathItems.stream()
+                .map(Path::toAbsolutePath)
+                .map(Path::toString)
+                .collect(Collectors.joining(File.pathSeparator));
+        tokens.add("-classpath");
+        tokens.add(classpathStr);
 
-                String classpathStr =
-                        classpathItems.stream()
-                                .map(Path::toAbsolutePath)
-                                .map(Path::toString)
-                                .collect(Collectors.joining(File.pathSeparator));
-                tokens.add(classpathStr);
-            }
-
-            if (executableJarFile != null) {
-                tokens.add("-jar");
-                tokens.add(executableJarFile.toAbsolutePath().toString());
-            } else {
-                tokens.add(mainClass.getName());
-            }
-
-        } else {
-
-            tokens.add(startScript.toAbsolutePath().toString());
-
-            String classpathStr =
-                classpathItems.stream()
-                    .map(Path::toAbsolutePath)
-                    .map(Path::toString)
-                    .collect(Collectors.joining(File.pathSeparator));
-            tokens.add("-classpath");
-            tokens.add(classpathStr);
-
-        }
 
         if (Objects.nonNull(subcommands)) {
             tokens.addAll(subcommands);
         }
 
-        tokens.add("-configfile");
-        tokens.add(configFile.toAbsolutePath().toString());
+        if(Objects.nonNull(configFile)) {
+            tokens.add("-configfile");
+            tokens.add(configFile.toAbsolutePath().toString());
+        }
 
         if (Objects.nonNull(pidFile)) {
             tokens.add("-pidfile");
@@ -157,27 +134,27 @@ public class ExecArgsBuilder {
         }
 
         argList.entrySet()
-                .forEach(
-                        e -> {
-                            tokens.add(e.getKey());
-                            if (Objects.nonNull(e.getValue())) {
-                                tokens.add(e.getValue());
-                            }
-                        });
+            .forEach(
+                e -> {
+                    tokens.add(e.getKey());
+                    if (Objects.nonNull(e.getValue())) {
+                        tokens.add(e.getValue());
+                    }
+                });
 
         return tokens;
     }
 
     public static void main(String[] args) throws Exception {
         List<String> argz =
-                new ExecArgsBuilder()
-                        .withConfigFile(Paths.get("myconfig.json"))
-                        .withStartScript(Paths.get("ping"))
-                        .withJvmArg("-Dsomething=something")
-                        .withClassPathItem(Paths.get("/some.jar"))
-                        .withClassPathItem(Paths.get("/someother.jar"))
-                        .withArg("-jdbc.autoCreateTables", "true")
-                        .build();
+            new ExecArgsBuilder()
+                .withConfigFile(Paths.get("myconfig.json"))
+                .withStartScript(Paths.get("ping"))
+                .withJvmArg("-Dsomething=something")
+                .withClassPathItem(Paths.get("/some.jar"))
+                .withClassPathItem(Paths.get("lib").resolve("*"))
+                .withArg("-jdbc.autoCreateTables", "true")
+                .build();
 
         System.out.println(String.join(" ", argz));
     }
