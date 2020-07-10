@@ -21,6 +21,8 @@ dependencies {
     testImplementation project(":tests:test-util")
 
     testImplementation project(":key-vault:aws-key-vault")
+    testImplementation project(":key-vault:azure-key-vault")
+
 
     testImplementation project(":ddls")
 

@@ -1,9 +1,10 @@
 package db;
 
-import java.io.IOException;
 import org.hsqldb.persist.HsqlProperties;
 import org.hsqldb.server.Server;
 import org.hsqldb.server.ServerAcl;
+
+import java.io.IOException;
 
 public class HsqlDatabaseServer implements DatabaseServer {
 
@@ -21,11 +22,11 @@ public class HsqlDatabaseServer implements DatabaseServer {
         HsqlProperties properties = new HsqlProperties();
         for (int i = 0; i < 4; i++) {
             String db = nodeId + (i + 1);
-            properties.setProperty("server.database." + i, "file:target/hsql/" + db);
+            properties.setProperty("server.database." + i, "file:build/hsql/" + db);
             properties.setProperty("server.dbname." + i, db);
         }
         
-        properties.setProperty("server.database.4", "file:target/hsql/rest-httpwhitelist5");
+        properties.setProperty("server.database.4", "file:build/hsql/rest-httpwhitelist5");
         properties.setProperty("server.dbname.4", "rest-httpwhitelist5");
 
         hsqlServer.setPort(9189);
