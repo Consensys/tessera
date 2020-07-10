@@ -105,6 +105,18 @@ jobs:
       with:
         name: enclave-dists
         path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+    - uses: actions/download-artifact@v2
+      with:
+        name: aws-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+    - uses: actions/download-artifact@v2
+      with:
+        name: azure-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+    - uses: actions/download-artifact@v2
+      with:
+        name: hashicorp-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
     - uses: actions/setup-java@v1
       with:
        java-version: 11
@@ -141,6 +153,18 @@ jobs:
         with:
           name: enclave-dists
           path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+      - uses: actions/download-artifact@v2
+        with:
+          name: aws-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+      - uses: actions/download-artifact@v2
+        with:
+          name: azure-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+      - uses: actions/download-artifact@v2
+        with:
+          name: hashicorp-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
       - uses: actions/setup-java@v1
         with:
           java-version: 11
