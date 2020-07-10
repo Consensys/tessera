@@ -77,9 +77,9 @@ swagger {
             }
         }
 
-        swaggerDirectory = ""+ project.buildDir +"/resources/main"
-        templatePath =  ""+ rootProject.rootDir +"/tessera-jaxrs/src/main/swagger/strapdown.html.hbs"
-        outputPath = ""+ project.buildDir +"/resources/main/p2p.html"
+        swaggerDirectory = "${project.buildDir}/resources/main"
+        templatePath =  "${rootProject.rootDir}/tessera-jaxrs/src/main/swagger/strapdown.html.hbs"
+        outputPath = "${project.buildDir}/resources/main/p2p.html"
         swaggerFileName = "p2p"
     }
 }

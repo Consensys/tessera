@@ -80,9 +80,9 @@ swagger {
             }
         }
 
-        swaggerDirectory = ""+ project.buildDir +"/resources/main"
-        templatePath =  ""+ rootProject.rootDir +"/tessera-jaxrs/src/main/swagger/strapdown.html.hbs"
-        outputPath = ""+ project.buildDir +"/resources/main/swagger.html"
+        swaggerDirectory = "${project.buildDir}/resources/main"
+        templatePath =  "${rootProject.rootDir}/tessera-jaxrs/src/main/swagger/strapdown.html.hbs"
+        outputPath = "${project.buildDir}/resources/main/swagger.html"
         swaggerFileName = "swagger"
 
     }
