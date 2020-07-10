@@ -63,15 +63,15 @@ test {
     systemProperty "jdbc.dir","${buildDir}/ext"
 
     include(
-            "**/RestSuiteHttpH2RemoteEnclave.class",
-////            "**/RestSuiteHttpHSQL.class",
+           "**/RestSuiteHttpH2RemoteEnclave.class",
+           "**/RestSuiteHttpHSQL.class",
             "**/RestSuiteUnixH2.class",
-////            "**/RestSuiteHttpSqllite.class",
+            "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
             "**/SendWithRemoteEnclaveReconnectIT.class",
-////            "**/RestSuiteHttpqlite.class",
+            "**/RestSuiteHttpqlite.class",
             "**/CucumberWhitelistIT.class",
-//            "**/ConfigMigrationIT.class",
+            "**/ConfigMigrationIT.class",
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
             "**/P2pTestSuite.class",

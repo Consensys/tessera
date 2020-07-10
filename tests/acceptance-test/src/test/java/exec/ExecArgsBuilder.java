@@ -109,7 +109,7 @@ public class ExecArgsBuilder {
 
         List<String> tokens = new ArrayList<>();
 
-        if (startScript == null) {
+        if (startScript == null) {//TODO: Remove this and assume script
             tokens.add("java");
             jvmArgList.forEach(tokens::add);
             if (!classpathItems.isEmpty()) {
@@ -131,7 +131,17 @@ public class ExecArgsBuilder {
             }
 
         } else {
+
             tokens.add(startScript.toAbsolutePath().toString());
+
+            String classpathStr =
+                classpathItems.stream()
+                    .map(Path::toAbsolutePath)
+                    .map(Path::toString)
+                    .collect(Collectors.joining(File.pathSeparator));
+            tokens.add("-classpath");
+            tokens.add(classpathStr);
+
         }
 
         if (Objects.nonNull(subcommands)) {

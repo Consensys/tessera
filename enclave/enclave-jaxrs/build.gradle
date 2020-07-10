@@ -5,6 +5,7 @@ plugins {
 application {
     mainClassName = "com.quorum.tessera.enclave.rest.Main"
     applicationDefaultJvmArgs = ["-Dtessera.cli.type=ENCLAVE"]
+    startScripts.enabled = false
 }
 
 dependencies {
