@@ -8,14 +8,13 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
-import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
+import com.quorum.tessera.transaction.ResendRequest.ResendRequestType;
 import java.util.*;
 
 import static java.util.Collections.*;
@@ -300,7 +299,7 @@ public class TransactionManagerTest {
 
         final com.quorum.tessera.transaction.ResendRequest resendRequest = ResendRequest.Builder.create()
             .withRecipient(senderKey)
-            .withType(ResendRequestType.ALL).build();
+            .withType(ResendRequest.ResendRequestType.ALL).build();
 
 
         com.quorum.tessera.transaction.ResendResponse result = transactionManager.resend(resendRequest);

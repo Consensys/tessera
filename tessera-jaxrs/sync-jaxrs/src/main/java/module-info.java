@@ -15,4 +15,6 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
     requires tessera.tessera.jaxrs.common.jaxrs.main;
     requires tessera.tessera.jaxrs.jaxrs.client.main;
     requires tessera.tessera.partyinfo.main;
+
+    provides com.quorum.tessera.sync.TransactionRequesterFactory with com.quorum.tessera.p2p.TransactionRequesterFactoryImpl;
 }

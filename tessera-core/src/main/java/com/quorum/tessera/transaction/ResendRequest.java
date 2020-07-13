@@ -2,11 +2,15 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.ResendRequestType;
 
 import java.util.Objects;
 
 public interface ResendRequest {
+
+    // FIXME: also defined in jaxrs module
+    enum ResendRequestType {
+        ALL,INDIVIDUAL
+    }
 
     PublicKey getRecipient();
 

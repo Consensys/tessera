@@ -1,7 +1,9 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.p2p;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
+import javax.validation.constraints.Pattern;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests.
@@ -15,8 +17,9 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel
 public class ResendRequest {
 
+    @Pattern(regexp = "^(ALL|INDIVIDUAL)$")
     @ApiModelProperty("Resend type INDIVIDUAL or ALL, to resend a single or all transactions")
-    private ResendRequestType type;
+    private String type;
 
     @ApiModelProperty("The recipient public key to resend transactions for")
     private String publicKey;
@@ -24,11 +27,11 @@ public class ResendRequest {
     @ApiModelProperty("Base64 encoded transaction hash")
     private String key;
 
-    public ResendRequestType getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(final ResendRequestType type) {
+    public void setType(final String type) {
         this.type = type;
     }
 

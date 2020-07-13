@@ -5,7 +5,6 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -78,7 +77,7 @@ public class TransactionResource {
 
         com.quorum.tessera.transaction.ResendRequest request =
                 com.quorum.tessera.transaction.ResendRequest.Builder.create()
-                        .withType(resendRequest.getType())
+                        .withType(com.quorum.tessera.transaction.ResendRequest.ResendRequestType.valueOf(resendRequest.getType()))
                         .withRecipient(recipient)
                         .withHash(transactionHash)
                         .build();
@@ -106,7 +105,11 @@ public class TransactionResource {
         EncodedPayload encodedPayload = payloadEncoder.decode(payload);
         final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
         LOGGER.debug("Push request generated hash {}", messageHash);
-        // TODO: Return the query url not the string of the messageHAsh
-        return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();
+
+        return Optional.of(messageHash)
+            .map(MessageHash::getHashBytes)
+            .map(Base64.getEncoder()::encodeToString)
+            .map(Response.status(Response.Status.CREATED)::entity)
+            .map(Response.ResponseBuilder::build).get();
     }
 }

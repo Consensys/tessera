@@ -1,15 +1,19 @@
-package com.quorum.tessera.sync;
+package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.partyinfo.ResendRequestType;
+import com.quorum.tessera.sync.ResendClient;
+import com.quorum.tessera.sync.ResendClientFactory;
+import com.quorum.tessera.sync.TransactionRequester;
+import com.quorum.tessera.sync.TransactionRequesterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-public class TransactionRequesterImpl implements TransactionRequester {
+public class TransactionRequesterImpl implements TransactionRequester, TransactionRequesterFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionRequesterImpl.class);
 
@@ -61,8 +65,15 @@ public class TransactionRequesterImpl implements TransactionRequester {
         final ResendRequest request = new ResendRequest();
         final String encoded = key.encodeToBase64();
         request.setPublicKey(encoded);
-        request.setType(ResendRequestType.ALL);
+        request.setType("ALL");
 
         return request;
+    }
+
+
+    public TransactionRequester createTransactionRequester(Config config) {
+        Enclave enclave = EnclaveFactory.create().create(config);
+        ResendClient resendClient = ResendClientFactory.newFactory(config).create(config);
+        return new TransactionRequesterImpl(enclave,resendClient);
     }
 }

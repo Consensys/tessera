@@ -7,7 +7,7 @@ dependencies {
     testImplementation project(":tessera-context")
     testImplementation project(":security")
     testImplementation project(":tessera-partyinfo")
-    testImplementation project(path: ":tessera-dist")
+    testImplementation project(":tessera-dist")
 
     testImplementation project(":enclave:enclave-jaxrs")
     testImplementation project(":config-migration")
@@ -16,6 +16,7 @@ dependencies {
     testImplementation project(":encryption:encryption-api")
     testImplementation project(":tessera-jaxrs:common-jaxrs")
     testImplementation project(":tessera-jaxrs:jaxrs-client")
+    testImplementation project(":tessera-jaxrs:sync-jaxrs")
     testImplementation project(":shared")
     testImplementation project(":config")
     testImplementation project(":tests:test-util")

@@ -8,7 +8,6 @@ import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
-import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -180,7 +179,7 @@ public class TransactionManagerImpl implements TransactionManager {
     public ResendResponse resend(ResendRequest request) {
 
         PublicKey recipientPublicKey = request.getRecipient();
-        if (request.getType() == ResendRequestType.ALL) {
+        if (request.getType() == ResendRequest.ResendRequestType.ALL) {
 
             int offset = 0;
 

@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.sync.ResendClient;
 
 import javax.ws.rs.client.Client;
@@ -9,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
 
-public class RestResendClient implements ResendClient {
+public class RestResendClient implements ResendClient<ResendRequest> {
 
     private final Client client;
 

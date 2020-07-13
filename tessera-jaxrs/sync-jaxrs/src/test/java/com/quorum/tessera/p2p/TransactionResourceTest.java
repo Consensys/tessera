@@ -2,8 +2,6 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +53,7 @@ public class TransactionResourceTest {
     @Test
     public void resend() {
         ResendRequest resendRequest = new ResendRequest();
-        resendRequest.setType(ResendRequestType.ALL);
+        resendRequest.setType("ALL");
         resendRequest.setPublicKey(Base64.getEncoder().encodeToString("JUNIT".getBytes()));
 
         EncodedPayload payload = mock(EncodedPayload.class);

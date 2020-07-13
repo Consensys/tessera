@@ -1,7 +1,6 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.partyinfo.ResendRequestType;
+import com.quorum.tessera.p2p.ResendRequest;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
@@ -46,6 +45,8 @@ public class ResendAllIT {
 
     private Party partyThree;
 
+    private static final String RESEND_ALL_VALUE = "ALL";
+
     @Before
     public void onSetup() {
         this.partyOne = partyHelper.findByAlias("A");
@@ -86,7 +87,7 @@ public class ResendAllIT {
 
         //request resend from recipient
         final ResendRequest req = new ResendRequest();
-        req.setType(ResendRequestType.ALL);
+        req.setType(RESEND_ALL_VALUE);
         req.setPublicKey(partyOne.getPublicKey());
 
         final Response resendRequest = client.target(partyTwo.getP2PUri())
@@ -145,7 +146,7 @@ public class ResendAllIT {
 
         //request resend from recipients
         final ResendRequest req = new ResendRequest();
-        req.setType(ResendRequestType.ALL);
+        req.setType(RESEND_ALL_VALUE);
         req.setPublicKey(partyOne.getPublicKey());
 
         final Response resendRequest = client.target(partyTwo.getP2PUri())
@@ -220,7 +221,7 @@ public class ResendAllIT {
 
         // request resend from sender
         final ResendRequest req = new ResendRequest();
-        req.setType(ResendRequestType.ALL);
+        req.setType(RESEND_ALL_VALUE);
         req.setPublicKey(partyTwo.getPublicKey());
 
         final Response resendRequest =
@@ -252,7 +253,7 @@ public class ResendAllIT {
     public void resendForKeyWithNoTransactions() {
         // perform resend
         final ResendRequest req = new ResendRequest();
-        req.setType(ResendRequestType.ALL);
+        req.setType(RESEND_ALL_VALUE);
         req.setPublicKey("rUSW9gnm2Unm5ECvEfuU10LX7KYsN59Flw7m7iu6wEo=");
 
         final Response resendRequest =
@@ -270,7 +271,7 @@ public class ResendAllIT {
     public void resendForInvalidKeyErrors() {
         // perform resend
         final ResendRequest req = new ResendRequest();
-        req.setType(ResendRequestType.ALL);
+        req.setType(RESEND_ALL_VALUE);
         req.setPublicKey("rUSW9gnm2Unm5ECvEfuU&&&&&&&&59Flw7m7iu6wEo=");
 
         final Response resendRequest =
