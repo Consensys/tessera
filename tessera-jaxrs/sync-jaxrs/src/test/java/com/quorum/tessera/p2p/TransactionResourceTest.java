@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -41,6 +42,11 @@ public class TransactionResourceTest {
         final byte[] someData = "SomeData".getBytes();
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payloadEncoder.decode(someData)).thenReturn(payload);
+
+        MessageHash transactionHash = mock(MessageHash.class);
+        when(transactionHash.getHashBytes()).thenReturn("SomeMoreData".getBytes());
+
+        when(transactionManager.storePayload(payload)).thenReturn(transactionHash);
 
         final Response result = transactionResource.push(someData);
 
