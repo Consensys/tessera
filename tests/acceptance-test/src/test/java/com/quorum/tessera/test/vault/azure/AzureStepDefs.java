@@ -7,7 +7,10 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.util.ElUtil;
 import cucumber.api.java8.En;
+import exec.ExecArgsBuilder;
 import exec.NodeExecManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -37,6 +40,8 @@ import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_S
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AzureStepDefs implements En {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AzureStepDefs.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final AtomicReference<Process> tesseraProcess = new AtomicReference<>();
@@ -200,27 +205,28 @@ public class AzureStepDefs implements En {
 
                     final URL truststore = getClass().getResource("/certificates/truststore.jks");
 
-                    List<String> args =
-                            new ArrayList<>(
-                                    Arrays.asList(
-                                            "java",
-                                            // we set the truststore so that Tessera can trust the wiremock server
-                                            "-Djavax.net.ssl.trustStore=" + truststore.getFile(),
-                                            "-Djavax.net.ssl.trustStorePassword=testtest",
-                                            "-Dspring.profiles.active=disable-unixsocket",
-                                            "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                                            "-Ddebug=true",
-                                            "-jar",
-                                            jarfile,
-                                            "-configfile",
-                                            tempTesseraConfig.toString(),
-                                            "-pidfile",
-                                            pid.toAbsolutePath().toString(),
-                                            "-jdbc.autoCreateTables",
-                                            "true",
-                                            "--debug"));
+                    Path distDirectory = Optional.of("keyvault.azure.dist")
+                        .map(System::getProperty)
+                        .map(Paths::get).get();
 
-                    startTessera(args, tempTesseraConfig);
+                    ExecArgsBuilder execArgsBuilder = new ExecArgsBuilder()
+                        .withStartScriptOrExecutableJarFile(Paths.get(jarfile))
+                        .withArg("-configfile",tempTesseraConfig.toString())
+                        .withArg("-pidfile", pid.toAbsolutePath().toString())
+                        .withArg("-jdbc.autoCreateTables", "true")
+                        .withClassPathItem(distDirectory.resolve("*"))
+                        .withArg("--debug");
+
+                    final List<String> args = execArgsBuilder.build();
+
+                    final List<String> jvmArgs = new ArrayList<>();
+                    jvmArgs.add("-Djavax.net.ssl.trustStore=" + truststore.getFile());
+                    jvmArgs.add("-Djavax.net.ssl.trustStorePassword=testtest");
+                    jvmArgs.add("-Dspring.profiles.active=disable-unixsocket");
+                    jvmArgs.add("-Dlogback.configurationFile=" + logbackConfigFile.getFile());
+                    jvmArgs.add("-Ddebug=true");
+
+                    startTessera(args, jvmArgs, tempTesseraConfig);
                 });
 
         Then(
@@ -314,22 +320,26 @@ public class AzureStepDefs implements En {
 
                     String formattedArgs = String.format(cliArgs, wireMockServer.get().baseUrl());
 
-                    List<String> args = new ArrayList<>();
-                    args.addAll(
-                            Arrays.asList(
-                                    "java",
-                                    // we set the truststore so that Tessera can trust the wiremock server
-                                    "-Djavax.net.ssl.trustStore=" + truststore.getFile(),
-                                    "-Djavax.net.ssl.trustStorePassword=testtest",
-                                    "-Dspring.profiles.active=disable-unixsocket",
-                                    "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                                    "-Ddebug=true",
-                                    "-jar",
-                                    jarfile));
-                    args.addAll(Arrays.asList(formattedArgs.split(" ")));
-                    args.add("--debug");
+                    Path distDirectory = Optional.of("keyvault.aws.dist")
+                        .map(System::getProperty)
+                        .map(Paths::get).get().resolve("*");
 
-                    startTessera(args, null); // node is not started during keygen so do not want to verify
+                    final List<String> args = new ExecArgsBuilder()
+                        .withStartScriptOrJarFile(Paths.get(jarfile))
+                        .withClassPathItem(distDirectory)
+                        .withArg("--debug")
+                        .build();
+
+                    args.addAll(Arrays.asList(formattedArgs.split(" ")));
+
+                    List<String> jvmArgs = new ArrayList<>();
+                    jvmArgs.add("-Djavax.net.ssl.trustStore=" + truststore.getFile());
+                    jvmArgs.add("-Djavax.net.ssl.trustStorePassword=testtest");
+                    jvmArgs.add("-Dspring.profiles.active=disable-unixsocket");
+                    jvmArgs.add("-Dlogback.configurationFile=" + logbackConfigFile.getFile());
+                    jvmArgs.add("-Ddebug=true");
+
+                    startTessera(args, jvmArgs, null); // node is not started during keygen so do not want to verify
                 });
 
         Then(
@@ -347,14 +357,18 @@ public class AzureStepDefs implements En {
                 });
     }
 
-    private void startTessera(List<String> args, Path verifyConfig) throws Exception {
-        System.out.println(String.join(" ", args));
+    // TODO(cjh) abstract out so can be shared by all vault ITs
+    private void startTessera(List<String> args, List<String> jvmArgs, Path verifyConfig) throws Exception {
+        LOGGER.info("Starting: {}", String.join(" ", args));
+        String jvmArgsStr = String.join(" ", jvmArgs);
+        LOGGER.info("JVM Args: {}", jvmArgsStr);
 
         ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
 
         Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
         tesseraEnvironment.put(AZURE_CLIENT_ID, "my-client-id");
         tesseraEnvironment.put(AZURE_CLIENT_SECRET, "my-client-secret");
+        tesseraEnvironment.put("JAVA_OPTS", jvmArgsStr); // JAVA_OPTS is read by start script and is used to provide jvm args
 
         try {
             tesseraProcess.set(tesseraProcessBuilder.redirectErrorStream(true).start());
