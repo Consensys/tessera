@@ -1,0 +1,80 @@
+package com.quorum.tessera.server.http;
+
+import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.server.JerseyServer;
+import com.quorum.tessera.server.jaxrs.SampleApplication;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+public class VersionHeaderDecoratorTest {
+
+    private URI serverUri = URI.create("http://localhost:8080");
+
+    private JerseyServer server;
+
+    @Before
+    public void onSetUp() throws Exception {
+        System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.setCommunicationType(CommunicationType.REST);
+        serverConfig.setServerAddress("http://localhost:8080");
+
+        Application sample = new SampleApplication();
+        server = new JerseyServer(serverConfig, sample);
+
+        server.start();
+    }
+
+    @After
+    public void onTearDown() throws Exception {
+        server.stop();
+    }
+
+    @Test
+    public void headersPopulatedForJaxrsRequest() {
+
+
+        Response result = ClientBuilder.newClient().target(serverUri).path("ping").request().get();
+
+        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat((String) result.getHeaders().getFirst(VersionHeaderDecorator.CURRENT_VERSION)).isEqualTo(MockVersionInfo.CURRENT_VERSION);
+        assertThat((String) result.getHeaders().getFirst(VersionHeaderDecorator.PREVIOUS_VERSION)).isEqualTo(MockVersionInfo.PREVIOUS_VERSION);
+
+    }
+
+
+    @Test
+    public void headerPopulatedForPlainHttpRequest() throws Exception {
+
+        HttpClient httpClient = HttpClient.newBuilder().build();
+
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+            .uri(URI.create(serverUri.toString().concat("/ping")))
+            .GET()
+            .build();
+
+        HttpResponse<String> httpResponse =
+            httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+        assertThat(httpResponse.statusCode()).isEqualTo(200);
+        assertThat(httpResponse.headers().map().get(VersionHeaderDecorator.CURRENT_VERSION)).containsExactly(MockVersionInfo.CURRENT_VERSION);
+        assertThat(httpResponse.headers().map().get(VersionHeaderDecorator.PREVIOUS_VERSION)).containsExactly(MockVersionInfo.PREVIOUS_VERSION);
+
+
+    }
+
+
+}
