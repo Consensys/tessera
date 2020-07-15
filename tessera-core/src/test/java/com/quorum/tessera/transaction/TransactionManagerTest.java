@@ -1097,6 +1097,23 @@ public class TransactionManagerTest {
     }
 
     @Test
+    public void publishDoesNotPublishToSender() {
+
+        TransactionManagerImpl impl = TransactionManagerImpl.class.cast(transactionManager);
+        EncodedPayload transaction = mock(EncodedPayload.class);
+
+        PublicKey someKey = mock(PublicKey.class);
+
+        List<PublicKey> recipients = Arrays.asList(someKey);
+
+        when(enclave.getPublicKeys()).thenReturn(singleton(someKey));
+
+        impl.publish(recipients, transaction);
+
+        verify(enclave).getPublicKeys();
+    }
+
+    @Test
     public void isSenderThrowsOnMissingTransaction() {
 
         MessageHash transactionHash = mock(MessageHash.class);
@@ -1219,5 +1236,22 @@ public class TransactionManagerTest {
     public void defaultPublicKey() {
         transactionManager.defaultPublicKey();
         verify(enclave).defaultPublicKey();
+    }
+
+    @Test
+    public void publish() {
+
+        PublicKey reipcient = mock(PublicKey.class);
+        List<PublicKey> recipients = List.of(reipcient);
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
+        when(payloadEncoder.forRecipient(payload, reipcient)).thenReturn(payload);
+
+        TransactionManagerImpl.class.cast(transactionManager).publish(recipients, payload);
+
+        verify(enclave).getPublicKeys();
+        verify(payloadEncoder).forRecipient(payload, reipcient);
+        verify(partyInfoService).publishPayload(payload, reipcient);
     }
 }
