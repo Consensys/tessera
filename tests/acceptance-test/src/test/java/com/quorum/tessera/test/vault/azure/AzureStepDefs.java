@@ -217,7 +217,8 @@ public class AzureStepDefs implements En {
                                             "-pidfile",
                                             pid.toAbsolutePath().toString(),
                                             "-jdbc.autoCreateTables",
-                                            "true"));
+                                            "true",
+                                            "--debug"));
 
                     startTessera(args, tempTesseraConfig);
                 });
@@ -326,6 +327,7 @@ public class AzureStepDefs implements En {
                                     "-jar",
                                     jarfile));
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
+                    args.add("--debug");
 
                     startTessera(args, null); // node is not started during keygen so do not want to verify
                 });

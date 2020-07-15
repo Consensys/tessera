@@ -435,6 +435,7 @@ public class HashicorpStepDefs implements En {
                                     "-jar",
                                     jarfile));
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
+                    args.add("--debug");
                     System.out.println(String.join(" ", args));
 
                     ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
@@ -550,6 +551,7 @@ public class HashicorpStepDefs implements En {
                                     "-jar",
                                     jarfile));
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
+                    args.add("--debug");
                     System.out.println(String.join(" ", args));
 
                     ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);

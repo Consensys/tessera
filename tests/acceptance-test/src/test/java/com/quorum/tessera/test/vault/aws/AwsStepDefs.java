@@ -150,7 +150,8 @@ public class AwsStepDefs implements En {
                         .withArg("-configfile",tempTesseraConfig.toString())
                         .withArg("-pidfile", pid.toAbsolutePath().toString())
                         .withArg("-jdbc.autoCreateTables", "true")
-                        .withClassPathItem(distDirectory.resolve("*"));
+                        .withClassPathItem(distDirectory.resolve("*"))
+                        .withArg("--debug");
 
                     List<String> args = execArgsBuilder.build();
 
@@ -222,7 +223,8 @@ public class AwsStepDefs implements En {
                         .withJvmArg("-Daws.accessKeyId=an-id")
                         .withJvmArg("-Daws.secretAccessKey=a-key")
                         .withStartScriptOrJarFile(Paths.get(jarfile))
-                        .withClassPathItem(distDirectory).build();
+                        .withClassPathItem(distDirectory)
+                        .withArg("--debug").build();
 
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
 
@@ -237,7 +239,7 @@ public class AwsStepDefs implements En {
     }
 
     private void startTessera(List<String> args, Path verifyConfig) throws Exception {
-        System.out.println(String.join(" ", args));
+        LOGGER.info("Starting: {}", String.join(" ", args));
 
         ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
 
