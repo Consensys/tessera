@@ -112,7 +112,7 @@ public class ResendManagerTest {
         assertThat(encodedPayload.getRecipientKeys()).containsExactly(recipientKey);
         assertThat(encodedPayload.getRecipientBoxes()).containsExactly(recipientBox);
 
-        verify(encryptedTransactionDAO).save(et);
+        verify(encryptedTransactionDAO).update(et);
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
         verify(payloadEncoder).encode(existingEncodedPayload);

@@ -11,7 +11,6 @@ import com.quorum.tessera.util.Base64Decoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -90,7 +89,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public SendResponse send(SendRequest sendRequest) {
 
         final PublicKey senderPublicKey = sendRequest.getSender();
@@ -114,19 +112,23 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        recipientListNoDuplicate.forEach(
-                recipient -> {
-                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(outgoing, recipient);
-                });
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
 
         return SendResponse.from(transactionHash);
     }
 
+    boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
+        recipientList.stream()
+                .filter(k -> !enclave.getPublicKeys().contains(k))
+                .forEach(
+                        recipient -> {
+                            final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
+                            partyInfoService.publishPayload(outgoing, recipient);
+                        });
+        return true;
+    }
+
     @Override
-    @Transactional
     public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
         final List<PublicKey> recipientList = new ArrayList<>();
         recipientList.addAll(sendRequest.getRecipients());
@@ -152,13 +154,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        recipientListNoDuplicate.forEach(
-                recipient -> {
-                    final EncodedPayload toPublish = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(toPublish, recipient);
-                });
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
 
         return SendResponse.from(messageHash);
     }
@@ -264,7 +260,8 @@ public class TransactionManagerImpl implements TransactionManager {
             this.resendManager.acceptOwnMessage(payload);
         } else {
             // this is a tx from someone else
-            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
+            this.encryptedTransactionDAO.save(
+                    new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
             LOGGER.info("Stored payload with hash {}", transactionHash);
         }
 
@@ -272,14 +269,12 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public void delete(MessageHash messageHash) {
         LOGGER.info("Received request to delete message with hash {}", messageHash);
         this.encryptedTransactionDAO.delete(messageHash);
     }
 
     @Override
-    @Transactional
     public ReceiveResponse receive(ReceiveRequest request) {
 
         final MessageHash hash = request.getTransactionHash();
@@ -297,7 +292,8 @@ public class TransactionManagerImpl implements TransactionManager {
                         .map(payloadEncoder::decode)
                         .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
 
-        PublicKey recipientKey = request.getRecipient()
+        PublicKey recipientKey =
+                request.getRecipient()
                         .orElse(
                                 searchForRecipientKey(payload)
                                         .orElseThrow(
@@ -323,13 +319,9 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public StoreRawResponse store(StoreRawRequest storeRequest) {
 
-        RawTransaction rawTransaction =
-                enclave.encryptRawPayload(
-                        storeRequest.getPayload(),
-                        storeRequest.getSender());
+        RawTransaction rawTransaction = enclave.encryptRawPayload(storeRequest.getPayload(), storeRequest.getSender());
         MessageHash hash = messageHashFactory.createFromCipherText(rawTransaction.getEncryptedPayload());
 
         EncryptedRawTransaction encryptedRawTransaction =
@@ -346,14 +338,12 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public boolean isSender(final MessageHash hash) {
         final EncodedPayload payload = this.fetchPayload(hash);
         return enclave.getPublicKeys().contains(payload.getSenderKey());
     }
 
     @Override
-    @Transactional
     public List<PublicKey> getParticipants(final MessageHash transactionHash) {
         final EncodedPayload payload = this.fetchPayload(transactionHash);
 
@@ -371,6 +361,11 @@ public class TransactionManagerImpl implements TransactionManager {
                 .retrieveByHash(hash)
                 .map(EncryptedTransaction::getEncodedPayload)
                 .map(payloadEncoder::decode)
-                .orElseThrow(() -> new TransactionNotFoundException("Message with hash " + base64Decoder.encodeToString(hash.getHashBytes()) + " was not found"));
+                .orElseThrow(
+                        () ->
+                                new TransactionNotFoundException(
+                                        "Message with hash "
+                                                + base64Decoder.encodeToString(hash.getHashBytes())
+                                                + " was not found"));
     }
 }
