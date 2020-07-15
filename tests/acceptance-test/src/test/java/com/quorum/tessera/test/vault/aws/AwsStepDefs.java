@@ -135,6 +135,7 @@ public class AwsStepDefs implements En {
 
 
                     Path distDirectory = Optional.of("keyvault.aws.dist")
+                        .map(System::getProperty)
                         .map(Paths::get).get();
 
                     ExecArgsBuilder execArgsBuilder = new ExecArgsBuilder()
@@ -153,9 +154,19 @@ public class AwsStepDefs implements En {
                         .withClassPathItem(distDirectory.resolve("*"))
                         .withArg("--debug");
 
-                    List<String> args = execArgsBuilder.build();
+                    final List<String> args = execArgsBuilder.build();
 
-                    startTessera(args, tempTesseraConfig);
+                    final List<String> jvmArgs = new ArrayList<>();
+                    jvmArgs.add("-Djavax.net.ssl.trustStore=" + truststore.getFile());
+                    jvmArgs.add("-Djavax.net.ssl.trustStorePassword=testtest");
+                    jvmArgs.add("-Dspring.profiles.active=disable-unixsocket");
+                    jvmArgs.add("-Dlogback.configurationFile=" + logbackConfigFile.getFile());
+                    jvmArgs.add("-Ddebug=true");
+                    jvmArgs.add("-Daws.region=a-region");
+                    jvmArgs.add("-Daws.accessKeyId=an-id");
+                    jvmArgs.add("-Daws.secretAccessKey=a-key");
+
+                    startTessera(args, jvmArgs, tempTesseraConfig);
                 });
 
         Then(
@@ -228,7 +239,17 @@ public class AwsStepDefs implements En {
 
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
 
-                    startTessera(args, null); // node is not started during keygen so do not want to verify
+                    List<String> jvmArgs = new ArrayList<>();
+                    jvmArgs.add("-Djavax.net.ssl.trustStore=" + truststore.getFile());
+                    jvmArgs.add("-Djavax.net.ssl.trustStorePassword=testtest");
+                    jvmArgs.add("-Dspring.profiles.active=disable-unixsocket");
+                    jvmArgs.add("-Dlogback.configurationFile=" + logbackConfigFile.getFile());
+                    jvmArgs.add("-Ddebug=true");
+                    jvmArgs.add("-Daws.region=a-region");
+                    jvmArgs.add("-Daws.accessKeyId=an-id");
+                    jvmArgs.add("-Daws.secretAccessKey=a-key");
+                    
+                    startTessera(args, jvmArgs, null); // node is not started during keygen so do not want to verify
                 });
 
         Then(
@@ -238,13 +259,16 @@ public class AwsStepDefs implements En {
                 });
     }
 
-    private void startTessera(List<String> args, Path verifyConfig) throws Exception {
+    private void startTessera(List<String> args, List<String> jvmArgs, Path verifyConfig) throws Exception {
         LOGGER.info("Starting: {}", String.join(" ", args));
+        String jvmArgsStr = String.join(" ", jvmArgs);
+        LOGGER.info("JVM Args: {}", jvmArgsStr);
 
         ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
 
         Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
         tesseraEnvironment.put(AWS_REGION, "us-east-1");
+        tesseraEnvironment.put("JAVA_OPTS", jvmArgsStr); // JAVA_OPTS is read by start script and is used to provide jvm args
 
         try {
             tesseraProcess.set(tesseraProcessBuilder.redirectErrorStream(true).start());
