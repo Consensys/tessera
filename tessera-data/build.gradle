@@ -6,8 +6,8 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
     runtimeOnly 'com.h2database:h2:1.4.200'
     runtimeOnly 'com.zaxxer:HikariCP'
-    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3'
-    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.extension:2.7.3'
+    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa'
+    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.extension'
 
     testImplementation 'org.springframework:spring-context:5.1.2.RELEASE'
     testImplementation 'org.springframework:spring-orm:5.1.2.RELEASE'
