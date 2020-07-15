@@ -85,7 +85,7 @@ test {
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
             "**/P2pTestSuite.class",
-          //  "**/VaultTestSuite.class"
+            "**/VaultTestSuite.class"
     )
 
     if (project.hasProperty("excludeTests")) {
