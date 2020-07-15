@@ -41,9 +41,6 @@ public class EntityManagerDAOFactory {
         final DataSource dataSource = new HikariDataSource(hikariConfig);
 
         Map properties = new HashMap();
-        //        properties.put("javax.persistence.jdbc.url", url);
-        //        properties.put("javax.persistence.jdbc.user", username);
-        //        properties.put("javax.persistence.jdbc.password", password);
 
         properties.put("javax.persistence.nonJtaDataSource", dataSource);
 
