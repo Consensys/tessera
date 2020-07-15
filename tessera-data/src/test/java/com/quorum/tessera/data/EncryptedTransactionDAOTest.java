@@ -42,7 +42,7 @@ public class EncryptedTransactionDAOTest {
         properties.put("eclipselink.logging.parameters", "true");
         properties.put("eclipselink.logging.level.sql", "FINE");
         properties.put("eclipselink.cache.shared.default", "false");
-        properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+        properties.put("javax.persistence.schema-generation.database.action", "create");
 
         entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
         encryptedTransactionDAO = new EncryptedTransactionDAOImpl(entityManagerFactory);
@@ -374,15 +374,13 @@ public class EncryptedTransactionDAOTest {
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EncryptedTransaction result = entityManager.find(EncryptedTransaction.class, transactionHash);
-
         assertThat(result).isNull();
 
-        entityManager.close();
         verify(callback).call();
     }
 
     @Test
-    public void callBackShouldAlsoNotBeExecutedIfSaveFails() {
+    public void callBackShouldNotBeExecutedIfSaveFails() {
         final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
         encryptedTransaction.setEncodedPayload(new byte[] {5});
         encryptedTransaction.setHash(new MessageHash(new byte[] {1}));

@@ -110,6 +110,8 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
                         entityManager.flush();
                         consumer.call();
                         return transaction;
+                    } catch (RuntimeException ex) {
+                        throw ex;
                     } catch (Exception e) {
                         throw new PersistenceException(e);
                     }
