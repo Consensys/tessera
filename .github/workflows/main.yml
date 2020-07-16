@@ -3,7 +3,7 @@ name: Tessera Maven Build
 on: 
   push:
     branches: 
-      - master
+      - decorate_verson_headers
   pull_request:
     branches: 
       - master
