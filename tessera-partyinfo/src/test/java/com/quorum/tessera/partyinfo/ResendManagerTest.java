@@ -141,7 +141,7 @@ public class ResendManagerTest {
         // Check boxes are being added
         assertThat(updated.getRecipientBoxes()).hasSize(2);
 
-        verify(encryptedTransactionDAO).save(et);
+        verify(encryptedTransactionDAO).update(et);
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
         verify(enclave).getPublicKeys();
