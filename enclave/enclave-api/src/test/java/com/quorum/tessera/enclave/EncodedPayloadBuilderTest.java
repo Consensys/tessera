@@ -30,9 +30,9 @@ public class EncodedPayloadBuilderTest {
                         .withSenderKey(senderKey)
                         .withCipherText(cipherText)
                         .withCipherTextNonce(cipherTextNonce)
-                        .withRecipientBoxes(Arrays.asList(recipientBox))
+                        .withRecipientBox(recipientBox)
                         .withRecipientNonce(recipientNonce)
-                        .withRecipientKeys(Arrays.asList(recipientKey))
+                        .withRecipientKey(recipientKey)
                         .build();
 
         assertThat(sample.getSenderKey()).isEqualTo(senderKey);
@@ -46,24 +46,19 @@ public class EncodedPayloadBuilderTest {
     @Test
     public void from() {
         final EncodedPayload sample =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText(cipherText)
-                .withCipherTextNonce(cipherTextNonce)
-                .withRecipientBoxes(Arrays.asList(recipientBox))
-                .withRecipientNonce(recipientNonce)
-                .withRecipientKeys(Arrays.asList(recipientKey))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBoxes(Arrays.asList(recipientBox))
+                        .withRecipientNonce(recipientNonce)
+                        .withRecipientKeys(Arrays.asList(recipientKey))
+                        .build();
 
         EncodedPayload result = EncodedPayload.Builder.from(sample).build();
 
-        assertThat(result)
-            .isNotSameAs(sample)
-            .isEqualTo(sample);
+        assertThat(result).isNotSameAs(sample).isEqualTo(sample);
 
-        EqualsVerifier.forClass(EncodedPayload.class)
-            .usingGetClass()
-            .verify();
-
+        EqualsVerifier.forClass(EncodedPayload.class).usingGetClass().verify();
     }
 }

@@ -57,7 +57,7 @@ public class EncodedPayload {
     }
 
     public List<PublicKey> getRecipientKeys() {
-        return Collections.unmodifiableList(recipientKeys);
+        return recipientKeys;
     }
 
     public static class Builder {
