@@ -3,7 +3,7 @@ name: Tessera Gradle Build
 on: 
   push:
     branches: 
-      - decorate_verson_headers
+      - master
   pull_request:
     branches: 
       - master
