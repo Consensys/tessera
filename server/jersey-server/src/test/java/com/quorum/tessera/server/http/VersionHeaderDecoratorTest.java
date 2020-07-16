@@ -50,8 +50,7 @@ public class VersionHeaderDecoratorTest {
         Response result = ClientBuilder.newClient().target(serverUri).path("ping").request().get();
 
         assertThat(result.getStatus()).isEqualTo(200);
-        assertThat((String) result.getHeaders().getFirst(VersionHeaderDecorator.CURRENT_VERSION)).isEqualTo(MockVersionInfo.CURRENT_VERSION);
-        assertThat((String) result.getHeaders().getFirst(VersionHeaderDecorator.PREVIOUS_VERSION)).isEqualTo(MockVersionInfo.PREVIOUS_VERSION);
+        assertThat((String) result.getHeaders().getFirst(VersionHeaderDecorator.API_VERSION_HEADER)).isNotEmpty();
 
     }
 
@@ -70,8 +69,7 @@ public class VersionHeaderDecoratorTest {
             httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
         assertThat(httpResponse.statusCode()).isEqualTo(200);
-        assertThat(httpResponse.headers().map().get(VersionHeaderDecorator.CURRENT_VERSION)).containsExactly(MockVersionInfo.CURRENT_VERSION);
-        assertThat(httpResponse.headers().map().get(VersionHeaderDecorator.PREVIOUS_VERSION)).containsExactly(MockVersionInfo.PREVIOUS_VERSION);
+        assertThat(httpResponse.headers().map().get(VersionHeaderDecorator.API_VERSION_HEADER)).isNotEmpty();
 
 
     }

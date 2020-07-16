@@ -1,6 +1,6 @@
 package com.quorum.tessera.server.http;
 
-import com.quorum.tessera.version.VersionInfo;
+import com.quorum.tessera.version.ApiVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,23 +8,19 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 
 public class VersionHeaderDecorator implements Filter {
 
 
-    public static final String CURRENT_VERSION = "tesseraApiVersion";
+    public static final String API_VERSION_HEADER = "tesseraSupportedApiVersions";
 
-    public static final String PREVIOUS_VERSION = "tesseraApiVersionOld";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VersionHeaderDecorator.class);
 
-    private VersionInfo versionInfo;
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        versionInfo = VersionInfo.create();
-    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -33,14 +29,13 @@ public class VersionHeaderDecorator implements Filter {
 
                     LOGGER.debug("caller uri {}",httpServletRequest.getRequestURI());
 
-                    final String tesseraApiVersion = httpServletRequest.getHeader(CURRENT_VERSION);
-                    final String tesseraApiVersionOld = httpServletRequest.getHeader(PREVIOUS_VERSION);
+                    final List<String> supportedApiVersions = Collections.list(httpServletRequest.getHeaders(API_VERSION_HEADER));
 
-                    LOGGER.debug("httpServletRequest.headers[{}] {}",CURRENT_VERSION, tesseraApiVersion);
-                    LOGGER.debug("httpServletRequest.headers[{}] {}",PREVIOUS_VERSION, tesseraApiVersionOld);
+                    LOGGER.debug("httpServletRequest.headers[{}] {}", API_VERSION_HEADER, supportedApiVersions);
 
-                    httpServletResponse.setHeader(CURRENT_VERSION, versionInfo.currentVersion());
-                    httpServletResponse.setHeader(PREVIOUS_VERSION, versionInfo.previousVersion());
+                    List<String> versions = ApiVersion.versions();
+
+                    versions.forEach(v -> httpServletResponse.addHeader(API_VERSION_HEADER,v));
 
                     filterChain.doFilter(servletRequest, servletResponse);
 
