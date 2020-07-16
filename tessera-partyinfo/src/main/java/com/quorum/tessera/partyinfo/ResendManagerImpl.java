@@ -76,7 +76,7 @@ public class ResendManagerImpl implements ResendManager {
 
                 tx.get().setEncodedPayload(payloadEncoder.encode(existing));
 
-                this.encryptedTransactionDAO.save(tx.get());
+                this.encryptedTransactionDAO.update(tx.get());
             }
 
         } else {
