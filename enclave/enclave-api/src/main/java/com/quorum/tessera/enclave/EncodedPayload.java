@@ -6,9 +6,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * This class contains the data that is sent to other nodes
- */
+/** This class contains the data that is sent to other nodes */
 public class EncodedPayload {
 
     private final PublicKey senderKey;
@@ -64,8 +62,7 @@ public class EncodedPayload {
 
     public static class Builder {
 
-        private Builder() {
-        }
+        private Builder() {}
 
         public static Builder create() {
             return new Builder();
@@ -73,16 +70,15 @@ public class EncodedPayload {
 
         public static Builder from(EncodedPayload encodedPayload) {
 
-            return create()
-                .withSenderKey(encodedPayload.getSenderKey())
-                .withRecipientNonce(encodedPayload.getRecipientNonce())
-                .withRecipientKeys(encodedPayload.getRecipientKeys())
-                .withRecipientBoxes(
-                    encodedPayload.getRecipientBoxes().stream()
-                        .map(RecipientBox::getData)
-                        .collect(Collectors.toList()))
-                .withCipherText(encodedPayload.getCipherText())
-                .withCipherTextNonce(encodedPayload.getCipherTextNonce());
+            return create().withSenderKey(encodedPayload.getSenderKey())
+                    .withRecipientNonce(encodedPayload.getRecipientNonce())
+                    .withRecipientKeys(encodedPayload.getRecipientKeys())
+                    .withRecipientBoxes(
+                            encodedPayload.getRecipientBoxes().stream()
+                                    .map(RecipientBox::getData)
+                                    .collect(Collectors.toList()))
+                    .withCipherText(encodedPayload.getCipherText())
+                    .withCipherTextNonce(encodedPayload.getCipherTextNonce());
         }
 
         private PublicKey senderKey;
@@ -107,8 +103,13 @@ public class EncodedPayload {
             return this;
         }
 
+        public Builder withRecipientKey(PublicKey publicKey) {
+            this.recipientKeys.add(publicKey);
+            return this;
+        }
+
         public Builder withRecipientKeys(final List<PublicKey> recipientKeys) {
-            this.recipientKeys = recipientKeys;
+            this.recipientKeys.addAll(recipientKeys);
             return this;
         }
 
@@ -144,10 +145,10 @@ public class EncodedPayload {
 
         public EncodedPayload build() {
             List<RecipientBox> recipientBoxes =
-                this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
+                    this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
 
             return new EncodedPayload(
-                senderKey, cipherText, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
+                    senderKey, cipherText, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
         }
     }
 
@@ -157,17 +158,16 @@ public class EncodedPayload {
         if (o == null || getClass() != o.getClass()) return false;
         EncodedPayload that = (EncodedPayload) o;
         return Objects.equals(senderKey, that.senderKey)
-            && Arrays.equals(cipherText, that.cipherText)
-            && Objects.equals(cipherTextNonce, that.cipherTextNonce)
-            && Objects.equals(recipientBoxes, that.recipientBoxes)
-            && Objects.equals(recipientNonce, that.recipientNonce)
-            && Objects.equals(recipientKeys, that.recipientKeys);
+                && Arrays.equals(cipherText, that.cipherText)
+                && Objects.equals(cipherTextNonce, that.cipherTextNonce)
+                && Objects.equals(recipientBoxes, that.recipientBoxes)
+                && Objects.equals(recipientNonce, that.recipientNonce)
+                && Objects.equals(recipientKeys, that.recipientKeys);
     }
 
     @Override
     public int hashCode() {
-        int result =
-            Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
+        int result = Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
         result = 31 * result + Arrays.hashCode(cipherText);
         return result;
     }

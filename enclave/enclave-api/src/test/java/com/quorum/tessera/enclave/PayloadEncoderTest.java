@@ -481,7 +481,7 @@ public class PayloadEncoderTest {
         assertThat(result.getCipherTextNonce()).isEqualTo(control.getCipherTextNonce());
         assertThat(result.getRecipientKeys()).isEmpty();
         assertThat(result.getRecipientBoxes()).hasSize(1);
-        assertThat(result.getRecipientBoxes().get(0).getData()).isNotEqualTo(control.getRecipientBoxes().get(0).getData());
+        assertThat(result.getRecipientBoxes().get(0).getData()).isEqualTo(control.getRecipientBoxes().get(0).getData());
     }
 
     @Test

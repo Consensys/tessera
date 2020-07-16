@@ -7,7 +7,6 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
-import static java.util.Collections.singletonList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -141,7 +140,8 @@ public class EnclaveImpl implements Enclave {
 
         final Nonce recipientNonce = payload.getRecipientNonce();
 
-        final byte[] masterKeyBytes = encryptor.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
+        final byte[] masterKeyBytes =
+                encryptor.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
 
         final MasterKey masterKey = MasterKey.from(masterKeyBytes);
 
