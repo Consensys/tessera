@@ -1181,6 +1181,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     }
 
+
     @Test
     public void defaultPublicKey() {
         transactionManager.defaultPublicKey();

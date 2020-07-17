@@ -11,4 +11,5 @@ public interface TransactionManagerFactory {
         return ServiceLoaderUtil.load(TransactionManagerFactory.class)
                 .orElse(DefaultTransactionManagerFactory.INSTANCE);
     }
+
 }

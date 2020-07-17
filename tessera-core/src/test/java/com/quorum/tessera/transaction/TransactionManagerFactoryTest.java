@@ -31,5 +31,7 @@ public class TransactionManagerFactoryTest {
 
         TransactionManager transactionManager = result.create(config);
         assertThat(transactionManager).isNotNull();
+
     }
+
 }

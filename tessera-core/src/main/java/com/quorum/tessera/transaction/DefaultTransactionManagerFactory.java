@@ -12,6 +12,7 @@ import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.resend.ResendManagerImpl;
 
 public enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
+
     INSTANCE;
 
     @Override
@@ -24,11 +25,13 @@ public enum DefaultTransactionManagerFactory implements TransactionManagerFactor
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         EncryptedRawTransactionDAO encryptedRawTransactionDAO =
-                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+        entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
 
         return new TransactionManagerImpl(
                 encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, partyInfoService, 100);
+
     }
 }

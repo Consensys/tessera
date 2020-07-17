@@ -16,11 +16,13 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
 
     @Override
     public PartyInfoService create(Config config) {
+
         LOGGER.info("Enter create [{},{}]", config, this);
 
         if (REF.get() == null) {
 
             LOGGER.info("Create party info service from {} . Factory {}", config, this);
+
 
             Enclave enclave = EnclaveFactory.create().create(config);
             PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);

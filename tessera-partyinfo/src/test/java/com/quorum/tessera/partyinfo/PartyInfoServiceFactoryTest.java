@@ -36,10 +36,15 @@ public class PartyInfoServiceFactoryTest {
 
         PartyInfoService partyInfoService = partyInfoServiceFactory.create(config);
 
+
         assertThat(partyInfoService).isNotNull();
+
 
         PartyInfoService anotherPartyInfoService = partyInfoServiceFactory.create(config);
 
         assertThat(partyInfoService).isSameAs(anotherPartyInfoService);
+
+        assertThat(partyInfoService).isSameAs(anotherPartyInfoService);
     }
+
 }
