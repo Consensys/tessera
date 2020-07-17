@@ -6,6 +6,7 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
@@ -33,12 +34,15 @@ public class Q2TRestApp extends TesseraRestApplication {
     public Set<Object> getSingletons() {
 
         Config config =
-            serviceLocator.getServices().stream()
-                .filter(Config.class::isInstance)
-                .map(Config.class::cast)
-                .findAny().get();
+                serviceLocator.getServices().stream()
+                        .filter(Config.class::isInstance)
+                        .map(Config.class::cast)
+                        .findAny()
+                        .get();
 
-        TransactionManager transactionManager = TransactionManager.create(config);
+        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
+
+        TransactionManager transactionManager = transactionManagerFactory.create(config);
         TransactionResource transactionResource = new TransactionResource(transactionManager);
         RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
 

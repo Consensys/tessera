@@ -1,4 +1,4 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static java.util.Collections.*;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -178,8 +177,10 @@ public class ResendManagerTest {
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
+        verify(payloadEncoder).encode(any(EncodedPayload.class));
         verify(enclave).getPublicKeys();
-        verify(enclave).unencryptTransaction(encodedPayload, null);
+        verify(enclave, times(2)).unencryptTransaction(encodedPayload, null);
+        verify(encryptedTransactionDAO).update(et);
     }
 
     @Test

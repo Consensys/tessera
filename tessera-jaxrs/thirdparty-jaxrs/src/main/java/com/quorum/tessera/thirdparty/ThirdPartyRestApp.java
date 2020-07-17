@@ -8,6 +8,7 @@ import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
@@ -29,19 +30,19 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
 
         Config config = serviceFactory.config();
 
-        this.partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
-        this.transactionManager = TransactionManager.create(config);
+        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
+
+        this.partyInfoService = partyInfoServiceFactory.create(config);
+        this.transactionManager = TransactionManagerFactory.create().create(config);
     }
 
     @Override
     public Set<Object> getSingletons() {
-
         final RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
         final PartyInfoResource partyInfoResource = new PartyInfoResource(partyInfoService);
         final KeyResource keyResource = new KeyResource();
 
-        return Stream.of(rawTransactionResource, partyInfoResource, keyResource)
-                .collect(Collectors.toSet());
+        return Stream.of(rawTransactionResource, partyInfoResource, keyResource).collect(Collectors.toSet());
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.quorum.tessera.partyinfo;
 
-
 import com.quorum.tessera.config.*;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
@@ -12,6 +12,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PartyInfoServiceFactoryTest {
+
+    private PartyInfoServiceFactory partyInfoServiceFactory;
+
+    @Before
+    public void onSetUp() {
+        partyInfoServiceFactory = PartyInfoServiceFactory.create();
+        assertThat(partyInfoServiceFactory).isExactlyInstanceOf(PartyInfoServiceFactoryImpl.class);
+    }
 
     @Test
     public void createAndLoadStoredInstance() {
@@ -26,21 +34,12 @@ public class PartyInfoServiceFactoryTest {
         when(serverConfig.getServerUri()).thenReturn(URI.create("http://someplace.com"));
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
-        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create(config);
+        PartyInfoService partyInfoService = partyInfoServiceFactory.create(config);
 
-        assertThat(partyInfoServiceFactory)
-            .isNotNull().isSameAs(PartyInfoServiceFactory.create(config));
+        assertThat(partyInfoService).isNotNull();
 
+        PartyInfoService anotherPartyInfoService = partyInfoServiceFactory.create(config);
+
+        assertThat(partyInfoService).isSameAs(anotherPartyInfoService);
     }
-
-    @Test
-    public void createAndGet() {
-        PartyInfoService partyInfoService = mock(PartyInfoService.class);
-        PartyInfoServiceFactory partyInfoServiceFactory = new PartyInfoServiceFactoryImpl(partyInfoService);
-
-        assertThat(partyInfoServiceFactory.partyInfoService()).isSameAs(partyInfoService);
-
-    }
-
-
 }
