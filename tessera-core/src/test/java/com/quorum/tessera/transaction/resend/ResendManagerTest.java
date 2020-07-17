@@ -1,4 +1,4 @@
-package com.quorum.tessera.transaction.resend;
+package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static java.util.Collections.*;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -53,14 +54,14 @@ public class ResendManagerTest {
 
         // A legacy payload has empty recipient and box
         final EncodedPayload encodedPayload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText("CIPHERTEXT".getBytes())
-                .withCipherTextNonce(new Nonce("nonce".getBytes()))
-                .withRecipientBoxes(emptyList())
-                .withRecipientNonce(new Nonce("nonce".getBytes()))
-                .withRecipientKeys(emptyList())
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                        .withRecipientBoxes(emptyList())
+                        .withRecipientNonce(new Nonce("nonce".getBytes()))
+                        .withRecipientKeys(emptyList())
+                        .build();
 
         final byte[] newEncryptedMasterKey = "newbox".getBytes();
 
@@ -102,22 +103,21 @@ public class ResendManagerTest {
         final PublicKey recipientKey2 = PublicKey.from("RECIPIENT-KEY2".getBytes());
         final byte[] recipientBox2 = "BOX2".getBytes();
 
-
         final EncodedPayload encodedPayload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText("CIPHERTEXT".getBytes())
-                .withRecipientBoxes(singletonList(recipientBox2))
-                .withRecipientKeys(singletonList(recipientKey2))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(singletonList(recipientBox2))
+                        .withRecipientKeys(singletonList(recipientKey2))
+                        .build();
 
         final EncodedPayload existingEncodedPayload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText("CIPHERTEXT".getBytes())
-                .withRecipientBoxes(singletonList(recipientBox1))
-                .withRecipientKeys(singletonList(recipientKey1))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(singletonList(recipientBox1))
+                        .withRecipientKeys(singletonList(recipientKey1))
+                        .build();
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
@@ -135,11 +135,10 @@ public class ResendManagerTest {
 
         final EncodedPayload updated = updatedPayload.getValue();
 
-        //Check recipients are being added
-        assertThat(updated.getRecipientKeys()).hasSize(2)
-            .containsExactlyInAnyOrder(recipientKey1, recipientKey2);
+        // Check recipients are being added
+        assertThat(updated.getRecipientKeys()).hasSize(2).containsExactlyInAnyOrder(recipientKey1, recipientKey2);
 
-        //Check boxes are being added
+        // Check boxes are being added
         assertThat(updated.getRecipientBoxes()).hasSize(2);
 
         verify(encryptedTransactionDAO).update(et);
@@ -160,12 +159,12 @@ public class ResendManagerTest {
         final byte[] recipientBox = "BOX".getBytes();
 
         final EncodedPayload encodedPayload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText("CIPHERTEXT".getBytes())
-                .withRecipientBoxes(singletonList(recipientBox))
-                .withRecipientKeys(singletonList(recipientKey))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(singletonList(recipientBox))
+                        .withRecipientKeys(singletonList(recipientKey))
+                        .build();
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));
@@ -179,10 +178,8 @@ public class ResendManagerTest {
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).encode(any(EncodedPayload.class));
         verify(enclave).getPublicKeys();
-        verify(enclave, times(2)).unencryptTransaction(encodedPayload, null);
-        verify(encryptedTransactionDAO).update(et);
+        verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 
     @Test
@@ -193,20 +190,20 @@ public class ResendManagerTest {
         final byte[] recipientBox = "BOX".getBytes();
 
         final EncodedPayload encodedPayload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText("CIPHERTEXT".getBytes())
-                .withRecipientBoxes(singletonList(recipientBox))
-                .withRecipientKeys(singletonList(recipientKey))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(singletonList(recipientBox))
+                        .withRecipientKeys(singletonList(recipientKey))
+                        .build();
 
         when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("OTHER".getBytes())));
 
         final Throwable throwable = catchThrowable(() -> this.resendManager.acceptOwnMessage(encodedPayload));
 
         assertThat(throwable)
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("Message Q0lQSEVSVEVYVA== does not have one the nodes own keys as a sender");
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("Message Q0lQSEVSVEVYVA== does not have one the nodes own keys as a sender");
 
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(encodedPayload, null);
@@ -222,20 +219,20 @@ public class ResendManagerTest {
         final byte[] recipientBox = "BOX".getBytes();
 
         final EncodedPayload encodedPayload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText("CIPHERTEXT".getBytes())
-                .withRecipientBoxes(singletonList(recipientBox))
-                .withRecipientKeys(singletonList(recipientKey))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(singletonList(recipientBox))
+                        .withRecipientKeys(singletonList(recipientKey))
+                        .build();
 
         final EncodedPayload existingEncodedPayload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText("CIPHERTEXT".getBytes())
-                .withRecipientBoxes(new ArrayList<>())
-                .withRecipientKeys(new ArrayList<>())
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText("CIPHERTEXT".getBytes())
+                        .withRecipientBoxes(new ArrayList<>())
+                        .withRecipientKeys(new ArrayList<>())
+                        .build();
 
         when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(et));

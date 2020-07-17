@@ -357,7 +357,7 @@ public class EnclaveTest {
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getCipherText()).thenReturn(null);
         when(payload.getCipherTextNonce()).thenReturn(null);
-        when(payload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from(closedbox)));
         when(payload.getRecipientNonce()).thenReturn(nonce);
         when(payload.getRecipientKeys()).thenReturn(singletonList(publicKey));
 

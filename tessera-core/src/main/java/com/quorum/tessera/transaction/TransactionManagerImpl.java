@@ -93,6 +93,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    @Transactional
     public SendResponse send(SendRequest sendRequest) {
 
         final PublicKey senderPublicKey = sendRequest.getSender();
@@ -116,28 +117,22 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        recipientListNoDuplicate.forEach(
-                recipient -> {
-                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(outgoing, recipient);
-                });
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
 
         return SendResponse.from(transactionHash);
     }
 
     boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
-
         recipientList.stream()
-            .filter(k -> !enclave.getPublicKeys().contains(k))
-            .forEach(
-                recipient -> {
-                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(outgoing, recipient);
-                });
+                .filter(k -> !enclave.getPublicKeys().contains(k))
+                .forEach(
+                        recipient -> {
+                            final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
+                            partyInfoService.publishPayload(outgoing, recipient);
+                        });
         return true;
     }
+
 
     @Override
     public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
@@ -165,13 +160,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        recipientListNoDuplicate.forEach(
-                recipient -> {
-                    final EncodedPayload toPublish = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(toPublish, recipient);
-                });
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
 
         return SendResponse.from(messageHash);
     }
@@ -276,7 +265,8 @@ public class TransactionManagerImpl implements TransactionManager {
             this.resendManager.acceptOwnMessage(payload);
         } else {
             // this is a tx from someone else
-            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
+            this.encryptedTransactionDAO.save(
+                    new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
             LOGGER.info("Stored payload with hash {}", transactionHash);
         }
 
@@ -307,7 +297,8 @@ public class TransactionManagerImpl implements TransactionManager {
                         .map(payloadEncoder::decode)
                         .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
 
-        PublicKey recipientKey = request.getRecipient()
+        PublicKey recipientKey =
+                request.getRecipient()
                         .orElse(
                                 searchForRecipientKey(payload)
                                         .orElseThrow(
@@ -335,10 +326,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public StoreRawResponse store(StoreRawRequest storeRequest) {
 
-        RawTransaction rawTransaction =
-                enclave.encryptRawPayload(
-                        storeRequest.getPayload(),
-                        storeRequest.getSender());
+        RawTransaction rawTransaction = enclave.encryptRawPayload(storeRequest.getPayload(), storeRequest.getSender());
         MessageHash hash = messageHashFactory.createFromCipherText(rawTransaction.getEncryptedPayload());
 
         EncryptedRawTransaction encryptedRawTransaction =
