@@ -71,7 +71,7 @@ public class EnclaveTest {
 
         Nonce cipherTextNonce = mock(Nonce.class);
 
-        byte[] recipientBox = "RecipientBox".getBytes();
+        RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
 
         Nonce recipientNonce = mock(Nonce.class);
 
@@ -124,7 +124,7 @@ public class EnclaveTest {
 
         Nonce cipherTextNonce = mock(Nonce.class);
 
-        byte[] recipientBox = "RecipientBox".getBytes();
+        RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
 
         Nonce recipientNonce = mock(Nonce.class);
 
@@ -200,7 +200,7 @@ public class EnclaveTest {
         assertThat(result.getCipherText()).isEqualTo(cipherText);
         assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
-        assertThat(result.getRecipientBoxes()).containsExactly(encryptedMasterKeys);
+        assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
 
         verify(nacl).createMasterKey();
         verify(nacl, times(2)).randomNonce();
@@ -254,7 +254,7 @@ public class EnclaveTest {
         assertThat(result.getCipherText()).isEqualTo(cipherText);
         assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
-        assertThat(result.getRecipientBoxes()).containsExactly(encryptedMasterKeys);
+        assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
 
         verify(nacl).randomNonce();
         verify(nacl).openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender);
@@ -353,7 +353,7 @@ public class EnclaveTest {
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getCipherText()).thenReturn(null);
         when(payload.getCipherTextNonce()).thenReturn(null);
-        when(payload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from(closedbox)));
         when(payload.getRecipientNonce()).thenReturn(nonce);
         when(payload.getRecipientKeys()).thenReturn(singletonList(publicKey));
 

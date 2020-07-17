@@ -7,7 +7,6 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
-import static java.util.Collections.singletonList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -56,11 +55,11 @@ public class EnclaveImpl implements Enclave {
         final MasterKey master =
                 this.getMasterKey(
                         payload.getRecipientKeys().get(0), payload.getSenderKey(),
-                        payload.getRecipientNonce(), payload.getRecipientBoxes().get(0));
+                        payload.getRecipientNonce(), payload.getRecipientBoxes().get(0).getData());
 
         final List<byte[]> sealedMasterKeyList =
                 this.buildRecipientMasterKeys(
-                        payload.getSenderKey(), singletonList(publicKey), payload.getRecipientNonce(), master);
+                        payload.getSenderKey(), List.of(publicKey), payload.getRecipientNonce(), master);
 
         return sealedMasterKeyList.get(0);
     }
@@ -137,11 +136,12 @@ public class EnclaveImpl implements Enclave {
 
         final SharedKey sharedKey = encryptor.computeSharedKey(recipientPubKey, senderPrivKey);
 
-        final byte[] recipientBox = payload.getRecipientBoxes().iterator().next();
+        final RecipientBox recipientBox = payload.getRecipientBoxes().iterator().next();
 
         final Nonce recipientNonce = payload.getRecipientNonce();
 
-        final byte[] masterKeyBytes = encryptor.openAfterPrecomputation(recipientBox, recipientNonce, sharedKey);
+        final byte[] masterKeyBytes =
+                encryptor.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
 
         final MasterKey masterKey = MasterKey.from(masterKeyBytes);
 

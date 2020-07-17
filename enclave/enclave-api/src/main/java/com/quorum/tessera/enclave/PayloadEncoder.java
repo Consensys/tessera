@@ -1,5 +1,6 @@
 package com.quorum.tessera.enclave;
 
+import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.encryption.PublicKey;
 
 /**
@@ -36,7 +37,7 @@ public interface PayloadEncoder {
     EncodedPayload forRecipient(EncodedPayload input, PublicKey recipient);
 
     static PayloadEncoder create() {
-        return new PayloadEncoderImpl();
+        return ServiceLoaderUtil.load(PayloadEncoder.class).orElse(new PayloadEncoderImpl() {});
     }
 
 }
