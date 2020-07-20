@@ -169,21 +169,6 @@ public class EnclaveFactoryTest {
 
     }
 
-
-    @Test
-    public void callCreateWithStoreInstance() {
-
-        Enclave storedEnclave = mock(Enclave.class);
-        MockEnclaveHolder.setMockEnclave(storedEnclave);
-
-        Enclave enclave = enclaveFactory.create(mock(Config.class));
-
-        assertThat(enclave).isSameAs(storedEnclave);
-
-        MockEnclaveHolder.reset();
-
-    }
-
     @Test
     public void callGetEnclaveithStoreInstance() {
 

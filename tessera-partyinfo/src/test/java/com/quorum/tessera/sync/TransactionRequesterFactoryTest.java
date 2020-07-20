@@ -36,7 +36,7 @@ public class TransactionRequesterFactoryTest {
             .isNotNull();
 
 
-        assertThat(transactionRequester).isNotNull().isExactlyInstanceOf(TransactionRequesterImpl.class);
+        assertThat(transactionRequester).isNotNull();
     }
 
 

@@ -69,9 +69,9 @@ public class EncryptedTransactionDAOTest {
             String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "ENCODED_PAYLOAD");
 
             assertThat(ex)
-                    .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(expectedMessage)
-                    .hasMessageContaining("ENCODED_PAYLOAD");
+                .isInstanceOf(PersistenceException.class)
+                .hasMessageContaining(expectedMessage)
+                .hasMessageContaining("ENCODED_PAYLOAD");
         }
     }
 
@@ -88,9 +88,9 @@ public class EncryptedTransactionDAOTest {
             String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "HASH");
 
             assertThat(ex)
-                    .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(expectedMessage)
-                    .hasMessageContaining("HASH");
+                .isInstanceOf(PersistenceException.class)
+                .hasMessageContaining(expectedMessage)
+                .hasMessageContaining("HASH");
         }
     }
 
@@ -105,7 +105,7 @@ public class EncryptedTransactionDAOTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         final EncryptedTransaction retrieved =
-                entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+            entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
 
         assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
 
@@ -117,7 +117,7 @@ public class EncryptedTransactionDAOTest {
         entityManager.getTransaction().begin();
 
         final EncryptedTransaction after =
-                entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+            entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
 
         assertThat(after).isEqualToComparingFieldByField(encryptedTransaction);
 
@@ -145,8 +145,8 @@ public class EncryptedTransactionDAOTest {
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
             assertThat(ex)
-                    .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+                .isInstanceOf(PersistenceException.class)
+                .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
         }
     }
 
@@ -161,7 +161,7 @@ public class EncryptedTransactionDAOTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         final EncryptedTransaction retrieved =
-                entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+            entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
 
         assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedTransaction);
         entityManager.getTransaction().rollback();
@@ -173,17 +173,17 @@ public class EncryptedTransactionDAOTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         final List<EncryptedTransaction> payloads =
-                IntStream.range(0, 50)
-                        .mapToObj(i -> UUID.randomUUID().toString().getBytes())
-                        .map(MessageHash::new)
-                        .map(hash -> new EncryptedTransaction(hash, hash.getHashBytes()))
-                        .peek(entityManager::persist)
-                        .collect(Collectors.toList());
+            IntStream.range(0, 50)
+                .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+                .map(MessageHash::new)
+                .map(hash -> new EncryptedTransaction(hash, hash.getHashBytes()))
+                .peek(entityManager::persist)
+                .collect(Collectors.toList());
 
         entityManager.getTransaction().commit();
 
         final List<EncryptedTransaction> retrievedList =
-                encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
+            encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
 
         assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
         assertThat(retrievedList).hasSameSizeAs(payloads);
@@ -207,7 +207,7 @@ public class EncryptedTransactionDAOTest {
         entityManager.getTransaction().commit();
 
         Query countQuery =
-                entityManager.createQuery("select count(t) from EncryptedTransaction t where t.hash = :hash");
+            entityManager.createQuery("select count(t) from EncryptedTransaction t where t.hash = :hash");
         Long result = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
         assertThat(result).isEqualTo(1L);
 
@@ -280,23 +280,23 @@ public class EncryptedTransactionDAOTest {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         List<EncryptedTransaction> transactions =
-                IntStream.range(0, 100)
-                        .mapToObj(i -> UUID.randomUUID().toString().getBytes())
-                        .map(MessageHash::new)
-                        .map(
-                                h -> {
-                                    EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-                                    encryptedTransaction.setHash(h);
-                                    encryptedTransaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
-                                    entityManager.persist(encryptedTransaction);
-                                    return encryptedTransaction;
-                                })
-                        .collect(Collectors.toList());
+            IntStream.range(0, 100)
+                .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+                .map(MessageHash::new)
+                .map(
+                    h -> {
+                        EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+                        encryptedTransaction.setHash(h);
+                        encryptedTransaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+                        entityManager.persist(encryptedTransaction);
+                        return encryptedTransaction;
+                    })
+                .collect(Collectors.toList());
 
         entityManager.getTransaction().commit();
 
         Collection<MessageHash> hashes =
-                transactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toList());
+            transactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toList());
         List<EncryptedTransaction> results = encryptedTransactionDAO.findByHashes(hashes);
 
         assertThat(results).isNotEmpty().containsExactlyInAnyOrderElementsOf(transactions);
@@ -395,16 +395,16 @@ public class EncryptedTransactionDAOTest {
         AtomicInteger count = new AtomicInteger(0);
         try {
             encryptedTransactionDAO.save(
-                    encryptedTransaction,
-                    () -> {
-                        count.incrementAndGet();
-                        return true;
-                    });
+                encryptedTransaction,
+                () -> {
+                    count.incrementAndGet();
+                    return true;
+                });
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
             assertThat(ex)
-                    .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+                .isInstanceOf(PersistenceException.class)
+                .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
             assertThat(count.get()).isEqualTo(0);
         }
     }

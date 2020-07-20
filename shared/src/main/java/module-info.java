@@ -11,4 +11,5 @@ module tessera.shared.main {
     exports com.quorum.tessera.passwords;
     exports com.quorum.tessera.reflect;
     exports com.quorum.tessera.service;
+    exports com.quorum.tessera.version;
 }

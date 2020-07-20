@@ -6,6 +6,8 @@ module tessera.tessera.data.main {
     requires tessera.enclave.enclave.api.main;
     requires tessera.encryption.encryption.api.main;
     requires tessera.shared.main;
+    requires java.sql;
+    requires com.zaxxer.hikari;
 
     exports com.quorum.tessera.data;
 }

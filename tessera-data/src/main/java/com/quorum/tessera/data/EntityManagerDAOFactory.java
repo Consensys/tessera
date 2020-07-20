@@ -1,11 +1,11 @@
 package com.quorum.tessera.data;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.util.EncryptedStringResolver;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -13,12 +13,6 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import com.quorum.tessera.config.util.EncryptedStringResolver;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EntityManagerDAOFactory {
 
