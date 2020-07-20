@@ -110,14 +110,15 @@ public class ExecArgsBuilder {
         final List<String> tokens = new ArrayList<>();
         tokens.add(startScript.toAbsolutePath().toString());
 
-        final String classpathStr =
-            classpathItems.stream()
-                .map(Path::toAbsolutePath)
-                .map(Path::toString)
-                .collect(Collectors.joining(File.pathSeparator));
-        tokens.add("-classpath");
-        tokens.add(classpathStr);
-
+        if(!classpathItems.isEmpty()) {
+            final String classpathStr =
+                classpathItems.stream()
+                    .map(Path::toAbsolutePath)
+                    .map(Path::toString)
+                    .collect(Collectors.joining(File.pathSeparator));
+            tokens.add("-classpath");
+            tokens.add(classpathStr);
+        }
 
         if (Objects.nonNull(subcommands)) {
             tokens.addAll(subcommands);
