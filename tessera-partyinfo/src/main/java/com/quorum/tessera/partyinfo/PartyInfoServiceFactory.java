@@ -7,9 +7,9 @@ public interface PartyInfoServiceFactory {
 
     PartyInfoService create(Config config);
 
+
     static PartyInfoServiceFactory create() {
         return ServiceLoaderUtil.load(PartyInfoServiceFactory.class)
             .orElseGet(() -> new PartyInfoServiceFactoryImpl());
-
     }
 }

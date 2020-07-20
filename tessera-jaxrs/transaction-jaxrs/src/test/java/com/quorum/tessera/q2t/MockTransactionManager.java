@@ -8,7 +8,8 @@ import com.quorum.tessera.transaction.*;
 
 import java.util.List;
 
-public class MockTransactionManager implements TransactionManager,TransactionManagerFactory {
+public class MockTransactionManager implements TransactionManager, TransactionManagerFactory {
+
 
     @Override
     public SendResponse send(SendRequest sendRequest) {
@@ -21,9 +22,7 @@ public class MockTransactionManager implements TransactionManager,TransactionMan
     }
 
     @Override
-    public void delete(MessageHash messageHash) {
-
-    }
+    public void delete(MessageHash messageHash) {}
 
     @Override
     public ResendResponse resend(ResendRequest request) {

@@ -11,8 +11,12 @@ import java.util.Objects;
  * com.quorum.tessera.enclave.EncodedPayload}
  */
 @NamedQueries({
-    @NamedQuery(name = "EncryptedTransaction.FindByHash",query = "SELECT et FROM EncryptedTransaction et WHERE et.hash.hashBytes = :hash"),
-    @NamedQuery(name="EncryptedTransaction.FindAll",query = "select et from EncryptedTransaction et order by et.timestamp,et.hash")
+    @NamedQuery(
+            name = "EncryptedTransaction.FindByHash",
+            query = "SELECT et FROM EncryptedTransaction et WHERE et.hash.hashBytes = :hash"),
+    @NamedQuery(
+            name = "EncryptedTransaction.FindAll",
+            query = "select et from EncryptedTransaction et order by et.timestamp,et.hash")
 })
 @Entity
 @Table(name = "ENCRYPTED_TRANSACTION")

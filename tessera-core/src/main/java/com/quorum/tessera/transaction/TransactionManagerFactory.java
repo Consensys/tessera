@@ -9,8 +9,7 @@ public interface TransactionManagerFactory {
 
     static TransactionManagerFactory create() {
         return ServiceLoaderUtil.load(TransactionManagerFactory.class)
-            .orElse(DefaultTransactionManagerFactory.INSTANCE);
+                .orElse(DefaultTransactionManagerFactory.INSTANCE);
     }
-
 
 }

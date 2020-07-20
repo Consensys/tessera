@@ -33,6 +33,14 @@ public interface EncryptedTransactionDAO {
     Optional<EncryptedTransaction> retrieveByHash(MessageHash hash);
 
     /**
+     * Retrieve a list of transactions based on collection of hashes
+     *
+     * @param messageHashes the collection of hashes of the transactions to retrieve
+     * @return A list of encrypted transactions
+     */
+    List<EncryptedTransaction> findByHashes(Collection<MessageHash> messageHashes);
+
+    /**
      * Retrieves a list of transactions stored in the database
      *
      * @param offset the start offset
@@ -40,8 +48,6 @@ public interface EncryptedTransactionDAO {
      * @return The list of requested rows from the database
      */
     List<EncryptedTransaction> retrieveTransactions(int offset, int maxResult);
-
-    List<EncryptedTransaction> findByHashes(Collection<MessageHash> messageHash);
 
     /**
      * Retrieve the total transaction count.
@@ -58,5 +64,13 @@ public interface EncryptedTransactionDAO {
      */
     void delete(MessageHash hash);
 
+    /**
+     * Perform a save of encrypted transaction with a callback
+     *
+     * @param transaction the entity to be persisted
+     * @param consumer action that needs to be executed together
+     * @return the entity that was persisted
+     * @throws RuntimeException if the callback fails
+     */
     <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer);
 }

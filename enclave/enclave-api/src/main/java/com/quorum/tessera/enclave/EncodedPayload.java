@@ -139,6 +139,11 @@ public class EncodedPayload {
             return this;
         }
 
+        public Builder withRecipientBox(byte[] newbox) {
+            this.recipientBoxes.add(newbox);
+            return this;
+        }
+
         public EncodedPayload build() {
             List<RecipientBox> recipientBoxes =
                 this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
@@ -147,11 +152,8 @@ public class EncodedPayload {
                     senderKey, cipherText, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
         }
 
-        public Builder withRecipientBox(byte[] newbox) {
-            this.recipientBoxes.add(newbox);
-            return this;
-        }
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -159,17 +161,16 @@ public class EncodedPayload {
         if (o == null || getClass() != o.getClass()) return false;
         EncodedPayload that = (EncodedPayload) o;
         return Objects.equals(senderKey, that.senderKey)
-            && Arrays.equals(cipherText, that.cipherText)
-            && Objects.equals(cipherTextNonce, that.cipherTextNonce)
-            && Objects.equals(recipientBoxes, that.recipientBoxes)
-            && Objects.equals(recipientNonce, that.recipientNonce)
-            && Objects.equals(recipientKeys, that.recipientKeys);
+                && Arrays.equals(cipherText, that.cipherText)
+                && Objects.equals(cipherTextNonce, that.cipherTextNonce)
+                && Objects.equals(recipientBoxes, that.recipientBoxes)
+                && Objects.equals(recipientNonce, that.recipientNonce)
+                && Objects.equals(recipientKeys, that.recipientKeys);
     }
 
     @Override
     public int hashCode() {
-        int result =
-            Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
+        int result = Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
         result = 31 * result + Arrays.hashCode(cipherText);
         return result;
     }

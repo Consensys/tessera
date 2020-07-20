@@ -33,5 +33,4 @@ public interface TransactionManager {
      */
     PublicKey defaultPublicKey();
 
-
 }

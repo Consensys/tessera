@@ -9,6 +9,7 @@ import com.quorum.tessera.server.jaxrs.LoggingFilter;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;
 import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
+import com.quorum.tessera.server.http.VersionHeaderDecorator;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -17,8 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import javax.servlet.DispatcherType;
 import javax.ws.rs.core.Application;
 import java.net.URI;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -94,6 +97,8 @@ public class JerseyServer implements TesseraServer {
         ServletHolder jerseyServlet = new ServletHolder(servletContainer);
 
         context.addServlet(jerseyServlet, "/*");
+
+        context.addFilter(VersionHeaderDecorator.class,"/*", EnumSet.allOf(DispatcherType.class));
 
         LOGGER.info("Starting {}", uri);
 

@@ -34,10 +34,11 @@ public class Q2TRestApp extends TesseraRestApplication {
     public Set<Object> getSingletons() {
 
         Config config =
-            serviceLocator.getServices().stream()
-                .filter(Config.class::isInstance)
-                .map(Config.class::cast)
-                .findAny().get();
+                serviceLocator.getServices().stream()
+                        .filter(Config.class::isInstance)
+                        .map(Config.class::cast)
+                        .findAny()
+                        .get();
 
         TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
 

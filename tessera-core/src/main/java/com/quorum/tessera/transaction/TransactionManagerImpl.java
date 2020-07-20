@@ -1,6 +1,5 @@
 package com.quorum.tessera.transaction;
 
-
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
@@ -130,12 +129,12 @@ public class TransactionManagerImpl implements TransactionManager {
     boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
 
         recipientList.stream()
-            .filter(k -> !enclave.getPublicKeys().contains(k))
-            .forEach(
-                recipient -> {
-                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(outgoing, recipient);
-                });
+                .filter(k -> !enclave.getPublicKeys().contains(k))
+                .forEach(
+                        recipient -> {
+                            final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
+                            partyInfoService.publishPayload(outgoing, recipient);
+                        });
         return true;
     }
 
@@ -276,7 +275,8 @@ public class TransactionManagerImpl implements TransactionManager {
             this.resendManager.acceptOwnMessage(payload);
         } else {
             // this is a tx from someone else
-            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
+            this.encryptedTransactionDAO.save(
+                    new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
             LOGGER.info("Stored payload with hash {}", transactionHash);
         }
 
@@ -307,7 +307,8 @@ public class TransactionManagerImpl implements TransactionManager {
                         .map(payloadEncoder::decode)
                         .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
 
-        PublicKey recipientKey = request.getRecipient()
+        PublicKey recipientKey =
+                request.getRecipient()
                         .orElse(
                                 searchForRecipientKey(payload)
                                         .orElseThrow(
@@ -335,10 +336,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public StoreRawResponse store(StoreRawRequest storeRequest) {
 
-        RawTransaction rawTransaction =
-                enclave.encryptRawPayload(
-                        storeRequest.getPayload(),
-                        storeRequest.getSender());
+        RawTransaction rawTransaction = enclave.encryptRawPayload(storeRequest.getPayload(), storeRequest.getSender());
         MessageHash hash = messageHashFactory.createFromCipherText(rawTransaction.getEncryptedPayload());
 
         EncryptedRawTransaction encryptedRawTransaction =
@@ -385,6 +383,4 @@ public class TransactionManagerImpl implements TransactionManager {
                                                 + base64Codec.encodeToString(hash.getHashBytes())
                                                 + " was not found"));
     }
-
-
 }

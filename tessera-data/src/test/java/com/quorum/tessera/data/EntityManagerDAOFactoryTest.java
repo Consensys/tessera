@@ -31,20 +31,16 @@ public class EntityManagerDAOFactoryTest {
         assertThat(entityManagerDAOFactory).isNotNull();
     }
 
-
     @Test
     public void createEncryptedRawTransactionDAO() {
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO = entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
         assertThat(encryptedRawTransactionDAO).isNotNull();
-
     }
 
     @Test
     public void createEncryptedTransactionDAO() {
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         assertThat(encryptedTransactionDAO).isNotNull();
-
     }
-
-
 }

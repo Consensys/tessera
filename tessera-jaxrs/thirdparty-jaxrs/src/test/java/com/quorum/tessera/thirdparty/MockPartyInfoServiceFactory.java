@@ -10,5 +10,4 @@ public class MockPartyInfoServiceFactory implements PartyInfoServiceFactory {
     public PartyInfoService create(Config config) {
         return mock(PartyInfoService.class);
     }
-
 }

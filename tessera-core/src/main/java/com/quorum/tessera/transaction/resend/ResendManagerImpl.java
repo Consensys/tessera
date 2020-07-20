@@ -41,15 +41,15 @@ public class ResendManagerImpl implements ResendManager {
         final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
 
         final MessageHash transactionHash =
-            Optional.of(payload)
-                .map(EncodedPayload::getCipherText)
-                .map(messageHashFactory::createFromCipherText)
-                .get();
+                Optional.of(payload)
+                        .map(EncodedPayload::getCipherText)
+                        .map(messageHashFactory::createFromCipherText)
+                        .get();
 
         final PublicKey sender = payload.getSenderKey();
         if (!enclave.getPublicKeys().contains(sender)) {
             throw new IllegalArgumentException(
-                "Message " + transactionHash.toString() + " does not have one the nodes own keys as a sender");
+                    "Message " + transactionHash.toString() + " does not have one the nodes own keys as a sender");
         }
 
         // this is a tx which we created
@@ -65,18 +65,18 @@ public class ResendManagerImpl implements ResendManager {
             // lets compare it against the previous version of the message
             final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
             final boolean same =
-                Arrays.equals(payload.getCipherText(), existing.getCipherText())
-                    && Arrays.equals(newDecrypted, oldDecrypted);
+                    Arrays.equals(payload.getCipherText(), existing.getCipherText())
+                            && Arrays.equals(newDecrypted, oldDecrypted);
 
             if (!same) {
                 throw new IllegalArgumentException("Invalid payload provided");
             }
 
             // check recipients
-             if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
+            if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
                 payloadBuilder
-                    .withRecipientKey(payload.getRecipientKeys().get(0))
-                    .withRecipientBox(payload.getRecipientBoxes().get(0).getData());
+                        .withRecipientKey(payload.getRecipientKeys().get(0))
+                        .withRecipientBox(payload.getRecipientBoxes().get(0).getData());
             }
 
             EncryptedTransaction encryptedTransaction = tx.get();
@@ -98,17 +98,16 @@ public class ResendManagerImpl implements ResendManager {
 
             // add recipient boxes for all recipients (for PSV transactions)
             IntStream.range(payload.getRecipientBoxes().size(), recipientKeys.size())
-                .forEach(
-                    i -> {
-                        PublicKey recipient = recipientKeys.get(i);
-                        byte[] newBox = enclave.createNewRecipientBox(payload, recipient);
-                        payloadBuilder.withRecipientBox(newBox);
-                    });
+                    .forEach(
+                            i -> {
+                                PublicKey recipient = recipientKeys.get(i);
+                                byte[] newBox = enclave.createNewRecipientBox(payload, recipient);
+                                payloadBuilder.withRecipientBox(newBox);
+                            });
 
             final byte[] encoded = payloadEncoder.encode(payloadBuilder.build());
 
             this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, encoded));
         }
     }
-
 }

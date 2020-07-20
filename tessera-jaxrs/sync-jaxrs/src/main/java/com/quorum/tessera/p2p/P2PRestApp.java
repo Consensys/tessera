@@ -51,12 +51,12 @@ public class P2PRestApp extends TesseraRestApplication {
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
 
         final PartyInfoResource partyInfoResource =
-            new PartyInfoResource(
-                partyInfoService,
-                partyInfoParser,
-                runtimeContext.getP2pClient(),
-                enclave,
-                runtimeContext.isRemoteKeyValidation());
+                new PartyInfoResource(
+                        partyInfoService,
+                        partyInfoParser,
+                        runtimeContext.getP2pClient(),
+                        enclave,
+                        runtimeContext.isRemoteKeyValidation());
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
@@ -64,7 +64,7 @@ public class P2PRestApp extends TesseraRestApplication {
         TransactionManager transactionManager = transactionManagerFactory.create(config);
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-        final TransactionResource transactionResource = new TransactionResource(transactionManager,payloadEncoder);
+        final TransactionResource transactionResource = new TransactionResource(transactionManager, payloadEncoder);
 
         return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource);
     }

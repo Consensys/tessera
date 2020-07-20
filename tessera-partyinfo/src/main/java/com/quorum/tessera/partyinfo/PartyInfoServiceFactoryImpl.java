@@ -16,37 +16,27 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
 
     @Override
     public PartyInfoService create(Config config) {
-        LOGGER.info("Enter create [{},{}]",config,this);
+
+        LOGGER.info("Enter create [{},{}]", config, this);
 
         if (REF.get() == null) {
 
-            LOGGER.info("Create party info service from {} . Factory {}",config,this);
+            LOGGER.info("Create party info service from {} . Factory {}", config, this);
+
 
             Enclave enclave = EnclaveFactory.create().create(config);
-            PayloadPublisher payloadPublisher =
-                PayloadPublisherFactory.newFactory(config).create(config);
-            PartyInfoStore partyInfoStore =
-                PartyInfoStore.create(
-                    config.getP2PServerConfig().getServerUri());
-            KnownPeerCheckerFactory knownPeerCheckerFactory =
-                new KnownPeerCheckerFactory();
+            PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
+            PartyInfoStore partyInfoStore = PartyInfoStore.create(config.getP2PServerConfig().getServerUri());
+            KnownPeerCheckerFactory knownPeerCheckerFactory = new KnownPeerCheckerFactory();
 
-
-            PartyInfoService partyInfoService = new PartyInfoServiceImpl(
-                partyInfoStore,
-                enclave,
-                payloadPublisher,
-                knownPeerCheckerFactory);
+            PartyInfoService partyInfoService =
+                    new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
             REF.set(partyInfoService);
 
         } else {
-            LOGGER.info("Looked up existing [{},{}]",config,this);
+            LOGGER.info("Looked up existing [{},{}]", config, this);
         }
 
-
-
         return REF.get();
-
     }
-
 }
