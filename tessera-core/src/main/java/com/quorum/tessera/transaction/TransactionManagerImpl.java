@@ -14,6 +14,7 @@ import com.quorum.tessera.transaction.resend.ResendManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -275,7 +276,8 @@ public class TransactionManagerImpl implements TransactionManager {
             this.resendManager.acceptOwnMessage(payload);
         } else {
             // this is a tx from someone else
-            this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
+            this.encryptedTransactionDAO.save(
+                    new EncryptedTransaction(transactionHash, payloadEncoder.encode(payload)));
             LOGGER.info("Stored payload with hash {}", transactionHash);
         }
 
@@ -306,7 +308,8 @@ public class TransactionManagerImpl implements TransactionManager {
                         .map(payloadEncoder::decode)
                         .orElseThrow(() -> new IllegalStateException("Unable to decode previously encoded payload"));
 
-        PublicKey recipientKey = request.getRecipient()
+        PublicKey recipientKey =
+                request.getRecipient()
                         .orElse(
                                 searchForRecipientKey(payload)
                                         .orElseThrow(
@@ -332,12 +335,10 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    @Transactional
     public StoreRawResponse store(StoreRawRequest storeRequest) {
 
-        RawTransaction rawTransaction =
-                enclave.encryptRawPayload(
-                        storeRequest.getPayload(),
-                        storeRequest.getSender());
+        RawTransaction rawTransaction = enclave.encryptRawPayload(storeRequest.getPayload(), storeRequest.getSender());
         MessageHash hash = messageHashFactory.createFromCipherText(rawTransaction.getEncryptedPayload());
 
         EncryptedRawTransaction encryptedRawTransaction =

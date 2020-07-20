@@ -1,10 +1,10 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.base64.Base64Codec;
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.partyinfo.ResendResponse;
+import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -18,9 +18,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import java.util.Base64;
 import java.util.Objects;
-import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.*;
 
@@ -62,25 +60,25 @@ public class TransactionResource {
         LOGGER.debug("Received resend request");
 
         PublicKey recipient =
-                Optional.of(resendRequest)
-                        .map(ResendRequest::getPublicKey)
-                        .map(Base64Codec.create()::decode)
-                        .map(PublicKey::from)
-                        .get();
+            Optional.of(resendRequest)
+                .map(ResendRequest::getPublicKey)
+                .map(Base64Codec.create()::decode)
+                .map(PublicKey::from)
+                .get();
 
         MessageHash transactionHash =
-                Optional.ofNullable(resendRequest)
-                        .map(ResendRequest::getKey)
-                        .map(Base64.getDecoder()::decode)
-                        .map(MessageHash::new)
-                        .orElse(null);
+            Optional.ofNullable(resendRequest)
+                .map(ResendRequest::getKey)
+                .map(Base64.getDecoder()::decode)
+                .map(MessageHash::new)
+                .orElse(null);
 
         com.quorum.tessera.transaction.ResendRequest request =
-                com.quorum.tessera.transaction.ResendRequest.Builder.create()
-                        .withType(com.quorum.tessera.transaction.ResendRequest.ResendRequestType.valueOf(resendRequest.getType()))
-                        .withRecipient(recipient)
-                        .withHash(transactionHash)
-                        .build();
+            com.quorum.tessera.transaction.ResendRequest.Builder.create()
+                .withType(com.quorum.tessera.transaction.ResendRequest.ResendRequestType.valueOf(resendRequest.getType()))
+                .withRecipient(recipient)
+                .withHash(transactionHash)
+                .build();
 
         com.quorum.tessera.transaction.ResendResponse response = transactionManager.resend(request);
         Response.ResponseBuilder builder = Response.status(Status.OK);

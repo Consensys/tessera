@@ -29,11 +29,11 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
                 toHexString(entity.getNonce()),
                 toHexString(entity.getSender()));
 
-        return entityManagerTemplate.execute(entityManager -> {
-            entityManager.persist(entity);
-            return entity;
-        });
-
+        return entityManagerTemplate.execute(
+                entityManager -> {
+                    entityManager.persist(entity);
+                    return entity;
+                });
     }
 
     @Override
@@ -41,7 +41,7 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
         LOGGER.debug("Retrieving payload with hash {}", hash);
 
         EncryptedRawTransaction encryptedRawTransaction =
-            entityManagerTemplate.execute(entityManager -> entityManager.find(EncryptedRawTransaction.class, hash));
+                entityManagerTemplate.execute(entityManager -> entityManager.find(EncryptedRawTransaction.class, hash));
 
         return Optional.ofNullable(encryptedRawTransaction);
     }
@@ -49,17 +49,20 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
     @Override
     public void delete(final MessageHash hash) {
         LOGGER.info("Deleting transaction with hash {}", hash);
-        entityManagerTemplate.execute(entityManager -> {
-            EncryptedRawTransaction txn = entityManager.find(EncryptedRawTransaction.class,hash);
-            if(txn == null) {
-                throw new EntityNotFoundException();
-            }
+        entityManagerTemplate.execute(
+                entityManager -> {
+                    EncryptedRawTransaction txn = entityManager.find(EncryptedRawTransaction.class, hash);
+                    if (txn == null) {
+                        throw new EntityNotFoundException();
+                    }
 
-            entityManager.createNamedQuery("EncryptedRawTransaction.DeleteByHash")
-                .setParameter("hash",hash.getHashBytes()).executeUpdate();
+                    entityManager
+                            .createNamedQuery("EncryptedRawTransaction.DeleteByHash")
+                            .setParameter("hash", hash.getHashBytes())
+                            .executeUpdate();
 
-            return txn;
-        });
+                    return txn;
+                });
     }
 
     private String toHexString(byte[] val) {

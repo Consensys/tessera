@@ -1,6 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-
 import com.quorum.tessera.config.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +12,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class PartyInfoServiceFactoryTest {
-
 
     private PartyInfoServiceFactory partyInfoServiceFactory;
 
@@ -38,18 +36,15 @@ public class PartyInfoServiceFactoryTest {
 
         PartyInfoService partyInfoService = partyInfoServiceFactory.create(config);
 
+
         assertThat(partyInfoService).isNotNull();
+
 
         PartyInfoService anotherPartyInfoService = partyInfoServiceFactory.create(config);
 
         assertThat(partyInfoService).isSameAs(anotherPartyInfoService);
 
-        assertThat(partyInfoService).isSameAs(partyInfoServiceFactory.partyInfoService().get());
-
-
+        assertThat(partyInfoService).isSameAs(anotherPartyInfoService);
     }
-
-
-
 
 }

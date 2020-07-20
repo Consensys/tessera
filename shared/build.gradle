@@ -9,3 +9,15 @@ dependencies {
 
     implementation "jakarta.annotation:jakarta.annotation-api"
 }
+
+jar {
+
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": version,
+                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+        )
+    }
+
+}

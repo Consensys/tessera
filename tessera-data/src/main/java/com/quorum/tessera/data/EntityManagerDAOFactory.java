@@ -6,9 +6,19 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import com.quorum.tessera.config.util.EncryptedStringResolver;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EntityManagerDAOFactory {
 
@@ -25,12 +35,21 @@ public class EntityManagerDAOFactory {
         LOGGER.debug("New EntityManagerDAOFactory from {}", config);
         final String username = config.getJdbcConfig().getUsername();
         final String password = config.getJdbcConfig().getPassword();
-        final String url = config.getJdbcConfig().getUrl();
+
+        final EncryptedStringResolver resolver = new EncryptedStringResolver();
+        final String url = resolver.resolve(config.getJdbcConfig().getUrl());
+
+        final HikariConfig hikariConfig = new HikariConfig();
+        hikariConfig.setJdbcUrl(url);
+        hikariConfig.setUsername(username);
+        hikariConfig.setPassword(password);
+
+        final DataSource dataSource = new HikariDataSource(hikariConfig);
 
         Map properties = new HashMap();
-        properties.put("javax.persistence.jdbc.url", url);
-        properties.put("javax.persistence.jdbc.user", username);
-        properties.put("javax.persistence.jdbc.password", password);
+
+        properties.put("javax.persistence.nonJtaDataSource", dataSource);
+
         properties.put("eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
         properties.put("eclipselink.logging.level", "FINE");
         properties.put("eclipselink.logging.parameters", "true");
