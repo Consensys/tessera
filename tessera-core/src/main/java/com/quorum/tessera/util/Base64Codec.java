@@ -7,7 +7,7 @@ import java.util.Base64;
 /**
  * An delegate interface for {@link Base64} to allow mocking in tests
  */
-public interface Base64Decoder {
+public interface Base64Codec {
 
     /**
      * Decodes a Base64 encoded string to its constituent bytes
@@ -35,8 +35,8 @@ public interface Base64Decoder {
         return Base64.getEncoder().encodeToString(data);
     }
 
-    static Base64Decoder create() {
-        return new Base64Decoder() {
+    static Base64Codec create() {
+        return new Base64Codec() {
         };
     }
 
