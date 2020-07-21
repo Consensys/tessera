@@ -11,7 +11,7 @@ dependencies {
     implementation "jakarta.transaction:jakarta.transaction-api"
     implementation "org.bouncycastle:bcprov-jdk15on"
     runtimeOnly "com.h2database:h2"
-    runtimeOnly "com.zaxxer:HikariCP"
+    implementation "com.zaxxer:HikariCP"
     runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.jpa"
     runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.extension"
 

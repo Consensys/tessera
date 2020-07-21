@@ -6,6 +6,7 @@ dependencies {
     implementation project(":server:server-api")
     implementation project(":server:server-utils")
     implementation project(":config")
+    implementation project(":shared")
     implementation project(":security")
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
     implementation "org.glassfish.jersey.media:jersey-media-moxy"

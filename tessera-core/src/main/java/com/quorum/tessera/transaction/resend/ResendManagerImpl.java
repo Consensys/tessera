@@ -41,15 +41,15 @@ public class ResendManagerImpl implements ResendManager {
         final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
 
         final MessageHash transactionHash =
-            Optional.of(payload)
-                .map(EncodedPayload::getCipherText)
-                .map(messageHashFactory::createFromCipherText)
-                .get();
+                Optional.of(payload)
+                        .map(EncodedPayload::getCipherText)
+                        .map(messageHashFactory::createFromCipherText)
+                        .get();
 
         final PublicKey sender = payload.getSenderKey();
         if (!enclave.getPublicKeys().contains(sender)) {
             throw new IllegalArgumentException(
-                "Message " + transactionHash.toString() + " does not have one the nodes own keys as a sender");
+                    "Message " + transactionHash.toString() + " does not have one the nodes own keys as a sender");
         }
 
         // this is a tx which we created
@@ -65,8 +65,8 @@ public class ResendManagerImpl implements ResendManager {
             // lets compare it against the previous version of the message
             final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
             final boolean same =
-                Arrays.equals(payload.getCipherText(), existing.getCipherText())
-                    && Arrays.equals(newDecrypted, oldDecrypted);
+                    Arrays.equals(payload.getCipherText(), existing.getCipherText())
+                            && Arrays.equals(newDecrypted, oldDecrypted);
 
             if (!same) {
                 throw new IllegalArgumentException("Invalid payload provided");

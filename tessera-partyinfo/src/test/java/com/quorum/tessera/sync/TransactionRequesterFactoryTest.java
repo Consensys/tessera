@@ -23,6 +23,7 @@ public class TransactionRequesterFactoryTest {
         TransactionRequesterFactory transactionRequesterFactory = TransactionRequesterFactory.newFactory();
 
         assertThat(transactionRequesterFactory).isNotNull().isExactlyInstanceOf(MockTransactionRequesterFactory.class);
+        assertThat(transactionRequesterFactory).isNotNull();
 
         Config config = mock(Config.class);
         ServerConfig serverConfig = mock(ServerConfig.class);
@@ -35,6 +36,7 @@ public class TransactionRequesterFactoryTest {
             .isNotNull();
 
 
+        assertThat(transactionRequester).isNotNull();
     }
 
 

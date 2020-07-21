@@ -34,8 +34,7 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
         final PartyInfoResource partyInfoResource = new PartyInfoResource(partyInfoService);
         final KeyResource keyResource = new KeyResource();
 
-        return Stream.of(rawTransactionResource, partyInfoResource, keyResource)
-                .collect(Collectors.toSet());
+        return Stream.of(rawTransactionResource, partyInfoResource, keyResource).collect(Collectors.toSet());
     }
 
     @Override

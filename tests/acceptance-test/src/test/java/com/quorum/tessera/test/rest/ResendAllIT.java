@@ -108,6 +108,7 @@ public class ResendAllIT {
 
         assertThat(resendCheck).isNotNull();
         assertThat(resendCheck.getStatus()).isEqualTo(200);
+
     }
 
     @Test
@@ -180,6 +181,7 @@ public class ResendAllIT {
                 assertThat(payload.getRecipientBoxes()).hasSize(3);
             }
         }
+
     }
 
     @Test
@@ -284,4 +286,5 @@ public class ResendAllIT {
         assertThat(resendRequest).isNotNull();
         assertThat(resendRequest.getStatus()).isEqualTo(400);
     }
+
 }
