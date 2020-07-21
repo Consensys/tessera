@@ -67,7 +67,7 @@ public class PayloadEncoderTest {
         assertThat(output.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
         assertThat(output.getRecipientNonce()).isEqualTo(new Nonce(recipientnonce));
         assertThat(output.getRecipientBoxes()).hasSize(1);
-        assertThat(output.getRecipientBoxes().get(0)).containsExactly(recipient);
+        assertThat(output.getRecipientBoxes().get(0).getData()).containsExactly(recipient);
         assertThat(output.getRecipientKeys()).isEmpty();
     }
 
@@ -439,7 +439,7 @@ public class PayloadEncoderTest {
         assertThat(payload.getCipherText()).containsExactly(cipherText);
         assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
         assertThat(payload.getRecipientBoxes()).hasSize(1);
-        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipientBox);
+        assertThat(payload.getRecipientBoxes().get(0).getData()).containsExactly(recipientBox);
         assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientNonce));
         assertThat(payload.getRecipientKeys()).hasSize(1).containsExactly(PublicKey.from(recipientKey));
     }
@@ -480,7 +480,8 @@ public class PayloadEncoderTest {
         assertThat(result.getRecipientNonce()).isEqualTo(control.getRecipientNonce());
         assertThat(result.getCipherTextNonce()).isEqualTo(control.getCipherTextNonce());
         assertThat(result.getRecipientKeys()).isEmpty();
-        assertThat(result.getRecipientBoxes()).isNotEqualTo(control.getRecipientBoxes());
+        assertThat(result.getRecipientBoxes()).hasSize(1);
+        assertThat(result.getRecipientBoxes().get(0).getData()).isEqualTo(control.getRecipientBoxes().get(0).getData());
     }
 
     @Test
@@ -534,6 +535,6 @@ public class PayloadEncoderTest {
         assertThat(payload.getCipherTextNonce()).isEqualTo(new Nonce(nonce));
         assertThat(payload.getRecipientNonce()).isEqualTo(new Nonce(recipientnonce));
         assertThat(payload.getRecipientBoxes()).hasSize(1);
-        assertThat(payload.getRecipientBoxes().get(0)).containsExactly(recipient);
+        assertThat(payload.getRecipientBoxes().get(0).getData()).containsExactly(recipient);
     }
 }

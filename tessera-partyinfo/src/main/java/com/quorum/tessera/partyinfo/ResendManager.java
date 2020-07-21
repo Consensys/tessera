@@ -6,7 +6,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 public interface ResendManager {
 
     /**
-     * Creates or updates an {@link com.quorum.tessera.transaction.model.EncryptedTransaction} based on
+     * Creates or updates an {@link com.quorum.tessera.data.EncryptedTransaction} based on
      * whether the node already contains the given transaction or not.
      * If it contains the transaction, the recipient list is updated. If it
      * does not contain the transaction, a new one is created with an initial
