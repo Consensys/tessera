@@ -29,7 +29,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final Base64Codec base64Decoder;
+    private final Base64Codec base64Codec;
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
@@ -76,7 +76,7 @@ public class TransactionManagerImpl implements TransactionManager {
             ResendManager resendManager,
             int resendFetchSize) {
 
-        this.base64Decoder = Objects.requireNonNull(base64Decoder, "base64Decoder is required");
+        this.base64Codec = Objects.requireNonNull(base64Decoder, "base64Codec is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
@@ -363,7 +363,7 @@ public class TransactionManagerImpl implements TransactionManager {
                         () ->
                                 new TransactionNotFoundException(
                                         "Message with hash "
-                                                + base64Decoder.encodeToString(hash.getHashBytes())
+                                                + base64Codec.encodeToString(hash.getHashBytes())
                                                 + " was not found"));
     }
 }
