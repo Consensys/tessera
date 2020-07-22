@@ -1,15 +1,14 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.ContextHolder;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.context.RuntimeContextFactory;
 
 import java.util.Optional;
 
 import static org.mockito.Mockito.mock;
 
-public class MockRuntimeContextFactory implements RuntimeContextFactory<Config>, ContextHolder {
+public class MockContextHolder implements ContextHolder {
+
     static ThreadLocal<RuntimeContext> runtimeContextThreadLocal =
             ThreadLocal.withInitial(() -> mock(RuntimeContext.class));
 
@@ -18,13 +17,8 @@ public class MockRuntimeContextFactory implements RuntimeContextFactory<Config>,
         runtimeContextThreadLocal.set(runtimeContext);
     }
 
-    public static void reset() {
+    static void reset() {
         runtimeContextThreadLocal.remove();
-    }
-
-    @Override
-    public RuntimeContext create(Config config) {
-        return runtimeContextThreadLocal.get();
     }
 
     @Override

@@ -1,9 +1,8 @@
 package com.quorum.tessera.api.filter;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.context.RuntimeContextFactory;
+import com.quorum.tessera.mock.MockRuntimeContextFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.junit.After;
 import org.junit.Before;
@@ -20,7 +19,7 @@ import java.util.Collections;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class IPWhitelistFilterTest {
@@ -29,13 +28,15 @@ public class IPWhitelistFilterTest {
 
     private IPWhitelistFilter filter;
 
-    private static RuntimeContext configService = RuntimeContextFactory.newFactory().create(mock(Config.class));
+    private RuntimeContext runtimeContext;
 
     @Before
     public void init() throws URISyntaxException {
+        runtimeContext = mock(RuntimeContext.class);
+        MockRuntimeContextFactory.setMockContext(runtimeContext);
 
-        when(configService.getPeers()).thenReturn(singletonList(URI.create("http://whitelistedHost:8080")));
-        when(configService.isUseWhiteList()).thenReturn(true);
+        when(runtimeContext.getPeers()).thenReturn(singletonList(URI.create("http://whitelistedHost:8080")));
+        when(runtimeContext.isUseWhiteList()).thenReturn(true);
 
         this.ctx = mock(ContainerRequestContext.class);
         final UriInfo uriInfo = mock(UriInfo.class);
@@ -47,13 +48,14 @@ public class IPWhitelistFilterTest {
 
     @After
     public void onTearDown() {
-        reset(configService);
+        reset(runtimeContext);
+        MockRuntimeContextFactory.reset();
     }
 
     @Test
     public void disabledFilterAllowsAllRequests() {
-        when(configService.getPeers()).thenReturn(emptyList());
-        when(configService.isUseWhiteList()).thenReturn(false);
+        when(runtimeContext.getPeers()).thenReturn(emptyList());
+        when(runtimeContext.isUseWhiteList()).thenReturn(false);
         this.filter = new IPWhitelistFilter();
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("someotherhost").when(request).getRemoteAddr();
@@ -104,9 +106,9 @@ public class IPWhitelistFilterTest {
 
     @Test
     public void defaultConstructor() {
-        when(configService.isUseWhiteList()).thenReturn(Boolean.TRUE);
+        when(runtimeContext.isUseWhiteList()).thenReturn(Boolean.TRUE);
         MockServiceLocator mockServiceLocator = (MockServiceLocator) ServiceLocator.create();
-        mockServiceLocator.setServices(Collections.singleton(configService));
+        mockServiceLocator.setServices(Collections.singleton(runtimeContext));
 
         assertThat(new IPWhitelistFilter()).isNotNull();
     }
@@ -115,7 +117,7 @@ public class IPWhitelistFilterTest {
     public void localhostIsWhiteListed() {
 
         URI peer = URI.create("http://localhost:8080");
-        when(configService.getPeers()).thenReturn(singletonList(peer));
+        when(runtimeContext.getPeers()).thenReturn(singletonList(peer));
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("127.0.0.1").when(request).getRemoteAddr();
@@ -132,7 +134,7 @@ public class IPWhitelistFilterTest {
     @Test
     public void localhostIPv6IsAlsoWhiteListed() {
         URI peer = URI.create("http://localhost:8080");
-        when(configService.getPeers()).thenReturn(singletonList(peer));
+        when(runtimeContext.getPeers()).thenReturn(singletonList(peer));
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("0:0:0:0:0:0:0:1").when(request).getRemoteAddr();
@@ -149,7 +151,7 @@ public class IPWhitelistFilterTest {
     @Test
     public void localAddrIPv6IsAlsoWhiteListed() {
         URI peer = URI.create("http://127.0.0.1:8080");
-        when(configService.getPeers()).thenReturn(singletonList(peer));
+        when(runtimeContext.getPeers()).thenReturn(singletonList(peer));
 
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("0:0:0:0:0:0:0:1").when(request).getRemoteAddr();

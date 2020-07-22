@@ -27,14 +27,14 @@ public interface RuntimeContext {
     URI getP2pServerUri();
 
     static RuntimeContext getInstance() {
-        return ContextHolder.INSTANCE.getContext().get();
+        return ContextHolder.getInstance().getContext().get();
     }
 
     boolean isDisablePeerDiscovery();
 
+    boolean isUseWhiteList();
+
     default Set<PublicKey> getPublicKeys() {
         return getKeys().stream().map(KeyPair::getPublicKey).collect(Collectors.toSet());
     }
-
-    boolean isUseWhiteList();
 }
