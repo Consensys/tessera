@@ -7,7 +7,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
-import com.quorum.tessera.util.Base64Decoder;
+import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final Base64Decoder base64Decoder;
+    private final Base64Codec base64Codec;
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
@@ -53,7 +53,7 @@ public class TransactionManagerImpl implements TransactionManager {
             PartyInfoService partyInfoService,
             int resendFetchSize) {
         this(
-                Base64Decoder.create(),
+                Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
                 partyInfoService,
@@ -67,7 +67,7 @@ public class TransactionManagerImpl implements TransactionManager {
     Only use for tests
     */
     public TransactionManagerImpl(
-            Base64Decoder base64Decoder,
+            Base64Codec base64Decoder,
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PartyInfoService partyInfoService,
@@ -76,7 +76,7 @@ public class TransactionManagerImpl implements TransactionManager {
             ResendManager resendManager,
             int resendFetchSize) {
 
-        this.base64Decoder = Objects.requireNonNull(base64Decoder, "base64Decoder is required");
+        this.base64Codec = Objects.requireNonNull(base64Decoder, "base64Codec is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
@@ -162,8 +162,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public ResendResponse resend(ResendRequest request) {
 
-        final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
-        PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
+        final PublicKey recipientPublicKey = request.getRecipient();
         if (request.getType() == ResendRequestType.ALL) {
 
             int offset = 0;
@@ -218,11 +217,10 @@ public class TransactionManagerImpl implements TransactionManager {
                 offset += resendFetchSize;
             }
 
-            return new ResendResponse();
+            return ResendResponse.Builder.create().build();
         } else {
 
-            final byte[] hashKey = base64Decoder.decode(request.getKey());
-            final MessageHash messageHash = new MessageHash(hashKey);
+            final MessageHash messageHash = request.getHash();
 
             final EncryptedTransaction encryptedTransaction =
                     encryptedTransactionDAO
@@ -244,7 +242,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 returnValue = payloadEncoder.forRecipient(payload, recipientPublicKey);
             }
 
-            return new ResendResponse(payloadEncoder.encode(returnValue));
+            return ResendResponse.Builder.create().withPayload(returnValue).build();
         }
     }
 
@@ -365,7 +363,7 @@ public class TransactionManagerImpl implements TransactionManager {
                         () ->
                                 new TransactionNotFoundException(
                                         "Message with hash "
-                                                + base64Decoder.encodeToString(hash.getHashBytes())
+                                                + base64Codec.encodeToString(hash.getHashBytes())
                                                 + " was not found"));
     }
 }
