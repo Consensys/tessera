@@ -14,7 +14,6 @@ import com.quorum.tessera.transaction.resend.ResendManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -335,7 +334,6 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
-    @Transactional
     public StoreRawResponse store(StoreRawRequest storeRequest) {
 
         RawTransaction rawTransaction = enclave.encryptRawPayload(storeRequest.getPayload(), storeRequest.getSender());
