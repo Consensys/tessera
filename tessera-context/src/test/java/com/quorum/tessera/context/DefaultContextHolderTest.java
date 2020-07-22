@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 
-public class ContextHolderTest extends ContextTestCase {
+public class DefaultContextHolderTest extends ContextTestCase {
 
-    private ContextHolder contextHolder = ContextHolder.INSTANCE;
+    private DefaultContextHolder contextHolder = DefaultContextHolder.INSTANCE;
 
     @Test
     public void setContextCanOnlyBeStoredOnce() {

@@ -10,7 +10,9 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 public class ResendManagerImpl implements ResendManager {
@@ -60,6 +62,8 @@ public class ResendManagerImpl implements ResendManager {
             final byte[] encodedPayload = tx.get().getEncodedPayload();
             final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
 
+            final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.from(existing);
+
             if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
                 // lets compare it against another message received before
                 final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
@@ -71,22 +75,36 @@ public class ResendManagerImpl implements ResendManager {
                     throw new IllegalArgumentException("Invalid payload provided");
                 }
 
-                existing.getRecipientKeys().add(payload.getRecipientKeys().get(0));
-                existing.getRecipientBoxes().add(payload.getRecipientBoxes().get(0));
+                // check recipients
+                if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
+                    payloadBuilder
+                            .withRecipientKey(payload.getRecipientKeys().get(0))
+                            .withRecipientBox(payload.getRecipientBoxes().get(0).getData());
+                }
 
-                tx.get().setEncodedPayload(payloadEncoder.encode(existing));
+                EncryptedTransaction encryptedTransaction = tx.get();
 
-                this.encryptedTransactionDAO.update(tx.get());
+                encryptedTransaction.setEncodedPayload(payloadEncoder.encode(payloadBuilder.build()));
+
+                this.encryptedTransactionDAO.update(encryptedTransaction);
             }
 
         } else {
 
-            // we need to recreate this
-            payload.getRecipientKeys().add(sender);
-            byte[] newbox = enclave.createNewRecipientBox(payload, sender);
-            payload.getRecipientBoxes().add(newbox);
+            final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.from(payload);
+            final List<PublicKey> recipientKeys = new ArrayList<>(payload.getRecipientKeys());
 
-            final byte[] encoded = payloadEncoder.encode(payload);
+            // we need to recreate this
+            if (!recipientKeys.contains(sender)) {
+                recipientKeys.add(sender);
+                payloadBuilder.withRecipientKey(sender);
+            }
+
+            // we need to recreate this
+            byte[] newbox = enclave.createNewRecipientBox(payload, sender);
+            payloadBuilder.withRecipientBox(newbox);
+
+            final byte[] encoded = payloadEncoder.encode(payloadBuilder.build());
 
             this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, encoded));
         }

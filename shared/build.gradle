@@ -2,4 +2,18 @@ dependencies {
     compile "javax.xml.bind:jaxb-api"
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
     compile "javax.annotation:javax.annotation-api"
+    testImplementation 'com.jcabi:jcabi-manifests:1.1'
+}
+
+
+jar {
+
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": version,
+                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+        )
+    }
+
 }

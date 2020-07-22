@@ -1,7 +1,7 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.context.RuntimeContextFactory;
+import com.quorum.tessera.context.ContextHolder;
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
@@ -31,9 +31,7 @@ public class PartyInfoServiceTest {
 
     private PartyInfoStore partyInfoStore;
 
-    // Need to look at holding as singleton
-    private static final MockRuntimeContext RUNTIME_CONTEXT =
-            (MockRuntimeContext) RuntimeContextFactory.newFactory().create(mock(Config.class));
+    private RuntimeContext runtimeContext;
 
     private Enclave enclave;
 
@@ -46,6 +44,7 @@ public class PartyInfoServiceTest {
     @Before
     public void onSetUp() {
 
+        runtimeContext = ContextHolder.getInstance().getContext().get();
         this.partyInfoStore = mock(PartyInfoStore.class);
         this.enclave = mock(Enclave.class);
         this.payloadPublisher = mock(PayloadPublisher.class);
@@ -54,10 +53,8 @@ public class PartyInfoServiceTest {
         final KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
         when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
 
-        RUNTIME_CONTEXT
-                .setP2pServerUri(java.net.URI.create(URI))
-                .setPeers(singletonList(java.net.URI.create("http://other-node.com:8080")))
-                .setRemoteKeyValidation(true);
+        when(runtimeContext.getP2pServerUri()).thenReturn(java.net.URI.create(URI));
+        when(runtimeContext.getPeers()).thenReturn(List.of(java.net.URI.create("http://other-node.com:8080")));
 
         this.partyInfoService =
                 new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
@@ -101,7 +98,7 @@ public class PartyInfoServiceTest {
     @Test
     public void autoDiscoveryEnabledStoresAsIs() {
 
-        RUNTIME_CONTEXT.setDisablePeerDiscovery(false);
+        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(false);
 
         final PartyInfo incomingPartyInfo = mock(PartyInfo.class);
         final PartyInfo outgoingPartyInfo = mock(PartyInfo.class);
@@ -113,12 +110,15 @@ public class PartyInfoServiceTest {
         assertThat(result).isSameAs(outgoingPartyInfo);
 
         verify(partyInfoStore).store(any(PartyInfo.class));
-        verify(partyInfoStore).getPartyInfo();
+        verify(partyInfoStore, times(2)).getPartyInfo();
     }
 
     @Test
     public void autoDiscoveryDisabledUnknownPeer() {
-        RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+
+        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
+        when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
+
         when(knownPeerChecker.isKnown("http://SomeUnknownUri")).thenReturn(false);
 
         final PartyInfo forUpdate = new PartyInfo("http://SomeUnknownUri", emptySet(), emptySet());
@@ -135,7 +135,9 @@ public class PartyInfoServiceTest {
     @Test
     public void autoDiscoveryDisabledOnlySendersKeysAdded() {
 
-        RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
+        when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
+
         when(knownPeerChecker.isKnown("http://known.com:8080")).thenReturn(true);
         when(knownPeerChecker.isKnown("http://also-known.com:8080")).thenReturn(true);
 
@@ -167,7 +169,10 @@ public class PartyInfoServiceTest {
 
     @Test
     public void autoDiscoveryDisabledNoIncomingPeersAdded() {
-        RUNTIME_CONTEXT.setDisablePeerDiscovery(true);
+
+        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
+        when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
+
         when(knownPeerChecker.isKnown("http://other-node.com:8080")).thenReturn(true);
 
         final PartyInfo forUpdate =
@@ -258,7 +263,8 @@ public class PartyInfoServiceTest {
     @Test
     public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIfToggleDisabled() {
         // setup services
-        RUNTIME_CONTEXT.setRemoteKeyValidation(false).setDisablePeerDiscovery(false);
+        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(false);
+        when(runtimeContext.isRemoteKeyValidation()).thenReturn(false);
 
         // setup data
         final String uri = "http://localhost:8080";
