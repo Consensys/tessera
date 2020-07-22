@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class PartyInfoStoreImpl implements PartyInfoStore {
 
@@ -22,26 +23,36 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
 
     private final Set<Party> parties;
 
-    protected PartyInfoStoreImpl(URI advertisedUrl) {
+    private final ExclusionCache<Recipient> exclusionCache;
+
+    protected PartyInfoStoreImpl(URI advertisedUrl,ExclusionCache<Recipient> exclusionCache) {
         // TODO: remove the extra "/" when we deprecate backwards compatibility
         this.advertisedUrl = URLNormalizer.create().normalize(advertisedUrl.toString());
         this.recipients = new HashMap<>();
         this.parties = new HashSet<>();
         this.parties.add(new Party(this.advertisedUrl));
+        this.exclusionCache = Objects.requireNonNull(exclusionCache);
     }
-
     /**
      * Merge an incoming {@link PartyInfo} into the current one, adding any new keys or parties to the current store
      *
      * @param newInfo the incoming information that may contain new nodes/keys
      */
     public synchronized void store(final PartyInfo newInfo) {
-
+        final Set<String> excludedUrls = new HashSet<>();
         for (Recipient recipient : newInfo.getRecipients()) {
-            recipients.put(recipient.getKey(), recipient);
+            if(exclusionCache.isExcluded(recipient)) {
+                parties.removeIf(p -> Objects.equals(p.getUrl(),recipient.getUrl()));
+                recipients.remove(recipient.getKey());
+                excludedUrls.add(recipient.getUrl());
+            } else {
+                recipients.put(recipient.getKey(), recipient);
+            }
         }
 
-        parties.addAll(newInfo.getParties());
+        newInfo.getParties().stream()
+            .filter(Predicate.not(p -> excludedUrls.contains(p.getUrl())))
+            .forEach(parties::add);
 
         // update the sender to have been seen recently
         final Party sender = new Party(newInfo.getUrl());
@@ -64,7 +75,11 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
             .filter(e -> uri.startsWith(e.getValue().getUrl()))
             .map(Map.Entry::getKey)
             .findFirst()
-            .ifPresent(recipients::remove);
+            .ifPresent(r -> {
+                exclusionCache.exclude(recipients.get(r));
+                recipients.remove(r);
+                parties.removeIf(p -> uri.startsWith(p.getUrl()));
+            });
 
         LOGGER.info("Removed recipient {} from local PartyInfo store", uri);
 
