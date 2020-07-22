@@ -24,7 +24,6 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
     public void onSetUp() {
         contextHolder = mock(ContextHolder.class);
         runtimeContextFactory = new DefaultRuntimeContextFactory(contextHolder);
-
     }
 
     @After
@@ -64,7 +63,6 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         RuntimeContext result = runtimeContextFactory.create(confg);
 
         assertThat(result).isNotNull();
-
 
         verify(contextHolder).getContext();
         verify(contextHolder).setContext(any(RuntimeContext.class));
@@ -177,7 +175,6 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         RuntimeContext result = runtimeContextFactory.create(mock(Config.class));
         verify(contextHolder).getContext();
         assertThat(result).isSameAs(runtimeContext);
-
     }
 
     @Test

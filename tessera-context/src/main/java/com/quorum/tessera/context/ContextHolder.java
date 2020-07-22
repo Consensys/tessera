@@ -11,8 +11,6 @@ public interface ContextHolder {
     void setContext(RuntimeContext runtimeContext);
 
     static ContextHolder getInstance() {
-        return ServiceLoaderUtil.load(ContextHolder.class)
-            .orElse(DefaultContextHolder.INSTANCE);
+        return ServiceLoaderUtil.load(ContextHolder.class).orElse(DefaultContextHolder.INSTANCE);
     }
-
 }

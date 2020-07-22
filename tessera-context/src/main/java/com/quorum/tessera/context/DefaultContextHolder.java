@@ -20,7 +20,6 @@ enum DefaultContextHolder implements ContextHolder {
         if (this.runtimeContext != null) {
             throw new IllegalStateException("RuntimeContext has already been stored");
         }
-        this.runtimeContext = Objects.requireNonNull(runtimeContext,"Runtime context cannot be null");
+        this.runtimeContext = Objects.requireNonNull(runtimeContext, "Runtime context cannot be null");
     }
-
 }

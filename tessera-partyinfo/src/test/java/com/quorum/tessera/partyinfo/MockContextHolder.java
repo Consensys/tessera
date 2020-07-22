@@ -9,7 +9,8 @@ import static org.mockito.Mockito.mock;
 
 public class MockContextHolder implements ContextHolder {
 
-    static ThreadLocal<RuntimeContext> runtimeContextThreadLocal = ThreadLocal.withInitial(() -> mock(RuntimeContext.class));
+    static ThreadLocal<RuntimeContext> runtimeContextThreadLocal =
+            ThreadLocal.withInitial(() -> mock(RuntimeContext.class));
 
     @Override
     public void setContext(RuntimeContext runtimeContext) {
