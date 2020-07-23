@@ -11,12 +11,21 @@ import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.resend.ResendManagerImpl;
 
-public enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
+enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
     INSTANCE;
+
+    private static final AtomicReference<TransactionManager> REF = new AtomicReference<>();
 
     @Override
     public TransactionManager create(Config config) {
+
+        if (Objects.nonNull(REF.get())) {
+            return REF.get();
+        }
 
         PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
 
@@ -25,13 +34,26 @@ public enum DefaultTransactionManagerFactory implements TransactionManagerFactor
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
         entityManagerDAOFactory.createEncryptedRawTransactionDAO();
-
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
 
-        return new TransactionManagerImpl(
-                encryptedTransactionDAO, enclave, encryptedRawTransactionDAO, resendManager, partyInfoService, 100);
+        TransactionManager transactionManager =
+                new TransactionManagerImpl(
+                        encryptedTransactionDAO,
+                        enclave,
+                        encryptedRawTransactionDAO,
+                        resendManager,
+                        partyInfoService,
+                        100);
 
+        REF.set(transactionManager);
+        return transactionManager;
+    }
+
+    @Override
+    public Optional<TransactionManager> transactionManager() {
+        return Optional.ofNullable(REF.get());
     }
 }
