@@ -41,6 +41,14 @@ public class EncodedPayloadBuilderTest {
         assertThat(sample.getRecipientNonce().getNonceBytes()).isEqualTo(recipientNonce);
         assertThat(sample.getRecipientBoxes()).hasSize(1).containsExactlyInAnyOrder(RecipientBox.from(recipientBox));
         assertThat(sample.getRecipientKeys()).hasSize(1).containsExactlyInAnyOrder(recipientKey);
+
+
+        byte[] otherRecipientBox = "OTHETRBIX".getBytes();
+        EncodedPayload fromSample = EncodedPayload.Builder.from(sample).withRecipientBox(otherRecipientBox).build();
+
+        assertThat(fromSample.getRecipientBoxes()).hasSize(2)
+            .containsExactly(RecipientBox.from(recipientBox),RecipientBox.from(otherRecipientBox));
+
     }
 
     @Test

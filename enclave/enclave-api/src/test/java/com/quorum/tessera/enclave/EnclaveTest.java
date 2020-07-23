@@ -345,7 +345,7 @@ public class EnclaveTest {
         final PrivateKey privateKey = PrivateKey.from("sender-priv".getBytes());
         final SharedKey recipientSenderShared = SharedKey.from("shared-one".getBytes());
         final SharedKey senderShared = SharedKey.from("shared-two".getBytes());
-        final byte[] closedbox = "closed".getBytes();
+        final RecipientBox closedbox = RecipientBox.from("closed".getBytes());
         final byte[] openbox = "open".getBytes();
         final Nonce nonce = new Nonce("nonce".getBytes());
 
@@ -353,13 +353,13 @@ public class EnclaveTest {
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getCipherText()).thenReturn(null);
         when(payload.getCipherTextNonce()).thenReturn(null);
-        when(payload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from(closedbox)));
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
         when(payload.getRecipientNonce()).thenReturn(nonce);
         when(payload.getRecipientKeys()).thenReturn(singletonList(publicKey));
 
         when(nacl.computeSharedKey(publicKey, privateKey)).thenReturn(recipientSenderShared);
         when(nacl.computeSharedKey(senderKey, privateKey)).thenReturn(senderShared);
-        when(nacl.openAfterPrecomputation(closedbox, nonce, recipientSenderShared)).thenReturn(openbox);
+        when(nacl.openAfterPrecomputation(closedbox.getData(), nonce, recipientSenderShared)).thenReturn(openbox);
         when(nacl.sealAfterPrecomputation(openbox, nonce, senderShared)).thenReturn("newbox".getBytes());
         when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(privateKey);
 
@@ -369,7 +369,7 @@ public class EnclaveTest {
 
         verify(nacl).computeSharedKey(publicKey, privateKey);
         verify(nacl).computeSharedKey(senderKey, privateKey);
-        verify(nacl).openAfterPrecomputation(closedbox, nonce, recipientSenderShared);
+        verify(nacl).openAfterPrecomputation(closedbox.getData(), nonce, recipientSenderShared);
         verify(nacl).sealAfterPrecomputation(openbox, nonce, senderShared);
         verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderKey);
     }

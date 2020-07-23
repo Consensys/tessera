@@ -1,20 +1,15 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.config.Config;
 
 public interface PartyInfoServiceFactory {
 
-    ResendManager resendManager();
+    PartyInfoService create(Config config);
 
-    PartyInfoService partyInfoService();
-
-    Enclave enclave();
-
-    PayloadPublisher payloadPublisher();
-
-    PartyInfoStore partyInfoStore();
 
     static PartyInfoServiceFactory create() {
-        return new PartyInfoServiceFactoryImpl();
+        return ServiceLoaderUtil.load(PartyInfoServiceFactory.class)
+            .orElseGet(() -> new PartyInfoServiceFactoryImpl());
     }
 }

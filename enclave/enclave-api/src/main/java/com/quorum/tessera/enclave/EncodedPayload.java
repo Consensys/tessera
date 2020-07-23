@@ -70,7 +70,8 @@ public class EncodedPayload {
 
         public static Builder from(EncodedPayload encodedPayload) {
 
-            return create().withSenderKey(encodedPayload.getSenderKey())
+            return create()
+                    .withSenderKey(encodedPayload.getSenderKey())
                     .withRecipientNonce(encodedPayload.getRecipientNonce())
                     .withRecipientKeys(encodedPayload.getRecipientKeys())
                     .withRecipientBoxes(
@@ -145,12 +146,14 @@ public class EncodedPayload {
 
         public EncodedPayload build() {
             List<RecipientBox> recipientBoxes =
-                    this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
+                this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
 
             return new EncodedPayload(
                     senderKey, cipherText, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
         }
+
     }
+
 
     @Override
     public boolean equals(Object o) {

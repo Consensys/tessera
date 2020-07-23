@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.ResendRequest;
@@ -40,10 +39,6 @@ public class TransactionResource {
     private final TransactionManager transactionManager;
 
     private final PayloadEncoder encoder;
-
-    public TransactionResource() {
-        this(ServiceFactory.create().transactionManager(), PayloadEncoder.create());
-    }
 
     public TransactionResource(final TransactionManager delegate, final PayloadEncoder payloadEncoder) {
         this.transactionManager = Objects.requireNonNull(delegate);

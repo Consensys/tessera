@@ -11,9 +11,18 @@ public class Recipient {
 
     private final String url;
 
-    public Recipient(final PublicKey key, final String url) {
+
+    private Recipient(final PublicKey key, final String url) {
         this.key = key;
         this.url = url;
+    }
+
+    public static Recipient of(final PublicKey key, final String url) {
+        return new Recipient(key, url);
+    }
+
+    public static Recipient from(final Recipient recipient) {
+        return new Recipient(recipient.getKey(), recipient.getUrl());
     }
 
     public PublicKey getKey() {

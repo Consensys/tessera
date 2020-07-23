@@ -1,5 +1,9 @@
 package com.quorum.tessera.enclave;
 
+import com.quorum.tessera.encryption.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyManager;
 import com.quorum.tessera.encryption.MasterKey;
@@ -13,6 +17,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EnclaveImpl implements Enclave {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveImpl.class);
 
     private final Encryptor encryptor;
 

@@ -1,43 +1,42 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.enclave.EnclaveFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicReference;
 
 public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
 
-    private final ServiceLocator serviceLocator = ServiceLocator.create();
+    private static final AtomicReference<PartyInfoService> REF = new AtomicReference<>();
 
-    public <T> T find(final Class<T> type) {
-        return serviceLocator.getServices().stream()
-                .filter(type::isInstance)
-                .map(type::cast)
-                .findAny()
-                .orElseThrow(() -> new IllegalStateException("Unable to find service type: " + type));
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoServiceFactoryImpl.class);
 
     @Override
-    public ResendManager resendManager() {
-        return find(ResendManager.class);
-    }
+    public PartyInfoService create(Config config) {
 
-    @Override
-    public PartyInfoService partyInfoService() {
-        return find(PartyInfoService.class);
-    }
+        LOGGER.info("Enter create [{},{}]", config, this);
 
-    @Override
-    public Enclave enclave() {
-        return find(Enclave.class);
-    }
+        if (REF.get() == null) {
 
-    @Override
-    public PayloadPublisher payloadPublisher() {
-        return find(PayloadPublisher.class);
-    }
+            LOGGER.info("Create party info service from {} . Factory {}", config, this);
 
-    @Override
-    public PartyInfoStore partyInfoStore() {
-        return find(PartyInfoStore.class);
+
+            Enclave enclave = EnclaveFactory.create().create(config);
+            PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
+            PartyInfoStore partyInfoStore = PartyInfoStore.create(config.getP2PServerConfig().getServerUri());
+            KnownPeerCheckerFactory knownPeerCheckerFactory = new KnownPeerCheckerFactory();
+
+            PartyInfoService partyInfoService =
+                    new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
+            REF.set(partyInfoService);
+
+        } else {
+            LOGGER.info("Looked up existing [{},{}]", config, this);
+        }
+
+        return REF.get();
     }
 }

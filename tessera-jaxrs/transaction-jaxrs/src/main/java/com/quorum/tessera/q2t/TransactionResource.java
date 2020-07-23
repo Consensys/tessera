@@ -1,7 +1,6 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.*;
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -41,10 +40,6 @@ public class TransactionResource {
 
     private final TransactionManager transactionManager;
 
-    public TransactionResource() {
-        this(ServiceFactory.create().transactionManager());
-    }
-
     public TransactionResource(TransactionManager transactionManager) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
     }
@@ -58,7 +53,9 @@ public class TransactionResource {
     @Path("send")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response send(@ApiParam(name = "sendRequest", required = true) @NotNull @Valid final SendRequest sendRequest)
+    public Response send(
+            @ApiParam(name = "sendRequest", required = true) @NotNull @Valid
+                    final SendRequest sendRequest)
             throws UnsupportedEncodingException {
 
         Base64.Decoder base64Decoder = Base64.getDecoder();
@@ -68,14 +65,13 @@ public class TransactionResource {
             .map(PublicKey::from)
             .orElseGet(transactionManager::defaultPublicKey);
 
-        final byte[][] recipients =
+        final List<PublicKey> recipientList =
             Stream.of(sendRequest)
                 .filter(sr -> Objects.nonNull(sr.getTo()))
                 .flatMap(s -> Stream.of(s.getTo()))
                 .map(base64Decoder::decode)
-                .toArray(byte[][]::new);
-
-        final List<PublicKey> recipientList = Stream.of(recipients).map(PublicKey::from).collect(Collectors.toList());
+                .map(PublicKey::from)
+                .collect(Collectors.toList());
 
         com.quorum.tessera.transaction.SendRequest request = com.quorum.tessera.transaction.SendRequest.Builder.create()
             .withRecipients(recipientList)
@@ -85,28 +81,27 @@ public class TransactionResource {
 
         final com.quorum.tessera.transaction.SendResponse response = transactionManager.send(request);
 
-        final String encodedKey = Optional.of(response)
-            .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
-            .map(MessageHash::getHashBytes)
-            .map(Base64.getEncoder()::encodeToString)
-            .get();
+        final String encodedKey =
+                Optional.of(response)
+                        .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
+                        .map(MessageHash::getHashBytes)
+                        .map(Base64.getEncoder()::encodeToString)
+                        .get();
 
-        final SendResponse sendResponse = Optional.of(response)
-            .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
-            .map(MessageHash::getHashBytes)
-            .map(Base64.getEncoder()::encodeToString).map(SendResponse::new).get();
+        final SendResponse sendResponse =
+                Optional.of(response)
+                        .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
+                        .map(MessageHash::getHashBytes)
+                        .map(Base64.getEncoder()::encodeToString)
+                        .map(SendResponse::new)
+                        .get();
 
         final URI location =
                 UriBuilder.fromPath("transaction")
                         .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
                         .build();
 
-        return Response
-                .status(Status.CREATED)
-                .type(APPLICATION_JSON)
-                .location(location)
-                .entity(sendResponse)
-                .build();
+        return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(sendResponse).build();
     }
 
     @ApiOperation(value = "Send private raw transaction payload")

@@ -1,15 +1,19 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.context.RuntimeContextFactory;
+import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.encryption.PublicKey;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
@@ -24,8 +28,11 @@ public class PartyInfoStoreTest {
 
     @Before
     public void onSetUp() throws URISyntaxException {
-        this.partyInfoStore = new PartyInfoStore(new URI(uri));
+        this.partyInfoStore = new PartyInfoStoreImpl(URI.create(uri));
     }
+
+    @After
+    public void onTearDown() {}
 
     @Test
     public void ourUrlEndsWithSlash() {
@@ -64,9 +71,9 @@ public class PartyInfoStoreTest {
         final PublicKey localKey = PublicKey.from("local-key".getBytes());
         final PublicKey remoteKey = PublicKey.from("remote-key".getBytes());
 
-        final PartyInfo incomingLocal = new PartyInfo(uri, singleton(new Recipient(localKey, uri)), emptySet());
+        final PartyInfo incomingLocal = new PartyInfo(uri, singleton(Recipient.of(localKey, uri)), emptySet());
         final PartyInfo incomingRemote =
-                new PartyInfo(uri, singleton(new Recipient(remoteKey, "example.com")), emptySet());
+                new PartyInfo(uri, singleton(Recipient.of(remoteKey, "example.com")), emptySet());
 
         partyInfoStore.store(incomingLocal);
         partyInfoStore.store(incomingRemote);
@@ -75,7 +82,7 @@ public class PartyInfoStoreTest {
 
         assertThat(retrievedRecipients)
                 .hasSize(2)
-                .containsExactlyInAnyOrder(new Recipient(localKey, uri), new Recipient(remoteKey, "example.com"));
+                .containsExactlyInAnyOrder(Recipient.of(localKey, uri), Recipient.of(remoteKey, "example.com"));
     }
 
     @Test
@@ -83,7 +90,7 @@ public class PartyInfoStoreTest {
 
         final PublicKey testKey = PublicKey.from("some-key".getBytes());
 
-        final Set<Recipient> ourKeys = singleton(new Recipient(testKey, uri));
+        final Set<Recipient> ourKeys = singleton(Recipient.of(testKey, uri));
 
         final PartyInfo incoming = new PartyInfo(uri, ourKeys, emptySet());
 
@@ -92,7 +99,7 @@ public class PartyInfoStoreTest {
 
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
-        assertThat(retrievedRecipients).hasSize(1).containsExactly(new Recipient(testKey, uri));
+        assertThat(retrievedRecipients).hasSize(1).containsExactly(Recipient.of(testKey, uri));
     }
 
     @Test
@@ -127,20 +134,20 @@ public class PartyInfoStoreTest {
 
         final PublicKey testKey = PublicKey.from("some-key".getBytes());
 
-        final Set<Recipient> ourKeys = singleton(new Recipient(testKey, uri));
+        final Set<Recipient> ourKeys = singleton(Recipient.of(testKey, uri));
 
         final PartyInfo initial = new PartyInfo(uri, ourKeys, emptySet());
 
         partyInfoStore.store(initial);
 
-        final Set<Recipient> newRecipients = singleton(new Recipient(testKey, "http://other.com"));
+        final Set<Recipient> newRecipients = singleton(Recipient.of(testKey, "http://other.com"));
         final PartyInfo updated = new PartyInfo(uri, newRecipients, emptySet());
 
         partyInfoStore.store(updated);
 
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
-        assertThat(retrievedRecipients).hasSize(1).containsExactly(new Recipient(testKey, "http://other.com"));
+        assertThat(retrievedRecipients).hasSize(1).containsExactly(Recipient.of(testKey, "http://other.com"));
     }
 
     @Test
@@ -149,9 +156,9 @@ public class PartyInfoStoreTest {
         final PublicKey someKey = PublicKey.from("someKey".getBytes());
         final PublicKey someOtherKey = PublicKey.from("someOtherKey".getBytes());
 
-        final PartyInfo somePartyInfo = new PartyInfo(uri, singleton(new Recipient(someKey, uri)), emptySet());
+        final PartyInfo somePartyInfo = new PartyInfo(uri, singleton(Recipient.of(someKey, uri)), emptySet());
         final PartyInfo someOtherPartyInfo =
-                new PartyInfo(uri, singleton(new Recipient(someOtherKey, "somedomain.com")), emptySet());
+                new PartyInfo(uri, singleton(Recipient.of(someOtherKey, "somedomain.com")), emptySet());
 
         partyInfoStore.store(somePartyInfo);
         partyInfoStore.store(someOtherPartyInfo);
@@ -160,12 +167,50 @@ public class PartyInfoStoreTest {
 
         assertThat(retrievedRecipients)
                 .hasSize(2)
-                .containsExactlyInAnyOrder(new Recipient(someKey, uri), new Recipient(someOtherKey, "somedomain.com"));
+                .containsExactlyInAnyOrder(Recipient.of(someKey, uri), Recipient.of(someOtherKey, "somedomain.com"));
 
         // When
         PartyInfo result = partyInfoStore.removeRecipient("somedomain.com");
 
         assertThat(result).isNotNull();
-        assertThat(result.getRecipients()).hasSize(1).containsOnly(new Recipient(someKey, uri));
+        assertThat(result.getRecipients()).hasSize(1).containsOnly(Recipient.of(someKey, uri));
+    }
+
+    @Test
+    public void findRecipientByPublicKey() {
+
+        PublicKey myKey = PublicKey.from("I LOVE SPARROWS".getBytes());
+        Recipient recipient = Recipient.of(myKey, "http://myurl.com");
+
+        PartyInfo partyInfo = new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET);
+        partyInfoStore.store(partyInfo);
+
+        Recipient result = partyInfoStore.findRecipientByPublicKey(myKey);
+        assertThat(result).isSameAs(recipient);
+    }
+
+    @Test(expected = KeyNotFoundException.class)
+    public void findRecipientByPublicKeyNoKeyFound() {
+
+        PublicKey myKey = PublicKey.from("I LOVE SPARROWS".getBytes());
+        Recipient recipient = Recipient.of(myKey, "http://myurl.com");
+
+        PartyInfo partyInfo = new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET);
+        partyInfoStore.store(partyInfo);
+
+        partyInfoStore.findRecipientByPublicKey(PublicKey.from("OTHER KEY".getBytes()));
+    }
+
+    @Test
+    public void getAdvertisedUrl() {
+        assertThat(partyInfoStore.getAdvertisedUrl()).startsWith(uri).endsWith("/");
+    }
+
+    @Test
+    public void create() {
+
+        RuntimeContextFactory.newFactory().create(null);
+        PartyInfoStore instance = PartyInfoStore.create(URI.create("http://junit.com"));
+        assertThat(instance).isNotNull();
     }
 }

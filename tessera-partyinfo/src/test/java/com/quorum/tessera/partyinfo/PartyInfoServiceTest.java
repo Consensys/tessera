@@ -14,14 +14,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.io.UncheckedIOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -55,9 +55,12 @@ public class PartyInfoServiceTest {
 
         when(runtimeContext.getP2pServerUri()).thenReturn(java.net.URI.create(URI));
         when(runtimeContext.getPeers()).thenReturn(List.of(java.net.URI.create("http://other-node.com:8080")));
+        // when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
 
         this.partyInfoService =
                 new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
+
+        assertThat(partyInfoService).isNotNull();
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
@@ -83,7 +86,13 @@ public class PartyInfoServiceTest {
         verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(payloadPublisher);
 
-        reset(partyInfoStore, enclave, payloadPublisher);
+        org.mockito.Mockito.reset(partyInfoStore);
+        org.mockito.Mockito.reset(enclave);
+        org.mockito.Mockito.reset(payloadPublisher);
+
+        verifyNoMoreInteractions(partyInfoStore);
+        verifyNoMoreInteractions(enclave);
+        verifyNoMoreInteractions(payloadPublisher);
     }
 
     @After
@@ -93,6 +102,8 @@ public class PartyInfoServiceTest {
         verifyNoMoreInteractions(enclave);
         verifyNoMoreInteractions(payloadPublisher);
         verifyNoMoreInteractions(knownPeerChecker);
+
+        MockContextHolder.reset();
     }
 
     @Test
@@ -141,9 +152,9 @@ public class PartyInfoServiceTest {
         when(knownPeerChecker.isKnown("http://known.com:8080")).thenReturn(true);
         when(knownPeerChecker.isKnown("http://also-known.com:8080")).thenReturn(true);
 
-        Recipient known = new Recipient(PublicKey.from("known".getBytes()), "http://known.com:8080");
-        Recipient alsoKnown = new Recipient(PublicKey.from("also-known".getBytes()), "http://also-known.com:8080");
-        Recipient unknown = new Recipient(PublicKey.from("unknown".getBytes()), "http://unknown.com:8080");
+        Recipient known = Recipient.of(PublicKey.from("known".getBytes()), "http://known.com:8080");
+        Recipient alsoKnown = Recipient.of(PublicKey.from("also-known".getBytes()), "http://also-known.com:8080");
+        Recipient unknown = Recipient.of(PublicKey.from("unknown".getBytes()), "http://unknown.com:8080");
 
         final PartyInfo forUpdate =
                 new PartyInfo("http://known.com:8080", Set.of(known, alsoKnown, unknown), emptySet());
@@ -161,7 +172,7 @@ public class PartyInfoServiceTest {
 
         assertThat(allRegisteredKeys)
                 .hasSize(1)
-                .containsExactlyInAnyOrder(new Recipient(PublicKey.from("known".getBytes()), "http://known.com:8080"));
+                .containsExactlyInAnyOrder(Recipient.of(PublicKey.from("known".getBytes()), "http://known.com:8080"));
 
         verify(partyInfoStore).getPartyInfo();
         verify(knownPeerChecker).isKnown("http://known.com:8080");
@@ -173,15 +184,14 @@ public class PartyInfoServiceTest {
         when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
         when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
 
-        when(knownPeerChecker.isKnown("http://other-node.com:8080")).thenReturn(true);
+        final String otherNode = "http://other-node.com:8080";
+        when(knownPeerChecker.isKnown(otherNode)).thenReturn(true);
 
-        final PartyInfo forUpdate =
-                new PartyInfo(
-                        "http://other-node.com:8080", emptySet(), Stream.of(new Party("unknown")).collect(toSet()));
+        final PartyInfo forUpdate = new PartyInfo(otherNode, emptySet(), Set.of(new Party("unknown")));
 
         partyInfoService.updatePartyInfo(forUpdate);
 
-        // check that the only added keys were from that node (and our own)
+        //        // check that the only added keys were from that node (and our own)
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
 
         verify(partyInfoStore).getPartyInfo();
@@ -190,7 +200,7 @@ public class PartyInfoServiceTest {
         final PartyInfo captured = captor.getValue();
         assertThat(captured.getParties()).hasSize(1);
         assertThat(captured.getParties().iterator().next().getUrl()).isNotEqualTo("unknown");
-
+        //
         verify(knownPeerChecker).isKnown("http://other-node.com:8080");
     }
 
@@ -211,7 +221,7 @@ public class PartyInfoServiceTest {
         PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
 
         PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(singleton(new Recipient(recipientKey, "http://somehost.com")));
+        when(partyInfo.getRecipients()).thenReturn(singleton(Recipient.of(recipientKey, "http://somehost.com")));
         when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
 
         EncodedPayload payload = mock(EncodedPayload.class);
@@ -222,6 +232,7 @@ public class PartyInfoServiceTest {
         verify(partyInfoStore).getPartyInfo();
         verify(enclave).getPublicKeys();
     }
+
 
     @Test
     public void publishPayloadDoesntPublishToSender() {
@@ -270,15 +281,13 @@ public class PartyInfoServiceTest {
         final String uri = "http://localhost:8080";
 
         final PublicKey testKey = PublicKey.from("some-key".getBytes());
-        final PartyInfo initial = new PartyInfo(uri, singleton(new Recipient(testKey, uri)), emptySet());
+        final PartyInfo initial = new PartyInfo(uri, singleton(Recipient.of(testKey, uri)), emptySet());
         when(partyInfoStore.getPartyInfo()).thenReturn(initial);
 
         final PublicKey extraKey = PublicKey.from("some-other-key".getBytes());
 
         final Set<Recipient> newRecipients =
-                Set.of(
-                        new Recipient(testKey, "http://other.com"),
-                        new Recipient(extraKey, "http://some-other-url.com"));
+                Set.of(Recipient.of(testKey, "http://other.com"), Recipient.of(extraKey, "http://some-other-url.com"));
 
         final PartyInfo updated = new PartyInfo(uri, newRecipients, emptySet());
 
@@ -286,7 +295,7 @@ public class PartyInfoServiceTest {
         final PartyInfo updatedInfo = partyInfoService.updatePartyInfo(updated);
 
         // verify
-        assertThat(updatedInfo.getRecipients()).hasSize(1).containsExactly(new Recipient(testKey, uri));
+        assertThat(updatedInfo.getRecipients()).hasSize(1).containsExactly(Recipient.of(testKey, uri));
         verify(partyInfoStore, times(2)).getPartyInfo();
         verify(partyInfoStore).store(any(PartyInfo.class));
     }
@@ -321,11 +330,83 @@ public class PartyInfoServiceTest {
         String expectedAdvertisedUrl = String.format("%s/", p2pUrl);
         Set<Recipient> expected =
                 Set.of(
-                        new Recipient(PublicKey.from("some-key".getBytes()), expectedAdvertisedUrl),
-                        new Recipient(PublicKey.from("another-public-key".getBytes()), expectedAdvertisedUrl));
+                        Recipient.of(PublicKey.from("some-key".getBytes()), expectedAdvertisedUrl),
+                        Recipient.of(PublicKey.from("another-public-key".getBytes()), expectedAdvertisedUrl));
         assertThat(capturedRecipients).containsExactlyInAnyOrderElementsOf(expected);
 
         verify(enclave).getPublicKeys();
         verify(partyInfoStore).getPartyInfo();
+    }
+
+    @Test
+    public void connectionIssuesBubbleUp() {
+
+        final String url = "http://myurl";
+
+        when(enclave.getPublicKeys()).thenThrow(UncheckedIOException.class);
+
+        final Throwable throwable = catchThrowable(this.partyInfoService::syncKeys);
+        assertThat(throwable).isInstanceOf(UncheckedIOException.class);
+
+        verify(enclave).getPublicKeys();
+        verify(partyInfoStore).getAdvertisedUrl();
+    }
+
+    @Test
+    public void fetchedKeysAreAddedToStore() {
+
+        final String url = "http://myurl";
+
+        when(partyInfoStore.getAdvertisedUrl()).thenReturn(url);
+
+        final PublicKey keyOne = PublicKey.from("KeyOne".getBytes());
+        final PublicKey keyTwo = PublicKey.from("KeyTwo".getBytes());
+
+        when(enclave.getPublicKeys()).thenReturn(Set.of(keyOne, keyTwo));
+
+        final List<PartyInfo> result = new ArrayList<>(1);
+        doAnswer(
+                        invocation -> {
+                            result.add(invocation.getArgument(0));
+                            return null;
+                        })
+                .when(partyInfoStore)
+                .store(any(PartyInfo.class));
+
+        partyInfoService.syncKeys();
+
+        assertThat(result).hasSize(1);
+
+        final PartyInfo updatedStore = result.iterator().next();
+        assertThat(updatedStore.getRecipients())
+                .containsExactlyInAnyOrder(Recipient.of(keyOne, url), Recipient.of(keyTwo, url));
+
+        verify(enclave).getPublicKeys();
+        verify(partyInfoStore).getAdvertisedUrl();
+        verify(partyInfoStore).store(any(PartyInfo.class));
+    }
+
+    @Test
+    public void testStoreIsPopulatedWithOurKeys() {
+
+        java.net.URI uri = java.net.URI.create(URI);
+        PartyInfoStore store = spy(PartyInfoStore.create(uri));
+
+        final KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
+        when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
+
+        PartyInfoServiceImpl partyInfoService =
+                new PartyInfoServiceImpl(store, enclave, payloadPublisher, knownPeerCheckerFactory);
+
+        final Set<PublicKey> ourKeys =
+                Set.of(PublicKey.from("some-key".getBytes()), PublicKey.from("another-public-key".getBytes()));
+
+        when(enclave.getPublicKeys()).thenReturn(ourKeys);
+
+        partyInfoService.populateStore();
+
+        verify(store).store(any(PartyInfo.class));
+
+        verify(enclave).getPublicKeys();
     }
 }

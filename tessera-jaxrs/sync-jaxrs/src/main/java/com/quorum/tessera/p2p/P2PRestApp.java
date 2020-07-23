@@ -4,11 +4,17 @@ import com.quorum.tessera.api.filter.GlobalFilter;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
+import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
@@ -29,11 +35,14 @@ public class P2PRestApp extends TesseraRestApplication {
 
     private final Enclave enclave;
 
+    private final Config config;
 
     public P2PRestApp() {
         final ServiceFactory serviceFactory = ServiceFactory.create();
-        this.partyInfoService = serviceFactory.partyInfoService();
-        this.enclave = serviceFactory.enclave();
+        this.config = serviceFactory.config();
+        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
+        this.partyInfoService = partyInfoServiceFactory.create(config);
+        this.enclave = EnclaveFactory.create().create(config);
     }
 
     @Override
@@ -51,7 +60,11 @@ public class P2PRestApp extends TesseraRestApplication {
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
-        final TransactionResource transactionResource = new TransactionResource();
+        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
+        TransactionManager transactionManager = transactionManagerFactory.create(config);
+        PayloadEncoder payloadEncoder = PayloadEncoder.create();
+
+        final TransactionResource transactionResource = new TransactionResource(transactionManager, payloadEncoder);
 
         return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource);
     }
