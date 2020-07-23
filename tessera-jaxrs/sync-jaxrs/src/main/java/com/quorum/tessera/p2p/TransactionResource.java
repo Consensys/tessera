@@ -41,10 +41,6 @@ public class TransactionResource {
 
     private final PayloadEncoder encoder;
 
-    public TransactionResource() {
-        this(ServiceFactory.create().transactionManager(), PayloadEncoder.create());
-    }
-
     public TransactionResource(final TransactionManager delegate, final PayloadEncoder payloadEncoder) {
         this.transactionManager = Objects.requireNonNull(delegate);
         this.encoder = Objects.requireNonNull(payloadEncoder);
