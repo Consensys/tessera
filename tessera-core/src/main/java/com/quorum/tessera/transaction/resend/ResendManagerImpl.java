@@ -9,7 +9,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,15 +40,15 @@ public class ResendManagerImpl implements ResendManager {
         final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
 
         final MessageHash transactionHash =
-            Optional.of(payload)
-                .map(EncodedPayload::getCipherText)
-                .map(messageHashFactory::createFromCipherText)
-                .get();
+                Optional.of(payload)
+                        .map(EncodedPayload::getCipherText)
+                        .map(messageHashFactory::createFromCipherText)
+                        .get();
 
         final PublicKey sender = payload.getSenderKey();
         if (!enclave.getPublicKeys().contains(sender)) {
             throw new IllegalArgumentException(
-                "Message " + transactionHash.toString() + " does not have one the nodes own keys as a sender");
+                    "Message " + transactionHash.toString() + " does not have one the nodes own keys as a sender");
         }
 
         // this is a tx which we created
@@ -67,8 +66,8 @@ public class ResendManagerImpl implements ResendManager {
                 // lets compare it against another message received before
                 final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
                 final boolean same =
-                    Arrays.equals(newDecrypted, oldDecrypted)
-                        && Arrays.equals(payload.getCipherText(), existing.getCipherText());
+                        Arrays.equals(newDecrypted, oldDecrypted)
+                                && Arrays.equals(payload.getCipherText(), existing.getCipherText());
 
                 if (!same) {
                     throw new IllegalArgumentException("Invalid payload provided");
@@ -77,8 +76,8 @@ public class ResendManagerImpl implements ResendManager {
                 // check recipients
                 if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
                     payloadBuilder
-                        .withRecipientKey(payload.getRecipientKeys().get(0))
-                        .withRecipientBox(payload.getRecipientBoxes().get(0).getData());
+                            .withRecipientKey(payload.getRecipientKeys().get(0))
+                            .withRecipientBox(payload.getRecipientBoxes().get(0).getData());
                 }
 
                 EncryptedTransaction encryptedTransaction = tx.get();
