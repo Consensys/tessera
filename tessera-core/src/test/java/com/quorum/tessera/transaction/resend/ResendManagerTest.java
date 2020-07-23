@@ -177,10 +177,8 @@ public class ResendManagerTest {
 
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(payloadEncoder).decode(storedData);
-        verify(payloadEncoder).encode(any(EncodedPayload.class));
         verify(enclave).getPublicKeys();
-        verify(enclave, times(2)).unencryptTransaction(encodedPayload, null);
-        verify(encryptedTransactionDAO).update(et);
+        verify(enclave).unencryptTransaction(encodedPayload, null);
     }
 
     @Test
