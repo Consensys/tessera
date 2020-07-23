@@ -1,10 +1,10 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.util.Base64Codec;
 import io.swagger.annotations.*;
@@ -39,13 +39,15 @@ public class TransactionResource {
 
     private final TransactionManager transactionManager;
 
-    private final PayloadEncoder payloadEncoder;
+    private final PayloadEncoder encoder;
 
-    public TransactionResource(
-            TransactionManager transactionManager,
-            PayloadEncoder payloadEncoder) {
-        this.transactionManager = Objects.requireNonNull(transactionManager);
-        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+    public TransactionResource() {
+        this(ServiceFactory.create().transactionManager(), PayloadEncoder.create());
+    }
+
+    public TransactionResource(final TransactionManager delegate, final PayloadEncoder payloadEncoder) {
+        this.transactionManager = Objects.requireNonNull(delegate);
+        this.encoder = Objects.requireNonNull(payloadEncoder);
     }
 
     @ApiOperation("Resend transactions for given key or message hash/recipient")
@@ -85,10 +87,9 @@ public class TransactionResource {
 
         com.quorum.tessera.transaction.ResendResponse response = transactionManager.resend(request);
         Response.ResponseBuilder builder = Response.status(Status.OK);
-        Optional.ofNullable(response.getPayload()).map(payloadEncoder::encode).ifPresent(builder::entity);
+        Optional.ofNullable(response.getPayload()).map(encoder::encode).ifPresent(builder::entity);
         return builder.build();
     }
-
 
     @ApiOperation(value = "Transmit encrypted payload between P2PRestApp Nodes")
     @ApiResponses({
@@ -103,10 +104,9 @@ public class TransactionResource {
 
         LOGGER.debug("Received push request");
 
-        EncodedPayload encodedPayload = payloadEncoder.decode(payload);
-        final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
+        final MessageHash messageHash = transactionManager.storePayload(encoder.decode(payload));
         LOGGER.debug("Push request generated hash {}", messageHash);
-        // TODO: Return the query url not the string of the messageHAsh
+        // TODO: Return the query url not the string of the messageHash
         return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();
     }
 }

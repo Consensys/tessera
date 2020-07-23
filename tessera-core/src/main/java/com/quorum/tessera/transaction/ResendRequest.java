@@ -44,10 +44,10 @@ public interface ResendRequest {
         }
 
         public ResendRequest build() {
-            Objects.requireNonNull(recipient,"Recipient is required");
-            Objects.requireNonNull(type,"ResendRequestType is required");
-            if(type == ResendRequestType.INDIVIDUAL) {
-                Objects.requireNonNull(hash,"Transaction hash is required for individual resends");
+            Objects.requireNonNull(recipient, "Recipient is required");
+            Objects.requireNonNull(type, "ResendRequestType is required");
+            if (type == ResendRequestType.INDIVIDUAL) {
+                Objects.requireNonNull(hash, "Transaction hash is required for individual resends");
             }
 
             return new ResendRequest() {
@@ -67,8 +67,5 @@ public interface ResendRequest {
                 }
             };
         }
-
     }
-
-
 }
