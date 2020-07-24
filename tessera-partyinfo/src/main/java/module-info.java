@@ -11,6 +11,4 @@ module tessera.tessera.partyinfo.main {
     exports com.quorum.tessera.partyinfo;
     exports com.quorum.tessera.partyinfo.model;
     exports com.quorum.tessera.sync;
-
-    provides com.quorum.tessera.partyinfo.ExclusionCache with com.quorum.tessera.partyinfo.RecipientExclusionCache;
 }
