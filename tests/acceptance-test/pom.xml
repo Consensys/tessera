@@ -207,6 +207,7 @@
                         <include>ConfigMigrationIT</include>
                         <include>P2pTestSuite</include>
                         <include>SendWithRemoteEnclaveReconnectIT</include>
+                        <include>NodeRemoval</include>
                     </includes>
                 </configuration>
                 <executions>
