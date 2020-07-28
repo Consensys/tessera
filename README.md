@@ -195,5 +195,8 @@ The best way to receive security announcements is to subscribe to the Quorum-ann
 
 Comments on This Policy If you have any suggestions to improve this policy, please send an email to info@goquorum.com for discussion.
 
+## Contributing
+Tessera is built open source and we welcome external contribution on features and enhancements. Upon review you will be required to complete a Contributor License Agreement (CLA) before we are able to merge. If you have any questions about the contribution process, please feel free to send an email to [info@goquorum.com](mailto:info@goquorum.com). Please see the [Contributors guide](.github/CONTRIBUTING.md) in wiki for more information about the process.
+
 # Getting Help
 Stuck at some step? Please join our  <a href="https://www.goquorum.com/slack-inviter" target="_blank" rel="noopener">slack community</a> for support.
