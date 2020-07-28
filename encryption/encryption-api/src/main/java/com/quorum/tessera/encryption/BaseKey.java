@@ -35,14 +35,14 @@ public abstract class BaseKey implements Key {
     @Override
     public String toString() {
 
-        final String typeName = Stream.of(getClass())
-            .map(Class::getInterfaces)
-            .flatMap(Stream::of)
-            .map(Class::getName)
-            .findFirst()
-            .get();
+        final String typeName =
+                Stream.of(getClass())
+                        .map(Class::getInterfaces)
+                        .flatMap(Stream::of)
+                        .map(Class::getName)
+                        .findFirst()
+                        .get();
 
-        return typeName + "@" + Integer.toHexString(hashCode());
+        return typeName;
     }
-
 }

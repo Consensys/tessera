@@ -2,9 +2,7 @@ package com.quorum.tessera.encryption;
 
 import java.util.Arrays;
 
-/**
- * A set of random bytes intended for one time use to encrypt a message
- */
+/** A set of random bytes intended for one time use to encrypt a message */
 public class Nonce {
 
     private final byte[] nonceBytes;
@@ -29,7 +27,6 @@ public class Nonce {
 
     @Override
     public String toString() {
-        return Arrays.toString(nonceBytes);
+        return getClass().getName();
     }
-
 }
