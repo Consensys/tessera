@@ -91,6 +91,7 @@ public class NodeRemoval {
     @After
     public void onTearDown() throws Exception {
         executors.forEach(ExecManager::stop);
+        ExecutionContext.destroyContext();
     }
 
     private void checkAllNodesAreRunning() throws Exception {
