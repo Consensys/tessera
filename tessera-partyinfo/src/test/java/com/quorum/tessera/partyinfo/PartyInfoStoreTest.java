@@ -21,6 +21,7 @@ import java.util.Set;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class PartyInfoStoreTest {
 
@@ -28,13 +29,23 @@ public class PartyInfoStoreTest {
 
     private PartyInfoStore partyInfoStore;
 
+    private ExclusionCache exclusionCache;
+
+    private RuntimeContext runtimeContext;
+
     @Before
     public void onSetUp() throws URISyntaxException {
-        this.partyInfoStore = new PartyInfoStoreImpl(URI.create(uri));
+        runtimeContext = RuntimeContext.getInstance();
+        exclusionCache = mock(ExclusionCache.class);
+        this.partyInfoStore = new PartyInfoStoreImpl(URI.create(uri),exclusionCache);
     }
 
     @After
-    public void onTearDown() {}
+    public void onTearDown() {
+        MockContextHolder.reset();
+        verifyNoMoreInteractions(exclusionCache,runtimeContext);
+
+    }
 
     @Test
     public void ourUrlEndsWithSlash() {
@@ -45,15 +56,23 @@ public class PartyInfoStoreTest {
 
     @Test
     public void registeringDifferentPeersAdds() {
+        String targetUrl = "example.com/";
+
+        Recipient recipient = Recipient.of(PublicKey.from("SomeData".getBytes()),targetUrl);
+
         final PartyInfo incomingInfo =
-                new PartyInfo("http://localhost:8080/", emptySet(), singleton(new Party("example.com/")));
+                new PartyInfo("http://localhost:8080/", Set.of(recipient), Set.of((new Party(targetUrl))));
 
         this.partyInfoStore.store(incomingInfo);
 
         final PartyInfo output = this.partyInfoStore.getPartyInfo();
 
         assertThat(output.getParties())
-                .containsExactlyInAnyOrder(new Party("http://localhost:8080/"), new Party("example.com/"));
+                .containsExactlyInAnyOrder(new Party("http://localhost:8080/"), new Party(targetUrl));
+
+        verify(exclusionCache).isExcluded(recipient);
+        verify(exclusionCache).include("http://localhost:8080/");
+        verify(runtimeContext).isDisablePeerDiscovery();
     }
 
     @Test
@@ -84,6 +103,8 @@ public class PartyInfoStoreTest {
         partyInfoStore.store(incomingLocal);
         partyInfoStore.store(incomingRemote);
 
+        verify(exclusionCache,times(2)).isExcluded(any(Recipient.class));
+
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
         assertThat(retrievedRecipients)
@@ -106,6 +127,9 @@ public class PartyInfoStoreTest {
 
         partyInfoStore.store(incoming);
         partyInfoStore.store(incoming);
+
+        verify(exclusionCache,times(2)).isExcluded(any(Recipient.class));
+
 
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
@@ -164,6 +188,10 @@ public class PartyInfoStoreTest {
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
         assertThat(retrievedRecipients).hasSize(1).containsExactly(Recipient.of(testKey, "http://other.com"));
+        verify(exclusionCache,times(2)).include(uri);
+        verify(exclusionCache,times(2)).isExcluded(any(Recipient.class));
+        verify(runtimeContext,times(2)).isDisablePeerDiscovery();
+
     }
 
     @Test
@@ -179,6 +207,8 @@ public class PartyInfoStoreTest {
         partyInfoStore.store(somePartyInfo);
         partyInfoStore.store(someOtherPartyInfo);
 
+        verify(exclusionCache,times(2)).isExcluded(any(Recipient.class));
+
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
         assertThat(retrievedRecipients)
@@ -190,6 +220,10 @@ public class PartyInfoStoreTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipients()).hasSize(1).containsOnly(Recipient.of(someKey, uri));
+        verify(exclusionCache).exclude(any(Recipient.class));
+        verify(exclusionCache,times(2)).include(uri);
+        verify(runtimeContext,times(2)).isDisablePeerDiscovery();
+
     }
 
     @Test
@@ -203,6 +237,9 @@ public class PartyInfoStoreTest {
 
         Recipient result = partyInfoStore.findRecipientByPublicKey(myKey);
         assertThat(result).isSameAs(recipient);
+        verify(exclusionCache).include(uri);
+        verify(exclusionCache).isExcluded(any(Recipient.class));
+        verify(runtimeContext).isDisablePeerDiscovery();
     }
 
     @Test(expected = KeyNotFoundException.class)
@@ -214,7 +251,13 @@ public class PartyInfoStoreTest {
         PartyInfo partyInfo = new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET);
         partyInfoStore.store(partyInfo);
 
+        verify(exclusionCache).isExcluded(any(Recipient.class));
+        verify(exclusionCache).include(uri);
+        verify(runtimeContext).isDisablePeerDiscovery();
         partyInfoStore.findRecipientByPublicKey(PublicKey.from("OTHER KEY".getBytes()));
+
+
+
     }
 
     @Test
@@ -229,4 +272,74 @@ public class PartyInfoStoreTest {
         PartyInfoStore instance = PartyInfoStore.create(URI.create("http://junit.com"));
         assertThat(instance).isNotNull();
     }
+
+
+    @Test
+    public void recipientInExcludeCacheIdFiltered() {
+
+        String targetUrl = "http://jonnysixkiller.com/";
+
+        Recipient recipient = Recipient.of(PublicKey.from("SomeData".getBytes()),targetUrl);
+
+        final PartyInfo initialPartyInfo =
+            new PartyInfo("http://localhost:8080/",Set.of(recipient),
+                Set.of(new Party(targetUrl)));
+
+        this.partyInfoStore.store(initialPartyInfo);
+        partyInfoStore.removeRecipient(targetUrl);
+        verify(exclusionCache).exclude(recipient);
+
+        when(exclusionCache.isExcluded(recipient)).thenReturn(true);
+
+        final PartyInfo incomingInfo =
+            new PartyInfo("http://localhost:8080/",Set.of(recipient), Set.of(new Party(targetUrl)));
+
+        this.partyInfoStore.store(incomingInfo);
+
+        final PartyInfo output = this.partyInfoStore.getPartyInfo();
+
+        assertThat(output.getParties())
+            .containsOnly(new Party("http://localhost:8080/"));
+
+        assertThat(output.getRecipients()).isEmpty();
+
+        verify(exclusionCache,times(2)).isExcluded(recipient);
+        verify(exclusionCache,times(2)).include(anyString());
+        verify(runtimeContext,times(2)).isDisablePeerDiscovery();
+
+    }
+
+
+    @Test
+    public void storeWithDiscoveryDisabled() {
+
+            when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
+
+            PartyInfo partyInfo = mock(PartyInfo.class);
+            when(partyInfo.getUrl()).thenReturn("http://junit.xom");
+
+            Party party = mock(Party.class);
+            when(party.getUrl()).thenReturn("http://party.it");
+
+            when(partyInfo.getParties()).thenReturn(Set.of(party));
+
+            partyInfoStore.store(partyInfo);
+
+            verify(runtimeContext).isDisablePeerDiscovery();
+    }
+
+    @Test
+    public void addRecipientThatsBeenExcluded() {
+        String url = "http://StanKirsch.com";
+        Recipient recipient = mock(Recipient.class);
+        when(recipient.getUrl()).thenReturn(url);
+
+        when(exclusionCache.include(url)).thenReturn(Optional.of(recipient));
+
+        PartyInfoStoreImpl.class.cast(partyInfoStore).addRecipient(url);
+
+        verify(exclusionCache).include(url);
+
+    }
+
 }

@@ -11,8 +11,10 @@ public interface PartyInfoStore {
 
 
     static PartyInfoStore create(URI uri) {
+
+        ExclusionCache<Recipient> recipientExclusionCache = ExclusionCache.create();
         return ServiceLoaderUtil.load(PartyInfoStore.class)
-            .orElse(new PartyInfoStoreImpl(uri));
+            .orElse(new PartyInfoStoreImpl(uri,recipientExclusionCache));
     }
 
     PartyInfo getPartyInfo();

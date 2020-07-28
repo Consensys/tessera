@@ -236,6 +236,35 @@ public class PartyInfoServiceTest {
 
 
     @Test
+    public void publishPayloadRecipientRemovedOnError() {
+
+        final String targetUrl = "http://somehost.com";
+
+        when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("Key Data".getBytes())));
+
+        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
+
+        PartyInfo partyInfo = mock(PartyInfo.class);
+        when(partyInfo.getRecipients()).thenReturn(singleton(Recipient.of(recipientKey, targetUrl)));
+        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        doThrow(ProcessingException.class).when(payloadPublisher).publishPayload(payload,targetUrl);
+
+        try {
+            partyInfoService.publishPayload(payload, recipientKey);
+            failBecauseExceptionWasNotThrown(PartyOfflineException.class);
+        } catch (PartyOfflineException exception) {
+            verify(payloadPublisher).publishPayload(payload, targetUrl);
+            verify(partyInfoStore).removeRecipient(targetUrl);
+            verify(partyInfoStore).getPartyInfo();
+            verify(enclave).getPublicKeys();
+        }
+
+    }
+
+    @Test
     public void publishPayloadDoesntPublishToSender() {
 
         PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());

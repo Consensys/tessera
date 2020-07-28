@@ -157,9 +157,15 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         LOGGER.info("Publishing message to {}", targetUrl);
 
-        payloadPublisher.publishPayload(payload, targetUrl);
+        try {
+            payloadPublisher.publishPayload(payload, targetUrl);
+            LOGGER.info("Published to {}", targetUrl);
+        } catch (ProcessingException ex) {
+            this.removeRecipient(targetUrl);
+            LOGGER.warn("Publish to {} failed.", targetUrl);
+            throw new PartyOfflineException(String.format("Publish to %s failed.",targetUrl),ex);
+        }
 
-        LOGGER.info("Published to {}", targetUrl);
     }
 
     /**
