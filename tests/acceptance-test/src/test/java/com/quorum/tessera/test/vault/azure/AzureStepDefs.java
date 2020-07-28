@@ -1,22 +1,24 @@
 package com.quorum.tessera.test.vault.azure;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
+import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.util.ElUtil;
 import cucumber.api.java8.En;
 import exec.NodeExecManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.ws.rs.core.UriBuilder;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -37,6 +39,8 @@ import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_S
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AzureStepDefs implements En {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AzureStepDefs.class);
 
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final AtomicReference<Process> tesseraProcess = new AtomicReference<>();
@@ -225,6 +229,19 @@ public class AzureStepDefs implements En {
         Then(
                 "^Tessera will retrieve the key pair from AKV$",
                 () -> {
+                    final ObjectMapper mapper = new ObjectMapper();
+                    List<ServeEvent> allServeEvents = wireMockServer.get().getAllServeEvents();
+                    LOGGER.info("CHRISSY allServeEvents:");
+                    allServeEvents.forEach(
+                            e -> {
+                                try {
+                                    String jsonString = mapper.writeValueAsString(e);
+                                    LOGGER.info("CHRISSY: {}", jsonString);
+                                } catch (JsonProcessingException ex) {
+                                    throw new RuntimeException(ex);
+                                }
+                            });
+
                     wireMockServer.get().verify(2, postRequestedFor(urlEqualTo(authUrl)));
                     wireMockServer.get().verify(3, getRequestedFor(urlPathEqualTo(publicKeyUrl)));
                     wireMockServer.get().verify(2, getRequestedFor(urlPathEqualTo(privateKeyUrl)));
@@ -353,6 +370,7 @@ public class AzureStepDefs implements En {
         Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
         tesseraEnvironment.put(AZURE_CLIENT_ID, "my-client-id");
         tesseraEnvironment.put(AZURE_CLIENT_SECRET, "my-client-secret");
+        tesseraEnvironment.put("AZURE_TENANT_ID", "blah-tenant-id");
 
         try {
             tesseraProcess.set(tesseraProcessBuilder.redirectErrorStream(true).start());
