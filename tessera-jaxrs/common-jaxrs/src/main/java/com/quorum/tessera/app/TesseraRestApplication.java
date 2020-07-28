@@ -31,7 +31,8 @@ public abstract class TesseraRestApplication extends Application implements Tess
                 UpCheckResource.class,
                 VersionResource.class,
                 ApiResource.class,
-                BaseResource.class);
+                BaseResource.class,
+                PartyOfflineExceptionMapper.class);
     }
 
     @Override

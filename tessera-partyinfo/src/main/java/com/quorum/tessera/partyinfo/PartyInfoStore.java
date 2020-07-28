@@ -1,6 +1,5 @@
 package com.quorum.tessera.partyinfo;
 
-
 import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -25,6 +24,7 @@ public interface PartyInfoStore {
     String getAdvertisedUrl();
 
     PartyInfo removeRecipient(String s);
+
 }
 
 

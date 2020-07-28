@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import javax.ws.rs.ProcessingException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -409,4 +410,6 @@ public class PartyInfoServiceTest {
 
         verify(enclave).getPublicKeys();
     }
+
+
 }

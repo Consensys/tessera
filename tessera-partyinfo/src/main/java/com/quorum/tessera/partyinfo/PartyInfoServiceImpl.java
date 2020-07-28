@@ -10,6 +10,8 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.ws.rs.ProcessingException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -92,6 +94,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         if (!runtimeContext.isDisablePeerDiscovery()) {
             // auto-discovery is on, we can accept all input to us
+
             this.partyInfoStore.store(partyInfo);
             return this.getPartyInfo();
         }

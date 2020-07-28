@@ -76,7 +76,8 @@ test {
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',
-            '**/RunAzureIT.class'
+            '**/RunAzureIT.class',
+            '**/NodeRemoval.class'
     )
 
     if (project.hasProperty('excludeTests')) {

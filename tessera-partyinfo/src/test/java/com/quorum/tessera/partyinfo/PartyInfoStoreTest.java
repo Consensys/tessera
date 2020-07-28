@@ -1,5 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.partyinfo.model.Party;
@@ -14,6 +15,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
@@ -64,6 +66,10 @@ public class PartyInfoStoreTest {
         final PartyInfo output = this.partyInfoStore.getPartyInfo();
 
         assertThat(output.getParties()).containsExactlyInAnyOrder(new Party("http://localhost:8080/"));
+
+        verify(exclusionCache).include("http://localhost:8080/");
+
+        verify(runtimeContext).isDisablePeerDiscovery();
     }
 
     @Test
@@ -83,6 +89,10 @@ public class PartyInfoStoreTest {
         assertThat(retrievedRecipients)
                 .hasSize(2)
                 .containsExactlyInAnyOrder(Recipient.of(localKey, uri), Recipient.of(remoteKey, "example.com"));
+
+        verify(exclusionCache,times(2)).include(uri);
+
+        verify(runtimeContext,times(2)).isDisablePeerDiscovery();
     }
 
     @Test
@@ -100,6 +110,9 @@ public class PartyInfoStoreTest {
         final Set<Recipient> retrievedRecipients = partyInfoStore.getPartyInfo().getRecipients();
 
         assertThat(retrievedRecipients).hasSize(1).containsExactly(Recipient.of(testKey, uri));
+        verify(exclusionCache,times(2)).include(uri);
+
+        verify(runtimeContext,times(2)).isDisablePeerDiscovery();
     }
 
     @Test
@@ -127,6 +140,9 @@ public class PartyInfoStoreTest {
         // so check they are not the same object, meaning the time was overwritten (just with the same time)
         assertThat(firstContact).isNotSameAs(secondContact);
         assertThat(firstContact).isBeforeOrEqualTo(secondContact);
+
+        verify(exclusionCache,times(2)).include(anyString());
+        verify(runtimeContext,times(2)).isDisablePeerDiscovery();
     }
 
     @Test

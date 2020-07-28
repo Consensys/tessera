@@ -1,5 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.time.Instant;
 import java.util.*;
+import java.util.function.Predicate;
 
 public class PartyInfoStoreImpl implements PartyInfoStore {
 
@@ -22,14 +24,16 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
 
     private final Set<Party> parties;
 
-    protected PartyInfoStoreImpl(URI advertisedUrl) {
+    private final ExclusionCache<Recipient> exclusionCache;
+
+    protected PartyInfoStoreImpl(URI advertisedUrl,ExclusionCache<Recipient> exclusionCache) {
         // TODO: remove the extra "/" when we deprecate backwards compatibility
         this.advertisedUrl = URLNormalizer.create().normalize(advertisedUrl.toString());
         this.recipients = new HashMap<>();
         this.parties = new HashSet<>();
         this.parties.add(new Party(this.advertisedUrl));
+        this.exclusionCache = Objects.requireNonNull(exclusionCache);
     }
-
     /**
      * Merge an incoming {@link PartyInfo} into the current one, adding any new keys or parties to the current store
      *
@@ -37,11 +41,27 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
      */
     public synchronized void store(final PartyInfo newInfo) {
 
-        for (Recipient recipient : newInfo.getRecipients()) {
-            recipients.put(recipient.getKey(), recipient);
-        }
 
-        parties.addAll(newInfo.getParties());
+        RuntimeContext runtimeContext = RuntimeContext.getInstance();
+        if(!runtimeContext.isDisablePeerDiscovery()) {
+            addRecipient(newInfo.getUrl());
+
+            final Set<String> excludedUrls = new HashSet<>();
+            for (Recipient recipient : newInfo.getRecipients()) {
+                if(exclusionCache.isExcluded(recipient)) {
+                    LOGGER.info("Recipient {} is excluded. Assumed offline",recipient);
+                    parties.removeIf(p -> Objects.equals(p.getUrl(),recipient.getUrl()));
+                    recipients.remove(recipient.getKey());
+                    excludedUrls.add(recipient.getUrl());
+                } else {
+                    recipients.put(recipient.getKey(), recipient);
+                }
+            }
+
+            newInfo.getParties().stream()
+                .filter(Predicate.not(p -> excludedUrls.contains(p.getUrl())))
+                .forEach(parties::add);
+        }
 
         // update the sender to have been seen recently
         final Party sender = new Party(newInfo.getUrl());
@@ -59,16 +79,30 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
         return new PartyInfo(advertisedUrl, Set.copyOf(recipients.values()), Set.copyOf(parties));
     }
 
+
+
     public synchronized PartyInfo removeRecipient(final String uri) {
         recipients.entrySet().stream()
             .filter(e -> uri.startsWith(e.getValue().getUrl()))
             .map(Map.Entry::getKey)
             .findFirst()
-            .ifPresent(recipients::remove);
+            .ifPresent(r -> {
+                exclusionCache.exclude(recipients.get(r));
+                recipients.remove(r);
+                parties.removeIf(p -> uri.startsWith(p.getUrl()));
+            });
 
         LOGGER.info("Removed recipient {} from local PartyInfo store", uri);
 
         return this.getPartyInfo();
+    }
+
+    public synchronized void addRecipient(String recipient) {
+        exclusionCache.include(recipient).ifPresent(r -> {
+            recipients.put(r.getKey(),r);
+            parties.add(new Party(r.getUrl()));
+        });
+
     }
 
     public Recipient findRecipientByPublicKey(PublicKey key) {
