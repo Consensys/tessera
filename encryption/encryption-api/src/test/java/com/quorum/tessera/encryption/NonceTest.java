@@ -1,6 +1,5 @@
 package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.encryption.Nonce;
 import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
@@ -16,20 +15,14 @@ public class NonceTest {
     public void pojo() {
         EqualsVerifier.configure().suppress(STRICT_INHERITANCE).forClass(Nonce.class).verify();
 
-        ValidatorBuilder.create()
-            .with(new GetterTester())
-            .build()
-            .validate(PojoClassFactory.getPojoClass(Nonce.class));
-
+        ValidatorBuilder.create().with(new GetterTester()).build().validate(PojoClassFactory.getPojoClass(Nonce.class));
     }
 
     @Test
-    public void toStringGivesCorrectOutput() {
-        final Nonce nonce = new Nonce(new byte[]{5, 6, 7});
+    public void toStringDoesNotUseUnderlyingData() {
+        final Nonce nonce = new Nonce(new byte[] {5, 6, 7});
+        final Nonce nonce2 = new Nonce(new byte[] {5, 6, 7});
 
-        final String toString = nonce.toString();
-
-        assertThat(toString).isEqualTo("[5, 6, 7]");
+        assertThat(nonce.toString()).isNotEqualTo(nonce2.toString());
     }
-
 }
