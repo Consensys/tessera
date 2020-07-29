@@ -1,8 +1,6 @@
 package com.quorum.tessera.nacl.jnacl;
 
-import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.encryption.EncryptorException;
-import com.quorum.tessera.encryption.Nonce;
+import com.quorum.tessera.encryption.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -10,15 +8,10 @@ import org.junit.Test;
 import java.security.SecureRandom;
 
 import static com.neilalexander.jnacl.crypto.curve25519xsalsa20poly1305.crypto_secretbox_BEFORENMBYTES;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class JnaclTest {
@@ -68,7 +61,7 @@ public class JnaclTest {
 
         final Throwable kaclEx = catchThrowable(() -> this.jnacl.computeSharedKey(publicKey, privateKey));
 
-        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("JNacl could not compute the shared key");
+        assertThat(kaclEx).isInstanceOf(EncryptorException.class).hasMessage("jnacl could not compute the shared key");
 
         verify(this.secretBox)
                 .cryptoBoxBeforenm(any(byte[].class), eq(publicKey.getKeyBytes()), eq(privateKey.getKeyBytes()));
