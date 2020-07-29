@@ -19,11 +19,10 @@ public class NonceTest {
     }
 
     @Test
-    public void toStringDoesNotIncludeRawValues() {
+    public void toStringDoesNotUseUnderlyingData() {
         final Nonce nonce = new Nonce(new byte[] {5, 6, 7});
+        final Nonce nonce2 = new Nonce(new byte[] {5, 6, 7});
 
-        final String toString = nonce.toString();
-
-        assertThat(toString).isEqualTo("com.quorum.tessera.encryption.Nonce");
+        assertThat(nonce.toString()).isNotEqualTo(nonce2.toString());
     }
 }

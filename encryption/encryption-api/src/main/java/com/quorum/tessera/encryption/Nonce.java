@@ -27,6 +27,8 @@ public class Nonce {
 
     @Override
     public String toString() {
-        return getClass().getName();
+        // we use Object.hashCode to protect against accidentally printing/logging a value derived from the raw bytes
+        // a side effect of this is 2 instances with the same underlying bytes will have different toString values
+        return getClass().getName() + "@" + Integer.toHexString(super.hashCode());
     }
 }

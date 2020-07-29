@@ -43,6 +43,8 @@ public abstract class BaseKey implements Key {
                         .findFirst()
                         .get();
 
-        return typeName;
+        // we use Object.hashCode to protect against accidentally printing/logging a value derived from the raw bytes
+        // a side effect of this is 2 instances with the same underlying bytes will have different toString values
+        return typeName + "@" + Integer.toHexString(super.hashCode());
     }
 }
