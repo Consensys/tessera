@@ -10,7 +10,7 @@
     <parent>
         <artifactId>cli</artifactId>
         <groupId>com.jpmorgan.quorum</groupId>
-        <version>0.10.6</version>
+        <version>0.10.7-SNAPSHOT</version>
     </parent>
 
     <dependencies>
