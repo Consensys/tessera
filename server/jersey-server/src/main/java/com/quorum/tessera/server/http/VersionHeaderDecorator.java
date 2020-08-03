@@ -10,17 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
+import static com.quorum.tessera.shared.Constants.API_VERSION_HEADER;
 
 public class VersionHeaderDecorator implements Filter {
 
-
-    public static final String API_VERSION_HEADER = "tesseraSupportedApiVersions";
-
-
     private static final Logger LOGGER = LoggerFactory.getLogger(VersionHeaderDecorator.class);
-
-
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
