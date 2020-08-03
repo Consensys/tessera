@@ -13,5 +13,4 @@ public class RuntimeContextFactoryTest extends ContextTestCase {
 
         assertThat(runtimeContextFactory).isExactlyInstanceOf(MockRuntimeContextFactory.class);
     }
-
 }

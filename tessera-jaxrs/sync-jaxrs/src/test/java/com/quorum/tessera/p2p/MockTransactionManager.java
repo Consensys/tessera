@@ -23,9 +23,7 @@ public class MockTransactionManager implements TransactionManager,TransactionMan
     }
 
     @Override
-    public void delete(MessageHash messageHash) {
-
-    }
+    public void delete(MessageHash messageHash) {}
 
     @Override
     public ResendResponse resend(ResendRequest request) {

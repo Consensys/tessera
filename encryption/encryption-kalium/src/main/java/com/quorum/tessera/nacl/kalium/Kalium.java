@@ -1,27 +1,18 @@
 package com.quorum.tessera.nacl.kalium;
 
-import com.quorum.tessera.encryption.Encryptor;
-import com.quorum.tessera.encryption.EncryptorException;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
-import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.encryption.Nonce;
+import com.quorum.tessera.encryption.*;
 import org.abstractj.kalium.NaCl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 import static org.abstractj.kalium.NaCl.Sodium.*;
 
-/** An implementation of the {@link NaclFacade} using the Kalium and libsodium binding */
+/** An implementation of the {@link Encryptor} using the Kalium and libsodium binding */
 public class Kalium implements Encryptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Kalium.class);
-
-    private static final String REDACTED = "REDACTED";
 
     private final NaCl.Sodium sodium;
 
@@ -37,21 +28,18 @@ public class Kalium implements Encryptor {
     public SharedKey computeSharedKey(final PublicKey publicKey, final PrivateKey privateKey) {
         final byte[] output = new byte[CRYPTO_BOX_CURVE25519XSALSA20POLY1305_BEFORENMBYTES];
 
-        LOGGER.info("Computing the shared key for public key {} and private key {}", publicKey, REDACTED);
         LOGGER.debug("Computing the shared key for public key {} and private key {}", publicKey, privateKey);
         final int sodiumResult =
                 this.sodium.crypto_box_curve25519xsalsa20poly1305_beforenm(
                         output, publicKey.getKeyBytes(), privateKey.getKeyBytes());
 
         if (sodiumResult == -1) {
-            LOGGER.error("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
-            LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
+            LOGGER.error("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
             throw new EncryptorException("Kalium could not compute the shared key");
         }
 
         final SharedKey sharedKey = SharedKey.from(output);
 
-        LOGGER.info("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, REDACTED);
         LOGGER.debug("Computed shared key {} for pub {} and priv {}", sharedKey, publicKey, privateKey);
 
         return sharedKey;
@@ -69,8 +57,7 @@ public class Kalium implements Encryptor {
 
         LOGGER.info("Sealing message using public key {}", publicKey);
         LOGGER.debug(
-                "Sealing message {} using nonce {}, public key {} and private key {}",
-                Arrays.toString(message),
+                "Sealing message using nonce {}, public key {} and private key {}",
                 nonce,
                 publicKey,
                 privateKey);
@@ -85,16 +72,13 @@ public class Kalium implements Encryptor {
                         privateKey.getKeyBytes());
 
         if (sodiumResult == -1) {
-            LOGGER.error("Could not create sealed payload using public key {} and private key {}", publicKey, REDACTED);
-            LOGGER.debug(
-                    "Could not create sealed payload using public key {} and private key {}", publicKey, privateKey);
+            LOGGER.error("Could not create sealed payload using public key {} and private key {}", publicKey, privateKey);
             throw new EncryptorException("Kalium could not seal the payload using the provided keys directly");
         }
 
         LOGGER.info("Created sealed payload for public key {}", publicKey);
         LOGGER.debug(
-                "Created sealed payload {} using nonce {}, public key {} and private key {}",
-                Arrays.toString(output),
+                "Created sealed payload using nonce {}, public key {} and private key {}",
                 nonce,
                 publicKey,
                 privateKey);
@@ -111,8 +95,7 @@ public class Kalium implements Encryptor {
             final byte[] cipherText, final Nonce nonce, final PublicKey publicKey, final PrivateKey privateKey) {
         LOGGER.info("Opening message using public key {}", publicKey);
         LOGGER.debug(
-                "Opening message {} using nonce {}, public key {} and private key {}",
-                Arrays.toString(cipherText),
+                "Opening message using nonce {}, public key {} and private key {}",
                 nonce,
                 publicKey,
                 privateKey);
@@ -134,20 +117,17 @@ public class Kalium implements Encryptor {
                         privateKey.getKeyBytes());
 
         if (sodiumResult == -1) {
-            LOGGER.warn("Could not open sealed payload using public key {} and private key {}", publicKey, REDACTED);
-            LOGGER.debug(
-                    "Could not opern sealed payload using public key {} and private key {}", publicKey, privateKey);
+            LOGGER.error(
+                    "Could not open sealed payload using public key {} and private key {}", publicKey, privateKey);
             throw new EncryptorException("Kalium could not open the payload using the provided keys directly");
         }
 
         LOGGER.info("Opened sealed payload for public key {}", publicKey);
         LOGGER.debug(
-                "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
-                Arrays.toString(cipherText),
+                "Opened payload using nonce {}, public key {} and private key {}",
                 nonce,
                 publicKey,
-                privateKey,
-                Arrays.toString(paddedOutput));
+                privateKey);
 
         return extract(paddedOutput, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
     }
@@ -162,7 +142,7 @@ public class Kalium implements Encryptor {
         final byte[] output = new byte[paddedMessage.length];
 
         LOGGER.info("Sealing message using public key {}", sharedKey);
-        LOGGER.debug("Sealing message {} using nonce {} and shared key {}", Arrays.toString(message), nonce, sharedKey);
+        LOGGER.debug("Sealing message using nonce {} and shared key {}", nonce, sharedKey);
 
         final int sodiumResult =
                 this.sodium.crypto_box_curve25519xsalsa20poly1305_afternm(
@@ -170,14 +150,12 @@ public class Kalium implements Encryptor {
 
         if (sodiumResult == -1) {
             LOGGER.error("Could not create sealed payload using shared key {}", sharedKey);
-            LOGGER.debug("Could not create sealed payload using shared key {}", sharedKey);
             throw new EncryptorException("Kalium could not seal the payload using the shared key");
         }
 
         LOGGER.info("Created sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
-                "Created sealed payload {} using nonce {} and shared key {}",
-                Arrays.toString(output),
+                "Created sealed payload using nonce {} and shared key {}",
                 nonce,
                 sharedKey);
 
@@ -192,8 +170,7 @@ public class Kalium implements Encryptor {
     public byte[] openAfterPrecomputation(final byte[] encryptedPayload, final Nonce nonce, final SharedKey sharedKey) {
         LOGGER.info("Opening message using shared key {}", sharedKey);
         LOGGER.debug(
-                "Opening message {} using nonce {} and shared key {}",
-                Arrays.toString(encryptedPayload),
+                "Opening message using nonce {} and shared key {}",
                 nonce,
                 sharedKey);
 
@@ -210,18 +187,14 @@ public class Kalium implements Encryptor {
 
         if (sodiumResult == -1) {
             LOGGER.error("Could not open sealed payload using shared key {}", sharedKey);
-            LOGGER.debug("Could not open sealed payload using shared key {}", sharedKey);
             throw new EncryptorException("Kalium could not open the payload using the shared key");
         }
 
         LOGGER.info("Opened sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
-                "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
-                Arrays.toString(encryptedPayload),
+                "Opened payload using nonce {} and sharedKey {}",
                 nonce,
-                sharedKey,
-                REDACTED,
-                Arrays.toString(paddedOutput));
+                sharedKey);
 
         return extract(paddedOutput, CRYPTO_BOX_CURVE25519XSALSA20POLY1305_ZEROBYTES);
     }
@@ -257,7 +230,7 @@ public class Kalium implements Encryptor {
         final PublicKey pubKey = PublicKey.from(publicKey);
         final PrivateKey privKey = PrivateKey.from(privateKey);
 
-        LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
+        LOGGER.info("Generated new keypair with public key {}", pubKey);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
 
         return new KeyPair(pubKey, privKey);
