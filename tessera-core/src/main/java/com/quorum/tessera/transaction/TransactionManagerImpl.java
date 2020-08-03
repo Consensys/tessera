@@ -1,13 +1,11 @@
 package com.quorum.tessera.transaction;
 
-
 import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PublishPayloadException;
+import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -115,26 +113,19 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        recipientListNoDuplicate.forEach(
-                recipient -> {
-                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(outgoing, recipient);
-                });
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
 
         return SendResponse.from(transactionHash);
     }
 
     boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
-
         recipientList.stream()
-            .filter(k -> !enclave.getPublicKeys().contains(k))
-            .forEach(
-                recipient -> {
-                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(outgoing, recipient);
-                });
+                .filter(k -> !enclave.getPublicKeys().contains(k))
+                .forEach(
+                        recipient -> {
+                            final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
+                            partyInfoService.publishPayload(outgoing, recipient);
+                        });
         return true;
     }
 
@@ -164,13 +155,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction);
-
-        recipientListNoDuplicate.forEach(
-                recipient -> {
-                    final EncodedPayload toPublish = payloadEncoder.forRecipient(payload, recipient);
-                    partyInfoService.publishPayload(toPublish, recipient);
-                });
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
 
         return SendResponse.from(messageHash);
     }
@@ -178,7 +163,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public ResendResponse resend(ResendRequest request) {
 
-        PublicKey recipientPublicKey = request.getRecipient();
+        final PublicKey recipientPublicKey = request.getRecipient();
         if (request.getType() == ResendRequest.ResendRequestType.ALL) {
 
             int offset = 0;
@@ -264,7 +249,6 @@ public class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public MessageHash storePayload(final EncodedPayload payload) {
-
         final MessageHash transactionHash =
                 Optional.of(payload)
                         .map(EncodedPayload::getCipherText)
@@ -383,6 +367,4 @@ public class TransactionManagerImpl implements TransactionManager {
                                                 + base64Codec.encodeToString(hash.getHashBytes())
                                                 + " was not found"));
     }
-
-
 }

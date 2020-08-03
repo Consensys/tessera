@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import com.quorum.tessera.transaction.ResendRequest.ResendRequestType;
 import java.util.*;
+import java.util.concurrent.Callable;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
@@ -50,15 +51,15 @@ public class TransactionManagerTest {
         this.resendManager = mock(ResendManager.class);
 
         transactionManager =
-            new TransactionManagerImpl(
-                Base64Codec.create(),
-                payloadEncoder,
-                encryptedTransactionDAO,
-                partyInfoService,
-                enclave,
-                encryptedRawTransactionDAO,
-                resendManager,
-                1000);
+                new TransactionManagerImpl(
+                        Base64Codec.create(),
+                        payloadEncoder,
+                        encryptedTransactionDAO,
+                        partyInfoService,
+                        enclave,
+                        encryptedRawTransactionDAO,
+                        resendManager,
+                        1000);
     }
 
     @After
@@ -139,7 +140,6 @@ public class TransactionManagerTest {
         verify(enclave, times(2)).getPublicKeys();
     }
 
-
     @Test
     public void sendWithDuplicateRecipients() {
 
@@ -170,7 +170,6 @@ public class TransactionManagerTest {
         verify(payloadEncoder).encode(encodedPayload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(enclave).getForwardingKeys();
-
     }
 
     @Test
@@ -466,7 +465,6 @@ public class TransactionManagerTest {
         final EncryptedTransaction tx = new EncryptedTransaction(mock(MessageHash.class), encodedData);
         final EncodedPayload payload = mock(EncodedPayload.class);
 
-        final List<PublicKey> recipients = new ArrayList<>();
         final PublicKey recipientKey = PublicKey.from("RECIPIENTKEY".getBytes());
         final PublicKey anotherRecipient = PublicKey.from("ANOTHERRECIPIENT".getBytes());
         final List<PublicKey> recipients = List.of(recipientKey, anotherRecipient);
@@ -1289,12 +1287,6 @@ public class TransactionManagerTest {
         when(payloadEncoder.forRecipient(payload,reipcient)).thenReturn(payload);
 
         TransactionManagerImpl.class.cast(transactionManager).publish(recipients,payload);
-
-        verify(enclave).getPublicKeys();
-        verify(payloadEncoder).forRecipient(payload,reipcient);
-        verify(partyInfoService).publishPayload(payload,reipcient);
-
-        TransactionManagerImpl.class.cast(transactionManager).publish(recipients, payload);
 
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).forRecipient(payload, reipcient);
