@@ -16,8 +16,9 @@ class AzureSecretClientFactory {
 
     SecretClient create() {
         return new SecretClientBuilder()
-            .vaultUrl(url)
-            .credential(tokenCredential)
-            .buildClient();
+                //                .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+                .vaultUrl(url)
+                .credential(tokenCredential)
+                .buildClient();
     }
 }

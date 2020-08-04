@@ -3,6 +3,7 @@ package com.quorum.tessera.test.vault.azure;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -18,7 +19,10 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.ws.rs.core.UriBuilder;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -104,9 +108,7 @@ public class AzureStepDefs implements En {
                                             .keystorePath(keystore.getFile())
                                             .keystorePassword("testtest")
                                             .extensions(new ResponseTemplateTransformer(false))
-                                    //                            .notifier(new ConsoleNotifier(true)) //enable to turn
-                                    // on verbose debug msgs
-                                    ));
+                                            .notifier(new ConsoleNotifier(true))));
 
                     wireMockServer.get().start();
                 });
@@ -214,6 +216,7 @@ public class AzureStepDefs implements En {
                                             "-Dspring.profiles.active=disable-unixsocket",
                                             "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
                                             "-Ddebug=true",
+                                            "-Dverbosity=DEBUG",
                                             "-jar",
                                             jarfile,
                                             "-configfile",
@@ -221,7 +224,8 @@ public class AzureStepDefs implements En {
                                             "-pidfile",
                                             pid.toAbsolutePath().toString(),
                                             "-jdbc.autoCreateTables",
-                                            "true"));
+                                            "true",
+                                            "--debug"));
 
                     startTessera(args, tempTesseraConfig);
                 });

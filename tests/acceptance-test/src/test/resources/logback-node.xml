@@ -9,17 +9,18 @@
         </encoder>
     </appender>
 
-    <logger name="org.eclipse.persistence.level" level="ERROR"/>
-    <logger name="org.eclipse.persistence.logging.sql" level="ERROR"/>
-    <logger name="org.glassfish.jersey.logging.LoggingFeature" level="ERROR"/>
-    <logger name="com.quorum.tessera.q2t.TransactionResource" level="DEBUG"/>
-    <logger name="com.quorum.tessera.transaction" level="DEBUG"/>
-    <logger name="com.quorum.tessera.api.filter" level="DEBUG"/>
-    <logger name="com.quorum.tessera.api.exception" level="DEBUG"/>
+<!--    <logger name="org.eclipse.persistence.level" level="ERROR"/>-->
+<!--    <logger name="org.eclipse.persistence.logging.sql" level="ERROR"/>-->
+<!--    <logger name="org.glassfish.jersey.logging.LoggingFeature" level="ERROR"/>-->
+<!--    <logger name="com.quorum.tessera.q2t.TransactionResource" level="DEBUG"/>-->
+<!--    <logger name="com.quorum.tessera.transaction" level="DEBUG"/>-->
+<!--    <logger name="com.quorum.tessera.api.filter" level="DEBUG"/>-->
+<!--    <logger name="com.quorum.tessera.api.exception" level="DEBUG"/>-->
+<!--    <logger name="com.azure.core" level="DEBUG" />-->
 
-    <logger name="org.hibernate.validator" level="INFO" />
+<!--    <logger name="org.hibernate.validator" level="INFO" />-->
 
-    <root level="INFO">
+    <root level="ALL">
         <appender-ref ref="FILE"/>
     </root>
 

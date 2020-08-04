@@ -9,11 +9,11 @@
         </encoder>
     </appender>
 
-    <logger name="com.quorum.tessera.test.rest" level="INFO"/>
+<!--    <logger name="com.quorum.tessera.test.rest" level="INFO"/>-->
 
-    <logger name="suite.RestPartyInfoChecker" level="INFO"/>
+<!--    <logger name="suite.RestPartyInfoChecker" level="INFO"/>-->
 
-    <root level="INFO">
+    <root level="ALL">
         <appender-ref ref="STDOUT"/>
     </root>
 
