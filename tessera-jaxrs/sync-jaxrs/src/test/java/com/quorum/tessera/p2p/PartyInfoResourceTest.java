@@ -177,7 +177,7 @@ public class PartyInfoResourceTest {
     @Test
     public void validate() {
 
-        String message = "I love sparrows";
+        String message = UUID.randomUUID().toString();
 
         byte[] payload = message.getBytes();
 
@@ -200,6 +200,31 @@ public class PartyInfoResourceTest {
     }
 
     @Test
+    public void validateReturns400IfMessageIsNotUUID() {
+
+        String message = "I love sparrows";
+
+        byte[] payload = message.getBytes();
+
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(myKey));
+
+        when(payloadEncoder.decode(payload)).thenReturn(encodedPayload);
+
+        when(enclave.unencryptTransaction(encodedPayload, myKey)).thenReturn(message.getBytes());
+
+        Response result = partyInfoResource.validate(payload);
+
+        assertThat(result.getStatus()).isEqualTo(400);
+        assertThat(result.getEntity()).isNull();
+
+        verify(payloadEncoder).decode(payload);
+        verify(enclave).unencryptTransaction(encodedPayload, myKey);
+    }
+
+    @Test
     public void constructWithMinimalArgs() {
         PartyInfoResource instance =
                 new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, true);
@@ -207,7 +232,10 @@ public class PartyInfoResourceTest {
     }
 
     @Test
-    public void partyInfoValidateNodeFails() {
+    public void partyInfoExceptionIfValidationFailsWith200() {
+
+        final int validateResponseCode = 200;
+        final String validateResponseMsg = "BADRESPONSE";
 
         String url = "http://www.bogus.com";
 
@@ -244,9 +272,68 @@ public class PartyInfoResourceTest {
         when(webTarget.request()).thenReturn(invocationBuilder);
 
         Response response = mock(Response.class);
-        when(response.getStatus()).thenReturn(200);
+        when(response.getStatus()).thenReturn(validateResponseCode);
 
-        doAnswer((invocation) -> "BADRESPONSE").when(response).readEntity(String.class);
+        doAnswer((invocation) -> validateResponseMsg).when(response).readEntity(String.class);
+
+        when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
+
+        try {
+            partyInfoResource.partyInfo(payload);
+            failBecauseExceptionWasNotThrown(SecurityException.class);
+        } catch (SecurityException ex) {
+            verify(partyInfoParser).from(payload);
+            verify(enclave).defaultPublicKey();
+            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(payloadEncoder).encode(encodedPayload);
+            verify(restClient).target(url);
+        }
+    }
+
+    @Test
+    public void partyInfoExceptionIfValidationFailsWith400() {
+
+        final int validateResponseCode = 400;
+        final String validateResponseMsg = null;
+
+        String url = "http://www.bogus.com";
+
+        PublicKey myKey = PublicKey.from("myKey".getBytes());
+
+        PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+
+        String message = "I love sparrows";
+
+        byte[] payload = message.getBytes();
+
+        Recipient recipient = Recipient.of(recipientKey, url);
+
+        Set<Recipient> recipientList = Collections.singleton(recipient);
+
+        PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
+
+        when(partyInfoParser.from(payload)).thenReturn(partyInfo);
+
+        when(enclave.defaultPublicKey()).thenReturn(myKey);
+
+        when(partyInfoParser.to(partyInfo)).thenReturn(payload);
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+
+        when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
+
+        WebTarget webTarget = mock(WebTarget.class);
+        when(restClient.target(url)).thenReturn(webTarget);
+        when(webTarget.path(anyString())).thenReturn(webTarget);
+        Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+        when(webTarget.request()).thenReturn(invocationBuilder);
+
+        Response response = mock(Response.class);
+        when(response.getStatus()).thenReturn(validateResponseCode);
+
+        doAnswer((invocation) -> validateResponseMsg).when(response).readEntity(String.class);
 
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
