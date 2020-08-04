@@ -71,6 +71,7 @@ public class ClientFactory implements RestClientFactory {
         final long timeout = Math.round(Math.ceil(pollInterval * 0.75));
         clientBuilder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
         clientBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS);
+        clientBuilder.register(VersionHeaderDecorator.class);
 
         if (config.isUnixSocket()) {
             Configuration clientConfig = createUnixServerSocketConfig();
