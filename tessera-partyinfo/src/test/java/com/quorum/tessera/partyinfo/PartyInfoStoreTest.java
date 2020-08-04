@@ -197,6 +197,8 @@ public class PartyInfoStoreTest {
     @Test
     public void removeRecipient() {
         // Given
+        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(false);
+
         final PublicKey someKey = PublicKey.from("someKey".getBytes());
         final PublicKey someOtherKey = PublicKey.from("someOtherKey".getBytes());
 
@@ -222,7 +224,7 @@ public class PartyInfoStoreTest {
         assertThat(result.getRecipients()).hasSize(1).containsOnly(Recipient.of(someKey, uri));
         verify(exclusionCache).exclude(any(Recipient.class));
         verify(exclusionCache,times(2)).include(uri);
-        verify(runtimeContext,times(2)).isDisablePeerDiscovery();
+        verify(runtimeContext,times(3)).isDisablePeerDiscovery();
 
     }
 
@@ -305,7 +307,7 @@ public class PartyInfoStoreTest {
 
         verify(exclusionCache,times(2)).isExcluded(recipient);
         verify(exclusionCache,times(2)).include(anyString());
-        verify(runtimeContext,times(2)).isDisablePeerDiscovery();
+        verify(runtimeContext,times(3)).isDisablePeerDiscovery();
 
     }
 
@@ -341,5 +343,23 @@ public class PartyInfoStoreTest {
         verify(exclusionCache).include(url);
 
     }
+
+    @Test
+    public void removeRecipientWithDiscoveryDisabled() {
+
+        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
+
+        PartyInfo existingPartyInfo = mock(PartyInfo.class);
+        PartyInfoStore store = spy(this.partyInfoStore);
+        when(store.getPartyInfo()).thenReturn(existingPartyInfo);
+
+        PartyInfo result = store.removeRecipient("http://junit.xom");
+
+        assertThat(result).isSameAs(existingPartyInfo);
+        verify(runtimeContext).isDisablePeerDiscovery();
+        verify(store).getPartyInfo();
+
+    }
+
 
 }

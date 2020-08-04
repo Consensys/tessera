@@ -8,6 +8,7 @@ import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import config.ConfigDescriptor;
 import db.DatabaseServer;
 import db.SetupDatabase;
 import exec.ExecManager;
@@ -83,6 +84,9 @@ public class NodeRemoval {
                     exec.start();
                     executors.add(exec);
                 });
+
+        executionContext.getConfigs().stream().map(ConfigDescriptor::getConfig)
+            .forEach(c -> c.setDisablePeerDiscovery(false));
 
         checkAllNodesAreRunning();
 

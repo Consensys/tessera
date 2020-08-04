@@ -82,6 +82,10 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
 
 
     public synchronized PartyInfo removeRecipient(final String uri) {
+        RuntimeContext runtimeContext = RuntimeContext.getInstance();
+        if(runtimeContext.isDisablePeerDiscovery()) {
+            return this.getPartyInfo();
+        }
         recipients.entrySet().stream()
             .filter(e -> uri.startsWith(e.getValue().getUrl()))
             .map(Map.Entry::getKey)
