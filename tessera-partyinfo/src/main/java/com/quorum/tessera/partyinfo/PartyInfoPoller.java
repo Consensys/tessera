@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.function.Predicate;
 
 /**
  * Polls every so often to all known nodes for any new discoverable nodes. This keeps all nodes up-to date and
@@ -67,25 +68,20 @@ public class PartyInfoPoller implements Runnable {
 
         partyInfo.getParties().stream()
                 .map(Party::getUrl)
-                .filter(url -> !ourUrl.equals(url))
-                .forEach(url -> pollSingleParty(url, encodedPartyInfo));
+                .filter(Predicate.not(url -> Objects.equals(ourUrl,url)))
+                .forEach(url -> {
+                    CompletableFuture.runAsync(() -> p2pClient.sendPartyInfo(url, encodedPartyInfo), executor)
+                        .exceptionally(
+                            ex -> {
+                                LOGGER.warn("Failed to connect to node {}, due to {}", url, ex.getMessage());
+                                LOGGER.debug(null, ex);
+                                partyInfoService.removeRecipient(url);
+                                return null;
+                            });
+                });
 
         LOGGER.info("Finished PartyInfo polling round");
     }
 
-    /**
-     * Sends a request for node information to a single target
-     *
-     * @param url the target URL to call
-     * @param encodedPartyInfo the encoded current party information
-     */
-    private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
-        CompletableFuture.runAsync(() -> p2pClient.sendPartyInfo(url, encodedPartyInfo), executor)
-                .exceptionally(
-                        ex -> {
-                            LOGGER.warn("Failed to connect to node {}, due to {}", url, ex.getMessage());
-                            LOGGER.debug(null, ex);
-                            return null;
-                        });
-    }
+
 }

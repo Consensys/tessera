@@ -5,17 +5,13 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoPollerTest {
@@ -46,8 +42,8 @@ public class PartyInfoPollerTest {
         this.executor = mock(Executor.class);
 
         doAnswer(
-            (InvocationOnMock invocation) -> {
-                ((Runnable) invocation.getArguments()[0]).run();
+            (invocation) -> {
+                invocation.getArgument(0,Runnable.class).run();
                 return null;
             }
         ).when(executor).execute(any(Runnable.class));
@@ -90,7 +86,10 @@ public class PartyInfoPollerTest {
 
     @Test
     public void exceptionThrowByPostDoesntBubble() {
-        final Set<Party> parties = new HashSet<>(Arrays.asList(new Party(TARGET_URL), new Party(TARGET_URL_2)));
+        final Set<Party> parties = Stream.of(TARGET_URL,TARGET_URL_2)
+            .map(Party::new)
+            .collect(Collectors.toUnmodifiableSet());
+
         final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), parties);
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
         doThrow(UnsupportedOperationException.class).when(p2pClient).sendPartyInfo(TARGET_URL, DATA);
@@ -103,6 +102,7 @@ public class PartyInfoPollerTest {
         verify(p2pClient).sendPartyInfo(TARGET_URL_2, DATA);
         verify(partyInfoService).getPartyInfo();
         verify(partyInfoParser).to(partyInfo);
+        verify(partyInfoService).removeRecipient(TARGET_URL);
     }
 
     @Test
