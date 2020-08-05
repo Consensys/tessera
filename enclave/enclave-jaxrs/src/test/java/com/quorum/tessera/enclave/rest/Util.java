@@ -7,7 +7,10 @@ import org.glassfish.jersey.test.TestProperties;
 
 import javax.ws.rs.core.Application;
 import org.slf4j.bridge.SLF4JBridgeHandler;
-import org.springframework.util.SocketUtils;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Util {
 
@@ -22,7 +25,7 @@ public class Util {
                 
                 enable(TestProperties.LOG_TRAFFIC);
                 enable(TestProperties.DUMP_ENTITY);
-                set(TestProperties.CONTAINER_PORT, SocketUtils.findAvailableTcpPort());
+                set(TestProperties.CONTAINER_PORT,new Util.PortUtil().nextPort());
                 EnclaveApplication application = new EnclaveApplication(new EnclaveResource(enclave));
 
                 ResourceConfig config = ResourceConfig.forApplication(application);
@@ -32,4 +35,29 @@ public class Util {
 
         };
     }
+
+    static class PortUtil {
+
+        private AtomicInteger counter = new AtomicInteger(1024);
+
+        public int nextPort() {
+
+            while (true) {
+                int port = counter.getAndIncrement();
+                if (isLocalPortFree(port)) {
+                    return port;
+                }
+            }
+        }
+
+        private boolean isLocalPortFree(int port) {
+            try {
+                new ServerSocket(port).close();
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+    }
+
 }

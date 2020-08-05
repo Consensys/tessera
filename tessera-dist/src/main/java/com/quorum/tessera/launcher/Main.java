@@ -26,8 +26,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.*;
 import java.util.stream.Collectors;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 /** The main entry point for the application. This just starts up the application in the embedded container. */
 public class Main {
 
@@ -67,11 +66,15 @@ public class Main {
             PartyInfoService partyInfoService = PartyInfoServiceFactory.create().create(config);
             partyInfoService.populateStore();
 
-
             TransactionManagerFactory.create().create(config);
 
-            ApplicationContext springContext = new ClassPathXmlApplicationContext("tessera-spring.xml");
+            //ApplicationContext springContext = new ClassPathXmlApplicationContext("tessera-spring.xml");
+            ScheduledServiceFactory scheduledServiceFactory = ScheduledServiceFactory.fromConfig(config);
 
+            if(Objects.equals(System.getProperty("spring.profiles.active"),"")) {
+                scheduledServiceFactory.enableSync();
+            }
+            scheduledServiceFactory.build();
 
             runWebServer(config);
 

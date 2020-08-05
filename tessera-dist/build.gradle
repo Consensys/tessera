@@ -16,6 +16,7 @@ dependencies {
     implementation "com.h2database:h2"
     implementation "org.apache.commons:commons-lang3"
     implementation project(":config")
+    implementation project(":shared")
     implementation project(":argon2")
     implementation project(":encryption:encryption-api")
     implementation project(":security")
@@ -37,9 +38,6 @@ dependencies {
     implementation project(":tessera-context")
 
     implementation "org.bouncycastle:bcpkix-jdk15on"
-
-    implementation "org.springframework:spring-context"
-
 
 }
 

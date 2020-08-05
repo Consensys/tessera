@@ -9,7 +9,7 @@ plugins {
 
 
 def jettyVersion = "9.4.25.v20191220"
-def springVersion = "5.2.3.RELEASE"
+
 def eclipselinkVersion = "2.7.7"
 def jerseyVersion = "2.27"
 def slf4jVersion = "1.7.30"
@@ -86,16 +86,6 @@ allprojects {
                 implementation "io.swagger:swagger-annotations:1.5.4"
                 implementation "org.bouncycastle:bcpkix-jdk15on:1.64"
                 implementation "org.bouncycastle:bcprov-jdk15on:1.64"
-
-
-
-                implementation "org.springframework:spring-orm:"+ springVersion
-                testCompile "org.springframework:spring-test:"+ springVersion
-                implementation "org.springframework:spring-core:"+ springVersion
-                implementation "org.springframework:spring-beans:"+ springVersion
-                implementation "org.springframework:spring-context:"+ springVersion
-                implementation "org.springframework:spring-orm:"+ springVersion
-
 
                 implementation "com.h2database:h2:1.4.200"
                 implementation "com.zaxxer:HikariCP:3.2.0"

@@ -50,8 +50,6 @@ dependencies {
     testImplementation "org.glassfish.jersey.media:jersey-media-json-processing"
     testImplementation "org.glassfish.jersey.media:jersey-media-moxy"
 
-    testImplementation "org.springframework:spring-test"
-
     testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
 
     runtimeOnly "org.glassfish.hk2:hk2-api"
