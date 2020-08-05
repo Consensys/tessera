@@ -10,12 +10,12 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.quorum.tessera.partyinfo.PartyInfoServiceUtil.validateKeysToUrls;
+import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
@@ -35,17 +35,19 @@ public class PartyInfoServiceImpl implements PartyInfoService {
             final Enclave enclave,
             final PayloadPublisher payloadPublisher,
             final KnownPeerCheckerFactory knownPeerCheckerFactory) {
-        this.partyInfoStore = Objects.requireNonNull(partyInfoStore);
-        this.enclave = Objects.requireNonNull(enclave);
-        this.payloadPublisher = Objects.requireNonNull(payloadPublisher);
-        this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory);
+        this.partyInfoStore = Objects.requireNonNull(partyInfoStore,"partyInfoStore is required");
+        this.enclave = Objects.requireNonNull(enclave,"enclave is required");
+        this.payloadPublisher = Objects.requireNonNull(payloadPublisher,"payloadPublisher is required");
+        this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory,"knownPeerCheckerFactory is required");
     }
 
     @Override
     public void populateStore() {
         LOGGER.debug("Populating store");
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
-        final String advertisedUrl = URLNormalizer.create().normalize(partyInfoStore.getPartyInfo().getUrl());
+
+        final String partyStoreUrl = partyInfoStore.getPartyInfo().getUrl();
+        final String advertisedUrl = URLNormalizer.create().normalize(partyStoreUrl);
         LOGGER.debug("Populate party info store for {}", advertisedUrl);
 
         final Set<Party> initialParties =
@@ -60,7 +62,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         final Set<Recipient> ourKeys =
                 enclave.getPublicKeys().stream()
                         .peek(o -> LOGGER.debug("{}", o))
-                        .map(key -> new Recipient(key, advertisedUrl))
+                        .map(key -> Recipient.of(key, advertisedUrl))
                         .collect(toSet());
 
         PartyInfo partyInfo = new PartyInfo(advertisedUrl, ourKeys, initialParties);
@@ -155,5 +157,22 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         payloadPublisher.publishPayload(payload, targetUrl);
 
         LOGGER.info("Published to {}", targetUrl);
+    }
+
+    /**
+     * Fetches local public keys from the Enclave and adds them to the local store. This is useful when the Enclave is
+     * remote and can restart with new keys independently of the Transaction Manager
+     */
+    @Override
+    public void syncKeys() {
+
+        final String advertisedUrl = partyInfoStore.getAdvertisedUrl();
+
+        // fetch keys and create recipients
+        final Set<Recipient> ourKeys =
+                this.enclave.getPublicKeys().stream().map(key -> Recipient.of(key, advertisedUrl)).collect(toSet());
+
+        // add to store
+        this.partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, emptySet()));
     }
 }

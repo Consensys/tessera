@@ -15,14 +15,14 @@ public class ContextTestCase {
     public void clearFields() throws Exception {
 
         List<Field> fields =
-                Arrays.stream(ContextHolder.class.getDeclaredFields())
+                Arrays.stream(DefaultContextHolder.class.getDeclaredFields())
                         .filter(not(Field::isEnumConstant))
                         .filter(not(Field::isSynthetic))
                         .collect(Collectors.toList());
 
         for (Field field : fields) {
             field.setAccessible(true);
-            field.set(ContextHolder.INSTANCE, null);
+            field.set(DefaultContextHolder.INSTANCE, null);
         }
     }
 }

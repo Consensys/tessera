@@ -4,8 +4,8 @@ dependencies {
     implementation project(':encryption:encryption-api')
     implementation 'javax.transaction:javax.transaction-api:1.3'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
-    implementation 'com.zaxxer:HikariCP'
     runtimeOnly 'com.h2database:h2:1.4.200'
+    implementation 'com.zaxxer:HikariCP'
     runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa'
     runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.extension'
 

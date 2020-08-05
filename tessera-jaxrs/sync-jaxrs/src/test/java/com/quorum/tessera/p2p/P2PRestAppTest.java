@@ -9,11 +9,6 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
-import java.util.HashSet;
-import java.util.Set;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Application;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -21,7 +16,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Application;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class P2PRestAppTest {
 
@@ -43,22 +45,21 @@ public class P2PRestAppTest {
         when(runtimeContext.getP2pClient()).thenReturn(client);
         when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
 
-
         MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);
 
         p2PRestApp = new P2PRestApp();
 
         jersey =
-            new JerseyTest() {
-                @Override
-                protected Application configure() {
-                    enable(TestProperties.LOG_TRAFFIC);
-                    enable(TestProperties.DUMP_ENTITY);
-                    ResourceConfig jerseyconfig = ResourceConfig.forApplication(p2PRestApp);
-                    return jerseyconfig;
-                }
-            };
+                new JerseyTest() {
+                    @Override
+                    protected Application configure() {
+                        enable(TestProperties.LOG_TRAFFIC);
+                        enable(TestProperties.DUMP_ENTITY);
+                        ResourceConfig jerseyconfig = ResourceConfig.forApplication(p2PRestApp);
+                        return jerseyconfig;
+                    }
+                };
 
         jersey.setUp();
     }
@@ -66,7 +67,6 @@ public class P2PRestAppTest {
     @After
     public void tearDown() throws Exception {
         jersey.tearDown();
-
     }
 
     @Test
@@ -79,6 +79,4 @@ public class P2PRestAppTest {
     public void appType() {
         assertThat(p2PRestApp.getAppType()).isEqualTo(AppType.P2P);
     }
-
-
 }

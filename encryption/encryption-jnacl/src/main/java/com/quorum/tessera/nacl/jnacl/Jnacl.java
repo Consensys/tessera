@@ -1,28 +1,19 @@
 package com.quorum.tessera.nacl.jnacl;
 
-import com.quorum.tessera.encryption.EncryptorException;
-import com.quorum.tessera.encryption.Encryptor;
-import com.quorum.tessera.encryption.Nonce;
-import com.quorum.tessera.encryption.KeyPair;
 import com.neilalexander.jnacl.NaCl;
+import com.quorum.tessera.encryption.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.Objects;
 
 import static com.neilalexander.jnacl.crypto.curve25519xsalsa20poly1305.*;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
 
 /** Uses jnacl, which is a pure Java implementation of the NaCl standard */
 public class Jnacl implements Encryptor {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Jnacl.class);
-
-    private static final String REDACTED = "REDACTED";
 
     private final SecureRandom secureRandom;
 
@@ -42,9 +33,8 @@ public class Jnacl implements Encryptor {
                 secretBox.cryptoBoxBeforenm(precomputed, publicKey.getKeyBytes(), privateKey.getKeyBytes());
 
         if (jnaclResult == -1) {
-            LOGGER.error("Could not compute the shared key for pub {} and priv {}", publicKey, REDACTED);
-            LOGGER.debug("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
-            throw new EncryptorException("JNacl could not compute the shared key");
+            LOGGER.error("Could not compute the shared key for pub {} and priv {}", publicKey, privateKey);
+            throw new EncryptorException("jnacl could not compute the shared key");
         }
 
         final SharedKey sharedKey = SharedKey.from(precomputed);
@@ -58,10 +48,8 @@ public class Jnacl implements Encryptor {
     public byte[] seal(
             final byte[] message, final Nonce nonce, final PublicKey publicKey, final PrivateKey privateKey) {
 
-        LOGGER.debug("Sealing message using public key {}", publicKey);
         LOGGER.debug(
-                "Sealing message {} using nonce {}, public key {} and private key {}",
-                Arrays.toString(message),
+                "Sealing message using nonce {}, public key {} and private key {}",
                 nonce,
                 publicKey,
                 privateKey);
@@ -72,10 +60,8 @@ public class Jnacl implements Encryptor {
 
             final byte[] cipherText = nacl.encrypt(message, nonce.getNonceBytes());
 
-            LOGGER.debug("Created sealed payload for public key {}", publicKey);
             LOGGER.debug(
-                    "Created sealed payload {} using nonce {}, public key {} and private key {}",
-                    Arrays.toString(cipherText),
+                    "Created sealed payload using nonce {}, public key {} and private key {}",
                     nonce,
                     publicKey,
                     privateKey);
@@ -90,10 +76,8 @@ public class Jnacl implements Encryptor {
     @Override
     public byte[] open(
             final byte[] cipherText, final Nonce nonce, final PublicKey publicKey, final PrivateKey privateKey) {
-        LOGGER.debug("Opening message using public key {}", publicKey);
         LOGGER.debug(
-                "Opening message {} using nonce {}, public key {} and private key {}",
-                Arrays.toString(cipherText),
+                "Opening message using nonce {}, public key {} and private key {}",
                 nonce,
                 publicKey,
                 privateKey);
@@ -106,13 +90,11 @@ public class Jnacl implements Encryptor {
 
             final byte[] plaintext = nacl.decrypt(paddedInput, nonce.getNonceBytes());
 
-            LOGGER.debug("Created sealed payload for public key {}", publicKey);
             LOGGER.debug(
-                    "Created sealed payload {} using nonce {}, public key {} and private key {}",
-                    Arrays.toString(cipherText),
-                    nonce,
-                    publicKey,
-                    privateKey);
+                "Opened message using nonce {}, public key {} and private key {}",
+                nonce,
+                publicKey,
+                privateKey);
 
             return plaintext;
         } catch (final Exception ex) {
@@ -126,8 +108,7 @@ public class Jnacl implements Encryptor {
         final byte[] paddedMessage = new byte[message.length + crypto_secretbox_ZEROBYTES];
         final byte[] output = new byte[message.length + crypto_secretbox_ZEROBYTES];
 
-        LOGGER.debug("Sealing message using public key {}", sharedKey);
-        LOGGER.debug("Sealing message {} using nonce {} and shared key {}", Arrays.toString(message), nonce, sharedKey);
+        LOGGER.debug("Sealing message using nonce {} and shared key {}", nonce, sharedKey);
 
         System.arraycopy(message, 0, paddedMessage, crypto_secretbox_ZEROBYTES, message.length);
         final int jnaclResult =
@@ -136,14 +117,11 @@ public class Jnacl implements Encryptor {
 
         if (jnaclResult == -1) {
             LOGGER.error("Could not create sealed payload using shared key {}", sharedKey);
-            LOGGER.debug("Could not create sealed payload using shared key {}", sharedKey);
             throw new EncryptorException("jnacl could not seal the payload using the shared key");
         }
 
-        LOGGER.debug("Created sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
-                "Created sealed payload {} using nonce {} and shared key {}",
-                Arrays.toString(output),
+                "Created sealed payload using nonce {} and shared key {}",
                 nonce,
                 sharedKey);
 
@@ -152,9 +130,8 @@ public class Jnacl implements Encryptor {
 
     @Override
     public byte[] openAfterPrecomputation(final byte[] cipherText, final Nonce nonce, final SharedKey sharedKey) {
-        LOGGER.debug("Opening message using shared key {}", sharedKey);
         LOGGER.debug(
-                "Opening message {} using nonce {} and shared key {}", Arrays.toString(cipherText), nonce, sharedKey);
+                "Opening message using nonce {} and shared key {}", nonce, sharedKey);
 
         final byte[] paddedInput = pad(cipherText, crypto_secretbox_BOXZEROBYTES);
         final byte[] paddedOutput = new byte[paddedInput.length];
@@ -165,18 +142,14 @@ public class Jnacl implements Encryptor {
 
         if (jnaclResult == -1) {
             LOGGER.error("Could not open sealed payload using shared key {}", sharedKey);
-            LOGGER.debug("Could not open sealed payload using shared key {}", sharedKey);
             throw new EncryptorException("jnacl could not open the payload using the shared key");
         }
 
         LOGGER.debug("Opened sealed payload for shared key {}", sharedKey);
         LOGGER.debug(
-                "Opened payload {} using nonce {}, public key {} and private key {} to get result {}",
-                Arrays.toString(cipherText),
+                "Opened payload using nonce {} and shared key {}",
                 nonce,
-                sharedKey,
-                REDACTED,
-                Arrays.toString(paddedOutput));
+                sharedKey);
 
         return extract(paddedOutput, crypto_secretbox_ZEROBYTES);
     }
@@ -211,7 +184,7 @@ public class Jnacl implements Encryptor {
         final PublicKey pubKey = PublicKey.from(publicKey);
         final PrivateKey privKey = PrivateKey.from(privateKey);
 
-        LOGGER.info("Generated public key {} and private key {}", pubKey, REDACTED);
+        LOGGER.info("Generated new key pair with public key {}", pubKey);
         LOGGER.debug("Generated public key {} and private key {}", pubKey, privKey);
 
         return new KeyPair(pubKey, privKey);

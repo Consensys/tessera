@@ -122,4 +122,13 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
                 .withRecipientKeys(emptyList())
                 .build();
     }
+
+    @Override
+    public EncodedPayload withRecipient(final EncodedPayload payload, final PublicKey recipient) {
+        // this method is to be used for adding a recipient to an EncodedPayload that does not have any.
+        if (!payload.getRecipientKeys().isEmpty()) {
+            return payload;
+        }
+        return EncodedPayload.Builder.from(payload).withRecipientKey(recipient).build();
+    }
 }

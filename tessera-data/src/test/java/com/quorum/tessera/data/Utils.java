@@ -23,4 +23,5 @@ public interface Utils {
     static byte[] cipherTextNonce() {
         return randomBytes();
     }
+
 }

@@ -9,17 +9,12 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.KeyDataUtil;
-import com.quorum.tessera.encryption.Encryptor;
-import com.quorum.tessera.encryption.KeyManagerImpl;
-import com.quorum.tessera.encryption.KeyPair;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.EncryptorFactory;
+import com.quorum.tessera.encryption.*;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import org.slf4j.LoggerFactory;
 
 /** Creates {@link Enclave} instances, which may point to remote services or local, in-app instances. */
 public interface EnclaveFactory {
@@ -46,11 +41,11 @@ public interface EnclaveFactory {
 
         final Collection<PublicKey> forwardKeys = keyPairConverter.convert(config.getAlwaysSendTo());
 
-        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating enclave");
+        LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating enclave");
 
         Enclave enclave = new EnclaveImpl(encryptor, new KeyManagerImpl(keys, forwardKeys));
 
-        LoggerFactory.getLogger(EnclaveFactory.class).info("Created enclave {}", enclave);
+        LoggerFactory.getLogger(EnclaveFactory.class).debug("Created enclave {}", enclave);
 
         return enclave;
     }
@@ -65,6 +60,12 @@ public interface EnclaveFactory {
      * @return the {@link Enclave}, which may be either local or remote
      */
     default Enclave create(Config config) {
+        EnclaveHolder enclaveHolder = EnclaveHolder.getInstance();
+        Optional<Enclave> enclave = enclaveHolder.getEnclave();
+        if(enclave.isPresent()) {
+            return enclave.get();
+        }
+
         LoggerFactory.getLogger(EnclaveFactory.class).info("Creating enclave");
         try {
             final Optional<ServerConfig> enclaveServerConfig =
@@ -72,9 +73,9 @@ public interface EnclaveFactory {
 
             if (enclaveServerConfig.isPresent()) {
                 LoggerFactory.getLogger(EnclaveFactory.class).info("Creating remoted enclave");
-                return EnclaveClientFactory.create().create(config);
+                return enclaveHolder.setEnclave(EnclaveClientFactory.create().create(config));
             }
-            return createServer(config);
+            return enclaveHolder.setEnclave(createServer(config));
         } catch (Throwable ex) {
             LoggerFactory.getLogger(EnclaveFactory.class).error("", ex);
             throw ex;
@@ -82,7 +83,7 @@ public interface EnclaveFactory {
     }
 
     static EnclaveFactory create() {
-        LoggerFactory.getLogger(EnclaveFactory.class).info("Creating EnclaveFactory");
-        return ServiceLoaderUtil.load(EnclaveFactory.class).orElse(new EnclaveFactory() {});
+        LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating EnclaveFactory");
+        return ServiceLoaderUtil.load(EnclaveFactory.class).orElseGet(() -> new EnclaveFactory() {});
     }
 }

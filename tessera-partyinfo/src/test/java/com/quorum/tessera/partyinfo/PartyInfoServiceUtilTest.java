@@ -30,10 +30,10 @@ public class PartyInfoServiceUtilTest {
         final String url = "http://somedomain.com";
         final PublicKey key = PublicKey.from("ONE".getBytes());
 
-        final Set<Recipient> existingRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final Set<Recipient> existingRecipients = Collections.singleton(Recipient.of(key, "http://one.com"));
         final PartyInfo existingPartyInfo = new PartyInfo(url, existingRecipients, Collections.emptySet());
 
-        final Set<Recipient> newRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final Set<Recipient> newRecipients = Collections.singleton(Recipient.of(key, "http://one.com"));
         final PartyInfo newPartyInfo = new PartyInfo(url, newRecipients, Collections.emptySet());
 
         assertThat(PartyInfoServiceUtil.validateKeysToUrls(existingPartyInfo, newPartyInfo)).isTrue();
@@ -44,10 +44,10 @@ public class PartyInfoServiceUtilTest {
         final String url = "http://somedomain.com";
         final PublicKey key = PublicKey.from("ONE".getBytes());
 
-        final Set<Recipient> existingRecipients = Collections.singleton(new Recipient(key, "http://one.com"));
+        final Set<Recipient> existingRecipients = Collections.singleton(Recipient.of(key, "http://one.com"));
         final PartyInfo existingPartyInfo = new PartyInfo(url, existingRecipients, Collections.emptySet());
 
-        final Set<Recipient> newRecipients = Collections.singleton(new Recipient(key, "http://two.com"));
+        final Set<Recipient> newRecipients = Collections.singleton(Recipient.of(key, "http://two.com"));
         final PartyInfo newPartyInfo = new PartyInfo(url, newRecipients, Collections.emptySet());
 
         assertThat(PartyInfoServiceUtil.validateKeysToUrls(existingPartyInfo, newPartyInfo)).isFalse();

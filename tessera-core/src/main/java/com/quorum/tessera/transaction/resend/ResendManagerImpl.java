@@ -1,4 +1,4 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
@@ -9,7 +9,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 
-import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,7 +35,6 @@ public class ResendManagerImpl implements ResendManager {
     }
 
     // TODO: synchronize based on messagehash, so different message don't lock each other
-    @Transactional
     public synchronized void acceptOwnMessage(final EncodedPayload payload) {
         // check the payload can be decrpyted to ensure it isn't rubbish being sent to us
         final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
