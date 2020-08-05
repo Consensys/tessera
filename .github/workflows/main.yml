@@ -155,13 +155,13 @@ jobs:
 #          type: ${{job.status}}
 #          job_name: Acceptance tests
 #          url: ${{ secrets.SLACK_WEBHOOK }}
-
-  slackNotification:
-    runs-on: ubuntu-latest
-    needs: [build,atest,itest,test,vaultTests]
-    steps:
-    - uses: homoluctus/slatify@v2.1.2
-      with:
-        type: ${{job.status}}
-        job_name: Build
-        url: ${{ secrets.SLACK_WEBHOOK }}
+#
+#  slackNotification:
+#    runs-on: ubuntu-latest
+#    needs: [build,atest,itest,test,vaultTests]
+#    steps:
+#    - uses: homoluctus/slatify@v2.1.2
+#      with:
+#        type: ${{job.status}}
+#        job_name: Build
+#        url: ${{ secrets.SLACK_WEBHOOK }}
