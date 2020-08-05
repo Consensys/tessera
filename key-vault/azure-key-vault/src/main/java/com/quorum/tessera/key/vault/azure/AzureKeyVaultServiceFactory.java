@@ -18,13 +18,30 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
     public KeyVaultService create(Config config, EnvironmentVariableProvider envProvider) {
         Objects.requireNonNull(config);
 
-        final KeyVaultConfig keyVaultConfig = Optional.ofNullable(config.getKeys())
-            .flatMap(k -> k.getKeyVaultConfig(KeyVaultType.AZURE))
-            .orElseThrow(() -> new ConfigException(new RuntimeException("Trying to create Azure key vault connection but no Azure configuration provided")));
+        final KeyVaultConfig keyVaultConfig =
+                Optional.ofNullable(config.getKeys())
+                        .flatMap(k -> k.getKeyVaultConfig(KeyVaultType.AZURE))
+                        .orElseThrow(
+                                () ->
+                                        new ConfigException(
+                                                new RuntimeException(
+                                                        "Trying to create Azure key vault connection but no Azure configuration provided")));
 
-        final String url = keyVaultConfig
-            .getProperty("url")
-            .orElseThrow(() -> new ConfigException(new RuntimeException("No Azure Key Vault url provided")));
+        final String url =
+                keyVaultConfig
+                        .getProperty("url")
+                        .orElseThrow(
+                                () -> new ConfigException(new RuntimeException("No Azure Key Vault url provided")));
+
+//        String authorityHost = System.getenv("TESSERA_TEST_AUTHORITY_HOST");
+//
+//        final EnvironmentCredentialBuilder credentialBuilder = new EnvironmentCredentialBuilder();
+//        if (authorityHost != null) {
+//            credentialBuilder.authorityHost(authorityHost);
+//        }
+//
+//        final AzureSecretClientDelegate client =
+//                new AzureSecretClientDelegate(new AzureSecretClientFactory(url, credentialBuilder.build()).create());
 
         final AzureSecretClientDelegate client = new AzureSecretClientDelegate(
             new AzureSecretClientFactory(url, new EnvironmentCredentialBuilder().build()).create()

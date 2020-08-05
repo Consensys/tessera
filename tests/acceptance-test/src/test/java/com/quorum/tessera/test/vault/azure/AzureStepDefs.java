@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.common.ConsoleNotifier;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.extension.responsetemplating.ResponseTemplateTransformer;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent;
@@ -53,7 +54,9 @@ public class AzureStepDefs implements En {
     private final String publicKey = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
     private final String privateKey = "Wl+xSyXVuuqzpvznOS7dOobhcn4C5auxkFRi7yLtgtA=";
 
-    private final String authUrl = "/auth/oauth2/token";
+    private final String myTenantId = "my-tenant-id";
+    //    private final String authUrl = "/organisation/" + myTenantId;
+    private final String authUrl = "/" + myTenantId + "/oauth2/v2.0/authorize";
 
     // /secrets/{name}/{version}
     // note: '/' must be provided at start of version arg, e.g. "/1". this is to allow urls with no version by setting
@@ -99,17 +102,30 @@ public class AzureStepDefs implements En {
 
                     // wiremock configures an HTTP server by default.  Even though we'll only use the HTTPS server we
                     // dynamically assign the HTTP port to ensure the default of 8080 is not used
-                    wireMockServer.set(
-                            new WireMockServer(
-                                    options()
-                                            .dynamicPort()
-                                            .dynamicHttpsPort()
-                                            .keystoreType("JKS")
-                                            .keystorePath(keystore.getFile())
-                                            .keystorePassword("testtest")
-                                            .extensions(new ResponseTemplateTransformer(false))
-                                            .notifier(new ConsoleNotifier(true))));
+                    WireMockConfiguration wiremockOptions = options()
+                        .dynamicPort()
+                        .keystoreType("JKS")
+                        .keystorePath(keystore.getFile())
+                        .keystorePassword("testtest")
+                        .extensions(new ResponseTemplateTransformer(false));
 
+                    final Optional<Integer> wiremockPort = Optional.ofNullable(System.getenv("WIREMOCK_PORT_TEST"))
+                        .map(Integer::parseInt);
+
+                    // use the port provided as an env if present.  The /etc/hosts file and iptables should have been
+                    // updated to redirect traffic for login.microsoftonline.com to localhost:<wiremock_port>.  This is
+                    // required as the Azure SDK client makes a request to login.microsoftonline.com as part of the OAuth2
+                    // authentication process whereas we want all responses to outbound requests to be mocked using wiremock
+                    if (wiremockPort.isPresent()) {
+                        wiremockOptions.httpsPort(wiremockPort.get());
+                    } else {
+                        wiremockOptions.dynamicHttpsPort();
+                    }
+
+                    // enable for verbose wiremock logging
+                    wiremockOptions.notifier(new ConsoleNotifier(true));
+
+                    wireMockServer.set(new WireMockServer(wiremockOptions));
                     wireMockServer.get().start();
                 });
 
@@ -161,10 +177,26 @@ public class AzureStepDefs implements En {
                                             .willReturn(
                                                     unauthorized().withHeader("WWW-Authenticate", authenticateHeader)));
 
+                    final String tenantDiscoveryEndpoint = "/" + myTenantId + "/oauth2/v2.0/token";
+
                     wireMockServer
                             .get()
                             .stubFor(
-                                    post(urlPathEqualTo(authUrl))
+                                    get(urlPathEqualTo(authUrl))
+                                            .willReturn(
+                                                    okJson(
+                                                                    "{ \"tenant_discovery_endpoint\":\""
+                                                                            + tenantDiscoveryEndpoint
+                                                                            + "\"}")
+                                                            .withHeader(
+                                                                    "client-request-id",
+                                                                    "{{request.headers.client-request-id}}")
+                                                            .withTransformers("response-template")));
+
+                    wireMockServer
+                            .get()
+                            .stubFor(
+                                    get(urlPathEqualTo("/" + myTenantId + "/oauth2/v2.0/token"))
                                             .willReturn(
                                                     okJson(
                                                                     "{ \"access_token\": \"my-token\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\", \"expires_on\": \"1388444763\", \"resource\": \"https://resource/\", \"refresh_token\": \"some-val\", \"scope\": \"some-val\", \"id_token\": \"some-val\"}")
@@ -192,6 +224,7 @@ public class AzureStepDefs implements En {
                 "^Tessera is started with the correct AKV environment variables$",
                 () -> {
                     Map<String, Object> params = new HashMap<>();
+                    LOGGER.info("CHRISSY wireMockServer.baseUrl() {}", wireMockServer.get().baseUrl());
                     params.put("azureKeyVaultUrl", wireMockServer.get().baseUrl());
 
                     Path tempTesseraConfig =
@@ -246,9 +279,12 @@ public class AzureStepDefs implements En {
                                 }
                             });
 
-                    wireMockServer.get().verify(2, postRequestedFor(urlEqualTo(authUrl)));
-                    wireMockServer.get().verify(3, getRequestedFor(urlPathEqualTo(publicKeyUrl)));
-                    wireMockServer.get().verify(2, getRequestedFor(urlPathEqualTo(privateKeyUrl)));
+                    wireMockServer.get().verify(1, getRequestedFor(urlEqualTo(authUrl)));
+                    wireMockServer
+                            .get()
+                            .verify(1, getRequestedFor(urlEqualTo("/" + myTenantId + "/oauth2/v2.0/token")));
+                    wireMockServer.get().verify(4, getRequestedFor(urlPathEqualTo(publicKeyUrl)));
+                    wireMockServer.get().verify(1, getRequestedFor(urlPathEqualTo(privateKeyUrl)));
 
                     final URL partyInfoUrl =
                             UriBuilder.fromUri("http://localhost").port(8080).path("partyinfo").build().toURL();
@@ -374,7 +410,8 @@ public class AzureStepDefs implements En {
         Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
         tesseraEnvironment.put(AZURE_CLIENT_ID, "my-client-id");
         tesseraEnvironment.put(AZURE_CLIENT_SECRET, "my-client-secret");
-        tesseraEnvironment.put("AZURE_TENANT_ID", "blah-tenant-id");
+        tesseraEnvironment.put("AZURE_TENANT_ID", myTenantId);
+        tesseraEnvironment.put("TESSERA_TEST_AUTHORITY_HOST", wireMockServer.get().baseUrl());
 
         try {
             tesseraProcess.set(tesseraProcessBuilder.redirectErrorStream(true).start());

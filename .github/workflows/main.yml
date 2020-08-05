@@ -105,8 +105,18 @@ jobs:
             mkdir -p vault/bin && pushd $_
             unzip /tmp/vault_1.2.2_linux_amd64.zip
             export PATH=$PATH:$PWD && popd
+
+            # Azure client makes request to microsoft URL so set up redirect to the wiremock server that is created in the test:
+            # 1. update /etc/hosts so the login URL resolves to a random IP
+            # 2. update iptables so traffic to the random IP is redirected to localhost and a random port
+            # 3. provide the random port to tessera's tests so it can configure the wiremock server to listen to that port
+            REDIRECT=157.166.226.25 # a random IP
+            WIREMOCK_PORT_TEST=53921 # a random port
+            echo "$REDIRECT login.microsoftonline.com" | sudo tee -a /etc/hosts
+            sudo iptables -t nat -A OUTPUT -p tcp --dport 80 -d $REDIRECT -j DNAT --to-destination 127.0.0.1:$WIREMOCK_PORT_TEST
+
             mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
-            mvn verify -pl tests/acceptance-test -P vault-acceptance-tests
+            WIREMOCK_PORT_TEST=$WIREMOCK_PORT_TEST mvn verify -pl tests/acceptance-test -P vault-acceptance-tests
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
