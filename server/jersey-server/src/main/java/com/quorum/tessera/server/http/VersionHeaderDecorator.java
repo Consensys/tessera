@@ -17,21 +17,23 @@ public class VersionHeaderDecorator implements Filter {
     private static final Logger LOGGER = LoggerFactory.getLogger(VersionHeaderDecorator.class);
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-                    final HttpServletResponse httpServletResponse = HttpServletResponse.class.cast(servletResponse);
-                    final HttpServletRequest httpServletRequest = HttpServletRequest.class.cast(servletRequest);
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+        throws IOException, ServletException {
 
-                    LOGGER.debug("caller uri {}",httpServletRequest.getRequestURI());
+        final HttpServletResponse httpServletResponse = HttpServletResponse.class.cast(servletResponse);
+        final HttpServletRequest httpServletRequest = HttpServletRequest.class.cast(servletRequest);
 
-                    final List<String> supportedApiVersions = Collections.list(httpServletRequest.getHeaders(API_VERSION_HEADER));
+        LOGGER.debug("caller uri {}",httpServletRequest.getRequestURI());
 
-                    LOGGER.debug("httpServletRequest.headers[{}] {}", API_VERSION_HEADER, supportedApiVersions);
+        final List<String> supportedApiVersions = Collections.list(httpServletRequest.getHeaders(API_VERSION_HEADER));
 
-                    List<String> versions = ApiVersion.versions();
+        LOGGER.debug("httpServletRequest.headers[{}] {}", API_VERSION_HEADER, supportedApiVersions);
 
-                    versions.forEach(v -> httpServletResponse.addHeader(API_VERSION_HEADER,v));
+        List<String> versions = ApiVersion.versions();
 
-                    filterChain.doFilter(servletRequest, servletResponse);
+        versions.forEach(v -> httpServletResponse.addHeader(API_VERSION_HEADER,v));
+
+        filterChain.doFilter(servletRequest, servletResponse);
 
     }
 }

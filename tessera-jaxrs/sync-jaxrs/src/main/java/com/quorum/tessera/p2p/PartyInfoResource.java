@@ -3,12 +3,15 @@ package com.quorum.tessera.p2p;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.NodeInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 
+import com.quorum.tessera.partyinfo.model.VersionInfo;
+import com.quorum.tessera.shared.Constants;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +28,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 
@@ -85,15 +89,25 @@ public class PartyInfoResource {
         @ApiResponse(code = 200, message = "Empty response if node is using remote key validation, else an encoded partyinfo containing only the local node's URL", response = byte[].class),
         @ApiResponse(code = 500, message = "If node is using remote key validation, indicates validation failed")
     })
-    public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
+    public Response partyInfo(@ApiParam(required = true) final byte[] payload,
+                              @HeaderParam(Constants.API_VERSION_HEADER) final List<String> headers) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
+
+        final Set<String> versions = Optional.ofNullable(headers).orElse(emptyList())
+            .stream()
+            .filter(Objects::nonNull)
+            .flatMap(v -> Arrays.stream(v.split(",")))
+            .collect(Collectors.toSet());
+
+        final NodeInfo decoratedPartyInfo =
+            NodeInfo.Builder.create().from(partyInfo).withVersionInfo(VersionInfo.from(versions)).build();
 
         LOGGER.debug("Received PartyInfo from {}", partyInfo.getUrl());
 
         if (!enableKeyValidation) {
             LOGGER.debug("Key validation not enabled, passing PartyInfo through");
-            partyInfoService.updatePartyInfo(partyInfo);
+            partyInfoService.updatePartyInfo(decoratedPartyInfo);
 
             // create an empty party info object with our URL to send back
             // this is used by older versions (before 0.10.0), but we don't want to give any info back
@@ -157,8 +171,11 @@ public class PartyInfoResource {
             throw new SecurityException("No validated keys found for peer " + partyInfoSender);
         }
 
+        // End validation stuff
         final PartyInfo reducedPartyInfo = new PartyInfo(partyInfoSender, validatedSendersKeys, partyInfo.getParties());
-        partyInfoService.updatePartyInfo(reducedPartyInfo);
+        final NodeInfo reducedNodeInfo =
+            NodeInfo.Builder.create().from(reducedPartyInfo).withVersionInfo(VersionInfo.from(versions)).build();
+        partyInfoService.updatePartyInfo(reducedNodeInfo);
 
         return Response.ok().build();
     }

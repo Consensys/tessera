@@ -7,6 +7,7 @@ import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.NodeInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,10 @@ public class PartyInfoServiceImpl implements PartyInfoService {
                         .collect(toSet());
 
         PartyInfo partyInfo = new PartyInfo(advertisedUrl, ourKeys, initialParties);
-        partyInfoStore.store(partyInfo);
+        NodeInfo nodeInfo = NodeInfo.Builder.create()
+            .from(partyInfo)
+            .build();
+        partyInfoStore.store(nodeInfo);
         LOGGER.debug("Populated party info store {}", partyInfo);
     }
 
@@ -78,7 +82,9 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     @Override
-    public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
+    public PartyInfo updatePartyInfo(final NodeInfo incoming) {
+
+        final PartyInfo partyInfo = incoming.partyInfo();
 
         final RuntimeContext runtimeContext = RuntimeContext.getInstance();
 
@@ -94,8 +100,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         if (!runtimeContext.isDisablePeerDiscovery()) {
             // auto-discovery is on, we can accept all input to us
-
-            this.partyInfoStore.store(partyInfo);
+            this.partyInfoStore.store(incoming);
             return this.getPartyInfo();
         }
 
@@ -124,7 +129,12 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         // separately
         final Set<Party> parties = peerUrls.stream().map(Party::new).collect(toSet());
 
-        partyInfoStore.store(new PartyInfo(partyInfo.getUrl(), knownRecipients, parties));
+        final NodeInfo updated = NodeInfo.Builder.create()
+            .from(new PartyInfo(partyInfo.getUrl(), knownRecipients, parties))
+            .withVersionInfo(incoming.versionInfo())
+            .build();
+
+        partyInfoStore.store(updated);
 
         return this.getPartyInfo();
     }
@@ -182,6 +192,9 @@ public class PartyInfoServiceImpl implements PartyInfoService {
                 this.enclave.getPublicKeys().stream().map(key -> Recipient.of(key, advertisedUrl)).collect(toSet());
 
         // add to store
-        this.partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, emptySet()));
+        final NodeInfo newInfo = NodeInfo.Builder.create()
+            .from(new PartyInfo(advertisedUrl, ourKeys, emptySet()))
+            .build();
+        this.partyInfoStore.store(newInfo);
     }
 }
