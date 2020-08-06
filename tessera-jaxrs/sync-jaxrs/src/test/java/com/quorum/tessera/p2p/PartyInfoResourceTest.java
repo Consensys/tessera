@@ -289,7 +289,7 @@ public class PartyInfoResourceTest {
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
         try {
-            partyInfoResource.partyInfo(payload);
+            partyInfoResource.partyInfo(payload, Collections.emptyList());
             failBecauseExceptionWasNotThrown(SecurityException.class);
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);

@@ -89,7 +89,8 @@ public class PartyInfoResource {
         @ApiResponse(code = 200, message = "Empty response if node is using remote key validation, else an encoded partyinfo containing only the local node's URL", response = byte[].class),
         @ApiResponse(code = 500, message = "If node is using remote key validation, indicates validation failed")
     })
-    public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
+    public Response partyInfo(@ApiParam(required = true) final byte[] payload,
+                              @HeaderParam(Constants.API_VERSION_HEADER) final List<String> headers) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
 
@@ -170,16 +171,11 @@ public class PartyInfoResource {
             throw new SecurityException("No validated keys found for peer " + partyInfoSender);
         }
 
-        final NodeInfo modifiedPartyInfo =
-            NodeInfo.Builder.create()
-                .from(new PartyInfo(url, recipients, partyInfo.getParties()))
-                .withVersionInfo(VersionInfo.from(versions))
-                .build();
-
         // End validation stuff
-        partyInfoService.updatePartyInfo(modifiedPartyInfo);
         final PartyInfo reducedPartyInfo = new PartyInfo(partyInfoSender, validatedSendersKeys, partyInfo.getParties());
-        partyInfoService.updatePartyInfo(reducedPartyInfo);
+        final NodeInfo reducedNodeInfo =
+            NodeInfo.Builder.create().from(reducedPartyInfo).withVersionInfo(VersionInfo.from(versions)).build();
+        partyInfoService.updatePartyInfo(reducedNodeInfo);
 
         return Response.ok().build();
     }
