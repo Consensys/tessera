@@ -3,6 +3,7 @@ package com.quorum.tessera.partyinfo;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.model.NodeInfo;
 
 public interface PartyInfoService {
 
@@ -20,7 +21,7 @@ public interface PartyInfoService {
      * @param partyInfo
      * @return updated PartyInfo object
      */
-    PartyInfo updatePartyInfo(PartyInfo partyInfo);
+    PartyInfo updatePartyInfo(NodeInfo partyInfo);
 
     // Set<String> getUrlsForKey(PublicKey key);
 
@@ -38,7 +39,6 @@ public interface PartyInfoService {
 
     // TODO: Added as lifecycle call once RuntimeContext has been created.
     void populateStore();
-
 
     void syncKeys();
 }

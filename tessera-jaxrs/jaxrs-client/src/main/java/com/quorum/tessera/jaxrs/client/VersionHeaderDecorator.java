@@ -11,7 +11,6 @@ public class VersionHeaderDecorator implements ClientRequestFilter {
 
     @Override
     public void filter(ClientRequestContext requestContext) throws IOException {
-        requestContext.getHeaders().addAll(Constants.API_VERSION_HEADER,ApiVersion.versions());
-
+        ApiVersion.versions().forEach(v -> requestContext.getHeaders().add(Constants.API_VERSION_HEADER, v));
     }
 }

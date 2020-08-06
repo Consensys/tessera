@@ -2,9 +2,7 @@ package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,20 +20,26 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
 
     private final Set<Party> parties;
 
+    private final Map<Party, VersionInfo> versionInfos;
+
     protected PartyInfoStoreImpl(URI advertisedUrl) {
         // TODO: remove the extra "/" when we deprecate backwards compatibility
         this.advertisedUrl = URLNormalizer.create().normalize(advertisedUrl.toString());
         this.recipients = new HashMap<>();
         this.parties = new HashSet<>();
         this.parties.add(new Party(this.advertisedUrl));
+        this.versionInfos = new HashMap<>();
     }
 
     /**
-     * Merge an incoming {@link PartyInfo} into the current one, adding any new keys or parties to the current store
-     *
-     * @param newInfo the incoming information that may contain new nodes/keys
+     * Merge an incoming {@link NodeInfo} into the current one,
+     * adding any new keys or parties to the current store,
+     * together with the versioninfo of the sending party
+     * @param incomingInfo the incoming information that may contain new nodes/keys and its versioninfo
      */
-    public synchronized void store(final PartyInfo newInfo) {
+    public synchronized void store(NodeInfo incomingInfo) {
+
+        final PartyInfo newInfo = incomingInfo.partyInfo();
 
         for (Recipient recipient : newInfo.getRecipients()) {
             recipients.put(recipient.getKey(), recipient);
@@ -48,6 +52,11 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
         sender.setLastContacted(Instant.now());
         parties.remove(sender);
         parties.add(sender);
+
+        final VersionInfo versionInfo = incomingInfo.versionInfo();
+        if (Objects.nonNull(versionInfo)) {
+            versionInfos.put(sender, versionInfo);
+        }
     }
 
     /**
@@ -84,5 +93,10 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
 
     public String getAdvertisedUrl() {
         return advertisedUrl;
+    }
+
+    @Override
+    public synchronized VersionInfo getVersionInfo(Party party) {
+        return versionInfos.get(party);
     }
 }
