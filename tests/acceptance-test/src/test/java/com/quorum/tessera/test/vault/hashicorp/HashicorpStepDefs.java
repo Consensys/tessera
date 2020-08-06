@@ -5,7 +5,10 @@ import com.quorum.tessera.config.HashicorpKeyVaultConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.util.ElUtil;
 import cucumber.api.java8.En;
+import exec.ExecArgsBuilder;
 import exec.NodeExecManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -32,6 +35,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class HashicorpStepDefs implements En {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HashicorpStepDefs.class);
+
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private String vaultToken;
@@ -46,9 +51,10 @@ public class HashicorpStepDefs implements En {
 
     private Path tempTesseraConfig;
 
+    private final AtomicReference<Process> tesseraProcess = new AtomicReference<>();
+
     public HashicorpStepDefs() {
         final AtomicReference<Process> vaultServerProcess = new AtomicReference<>();
-        final AtomicReference<Process> tesseraProcess = new AtomicReference<>();
 
         Before(
                 () -> {
@@ -425,112 +431,24 @@ public class HashicorpStepDefs implements En {
                     String formattedArgs =
                             String.format(cliArgs, tempTesseraConfig.toString(), pid.toAbsolutePath().toString());
 
-                    List<String> args = new ArrayList<>();
-                    args.addAll(
-                            Arrays.asList(
-                                    "java",
-                                    "-Dspring.profiles.active=disable-unixsocket",
-                                    "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                                    "-Ddebug=true",
-                                    "-jar",
-                                    jarfile));
+                    final Path distDirectory = Optional.of("keyvault.hashicorp.dist")
+                        .map(System::getProperty)
+                        .map(Paths::get).get().resolve("*");
+
+                    final List<String> args = new ExecArgsBuilder()
+                        .withStartScriptOrExecutableJarFile(Paths.get(jarfile))
+                        .withClassPathItem(distDirectory)
+                        .withArg("--debug")
+                        .build();
+
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
-                    args.add("--debug");
-                    System.out.println(String.join(" ", args));
 
-                    ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
+                    List<String> jvmArgs = new ArrayList<>();
+                    jvmArgs.add("-Dspring.profiles.active=disable-unixsocket");
+                    jvmArgs.add("-Dlogback.configurationFile=" + logbackConfigFile.getFile());
+                    jvmArgs.add("-Ddebug=true");
 
-                    Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
-                    tesseraEnvironment.put(HASHICORP_CLIENT_KEYSTORE_PWD, "testtest");
-                    tesseraEnvironment.put(HASHICORP_CLIENT_TRUSTSTORE_PWD, "testtest");
-
-                    if ("token".equals(authMethod)) {
-
-                        Objects.requireNonNull(vaultToken);
-                        tesseraEnvironment.put(HASHICORP_TOKEN, vaultToken);
-
-                    } else {
-
-                        Objects.requireNonNull(approleRoleId);
-                        Objects.requireNonNull(approleSecretId);
-                        tesseraEnvironment.put(HASHICORP_ROLE_ID, approleRoleId);
-                        tesseraEnvironment.put(HASHICORP_SECRET_ID, approleSecretId);
-                    }
-
-                    try {
-                        tesseraProcess.set(tesseraProcessBuilder.redirectErrorStream(true).start());
-                    } catch (NullPointerException ex) {
-                        throw new NullPointerException("Check that application.jar property has been set");
-                    }
-
-                    executorService.submit(
-                            () -> {
-                                try (BufferedReader reader =
-                                        Stream.of(tesseraProcess.get().getInputStream())
-                                                .map(InputStreamReader::new)
-                                                .map(BufferedReader::new)
-                                                .findAny()
-                                                .get()) {
-
-                                    String line;
-                                    while ((line = reader.readLine()) != null) {
-                                        System.out.println(line);
-                                    }
-
-                                } catch (IOException ex) {
-                                    throw new UncheckedIOException(ex);
-                                }
-                            });
-
-                    final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
-
-                    final URL bindingUrl =
-                            UriBuilder.fromUri(config.getP2PServerConfig().getBindingUri())
-                                    .path("upcheck")
-                                    .build()
-                                    .toURL();
-
-                    CountDownLatch startUpLatch = new CountDownLatch(1);
-
-                    executorService.submit(
-                            () -> {
-                                while (true) {
-                                    try {
-                                        HttpURLConnection conn = (HttpURLConnection) bindingUrl.openConnection();
-                                        conn.connect();
-
-                                        System.out.println(bindingUrl + " started." + conn.getResponseCode());
-
-                                        startUpLatch.countDown();
-                                        return;
-                                    } catch (IOException ex) {
-                                        try {
-                                            TimeUnit.MILLISECONDS.sleep(200L);
-                                        } catch (InterruptedException ex1) {
-                                        }
-                                    }
-                                }
-                            });
-
-                    boolean started = startUpLatch.await(30, TimeUnit.SECONDS);
-
-                    if (!started) {
-                        System.err.println(bindingUrl + " Not started. ");
-                    }
-
-                    executorService.submit(
-                            () -> {
-                                try {
-                                    int exitCode = tesseraProcess.get().waitFor();
-                                    if (0 != exitCode) {
-                                        System.err.println("Tessera node exited with code " + exitCode);
-                                    }
-                                } catch (InterruptedException ex) {
-                                    ex.printStackTrace();
-                                }
-                            });
-
-                    startUpLatch.await(30, TimeUnit.SECONDS);
+                    startTessera(args, jvmArgs, tempTesseraConfig, authMethod);
                 });
 
         When(
@@ -541,65 +459,24 @@ public class HashicorpStepDefs implements En {
 
                     String formattedArgs = String.format(cliArgs, getClientTlsKeystore(), getClientTlsTruststore());
 
-                    List<String> args = new ArrayList<>();
-                    args.addAll(
-                            Arrays.asList(
-                                    "java",
-                                    "-Dspring.profiles.active=disable-unixsocket",
-                                    "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                                    "-Ddebug=true",
-                                    "-jar",
-                                    jarfile));
+                    final Path distDirectory = Optional.of("keyvault.hashicorp.dist")
+                        .map(System::getProperty)
+                        .map(Paths::get).get().resolve("*");
+
+                    final List<String> args = new ExecArgsBuilder()
+                        .withStartScriptOrExecutableJarFile(Paths.get(jarfile))
+                        .withClassPathItem(distDirectory)
+                        .withArg("--debug")
+                        .build();
+
                     args.addAll(Arrays.asList(formattedArgs.split(" ")));
-                    args.add("--debug");
-                    System.out.println(String.join(" ", args));
 
-                    ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
+                    List<String> jvmArgs = new ArrayList<>();
+                    jvmArgs.add("-Dspring.profiles.active=disable-unixsocket");
+                    jvmArgs.add("-Dlogback.configurationFile=" + logbackConfigFile.getFile());
+                    jvmArgs.add("-Ddebug=true");
 
-                    Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
-                    tesseraEnvironment.put(HASHICORP_CLIENT_KEYSTORE_PWD, "testtest");
-                    tesseraEnvironment.put(HASHICORP_CLIENT_TRUSTSTORE_PWD, "testtest");
-
-                    if ("token".equals(authMethod)) {
-
-                        Objects.requireNonNull(vaultToken);
-                        tesseraEnvironment.put(HASHICORP_TOKEN, vaultToken);
-
-                    } else {
-
-                        Objects.requireNonNull(approleRoleId);
-                        Objects.requireNonNull(approleSecretId);
-                        tesseraEnvironment.put(HASHICORP_ROLE_ID, approleRoleId);
-                        tesseraEnvironment.put(HASHICORP_SECRET_ID, approleSecretId);
-                    }
-
-                    try {
-                        tesseraProcess.set(tesseraProcessBuilder.redirectErrorStream(true).start());
-                    } catch (NullPointerException ex) {
-                        throw new NullPointerException("Check that application.jar property has been set");
-                    }
-
-                    executorService.submit(
-                            () -> {
-                                try (BufferedReader reader =
-                                        Stream.of(tesseraProcess.get().getInputStream())
-                                                .map(InputStreamReader::new)
-                                                .map(BufferedReader::new)
-                                                .findAny()
-                                                .get()) {
-
-                                    String line;
-                                    while ((line = reader.readLine()) != null) {
-                                        System.out.println(line);
-                                    }
-
-                                } catch (IOException ex) {
-                                    throw new UncheckedIOException(ex);
-                                }
-                            });
-
-                    CountDownLatch startUpLatch = new CountDownLatch(1);
-                    startUpLatch.await(10, TimeUnit.SECONDS);
+                    startTessera(args, jvmArgs, null, authMethod);
                 });
 
         Then(
@@ -718,4 +595,107 @@ public class HashicorpStepDefs implements En {
     private String getClientTlsTruststore() {
         return getClass().getResource("/certificates/truststore.jks").getFile();
     }
+
+    private void startTessera(List<String> args, List<String> jvmArgs, Path verifyConfig, String authMethod) throws Exception {
+        String jvmArgsStr = String.join(" ", jvmArgs);
+
+        LOGGER.info("Starting: {}", String.join(" ", args));
+        LOGGER.info("JVM Args: {}", jvmArgsStr);
+
+        ProcessBuilder tesseraProcessBuilder = new ProcessBuilder(args);
+
+        Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
+        tesseraEnvironment.put(HASHICORP_CLIENT_KEYSTORE_PWD, "testtest");
+        tesseraEnvironment.put(HASHICORP_CLIENT_TRUSTSTORE_PWD, "testtest");
+        tesseraEnvironment.put("JAVA_OPTS", jvmArgsStr); // JAVA_OPTS is read by start script and is used to provide jvm args
+
+        if ("token".equals(authMethod)) {
+            Objects.requireNonNull(vaultToken);
+            tesseraEnvironment.put(HASHICORP_TOKEN, vaultToken);
+        } else {
+            Objects.requireNonNull(approleRoleId);
+            Objects.requireNonNull(approleSecretId);
+            tesseraEnvironment.put(HASHICORP_ROLE_ID, approleRoleId);
+            tesseraEnvironment.put(HASHICORP_SECRET_ID, approleSecretId);
+        }
+
+        try {
+            tesseraProcess.set(tesseraProcessBuilder.redirectErrorStream(true).start());
+        } catch (NullPointerException ex) {
+            throw new NullPointerException("Check that application.jar property has been set");
+        }
+
+        executorService.submit(
+            () -> {
+                try (BufferedReader reader =
+                         Stream.of(tesseraProcess.get().getInputStream())
+                             .map(InputStreamReader::new)
+                             .map(BufferedReader::new)
+                             .findAny()
+                             .get()) {
+
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                    }
+
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            });
+
+        CountDownLatch startUpLatch = new CountDownLatch(1);
+
+        if (Objects.nonNull(verifyConfig)) {
+            final Config config = JaxbUtil.unmarshal(Files.newInputStream(verifyConfig), Config.class);
+
+            final URL bindingUrl =
+                UriBuilder.fromUri(config.getP2PServerConfig().getBindingUri())
+                    .path("upcheck")
+                    .build()
+                    .toURL();
+
+            executorService.submit(
+                () -> {
+                    while (true) {
+                        try {
+                            HttpURLConnection conn = (HttpURLConnection) bindingUrl.openConnection();
+                            conn.connect();
+
+                            System.out.println(bindingUrl + " started." + conn.getResponseCode());
+
+                            startUpLatch.countDown();
+                            return;
+                        } catch (IOException ex) {
+                            try {
+                                TimeUnit.MILLISECONDS.sleep(200L);
+                            } catch (InterruptedException ex1) {
+                            }
+                        }
+                    }
+                });
+
+            boolean started = startUpLatch.await(30, TimeUnit.SECONDS);
+
+            if (!started) {
+                System.err.println(bindingUrl + " Not started. ");
+            }
+        }
+
+        executorService.submit(
+            () -> {
+                try {
+                    int exitCode = tesseraProcess.get().waitFor();
+                    startUpLatch.countDown();
+                    if (0 != exitCode) {
+                        System.err.println("Tessera node exited with code " + exitCode);
+                    }
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            });
+
+        startUpLatch.await(30, TimeUnit.SECONDS);
+    }
+
 }
