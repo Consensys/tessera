@@ -25,6 +25,7 @@ dependencies {
 
     testImplementation project(":key-vault:aws-key-vault")
     testImplementation project(":key-vault:azure-key-vault")
+    testImplementation project(":key-vault:hashicorp-key-vault")
 
 
     testImplementation project(":ddls")
@@ -71,6 +72,7 @@ test {
 
     systemProperty "keyvault.aws.dist","${buildDir}/unpacked/dist/aws-key-vault-"+ project.version +"/lib/"
     systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-"+ project.version +"/lib/"
+    systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-"+ project.version +"/lib/"
 
     include(
            "**/RestSuiteHttpH2RemoteEnclave.class",
@@ -85,7 +87,7 @@ test {
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
             "**/P2pTestSuite.class",
-          //  "**/VaultTestSuite.class"
+            "**/VaultTestSuite.class"
     )
 
     if (project.hasProperty("excludeTests")) {
@@ -104,6 +106,14 @@ task unzipAzureKeyVault(type: Copy) {
 
 task unzipAwsKeyVault(type: Copy) {
     def zipFile = file(project(":key-vault:aws-key-vault").distZip.outputs.files.getFiles()[0])
+    def outputDir = file("${buildDir}/unpacked/dist")
+    from zipTree(zipFile)
+    into outputDir
+
+}
+
+task unzipHashicorpKeyVault(type: Copy) {
+    def zipFile = file(project(":key-vault:hashicorp-key-vault").distZip.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
     into outputDir
@@ -154,5 +164,5 @@ task list(dependsOn: configurations.compileClasspath) {
 }
 
 
-test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave,unzipAwsKeyVault,unzipAzureKeyVault
+test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave,unzipAwsKeyVault,unzipAzureKeyVault,unzipHashicorpKeyVault
 

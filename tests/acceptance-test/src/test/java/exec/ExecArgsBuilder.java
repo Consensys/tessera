@@ -71,6 +71,7 @@ public class ExecArgsBuilder {
         }
     }
 
+    // TODO(cjh) delete if not distributing as an executable jar file
     private ExecArgsBuilder withExecutableJarFile(Path executableJarFile) {
         this.executableJarFile = executableJarFile;
         return this;
