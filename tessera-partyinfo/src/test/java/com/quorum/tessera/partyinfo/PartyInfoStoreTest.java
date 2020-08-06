@@ -2,16 +2,13 @@ package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.encryption.KeyNotFoundException;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.model.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Set;
@@ -19,6 +16,8 @@ import java.util.Set;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PartyInfoStoreTest {
 
@@ -27,7 +26,7 @@ public class PartyInfoStoreTest {
     private PartyInfoStore partyInfoStore;
 
     @Before
-    public void onSetUp() throws URISyntaxException {
+    public void onSetUp() {
         this.partyInfoStore = new PartyInfoStoreImpl(URI.create(uri));
     }
 
@@ -43,8 +42,9 @@ public class PartyInfoStoreTest {
 
     @Test
     public void registeringDifferentPeersAdds() {
-        final PartyInfo incomingInfo =
-                new PartyInfo("http://localhost:8080/", emptySet(), singleton(new Party("example.com/")));
+        final NodeInfo incomingInfo = NodeInfo.Builder.create()
+                .from(new PartyInfo("http://localhost:8080/", emptySet(), singleton(new Party("example.com/"))))
+                .build();
 
         this.partyInfoStore.store(incomingInfo);
 
@@ -56,8 +56,9 @@ public class PartyInfoStoreTest {
 
     @Test
     public void registeringSamePeerTwiceDoesntAdd() {
-        final PartyInfo incomingInfo =
-                new PartyInfo("http://localhost:8080/", emptySet(), singleton(new Party("http://localhost:8080/")));
+        final NodeInfo incomingInfo = NodeInfo.Builder.create()
+                .from(new PartyInfo("http://localhost:8080/", emptySet(), singleton(new Party("http://localhost:8080/"))))
+                .build();
 
         this.partyInfoStore.store(incomingInfo);
 
@@ -71,9 +72,12 @@ public class PartyInfoStoreTest {
         final PublicKey localKey = PublicKey.from("local-key".getBytes());
         final PublicKey remoteKey = PublicKey.from("remote-key".getBytes());
 
-        final PartyInfo incomingLocal = new PartyInfo(uri, singleton(Recipient.of(localKey, uri)), emptySet());
-        final PartyInfo incomingRemote =
-                new PartyInfo(uri, singleton(Recipient.of(remoteKey, "example.com")), emptySet());
+        final NodeInfo incomingLocal = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, singleton(Recipient.of(localKey, uri)), emptySet()))
+            .build();
+        final NodeInfo incomingRemote = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, singleton(Recipient.of(remoteKey, "example.com")), emptySet()))
+            .build();
 
         partyInfoStore.store(incomingLocal);
         partyInfoStore.store(incomingRemote);
@@ -92,7 +96,9 @@ public class PartyInfoStoreTest {
 
         final Set<Recipient> ourKeys = singleton(Recipient.of(testKey, uri));
 
-        final PartyInfo incoming = new PartyInfo(uri, ourKeys, emptySet());
+        final NodeInfo incoming = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, ourKeys, emptySet()))
+            .build();
 
         partyInfoStore.store(incoming);
         partyInfoStore.store(incoming);
@@ -107,7 +113,9 @@ public class PartyInfoStoreTest {
 
         final String ourUpdatedUri = uri + "/";
 
-        final PartyInfo incoming = new PartyInfo(ourUpdatedUri, emptySet(), emptySet());
+        final NodeInfo incoming = NodeInfo.Builder.create()
+            .from(new PartyInfo(ourUpdatedUri, emptySet(), emptySet()))
+            .build();
 
         partyInfoStore.store(incoming);
 
@@ -130,18 +138,22 @@ public class PartyInfoStoreTest {
     }
 
     @Test
-    public void attemptToUpdateReciepentWithExistingKeyWithNewUrlIsUpdated() {
+    public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIsUpdated() {
 
         final PublicKey testKey = PublicKey.from("some-key".getBytes());
 
         final Set<Recipient> ourKeys = singleton(Recipient.of(testKey, uri));
 
-        final PartyInfo initial = new PartyInfo(uri, ourKeys, emptySet());
+        final NodeInfo initial = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, ourKeys, emptySet()))
+            .build();
 
         partyInfoStore.store(initial);
 
         final Set<Recipient> newRecipients = singleton(Recipient.of(testKey, "http://other.com"));
-        final PartyInfo updated = new PartyInfo(uri, newRecipients, emptySet());
+        final NodeInfo updated = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, newRecipients, emptySet()))
+            .build();
 
         partyInfoStore.store(updated);
 
@@ -156,9 +168,12 @@ public class PartyInfoStoreTest {
         final PublicKey someKey = PublicKey.from("someKey".getBytes());
         final PublicKey someOtherKey = PublicKey.from("someOtherKey".getBytes());
 
-        final PartyInfo somePartyInfo = new PartyInfo(uri, singleton(Recipient.of(someKey, uri)), emptySet());
-        final PartyInfo someOtherPartyInfo =
-                new PartyInfo(uri, singleton(Recipient.of(someOtherKey, "somedomain.com")), emptySet());
+        final NodeInfo somePartyInfo = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, singleton(Recipient.of(someKey, uri)), emptySet()))
+            .build();
+        final NodeInfo someOtherPartyInfo = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, singleton(Recipient.of(someOtherKey, "somedomain.com")), emptySet()))
+            .build();
 
         partyInfoStore.store(somePartyInfo);
         partyInfoStore.store(someOtherPartyInfo);
@@ -182,7 +197,9 @@ public class PartyInfoStoreTest {
         PublicKey myKey = PublicKey.from("I LOVE SPARROWS".getBytes());
         Recipient recipient = Recipient.of(myKey, "http://myurl.com");
 
-        PartyInfo partyInfo = new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET);
+        NodeInfo partyInfo = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET))
+            .build();
         partyInfoStore.store(partyInfo);
 
         Recipient result = partyInfoStore.findRecipientByPublicKey(myKey);
@@ -195,7 +212,9 @@ public class PartyInfoStoreTest {
         PublicKey myKey = PublicKey.from("I LOVE SPARROWS".getBytes());
         Recipient recipient = Recipient.of(myKey, "http://myurl.com");
 
-        PartyInfo partyInfo = new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET);
+        NodeInfo partyInfo = NodeInfo.Builder.create()
+            .from(new PartyInfo(uri, singleton(recipient), Collections.EMPTY_SET))
+            .build();
         partyInfoStore.store(partyInfo);
 
         partyInfoStore.findRecipientByPublicKey(PublicKey.from("OTHER KEY".getBytes()));
@@ -212,5 +231,28 @@ public class PartyInfoStoreTest {
         RuntimeContextFactory.newFactory().create(null);
         PartyInfoStore instance = PartyInfoStore.create(URI.create("http://junit.com"));
         assertThat(instance).isNotNull();
+    }
+
+    @Test
+    public void storePartyInfoWithVersion() {
+
+        final VersionInfo versionInfo = mock(VersionInfo.class);
+        when(versionInfo.supportedApiVersions()).thenReturn(Set.of("v1","v2"));
+
+        final NodeInfo incomingInfo = NodeInfo.Builder.create()
+            .from(new PartyInfo("http://localhost:8080/", emptySet(), singleton(new Party("example.com/"))))
+            .withVersionInfo(versionInfo)
+            .build();
+
+        this.partyInfoStore.store(incomingInfo);
+
+        final PartyInfo output = this.partyInfoStore.getPartyInfo();
+
+        assertThat(output.getParties())
+            .containsExactlyInAnyOrder(new Party("http://localhost:8080/"), new Party("example.com/"));
+
+        final VersionInfo version = this.partyInfoStore.getVersionInfo(new Party("http://localhost:8080/"));
+        assertThat(version.supportedApiVersions()).isEqualTo(Set.of("v1","v2"));
+
     }
 }

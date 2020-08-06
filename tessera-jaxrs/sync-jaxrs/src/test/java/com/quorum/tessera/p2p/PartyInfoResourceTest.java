@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.NodeInfo;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
@@ -160,9 +161,9 @@ public class PartyInfoResourceTest {
 
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
-        when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
+        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(partyInfo);
 
-        Response result = partyInfoResource.partyInfo(payload);
+        Response result = partyInfoResource.partyInfo(payload, List.of("v1,v2"));
 
         assertThat(result.getStatus()).isEqualTo(200);
 
@@ -171,7 +172,16 @@ public class PartyInfoResourceTest {
         verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
         verify(payloadEncoder).encode(encodedPayload);
         verify(restClient).target(url);
-        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
+
+        ArgumentCaptor<NodeInfo> argCaptor = ArgumentCaptor.forClass(NodeInfo.class);
+        verify(partyInfoService).updatePartyInfo(argCaptor.capture());
+
+        final NodeInfo nodeInfo = argCaptor.getValue();
+        assertThat(nodeInfo).isNotNull();
+        assertThat(nodeInfo.partyInfo().getUrl()).isEqualTo(url);
+        assertThat(nodeInfo.versionInfo().supportedApiVersions())
+            .containsExactlyInAnyOrder("v1","v2");
+
     }
 
     @Test
@@ -251,7 +261,7 @@ public class PartyInfoResourceTest {
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
         try {
-            partyInfoResource.partyInfo(payload);
+            partyInfoResource.partyInfo(payload, List.of("v1","v2"));
             failBecauseExceptionWasNotThrown(SecurityException.class);
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
@@ -303,7 +313,7 @@ public class PartyInfoResourceTest {
                 .thenThrow(new UncheckedIOException(new IOException("GURU meditation")));
 
         try {
-            partyInfoResource.partyInfo(payload);
+            partyInfoResource.partyInfo(payload,null);
             failBecauseExceptionWasNotThrown(SecurityException.class);
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
@@ -335,7 +345,7 @@ public class PartyInfoResourceTest {
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
         when(partyInfoParser.to(captor.capture())).thenReturn(serialisedData);
 
-        final Response callResponse = partyInfoResource.partyInfo(payload);
+        final Response callResponse = partyInfoResource.partyInfo(payload, null);
         final byte[] data = (byte[]) callResponse.getEntity();
 
         assertThat(captor.getValue().getUrl()).isEqualTo(url);
@@ -345,18 +355,18 @@ public class PartyInfoResourceTest {
         verify(partyInfoParser).from(payload);
         verify(partyInfoParser).to(any(PartyInfo.class));
 
-        final ArgumentCaptor<PartyInfo> modifiedPartyInfoCaptor = ArgumentCaptor.forClass(PartyInfo.class);
+        final ArgumentCaptor<NodeInfo> modifiedPartyInfoCaptor = ArgumentCaptor.forClass(NodeInfo.class);
 
         verify(partyInfoService).updatePartyInfo(modifiedPartyInfoCaptor.capture());
-        final PartyInfo modified = modifiedPartyInfoCaptor.getValue();
+        final NodeInfo modified = modifiedPartyInfoCaptor.getValue();
 
-        assertThat(modified.getUrl()).isEqualTo(url);
+        assertThat(modified.partyInfo().getUrl()).isEqualTo(url);
 
-        Set<Recipient> updatedRecipients = modified.getRecipients();
+        Set<Recipient> updatedRecipients = modified.partyInfo().getRecipients();
         assertThat(updatedRecipients)
                 .containsExactlyInAnyOrder(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl));
 
-        assertThat(modified.getParties()).isEmpty();
+        assertThat(modified.partyInfo().getParties()).isEmpty();
 
         verify(partyInfoService).getPartyInfo();
     }
@@ -409,10 +419,10 @@ public class PartyInfoResourceTest {
             }
         }).when(response).readEntity(String.class);
 
-        when(partyInfoService.updatePartyInfo(any(PartyInfo.class))).thenReturn(partyInfo);
+        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(partyInfo);
 
         // the test
-        partyInfoResource.partyInfo(payload);
+        partyInfoResource.partyInfo(payload, null);
 
         ArgumentCaptor<byte[]> uuidCaptor = ArgumentCaptor.forClass(byte[].class);
         verify(enclave, times(2)).encryptPayload(uuidCaptor.capture(), any(PublicKey.class), anyList());
@@ -421,7 +431,7 @@ public class PartyInfoResourceTest {
         assertThat(capturedUUIDs.get(0)).isNotEqualTo(capturedUUIDs.get(1));
 
         // other verifications
-        verify(partyInfoService).updatePartyInfo(any(PartyInfo.class));
+        verify(partyInfoService).updatePartyInfo(any(NodeInfo.class));
         verify(partyInfoParser).from(payload);
         verify(enclave).defaultPublicKey();
         verify(payloadEncoder, times(2)).encode(encodedPayload);

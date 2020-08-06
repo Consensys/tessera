@@ -24,11 +24,9 @@ public class VersionHeaderDecoratorTest {
         VersionHeaderDecorator versionHeaderDecorator = new VersionHeaderDecorator();
         versionHeaderDecorator.filter(requestContext);
 
-        assertThat(headers.getFirst(Constants.API_VERSION_HEADER)).isNotNull().isEqualTo(ApiVersion.versions());
+        assertThat(headers.get(Constants.API_VERSION_HEADER)).isNotNull().isEqualTo(ApiVersion.versions());
 
         verify(requestContext).getHeaders();
         verifyNoMoreInteractions(requestContext);
-
     }
-
 }
