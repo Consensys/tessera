@@ -9,8 +9,6 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-
-import com.quorum.tessera.partyinfo.model.VersionInfo;
 import com.quorum.tessera.shared.Constants;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -100,8 +98,7 @@ public class PartyInfoResource {
             .flatMap(v -> Arrays.stream(v.split(",")))
             .collect(Collectors.toSet());
 
-        final NodeInfo decoratedPartyInfo =
-            NodeInfo.Builder.create().from(partyInfo).withVersionInfo(VersionInfo.from(versions)).build();
+        final NodeInfo decoratedPartyInfo = NodeInfo.from(partyInfo,versions);
 
         LOGGER.debug("Received PartyInfo from {}", partyInfo.getUrl());
 
@@ -172,9 +169,12 @@ public class PartyInfoResource {
         }
 
         // End validation stuff
-        final PartyInfo reducedPartyInfo = new PartyInfo(partyInfoSender, validatedSendersKeys, partyInfo.getParties());
-        final NodeInfo reducedNodeInfo =
-            NodeInfo.Builder.create().from(reducedPartyInfo).withVersionInfo(VersionInfo.from(versions)).build();
+        final NodeInfo reducedNodeInfo = NodeInfo.Builder.create()
+            .withUrl(partyInfoSender)
+            .withSupportedApiVersions(versions)
+            .withRecipients(validatedSendersKeys)
+            .withParties(partyInfo.getParties())
+            .build();
         partyInfoService.updatePartyInfo(reducedNodeInfo);
 
         return Response.ok().build();
@@ -186,7 +186,7 @@ public class PartyInfoResource {
     @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network information", response = PartyInfo.class)})
     public Response getPartyInfo() {
 
-        final PartyInfo current = this.partyInfoService.getPartyInfo();
+        final NodeInfo current = this.partyInfoService.getPartyInfo();
 
         // TODO: remove the filter when URIs don't need to end with a /
         final JsonArrayBuilder peersBuilder = Json.createArrayBuilder();

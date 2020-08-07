@@ -1,5 +1,6 @@
 package com.quorum.tessera.partyinfo;
 
+import com.quorum.tessera.partyinfo.model.NodeInfo;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import org.junit.After;
@@ -11,9 +12,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
-
-import static java.util.Collections.emptySet;
-import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
@@ -64,34 +62,47 @@ public class PartyInfoPollerTest {
 
     @Test
     public void run() {
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(TARGET_URL)));
-        doReturn(partyInfo).when(partyInfoService).getPartyInfo();
-        doReturn(true).when(p2pClient).sendPartyInfo(TARGET_URL, DATA);
+        final NodeInfo partyInfo = NodeInfo.Builder.create()
+            .withUrl(OWN_URL)
+            .withParties(Set.of(new Party(TARGET_URL)))
+            .build();
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(p2pClient.sendPartyInfo(TARGET_URL,DATA)).thenReturn(true);
 
         partyInfoPoller.run();
 
         verify(partyInfoService).getPartyInfo();
-        verify(partyInfoParser).to(partyInfo);
+        verify(partyInfoParser).to(any(PartyInfo.class));
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
     }
 
     @Test
     public void testWhenURLIsOwn() {
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), singleton(new Party(OWN_URL)));
-        doReturn(partyInfo).when(partyInfoService).getPartyInfo();
-        doReturn(DATA).when(partyInfoParser).to(partyInfo);
-        doReturn(true).when(p2pClient).sendPartyInfo(OWN_URL, DATA);
+        final NodeInfo partyInfo = NodeInfo.Builder.create()
+            .withUrl(OWN_URL)
+            .withParties(Set.of(new Party(OWN_URL)))
+            .build();
+
+
+        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
+        when(p2pClient.sendPartyInfo(OWN_URL,DATA)).thenReturn(true);
 
         partyInfoPoller.run();
 
-        verify(partyInfoParser).to(partyInfo);
+        verify(partyInfoParser).to(any(PartyInfo.class));
         verify(partyInfoService).getPartyInfo();
     }
 
     @Test
     public void exceptionThrowByPostDoesntBubble() {
         final Set<Party> parties = new HashSet<>(Arrays.asList(new Party(TARGET_URL), new Party(TARGET_URL_2)));
-        final PartyInfo partyInfo = new PartyInfo(OWN_URL, emptySet(), parties);
+        final NodeInfo partyInfo = NodeInfo.Builder.create()
+            .withUrl(OWN_URL)
+            .withParties(parties)
+            .build();
+
         doReturn(partyInfo).when(partyInfoService).getPartyInfo();
         doThrow(UnsupportedOperationException.class).when(p2pClient).sendPartyInfo(TARGET_URL, DATA);
 
@@ -102,7 +113,7 @@ public class PartyInfoPollerTest {
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
         verify(p2pClient).sendPartyInfo(TARGET_URL_2, DATA);
         verify(partyInfoService).getPartyInfo();
-        verify(partyInfoParser).to(partyInfo);
+        verify(partyInfoParser).to(any(PartyInfo.class));
     }
 
     @Test

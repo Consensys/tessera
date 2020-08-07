@@ -1,6 +1,7 @@
 package com.quorum.tessera.thirdparty;
 
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.NodeInfo;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -34,10 +35,10 @@ public class PartyInfoResource {
     @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network public keys")})
     public Response getPartyInfoKeys() {
 
-        final PartyInfo current = this.partyInfoService.getPartyInfo();
-
+        final NodeInfo current = this.partyInfoService.getPartyInfo();
+        PartyInfo partyInfo = PartyInfo.from(current);
         final JsonArrayBuilder recipientBuilder = Json.createArrayBuilder();
-        current.getRecipients().stream()
+        partyInfo.getRecipients().stream()
                 .map(
                         recipient ->
                                 Json.createObjectBuilder()

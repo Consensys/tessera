@@ -3,8 +3,8 @@ package com.quorum.tessera.sync;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.NodeInfo;
 import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.sync.model.SyncableParty;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +46,11 @@ public class SyncPollerTest {
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.p2pClient = mock(P2pClient.class);
         doReturn(true).when(p2pClient).sendPartyInfo(anyString(), any());
-        when(partyInfoService.getPartyInfo()).thenReturn(new PartyInfo("myurl", emptySet(), emptySet()));
+
+        NodeInfo nodeInfo = NodeInfo.Builder.create()
+            .withUrl("myurl")
+            .build();
+        when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
 
         this.syncPoller =
                 new SyncPoller(
@@ -110,13 +114,19 @@ public class SyncPollerTest {
         final Party localParty = new Party(targetUrl);
         final Party syncableParty = new Party(syncableUrl);
         final Set<Party> parties = new HashSet<>(Arrays.asList(localParty, syncableParty));
-        when(partyInfoService.getPartyInfo()).thenReturn(new PartyInfo("localurl.com", emptySet(), parties));
+
+        NodeInfo nodeInfo = NodeInfo.Builder.create()
+            .withUrl("localurl.com")
+            .withParties(parties)
+            .build();
+
+        when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
 
         doReturn(Optional.empty()).when(resendPartyStore).getNextParty();
 
         syncPoller.run();
 
-        verify(resendPartyStore, times(1)).addUnseenParties(new HashSet<>(Arrays.asList(syncableParty)));
+        verify(resendPartyStore, times(1)).addUnseenParties(Set.of(syncableParty));
         verify(resendPartyStore, times(1)).getNextParty();
     }
 

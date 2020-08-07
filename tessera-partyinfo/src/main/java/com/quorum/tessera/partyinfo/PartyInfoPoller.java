@@ -57,7 +57,7 @@ public class PartyInfoPoller implements Runnable {
     public void run() {
         LOGGER.info("Started PartyInfo polling round");
 
-        final PartyInfo partyInfo = partyInfoService.getPartyInfo();
+        final PartyInfo partyInfo = PartyInfo.from(partyInfoService.getPartyInfo());
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
         final String ourUrl = partyInfo.getUrl();

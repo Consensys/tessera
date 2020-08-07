@@ -15,7 +15,7 @@ public interface PartyInfoStore {
             .orElse(new PartyInfoStoreImpl(uri));
     }
 
-    PartyInfo getPartyInfo();
+    NodeInfo getPartyInfo();
 
     void store(NodeInfo incomingInfo);
 
@@ -23,7 +23,7 @@ public interface PartyInfoStore {
 
     String getAdvertisedUrl();
 
-    PartyInfo removeRecipient(String s);
+    NodeInfo removeRecipient(String s);
 
     VersionInfo getVersionInfo(Party party);
 }

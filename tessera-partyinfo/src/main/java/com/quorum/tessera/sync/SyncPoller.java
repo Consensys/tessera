@@ -3,6 +3,7 @@ package com.quorum.tessera.sync;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.NodeInfo;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.sync.model.SyncableParty;
@@ -70,7 +71,7 @@ public class SyncPoller implements Runnable {
     @Override
     public void run() {
 
-        final PartyInfo partyInfo = partyInfoService.getPartyInfo();
+        final NodeInfo partyInfo = partyInfoService.getPartyInfo();
         final Set<Party> unseenParties =
                 partyInfo.getParties().stream()
                         .filter(p -> !p.getUrl().equals(partyInfo.getUrl()))
@@ -109,8 +110,8 @@ public class SyncPoller implements Runnable {
 
     private boolean updatePartyInfo(String url) {
         try {
-            final PartyInfo partyInfo = partyInfoService.getPartyInfo();
-
+            final NodeInfo nodeInfo = partyInfoService.getPartyInfo();
+            PartyInfo partyInfo = PartyInfo.from(nodeInfo);
             final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
             // we deliberately discard the response as we do not want to fully duplicate the PartyInfoPoller

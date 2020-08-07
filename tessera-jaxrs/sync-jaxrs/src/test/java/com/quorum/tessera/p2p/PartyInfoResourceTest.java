@@ -18,6 +18,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import javax.json.Json;
+import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -74,24 +75,23 @@ public class PartyInfoResourceTest {
         final Party partyWithTimestamp = new Party("http://localhost:9005/");
         partyWithTimestamp.setLastContacted(Instant.parse("2019-01-02T15:03:22.875Z"));
 
-        final PartyInfo partyInfo =
-                new PartyInfo(
-                        "http://localhost:9001/",
-                        new HashSet<>(
-                                Arrays.asList(
-                                        Recipient.of(
-                                                PublicKey.from(
-                                                        Base64.getDecoder()
-                                                                .decode(
-                                                                        "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
-                                                "http://localhost:9001/"),
-                                        Recipient.of(
-                                                PublicKey.from(
-                                                        Base64.getDecoder()
-                                                                .decode(
-                                                                        "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")),
-                                                "http://localhost:9002/"))),
-                        new HashSet<>(Arrays.asList(partyWithTimestamp, partyWithoutTimestamp)));
+        NodeInfo partyInfo = NodeInfo.Builder.create()
+            .withUrl("http://localhost:9001/")
+            .withRecipients(List.of(
+                Recipient.of(
+                    PublicKey.from(
+                        Base64.getDecoder()
+                            .decode(
+                                "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
+                    "http://localhost:9001/"),
+                Recipient.of(
+                    PublicKey.from(
+                        Base64.getDecoder()
+                            .decode(
+                                "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")),
+                    "http://localhost:9002/")))
+            .withParties(List.of(partyWithoutTimestamp,partyWithTimestamp))
+            .build();
 
         when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
 
@@ -104,7 +104,15 @@ public class PartyInfoResourceTest {
         final JsonReader expected = Json.createReader(new StringReader(partyInfoJson));
         final JsonReader actual = Json.createReader(new StringReader(output));
 
-        assertThat(expected.readObject()).isEqualTo(actual.readObject());
+        JsonObject expectedJsonObject = expected.readObject();
+        JsonObject actualJsonObject = actual.readObject();
+
+        assertThat(actualJsonObject.getJsonArray("keys"))
+            .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("keys"));
+        assertThat(actualJsonObject.getJsonArray("peers"))
+            .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("peers"));
+        assertThat(actualJsonObject.getString("url"))
+            .isEqualTo(expectedJsonObject.getString("url"));
 
         verify(partyInfoService).getPartyInfo();
     }
@@ -161,7 +169,7 @@ public class PartyInfoResourceTest {
 
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
-        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(partyInfo);
+        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(NodeInfo.from(partyInfo,null));
 
         Response result = partyInfoResource.partyInfo(payload, List.of("v1,v2"));
 
@@ -178,8 +186,8 @@ public class PartyInfoResourceTest {
 
         final NodeInfo nodeInfo = argCaptor.getValue();
         assertThat(nodeInfo).isNotNull();
-        assertThat(nodeInfo.partyInfo().getUrl()).isEqualTo(url);
-        assertThat(nodeInfo.versionInfo().supportedApiVersions())
+        assertThat(nodeInfo.getUrl()).isEqualTo(url);
+        assertThat(nodeInfo.supportedApiVersions())
             .containsExactlyInAnyOrder("v1","v2");
 
     }
@@ -424,12 +432,12 @@ public class PartyInfoResourceTest {
         final Set<Recipient> recipientList =
                 new HashSet<>(Arrays.asList(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl)));
         final PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
-
+        final NodeInfo nodeInfo = NodeInfo.from(partyInfo,null);
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
         final byte[] serialisedData = "SERIALISED".getBytes();
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
         when(partyInfoParser.to(captor.capture())).thenReturn(serialisedData);
 
         final Response callResponse = partyInfoResource.partyInfo(payload, null);
@@ -447,13 +455,13 @@ public class PartyInfoResourceTest {
         verify(partyInfoService).updatePartyInfo(modifiedPartyInfoCaptor.capture());
         final NodeInfo modified = modifiedPartyInfoCaptor.getValue();
 
-        assertThat(modified.partyInfo().getUrl()).isEqualTo(url);
+        assertThat(modified.getUrl()).isEqualTo(url);
 
-        Set<Recipient> updatedRecipients = modified.partyInfo().getRecipients();
+        Set<Recipient> updatedRecipients = modified.getRecipients();
         assertThat(updatedRecipients)
                 .containsExactlyInAnyOrder(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl));
 
-        assertThat(modified.partyInfo().getParties()).isEmpty();
+        assertThat(modified.getParties()).isEmpty();
 
         verify(partyInfoService).getPartyInfo();
     }
@@ -506,7 +514,7 @@ public class PartyInfoResourceTest {
             }
         }).when(response).readEntity(String.class);
 
-        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(partyInfo);
+        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(NodeInfo.from(partyInfo,null));
 
         // the test
         partyInfoResource.partyInfo(payload, null);

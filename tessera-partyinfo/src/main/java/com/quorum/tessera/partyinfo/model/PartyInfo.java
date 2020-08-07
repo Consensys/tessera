@@ -38,4 +38,9 @@ public class PartyInfo {
         return parties;
     }
 
+
+    public static PartyInfo from(NodeInfo nodeInfo) {
+        return new PartyInfo(nodeInfo.getUrl(),nodeInfo.getRecipients(),nodeInfo.getParties());
+    }
+
 }
