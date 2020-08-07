@@ -1,8 +1,8 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.NodeInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Recipient;
 
 import java.util.Map;
 import java.util.stream.Collectors;

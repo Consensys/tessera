@@ -4,12 +4,9 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.model.NodeInfo;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.model.*;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,20 +68,20 @@ public class PartyInfoResourceTest {
         final String partyInfoJson =
                 "{\"url\":\"http://localhost:9001/\",\"peers\":[{\"url\":\"http://localhost:9006/\",\"lastContact\":null},{\"url\":\"http://localhost:9005/\",\"lastContact\":\"2019-01-02T15:03:22.875Z\"}],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
 
-        final Party partyWithoutTimestamp = new Party("http://localhost:9006/");
-        final Party partyWithTimestamp = new Party("http://localhost:9005/");
+        final com.quorum.tessera.partyinfo.node.Party partyWithoutTimestamp = new com.quorum.tessera.partyinfo.node.Party("http://localhost:9006/");
+        final com.quorum.tessera.partyinfo.node.Party partyWithTimestamp = new com.quorum.tessera.partyinfo.node.Party("http://localhost:9005/");
         partyWithTimestamp.setLastContacted(Instant.parse("2019-01-02T15:03:22.875Z"));
 
         NodeInfo partyInfo = NodeInfo.Builder.create()
             .withUrl("http://localhost:9001/")
             .withRecipients(List.of(
-                Recipient.of(
+                com.quorum.tessera.partyinfo.node.Recipient.of(
                     PublicKey.from(
                         Base64.getDecoder()
                             .decode(
                                 "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
                     "http://localhost:9001/"),
-                Recipient.of(
+                com.quorum.tessera.partyinfo.node.Recipient.of(
                     PublicKey.from(
                         Base64.getDecoder()
                             .decode(
@@ -169,7 +166,8 @@ public class PartyInfoResourceTest {
 
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
-        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(NodeInfo.from(partyInfo,null));
+        when(partyInfoService.updatePartyInfo(any(NodeInfo.class)))
+            .thenReturn(NodeInfoUtil.from(partyInfo,null));
 
         Response result = partyInfoResource.partyInfo(payload, List.of("v1,v2"));
 
@@ -432,7 +430,7 @@ public class PartyInfoResourceTest {
         final Set<Recipient> recipientList =
                 new HashSet<>(Arrays.asList(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl)));
         final PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
-        final NodeInfo nodeInfo = NodeInfo.from(partyInfo,null);
+        final NodeInfo nodeInfo = NodeInfoUtil.from(partyInfo,null);
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
         final byte[] serialisedData = "SERIALISED".getBytes();
 
@@ -457,9 +455,9 @@ public class PartyInfoResourceTest {
 
         assertThat(modified.getUrl()).isEqualTo(url);
 
-        Set<Recipient> updatedRecipients = modified.getRecipients();
+        Set<com.quorum.tessera.partyinfo.node.Recipient> updatedRecipients = modified.getRecipients();
         assertThat(updatedRecipients)
-                .containsExactlyInAnyOrder(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl));
+                .containsExactlyInAnyOrder(com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, url), com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, otherurl));
 
         assertThat(modified.getParties()).isEmpty();
 
@@ -514,7 +512,7 @@ public class PartyInfoResourceTest {
             }
         }).when(response).readEntity(String.class);
 
-        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(NodeInfo.from(partyInfo,null));
+        when(partyInfoService.updatePartyInfo(any(NodeInfo.class))).thenReturn(NodeInfoUtil.from(partyInfo,null));
 
         // the test
         partyInfoResource.partyInfo(payload, null);

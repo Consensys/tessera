@@ -1,14 +1,15 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.PartyInfoParser;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.NodeInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.NodeInfoUtil;
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.shared.Constants;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -98,7 +99,7 @@ public class PartyInfoResource {
             .flatMap(v -> Arrays.stream(v.split(",")))
             .collect(Collectors.toSet());
 
-        final NodeInfo decoratedPartyInfo = NodeInfo.from(partyInfo,versions);
+        final NodeInfo decoratedPartyInfo = NodeInfoUtil.from(partyInfo,versions);
 
         LOGGER.debug("Received PartyInfo from {}", partyInfo.getUrl());
 
@@ -158,10 +159,13 @@ public class PartyInfoResource {
         final Predicate<Recipient> isSender = r -> r.getUrl().equalsIgnoreCase(partyInfoSender);
 
         // Validate caller and treat no valid certs as security issue.
-        final Set<Recipient> validatedSendersKeys =
+        final Set<com.quorum.tessera.partyinfo.node.Recipient> validatedSendersKeys =
                 partyInfo.getRecipients().stream()
                         .filter(isSender.and(isValidRecipient))
-                        .collect(Collectors.toSet());
+                        .map(r -> {
+                            return com.quorum.tessera.partyinfo.node.Recipient.of(r.getKey(),r.getUrl());
+
+                        }).collect(Collectors.toSet());
 
         LOGGER.debug("Validated keys for peer {}: {}", partyInfoSender, validatedSendersKeys);
         if (validatedSendersKeys.isEmpty()) {
@@ -173,7 +177,10 @@ public class PartyInfoResource {
             .withUrl(partyInfoSender)
             .withSupportedApiVersions(versions)
             .withRecipients(validatedSendersKeys)
-            .withParties(partyInfo.getParties())
+            .withParties(partyInfo.getParties().stream()
+                .map(Party::getUrl)
+                .map(com.quorum.tessera.partyinfo.node.Party::new)
+                .collect(Collectors.toList()))
             .build();
         partyInfoService.updatePartyInfo(reducedNodeInfo);
 

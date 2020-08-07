@@ -3,7 +3,10 @@ package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.*;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Party;
+import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.partyinfo.node.VersionInfo;
 
 import java.net.URI;
 

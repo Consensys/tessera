@@ -10,6 +10,7 @@ dependencies {
     compile project(':enclave:enclave-api')
     compile project(':encryption:encryption-api')
     compile project(':tessera-jaxrs:jaxrs-client')
+    implementation project(':tessera-jaxrs:partyinfo-model')
     compile 'io.swagger:swagger-annotations'
     compile project(':tessera-core')
     compile project(':tessera-partyinfo')

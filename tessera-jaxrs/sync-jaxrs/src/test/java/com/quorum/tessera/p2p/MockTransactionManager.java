@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p;
 
+
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -25,7 +26,7 @@ public class MockTransactionManager implements TransactionManager, TransactionMa
     public void delete(MessageHash messageHash) {}
 
     @Override
-    public ResendResponse resend(ResendRequest request) {
+    public com.quorum.tessera.transaction.ResendResponse resend(com.quorum.tessera.transaction.ResendRequest request) {
         return null;
     }
 

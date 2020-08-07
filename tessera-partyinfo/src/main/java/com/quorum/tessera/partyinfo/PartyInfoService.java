@@ -2,7 +2,7 @@ package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.NodeInfo;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
 
 public interface PartyInfoService {
 

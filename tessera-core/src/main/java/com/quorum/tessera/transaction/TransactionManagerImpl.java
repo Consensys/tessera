@@ -164,7 +164,7 @@ public class TransactionManagerImpl implements TransactionManager {
     public ResendResponse resend(ResendRequest request) {
 
         final PublicKey recipientPublicKey = request.getRecipient();
-        if (request.getType() == ResendRequestType.ALL) {
+        if (request.getType() == ResendRequest.ResendRequestType.ALL) {
 
             int offset = 0;
 

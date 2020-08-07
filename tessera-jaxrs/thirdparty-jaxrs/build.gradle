@@ -9,6 +9,7 @@ dependencies {
     compile project(':tessera-partyinfo')
     compile project(':encryption:encryption-api')
     compile project(':tessera-jaxrs:common-jaxrs')
+    implementation project(':tessera-jaxrs:partyinfo-model')
     compile 'io.swagger:swagger-annotations'
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile 'org.glassfish:javax.json'
