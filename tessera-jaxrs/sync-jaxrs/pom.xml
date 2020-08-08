@@ -22,6 +22,12 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+    
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>partyinfo-model</artifactId>
+        </dependency>
+        
     </dependencies>
     
     <build>
