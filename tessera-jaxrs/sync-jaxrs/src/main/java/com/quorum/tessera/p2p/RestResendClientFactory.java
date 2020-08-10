@@ -6,8 +6,6 @@ import com.quorum.tessera.config.util.IntervalPropertyHelper;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
-import com.quorum.tessera.sync.ResendClient;
-import com.quorum.tessera.sync.ResendClientFactory;
 
 import javax.ws.rs.client.Client;
 

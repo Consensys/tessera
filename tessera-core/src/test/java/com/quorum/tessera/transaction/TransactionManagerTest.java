@@ -10,7 +10,8 @@ import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.*;
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.PublishPayloadException;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
@@ -385,7 +386,7 @@ public class TransactionManagerTest {
         when(enclave.unencryptTransaction(payload, recipientKey)).thenReturn(new byte[0]);
 
         final com.quorum.tessera.transaction.ResendRequest resendRequest =
-                ResendRequest.Builder.create().withRecipient(senderKey).withType(ResendRequestType.ALL).build();
+                ResendRequest.Builder.create().withRecipient(senderKey).withType(ResendRequest.ResendRequestType.ALL).build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -415,7 +416,7 @@ public class TransactionManagerTest {
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         final ResendRequest resendRequest =
-                ResendRequest.Builder.create().withRecipient(recipientKey).withType(ResendRequestType.ALL).build();
+                ResendRequest.Builder.create().withRecipient(recipientKey).withType(ResendRequest.ResendRequestType.ALL).build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -442,7 +443,8 @@ public class TransactionManagerTest {
         when(payloadEncoder.forRecipient(payload, recipientKey)).thenReturn(payload);
 
         final ResendRequest resendRequest =
-                ResendRequest.Builder.create().withType(ResendRequestType.ALL).withRecipient(recipientKey).build();
+                ResendRequest.Builder.create()
+                    .withType(ResendRequest.ResendRequestType.ALL).withRecipient(recipientKey).build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -487,7 +489,7 @@ public class TransactionManagerTest {
         when(payloadEncoder.forRecipient(payload, recipientKey)).thenReturn(prunedPayload);
 
         final ResendRequest resendRequest =
-                ResendRequest.Builder.create().withRecipient(recipientKey).withType(ResendRequestType.ALL).build();
+                ResendRequest.Builder.create().withRecipient(recipientKey).withType(ResendRequest.ResendRequestType.ALL).build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -525,7 +527,7 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(singleton(localKey));
 
         final com.quorum.tessera.transaction.ResendRequest resendRequest =
-                ResendRequest.Builder.create().withType(ResendRequestType.ALL).withRecipient(senderKey).build();
+                ResendRequest.Builder.create().withType(ResendRequest.ResendRequestType.ALL).withRecipient(senderKey).build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
 
@@ -557,7 +559,7 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(emptySet());
 
         final ResendRequest resendRequest =
-                ResendRequest.Builder.create().withRecipient(senderKey).withType(ResendRequestType.ALL).build();
+                ResendRequest.Builder.create().withRecipient(senderKey).withType(ResendRequest.ResendRequestType.ALL).build();
 
         final Throwable throwable = catchThrowable(() -> transactionManager.resend(resendRequest));
 
@@ -593,7 +595,7 @@ public class TransactionManagerTest {
 
         ResendRequest resendRequest = mock(ResendRequest.class);
         when(resendRequest.getRecipient()).thenReturn(publicKey);
-        when(resendRequest.getType()).thenReturn(ResendRequestType.ALL);
+        when(resendRequest.getType()).thenReturn(ResendRequest.ResendRequestType.ALL);
 
         when(payloadEncoder.forRecipient(eq(encodedPayload), any(PublicKey.class))).thenReturn(encodedPayload);
 
@@ -634,7 +636,9 @@ public class TransactionManagerTest {
         when(otherEncodedPayload.getRecipientKeys()).thenReturn(Collections.singletonList(publicKey));
 
         final ResendRequest resendRequest =
-                ResendRequest.Builder.create().withRecipient(publicKey).withType(ResendRequestType.ALL).build();
+                ResendRequest.Builder.create()
+                    .withRecipient(publicKey)
+                    .withType(ResendRequest.ResendRequestType.ALL).build();
 
         when(payloadEncoder.forRecipient(eq(encodedPayload), any(PublicKey.class))).thenReturn(encodedPayload);
         when(payloadEncoder.forRecipient(eq(otherEncodedPayload), any(PublicKey.class)))
@@ -681,7 +685,9 @@ public class TransactionManagerTest {
         when(payloadEncoder.forRecipient(otherEncodedPayload, publicKey)).thenReturn(otherEncodedPayload);
 
         final ResendRequest resendRequest =
-                ResendRequest.Builder.create().withRecipient(publicKey).withType(ResendRequestType.ALL).build();
+                ResendRequest.Builder.create()
+                    .withRecipient(publicKey)
+                    .withType(ResendRequest.ResendRequestType.ALL).build();
 
         doThrow(new PublishPayloadException("msg")).when(partyInfoService).publishPayload(encodedPayload, publicKey);
 
@@ -717,7 +723,7 @@ public class TransactionManagerTest {
                 ResendRequest.Builder.create()
                         .withRecipient(recipientKey)
                         .withHash(transactionHash)
-                        .withType(ResendRequestType.INDIVIDUAL)
+                        .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
                         .build();
 
         try {
@@ -755,7 +761,7 @@ public class TransactionManagerTest {
                 ResendRequest.Builder.create()
                         .withRecipient(recipientKey)
                         .withHash(transactionHash)
-                        .withType(ResendRequestType.INDIVIDUAL)
+                        .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
                         .build();
 
         ResendResponse result = transactionManager.resend(resendRequest);
@@ -798,7 +804,7 @@ public class TransactionManagerTest {
                 ResendRequest.Builder.create()
                         .withRecipient(senderKey)
                         .withHash(transactionHash)
-                        .withType(ResendRequestType.INDIVIDUAL)
+                        .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
                         .build();
 
         final ResendResponse result = transactionManager.resend(resendRequest);

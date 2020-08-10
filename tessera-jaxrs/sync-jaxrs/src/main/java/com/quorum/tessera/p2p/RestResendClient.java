@@ -1,8 +1,5 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.sync.ResendClient;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;

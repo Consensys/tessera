@@ -1,18 +1,17 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.NodeInfo;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
 
 public interface PartyInfoService {
 
     /**
      * Request PartyInfo data from all remote nodes that this node is aware of
      *
-     * @return PartyInfo object
+     * @return NodeInfo object
      */
-    PartyInfo getPartyInfo();
+    NodeInfo getPartyInfo();
 
     /**
      * Update the PartyInfo data store with the provided encoded data.This can happen when endpoint /partyinfo is
@@ -21,11 +20,11 @@ public interface PartyInfoService {
      * @param partyInfo
      * @return updated PartyInfo object
      */
-    PartyInfo updatePartyInfo(NodeInfo partyInfo);
+    NodeInfo updatePartyInfo(NodeInfo partyInfo);
 
     // Set<String> getUrlsForKey(PublicKey key);
 
-    PartyInfo removeRecipient(String uri);
+    NodeInfo removeRecipient(String uri);
 
     /**
      * Formats, encodes and publishes encrypted messages using the target public key as the identifier, instead of the

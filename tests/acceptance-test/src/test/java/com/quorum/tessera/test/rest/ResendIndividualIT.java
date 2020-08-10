@@ -1,11 +1,13 @@
 package com.quorum.tessera.test.rest;
 
 
-import com.quorum.tessera.partyinfo.ResendRequest;
-import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
+import com.quorum.tessera.p2p.ResendRequest;
+import com.quorum.tessera.p2p.ResendRequestType;
+import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyHelper;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,8 +17,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.quorum.tessera.test.Party;
-import com.quorum.tessera.test.PartyHelper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ResendIndividualIT {

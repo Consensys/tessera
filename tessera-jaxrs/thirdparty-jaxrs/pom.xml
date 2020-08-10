@@ -16,6 +16,11 @@
             <version>0.10.7-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>partyinfo-model</artifactId>
+        </dependency>
+
     </dependencies>
     
     <build>

@@ -2,7 +2,10 @@ package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.*;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Party;
+import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.partyinfo.node.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +38,9 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
      * Merge an incoming {@link NodeInfo} into the current one,
      * adding any new keys or parties to the current store,
      * together with the versioninfo of the sending party
-     * @param incomingInfo the incoming information that may contain new nodes/keys and its versioninfo
+     * @param newInfo the incoming information that may contain new nodes/keys and its versioninfo
      */
-    public synchronized void store(NodeInfo incomingInfo) {
-
-        final PartyInfo newInfo = incomingInfo.partyInfo();
+    public synchronized void store(final NodeInfo newInfo) {
 
         for (Recipient recipient : newInfo.getRecipients()) {
             recipients.put(recipient.getKey(), recipient);
@@ -53,9 +54,8 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
         parties.remove(sender);
         parties.add(sender);
 
-        final VersionInfo versionInfo = incomingInfo.versionInfo();
-        if (Objects.nonNull(versionInfo)) {
-            versionInfos.put(sender, versionInfo);
+        if (Objects.nonNull(newInfo.supportedApiVersions())) {
+            versionInfos.put(sender, VersionInfo.from(newInfo.supportedApiVersions()));
         }
     }
 
@@ -64,11 +64,17 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
      *
      * @return an immutable copy of the current state of the store
      */
-    public synchronized PartyInfo getPartyInfo() {
-        return new PartyInfo(advertisedUrl, Set.copyOf(recipients.values()), Set.copyOf(parties));
+    public synchronized NodeInfo getPartyInfo() {
+        return NodeInfo.Builder.create()
+            .withUrl(advertisedUrl)
+            .withRecipients(recipients.values())
+            .withParties(parties)
+            .build();
+
+        //new PartyInfo(advertisedUrl, Set.copyOf(recipients.values()), Set.copyOf(parties));
     }
 
-    public synchronized PartyInfo removeRecipient(final String uri) {
+    public synchronized NodeInfo removeRecipient(final String uri) {
         recipients.entrySet().stream()
             .filter(e -> uri.startsWith(e.getValue().getUrl()))
             .map(Map.Entry::getKey)

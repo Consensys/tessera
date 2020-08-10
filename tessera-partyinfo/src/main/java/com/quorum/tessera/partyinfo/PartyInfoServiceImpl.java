@@ -5,18 +5,17 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.NodeInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Party;
+import com.quorum.tessera.partyinfo.node.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.quorum.tessera.partyinfo.PartyInfoServiceUtil.validateKeysToUrls;
-import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
@@ -66,28 +65,27 @@ public class PartyInfoServiceImpl implements PartyInfoService {
                         .map(key -> Recipient.of(key, advertisedUrl))
                         .collect(toSet());
 
-        PartyInfo partyInfo = new PartyInfo(advertisedUrl, ourKeys, initialParties);
         NodeInfo nodeInfo = NodeInfo.Builder.create()
-            .from(partyInfo)
+            .withParties(initialParties)
+            .withRecipients(ourKeys)
+            .withUrl(advertisedUrl)
             .build();
         partyInfoStore.store(nodeInfo);
-        LOGGER.debug("Populated party info store {}", partyInfo);
+        LOGGER.debug("Populated party info store {}", nodeInfo);
     }
 
     @Override
-    public PartyInfo getPartyInfo() {
+    public NodeInfo getPartyInfo() {
         return partyInfoStore.getPartyInfo();
     }
 
     @Override
-    public PartyInfo updatePartyInfo(final NodeInfo incoming) {
-
-        final PartyInfo partyInfo = incoming.partyInfo();
+    public NodeInfo updatePartyInfo(final NodeInfo partyInfo) {
 
         final RuntimeContext runtimeContext = RuntimeContext.getInstance();
 
         if (!runtimeContext.isRemoteKeyValidation()) {
-            final PartyInfo existingPartyInfo = this.getPartyInfo();
+            final NodeInfo existingPartyInfo = this.getPartyInfo();
 
             if (!validateKeysToUrls(existingPartyInfo, partyInfo)) {
                 LOGGER.warn(
@@ -98,7 +96,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         if (!runtimeContext.isDisablePeerDiscovery()) {
             // auto-discovery is on, we can accept all input to us
-            this.partyInfoStore.store(incoming);
+            this.partyInfoStore.store(partyInfo);
             return this.getPartyInfo();
         }
 
@@ -128,8 +126,10 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         final Set<Party> parties = peerUrls.stream().map(Party::new).collect(toSet());
 
         final NodeInfo updated = NodeInfo.Builder.create()
-            .from(new PartyInfo(partyInfo.getUrl(), knownRecipients, parties))
-            .withVersionInfo(incoming.versionInfo())
+            .withUrl(incomingUrl)
+            .withParties(parties)
+            .withRecipients(knownRecipients)
+            .withSupportedApiVersions(partyInfo.supportedApiVersions())
             .build();
 
         partyInfoStore.store(updated);
@@ -138,7 +138,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
     }
 
     @Override
-    public PartyInfo removeRecipient(String uri) {
+    public NodeInfo removeRecipient(String uri) {
         return partyInfoStore.removeRecipient(uri);
     }
 
@@ -185,7 +185,8 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
         // add to store
         final NodeInfo newInfo = NodeInfo.Builder.create()
-            .from(new PartyInfo(advertisedUrl, ourKeys, emptySet()))
+            .withUrl(advertisedUrl)
+            .withRecipients(ourKeys)
             .build();
         this.partyInfoStore.store(newInfo);
     }
