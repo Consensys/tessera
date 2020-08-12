@@ -138,35 +138,6 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         return partyInfoStore.removeRecipient(uri);
     }
 
-    //    @Override
-    //    public void publishPayload(final EncodedPayload payload, final PublicKey recipientKey) {
-    //
-    //        if (enclave.getPublicKeys().contains(recipientKey)) {
-    //            // we are trying to send something to ourselves - don't do it
-    //            LOGGER.debug(
-    //                    "Trying to send message to ourselves with key {}, not publishing",
-    // recipientKey.encodeToBase64());
-    //            return;
-    //        }
-    //
-    //        final Recipient retrievedRecipientFromStore =
-    //                partyInfoStore.getPartyInfo().getRecipients().stream()
-    //                        .filter(recipient -> recipientKey.equals(recipient.getKey()))
-    //                        .findAny()
-    //                        .orElseThrow(
-    //                                () ->
-    //                                        new KeyNotFoundException(
-    //                                                "Recipient not found for key: " + recipientKey.encodeToBase64()));
-    //
-    //        final String targetUrl = retrievedRecipientFromStore.getUrl();
-    //
-    //        LOGGER.info("Publishing message to {}", targetUrl);
-    //
-    //        payloadPublisher.publishPayload(payload, targetUrl);
-    //
-    //        LOGGER.info("Published to {}", targetUrl);
-    //    }
-
     /**
      * Fetches local public keys from the Enclave and adds them to the local store. This is useful when the Enclave is
      * remote and can restart with new keys independently of the Transaction Manager
