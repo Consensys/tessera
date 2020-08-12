@@ -2,6 +2,7 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.TransactionRequester;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.junit.After;

@@ -2,10 +2,13 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.TransactionRequester;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Set;
@@ -50,7 +53,7 @@ public class TransactionRequesterTest {
 
         assertThat(success).isTrue();
 
-        verifyZeroInteractions(resendClient);
+        Mockito.verifyZeroInteractions(resendClient);
         verify(enclave).getPublicKeys();
     }
 
@@ -68,7 +71,7 @@ public class TransactionRequesterTest {
         verify(resendClient, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
         verify(enclave).getPublicKeys();
 
-        assertThat(captor.getAllValues())
+        Assertions.assertThat(captor.getAllValues())
                 .hasSize(2)
                 .extracting("publicKey")
                 .containsExactlyInAnyOrder(KEY_ONE.encodeToBase64(), KEY_TWO.encodeToBase64());
