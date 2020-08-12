@@ -24,12 +24,11 @@ public class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
             LOGGER.debug("Create party info service from {} . Factory {}", config, this);
 
             Enclave enclave = EnclaveFactory.create().create(config);
-            PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
             PartyInfoStore partyInfoStore = PartyInfoStore.create(config.getP2PServerConfig().getServerUri());
             KnownPeerCheckerFactory knownPeerCheckerFactory = new KnownPeerCheckerFactory();
 
             PartyInfoService partyInfoService =
-                    new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
+                    new PartyInfoServiceImpl(partyInfoStore, enclave, knownPeerCheckerFactory);
             REF.set(partyInfoService);
 
         } else {

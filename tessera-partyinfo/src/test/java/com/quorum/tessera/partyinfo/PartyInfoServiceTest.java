@@ -3,8 +3,6 @@ package com.quorum.tessera.partyinfo;
 import com.quorum.tessera.context.ContextHolder;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Party;
@@ -19,9 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static java.util.Collections.singleton;
 import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoServiceTest {
@@ -36,8 +34,6 @@ public class PartyInfoServiceTest {
 
     private PartyInfoServiceImpl partyInfoService;
 
-    private PayloadPublisher payloadPublisher;
-
     private KnownPeerChecker knownPeerChecker;
 
     @Before
@@ -46,7 +42,6 @@ public class PartyInfoServiceTest {
         runtimeContext = ContextHolder.getInstance().getContext().get();
         this.partyInfoStore = mock(PartyInfoStore.class);
         this.enclave = mock(Enclave.class);
-        this.payloadPublisher = mock(PayloadPublisher.class);
         this.knownPeerChecker = mock(KnownPeerChecker.class);
 
         final KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
@@ -56,14 +51,12 @@ public class PartyInfoServiceTest {
         when(runtimeContext.getPeers()).thenReturn(List.of(java.net.URI.create("http://other-node.com:8080")));
         // when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
 
-        this.partyInfoService =
-                new PartyInfoServiceImpl(partyInfoStore, enclave, payloadPublisher, knownPeerCheckerFactory);
+        this.partyInfoService = new PartyInfoServiceImpl(partyInfoStore, enclave, knownPeerCheckerFactory);
 
         assertThat(partyInfoService).isNotNull();
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
-        verifyNoMoreInteractions(payloadPublisher);
 
         NodeInfo storedPartyInfo = mock(NodeInfo.class);
         when(storedPartyInfo.getUrl()).thenReturn(URI);
@@ -83,15 +76,12 @@ public class PartyInfoServiceTest {
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
-        verifyNoMoreInteractions(payloadPublisher);
 
         org.mockito.Mockito.reset(partyInfoStore);
         org.mockito.Mockito.reset(enclave);
-        org.mockito.Mockito.reset(payloadPublisher);
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
-        verifyNoMoreInteractions(payloadPublisher);
     }
 
     @After
@@ -99,7 +89,6 @@ public class PartyInfoServiceTest {
 
         verifyNoMoreInteractions(partyInfoStore);
         verifyNoMoreInteractions(enclave);
-        verifyNoMoreInteractions(payloadPublisher);
         verifyNoMoreInteractions(knownPeerChecker);
 
         MockContextHolder.reset();
@@ -133,9 +122,7 @@ public class PartyInfoServiceTest {
 
         when(knownPeerChecker.isKnown(url)).thenReturn(false);
 
-        final NodeInfo forUpdate = NodeInfo.Builder.create()
-            .withUrl(url)
-            .build();
+        final NodeInfo forUpdate = NodeInfo.Builder.create().withUrl(url).build();
 
         final Throwable throwable = catchThrowable(() -> partyInfoService.updatePartyInfo(forUpdate));
 
@@ -162,10 +149,8 @@ public class PartyInfoServiceTest {
         Recipient alsoKnown = Recipient.of(PublicKey.from("also-known".getBytes()), anotherKnownUrl);
         Recipient unknown = Recipient.of(PublicKey.from("unknown".getBytes()), "http://unknown.com:8080");
 
-        final NodeInfo forUpdate = NodeInfo.Builder.create()
-            .withUrl(knownUrl)
-            .withRecipients(Set.of(known, alsoKnown, unknown))
-                .build();
+        final NodeInfo forUpdate =
+                NodeInfo.Builder.create().withUrl(knownUrl).withRecipients(Set.of(known, alsoKnown, unknown)).build();
 
         assertThat(forUpdate.getRecipients()).hasSize(3);
 
@@ -176,10 +161,7 @@ public class PartyInfoServiceTest {
         verify(partyInfoStore).store(captor.capture());
 
         final List<Recipient> allRegisteredKeys =
-                captor.getAllValues().stream()
-                    .map(NodeInfo::getRecipients)
-                    .flatMap(Set::stream)
-                    .collect(toList());
+                captor.getAllValues().stream().map(NodeInfo::getRecipients).flatMap(Set::stream).collect(toList());
 
         assertThat(allRegisteredKeys)
                 .hasSize(1)
@@ -198,10 +180,8 @@ public class PartyInfoServiceTest {
         final String otherNode = "http://other-node.com:8080";
         when(knownPeerChecker.isKnown(otherNode)).thenReturn(true);
 
-        final NodeInfo forUpdate = NodeInfo.Builder.create()
-            .withUrl(otherNode)
-            .withParties(Set.of(new Party("unknown")))
-            .build();
+        final NodeInfo forUpdate =
+                NodeInfo.Builder.create().withUrl(otherNode).withParties(Set.of(new Party("unknown"))).build();
 
         partyInfoService.updatePartyInfo(forUpdate);
 
@@ -228,64 +208,6 @@ public class PartyInfoServiceTest {
     }
 
     @Test
-    public void publishPayload() {
-
-        when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("Key Data".getBytes())));
-
-        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
-
-        NodeInfo partyInfo = mock(NodeInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(singleton(Recipient.of(recipientKey, "http://somehost.com")));
-        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
-
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        partyInfoService.publishPayload(payload, recipientKey);
-
-        verify(payloadPublisher).publishPayload(payload, "http://somehost.com");
-        verify(partyInfoStore).getPartyInfo();
-        verify(enclave).getPublicKeys();
-    }
-
-
-    @Test
-    public void publishPayloadDoesntPublishToSender() {
-
-        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
-
-        when(enclave.getPublicKeys()).thenReturn(singleton(recipientKey));
-
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        partyInfoService.publishPayload(payload, recipientKey);
-
-        verifyZeroInteractions(payloadPublisher);
-        verify(enclave).getPublicKeys();
-    }
-
-    @Test
-    public void publishPayloadKeyNotFound() {
-        when(enclave.getPublicKeys()).thenReturn(singleton(PublicKey.from("Key Data".getBytes())));
-
-        PublicKey recipientKey = PublicKey.from("Some Key Data".getBytes());
-
-        NodeInfo partyInfo = mock(NodeInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(Set.of());
-        when(partyInfoStore.getPartyInfo()).thenReturn(partyInfo);
-
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        try {
-            partyInfoService.publishPayload(payload, recipientKey);
-            failBecauseExceptionWasNotThrown(KeyNotFoundException.class);
-        } catch (KeyNotFoundException ex) {
-            verifyZeroInteractions(payloadPublisher);
-            verify(partyInfoStore).getPartyInfo();
-            verify(enclave).getPublicKeys();
-        }
-    }
-
-    @Test
     public void attemptToUpdateRecipientWithExistingKeyWithNewUrlIfToggleDisabled() {
         // setup services
         when(runtimeContext.isDisablePeerDiscovery()).thenReturn(false);
@@ -295,10 +217,8 @@ public class PartyInfoServiceTest {
         final String uri = "http://localhost:8080";
 
         final PublicKey testKey = PublicKey.from("some-key".getBytes());
-        final NodeInfo initial = NodeInfo.Builder.create()
-            .withUrl(uri)
-            .withRecipients(Set.of(Recipient.of(testKey, uri)))
-            .build();
+        final NodeInfo initial =
+                NodeInfo.Builder.create().withUrl(uri).withRecipients(Set.of(Recipient.of(testKey, uri))).build();
 
         when(partyInfoStore.getPartyInfo()).thenReturn(initial);
 
@@ -307,10 +227,7 @@ public class PartyInfoServiceTest {
         final Set<Recipient> newRecipients =
                 Set.of(Recipient.of(testKey, "http://other.com"), Recipient.of(extraKey, "http://some-other-url.com"));
 
-        final NodeInfo updated = NodeInfo.Builder.create()
-            .withUrl(uri)
-            .withRecipients(newRecipients)
-            .build();
+        final NodeInfo updated = NodeInfo.Builder.create().withUrl(uri).withRecipients(newRecipients).build();
 
         // call it
         final NodeInfo updatedInfo = partyInfoService.updatePartyInfo(updated);
@@ -416,8 +333,7 @@ public class PartyInfoServiceTest {
         final KnownPeerCheckerFactory knownPeerCheckerFactory = mock(KnownPeerCheckerFactory.class);
         when(knownPeerCheckerFactory.create(anySet())).thenReturn(knownPeerChecker);
 
-        PartyInfoServiceImpl partyInfoService =
-                new PartyInfoServiceImpl(store, enclave, payloadPublisher, knownPeerCheckerFactory);
+        PartyInfoServiceImpl partyInfoService = new PartyInfoServiceImpl(store, enclave, knownPeerCheckerFactory);
 
         final Set<PublicKey> ourKeys =
                 Set.of(PublicKey.from("some-key".getBytes()), PublicKey.from("another-public-key".getBytes()));

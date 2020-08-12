@@ -6,7 +6,7 @@ import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PayloadPublisher;
+import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -43,15 +43,11 @@ public class ServiceFactoryTest {
         serviceFactory = (ServiceFactoryImpl) ServiceFactory.create();
     }
 
-
-
     @Test
     public void transactionManager() {
         TransactionManager transactionManager = serviceFactory.transactionManager();
         assertThat(transactionManager).isNotNull();
     }
-
-
 
     @Test(expected = IllegalStateException.class)
     public void findNoServiceFoundThrowsIllegalState() {
@@ -60,8 +56,6 @@ public class ServiceFactoryTest {
     }
 
     static class NonExistentService {}
-
-
 
     @Test
     public void findConfig() {
