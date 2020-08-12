@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.TransactionRequester;
 import com.quorum.tessera.partyinfo.model.Party;
@@ -16,7 +15,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-/** A poller that will contact all outstanding parties that need to have transactions resent for a single round */
+/**
+ * A poller that will contact all outstanding parties that need to have transactions resent for a single round
+ */
 public class SyncPoller implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SyncPoller.class);
@@ -29,38 +30,31 @@ public class SyncPoller implements Runnable {
 
     private final PartyInfoService partyInfoService;
 
-    private final P2pClient p2pClient;
+    private final NodeInfoPublisher nodeInfoPublisher;
 
-    private final PartyInfoParser partyInfoParser;
-
-    public SyncPoller(
-            ResendPartyStore resendPartyStore,
-            TransactionRequester transactionRequester,
-            PartyInfoService partyInfoService,
-            P2pClient p2pClient) {
-
+    public SyncPoller(final ResendPartyStore resendPartyStore,
+                      final TransactionRequester transactionRequester,
+                      final PartyInfoService partyInfoService,
+                      final NodeInfoPublisher publisher) {
         this(
-                Executors.newCachedThreadPool(),
-                resendPartyStore,
-                transactionRequester,
-                partyInfoService,
-                PartyInfoParser.create(),
-                p2pClient);
+            Executors.newCachedThreadPool(),
+            resendPartyStore,
+            transactionRequester,
+            partyInfoService,
+            publisher
+        );
     }
 
-    public SyncPoller(
-            final ExecutorService executorService,
-            final ResendPartyStore resendPartyStore,
-            final TransactionRequester transactionRequester,
-            final PartyInfoService partyInfoService,
-            final PartyInfoParser partyInfoParser,
-            final P2pClient p2pClient) {
+    public SyncPoller(final ExecutorService executorService,
+                      final ResendPartyStore resendPartyStore,
+                      final TransactionRequester transactionRequester,
+                      final PartyInfoService partyInfoService,
+                      final NodeInfoPublisher nodeInfoPublisher) {
         this.executorService = Objects.requireNonNull(executorService);
         this.resendPartyStore = Objects.requireNonNull(resendPartyStore);
         this.transactionRequester = Objects.requireNonNull(transactionRequester);
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
-        this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
-        this.p2pClient = Objects.requireNonNull(p2pClient);
+        this.nodeInfoPublisher = Objects.requireNonNull(nodeInfoPublisher);
     }
 
     /**
@@ -73,9 +67,9 @@ public class SyncPoller implements Runnable {
         final PartyInfo partyInfo = PartyInfo.from(partyInfoService.getPartyInfo());
 
         final Set<Party> unseenParties =
-                partyInfo.getParties().stream()
-                        .filter(p -> !p.getUrl().equals(partyInfo.getUrl()))
-                        .collect(Collectors.toSet());
+            partyInfo.getParties().stream()
+                .filter(p -> !p.getUrl().equals(partyInfo.getUrl()))
+                .collect(Collectors.toSet());
         LOGGER.debug("Unseen parties {}", unseenParties);
         this.resendPartyStore.addUnseenParties(unseenParties);
 
@@ -87,20 +81,20 @@ public class SyncPoller implements Runnable {
             final String url = requestDetails.getParty().getUrl();
 
             final Runnable action =
-                    () -> {
+                () -> {
 
-                        // perform a sendPartyInfo in order to ensure that the target tessera has the current tessera as
-                        // a recipient
-                        boolean allSucceeded = updatePartyInfo(url);
+                    // perform a sendPartyInfo in order to ensure that the target tessera has the current tessera as
+                    // a recipient
+                    boolean allSucceeded = updatePartyInfo(url);
 
-                        if (allSucceeded) {
-                            allSucceeded = this.transactionRequester.requestAllTransactionsFromNode(url);
-                        }
+                    if (allSucceeded) {
+                        allSucceeded = this.transactionRequester.requestAllTransactionsFromNode(url);
+                    }
 
-                        if (!allSucceeded) {
-                            this.resendPartyStore.incrementFailedAttempt(requestDetails);
-                        }
-                    };
+                    if (!allSucceeded) {
+                        this.resendPartyStore.incrementFailedAttempt(requestDetails);
+                    }
+                };
 
             this.executorService.submit(action);
 
@@ -111,11 +105,9 @@ public class SyncPoller implements Runnable {
     private boolean updatePartyInfo(String url) {
         try {
             final NodeInfo nodeInfo = partyInfoService.getPartyInfo();
-            PartyInfo partyInfo = PartyInfo.from(nodeInfo);
-            final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
             // we deliberately discard the response as we do not want to fully duplicate the PartyInfoPoller
-            return p2pClient.sendPartyInfo(url, encodedPartyInfo);
+            return nodeInfoPublisher.publishNodeInfo(url, nodeInfo);
         } catch (final Exception ex) {
             LOGGER.warn("Failed to connect to node {} for partyinfo, due to {}", url, ex.getMessage());
             LOGGER.debug(null, ex);

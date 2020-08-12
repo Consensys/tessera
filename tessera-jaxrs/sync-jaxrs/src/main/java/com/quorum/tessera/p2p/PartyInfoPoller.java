@@ -1,9 +1,8 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Party;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,24 +21,19 @@ public class PartyInfoPoller implements Runnable {
 
     private final PartyInfoService partyInfoService;
 
-    private final PartyInfoParser partyInfoParser;
-
-    private final P2pClient p2pClient;
+    private final NodeInfoPublisher nodeInfoPublisher;
 
     private final Executor executor;
 
-    public PartyInfoPoller(final PartyInfoService partyInfoService, final P2pClient p2pClient) {
-        this(partyInfoService, PartyInfoParser.create(), p2pClient, Executors.newCachedThreadPool());
+    public PartyInfoPoller(final PartyInfoService partyInfoService, final NodeInfoPublisher publisher) {
+        this(partyInfoService, publisher, Executors.newCachedThreadPool());
     }
 
-    public PartyInfoPoller(
-            final PartyInfoService partyInfoService,
-            final PartyInfoParser partyInfoParser,
-            final P2pClient p2pClient,
-            final Executor executor) {
+    public PartyInfoPoller(final PartyInfoService partyInfoService,
+                           final NodeInfoPublisher nodeInfoPublisher,
+                           final Executor executor) {
         this.partyInfoService = Objects.requireNonNull(partyInfoService);
-        this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
-        this.p2pClient = Objects.requireNonNull(p2pClient);
+        this.nodeInfoPublisher = Objects.requireNonNull(nodeInfoPublisher);
         this.executor = Objects.requireNonNull(executor);
     }
 
@@ -59,35 +53,33 @@ public class PartyInfoPoller implements Runnable {
     public void run() {
         LOGGER.info("Started PartyInfo polling round");
 
-        final PartyInfo partyInfo = PartyInfo.from(partyInfoService.getPartyInfo());
-        final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
+        final NodeInfo nodeInfo = partyInfoService.getPartyInfo();
+        final String ourUrl = nodeInfo.getUrl();
 
-        final String ourUrl = partyInfo.getUrl();
+        LOGGER.debug("Contacting following peers with PartyInfo: {}", nodeInfo.getParties());
+        LOGGER.debug("Sending recipients {}", nodeInfo.getRecipients());
 
-        LOGGER.debug("Contacting following peers with PartyInfo: {}", partyInfo.getParties());
-        LOGGER.debug("Sending recipients {}", partyInfo.getRecipients());
-
-        partyInfo.getParties().stream()
-                .map(Party::getUrl)
-                .filter(url -> !ourUrl.equals(url))
-                .forEach(url -> pollSingleParty(url, encodedPartyInfo));
+        nodeInfo.getParties().stream()
+            .map(Party::getUrl)
+            .filter(url -> !Objects.equals(ourUrl, url))
+            .forEach(url -> pollSingleParty(url, nodeInfo));
 
         LOGGER.info("Finished PartyInfo polling round");
     }
 
     /**
-     * Sends a request for node information to a single target
+     * Sends a request providing node information to a single target
      *
-     * @param url the target URL to call
-     * @param encodedPartyInfo the encoded current party information
+     * @param url              the target URL to call
+     * @param existingNodeInfo the network info the node has currently stored
      */
-    private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
-        CompletableFuture.runAsync(() -> p2pClient.sendPartyInfo(url, encodedPartyInfo), executor)
-                .exceptionally(
-                        ex -> {
-                            LOGGER.warn("Failed to connect to node {}, due to {}", url, ex.getMessage());
-                            LOGGER.debug(null, ex);
-                            return null;
-                        });
+    private void pollSingleParty(final String url, final NodeInfo existingNodeInfo) {
+        CompletableFuture.runAsync(() -> nodeInfoPublisher.publishNodeInfo(url, existingNodeInfo), executor)
+            .exceptionally(
+                ex -> {
+                    LOGGER.warn("Failed to connect to node {}, due to {}", url, ex.getMessage());
+                    LOGGER.debug(null, ex);
+                    return null;
+                });
     }
 }

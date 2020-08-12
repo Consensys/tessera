@@ -42,11 +42,9 @@ public interface NodeInfo {
         }
 
         public NodeInfo build() {
-
             Objects.requireNonNull(url,"URL is required");
 
             return new NodeInfo() {
-
                 @Override
                 public Set<Party> getParties() {
                     return parties;
@@ -80,6 +78,4 @@ public interface NodeInfo {
             return this;
         }
     }
-
-
 }

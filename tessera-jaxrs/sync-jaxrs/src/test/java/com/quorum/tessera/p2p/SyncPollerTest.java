@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.TransactionRequester;
 import com.quorum.tessera.partyinfo.model.Party;
@@ -33,9 +32,7 @@ public class SyncPollerTest {
 
     private PartyInfoService partyInfoService;
 
-    private PartyInfoParser partyInfoParser;
-
-    private P2pClient p2pClient;
+    private NodeInfoPublisher nodeInfoPublisher;
 
     @Before
     public void init() {
@@ -43,23 +40,17 @@ public class SyncPollerTest {
         this.resendPartyStore = mock(ResendPartyStore.class);
         this.transactionRequester = mock(TransactionRequester.class);
         this.partyInfoService = mock(PartyInfoService.class);
-        this.partyInfoParser = mock(PartyInfoParser.class);
-        this.p2pClient = mock(P2pClient.class);
-        doReturn(true).when(p2pClient).sendPartyInfo(anyString(), any());
+        this.nodeInfoPublisher = mock(NodeInfoPublisher.class);
+        doReturn(true).when(nodeInfoPublisher).publishNodeInfo(anyString(), any());
 
         NodeInfo nodeInfo = NodeInfo.Builder.create()
             .withUrl("myurl")
             .build();
         when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
 
-        this.syncPoller =
-                new SyncPoller(
-                        executorService,
-                        resendPartyStore,
-                        transactionRequester,
-                        partyInfoService,
-                        partyInfoParser,
-                        p2pClient);
+        this.syncPoller = new SyncPoller(
+            executorService, resendPartyStore, transactionRequester, partyInfoService, nodeInfoPublisher
+        );
     }
 
     @After
@@ -101,8 +92,7 @@ public class SyncPollerTest {
 
         verify(transactionRequester).requestAllTransactionsFromNode(targetUrl);
         verify(partyInfoService, times(2)).getPartyInfo();
-        verify(partyInfoParser).to(any());
-        verify(p2pClient).sendPartyInfo(eq(targetUrl), any());
+        verify(nodeInfoPublisher).publishNodeInfo(eq(targetUrl), any());
         verify(partyInfoService, times(2)).getPartyInfo();
     }
 
@@ -128,8 +118,8 @@ public class SyncPollerTest {
 
         syncPoller.run();
 
-        verify(resendPartyStore, times(1)).addUnseenParties(Set.of(syncableParty));
-        verify(resendPartyStore, times(1)).getNextParty();
+        verify(resendPartyStore).addUnseenParties(Set.of(syncableParty));
+        verify(resendPartyStore).getNextParty();
     }
 
     @Test
@@ -163,7 +153,7 @@ public class SyncPollerTest {
         final String targetUrl = "fakeurl.com";
         final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
 
-        doThrow(new RuntimeException("Unable to connect")).when(p2pClient).sendPartyInfo(anyString(), any());
+        doThrow(new RuntimeException("Unable to connect")).when(nodeInfoPublisher).publishNodeInfo(anyString(), any());
 
         doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
 
@@ -188,7 +178,7 @@ public class SyncPollerTest {
         final String targetUrl = "fakeurl.com";
         final SyncableParty syncableParty = new SyncableParty(new Party(targetUrl), 0);
 
-        doReturn(false).when(p2pClient).sendPartyInfo(anyString(), any());
+        doReturn(false).when(nodeInfoPublisher).publishNodeInfo(anyString(), any());
 
         doReturn(Optional.of(syncableParty), Optional.empty()).when(resendPartyStore).getNextParty();
 
@@ -209,6 +199,6 @@ public class SyncPollerTest {
 
     @Test
     public void constructWithMinimalArgs() {
-        assertThat(new SyncPoller(resendPartyStore, transactionRequester, partyInfoService, p2pClient)).isNotNull();
+        assertThat(new SyncPoller(resendPartyStore, transactionRequester, partyInfoService, nodeInfoPublisher)).isNotNull();
     }
 }

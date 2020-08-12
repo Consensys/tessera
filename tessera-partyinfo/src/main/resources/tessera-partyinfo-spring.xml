@@ -3,11 +3,11 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="p2pClientFactory" class="com.quorum.tessera.partyinfo.P2pClientFactory" factory-method="newFactory">
+    <bean id="nodeInfoPublisherFactory" class="com.quorum.tessera.p2p.NodeInfoPublisherFactory" factory-method="newFactory">
         <constructor-arg ref="config" />
     </bean>
 
-    <bean id="p2pClient" factory-bean="p2pClientFactory" factory-method="create">
+    <bean id="nodeInfoPublisher" factory-bean="nodeInfoPublisherFactory" factory-method="create">
         <constructor-arg ref="config"/>
     </bean>
 
@@ -29,7 +29,7 @@
 
     <bean name="partyInfoPoller" class="com.quorum.tessera.p2p.PartyInfoPoller">
         <constructor-arg ref="partyInfoService"/>
-        <constructor-arg ref="p2pClient"/>
+        <constructor-arg ref="nodeInfoPublisher" />
     </bean>
 
     <bean name="propertyHelper" class="com.quorum.tessera.config.util.IntervalPropertyHelper">
@@ -44,11 +44,6 @@
         <constructor-arg value="#{propertyHelper.partyInfoInterval()}"/>
         <constructor-arg value="5000"/>
     </bean>
-
-    <!--    <bean id="resendManager" class="com.quorum.tessera.transaction.resend.ResendManagerImpl">-->
-    <!--        <constructor-arg ref="encryptedTransactionDAO" />-->
-    <!--        <constructor-arg ref="enclave" />-->
-    <!--    </bean>-->
 
     <!-- Local key sync -->
     <bean name="enclaveKeySynchroniser" class="com.quorum.tessera.partyinfo.EnclaveKeySynchroniser">
@@ -78,7 +73,7 @@
             <constructor-arg ref="resendPartyStore" />
             <constructor-arg ref="transactionRequester" />
             <constructor-arg ref="partyInfoService"/>
-            <constructor-arg ref="p2pClient"/>
+            <constructor-arg ref="nodeInfoPublisher" />
         </bean>
 
         <bean class="com.quorum.tessera.threading.TesseraScheduledExecutor">
