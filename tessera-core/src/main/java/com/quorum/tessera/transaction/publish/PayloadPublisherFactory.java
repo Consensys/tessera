@@ -1,4 +1,4 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.transaction.publish;
 
 import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.CommunicationType;

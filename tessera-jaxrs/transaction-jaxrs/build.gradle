@@ -24,6 +24,7 @@ dependencies {
     testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-json-processing'
     testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-moxy'
     testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2:2.27"
+    testImplementation project(':test-utils:mock-jaxrs')
 
     compile project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')

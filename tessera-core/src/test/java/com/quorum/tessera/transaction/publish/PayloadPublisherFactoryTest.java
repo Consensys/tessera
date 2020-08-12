@@ -1,12 +1,14 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.transaction.publish;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
-import java.util.Arrays;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
+
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class PayloadPublisherFactoryTest {
 
