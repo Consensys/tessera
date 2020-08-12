@@ -2,6 +2,7 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.TransactionRequester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -21,6 +21,7 @@ public class RestP2pClient implements P2pClient {
         this.client = Objects.requireNonNull(client);
     }
 
+
     @Override
     public boolean sendPartyInfo(final String targetUrl, final byte[] data) {
         LOGGER.debug("Sending PartyInfo to peer {}", targetUrl);

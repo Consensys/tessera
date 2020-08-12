@@ -1,4 +1,4 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.partyinfo;
 
 /**
  * Makes requests to other nodes to resend their transactions
