@@ -2,9 +2,10 @@ package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Party;
+import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.partyinfo.node.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,20 +23,24 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
 
     private final Set<Party> parties;
 
+    private final Map<Party, VersionInfo> versionInfos;
+
     protected PartyInfoStoreImpl(URI advertisedUrl) {
         // TODO: remove the extra "/" when we deprecate backwards compatibility
         this.advertisedUrl = URLNormalizer.create().normalize(advertisedUrl.toString());
         this.recipients = new HashMap<>();
         this.parties = new HashSet<>();
         this.parties.add(new Party(this.advertisedUrl));
+        this.versionInfos = new HashMap<>();
     }
 
     /**
-     * Merge an incoming {@link PartyInfo} into the current one, adding any new keys or parties to the current store
-     *
-     * @param newInfo the incoming information that may contain new nodes/keys
+     * Merge an incoming {@link NodeInfo} into the current one,
+     * adding any new keys or parties to the current store,
+     * together with the versioninfo of the sending party
+     * @param newInfo the incoming information that may contain new nodes/keys and its versioninfo
      */
-    public synchronized void store(final PartyInfo newInfo) {
+    public synchronized void store(final NodeInfo newInfo) {
 
         for (Recipient recipient : newInfo.getRecipients()) {
             recipients.put(recipient.getKey(), recipient);
@@ -48,6 +53,10 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
         sender.setLastContacted(Instant.now());
         parties.remove(sender);
         parties.add(sender);
+
+        if (Objects.nonNull(newInfo.supportedApiVersions())) {
+            versionInfos.put(sender, VersionInfo.from(newInfo.supportedApiVersions()));
+        }
     }
 
     /**
@@ -55,11 +64,17 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
      *
      * @return an immutable copy of the current state of the store
      */
-    public synchronized PartyInfo getPartyInfo() {
-        return new PartyInfo(advertisedUrl, Set.copyOf(recipients.values()), Set.copyOf(parties));
+    public synchronized NodeInfo getPartyInfo() {
+        return NodeInfo.Builder.create()
+            .withUrl(advertisedUrl)
+            .withRecipients(recipients.values())
+            .withParties(parties)
+            .build();
+
+        //new PartyInfo(advertisedUrl, Set.copyOf(recipients.values()), Set.copyOf(parties));
     }
 
-    public synchronized PartyInfo removeRecipient(final String uri) {
+    public synchronized NodeInfo removeRecipient(final String uri) {
         recipients.entrySet().stream()
             .filter(e -> uri.startsWith(e.getValue().getUrl()))
             .map(Map.Entry::getKey)
@@ -84,5 +99,10 @@ public class PartyInfoStoreImpl implements PartyInfoStore {
 
     public String getAdvertisedUrl() {
         return advertisedUrl;
+    }
+
+    @Override
+    public synchronized VersionInfo getVersionInfo(Party party) {
+        return versionInfos.get(party);
     }
 }

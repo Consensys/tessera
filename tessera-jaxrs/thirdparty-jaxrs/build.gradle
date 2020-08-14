@@ -9,6 +9,7 @@ dependencies {
     implementation project(":tessera-partyinfo")
     implementation project(":encryption:encryption-api")
     implementation project(":tessera-jaxrs:common-jaxrs")
+    implementation project(':tessera-jaxrs:partyinfo-model')
     implementation project(":tessera-context")
     implementation project(":tessera-data")
     implementation "io.swagger:swagger-annotations"

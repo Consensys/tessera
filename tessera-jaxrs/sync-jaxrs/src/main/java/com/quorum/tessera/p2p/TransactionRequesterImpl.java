@@ -2,8 +2,7 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.sync.ResendClient;
-import com.quorum.tessera.sync.TransactionRequester;
+import com.quorum.tessera.partyinfo.TransactionRequester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,10 +60,8 @@ public class TransactionRequesterImpl implements TransactionRequester {
         final ResendRequest request = new ResendRequest();
         final String encoded = key.encodeToBase64();
         request.setPublicKey(encoded);
-        request.setType("ALL");
+        request.setType(ResendRequestType.ALL);
 
         return request;
     }
-
-
 }

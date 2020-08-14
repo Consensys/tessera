@@ -9,6 +9,8 @@ import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class OpenPojoTest {
 
     public OpenPojoTest() {

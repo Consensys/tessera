@@ -28,7 +28,7 @@ dependencies {
     testRuntimeOnly "org.glassfish.jersey.media:jersey-media-json-processing"
     testRuntimeOnly "org.glassfish.jersey.media:jersey-media-moxy"
     testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2"
-
+    testImplementation project(':test-utils:mock-jaxrs')
 }
 
 

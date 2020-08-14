@@ -3,8 +3,10 @@ package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Party;
+import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.partyinfo.node.VersionInfo;
 
 import java.net.URI;
 
@@ -16,15 +18,17 @@ public interface PartyInfoStore {
             .orElse(new PartyInfoStoreImpl(uri));
     }
 
-    PartyInfo getPartyInfo();
+    NodeInfo getPartyInfo();
 
-    void store(PartyInfo incomingInfo);
+    void store(NodeInfo incomingInfo);
 
     Recipient findRecipientByPublicKey(PublicKey from);
 
     String getAdvertisedUrl();
 
-    PartyInfo removeRecipient(String s);
+    NodeInfo removeRecipient(String s);
+
+    VersionInfo getVersionInfo(Party party);
 }
 
 

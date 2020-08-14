@@ -2,20 +2,17 @@ package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.encryption.KeyNotFoundException;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Party;
+import com.quorum.tessera.partyinfo.node.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.quorum.tessera.partyinfo.PartyInfoServiceUtil.validateKeysToUrls;
-import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toSet;
 
 public class PartyInfoServiceImpl implements PartyInfoService {
@@ -26,19 +23,16 @@ public class PartyInfoServiceImpl implements PartyInfoService {
 
     private final Enclave enclave;
 
-    private final PayloadPublisher payloadPublisher;
-
     private final KnownPeerCheckerFactory knownPeerCheckerFactory;
 
     protected PartyInfoServiceImpl(
             final PartyInfoStore partyInfoStore,
             final Enclave enclave,
-            final PayloadPublisher payloadPublisher,
             final KnownPeerCheckerFactory knownPeerCheckerFactory) {
-        this.partyInfoStore = Objects.requireNonNull(partyInfoStore,"partyInfoStore is required");
-        this.enclave = Objects.requireNonNull(enclave,"enclave is required");
-        this.payloadPublisher = Objects.requireNonNull(payloadPublisher,"payloadPublisher is required");
-        this.knownPeerCheckerFactory = Objects.requireNonNull(knownPeerCheckerFactory,"knownPeerCheckerFactory is required");
+        this.partyInfoStore = Objects.requireNonNull(partyInfoStore, "partyInfoStore is required");
+        this.enclave = Objects.requireNonNull(enclave, "enclave is required");
+        this.knownPeerCheckerFactory =
+                Objects.requireNonNull(knownPeerCheckerFactory, "knownPeerCheckerFactory is required");
     }
 
     @Override
@@ -65,23 +59,28 @@ public class PartyInfoServiceImpl implements PartyInfoService {
                         .map(key -> Recipient.of(key, advertisedUrl))
                         .collect(toSet());
 
-        PartyInfo partyInfo = new PartyInfo(advertisedUrl, ourKeys, initialParties);
-        partyInfoStore.store(partyInfo);
-        LOGGER.debug("Populated party info store {}", partyInfo);
+        NodeInfo nodeInfo =
+                NodeInfo.Builder.create()
+                        .withParties(initialParties)
+                        .withRecipients(ourKeys)
+                        .withUrl(advertisedUrl)
+                        .build();
+        partyInfoStore.store(nodeInfo);
+        LOGGER.debug("Populated party info store {}", nodeInfo);
     }
 
     @Override
-    public PartyInfo getPartyInfo() {
+    public NodeInfo getPartyInfo() {
         return partyInfoStore.getPartyInfo();
     }
 
     @Override
-    public PartyInfo updatePartyInfo(final PartyInfo partyInfo) {
+    public NodeInfo updatePartyInfo(final NodeInfo partyInfo) {
 
         final RuntimeContext runtimeContext = RuntimeContext.getInstance();
 
         if (!runtimeContext.isRemoteKeyValidation()) {
-            final PartyInfo existingPartyInfo = this.getPartyInfo();
+            final NodeInfo existingPartyInfo = this.getPartyInfo();
 
             if (!validateKeysToUrls(existingPartyInfo, partyInfo)) {
                 LOGGER.warn(
@@ -121,42 +120,22 @@ public class PartyInfoServiceImpl implements PartyInfoService {
         // separately
         final Set<Party> parties = peerUrls.stream().map(Party::new).collect(toSet());
 
-        partyInfoStore.store(new PartyInfo(partyInfo.getUrl(), knownRecipients, parties));
+        final NodeInfo updated =
+                NodeInfo.Builder.create()
+                        .withUrl(incomingUrl)
+                        .withParties(parties)
+                        .withRecipients(knownRecipients)
+                        .withSupportedApiVersions(partyInfo.supportedApiVersions())
+                        .build();
+
+        partyInfoStore.store(updated);
 
         return this.getPartyInfo();
     }
 
     @Override
-    public PartyInfo removeRecipient(String uri) {
+    public NodeInfo removeRecipient(String uri) {
         return partyInfoStore.removeRecipient(uri);
-    }
-
-    @Override
-    public void publishPayload(final EncodedPayload payload, final PublicKey recipientKey) {
-
-        if (enclave.getPublicKeys().contains(recipientKey)) {
-            // we are trying to send something to ourselves - don't do it
-            LOGGER.debug(
-                    "Trying to send message to ourselves with key {}, not publishing", recipientKey.encodeToBase64());
-            return;
-        }
-
-        final Recipient retrievedRecipientFromStore =
-                partyInfoStore.getPartyInfo().getRecipients().stream()
-                        .filter(recipient -> recipientKey.equals(recipient.getKey()))
-                        .findAny()
-                        .orElseThrow(
-                                () ->
-                                        new KeyNotFoundException(
-                                                "Recipient not found for key: " + recipientKey.encodeToBase64()));
-
-        final String targetUrl = retrievedRecipientFromStore.getUrl();
-
-        LOGGER.info("Publishing message to {}", targetUrl);
-
-        payloadPublisher.publishPayload(payload, targetUrl);
-
-        LOGGER.info("Published to {}", targetUrl);
     }
 
     /**
@@ -173,6 +152,7 @@ public class PartyInfoServiceImpl implements PartyInfoService {
                 this.enclave.getPublicKeys().stream().map(key -> Recipient.of(key, advertisedUrl)).collect(toSet());
 
         // add to store
-        this.partyInfoStore.store(new PartyInfo(advertisedUrl, ourKeys, emptySet()));
+        final NodeInfo newInfo = NodeInfo.Builder.create().withUrl(advertisedUrl).withRecipients(ourKeys).build();
+        this.partyInfoStore.store(newInfo);
     }
 }

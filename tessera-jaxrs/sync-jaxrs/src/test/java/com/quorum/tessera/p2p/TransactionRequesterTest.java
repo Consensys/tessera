@@ -5,10 +5,13 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.sync.ResendClient;
 import com.quorum.tessera.sync.TransactionRequester;
 import org.assertj.core.api.Assertions;
+import com.quorum.tessera.partyinfo.TransactionRequester;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Set;
@@ -71,7 +74,7 @@ public class TransactionRequesterTest {
         verify(resendClient, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
         verify(enclave).getPublicKeys();
 
-        Assertions.assertThat(captor.getAllValues())
+        assertThat(captor.getAllValues())
                 .hasSize(2)
                 .extracting("publicKey")
                 .containsExactlyInAnyOrder(KEY_ONE.encodeToBase64(), KEY_TWO.encodeToBase64());
