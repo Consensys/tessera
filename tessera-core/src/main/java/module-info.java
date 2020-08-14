@@ -9,4 +9,5 @@ module tessera.tessera.core.main {
 
     exports com.quorum.tessera.transaction;
     exports com.quorum.tessera.transaction.exception;
+    exports com.quorum.tessera.transaction.publish;
 }

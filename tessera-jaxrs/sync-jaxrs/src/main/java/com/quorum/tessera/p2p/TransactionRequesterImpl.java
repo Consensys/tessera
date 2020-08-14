@@ -60,7 +60,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
         final ResendRequest request = new ResendRequest();
         final String encoded = key.encodeToBase64();
         request.setPublicKey(encoded);
-        request.setType(ResendRequestType.ALL);
+        request.setType("ALL");
 
         return request;
     }

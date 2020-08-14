@@ -20,18 +20,23 @@ public class OpenPojoTest {
     public void executeOpenPojoValidations() {
 
         Validator pojoValidator = ValidatorBuilder.create()
-                .with(new GetterMustExistRule())
-                .with(new SetterMustExistRule())
-                .with(new SetterTester())
-                .with(new GetterTester())
-                .build();
+            .with(new GetterMustExistRule())
+            .with(new SetterMustExistRule())
+            .with(new SetterTester())
+            .with(new GetterTester())
+            .build();
 
-        
+
         pojoValidator.validate(PojoClassFactory.getPojoClass(ResendRequest.class));
 
     }
 
-    
 
-    
+    @Test
+    public void resendRequestType() {
+        for(com.quorum.tessera.transaction.ResendRequest.ResendRequestType r : com.quorum.tessera.transaction.ResendRequest.ResendRequestType.values()) {
+            assertThat(r.name()).isNotNull();
+        }
+    }
+
 }

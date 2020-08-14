@@ -4,9 +4,12 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.IntervalPropertyHelper;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.p2p.PartyInfoPoller;
+import com.quorum.tessera.p2p.ResendPartyStore;
+import com.quorum.tessera.p2p.ResendPartyStoreImpl;
+import com.quorum.tessera.p2p.SyncPoller;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.service.ServiceContainer;
-import com.quorum.tessera.sync.*;
 import com.quorum.tessera.threading.TesseraScheduledExecutor;
 
 import java.util.ArrayList;

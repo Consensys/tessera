@@ -2,16 +2,11 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.sync.ResendClient;
-import com.quorum.tessera.sync.TransactionRequester;
-import org.assertj.core.api.Assertions;
 import com.quorum.tessera.partyinfo.TransactionRequester;
-import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.Set;

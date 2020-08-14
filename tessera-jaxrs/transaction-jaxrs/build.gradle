@@ -5,6 +5,7 @@ plugins {
 
 dependencies {
     compile project(":tessera-jaxrs:common-jaxrs")
+    implementation project(":tessera-jaxrs:jaxrs-client")
     implementation project(":config")
     implementation project(":shared")
     implementation project(":tessera-core")
@@ -12,7 +13,7 @@ dependencies {
     implementation project(":encryption:encryption-api")
     implementation project(":tessera-data")
     implementation project(":tessera-context")
-
+    implementation project(":tessera-partyinfo")
     implementation "jakarta.persistence:jakarta.persistence-api"
     implementation "org.hibernate:hibernate-validator"
 

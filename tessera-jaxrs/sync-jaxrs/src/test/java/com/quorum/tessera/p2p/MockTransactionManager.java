@@ -1,12 +1,10 @@
 package com.quorum.tessera.p2p;
 
-
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.*;
-import com.quorum.tessera.transaction.ResendRequest;
 
 import java.util.List;
 import java.util.Optional;
