@@ -4,6 +4,7 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.server.jersey.JerseyServer;
 import com.quorum.tessera.server.jersey.SampleApplication;
+import com.quorum.tessera.shared.Constants;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class VersionHeaderDecoratorTest {
         Response result = ClientBuilder.newClient().target(serverUri).path("ping").request().get();
 
         assertThat(result.getStatus()).isEqualTo(200);
-        assertThat((String) result.getHeaders().getFirst(VersionHeaderDecorator.API_VERSION_HEADER)).isNotEmpty();
+        assertThat((String) result.getHeaders().getFirst(Constants.API_VERSION_HEADER)).isNotEmpty();
 
     }
 
@@ -69,7 +70,7 @@ public class VersionHeaderDecoratorTest {
             httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
         assertThat(httpResponse.statusCode()).isEqualTo(200);
-        assertThat(httpResponse.headers().map().get(VersionHeaderDecorator.API_VERSION_HEADER)).isNotEmpty();
+        assertThat(httpResponse.headers().map().get(Constants.API_VERSION_HEADER)).isNotEmpty();
 
 
     }

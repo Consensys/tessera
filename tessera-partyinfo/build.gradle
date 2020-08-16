@@ -14,7 +14,7 @@ dependencies {
     implementation "io.swagger:swagger-annotations"
     implementation project(":tessera-data")
     implementation "org.apache.commons:commons-lang3"
-
+    implementation "org.slf4j:slf4j-api"
     testCompileOnly "jakarta.ws.rs:jakarta.ws.rs-api"
 
 }

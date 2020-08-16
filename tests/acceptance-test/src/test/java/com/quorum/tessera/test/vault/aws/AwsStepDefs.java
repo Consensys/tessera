@@ -74,7 +74,7 @@ public class AwsStepDefs implements En {
         Given(
                 "^the mock AWS Secrets Manager server has been started$",
                 () -> {
-                    final URL keystore = getClass().getResource("/certificates/localhost-with-san-keystore.jks");
+                    final URL keystore = getClass().getResource("/certificates/server-localhost-with-san.jks");
 
                     // wiremock configures an HTTP server by default.  Even though we'll only use the HTTPS server we
                     // dynamically assign the HTTP port to ensure the default of 8080 is not used

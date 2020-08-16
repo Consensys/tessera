@@ -1,14 +1,16 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.PartyInfoParser;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-
+import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.model.NodeInfoUtil;
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.shared.Constants;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.requireNonNull;
 
@@ -72,26 +75,37 @@ public class PartyInfoResource {
     }
 
     /**
-     * Allows node information to be retrieved in a specific encoded form including other node URLS and public key to
-     * URL mappings
+     * Update the local partyinfo store with the encoded partyinfo included in the request.
      *
-     * @param payload The encoded node information from the requester
-     * @return the merged node information from this node, which may contain new information
+     * @param payload The encoded partyinfo information pushed by the caller
+     * @return an empty 200 OK Response if the local node is using remote key validation, else a 200 OK Response wrapping an encoded partyinfo containing only the local node's URL
      */
     @POST
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     @ApiOperation(value = "Request public key/url of other nodes")
-    @ApiResponses({@ApiResponse(code = 200, message = "Encoded PartyInfo Data", response = byte[].class)})
-    public Response partyInfo(@ApiParam(required = true) final byte[] payload) {
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Empty response if node is using remote key validation, else an encoded partyinfo containing only the local node's URL", response = byte[].class),
+        @ApiResponse(code = 500, message = "If node is using remote key validation, indicates validation failed")
+    })
+    public Response partyInfo(@ApiParam(required = true) final byte[] payload,
+                              @HeaderParam(Constants.API_VERSION_HEADER) final List<String> headers) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
+
+        final Set<String> versions = Optional.ofNullable(headers).orElse(emptyList())
+            .stream()
+            .filter(Objects::nonNull)
+            .flatMap(v -> Arrays.stream(v.split(",")))
+            .collect(Collectors.toSet());
+
+        final NodeInfo decoratedPartyInfo = NodeInfoUtil.from(partyInfo,versions);
 
         LOGGER.debug("Received PartyInfo from {}", partyInfo.getUrl());
 
         if (!enableKeyValidation) {
             LOGGER.debug("Key validation not enabled, passing PartyInfo through");
-            partyInfoService.updatePartyInfo(partyInfo);
+            partyInfoService.updatePartyInfo(decoratedPartyInfo);
 
             // create an empty party info object with our URL to send back
             // this is used by older versions (before 0.10.0), but we don't want to give any info back
@@ -100,21 +114,19 @@ public class PartyInfoResource {
             return Response.ok(returnData).build();
         }
 
-        // Start validation stuff
-        final PublicKey sender = enclave.defaultPublicKey();
-        final String url = partyInfo.getUrl();
+        final PublicKey localPublicKey = enclave.defaultPublicKey();
+        final String partyInfoSender = partyInfo.getUrl();
 
-        final Predicate<Recipient> isValidRecipientKey =
+        final Predicate<Recipient> isValidRecipient =
                 r -> {
                     try {
+                        LOGGER.debug("Validating key {} for peer {}", r.getKey(), r.getUrl());
+
                         final String dataToEncrypt = UUID.randomUUID().toString();
-                        final PublicKey key = r.getKey();
                         final EncodedPayload encodedPayload =
-                                enclave.encryptPayload(dataToEncrypt.getBytes(), sender, Arrays.asList(key));
+                                enclave.encryptPayload(dataToEncrypt.getBytes(), localPublicKey, Arrays.asList(r.getKey()));
 
-                        LOGGER.debug("Validating key {} on peer {}", key, url);
-
-                        final byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
+                        final byte[] encodedPayloadBytes = payloadEncoder.encode(encodedPayload);
 
                         try (Response response =
                                 restClient
@@ -122,16 +134,16 @@ public class PartyInfoResource {
                                         .path("partyinfo")
                                         .path("validate")
                                         .request()
-                                        .post(Entity.entity(encodedPayloadData, MediaType.APPLICATION_OCTET_STREAM))) {
+                                        .post(Entity.entity(encodedPayloadBytes, MediaType.APPLICATION_OCTET_STREAM))) {
 
-                            LOGGER.debug("Response code {} from peer {}", response.getStatus(), url);
+                            LOGGER.debug("Response code {} from peer {}", response.getStatus(), r.getUrl());
 
-                            final String decodedValidationData = response.readEntity(String.class);
+                            final String responseData = response.readEntity(String.class);
 
-                            final boolean isValid = Objects.equals(decodedValidationData, dataToEncrypt);
+                            final boolean isValid = Objects.equals(responseData, dataToEncrypt);
                             if (!isValid) {
-                                LOGGER.warn("Invalid key {} found, {} recipient will be ignored.", key, r.getUrl());
-                                LOGGER.debug("Response from {} was {}", url, decodedValidationData);
+                                LOGGER.warn("Validation of key {} for peer {} failed.  Key and peer will not be added to local partyinfo.", r.getKey(), r.getUrl());
+                                LOGGER.debug("Response from {} was {}", r.getUrl(), responseData);
                             }
 
                             return isValid;
@@ -144,23 +156,33 @@ public class PartyInfoResource {
                     }
                 };
 
-        final Predicate<Recipient> isSendingUrl = r -> r.getUrl().equalsIgnoreCase(url);
+        final Predicate<Recipient> isSender = r -> r.getUrl().equalsIgnoreCase(partyInfoSender);
 
         // Validate caller and treat no valid certs as security issue.
-        final Set<Recipient> recipients =
+        final Set<com.quorum.tessera.partyinfo.node.Recipient> validatedSendersKeys =
                 partyInfo.getRecipients().stream()
-                        .filter(isSendingUrl.and(isValidRecipientKey))
-                        .collect(Collectors.toSet());
+                        .filter(isSender.and(isValidRecipient))
+                        .map(r -> {
+                            return com.quorum.tessera.partyinfo.node.Recipient.of(r.getKey(),r.getUrl());
 
-        LOGGER.debug("Found keys from {} after key validation: {}", url, recipients);
-        if (recipients.isEmpty()) {
-            throw new SecurityException("No key found for url " + url);
+                        }).collect(Collectors.toSet());
+
+        LOGGER.debug("Validated keys for peer {}: {}", partyInfoSender, validatedSendersKeys);
+        if (validatedSendersKeys.isEmpty()) {
+            throw new SecurityException("No validated keys found for peer " + partyInfoSender);
         }
 
-        final PartyInfo modifiedPartyInfo = new PartyInfo(url, recipients, partyInfo.getParties());
-
         // End validation stuff
-        partyInfoService.updatePartyInfo(modifiedPartyInfo);
+        final NodeInfo reducedNodeInfo = NodeInfo.Builder.create()
+            .withUrl(partyInfoSender)
+            .withSupportedApiVersions(versions)
+            .withRecipients(validatedSendersKeys)
+            .withParties(partyInfo.getParties().stream()
+                .map(Party::getUrl)
+                .map(com.quorum.tessera.partyinfo.node.Party::new)
+                .collect(Collectors.toList()))
+            .build();
+        partyInfoService.updatePartyInfo(reducedNodeInfo);
 
         return Response.ok().build();
     }
@@ -171,7 +193,7 @@ public class PartyInfoResource {
     @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network information", response = PartyInfo.class)})
     public Response getPartyInfo() {
 
-        final PartyInfo current = this.partyInfoService.getPartyInfo();
+        final NodeInfo current = this.partyInfoService.getPartyInfo();
 
         // TODO: remove the filter when URIs don't need to end with a /
         final JsonArrayBuilder peersBuilder = Json.createArrayBuilder();
@@ -215,13 +237,31 @@ public class PartyInfoResource {
     @Path("validate")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Processes the validation request data and returns the result.")
+    @ApiResponses({
+        @ApiResponse(code = 200, message = "Validation request data successfully processed and returned", response = String.class),
+        @ApiResponse(code = 400, message = "Validation request data is not a valid UUID")
+    })
     public Response validate(byte[] payloadData) {
         final EncodedPayload payload = payloadEncoder.decode(payloadData);
 
         final PublicKey mykey = payload.getRecipientKeys().iterator().next();
 
         final byte[] result = enclave.unencryptTransaction(payload, mykey);
+        final String resultStr = new String(result);
 
+        if (!isUUID(resultStr)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
         return Response.ok(new String(result)).build();
+    }
+
+    private boolean isUUID(String s) {
+        try {
+            UUID.fromString(s);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 }

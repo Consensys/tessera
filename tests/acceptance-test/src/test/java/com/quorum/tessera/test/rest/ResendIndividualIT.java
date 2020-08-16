@@ -35,7 +35,7 @@ public class ResendIndividualIT {
     private Party recipient;
 
     private static final String RESEND_INDIVIDUAL_VALUE = "INDIVIDUAL";
-    
+
     @Before
     public void init() {
 

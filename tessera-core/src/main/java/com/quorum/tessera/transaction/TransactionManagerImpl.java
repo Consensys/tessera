@@ -4,10 +4,11 @@ import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
+import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.*;
-import com.quorum.tessera.transaction.exception.KeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
+import com.quorum.tessera.transaction.publish.PayloadPublisher;
+import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
 
-    private final PartyInfoService partyInfoService;
+    private final PayloadPublisher payloadPublisher;
 
     private final Enclave enclave;
 
@@ -51,13 +52,13 @@ public class TransactionManagerImpl implements TransactionManager {
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
-            PartyInfoService partyInfoService,
+            PayloadPublisher payloadPublisher,
             int resendFetchSize) {
         this(
                 Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
-                partyInfoService,
+                payloadPublisher,
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,
@@ -71,7 +72,7 @@ public class TransactionManagerImpl implements TransactionManager {
             Base64Codec base64Codec,
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            PartyInfoService partyInfoService,
+            PayloadPublisher payloadPublisher,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
@@ -81,7 +82,7 @@ public class TransactionManagerImpl implements TransactionManager {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
-        this.partyInfoService = Objects.requireNonNull(partyInfoService, "partyInfoService is required");
+        this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
         this.enclave = Objects.requireNonNull(enclave, "enclave is required");
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
@@ -124,7 +125,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 .forEach(
                         recipient -> {
                             final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                            partyInfoService.publishPayload(outgoing, recipient);
+                            payloadPublisher.publishPayload(outgoing, recipient);
                         });
         return true;
     }
@@ -206,7 +207,7 @@ public class TransactionManagerImpl implements TransactionManager {
                                     }
 
                                     try {
-                                        partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
+                                        payloadPublisher.publishPayload(prunedPayload, recipientPublicKey);
                                     } catch (PublishPayloadException ex) {
                                         LOGGER.warn(
                                                 "Unable to resend payload to recipient with public key {}, due to {}",

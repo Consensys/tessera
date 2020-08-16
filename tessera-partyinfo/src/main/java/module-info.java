@@ -9,6 +9,5 @@ module tessera.tessera.partyinfo.main {
     requires tessera.tessera.context.main;
 
     exports com.quorum.tessera.partyinfo;
-    exports com.quorum.tessera.partyinfo.model;
-    exports com.quorum.tessera.sync;
+    exports com.quorum.tessera.partyinfo.node;
 }

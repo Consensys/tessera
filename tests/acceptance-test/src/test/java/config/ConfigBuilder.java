@@ -4,13 +4,13 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
+import suite.EnclaveType;
+import suite.ExecutionContext;
+import suite.SocketType;
 
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
-import suite.EnclaveType;
-import suite.ExecutionContext;
-import suite.SocketType;
 
 public class ConfigBuilder {
 
@@ -18,13 +18,12 @@ public class ConfigBuilder {
             new SslConfig(
                     SslAuthenticationMode.STRICT,
                     false,
-                    Paths.get(getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
+                    Paths.get(getClass().getResource("/certificates/server-localhost-with-san.jks").getFile()),
                     "testtest".toCharArray(),
                     Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
                     "testtest".toCharArray(),
                     SslTrustMode.CA,
-                    Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile())
-                            .toAbsolutePath(),
+                    Paths.get(getClass().getResource("/certificates/client.jks").getFile()).toAbsolutePath(),
                     "testtest".toCharArray(),
                     Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
                     "testtest".toCharArray(),
@@ -200,13 +199,12 @@ public class ConfigBuilder {
                     new SslConfig(
                             SslAuthenticationMode.STRICT,
                             false,
-                            Paths.get(
-                                    getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
+                            Paths.get(getClass().getResource("/certificates/server-localhost-with-san.jks").getFile()),
                             "testtest".toCharArray(),
                             Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
                             "testtest".toCharArray(),
                             SslTrustMode.CA,
-                            Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile()),
+                            Paths.get(getClass().getResource("/certificates/client.jks").getFile()),
                             "testtest".toCharArray(),
                             Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
                             "testtest".toCharArray(),

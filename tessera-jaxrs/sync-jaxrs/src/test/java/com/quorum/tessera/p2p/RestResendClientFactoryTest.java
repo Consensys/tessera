@@ -3,7 +3,6 @@ package com.quorum.tessera.p2p;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.sync.ResendClient;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

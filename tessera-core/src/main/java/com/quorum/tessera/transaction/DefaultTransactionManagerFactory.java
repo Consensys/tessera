@@ -6,8 +6,8 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
+import com.quorum.tessera.transaction.publish.PayloadPublisher;
+import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.resend.ResendManagerImpl;
 
@@ -28,9 +28,7 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
             return REF.get();
         }
 
-        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
-
-        PartyInfoService partyInfoService = partyInfoServiceFactory.create(config);
+        PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
         Enclave enclave = EnclaveFactory.create().create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
@@ -40,13 +38,14 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
 
-        TransactionManager transactionManager = new TransactionManagerImpl(
-            encryptedTransactionDAO,
-            enclave,
-            encryptedRawTransactionDAO,
-            resendManager,
-            partyInfoService,
-            100);
+        TransactionManager transactionManager =
+                new TransactionManagerImpl(
+                        encryptedTransactionDAO,
+                        enclave,
+                        encryptedRawTransactionDAO,
+                        resendManager,
+                        payloadPublisher,
+                        100);
 
         REF.set(transactionManager);
         return transactionManager;

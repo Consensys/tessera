@@ -17,26 +17,25 @@ class PartyInfoServiceFactoryImpl implements PartyInfoServiceFactory {
 
     @Override
     public PartyInfoService create(Config config) {
-        LOGGER.info("Enter create [{},{}]",config,this);
+
+        LOGGER.debug("Enter create [{},{}]", config, this);
 
         if (REF.get() == null) {
 
-            LOGGER.info("Create party info service from {} . Factory {}",config,this);
+            LOGGER.debug("Create party info service from {} . Factory {}", config, this);
 
             Enclave enclave = EnclaveFactory.create().create(config);
-            PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
             PartyInfoStore partyInfoStore = PartyInfoStore.create(config.getP2PServerConfig().getServerUri());
             KnownPeerCheckerFactory knownPeerCheckerFactory = new KnownPeerCheckerFactory();
 
             PartyInfoService partyInfoService = new PartyInfoServiceImpl(
                 partyInfoStore,
                 enclave,
-                payloadPublisher,
                 knownPeerCheckerFactory);
             REF.set(partyInfoService);
 
         } else {
-            LOGGER.info("Looked up existing [{},{}]",config,this);
+            LOGGER.debug("Looked up existing [{},{}]", config, this);
         }
         return REF.get();
     }

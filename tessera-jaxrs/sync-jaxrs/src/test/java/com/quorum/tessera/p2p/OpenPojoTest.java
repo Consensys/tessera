@@ -9,6 +9,8 @@ import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class OpenPojoTest {
 
     public OpenPojoTest() {
@@ -18,18 +20,23 @@ public class OpenPojoTest {
     public void executeOpenPojoValidations() {
 
         Validator pojoValidator = ValidatorBuilder.create()
-                .with(new GetterMustExistRule())
-                .with(new SetterMustExistRule())
-                .with(new SetterTester())
-                .with(new GetterTester())
-                .build();
+            .with(new GetterMustExistRule())
+            .with(new SetterMustExistRule())
+            .with(new SetterTester())
+            .with(new GetterTester())
+            .build();
 
-        
+
         pojoValidator.validate(PojoClassFactory.getPojoClass(ResendRequest.class));
 
     }
 
-    
 
-    
+    @Test
+    public void resendRequestType() {
+        for(com.quorum.tessera.transaction.ResendRequest.ResendRequestType r : com.quorum.tessera.transaction.ResendRequest.ResendRequestType.values()) {
+            assertThat(r.name()).isNotNull();
+        }
+    }
+
 }

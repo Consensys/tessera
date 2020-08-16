@@ -17,6 +17,7 @@ dependencies {
     testImplementation project(":tessera-jaxrs:common-jaxrs")
     testImplementation project(":tessera-jaxrs:jaxrs-client")
     testImplementation project(":tessera-jaxrs:sync-jaxrs")
+    testImplementation project(":tessera-jaxrs:partyinfo-model")
     testImplementation project(":server:jersey-server")
 
     testImplementation project(":shared")

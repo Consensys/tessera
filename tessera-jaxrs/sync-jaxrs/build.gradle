@@ -12,11 +12,13 @@ dependencies {
     implementation project(":enclave:enclave-api")
     implementation project(":encryption:encryption-api")
     implementation project(":tessera-jaxrs:jaxrs-client")
+    implementation project(':tessera-jaxrs:partyinfo-model')
     implementation "io.swagger:swagger-annotations"
     implementation project(":tessera-core")
     implementation project(":tessera-partyinfo")
     implementation project(":tessera-data")
     implementation project(":tessera-context")
+    implementation "org.apache.commons:commons-lang3"
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
     implementation "org.glassfish:jakarta.json"

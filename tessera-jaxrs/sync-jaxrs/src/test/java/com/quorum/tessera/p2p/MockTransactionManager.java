@@ -5,7 +5,6 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.*;
-import com.quorum.tessera.transaction.ResendRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +25,7 @@ public class MockTransactionManager implements TransactionManager,TransactionMan
     public void delete(MessageHash messageHash) {}
 
     @Override
-    public ResendResponse resend(ResendRequest request) {
+    public com.quorum.tessera.transaction.ResendResponse resend(com.quorum.tessera.transaction.ResendRequest request) {
         return null;
     }
 

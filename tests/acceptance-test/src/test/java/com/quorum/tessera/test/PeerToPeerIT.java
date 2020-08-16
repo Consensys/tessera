@@ -1,17 +1,17 @@
 package com.quorum.tessera.test;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.KeyDataUtil;
-import com.quorum.tessera.partyinfo.PartyInfoParser;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
+import com.quorum.tessera.p2p.PartyInfoParser;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,18 +61,18 @@ public class PeerToPeerIT {
         Client client = clientFactory.buildFrom(serverContext);
 
         PublicKey partyBKey =
-                Optional.of(partyB)
-                        .map(Party::getPublicKey)
-                        .map(Base64.getDecoder()::decode)
-                        .map(PublicKey::from)
-                        .get();
+            Optional.of(partyB)
+                .map(Party::getPublicKey)
+                .map(Base64.getDecoder()::decode)
+                .map(PublicKey::from)
+                .get();
 
         String partyBServerAddress = partyB.getConfig().getP2PServerConfig().getServerAddress();
 
         Recipient recipient = Recipient.of(partyBKey, partyBServerAddress);
 
         PartyInfo partyInfo =
-                new PartyInfo(partyBServerAddress, Collections.singleton(recipient), Collections.emptySet());
+            new PartyInfo(partyBServerAddress, Collections.singleton(recipient), Collections.emptySet());
 
         PartyInfoParser partyInfoParser = PartyInfoParser.create();
 
@@ -82,10 +81,10 @@ public class PeerToPeerIT {
         StreamingOutput output = out -> out.write(data);
 
         Response response =
-                client.target(partyA.getP2PUri())
-                        .path("partyinfo")
-                        .request()
-                        .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
+            client.target(partyA.getP2PUri())
+                .path("partyinfo")
+                .request()
+                .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -107,10 +106,10 @@ public class PeerToPeerIT {
         Recipient recipient = Recipient.of(bogusKey, serverConfig.getServerUri().toString());
 
         PartyInfo partyInfo =
-                new PartyInfo(
-                        serverConfig.getServerUri().toString(),
-                        Collections.singleton(recipient),
-                        Collections.emptySet());
+            new PartyInfo(
+                serverConfig.getServerUri().toString(),
+                Collections.singleton(recipient),
+                Collections.emptySet());
 
         Client client = clientFactory.buildFrom(serverConfig);
 
@@ -121,10 +120,10 @@ public class PeerToPeerIT {
         StreamingOutput output = out -> out.write(data);
 
         Response response =
-                client.target(partyA.getP2PUri())
-                        .path("partyinfo")
-                        .request()
-                        .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
+            client.target(partyA.getP2PUri())
+                .path("partyinfo")
+                .request()
+                .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response.getStatus()).isEqualTo(500);
     }
@@ -140,16 +139,16 @@ public class PeerToPeerIT {
         ServerConfig serverConfig = partyB.getConfig().getP2PServerConfig();
 
         PublicKey publicKey =
-                Optional.of(partyB)
-                        .map(Party::getPublicKey)
-                        .map(Base64.getDecoder()::decode)
-                        .map(PublicKey::from)
-                        .get();
+            Optional.of(partyB)
+                .map(Party::getPublicKey)
+                .map(Base64.getDecoder()::decode)
+                .map(PublicKey::from)
+                .get();
 
         Recipient itself = Recipient.of(publicKey, serverConfig.getServerUri().toString());
 
         String validButIncorrectUrl =
-                partyHelper.findByAlias(NodeAlias.C).getConfig().getP2PServerConfig().getServerAddress();
+            partyHelper.findByAlias(NodeAlias.C).getConfig().getP2PServerConfig().getServerAddress();
 
         Recipient badRecipient = Recipient.of(PublicKey.from("OUCH".getBytes()), validButIncorrectUrl);
 
@@ -168,10 +167,10 @@ public class PeerToPeerIT {
         StreamingOutput output = out -> out.write(data);
 
         Response response =
-                client.target(partyA.getP2PUri())
-                        .path("partyinfo")
-                        .request()
-                        .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
+            client.target(partyA.getP2PUri())
+                .path("partyinfo")
+                .request()
+                .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -189,18 +188,18 @@ public class PeerToPeerIT {
         ServerConfig serverConfig = Optional.of(partyB.getConfig()).map(Config::getP2PServerConfig).get();
 
         PublicKey publicKey =
-                Optional.of(partyB)
-                        .map(Party::getPublicKey)
-                        .map(Base64.getDecoder()::decode)
-                        .map(PublicKey::from)
-                        .get();
+            Optional.of(partyB)
+                .map(Party::getPublicKey)
+                .map(Base64.getDecoder()::decode)
+                .map(PublicKey::from)
+                .get();
 
         Recipient itself = Recipient.of(publicKey, serverConfig.getServerUri().toString());
 
         String validKeyFromOtherNode = partyHelper.findByAlias(NodeAlias.C).getPublicKey();
 
         PublicKey validButIncorrectKey =
-                Optional.of(validKeyFromOtherNode).map(Base64.getDecoder()::decode).map(PublicKey::from).get();
+            Optional.of(validKeyFromOtherNode).map(Base64.getDecoder()::decode).map(PublicKey::from).get();
 
         Recipient badRecipient = Recipient.of(validButIncorrectKey, "http://bogus.supersnide.com:8829");
 
@@ -219,10 +218,10 @@ public class PeerToPeerIT {
         StreamingOutput output = out -> out.write(data);
 
         Response response =
-                client.target(partyA.getP2PUri())
-                        .path("partyinfo")
-                        .request()
-                        .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
+            client.target(partyA.getP2PUri())
+                .path("partyinfo")
+                .request()
+                .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -235,21 +234,21 @@ public class PeerToPeerIT {
         ServerConfig serverConfig = partyB.getConfig().getP2PServerConfig();
 
         PublicKey publicKey =
-                Optional.of(partyB)
-                        .map(Party::getPublicKey)
-                        .map(Base64.getDecoder()::decode)
-                        .map(PublicKey::from)
-                        .get();
+            Optional.of(partyB)
+                .map(Party::getPublicKey)
+                .map(Base64.getDecoder()::decode)
+                .map(PublicKey::from)
+                .get();
 
         Recipient itself = Recipient.of(publicKey, serverConfig.getServerUri().toString());
 
         String validKeyFromOtherNode = partyHelper.findByAlias(NodeAlias.C).getPublicKey();
 
         PublicKey validButIncorrectKey =
-                Optional.of(validKeyFromOtherNode).map(Base64.getDecoder()::decode).map(PublicKey::from).get();
+            Optional.of(validKeyFromOtherNode).map(Base64.getDecoder()::decode).map(PublicKey::from).get();
 
         String workingUrlFromSomeOtherNode =
-                partyHelper.findByAlias(NodeAlias.D).getConfig().getP2PServerConfig().getServerAddress();
+            partyHelper.findByAlias(NodeAlias.D).getConfig().getP2PServerConfig().getServerAddress();
 
         Recipient badRecipient = Recipient.of(validButIncorrectKey, workingUrlFromSomeOtherNode);
 
@@ -268,10 +267,10 @@ public class PeerToPeerIT {
         StreamingOutput output = out -> out.write(data);
 
         Response response =
-                client.target(partyA.getP2PUri())
-                        .path("partyinfo")
-                        .request()
-                        .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
+            client.target(partyA.getP2PUri())
+                .path("partyinfo")
+                .request()
+                .post(Entity.entity(output, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response.getStatus()).isEqualTo(200);
     }
@@ -292,34 +291,34 @@ public class PeerToPeerIT {
         JsonObject result = response.readEntity(JsonObject.class);
 
         Map<String, String> actual =
-                result.getJsonArray("keys").stream()
-                        .map(o -> o.asJsonObject())
-                        .collect(
-                                Collectors.toMap(
-                                        o -> o.getString("key"), o -> removeTrailingSlash(o.getString("url"))));
+            result.getJsonArray("keys").stream()
+                .map(o -> o.asJsonObject())
+                .collect(
+                    Collectors.toMap(
+                        o -> o.getString("key"), o -> removeTrailingSlash(o.getString("url"))));
 
         EncryptorConfig encryptorConfig =
-                partyHelper.getParties().findFirst().map(Party::getConfig).map(Config::getEncryptor).get();
+            partyHelper.getParties().findFirst().map(Party::getConfig).map(Config::getEncryptor).get();
         KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
 
         List<String> keyz =
-                partyHelper
-                        .getParties()
-                        .map(Party::getConfig)
-                        .map(Config::getKeys)
-                        .flatMap(k -> k.getKeyData().stream())
-                        .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
-                        .map(ConfigKeyPair::getPublicKey)
-                        .collect(Collectors.toList());
+            partyHelper
+                .getParties()
+                .map(Party::getConfig)
+                .map(Config::getKeys)
+                .flatMap(k -> k.getKeyData().stream())
+                .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
+                .map(ConfigKeyPair::getPublicKey)
+                .collect(Collectors.toList());
 
         List<String> urls =
-                partyHelper
-                        .getParties()
-                        .map(Party::getConfig)
-                        .map(Config::getP2PServerConfig)
-                        .map(ServerConfig::getServerAddress)
-                        .map(s -> removeTrailingSlash(s))
-                        .collect(Collectors.toList());
+            partyHelper
+                .getParties()
+                .map(Party::getConfig)
+                .map(Config::getP2PServerConfig)
+                .map(ServerConfig::getServerAddress)
+                .map(s -> removeTrailingSlash(s))
+                .collect(Collectors.toList());
 
         assertThat(actual).containsKeys(keyz.toArray(new String[0]));
         assertThat(actual).containsValues(urls.toArray(new String[0]));

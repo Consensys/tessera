@@ -1,22 +1,24 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Party;
+import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.partyinfo.node.VersionInfo;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MockPartyInfoStore implements PartyInfoStore {
     @Override
-    public PartyInfo getPartyInfo() {
-        PartyInfo partyInfo = mock(PartyInfo.class);
+    public NodeInfo getPartyInfo() {
+        NodeInfo partyInfo = mock(NodeInfo.class);
         when(partyInfo.getUrl()).thenReturn("http://bogus.com");
         return partyInfo;
     }
 
     @Override
-    public void store(PartyInfo incomingInfo) {
+    public void store(NodeInfo incomingInfo) {
 
     }
 
@@ -31,7 +33,12 @@ public class MockPartyInfoStore implements PartyInfoStore {
     }
 
     @Override
-    public PartyInfo removeRecipient(String s) {
+    public NodeInfo removeRecipient(String s) {
+        return null;
+    }
+
+    @Override
+    public VersionInfo getVersionInfo(Party party) {
         return null;
     }
 }

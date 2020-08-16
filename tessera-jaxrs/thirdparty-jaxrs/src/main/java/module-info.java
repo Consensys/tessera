@@ -8,4 +8,5 @@ module tessera.tessera.jaxrs.thirdparty.jaxrs.main {
     requires tessera.tessera.core.main;
     requires tessera.tessera.jaxrs.common.jaxrs.main;
     requires tessera.tessera.partyinfo.main;
+    requires tessera.tessera.partyinfo.model;
 }
