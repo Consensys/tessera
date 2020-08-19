@@ -2,15 +2,21 @@ package suite;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
 import config.ConfigGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ExecutionContext {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionContext.class);
 
     private final DBType dbType;
 
@@ -206,7 +212,11 @@ public class ExecutionContext {
             ExecutionContext executionContext = build();
 
             List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
-
+            configs.stream()
+                .map(ConfigDescriptor::getConfig)
+                .forEach(c -> {
+                    LOGGER.debug("Generated config {}",JaxbUtil.marshalToStringNoValidation(c));
+                });
             // FIXME: YUk
             executionContext.configs = configs;
 

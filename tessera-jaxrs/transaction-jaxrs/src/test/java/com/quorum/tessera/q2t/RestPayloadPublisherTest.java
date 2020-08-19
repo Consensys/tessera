@@ -1,11 +1,11 @@
 package com.quorum.tessera.q2t;
 
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.jaxrs.mock.MockClient;
-import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
@@ -34,13 +34,13 @@ public class RestPayloadPublisherTest {
 
     private PayloadEncoder encoder;
 
-    private PartyInfoService partyInfoService;
+    private Discovery partyInfoService;
 
     @Before
     public void onSetUp() {
         mockClient = new MockClient();
         encoder = mock(PayloadEncoder.class);
-        partyInfoService = mock(PartyInfoService.class);
+        partyInfoService = mock(Discovery.class);
         publisher = new RestPayloadPublisher(mockClient, encoder, partyInfoService);
     }
 
@@ -71,7 +71,7 @@ public class RestPayloadPublisherTest {
         when(recipient.getKey()).thenReturn(recipientKey);
         when(recipient.getUrl()).thenReturn(targetUrl);
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
+        when(partyInfoService.getCurrent()).thenReturn(nodeInfo);
 
         publisher.publishPayload(encodedPayload, recipientKey);
 
@@ -112,7 +112,7 @@ public class RestPayloadPublisherTest {
         when(recipient.getKey()).thenReturn(recipientKey);
         when(recipient.getUrl()).thenReturn(targetUrl);
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
+        when(partyInfoService.getCurrent()).thenReturn(nodeInfo);
 
         publisher.publishPayload(encodedPayload, recipientKey);
 
@@ -150,7 +150,7 @@ public class RestPayloadPublisherTest {
         when(recipient.getKey()).thenReturn(recipientKey);
         when(recipient.getUrl()).thenReturn(targetUrl);
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
+        when(partyInfoService.getCurrent()).thenReturn(nodeInfo);
 
         try {
             publisher.publishPayload(encodedPayload, recipientKey);
@@ -177,7 +177,7 @@ public class RestPayloadPublisherTest {
         when(recipient.getUrl()).thenReturn(targetUrl);
 
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
+        when(partyInfoService.getCurrent()).thenReturn(nodeInfo);
 
         try {
             publisher.publishPayload(encodedPayload, mock(PublicKey.class));

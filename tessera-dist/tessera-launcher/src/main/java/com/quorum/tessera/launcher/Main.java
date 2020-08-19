@@ -11,7 +11,7 @@ import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
-import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
@@ -58,6 +58,8 @@ public class Main {
 
             RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
 
+            com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
+
             LOGGER.debug("Creating service locator");
             ServiceLocator serviceLocator = ServiceLocator.create();
             LOGGER.debug("Created service locator {}", serviceLocator);
@@ -68,11 +70,7 @@ public class Main {
 
             services.forEach(o -> LOGGER.debug("Service : {}", o));
 
-            services.stream()
-                    .filter(PartyInfoService.class::isInstance)
-                    .map(PartyInfoService.class::cast)
-                    .findAny()
-                    .ifPresent(p -> p.populateStore());
+            Discovery.getInstance().onCreate();
 
             runWebServer(config);
 

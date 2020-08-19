@@ -2,7 +2,6 @@ package com.quorum.tessera.partyinfo.node;
 
 
 import com.quorum.tessera.partyinfo.URLNormalizer;
-import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -12,22 +11,12 @@ public class Party {
 
     private final String url;
 
-    private Instant lastContacted;
-
     public Party(final String url) {
         this.url = URLNormalizer.create().normalize(url);
     }
 
     public String getUrl() {
         return url;
-    }
-
-    public Instant getLastContacted() {
-        return lastContacted;
-    }
-
-    public void setLastContacted(final Instant lastContacted) {
-        this.lastContacted = lastContacted;
     }
 
     @Override

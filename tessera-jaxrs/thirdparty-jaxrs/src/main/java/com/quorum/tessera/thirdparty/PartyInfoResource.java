@@ -1,6 +1,6 @@
 package com.quorum.tessera.thirdparty;
 
-import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import io.swagger.annotations.Api;
@@ -22,10 +22,10 @@ import static java.util.Objects.requireNonNull;
 @Path("/partyinfo")
 public class PartyInfoResource {
 
-    private final PartyInfoService partyInfoService;
+    private final Discovery discovery;
 
-    public PartyInfoResource(final PartyInfoService partyInfoService) {
-        this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
+    public PartyInfoResource(final Discovery discovery) {
+        this.discovery = requireNonNull(discovery, "discovery must not be null");
     }
 
     @GET
@@ -35,7 +35,7 @@ public class PartyInfoResource {
     @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network public keys")})
     public Response getPartyInfoKeys() {
 
-        final NodeInfo current = this.partyInfoService.getPartyInfo();
+        final NodeInfo current = this.discovery.getCurrent();
         PartyInfo partyInfo = PartyInfo.from(current);
         final JsonArrayBuilder recipientBuilder = Json.createArrayBuilder();
         partyInfo.getRecipients().stream()

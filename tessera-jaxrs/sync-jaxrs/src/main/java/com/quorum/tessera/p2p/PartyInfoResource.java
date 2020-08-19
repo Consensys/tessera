@@ -1,10 +1,12 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.context.RuntimeContext;
+import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.model.NodeInfoUtil;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
@@ -17,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
 import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -40,7 +41,7 @@ public class PartyInfoResource {
 
     private final PartyInfoParser partyInfoParser;
 
-    private final PartyInfoService partyInfoService;
+    private final Discovery discovery;
 
     private final Client restClient;
 
@@ -51,13 +52,13 @@ public class PartyInfoResource {
     private final boolean enableKeyValidation;
 
     public PartyInfoResource(
-            final PartyInfoService partyInfoService,
+            final Discovery discovery,
             final PartyInfoParser partyInfoParser,
             final Client restClient,
             final Enclave enclave,
             final PayloadEncoder payloadEncoder,
             final boolean enableKeyValidation) {
-        this.partyInfoService = requireNonNull(partyInfoService, "partyInfoService must not be null");
+        this.discovery = requireNonNull(discovery, "discovery must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
         this.restClient = requireNonNull(restClient);
         this.enclave = requireNonNull(enclave);
@@ -66,12 +67,12 @@ public class PartyInfoResource {
     }
 
     public PartyInfoResource(
-            final PartyInfoService partyInfoService,
+            final Discovery discovery,
             final PartyInfoParser partyInfoParser,
             final Client restClient,
             final Enclave enclave,
             final boolean enableKeyValidation) {
-        this(partyInfoService, partyInfoParser, restClient, enclave, PayloadEncoder.create(), enableKeyValidation);
+        this(discovery, partyInfoParser, restClient, enclave, PayloadEncoder.create(), enableKeyValidation);
     }
 
     /**
@@ -105,17 +106,17 @@ public class PartyInfoResource {
 
         if (!enableKeyValidation) {
             LOGGER.debug("Key validation not enabled, passing PartyInfo through");
-            partyInfoService.updatePartyInfo(decoratedPartyInfo);
+            discovery.onUpdate(decoratedPartyInfo);
 
             // create an empty party info object with our URL to send back
             // this is used by older versions (before 0.10.0), but we don't want to give any info back
-            final PartyInfo emptyInfo = new PartyInfo(partyInfoService.getPartyInfo().getUrl(), emptySet(), emptySet());
+            final PartyInfo emptyInfo = new PartyInfo(discovery.getCurrent().getUrl(), emptySet(), emptySet());
             final byte[] returnData = partyInfoParser.to(emptyInfo);
             return Response.ok(returnData).build();
         }
 
         final PublicKey localPublicKey = enclave.defaultPublicKey();
-        final String partyInfoSender = partyInfo.getUrl();
+
 
         final Predicate<Recipient> isValidRecipient =
                 r -> {
@@ -156,7 +157,9 @@ public class PartyInfoResource {
                     }
                 };
 
-        final Predicate<Recipient> isSender = r -> r.getUrl().equalsIgnoreCase(partyInfoSender);
+
+        final String partyInfoSender = partyInfo.getUrl();
+        final Predicate<Recipient> isSender = r -> NodeUri.create(r.getUrl()).equals(NodeUri.create(partyInfoSender));
 
         // Validate caller and treat no valid certs as security issue.
         final Set<com.quorum.tessera.partyinfo.node.Recipient> validatedSendersKeys =
@@ -172,17 +175,31 @@ public class PartyInfoResource {
             throw new SecurityException("No validated keys found for peer " + partyInfoSender);
         }
 
+        Set<com.quorum.tessera.partyinfo.node.Party> allParties = new HashSet<>();
+
+        allParties.addAll(partyInfo.getParties().stream()
+            .map(Party::getUrl)
+            .map(com.quorum.tessera.partyinfo.node.Party::new)
+            .collect(Collectors.toList()));
+
+        allParties.addAll(decoratedPartyInfo.getParties());
+        allParties.addAll(decoratedPartyInfo.getRecipients().stream()
+            .map(com.quorum.tessera.partyinfo.node.Recipient::getUrl)
+            .map(com.quorum.tessera.partyinfo.node.Party::new)
+            .collect(Collectors.toList()));
+
+        allParties.add(new com.quorum.tessera.partyinfo.node.Party(RuntimeContext.getInstance().getP2pServerUri().toString()));
+
+
         // End validation stuff
         final NodeInfo reducedNodeInfo = NodeInfo.Builder.create()
             .withUrl(partyInfoSender)
             .withSupportedApiVersions(versions)
             .withRecipients(validatedSendersKeys)
-            .withParties(partyInfo.getParties().stream()
-                .map(Party::getUrl)
-                .map(com.quorum.tessera.partyinfo.node.Party::new)
-                .collect(Collectors.toList()))
+            .withParties(allParties)
             .build();
-        partyInfoService.updatePartyInfo(reducedNodeInfo);
+
+        discovery.onUpdate(reducedNodeInfo);
 
         return Response.ok().build();
     }
@@ -193,22 +210,17 @@ public class PartyInfoResource {
     @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network information", response = PartyInfo.class)})
     public Response getPartyInfo() {
 
-        final NodeInfo current = this.partyInfoService.getPartyInfo();
+        final NodeInfo current = this.discovery.getCurrent();
 
         // TODO: remove the filter when URIs don't need to end with a /
         final JsonArrayBuilder peersBuilder = Json.createArrayBuilder();
         current.getParties().stream()
-                .filter(p -> p.getUrl().endsWith("/"))
+               // .filter(p -> p.getUrl().endsWith("/"))
                 .map(
                         party -> {
-                            final JsonObjectBuilder builder = Json.createObjectBuilder();
-                            builder.add("url", party.getUrl());
-                            if (party.getLastContacted() != null) {
-                                builder.add("lastContact", party.getLastContacted().toString());
-                            } else {
-                                builder.addNull("lastContact");
-                            }
-                            return builder.build();
+                            return Json.createObjectBuilder()
+                                .add("url", party.getUrl())
+                                .build();
                         })
                 .forEach(peersBuilder::add);
 
@@ -229,6 +241,8 @@ public class PartyInfoResource {
                         .add("keys", recipientBuilder.build())
                         .build()
                         .toString();
+
+        LOGGER.debug("Sending json {} from {}", output,current);
 
         return Response.status(Response.Status.OK).entity(output).build();
     }

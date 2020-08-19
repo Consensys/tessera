@@ -4,7 +4,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
@@ -24,13 +24,13 @@ public class RestPayloadPublisher implements PayloadPublisher {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final PartyInfoService partyInfoService;
+    private final Discovery partyInfoService;
 
-    public RestPayloadPublisher(Client restclient, PartyInfoService partyInfoService) {
+    public RestPayloadPublisher(Client restclient, Discovery partyInfoService) {
         this(restclient, PayloadEncoder.create(), partyInfoService);
     }
 
-    public RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder, PartyInfoService partyInfoService) {
+    public RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder, Discovery partyInfoService) {
         this.restclient = restclient;
         this.payloadEncoder = payloadEncoder;
         this.partyInfoService = partyInfoService;
@@ -40,7 +40,7 @@ public class RestPayloadPublisher implements PayloadPublisher {
     public void publishPayload(EncodedPayload payload, PublicKey recipientKey) {
 
         final Recipient retrievedRecipientFromStore =
-                partyInfoService.getPartyInfo().getRecipients().stream()
+                partyInfoService.getCurrent().getRecipients().stream()
                         .filter(recipient -> recipientKey.equals(recipient.getKey()))
                         .findAny()
                         .orElseThrow(
