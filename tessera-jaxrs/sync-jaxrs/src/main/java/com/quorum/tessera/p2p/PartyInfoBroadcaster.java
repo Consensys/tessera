@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * Polls every so often to all known nodes for any new discoverable nodes. This keeps all nodes up-to date and
@@ -61,16 +62,16 @@ public class PartyInfoBroadcaster implements Runnable {
     public void run() {
         LOGGER.info("Started PartyInfo polling round");
 
-    //    final PartyStore partyStore = PartyStore.getInstance();
+        final PartyStore partyStore = PartyStore.getInstance();
 
-        final NodeInfo nodeInfo = discovery.getCurrent();
-//        final NodeInfo nodeInfo = NodeInfo.Builder.from(storedNodeInfo)
-//            .withParties(partyStore.getParties().stream()
-//                .map(NodeUri::create)
-//                .map(NodeUri::asString)
-//                .map(Party::new)
-//                .collect(Collectors.toList()))
-//            .build();
+        final NodeInfo storedNodeInfo = discovery.getCurrent();
+        final NodeInfo nodeInfo = NodeInfo.Builder.from(storedNodeInfo)
+            .withParties(partyStore.getParties().stream()
+                .map(NodeUri::create)
+                .map(NodeUri::asString)
+                .map(Party::new)
+                .collect(Collectors.toList()))
+            .build();
 
         final NodeUri ourUrl = NodeUri.create(nodeInfo.getUrl());
 

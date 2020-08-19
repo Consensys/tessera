@@ -1,4 +1,4 @@
-package com.quorum.tessera.discovery;
+package com.quorum.tessera.p2p;
 
 
 import org.slf4j.Logger;

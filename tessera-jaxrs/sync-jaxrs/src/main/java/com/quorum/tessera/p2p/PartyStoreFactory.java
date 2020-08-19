@@ -1,4 +1,4 @@
-package com.quorum.tessera.discovery;
+package com.quorum.tessera.p2p;
 
 import java.net.URI;
 import java.util.Set;

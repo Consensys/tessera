@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
@@ -8,7 +7,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.NodeInfoUtil;
-import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
@@ -106,7 +104,6 @@ public class PartyInfoResource {
 
         if (!enableKeyValidation) {
             LOGGER.debug("Key validation not enabled, passing PartyInfo through");
-            discovery.onUpdate(decoratedPartyInfo);
 
             // create an empty party info object with our URL to send back
             // this is used by older versions (before 0.10.0), but we don't want to give any info back
@@ -175,28 +172,19 @@ public class PartyInfoResource {
             throw new SecurityException("No validated keys found for peer " + partyInfoSender);
         }
 
-        Set<com.quorum.tessera.partyinfo.node.Party> allParties = new HashSet<>();
-
-        allParties.addAll(partyInfo.getParties().stream()
-            .map(Party::getUrl)
-            .map(com.quorum.tessera.partyinfo.node.Party::new)
-            .collect(Collectors.toList()));
-
-        allParties.addAll(decoratedPartyInfo.getParties());
-        allParties.addAll(decoratedPartyInfo.getRecipients().stream()
-            .map(com.quorum.tessera.partyinfo.node.Recipient::getUrl)
-            .map(com.quorum.tessera.partyinfo.node.Party::new)
-            .collect(Collectors.toList()));
-
-        allParties.add(new com.quorum.tessera.partyinfo.node.Party(RuntimeContext.getInstance().getP2pServerUri().toString()));
-
+        final PartyStore partyStore = PartyStore.getInstance();
+        decoratedPartyInfo.getParties().stream()
+            .map(p -> p.getUrl())
+            .map(NodeUri::create)
+            .map(NodeUri::asURI)
+            .forEach(partyStore::store);
 
         // End validation stuff
         final NodeInfo reducedNodeInfo = NodeInfo.Builder.create()
             .withUrl(partyInfoSender)
             .withSupportedApiVersions(versions)
             .withRecipients(validatedSendersKeys)
-            .withParties(allParties)
+            .withParties(decoratedPartyInfo.getParties())
             .build();
 
         discovery.onUpdate(reducedNodeInfo);

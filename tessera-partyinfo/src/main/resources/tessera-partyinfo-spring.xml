@@ -44,18 +44,6 @@
         <constructor-arg value="5000"/>
     </bean>
 
-    <bean name="partyPollExecutor" class="com.quorum.tessera.threading.TesseraScheduledExecutor">
-        <constructor-arg>
-            <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
-        </constructor-arg>
-        <constructor-arg>
-            <bean class="com.quorum.tessera.p2p.PartyPoller" init-method="onCreate">
-                <constructor-arg ref="p2pClient"/>
-            </bean>
-        </constructor-arg>
-        <constructor-arg value="#{propertyHelper.partyInfoInterval()}"/>
-        <constructor-arg value="5000"/>
-    </bean>
 
     <!--    <bean id="resendManager" class="com.quorum.tessera.transaction.resend.ResendManagerImpl">-->
     <!--        <constructor-arg ref="encryptedTransactionDAO" />-->

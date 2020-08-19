@@ -2,7 +2,6 @@ package com.quorum.tessera.discovery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
@@ -12,7 +11,6 @@ enum DefaultNetworkStore implements NetworkStore {
     INSTANCE;
 
     private final Set<ActiveNode> activeNodes = ConcurrentHashMap.newKeySet();
-  //  private final ConcurrentMap<NodeUri, Collection<ActiveNode>> activeNodes = new ConcurrentHashMap<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkStore.class);
 
