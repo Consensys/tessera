@@ -28,6 +28,7 @@ public abstract class TesseraRestApplication extends Application implements Tess
                 SecurityExceptionMapper.class,
                 TransactionNotFoundExceptionMapper.class,
                 WebApplicationExceptionMapper.class,
+                NodeOfflineExceptionMapper.class,
                 UpCheckResource.class,
                 VersionResource.class,
                 ApiResource.class,

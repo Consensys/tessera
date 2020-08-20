@@ -9,6 +9,8 @@ import com.quorum.tessera.partyinfo.node.Party;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ProcessingException;
+import java.net.URI;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -31,6 +33,8 @@ public class PartyInfoBroadcaster implements Runnable {
 
     private final Executor executor;
 
+    private final PartyStore partyStore;
+
     public PartyInfoBroadcaster(final P2pClient p2pClient) {
         this(Discovery.getInstance(), PartyInfoParser.create(), p2pClient, Executors.newCachedThreadPool());
     }
@@ -44,6 +48,7 @@ public class PartyInfoBroadcaster implements Runnable {
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
         this.p2pClient = Objects.requireNonNull(p2pClient);
         this.executor = Objects.requireNonNull(executor);
+        partyStore = PartyStore.getInstance();
     }
 
     /**
@@ -62,8 +67,6 @@ public class PartyInfoBroadcaster implements Runnable {
     public void run() {
         LOGGER.info("Started PartyInfo polling round");
 
-        final PartyStore partyStore = PartyStore.getInstance();
-
         final NodeInfo storedNodeInfo = discovery.getCurrent();
         final NodeInfo nodeInfo = NodeInfo.Builder.from(storedNodeInfo)
             .withParties(partyStore.getParties().stream()
@@ -77,7 +80,6 @@ public class PartyInfoBroadcaster implements Runnable {
 
         final PartyInfo partyInfo = PartyInfo.from(nodeInfo);
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
-
 
         LOGGER.debug("Contacting following peers with PartyInfo: {}", partyInfo.getParties());
 
@@ -102,6 +104,10 @@ public class PartyInfoBroadcaster implements Runnable {
                         ex -> {
                             LOGGER.warn("Failed to connect to node {}, due to {}", url, ex.getMessage());
                             LOGGER.debug(null, ex);
+                            if(ProcessingException.class.isInstance(ex)) {
+                                discovery.onDisconnect(URI.create(url));
+                                partyStore.remove(URI.create(url));
+                            }
                             return null;
                         });
     }

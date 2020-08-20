@@ -1,20 +1,23 @@
 package com.quorum.tessera.q2t;
 
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.URI;
 
 public class RestPayloadPublisher implements PayloadPublisher {
 
@@ -24,23 +27,23 @@ public class RestPayloadPublisher implements PayloadPublisher {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final Discovery partyInfoService;
+    private final Discovery discovery;
 
-    public RestPayloadPublisher(Client restclient, Discovery partyInfoService) {
-        this(restclient, PayloadEncoder.create(), partyInfoService);
+    public RestPayloadPublisher(Client restclient, Discovery discovery) {
+        this(restclient, PayloadEncoder.create(), discovery);
     }
 
-    public RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder, Discovery partyInfoService) {
+    public RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder, Discovery discovery) {
         this.restclient = restclient;
         this.payloadEncoder = payloadEncoder;
-        this.partyInfoService = partyInfoService;
+        this.discovery = discovery;
     }
 
     @Override
     public void publishPayload(EncodedPayload payload, PublicKey recipientKey) {
 
         final Recipient retrievedRecipientFromStore =
-                partyInfoService.getCurrent().getRecipients().stream()
+                discovery.getCurrent().getRecipients().stream()
                         .filter(recipient -> recipientKey.equals(recipient.getKey()))
                         .findAny()
                         .orElseThrow(
@@ -67,6 +70,9 @@ public class RestPayloadPublisher implements PayloadPublisher {
             }
 
             LOGGER.info("Published to {}", targetUrl);
+        } catch (ProcessingException ex) {
+            LOGGER.debug("",ex);
+            throw new NodeOfflineException(URI.create(targetUrl));
         }
     }
 }
