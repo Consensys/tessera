@@ -118,4 +118,20 @@ public class AutoDiscoveryTest {
         verify(runtimeContext).getP2pServerUri();
     }
 
+    @Test
+    public void onDisconnect() {
+        URI uri = URI.create("http://onDisconnect.com");
+        List<NodeUri> results = new ArrayList<>();
+        doAnswer(invocation -> {
+            results.add(invocation.getArgument(0));
+            return null;
+        }).when(networkStore).remove(any(NodeUri.class));
+
+        discovery.onDisconnect(uri);
+
+        assertThat(results).containsExactly(NodeUri.create(uri));
+        verify(networkStore).remove(any(NodeUri.class));
+
+    }
+
 }

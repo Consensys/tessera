@@ -57,6 +57,7 @@ public class DiscoveryTest {
 
         verifyNoMoreInteractions(enclave,runtimeContext);
         MockContextHolder.reset();
+        MockOnCreateHelper.reset();
     }
 
     @Test
@@ -130,5 +131,23 @@ public class DiscoveryTest {
         assertThat(result.getParties()).hasSize(1);
         assertThat(result.getRecipients()).isEmpty();
         assertThat(result.getParties()).containsExactly(new Party("http://somedomain.com/"));
+    }
+
+    @Test
+    public void getInstance() {
+        Discovery instance = Discovery.getInstance();
+        assertThat(instance).isExactlyInstanceOf(DiscoveryFactory.class);
+        verify(runtimeContext).isDisablePeerDiscovery();
+    }
+
+    @Test
+    public void onCreate() {
+        MockOnCreateHelper onCreateHelper = MockOnCreateHelper.class.cast(OnCreateHelper.getInstance());
+        discovery.onCreate();
+        assertThat(onCreateHelper.getInvocationCount()).isEqualTo(1);
+        discovery.onCreate();
+        assertThat(onCreateHelper.getInvocationCount()).isEqualTo(2);
+
+
     }
 }

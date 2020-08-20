@@ -97,4 +97,17 @@ public class EnclaveKeySynchroniserTest {
         verify(networkStore).getActiveNodes();
     }
 
+
+    @Test
+    public void runInvokesSyncWithKeysWithoutAnyActiveNodes() {
+
+        final URI uri = URI.create("http://somedomain.com/");
+        when(runtimeContext.getP2pServerUri()).thenReturn(uri);
+        when(networkStore.getActiveNodes()).thenReturn(Stream.of());
+
+        enclaveKeySynchroniser.run();
+
+        verify(runtimeContext).getP2pServerUri();
+        verify(networkStore).getActiveNodes();
+    }
 }

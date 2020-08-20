@@ -7,6 +7,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -62,6 +64,10 @@ public class DiscoveryFactoryTest {
         NodeInfo nodeInfo = mock(NodeInfo.class);
         discoveryFactory.onUpdate(nodeInfo);
         verify(discovery).onUpdate(nodeInfo);
+
+        URI uri = URI.create("http://stankirsch.com");
+        discoveryFactory.onDisconnect(uri);
+        verify(discovery).onDisconnect(uri);
 
         verifyNoMoreInteractions(discovery);
     }

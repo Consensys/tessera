@@ -71,8 +71,8 @@ public class ActiveNodeTest {
     public void hashCodeAndEquals() {
         EqualsVerifier.forClass(ActiveNode.class)
             .usingGetClass()
-            .withNonnullFields("uri","keys")
-            .withIgnoredFields("supportedVersions")
+            .withNonnullFields("uri")
+            .withIgnoredFields("supportedVersions","keys")
             .verify();
     }
 
@@ -97,6 +97,7 @@ public class ActiveNodeTest {
         assertThat(result.getSupportedVersions())
             .containsExactlyInAnyOrderElementsOf(supportedVersions);
         assertThat(result.getUri()).isSameAs(nodeUri);
+        assertThat(result.toString()).contains(URI);
     }
 
 }

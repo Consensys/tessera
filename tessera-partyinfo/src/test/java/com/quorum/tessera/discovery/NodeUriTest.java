@@ -31,6 +31,7 @@ public class NodeUriTest {
         assertThat(nodeUri).isNotNull();
         assertThat(nodeUri.asString()).startsWith(stringValue).endsWith("/");
         assertThat(nodeUri.toString()).isNotNull();
+        assertThat(nodeUri.asURI()).isEqualTo(URI.create(stringValue.concat("/")));
     }
 
     @Test

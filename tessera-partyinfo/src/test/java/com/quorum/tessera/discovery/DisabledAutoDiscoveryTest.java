@@ -10,6 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -107,5 +108,21 @@ public class DisabledAutoDiscoveryTest {
         assertThat(savedNode.getUri()).isEqualTo(NodeUri.create(url));
 
         verify(networkStore).store(any(ActiveNode.class));
+    }
+
+    @Test
+    public void onDisconnect() {
+        URI uri = URI.create("http://onDisconnect.com");
+        List<NodeUri> results = new ArrayList<>();
+        doAnswer(invocation -> {
+            results.add(invocation.getArgument(0));
+            return null;
+        }).when(networkStore).remove(any(NodeUri.class));
+
+        discovery.onDisconnect(uri);
+
+        assertThat(results).containsExactly(NodeUri.create(uri));
+        verify(networkStore).remove(any(NodeUri.class));
+
     }
 }
