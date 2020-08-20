@@ -39,6 +39,12 @@ public class DiscoveryTest {
             @Override
             public void onUpdate(NodeInfo nodeInfo) {
             }
+
+            @Override
+            public void onDisconnect(URI nodeUri) {
+            }
+
+
         };
 
         runtimeContext = RuntimeContext.getInstance();

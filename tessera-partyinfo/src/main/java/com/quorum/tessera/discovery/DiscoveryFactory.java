@@ -1,11 +1,11 @@
 package com.quorum.tessera.discovery;
 
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -27,15 +27,14 @@ public class DiscoveryFactory implements Discovery {
 
         final NetworkStore networkStore = NetworkStore.getInstance();
         final RuntimeContext runtimeContext = RuntimeContext.getInstance();
-        final Enclave enclave = EnclaveFactory.create().enclave().get();
         final Discovery discovery;
         if(runtimeContext.isDisablePeerDiscovery()) {
             final Set<NodeUri> knownNodes = runtimeContext.getPeers().stream()
                                         .map(NodeUri::create)
                                         .collect(Collectors.toUnmodifiableSet());
-            discovery = new DisabledAutoDiscovery(networkStore,enclave,knownNodes);
+            discovery = new DisabledAutoDiscovery(networkStore,knownNodes);
         } else {
-            discovery = new AutoDiscovery(networkStore,enclave);
+            discovery = new AutoDiscovery(networkStore);
         }
 
        // HOLDER.set(discovery);
@@ -61,6 +60,11 @@ public class DiscoveryFactory implements Discovery {
     @Override
     public void onUpdate(NodeInfo nodeInfo) {
         discovery.onUpdate(nodeInfo);
+    }
+
+    @Override
+    public void onDisconnect(URI nodeUri) {
+        discovery.onDisconnect(nodeUri);
     }
 
 

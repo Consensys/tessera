@@ -6,6 +6,7 @@ import com.quorum.tessera.partyinfo.node.Party;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.version.ApiVersion;
 
+import java.net.URI;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -48,6 +49,7 @@ public interface Discovery {
             .build();
     }
 
+    void onDisconnect(URI nodeUri);
 
     static Discovery getInstance() {
         return ServiceLoader.load(Discovery.class).findFirst().get();

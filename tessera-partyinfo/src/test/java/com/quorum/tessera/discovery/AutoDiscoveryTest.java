@@ -1,7 +1,6 @@
 package com.quorum.tessera.discovery;
 
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.MockContextHolder;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
@@ -23,16 +22,14 @@ public class AutoDiscoveryTest {
 
     private NetworkStore networkStore;
 
-    private Enclave enclave;
 
     private RuntimeContext runtimeContext;
 
     @Before
     public void onSetUp() {
         networkStore = mock(NetworkStore.class);
-        enclave = mock(Enclave.class);
 
-        discovery = new AutoDiscovery(networkStore,enclave);
+        discovery = new AutoDiscovery(networkStore);
 
 
         runtimeContext = RuntimeContext.getInstance();
@@ -40,7 +37,7 @@ public class AutoDiscoveryTest {
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(enclave,networkStore,runtimeContext);
+        verifyNoMoreInteractions(networkStore,runtimeContext);
         MockContextHolder.reset();
     }
 

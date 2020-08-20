@@ -1,7 +1,6 @@
 package com.quorum.tessera.discovery;
 
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.AutoDiscoveryDisabledException;
 import com.quorum.tessera.partyinfo.MockContextHolder;
@@ -28,8 +27,6 @@ public class DisabledAutoDiscoveryTest {
 
     private NetworkStore networkStore;
 
-    private Enclave enclave;
-
     private RuntimeContext runtimeContext;
 
     private Set<NodeUri> knownPeers;
@@ -37,20 +34,18 @@ public class DisabledAutoDiscoveryTest {
     @Before
     public void onSetUp() {
         networkStore = mock(NetworkStore.class);
-        enclave = mock(Enclave.class);
-
         knownPeers = Stream.of("http://bobbysixkiller.com","http://renoraynes.com")
             .map(NodeUri::create)
             .collect(Collectors.toSet());
 
-        discovery = new DisabledAutoDiscovery(networkStore,enclave,knownPeers);
+        discovery = new DisabledAutoDiscovery(networkStore,knownPeers);
 
         runtimeContext = RuntimeContext.getInstance();
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(enclave,networkStore,runtimeContext);
+        verifyNoMoreInteractions(networkStore,runtimeContext);
         MockContextHolder.reset();
     }
 

@@ -1,11 +1,12 @@
 package com.quorum.tessera.discovery;
 
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.URI;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,11 +17,8 @@ public class AutoDiscovery implements Discovery {
 
     private final NetworkStore networkStore;
 
-    private final Enclave enclave;
-
-    public AutoDiscovery(NetworkStore networkStore, Enclave enclave) {
+    public AutoDiscovery(NetworkStore networkStore) {
         this.networkStore = Objects.requireNonNull(networkStore);
-        this.enclave = Objects.requireNonNull(enclave);
     }
 
     @Override
@@ -55,6 +53,11 @@ public class AutoDiscovery implements Discovery {
             .build();
 
         networkStore.store(activeNode);
+    }
+
+    @Override
+    public void onDisconnect(URI nodeUri) {
+        networkStore.remove(NodeUri.create(nodeUri));
     }
 
 
