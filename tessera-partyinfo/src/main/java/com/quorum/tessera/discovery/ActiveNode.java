@@ -32,13 +32,12 @@ public class ActiveNode {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ActiveNode that = (ActiveNode) o;
-        return keys.equals(that.keys) &&
-            uri.equals(that.uri);
+        return uri.equals(that.uri);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(keys, uri);
+        return Objects.hash(uri);
     }
 
     @Override
