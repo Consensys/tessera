@@ -2,6 +2,7 @@ package com.quorum.tessera.partyinfo.node;
 
 
 import com.quorum.tessera.partyinfo.URLNormalizer;
+
 import java.util.Objects;
 
 /**
@@ -20,8 +21,11 @@ public class Party {
     }
 
     @Override
-    public boolean equals(final Object o) {
-        return (o instanceof Party) && Objects.equals(url, ((Party) o).url);
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Party party = (Party) o;
+        return url.equals(party.url);
     }
 
     @Override

@@ -170,8 +170,8 @@ public class PartyInfoBroadcasterTest {
 
         partyInfoBroadcaster.pollSingleParty(uriData,"somebytes".getBytes());
 
-        verify(discovery).onDisconnect(URI.create(uriData));
         verify(p2pClient).sendPartyInfo(anyString(),any(byte[].class));
+        assertThat(connectedNodes).isEmpty();
 
     }
 }

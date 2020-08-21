@@ -122,8 +122,8 @@ public class PartyInfoBroadcaster implements Runnable {
                             LOGGER.warn("Failed to connect to node {}, due to {}", url, cause.getMessage());
                             LOGGER.debug(null, cause);
                             if(ProcessingException.class.isInstance(cause)) {
-                                discovery.onDisconnect(URI.create(url));
                                 if(connectedNodes.contains(nodeUri)) {
+                                    discovery.onDisconnect(URI.create(url));
                                     partyStore.remove(URI.create(url));
                                     connectedNodes.remove(nodeUri);
                                 }

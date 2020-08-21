@@ -1,6 +1,7 @@
 package com.quorum.tessera.partyinfo.node;
 
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +20,15 @@ public class PartyTest {
     public void urlIsNormalized() {
         final Party party = new Party("http://someurl.com");
         assertThat(party.getUrl()).isEqualTo("http://someurl.com/");
+    }
+
+    @Test
+    public void hashCodeAndEquals() {
+        EqualsVerifier.forClass(Party.class)
+            .usingGetClass()
+            .withNonnullFields("url")
+            .verify();
+
     }
 
 }

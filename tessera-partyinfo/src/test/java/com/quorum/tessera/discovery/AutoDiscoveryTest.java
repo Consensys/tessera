@@ -1,8 +1,6 @@
 package com.quorum.tessera.discovery;
 
-import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.MockContextHolder;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import org.junit.After;
@@ -22,23 +20,16 @@ public class AutoDiscoveryTest {
 
     private NetworkStore networkStore;
 
-
-    private RuntimeContext runtimeContext;
-
     @Before
     public void onSetUp() {
         networkStore = mock(NetworkStore.class);
 
         discovery = new AutoDiscovery(networkStore);
-
-
-        runtimeContext = RuntimeContext.getInstance();
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(networkStore,runtimeContext);
-        MockContextHolder.reset();
+        verifyNoMoreInteractions(networkStore);
     }
 
 
@@ -48,7 +39,7 @@ public class AutoDiscoveryTest {
 
         String uri = "http://mynode.com";
 
-        when(runtimeContext.getP2pServerUri()).thenReturn(URI.create(uri));
+        //when(runtimeContext.getP2pServerUri()).thenReturn(URI.create(uri));
 
         PublicKey key = mock(PublicKey.class);
         Recipient recipient = Recipient.of(key,uri);
@@ -77,7 +68,6 @@ public class AutoDiscoveryTest {
         assertThat(result.getKeys()).containsExactly(key);
         assertThat(result.getSupportedVersions()).containsExactlyInAnyOrder("Two","Fifty");
         verify(networkStore).store(any(ActiveNode.class));
-        verify(runtimeContext).getP2pServerUri();
 
     }
 
@@ -89,8 +79,6 @@ public class AutoDiscoveryTest {
         Recipient recipient = Recipient.of(key,uri);
         PublicKey otherKey = mock(PublicKey.class);
         Recipient other = Recipient.of(otherKey,uri);
-
-        when(runtimeContext.getP2pServerUri()).thenReturn(URI.create(uri));
 
         List<Recipient> recipients = List.of(recipient,other);
 
@@ -115,7 +103,6 @@ public class AutoDiscoveryTest {
         assertThat(result.getKeys()).containsExactlyInAnyOrder(key,otherKey);
 
         verify(networkStore).store(any(ActiveNode.class));
-        verify(runtimeContext).getP2pServerUri();
     }
 
     @Test

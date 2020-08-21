@@ -17,12 +17,12 @@ public class DiscoveryFactoryTest {
     private RuntimeContext runtimeContext;
 
     @Before
-    public void onSetUp() {
+    public void beforeTest() {
         runtimeContext = RuntimeContext.getInstance();
     }
 
     @After
-    public void onTearDown() {
+    public void afterTest() {
         MockContextHolder.reset();
         verifyNoMoreInteractions(runtimeContext);
     }
