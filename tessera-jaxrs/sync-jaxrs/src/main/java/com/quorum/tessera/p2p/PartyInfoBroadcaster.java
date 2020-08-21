@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.ProcessingException;
 import java.net.URI;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -36,19 +37,19 @@ public class PartyInfoBroadcaster implements Runnable {
     private final PartyStore partyStore;
 
     public PartyInfoBroadcaster(final P2pClient p2pClient) {
-        this(Discovery.getInstance(), PartyInfoParser.create(), p2pClient, Executors.newCachedThreadPool());
+        this(Discovery.getInstance(), PartyInfoParser.create(), p2pClient, Executors.newCachedThreadPool(),PartyStore.getInstance());
     }
 
     public PartyInfoBroadcaster(
             final Discovery discovery,
             final PartyInfoParser partyInfoParser,
             final P2pClient p2pClient,
-            final Executor executor) {
+            final Executor executor,PartyStore partyStore) {
         this.discovery = Objects.requireNonNull(discovery);
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
         this.p2pClient = Objects.requireNonNull(p2pClient);
         this.executor = Objects.requireNonNull(executor);
-        partyStore = PartyStore.getInstance();
+        this.partyStore = Objects.requireNonNull(partyStore);
     }
 
     /**
@@ -98,13 +99,17 @@ public class PartyInfoBroadcaster implements Runnable {
      * @param url the target URL to call
      * @param encodedPartyInfo the encoded current party information
      */
-    private void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
+    protected void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
         CompletableFuture.runAsync(() -> p2pClient.sendPartyInfo(url, encodedPartyInfo), executor)
                 .exceptionally(
                         ex -> {
-                            LOGGER.warn("Failed to connect to node {}, due to {}", url, ex.getMessage());
-                            LOGGER.debug(null, ex);
-                            if(ProcessingException.class.isInstance(ex)) {
+                            Throwable cause = Optional.of(ex)
+                                .map(Throwable::getCause)
+                                .orElse(ex);
+
+                            LOGGER.warn("Failed to connect to node {}, due to {}", url, cause.getMessage());
+                            LOGGER.debug(null, cause);
+                            if(ProcessingException.class.isInstance(cause)) {
                                 discovery.onDisconnect(URI.create(url));
                                 partyStore.remove(URI.create(url));
                             }

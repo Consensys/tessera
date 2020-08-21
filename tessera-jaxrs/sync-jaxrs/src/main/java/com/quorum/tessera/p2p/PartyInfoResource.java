@@ -49,19 +49,22 @@ public class PartyInfoResource {
 
     private final boolean enableKeyValidation;
 
+    private final PartyStore partyStore;
+
     public PartyInfoResource(
             final Discovery discovery,
             final PartyInfoParser partyInfoParser,
             final Client restClient,
             final Enclave enclave,
             final PayloadEncoder payloadEncoder,
-            final boolean enableKeyValidation) {
+            final boolean enableKeyValidation,PartyStore partyStore) {
         this.discovery = requireNonNull(discovery, "discovery must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
         this.restClient = requireNonNull(restClient);
         this.enclave = requireNonNull(enclave);
         this.payloadEncoder = requireNonNull(payloadEncoder);
         this.enableKeyValidation = enableKeyValidation;
+        this.partyStore = requireNonNull(partyStore);
     }
 
     public PartyInfoResource(
@@ -70,7 +73,7 @@ public class PartyInfoResource {
             final Client restClient,
             final Enclave enclave,
             final boolean enableKeyValidation) {
-        this(discovery, partyInfoParser, restClient, enclave, PayloadEncoder.create(), enableKeyValidation);
+        this(discovery, partyInfoParser, restClient, enclave, PayloadEncoder.create(), enableKeyValidation,PartyStore.getInstance());
     }
 
     /**
@@ -105,6 +108,12 @@ public class PartyInfoResource {
         if (!enableKeyValidation) {
             LOGGER.debug("Key validation not enabled, passing PartyInfo through");
 
+            discovery.onUpdate(NodeInfo.Builder.create()
+                .withRecipients(decoratedPartyInfo.getRecipients())
+                .withUrl(decoratedPartyInfo.getUrl())
+                .withSupportedApiVersions(decoratedPartyInfo.supportedApiVersions())
+                .build());
+
             // create an empty party info object with our URL to send back
             // this is used by older versions (before 0.10.0), but we don't want to give any info back
             final PartyInfo emptyInfo = new PartyInfo(discovery.getCurrent().getUrl(), emptySet(), emptySet());
@@ -113,7 +122,6 @@ public class PartyInfoResource {
         }
 
         final PublicKey localPublicKey = enclave.defaultPublicKey();
-
 
         final Predicate<Recipient> isValidRecipient =
                 r -> {

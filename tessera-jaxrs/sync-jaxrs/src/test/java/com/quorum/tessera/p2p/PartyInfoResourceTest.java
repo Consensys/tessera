@@ -32,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 public class PartyInfoResourceTest {
 
-    private Discovery partyInfoService;
+    private Discovery discovery;
 
     private PartyInfoResource partyInfoResource;
 
@@ -44,20 +44,23 @@ public class PartyInfoResourceTest {
 
     private PayloadEncoder payloadEncoder;
 
+    private PartyStore partyStore;
+
     @Before
-    public void onSetup() {
-        this.partyInfoService = mock(Discovery.class);
+    public void beforeTest() {
+        this.discovery = mock(Discovery.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.enclave = mock(Enclave.class);
         this.restClient = mock(Client.class);
         this.payloadEncoder = mock(PayloadEncoder.class);
+        this.partyStore = mock(PartyStore.class);
         this.partyInfoResource =
-                new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder, true);
+                new PartyInfoResource(discovery, partyInfoParser, restClient, enclave, payloadEncoder, true,partyStore);
     }
 
     @After
-    public void onTearDown() {
-        verifyNoMoreInteractions(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder);
+    public void afterTest() {
+        verifyNoMoreInteractions(discovery, partyInfoParser, restClient, enclave, payloadEncoder);
     }
 
     @Test
@@ -87,7 +90,7 @@ public class PartyInfoResourceTest {
             .withParties(List.of(partyWithoutTimestamp,partyWithTimestamp))
             .build();
 
-        when(partyInfoService.getCurrent()).thenReturn(partyInfo);
+        when(discovery.getCurrent()).thenReturn(partyInfo);
 
         final Response response = partyInfoResource.getPartyInfo();
 
@@ -108,7 +111,7 @@ public class PartyInfoResourceTest {
         assertThat(actualJsonObject.getString("url"))
             .isEqualTo(expectedJsonObject.getString("url"));
 
-        verify(partyInfoService).getCurrent();
+        verify(discovery).getCurrent();
     }
 
     @Test
@@ -176,7 +179,7 @@ public class PartyInfoResourceTest {
         verify(restClient).target(url);
 
         ArgumentCaptor<NodeInfo> argCaptor = ArgumentCaptor.forClass(NodeInfo.class);
-        verify(partyInfoService).onUpdate(argCaptor.capture());
+        verify(discovery).onUpdate(argCaptor.capture());
 
         final NodeInfo nodeInfo = argCaptor.getValue();
         assertThat(nodeInfo).isNotNull();
@@ -239,7 +242,7 @@ public class PartyInfoResourceTest {
     @Test
     public void constructWithMinimalArgs() {
         PartyInfoResource instance =
-                new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, true);
+                new PartyInfoResource(discovery, partyInfoParser, restClient, enclave, true);
         assertThat(instance).isNotNull();
     }
 
@@ -416,7 +419,7 @@ public class PartyInfoResourceTest {
     @Test
     public void validationDisabledPassesAllKeysToStore() {
         this.partyInfoResource =
-                new PartyInfoResource(partyInfoService, partyInfoParser, restClient, enclave, payloadEncoder, false);
+                new PartyInfoResource(discovery, partyInfoParser, restClient, enclave, payloadEncoder, false,partyStore);
 
         final byte[] payload = "Test message".getBytes();
 
@@ -431,7 +434,7 @@ public class PartyInfoResourceTest {
         final byte[] serialisedData = "SERIALISED".getBytes();
 
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
-        when(partyInfoService.getCurrent()).thenReturn(nodeInfo);
+        when(discovery.getCurrent()).thenReturn(nodeInfo);
         when(partyInfoParser.to(captor.capture())).thenReturn(serialisedData);
 
         final Response callResponse = partyInfoResource.partyInfo(payload, null);
@@ -446,7 +449,7 @@ public class PartyInfoResourceTest {
 
         final ArgumentCaptor<NodeInfo> modifiedPartyInfoCaptor = ArgumentCaptor.forClass(NodeInfo.class);
 
-        verify(partyInfoService).onUpdate(modifiedPartyInfoCaptor.capture());
+        verify(discovery).onUpdate(modifiedPartyInfoCaptor.capture());
         final NodeInfo modified = modifiedPartyInfoCaptor.getValue();
 
         assertThat(modified.getUrl()).isEqualTo(url);
@@ -457,7 +460,7 @@ public class PartyInfoResourceTest {
 
         assertThat(modified.getParties()).isEmpty();
 
-        verify(partyInfoService).getCurrent();
+        verify(discovery).getCurrent();
     }
 
     @Test
@@ -519,7 +522,7 @@ public class PartyInfoResourceTest {
         assertThat(capturedUUIDs.get(0)).isNotEqualTo(capturedUUIDs.get(1));
 
         // other verifications
-        verify(partyInfoService).onUpdate(any(NodeInfo.class));
+        verify(discovery).onUpdate(any(NodeInfo.class));
         verify(partyInfoParser).from(payload);
         verify(enclave).defaultPublicKey();
         verify(payloadEncoder, times(2)).encode(encodedPayload);
