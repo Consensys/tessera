@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
@@ -36,7 +37,7 @@ public class PartyInfoBroadcasterTest {
 
     private PartyInfoParser partyInfoParser;
 
-    private PartyInfoBroadcaster partyInfoPoller;
+    private PartyInfoBroadcaster partyInfoBroadcaster;
 
     private P2pClient p2pClient;
 
@@ -44,8 +45,11 @@ public class PartyInfoBroadcasterTest {
 
     private PartyStore partyStore;
 
+    private Set<NodeUri> connectedNodes;
+
     @Before
     public void setUp() {
+        this.connectedNodes = new HashSet<>();
         this.discovery = mock(Discovery.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.p2pClient = mock(P2pClient.class);
@@ -60,7 +64,7 @@ public class PartyInfoBroadcasterTest {
 
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
 
-        this.partyInfoPoller = new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor,partyStore);
+        this.partyInfoBroadcaster = new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor,partyStore,connectedNodes);
     }
 
     @After
@@ -78,11 +82,12 @@ public class PartyInfoBroadcasterTest {
         when(discovery.getCurrent()).thenReturn(partyInfo);
         when(p2pClient.sendPartyInfo(TARGET_URL,DATA)).thenReturn(true);
 
-        partyInfoPoller.run();
+        partyInfoBroadcaster.run();
         verify(partyStore).getParties();
         verify(discovery).getCurrent();
         verify(partyInfoParser).to(any(PartyInfo.class));
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
+        assertThat(connectedNodes).containsExactly(NodeUri.create(TARGET_URL));
     }
 
     @Test
@@ -97,11 +102,13 @@ public class PartyInfoBroadcasterTest {
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
         when(p2pClient.sendPartyInfo(OWN_URL,DATA)).thenReturn(true);
 
-        partyInfoPoller.run();
+        partyInfoBroadcaster.run();
 
         verify(partyStore).getParties();
         verify(partyInfoParser).to(any(PartyInfo.class));
         verify(discovery).getCurrent();
+        assertThat(connectedNodes).isEmpty();
+
     }
 
     @Test
@@ -115,7 +122,7 @@ public class PartyInfoBroadcasterTest {
         doReturn(partyInfo).when(discovery).getCurrent();
         doThrow(UnsupportedOperationException.class).when(p2pClient).sendPartyInfo(TARGET_URL, DATA);
 
-        final Throwable throwable = catchThrowable(partyInfoPoller::run);
+        final Throwable throwable = catchThrowable(partyInfoBroadcaster::run);
 
         assertThat(throwable).isNull();
 
@@ -140,11 +147,30 @@ public class PartyInfoBroadcasterTest {
             .thenThrow(completionException);
 
         String uriData = "http://castalia.com";
+        connectedNodes.add(NodeUri.create(uriData));
 
-        partyInfoPoller.pollSingleParty(uriData,"somebytes".getBytes());
+        partyInfoBroadcaster.pollSingleParty(uriData,"somebytes".getBytes());
 
         verify(discovery).onDisconnect(URI.create(uriData));
         verify(partyStore).remove(URI.create(uriData));
+        verify(p2pClient).sendPartyInfo(anyString(),any(byte[].class));
+        assertThat(connectedNodes).isEmpty();
+
+    }
+
+    @Test
+    public void jaxRsProcessingExceptionBeforeRemoteNodeHasConnected() {
+        ProcessingException processingException = new ProcessingException("OUCH");
+        CompletionException completionException = new CompletionException(processingException);
+
+        when(p2pClient.sendPartyInfo(anyString(),any(byte[].class)))
+            .thenThrow(completionException);
+
+        String uriData = "http://castalia.com";
+
+        partyInfoBroadcaster.pollSingleParty(uriData,"somebytes".getBytes());
+
+        verify(discovery).onDisconnect(URI.create(uriData));
         verify(p2pClient).sendPartyInfo(anyString(),any(byte[].class));
 
     }
