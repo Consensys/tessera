@@ -1,7 +1,6 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
@@ -45,11 +44,9 @@ public class PartyInfoBroadcasterTest {
 
     private PartyStore partyStore;
 
-    private Set<NodeUri> connectedNodes;
 
     @Before
     public void setUp() {
-        this.connectedNodes = new HashSet<>();
         this.discovery = mock(Discovery.class);
         this.partyInfoParser = mock(PartyInfoParser.class);
         this.p2pClient = mock(P2pClient.class);
@@ -64,7 +61,7 @@ public class PartyInfoBroadcasterTest {
 
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
 
-        this.partyInfoBroadcaster = new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor,partyStore,connectedNodes);
+        this.partyInfoBroadcaster = new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor,partyStore);
     }
 
     @After
@@ -83,11 +80,11 @@ public class PartyInfoBroadcasterTest {
         when(p2pClient.sendPartyInfo(TARGET_URL,DATA)).thenReturn(true);
 
         partyInfoBroadcaster.run();
-        verify(partyStore).getParties();
+        verify(partyStore,times(2)).getParties();
         verify(discovery).getCurrent();
+        verify(discovery).onCreate();
         verify(partyInfoParser).to(any(PartyInfo.class));
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
-        assertThat(connectedNodes).containsExactly(NodeUri.create(TARGET_URL));
     }
 
     @Test
@@ -104,10 +101,10 @@ public class PartyInfoBroadcasterTest {
 
         partyInfoBroadcaster.run();
 
-        verify(partyStore).getParties();
+        verify(partyStore,times(2)).getParties();
         verify(partyInfoParser).to(any(PartyInfo.class));
         verify(discovery).getCurrent();
-        assertThat(connectedNodes).isEmpty();
+        verify(discovery).onCreate();
 
     }
 
@@ -126,10 +123,11 @@ public class PartyInfoBroadcasterTest {
 
         assertThat(throwable).isNull();
 
-        verify(partyStore).getParties();
+        verify(partyStore,times(2)).getParties();
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
         verify(p2pClient).sendPartyInfo(TARGET_URL_2, DATA);
         verify(discovery).getCurrent();
+        verify(discovery).onCreate();
         verify(partyInfoParser).to(any(PartyInfo.class));
     }
 
@@ -143,19 +141,20 @@ public class PartyInfoBroadcasterTest {
         ProcessingException processingException = new ProcessingException("OUCH");
         CompletionException completionException = new CompletionException(processingException);
 
+
         when(p2pClient.sendPartyInfo(anyString(),any(byte[].class)))
             .thenThrow(completionException);
 
-        String uriData = "http://castalia.com";
-        connectedNodes.add(NodeUri.create(uriData));
+        String uriData = "http://georgecowley.com/";
+
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create(uriData)));
 
         partyInfoBroadcaster.pollSingleParty(uriData,"somebytes".getBytes());
 
         verify(discovery).onDisconnect(URI.create(uriData));
         verify(partyStore).remove(URI.create(uriData));
         verify(p2pClient).sendPartyInfo(anyString(),any(byte[].class));
-        assertThat(connectedNodes).isEmpty();
-
+        verify(partyStore).getParties();
     }
 
     @Test
@@ -171,7 +170,7 @@ public class PartyInfoBroadcasterTest {
         partyInfoBroadcaster.pollSingleParty(uriData,"somebytes".getBytes());
 
         verify(p2pClient).sendPartyInfo(anyString(),any(byte[].class));
-        assertThat(connectedNodes).isEmpty();
+        verify(partyStore).getParties();
 
     }
 }

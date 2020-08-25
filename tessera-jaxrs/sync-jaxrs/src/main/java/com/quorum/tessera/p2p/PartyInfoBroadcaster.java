@@ -13,9 +13,7 @@ import javax.ws.rs.ProcessingException;
 import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -38,10 +36,8 @@ public class PartyInfoBroadcaster implements Runnable {
 
     private final PartyStore partyStore;
 
-    private final Set<NodeUri> connectedNodes;
-
     public PartyInfoBroadcaster(final P2pClient p2pClient) {
-        this(Discovery.getInstance(), PartyInfoParser.create(), p2pClient, Executors.newCachedThreadPool(),PartyStore.getInstance(),ConcurrentHashMap.newKeySet());
+        this(Discovery.getInstance(), PartyInfoParser.create(), p2pClient, Executors.newCachedThreadPool(),PartyStore.getInstance());
     }
 
     public PartyInfoBroadcaster(
@@ -49,14 +45,12 @@ public class PartyInfoBroadcaster implements Runnable {
             final PartyInfoParser partyInfoParser,
             final P2pClient p2pClient,
             final Executor executor,
-            final PartyStore partyStore,
-            final Set<NodeUri> connectedNodes) {
+            final PartyStore partyStore) {
         this.discovery = Objects.requireNonNull(discovery);
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
         this.p2pClient = Objects.requireNonNull(p2pClient);
         this.executor = Objects.requireNonNull(executor);
         this.partyStore = Objects.requireNonNull(partyStore);
-        this.connectedNodes = Objects.requireNonNull(connectedNodes);
     }
 
     /**
@@ -74,6 +68,10 @@ public class PartyInfoBroadcaster implements Runnable {
     @Override
     public void run() {
         LOGGER.info("Started PartyInfo polling round");
+
+        if(partyStore.getParties().isEmpty()) {
+            discovery.onCreate();
+        }
 
         final NodeInfo storedNodeInfo = discovery.getCurrent();
         final NodeInfo nodeInfo = NodeInfo.Builder.from(storedNodeInfo)
@@ -110,8 +108,6 @@ public class PartyInfoBroadcaster implements Runnable {
         final NodeUri nodeUri = NodeUri.create(url);
         CompletableFuture.runAsync(() -> {
             p2pClient.sendPartyInfo(url, encodedPartyInfo);
-            connectedNodes.add(nodeUri);
-
         }, executor)
                 .exceptionally(
                         ex -> {
@@ -122,10 +118,9 @@ public class PartyInfoBroadcaster implements Runnable {
                             LOGGER.warn("Failed to connect to node {}, due to {}", url, cause.getMessage());
                             LOGGER.debug(null, cause);
                             if(ProcessingException.class.isInstance(cause)) {
-                                if(connectedNodes.contains(nodeUri)) {
+                                if(partyStore.getParties().contains(nodeUri.asURI())) {
                                     discovery.onDisconnect(URI.create(url));
                                     partyStore.remove(URI.create(url));
-                                    connectedNodes.remove(nodeUri);
                                 }
                             }
                             return null;
