@@ -59,6 +59,7 @@ public class Main {
             RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
 
             com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
+            Discovery.getInstance().onCreate();
 
             LOGGER.debug("Creating service locator");
             ServiceLocator serviceLocator = ServiceLocator.create();
@@ -69,8 +70,6 @@ public class Main {
             LOGGER.debug("Created {} services", services.size());
 
             services.forEach(o -> LOGGER.debug("Service : {}", o));
-
-            Discovery.getInstance().onCreate();
 
             runWebServer(config);
 
