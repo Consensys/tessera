@@ -33,6 +33,7 @@ enum DefaultNetworkStore implements NetworkStore {
 
     @Override
     public Stream<ActiveNode> getActiveNodes() {
+        LOGGER.debug("Fetching active nodes {}",activeNodes);
         return activeNodes.stream();
     }
 

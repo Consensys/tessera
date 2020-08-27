@@ -5,9 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Collectors;
 
 enum SimplePartyStore implements PartyStore {
 
@@ -19,6 +21,10 @@ enum SimplePartyStore implements PartyStore {
 
     @Override
     public Set<URI> getParties() {
+        LOGGER.debug("Fetching parties {}",parties.stream()
+            .map(Objects::toString)
+            .collect(Collectors.joining(",")));
+
         return Set.copyOf(parties);
     }
 

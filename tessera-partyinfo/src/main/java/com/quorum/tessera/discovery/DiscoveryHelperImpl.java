@@ -6,6 +6,8 @@ import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Party;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.version.ApiVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DiscoveryHelperImpl implements DiscoveryHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryHelperImpl.class);
 
     private Enclave enclave;
 
@@ -46,12 +50,15 @@ public class DiscoveryHelperImpl implements DiscoveryHelper {
             .map(Party::new)
             .collect(Collectors.toSet());
 
-        return NodeInfo.Builder.create()
+        NodeInfo nodeInfo = NodeInfo.Builder.create()
             .withParties(parties)
             .withRecipients(recipients)
             .withUrl(nodeUri.asString())
             .withSupportedApiVersions(ApiVersion.versions())
             .build();
+
+        LOGGER.debug("Built nodeinfo {}",nodeInfo);
+        return nodeInfo;
     }
 
     @Override

@@ -89,6 +89,7 @@ public class PartyInfoBroadcaster implements Runnable {
 
         LOGGER.debug("Contacting following peers with PartyInfo: {}", partyInfo.getParties());
 
+        LOGGER.debug("Sending party info {}",nodeInfo);
         nodeInfo.getParties().stream()
                 .map(Party::getUrl)
                 .map(NodeUri::create)
@@ -107,21 +108,24 @@ public class PartyInfoBroadcaster implements Runnable {
     protected void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
         final NodeUri nodeUri = NodeUri.create(url);
         CompletableFuture.runAsync(() -> {
+            LOGGER.debug("Sending party info to {}",nodeUri.asString());
             p2pClient.sendPartyInfo(url, encodedPartyInfo);
+            LOGGER.debug("Sent party info to {}",nodeUri.asString());
         }, executor)
                 .exceptionally(
                         ex -> {
+
                             Throwable cause = Optional.of(ex)
                                 .map(Throwable::getCause)
                                 .orElse(ex);
 
                             LOGGER.warn("Failed to connect to node {}, due to {}", url, cause.getMessage());
-                            LOGGER.debug(null, cause);
+                            LOGGER.debug("Send failure exception", cause);
                             if(ProcessingException.class.isInstance(cause)) {
-                                if(partyStore.getParties().contains(nodeUri.asURI())) {
+                                //if(partyStore.getParties().contains(nodeUri.asURI())) {
                                     discovery.onDisconnect(URI.create(url));
                                     partyStore.remove(URI.create(url));
-                                }
+                               // }
                             }
                             return null;
                         });
