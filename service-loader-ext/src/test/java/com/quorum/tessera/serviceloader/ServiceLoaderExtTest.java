@@ -1,9 +1,9 @@
 package com.quorum.tessera.serviceloader;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ServiceLoader;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -16,13 +16,8 @@ public class ServiceLoaderExtTest {
     private ServiceLoaderExt<SampleService> sampleServiceServiceLoader;
 
     @Before
-    public void beforeTest() throws Exception {
+    public void beforeTest() {
         sampleServiceServiceLoader = ServiceLoaderExt.load(SampleService.class);
-    }
-
-    @After
-    public void afterTest() {
-
     }
 
     @Test
@@ -62,17 +57,35 @@ public class ServiceLoaderExtTest {
 
     @Test
     public void singletonAnnotatedClassIsAlwaysTheSame() {
-
-        Predicate<java.util.ServiceLoader.Provider> findSingletonProviders = p -> p.type() == SingletonSampleService.class;
+        Predicate<ServiceLoader.Provider<SampleService>> findSingletonProviders = p -> p.type() == SingletonSampleService.class;
 
         SampleService firstResult = sampleServiceServiceLoader.stream()
             .filter(findSingletonProviders)
-            .map(java.util.ServiceLoader.Provider::get)
+            .map(ServiceLoader.Provider::get)
             .findAny().get();
 
         SampleService secondResult = sampleServiceServiceLoader.stream()
             .filter(findSingletonProviders)
-            .map(java.util.ServiceLoader.Provider::get)
+            .map(ServiceLoader.Provider::get)
+            .findAny().get();
+
+        assertThat(firstResult).isSameAs(secondResult);
+    }
+
+    @Test
+    public void singletonAnnotatedClassIsAlwaysTheSameBetweenLoaders() {
+        Predicate<ServiceLoader.Provider<SampleService>> findSingletonProviders = p -> p.type() == SingletonSampleService.class;
+
+        SampleService firstResult = sampleServiceServiceLoader
+            .stream()
+            .filter(findSingletonProviders)
+            .map(ServiceLoader.Provider::get)
+            .findAny().get();
+
+        SampleService secondResult = ServiceLoaderExt.load(SampleService.class)
+            .stream()
+            .filter(findSingletonProviders)
+            .map(ServiceLoader.Provider::get)
             .findAny().get();
 
         assertThat(firstResult).isSameAs(secondResult);
@@ -80,25 +93,23 @@ public class ServiceLoaderExtTest {
 
     @Test
     public void nonSingletonClasses() {
-
-        Predicate<java.util.ServiceLoader.Provider> findSingletonProviders = p -> p.type() == SampleServiceImpl.class;
+        Predicate<ServiceLoader.Provider<SampleService>> findSingletonProviders = p -> p.type() == SampleServiceImpl.class;
 
         SampleService firstResult = sampleServiceServiceLoader.stream()
             .filter(findSingletonProviders)
-            .map(java.util.ServiceLoader.Provider::get)
+            .map(ServiceLoader.Provider::get)
             .findAny().get();
 
         SampleService secondResult = sampleServiceServiceLoader.stream()
             .filter(findSingletonProviders)
-            .map(java.util.ServiceLoader.Provider::get)
+            .map(ServiceLoader.Provider::get)
             .findAny().get();
 
         assertThat(firstResult).isNotSameAs(secondResult);
-
     }
 
     @Test
-    public void loadWithClassloader() throws Exception {
+    public void loadWithClassloader() {
         ClassLoader classLoader = mock(ClassLoader.class);
 
         ServiceLoaderExt<SampleService> result = ServiceLoaderExt.load(SampleService.class, classLoader);
@@ -106,7 +117,7 @@ public class ServiceLoaderExtTest {
     }
 
     @Test
-    public void loadWithModuleLayer() throws Exception {
+    public void loadWithModuleLayer() {
         ServiceLoaderExt<SampleService> result = ServiceLoaderExt.load(ModuleLayer.empty(),SampleService.class);
         assertThat(result).isNotNull();
     }

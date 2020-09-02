@@ -7,31 +7,31 @@ import java.util.stream.Stream;
 
 public final class ServiceLoaderExt<S> {
 
-    private final java.util.ServiceLoader<S> serviceLoader;
+    private final ServiceLoader<S> serviceLoader;
 
-    private ServiceLoaderExt(java.util.ServiceLoader<S> serviceLoader) {
+    private ServiceLoaderExt(ServiceLoader<S> serviceLoader) {
         this.serviceLoader = serviceLoader;
     }
 
     public static <S> ServiceLoaderExt<S> load(Class<S> service, ClassLoader loader) {
-        return new ServiceLoaderExt<>(java.util.ServiceLoader.load(service, loader));
+        return new ServiceLoaderExt<>(ServiceLoader.load(service, loader));
     }
 
     public static <S> ServiceLoaderExt<S> load(Class<S> service) {
-        return new ServiceLoaderExt<>(java.util.ServiceLoader.load(service));
+        return new ServiceLoaderExt<>(ServiceLoader.load(service));
     }
 
-    public static <S> ServiceLoaderExt loadInstalled(Class<S> service) {
-        return new ServiceLoaderExt(java.util.ServiceLoader.loadInstalled(service));
+    public static <S> ServiceLoaderExt<S> loadInstalled(Class<S> service) {
+        return new ServiceLoaderExt<>(ServiceLoader.loadInstalled(service));
     }
 
     public static <S> ServiceLoaderExt<S> load(ModuleLayer layer, Class<S> service) {
-        return new ServiceLoaderExt<>(java.util.ServiceLoader.load(layer, service));
+        return new ServiceLoaderExt<>(ServiceLoader.load(layer, service));
     }
 
     public Optional<S> findFirst() {
         return serviceLoader.stream()
-            .map(java.util.ServiceLoader.Provider::get)
+            .map(ServiceLoader.Provider::get)
             .findFirst();
     }
 
@@ -41,23 +41,23 @@ public final class ServiceLoaderExt<S> {
 
     public void forEach(Consumer<? super S> action) {
         stream()
-            .map(java.util.ServiceLoader.Provider::get)
+            .map(ServiceLoader.Provider::get)
             .forEach(action);
     }
 
     public Spliterator<S> spliterator() {
         return stream()
-            .map(java.util.ServiceLoader.Provider::get)
+            .map(ServiceLoader.Provider::get)
             .spliterator();
     }
 
     public Iterator<S> iterator() {
         return stream()
-            .map(java.util.ServiceLoader.Provider::get)
+            .map(ServiceLoader.Provider::get)
             .iterator();
     }
 
-    public Stream<java.util.ServiceLoader.Provider<S>> stream() {
+    public Stream<ServiceLoader.Provider<S>> stream() {
         return serviceLoader.stream()
             .map(ProviderExt::new);
     }
@@ -68,7 +68,7 @@ public final class ServiceLoaderExt<S> {
 
         private static Object instance;
 
-        private ProviderExt(ServiceLoader.Provider<S> provider) {
+        private ProviderExt(final ServiceLoader.Provider<S> provider) {
             this.provider = Objects.requireNonNull(provider);
         }
 
