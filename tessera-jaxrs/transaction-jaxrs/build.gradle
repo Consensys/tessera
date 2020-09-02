@@ -19,6 +19,7 @@ dependencies {
     compile 'javax.persistence:javax.persistence-api'
     compile "javax.activation:javax.activation-api"
     compile "com.sun.mail:javax.mail"
+    compile 'org.glassfish:javax.json:1.1.2'
     compile project(':encryption:encryption-api')
 
     testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"

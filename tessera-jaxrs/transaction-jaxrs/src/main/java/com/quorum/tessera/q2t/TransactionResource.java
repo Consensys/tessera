@@ -19,7 +19,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -57,10 +56,7 @@ public class TransactionResource {
     @Path("send")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response send(
-            @ApiParam(name = "sendRequest", required = true) @NotNull @Valid @PrivacyValid
-                    final SendRequest sendRequest)
-            throws UnsupportedEncodingException {
+    public Response send(@ApiParam(name = "sendRequest", required = true) @NotNull @Valid @PrivacyValid final SendRequest sendRequest) {
 
         Base64.Decoder base64Decoder = Base64.getDecoder();
 
@@ -119,7 +115,7 @@ public class TransactionResource {
 
         final URI location =
                 UriBuilder.fromPath("transaction")
-                        .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8.toString()))
+                        .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8))
                         .build();
 
         return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(sendResponse).build();
@@ -136,8 +132,7 @@ public class TransactionResource {
     @Produces(TEXT_PLAIN)
     public Response sendSignedTransaction(
             @HeaderParam("c11n-to") final String recipientKeys,
-            @Valid @NotNull @Size(min = 1) final byte[] signedTransaction)
-            throws UnsupportedEncodingException {
+            @Valid @NotNull @Size(min = 1) final byte[] signedTransaction) {
 
         final List<PublicKey> recipients =
                 Stream.ofNullable(recipientKeys)
@@ -166,7 +161,7 @@ public class TransactionResource {
 
         URI location =
                 UriBuilder.fromPath("transaction")
-                        .path(URLEncoder.encode(encodedTransactionHash, StandardCharsets.UTF_8.toString()))
+                        .path(URLEncoder.encode(encodedTransactionHash, StandardCharsets.UTF_8))
                         .build();
 
         // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
@@ -184,8 +179,7 @@ public class TransactionResource {
     @Produces(APPLICATION_JSON)
     public Response sendSignedTransaction(
             @ApiParam(name = "sendSignedRequest", required = true) @NotNull @Valid @PrivacyValid
-                    final SendSignedRequest sendSignedRequest)
-            throws UnsupportedEncodingException {
+                    final SendSignedRequest sendSignedRequest) {
 
         final List<PublicKey> recipients =
                 Optional.ofNullable(sendSignedRequest.getTo())
@@ -229,7 +223,7 @@ public class TransactionResource {
 
         URI location =
                 UriBuilder.fromPath("transaction")
-                        .path(URLEncoder.encode(endcodedTransactionHash, StandardCharsets.UTF_8.toString()))
+                        .path(URLEncoder.encode(endcodedTransactionHash, StandardCharsets.UTF_8))
                         .build();
 
         SendResponse sendResponse = new SendResponse();
@@ -250,8 +244,7 @@ public class TransactionResource {
     public Response sendRaw(
             @HeaderParam("c11n-from") @Valid @ValidBase64 final String sender,
             @HeaderParam("c11n-to") final String recipientKeys,
-            @NotNull @Size(min = 1) @Valid final byte[] payload)
-            throws UnsupportedEncodingException {
+            @NotNull @Size(min = 1) @Valid final byte[] payload) {
 
         final PublicKey senderKey =
                 Optional.ofNullable(sender)
@@ -293,7 +286,7 @@ public class TransactionResource {
 
         URI location =
                 UriBuilder.fromPath("transaction")
-                        .path(URLEncoder.encode(encodedTransactionHash, StandardCharsets.UTF_8.toString()))
+                        .path(URLEncoder.encode(encodedTransactionHash, StandardCharsets.UTF_8))
                         .build();
 
         // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
