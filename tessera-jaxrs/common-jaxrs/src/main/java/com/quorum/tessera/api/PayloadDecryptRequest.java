@@ -1,44 +1,54 @@
 package com.quorum.tessera.api;
 
+import com.quorum.tessera.config.adapters.MapAdapter;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.enclave.RecipientBox;
 import com.quorum.tessera.enclave.TxHash;
-import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 
-import javax.xml.bind.annotation.XmlMimeType;
-import java.util.ArrayList;
-import java.util.Collections;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PayloadDecryptRequest {
 
+    @XmlElement
     @XmlMimeType("base64Binary")
     private byte[] senderKey;
 
+    @XmlElement
     @XmlMimeType("base64Binary")
     private byte[] cipherText;
 
+    @XmlElement
     @XmlMimeType("base64Binary")
     private byte[] cipherTextNonce;
 
+    @XmlElement
     @XmlMimeType("base64Binary")
     private List<byte[]> recipientBoxes;
 
+    @XmlElement
     @XmlMimeType("base64Binary")
     private byte[] recipientNonce;
 
+    @XmlElement
+    @XmlElementWrapper
     @XmlMimeType("base64Binary")
     private List<byte[]> recipientKeys;
 
+    @XmlElement
     private int privacyMode;
 
-    @XmlMimeType("base64Binary")
-    private Map<byte[], byte[]> affectedContractTransactions;
+    @XmlElement
+    @XmlJavaTypeAdapter(MapAdapter.class)
+    private Map<String, String> affectedContractTransactions;
 
+    @XmlElement
     @XmlMimeType("base64Binary")
     private byte[] execHash;
 
@@ -98,11 +108,11 @@ public class PayloadDecryptRequest {
         this.privacyMode = privacyMode;
     }
 
-    public Map<byte[], byte[]> getAffectedContractTransactions() {
+    public Map<String, String> getAffectedContractTransactions() {
         return affectedContractTransactions;
     }
 
-    public void setAffectedContractTransactions(Map<byte[], byte[]> affectedContractTransactions) {
+    public void setAffectedContractTransactions(final Map<String, String> affectedContractTransactions) {
         this.affectedContractTransactions = affectedContractTransactions;
     }
 
@@ -110,14 +120,15 @@ public class PayloadDecryptRequest {
         return execHash;
     }
 
-    public void setExecHash(byte[] execHash) {
+    public void setExecHash(final byte[] execHash) {
         this.execHash = execHash;
     }
 
     public EncodedPayload toEncodedPayload() {
+        Base64.Decoder decoder = Base64.getDecoder();
         final Map<TxHash, byte[]> affectedTxns = affectedContractTransactions.entrySet()
             .stream()
-            .collect(Collectors.toMap(e -> TxHash.from(e.getKey()), Map.Entry::getValue));
+            .collect(Collectors.toMap(e -> TxHash.from(decoder.decode(e.getKey())), e -> decoder.decode(e.getValue())));
 
         return EncodedPayload.Builder.create()
             .withSenderKey(PublicKey.from(senderKey))

@@ -2,11 +2,12 @@ package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.*;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.RecipientBox;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
+import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,12 +37,12 @@ public class EncodedPayloadResource {
 
     private final EncodedPayloadManager encodedPayloadManager;
 
-    private final Enclave enclave;
+    private final TransactionManager transactionManager;
 
     public EncodedPayloadResource(final EncodedPayloadManager encodedPayloadManager,
-                                  final Enclave enclave) {
+                                  final TransactionManager transactionManager) {
         this.encodedPayloadManager = Objects.requireNonNull(encodedPayloadManager);
-        this.enclave = Objects.requireNonNull(enclave);
+        this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
     @POST
@@ -60,7 +61,7 @@ public class EncodedPayloadResource {
             Optional.ofNullable(sendRequest.getFrom())
                 .map(base64Decoder::decode)
                 .map(PublicKey::from)
-                .orElseGet(enclave::defaultPublicKey);
+                .orElseGet(transactionManager::defaultPublicKey);
 
         final List<PublicKey> recipientList =
             Stream.of(sendRequest)
@@ -97,9 +98,22 @@ public class EncodedPayloadResource {
 
         final EncodedPayload encodedPayload = encodedPayloadManager.create(request);
 
-        final PayloadEncryptResponse response = PayloadEncryptResponse.Builder.from(encodedPayload).build();
+        final Map<String, String> affectedContractTransactionMap =
+            encodedPayload.getAffectedContractTransactions().entrySet()
+                .stream()
+                .collect(Collectors.toMap(e -> e.getKey().encodeToBase64(), e -> Base64.getEncoder().encodeToString(e.getValue().getData())));
+        final PayloadEncryptResponse response = new PayloadEncryptResponse();
+        response.setSenderKey(encodedPayload.getSenderKey().getKeyBytes());
+        response.setCipherText(encodedPayload.getCipherText());
+        response.setCipherTextNonce(encodedPayload.getCipherTextNonce().getNonceBytes());
+        response.setRecipientBoxes(encodedPayload.getRecipientBoxes().stream().map(RecipientBox::getData).collect(Collectors.toList()));
+        response.setRecipientNonce(encodedPayload.getRecipientNonce().getNonceBytes());
+        response.setRecipientKeys(encodedPayload.getRecipientKeys().stream().map(PublicKey::getKeyBytes).collect(Collectors.toList()));
+        response.setPrivacyMode(encodedPayload.getPrivacyMode().getPrivacyFlag());
+        response.setAffectedContractTransactions(affectedContractTransactionMap);
+        response.setExecHash(encodedPayload.getExecHash());
 
-        return Response.ok(response).build();
+        return Response.ok(response).type(APPLICATION_JSON).build();
     }
 
     @POST
