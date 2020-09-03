@@ -23,12 +23,10 @@ public class SimplePartyStoreTest {
     public void addReadAndRemove() {
 
         SimplePartyStore simplePartyStore = SimplePartyStore.INSTANCE;
-        URI uri = URI.create("http://walterlindrum.com");
+        URI uri = URI.create("http://walterlindrum.com/");
         simplePartyStore.store(uri);
         assertThat(simplePartyStore.getParties()).containsExactly(uri);
         simplePartyStore.remove(uri);
         assertThat(simplePartyStore.getParties()).isEmpty();
-
     }
-
 }
