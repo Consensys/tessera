@@ -6,13 +6,12 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
 import javax.ws.rs.ProcessingException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executor;
@@ -43,7 +42,6 @@ public class PartyInfoBroadcasterTest {
 
     private PartyStore partyStore;
 
-
     @Before
     public void setUp() {
         this.discovery = mock(Discovery.class);
@@ -51,69 +49,66 @@ public class PartyInfoBroadcasterTest {
         this.p2pClient = mock(P2pClient.class);
         this.executor = mock(Executor.class);
         this.partyStore = mock(PartyStore.class);
+
         doAnswer(
             (InvocationOnMock invocation) -> {
                 ((Runnable) invocation.getArguments()[0]).run();
                 return null;
-            }
-        ).when(executor).execute(any(Runnable.class));
+            })
+            .when(executor)
+            .execute(any(Runnable.class));
 
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
 
-        this.partyInfoBroadcaster = new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor,partyStore);
+        this.partyInfoBroadcaster =
+            new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor, partyStore);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(discovery, partyInfoParser, p2pClient,partyStore);
+        verifyNoMoreInteractions(discovery, partyInfoParser, p2pClient, partyStore);
     }
 
     @Test
     public void run() {
-        final NodeInfo partyInfo = NodeInfo.Builder.create()
-            .withUrl(OWN_URL)
-            .withParties(Set.of(new Party(TARGET_URL)))
-            .build();
+        final NodeInfo partyInfo = NodeInfo.Builder.create().withUrl(OWN_URL).build();
 
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create(OWN_URL), URI.create(TARGET_URL)));
         when(discovery.getCurrent()).thenReturn(partyInfo);
-        when(p2pClient.sendPartyInfo(TARGET_URL,DATA)).thenReturn(true);
+        when(p2pClient.sendPartyInfo(TARGET_URL, DATA)).thenReturn(true);
 
         partyInfoBroadcaster.run();
-        verify(partyStore,times(2)).getParties();
+        verify(partyStore).loadFromConfigIfEmpty();
+        verify(partyStore).getParties();
         verify(discovery).getCurrent();
-        verify(discovery).onCreate();
         verify(partyInfoParser).to(any(PartyInfo.class));
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
     }
 
     @Test
     public void testWhenURLIsOwn() {
-        final NodeInfo partyInfo = NodeInfo.Builder.create()
-            .withUrl(OWN_URL)
-            .withParties(Set.of(new Party(OWN_URL)))
-            .build();
+        final NodeInfo partyInfo = NodeInfo.Builder.create().withUrl(OWN_URL).build();
 
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create(OWN_URL)));
 
         when(discovery.getCurrent()).thenReturn(partyInfo);
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
-        when(p2pClient.sendPartyInfo(OWN_URL,DATA)).thenReturn(true);
+        when(p2pClient.sendPartyInfo(OWN_URL, DATA)).thenReturn(true);
 
         partyInfoBroadcaster.run();
 
-        verify(partyStore,times(2)).getParties();
+        verify(partyStore).loadFromConfigIfEmpty();
+        verify(partyStore).getParties();
         verify(partyInfoParser).to(any(PartyInfo.class));
         verify(discovery).getCurrent();
-        verify(discovery).onCreate();
-
     }
 
     @Test
     public void exceptionThrowByPostDoesntBubble() {
-        final Set<Party> parties = new HashSet<>(Arrays.asList(new Party(TARGET_URL), new Party(TARGET_URL_2)));
-        final NodeInfo partyInfo = NodeInfo.Builder.create()
-            .withUrl(OWN_URL)
-            .withParties(parties)
-            .build();
+
+        final NodeInfo partyInfo = NodeInfo.Builder.create().withUrl(OWN_URL).build();
+
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create(TARGET_URL), URI.create(TARGET_URL_2)));
 
         doReturn(partyInfo).when(discovery).getCurrent();
         doThrow(UnsupportedOperationException.class).when(p2pClient).sendPartyInfo(TARGET_URL, DATA);
@@ -122,11 +117,11 @@ public class PartyInfoBroadcasterTest {
 
         assertThat(throwable).isNull();
 
-        verify(partyStore,times(2)).getParties();
+        verify(partyStore).loadFromConfigIfEmpty();
+        verify(partyStore).getParties();
         verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
         verify(p2pClient).sendPartyInfo(TARGET_URL_2, DATA);
         verify(discovery).getCurrent();
-        verify(discovery).onCreate();
         verify(partyInfoParser).to(any(PartyInfo.class));
     }
 
@@ -140,36 +135,31 @@ public class PartyInfoBroadcasterTest {
         ProcessingException processingException = new ProcessingException("OUCH");
         CompletionException completionException = new CompletionException(processingException);
 
-
-        when(p2pClient.sendPartyInfo(anyString(),any(byte[].class)))
-            .thenThrow(completionException);
+        when(p2pClient.sendPartyInfo(anyString(), any(byte[].class))).thenThrow(completionException);
 
         String uriData = "http://georgecowley.com/";
 
         when(partyStore.getParties()).thenReturn(Set.of(URI.create(uriData)));
 
-        partyInfoBroadcaster.pollSingleParty(uriData,"somebytes".getBytes());
+        partyInfoBroadcaster.pollSingleParty(uriData, "somebytes".getBytes());
 
         verify(discovery).onDisconnect(URI.create(uriData));
         verify(partyStore).remove(URI.create(uriData));
-        verify(p2pClient).sendPartyInfo(anyString(),any(byte[].class));
-        verify(partyStore).getParties();
+        verify(p2pClient).sendPartyInfo(anyString(), any(byte[].class));
     }
 
-    @Test
-    public void jaxRsProcessingExceptionBeforeRemoteNodeHasConnected() {
-        ProcessingException processingException = new ProcessingException("OUCH");
-        CompletionException completionException = new CompletionException(processingException);
+    @Ignore
+    public void repopulateIfPartyStoreIsEmpty() {
+        final NodeInfo partyInfo = NodeInfo.Builder.create().withUrl(OWN_URL).build();
 
-        when(p2pClient.sendPartyInfo(anyString(),any(byte[].class)))
-            .thenThrow(completionException);
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create(OWN_URL), URI.create(TARGET_URL)));
+        when(discovery.getCurrent()).thenReturn(partyInfo);
+        when(p2pClient.sendPartyInfo(TARGET_URL, DATA)).thenReturn(true);
 
-        String uriData = "http://castalia.com";
-
-        partyInfoBroadcaster.pollSingleParty(uriData,"somebytes".getBytes());
-
-        verify(p2pClient).sendPartyInfo(anyString(),any(byte[].class));
-        verify(partyStore).getParties();
-
+        partyInfoBroadcaster.run();
+        verify(partyStore, times(3)).getParties();
+        verify(discovery).getCurrent();
+        verify(partyInfoParser).to(any(PartyInfo.class));
+        verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
     }
 }

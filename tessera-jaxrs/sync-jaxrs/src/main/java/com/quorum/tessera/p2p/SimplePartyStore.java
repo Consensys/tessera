@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p;
 
 
+import com.quorum.tessera.discovery.NodeUri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,7 +10,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Collectors;
 
 enum SimplePartyStore implements PartyStore {
 
@@ -21,24 +21,24 @@ enum SimplePartyStore implements PartyStore {
 
     @Override
     public Set<URI> getParties() {
-        LOGGER.debug("Fetching parties {}",parties.stream()
-            .map(Objects::toString)
-            .collect(Collectors.joining(",")));
+        LOGGER.debug("Fetching parties {}",Objects.toString(parties));
 
         return Set.copyOf(parties);
     }
 
     @Override
     public PartyStore store(URI party) {
-        LOGGER.debug("Store {}",party);
-        parties.add(party);
+        NodeUri nodeUri = NodeUri.create(party);
+        LOGGER.debug("Store {}",nodeUri.asURI());
+        parties.add(nodeUri.asURI());
         return this;
     }
 
     @Override
     public PartyStore remove(URI party) {
-        LOGGER.debug("Remove {}",party);
-        parties.remove(party);
+        NodeUri nodeUri = NodeUri.create(party);
+        LOGGER.debug("Remove {}",nodeUri.asURI());
+        parties.remove(nodeUri.asURI());
         return this;
     }
 }

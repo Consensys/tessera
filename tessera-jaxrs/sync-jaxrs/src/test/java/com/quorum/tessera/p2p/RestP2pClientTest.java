@@ -5,18 +5,13 @@ import com.quorum.tessera.jaxrs.mock.MockWebTarget;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.json.Json;
-import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -45,12 +40,12 @@ public class RestP2pClientTest {
 
         List<Entity> postedEntities = new ArrayList<>();
         doAnswer(
-                        (invocation) -> {
-                            postedEntities.add(invocation.getArgument(0));
-                            return response;
-                        })
-                .when(m)
-                .post(any(Entity.class));
+            (invocation) -> {
+                postedEntities.add(invocation.getArgument(0));
+                return response;
+            })
+            .when(m)
+            .post(any(Entity.class));
 
         String targetUrl = "http://somedomain.com";
         byte[] data = "Some Data".getBytes();
@@ -90,57 +85,6 @@ public class RestP2pClientTest {
         assertThat(outcome).isFalse();
     }
 
-    @Test
-    public void getParties() {
-        MockWebTarget webTarget = restClient.getWebTarget();
-        Invocation.Builder m = webTarget.getMockInvocationBuilder();
-
-        JsonObject responseData = Json.createObjectBuilder()
-            .add("peers",Json.createArrayBuilder()
-                .add(Json.createObjectBuilder().add("url","http://hughfitzcairn.com")))
-            .build();
 
 
-        Response response = mock(Response.class);
-        when(response.getStatus()).thenReturn(200);
-        when(response.readEntity(JsonObject.class)).thenReturn(responseData);
-
-        when(m.get()).thenReturn(response);
-
-        URI uri = URI.create("http://hughfitzcairn.com/");
-        Stream<Party> result = client.getParties(uri);
-
-        assertThat(result).containsExactly(new Party(uri.toString()));
-
-
-    }
-
-    @Test
-    public void getPartiesError() {
-        MockWebTarget webTarget = restClient.getWebTarget();
-        Invocation.Builder m = webTarget.getMockInvocationBuilder();
-
-        Response response = mock(Response.class);
-        when(response.getStatus()).thenReturn(500);
-
-        Response.StatusType statusType = mock(Response.StatusType.class);
-        when(statusType.getReasonPhrase()).thenReturn("OUCH");
-        when(response.getStatusInfo()).thenReturn(statusType);
-
-        when(m.get()).thenReturn(response);
-
-        URI uri = URI.create("http://hughfitzcairn.com/");
-
-        try {
-            client.getParties(uri);
-            failBecauseExceptionWasNotThrown(RuntimeException.class);
-        } catch (RuntimeException ex) {
-            assertThat(ex)
-                .isExactlyInstanceOf(RuntimeException.class)
-                .hasMessageContaining("OUCH");
-        }
-
-
-
-    }
 }

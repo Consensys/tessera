@@ -22,8 +22,7 @@ public class DiscoveryHelperImpl implements DiscoveryHelper {
 
     private final NetworkStore networkStore;
 
-
-    public DiscoveryHelperImpl(NetworkStore networkStore,Enclave enclave) {
+    public DiscoveryHelperImpl(NetworkStore networkStore, Enclave enclave) {
         this.networkStore = networkStore;
         this.enclave = enclave;
     }
@@ -33,50 +32,39 @@ public class DiscoveryHelperImpl implements DiscoveryHelper {
 
         final URI uri = RuntimeContext.getInstance().getP2pServerUri();
         final NodeUri nodeUri = NodeUri.create(uri);
-        final List<ActiveNode> activeNodes = networkStore.getActiveNodes()
-            .collect(Collectors.toList());
+        final List<ActiveNode> activeNodes = networkStore.getActiveNodes().collect(Collectors.toList());
 
-        Set<Recipient> recipients = activeNodes.stream()
-            //  .filter(a -> a.getUri().equals(nodeUri))
-            .filter(a -> !a.getKeys().isEmpty())
-            .flatMap(a -> a.getKeys().stream()
-                .map(k -> Recipient.of(k,a.getUri().asString()))
-            ).collect(Collectors.toSet());
+        Set<Recipient> recipients =
+            activeNodes.stream()
+                .filter(a -> !a.getKeys().isEmpty())
+                .flatMap(a -> a.getKeys().stream().map(k -> Recipient.of(k, a.getUri().asString())))
+                .collect(Collectors.toSet());
 
-        NodeInfo nodeInfo = NodeInfo.Builder.create()
-            .withRecipients(recipients)
-            .withUrl(nodeUri.asString())
-            .withSupportedApiVersions(ApiVersion.versions())
-            .build();
+        NodeInfo nodeInfo =
+            NodeInfo.Builder.create()
+                .withRecipients(recipients)
+                .withUrl(nodeUri.asString())
+                .withSupportedApiVersions(ApiVersion.versions())
+                .build();
 
-        LOGGER.debug("Built nodeinfo {}",nodeInfo);
+        LOGGER.debug("Built nodeinfo {}", nodeInfo);
         return nodeInfo;
     }
 
     @Override
     public void onCreate() {
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
-        runtimeContext.getPeers().stream()
-            .map(NodeUri::create)
-            .map(ActiveNode.Builder.create()::withUri)
-            .map(ActiveNode.Builder::build)
-            .forEach(networkStore::store);
 
-        final NodeUri nodeUri = Optional.of(runtimeContext)
-            .map(RuntimeContext::getP2pServerUri)
-            .map(NodeUri::create)
-            .get();
+        final NodeUri nodeUri =
+            Optional.of(runtimeContext).map(RuntimeContext::getP2pServerUri).map(NodeUri::create).get();
 
-        ActiveNode thisNode = ActiveNode.Builder.create()
-            .withUri(nodeUri)
-            .withKeys(enclave.getPublicKeys())
-            .withUri(nodeUri)
-            .withSupportedVersions(ApiVersion.versions())
-            .build();
+        ActiveNode thisNode =
+            ActiveNode.Builder.create()
+                .withUri(nodeUri)
+                .withKeys(enclave.getPublicKeys())
+                .withSupportedVersions(ApiVersion.versions())
+                .build();
 
         networkStore.store(thisNode);
     }
-
 }
-
-
