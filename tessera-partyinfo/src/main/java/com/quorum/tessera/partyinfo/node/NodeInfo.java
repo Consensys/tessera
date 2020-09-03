@@ -7,8 +7,8 @@ import java.util.stream.Collectors;
 
 public interface NodeInfo {
 
-    default Map<PublicKey,String> getRecipientsAsMap() {
-        return getRecipients().stream().collect(Collectors.toUnmodifiableMap(Recipient::getKey,Recipient::getUrl));
+    default Map<PublicKey, String> getRecipientsAsMap() {
+        return getRecipients().stream().collect(Collectors.toUnmodifiableMap(Recipient::getKey, Recipient::getUrl));
     }
 
     Set<Recipient> getRecipients();
@@ -25,14 +25,13 @@ public interface NodeInfo {
 
         private Set<String> supportedApiVersions = new HashSet<>();
 
-
         public Builder withRecipients(Collection<Recipient> recipients) {
             this.recipients.addAll(recipients);
             return this;
         }
 
         public Builder withSupportedApiVersions(Collection<String> supportedApiVersions) {
-            if(Objects.nonNull(supportedApiVersions)) {
+            if (Objects.nonNull(supportedApiVersions)) {
                 this.supportedApiVersions = Set.copyOf(supportedApiVersions);
             }
             return this;
@@ -40,7 +39,7 @@ public interface NodeInfo {
 
         public NodeInfo build() {
 
-            Objects.requireNonNull(url,"URL is required");
+            Objects.requireNonNull(url, "URL is required");
 
             return new NodeInfo() {
 
@@ -61,20 +60,13 @@ public interface NodeInfo {
 
                 @Override
                 public String toString() {
-                    return String.format("NodeInfo[url: %s ,recipients: %s]",url,recipients);
+                    return String.format("NodeInfo[url: %s ,recipients: %s]", url, recipients);
                 }
             };
         }
 
         public static Builder create() {
             return new Builder() {};
-        }
-
-        public static Builder from(NodeInfo nodeInfo) {
-            return create()
-                .withUrl(nodeInfo.getUrl())
-                .withRecipients(nodeInfo.getRecipients())
-                .withSupportedApiVersions(nodeInfo.supportedApiVersions());
         }
 
         private Builder() {}
@@ -84,5 +76,4 @@ public interface NodeInfo {
             return this;
         }
     }
-
 }

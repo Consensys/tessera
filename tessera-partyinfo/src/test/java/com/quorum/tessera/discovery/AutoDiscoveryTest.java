@@ -39,8 +39,6 @@ public class AutoDiscoveryTest {
 
         String uri = "http://mynode.com";
 
-        //when(runtimeContext.getP2pServerUri()).thenReturn(URI.create(uri));
-
         PublicKey key = mock(PublicKey.class);
         Recipient recipient = Recipient.of(key,uri);
         Recipient other = Recipient.of(mock(PublicKey.class),"http://othernode.com");

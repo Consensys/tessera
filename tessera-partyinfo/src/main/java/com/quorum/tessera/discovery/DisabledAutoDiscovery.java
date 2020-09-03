@@ -29,14 +29,14 @@ public class DisabledAutoDiscovery implements Discovery {
             throw new AutoDiscoveryDisabledException(String.format("%s is not a known peer", nodeInfo.getUrl()));
         }
 
-        NodeUri callerNodeUri = NodeUri.create(nodeInfo.getUrl());
+        final NodeUri callerNodeUri = NodeUri.create(nodeInfo.getUrl());
 
-        Set<PublicKey> keys = nodeInfo.getRecipients().stream()
+        final Set<PublicKey> keys = nodeInfo.getRecipients().stream()
             .filter(r -> NodeUri.create(r.getUrl()).equals(callerNodeUri))
             .map(Recipient::getKey)
             .collect(Collectors.toSet());
 
-        ActiveNode activeNode = ActiveNode.Builder.create()
+        final ActiveNode activeNode = ActiveNode.Builder.create()
             .withUri(callerNodeUri)
             .withSupportedVersions(nodeInfo.supportedApiVersions())
             .withKeys(keys)

@@ -111,6 +111,44 @@ public class DisabledAutoDiscoveryTest {
     }
 
     @Test
+    public void onUpdateIgnoreKeysNotOwnedBySender() {
+        String uri = "http://renoraynes.com";
+
+        PublicKey key = mock(PublicKey.class);
+        PublicKey key2 = mock(PublicKey.class);
+        Recipient recipient = Recipient.of(key, uri);
+        Recipient other = Recipient.of(key2, "http://othernode.com");
+        List<Recipient> recipients = List.of(recipient, other);
+
+        NodeInfo nodeInfo =
+            NodeInfo.Builder.create()
+                .withUrl(uri)
+                .withRecipients(recipients)
+                .withSupportedApiVersions(List.of("Two", "Fifty"))
+                .build();
+
+        List<ActiveNode> storedNodes = new ArrayList<>();
+        doAnswer(
+            invocation -> {
+                storedNodes.add(invocation.getArgument(0));
+                return null;
+            })
+            .when(networkStore)
+            .store(any(ActiveNode.class));
+
+        discovery.onUpdate(nodeInfo);
+
+        assertThat(storedNodes).hasSize(1);
+
+        ActiveNode result = storedNodes.iterator().next();
+
+        assertThat(result.getUri()).isEqualTo(NodeUri.create(uri));
+        assertThat(result.getKeys()).containsExactly(key);
+        assertThat(result.getSupportedVersions()).containsExactlyInAnyOrder("Two", "Fifty");
+        verify(networkStore).store(any(ActiveNode.class));
+    }
+
+    @Test
     public void onDisconnect() {
         URI uri = URI.create("http://onDisconnect.com");
         List<NodeUri> results = new ArrayList<>();
