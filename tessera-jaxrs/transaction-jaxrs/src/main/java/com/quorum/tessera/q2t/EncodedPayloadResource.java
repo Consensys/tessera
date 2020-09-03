@@ -5,6 +5,7 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.enclave.RecipientBox;
+import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -126,14 +127,33 @@ public class EncodedPayloadResource {
     ) {
         LOGGER.info("Decrypting custom transaction");
 
+        final Base64.Decoder decoder = Base64.getDecoder();
+        final Map<TxHash, byte[]> affectedTxns = request.getAffectedContractTransactions()
+            .entrySet()
+            .stream()
+            .collect(Collectors.toMap(e -> TxHash.from(decoder.decode(e.getKey())), e -> decoder.decode(e.getValue())));
+
+        final EncodedPayload requestAsPayload = EncodedPayload.Builder.create()
+            .withSenderKey(PublicKey.from(request.getSenderKey()))
+            .withCipherText(request.getCipherText())
+            .withCipherTextNonce(request.getCipherTextNonce())
+            .withRecipientBoxes(request.getRecipientBoxes())
+            .withRecipientNonce(request.getRecipientNonce())
+            .withRecipientKeys(request.getRecipientKeys().stream().map(PublicKey::from).collect(Collectors.toList()))
+            .withPrivacyFlag(request.getPrivacyMode())
+            .withAffectedContractTransactions(affectedTxns)
+            .withExecHash(request.getExecHash())
+            .build();
+
         final com.quorum.tessera.transaction.ReceiveResponse response
-            = encodedPayloadManager.decrypt(request.toEncodedPayload(), null);
+            = encodedPayloadManager.decrypt(requestAsPayload, null);
 
         final ReceiveResponse receiveResponse = new ReceiveResponse();
         receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
         receiveResponse.setAffectedContractTransactions(
-            response.getAffectedTransactions().stream()
+            response.getAffectedTransactions()
+                .stream()
                 .map(MessageHash::getHashBytes)
                 .map(Base64.getEncoder()::encodeToString)
                 .toArray(String[]::new)

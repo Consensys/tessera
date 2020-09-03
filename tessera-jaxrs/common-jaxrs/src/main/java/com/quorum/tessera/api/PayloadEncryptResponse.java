@@ -32,7 +32,6 @@ public class PayloadEncryptResponse {
     private byte[] recipientNonce;
 
     @XmlElement
-    @XmlElementWrapper
     @XmlMimeType("base64Binary")
     private List<byte[]> recipientKeys;
 

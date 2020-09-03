@@ -1,16 +1,11 @@
 package com.quorum.tessera.api;
 
 import com.quorum.tessera.config.adapters.MapAdapter;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.TxHash;
-import com.quorum.tessera.encryption.PublicKey;
 
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -123,24 +118,4 @@ public class PayloadDecryptRequest {
     public void setExecHash(final byte[] execHash) {
         this.execHash = execHash;
     }
-
-    public EncodedPayload toEncodedPayload() {
-        Base64.Decoder decoder = Base64.getDecoder();
-        final Map<TxHash, byte[]> affectedTxns = affectedContractTransactions.entrySet()
-            .stream()
-            .collect(Collectors.toMap(e -> TxHash.from(decoder.decode(e.getKey())), e -> decoder.decode(e.getValue())));
-
-        return EncodedPayload.Builder.create()
-            .withSenderKey(PublicKey.from(senderKey))
-            .withCipherText(cipherText)
-            .withCipherTextNonce(cipherTextNonce)
-            .withRecipientBoxes(recipientBoxes)
-            .withRecipientNonce(recipientNonce)
-            .withRecipientKeys(recipientKeys.stream().map(PublicKey::from).collect(Collectors.toList()))
-            .withPrivacyFlag(privacyMode)
-            .withAffectedContractTransactions(affectedTxns)
-            .withExecHash(execHash)
-            .build();
-    }
-
 }

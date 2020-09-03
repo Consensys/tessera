@@ -196,11 +196,12 @@ public class EncodedPayload {
         }
 
         public EncodedPayload build() {
+
             Map<TxHash, SecurityHash> affectedTxns =
                     affectedContractTransactions.entrySet().stream()
                             .collect(
                                     Collectors.toUnmodifiableMap(
-                                        Map.Entry::getKey, e -> SecurityHash.from(e.getValue())));
+                                            e -> e.getKey(), e -> SecurityHash.from(e.getValue())));
 
             List<RecipientBox> recipientBoxes =
                     this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());

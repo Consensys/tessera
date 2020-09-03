@@ -60,13 +60,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
         final PublicKey recipientKey =
             Optional.ofNullable(maybeDefaultRecipient)
-                .orElse(
-                    searchForRecipientKey(payload)
-                        .orElseThrow(
-                            () ->
-                                new RecipientKeyNotFoundException(
-                                    "No suitable recipient keys found to decrypt payload for : "
-                                        + customPayloadHash)));
+                .orElseGet(() -> searchForRecipientKey(payload).orElseThrow(() -> new RecipientKeyNotFoundException("No suitable recipient keys found to decrypt payload for " + customPayloadHash)));
 
         final byte[] decryptedTransactionData = enclave.unencryptTransaction(payload, recipientKey);
 
