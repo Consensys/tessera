@@ -28,8 +28,6 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
     public boolean hasSynced() {
         LOGGER.trace("hasSynced {}", this);
 
-
-
         List<Party> parties = partyHelper.getParties().collect(Collectors.toList());
 
         Boolean[] results = new Boolean[parties.size()];
@@ -46,29 +44,26 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
             if (response.getStatus() == 200) {
                 final JsonObject result = response.readEntity(JsonObject.class);
 
-                JsonWriterFactory jsonGeneratorFactory = Json.createWriterFactory(Map.of(JsonGenerator.PRETTY_PRINTING, true));
+                JsonWriterFactory jsonGeneratorFactory =
+                    Json.createWriterFactory(Map.of(JsonGenerator.PRETTY_PRINTING, true));
                 StringWriter stringWriter = new StringWriter();
                 JsonWriter jsonWriter = jsonGeneratorFactory.createWriter(stringWriter);
-                try(jsonWriter) {
+                try (jsonWriter) {
                     jsonWriter.writeObject(result);
-                    LOGGER.debug("Reponse from node {} is {}",p.getAlias(),stringWriter.toString());
+                    LOGGER.debug("Reponse from node {} is {}", p.getAlias(), stringWriter.toString());
                 }
 
+                final JsonArray keys = result.getJsonArray("keys");
+                final long contactedUrlCount =
+                    keys.stream()
+                        .map(JsonValue::asJsonObject)
+                        .map(o -> o.getString("url"))
+                        .collect(Collectors.toSet())
+                        .size();
 
-                final JsonArray peers = result.getJsonArray("peers");
-                peers.stream().map(JsonValue::asJsonObject).map(o -> o.getString("url")).forEach(v -> {
-                    LOGGER.debug("Found Peer {}",v);
-                });
+                LOGGER.debug("Found {} peers of {} on {}", contactedUrlCount, parties.size(), p.getAlias());
 
-
-                final long peerCount =
-                    peers.stream()
-                                .map(val -> (JsonObject) val)
-                                .count();
-
-                LOGGER.debug("Found {} peers of {} on {}", peerCount, parties.size(), p.getAlias());
-
-                results[i] = (peerCount == parties.size());
+                results[i] = (contactedUrlCount == parties.size());
             } else {
                 results[i] = false;
             }
