@@ -56,7 +56,7 @@ public class EncodedPayloadResource {
         @ApiParam(value = "Request details containing the data to encrypt and recipients to encrypt for", name = "sendRequest", required = true)
         @NotNull @Valid final SendRequest sendRequest
     ) {
-        LOGGER.info("Encrypting message without saving to database");
+        LOGGER.info("Received request for custom payload encryption");
 
         final PublicKey sender =
             Optional.ofNullable(sendRequest.getFrom())
@@ -82,20 +82,15 @@ public class EncodedPayloadResource {
         final byte[] execHash =
             Optional.ofNullable(sendRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
 
-        final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendRequest.getPrivacyFlag());
-
         final com.quorum.tessera.transaction.SendRequest request =
             com.quorum.tessera.transaction.SendRequest.Builder.create()
                 .withRecipients(recipientList)
                 .withSender(sender)
                 .withPayload(sendRequest.getPayload())
                 .withExecHash(execHash)
-                .withPrivacyMode(privacyMode)
+                .withPrivacyMode(PrivacyMode.fromFlag(sendRequest.getPrivacyFlag()))
                 .withAffectedContractTransactions(affectedTransactions)
                 .build();
-
-        LOGGER.debug("Sender key: {}", sender.encodeToBase64());
-        LOGGER.debug("Recipient list: {}", recipientList);
 
         final EncodedPayload encodedPayload = encodedPayloadManager.create(request);
 
@@ -125,7 +120,7 @@ public class EncodedPayloadResource {
         @ApiParam("Encrypted payload that this node should attempt to decrypt")
         @Valid @NotNull final PayloadDecryptRequest request
     ) {
-        LOGGER.info("Decrypting custom transaction");
+        LOGGER.info("Received request to decrypt custom transaction");
 
         final Base64.Decoder decoder = Base64.getDecoder();
         final Map<TxHash, byte[]> affectedTxns = request.getAffectedContractTransactions()

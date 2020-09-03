@@ -33,6 +33,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
     @Override
     public EncodedPayload create(final SendRequest request) {
         final PublicKey senderPublicKey = request.getSender();
+        LOGGER.debug("Sender for payload: {}", request.getSender().encodeToBase64());
 
         final Set<PublicKey> recipientSet = new HashSet<>();
         recipientSet.add(senderPublicKey);
@@ -40,13 +41,18 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
         recipientSet.addAll(enclave.getForwardingKeys());
 
         final List<PublicKey> recipientListNoDuplicate = new ArrayList<>(recipientSet);
+        LOGGER.debug("Recipients for payload: {}", recipientListNoDuplicate);
 
         final PrivacyMode privacyMode = request.getPrivacyMode();
+        LOGGER.debug("Privacy mode for payload: {}", request.getPrivacyMode());
+        LOGGER.debug("ExecHash for payload: {}", new String(request.getExecHash()));
 
         final List<AffectedTransaction> affectedContractTransactions =
             privacyHelper.findAffectedContractTransactionsFromSendRequest(request.getAffectedContractTransactions());
 
+        LOGGER.debug("Validating request against affected contracts");
         privacyHelper.validateSendRequest(privacyMode, recipientListNoDuplicate, affectedContractTransactions);
+        LOGGER.debug("Successful validation against affected contracts");
 
         return enclave.encryptPayload(
             request.getPayload(), senderPublicKey, recipientListNoDuplicate,
@@ -57,10 +63,12 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
     @Override
     public ReceiveResponse decrypt(final EncodedPayload payload, final PublicKey maybeDefaultRecipient) {
         final MessageHash customPayloadHash = messageHashFactory.createFromCipherText(payload.getCipherText());
+        LOGGER.debug("Decrypt request for custom message with hash {}", customPayloadHash);
 
         final PublicKey recipientKey =
             Optional.ofNullable(maybeDefaultRecipient)
                 .orElseGet(() -> searchForRecipientKey(payload).orElseThrow(() -> new RecipientKeyNotFoundException("No suitable recipient keys found to decrypt payload for " + customPayloadHash)));
+        LOGGER.debug("Decryption key found: {}", recipientKey.encodeToBase64());
 
         final byte[] decryptedTransactionData = enclave.unencryptTransaction(payload, recipientKey);
 

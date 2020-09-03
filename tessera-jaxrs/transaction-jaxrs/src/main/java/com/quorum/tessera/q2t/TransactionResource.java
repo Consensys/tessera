@@ -56,7 +56,9 @@ public class TransactionResource {
     @Path("send")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response send(@ApiParam(name = "sendRequest", required = true) @NotNull @Valid @PrivacyValid final SendRequest sendRequest) {
+    public Response send(
+        @ApiParam(name = "sendRequest", required = true) @NotNull @Valid @PrivacyValid final SendRequest sendRequest
+    ) {
 
         Base64.Decoder base64Decoder = Base64.getDecoder();
 
