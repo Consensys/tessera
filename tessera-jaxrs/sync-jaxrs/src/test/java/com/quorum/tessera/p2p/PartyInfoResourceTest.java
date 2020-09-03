@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
@@ -55,7 +56,8 @@ public class PartyInfoResourceTest {
         this.payloadEncoder = mock(PayloadEncoder.class);
         this.partyStore = mock(PartyStore.class);
         this.partyInfoResource =
-                new PartyInfoResource(discovery, partyInfoParser, restClient, enclave, payloadEncoder, true,partyStore);
+            new PartyInfoResource(
+                discovery, partyInfoParser, restClient, enclave, payloadEncoder, true, partyStore);
     }
 
     @After
@@ -67,30 +69,31 @@ public class PartyInfoResourceTest {
     public void partyInfoGet() {
 
         final String partyInfoJson =
-                "{\"url\":\"http://localhost:9001/\",\"peers\":[{\"url\":\"http://localhost:9006/\"},{\"url\":\"http://localhost:9005/\"}],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
+            "{\"url\":\"http://localhost:9001/\",\"peers\":[{\"url\":\"http://localhost:9006/\"},{\"url\":\"http://localhost:9005/\"}],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
 
-        final com.quorum.tessera.partyinfo.node.Party partyWithoutTimestamp = new com.quorum.tessera.partyinfo.node.Party("http://localhost:9006/");
-        final com.quorum.tessera.partyinfo.node.Party partyWithTimestamp = new com.quorum.tessera.partyinfo.node.Party("http://localhost:9005/");
-
-        NodeInfo partyInfo = NodeInfo.Builder.create()
-            .withUrl("http://localhost:9001/")
-            .withRecipients(List.of(
-                com.quorum.tessera.partyinfo.node.Recipient.of(
-                    PublicKey.from(
-                        Base64.getDecoder()
-                            .decode(
-                                "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
-                    "http://localhost:9001/"),
-                com.quorum.tessera.partyinfo.node.Recipient.of(
-                    PublicKey.from(
-                        Base64.getDecoder()
-                            .decode(
-                                "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")),
-                    "http://localhost:9002/")))
-            .withParties(List.of(partyWithoutTimestamp,partyWithTimestamp))
-            .build();
+        NodeInfo partyInfo =
+            NodeInfo.Builder.create()
+                .withUrl("http://localhost:9001/")
+                .withRecipients(
+                    List.of(
+                        com.quorum.tessera.partyinfo.node.Recipient.of(
+                            PublicKey.from(
+                                Base64.getDecoder()
+                                    .decode(
+                                        "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
+                            "http://localhost:9001/"),
+                        com.quorum.tessera.partyinfo.node.Recipient.of(
+                            PublicKey.from(
+                                Base64.getDecoder()
+                                    .decode(
+                                        "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")),
+                            "http://localhost:9002/")))
+                .build();
 
         when(discovery.getCurrent()).thenReturn(partyInfo);
+
+        when(partyStore.getParties())
+            .thenReturn(Set.of(URI.create("http://localhost:9006/"), URI.create("http://localhost:9005/")));
 
         final Response response = partyInfoResource.getPartyInfo();
 
@@ -108,8 +111,7 @@ public class PartyInfoResourceTest {
             .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("keys"));
         assertThat(actualJsonObject.getJsonArray("peers"))
             .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("peers"));
-        assertThat(actualJsonObject.getString("url"))
-            .isEqualTo(expectedJsonObject.getString("url"));
+        assertThat(actualJsonObject.getString("url")).isEqualTo(expectedJsonObject.getString("url"));
 
         verify(discovery).getCurrent();
     }
@@ -143,13 +145,13 @@ public class PartyInfoResourceTest {
 
         List<String> uuidList = new ArrayList<>();
         doAnswer(
-                        (invocation) -> {
-                            byte[] d = invocation.getArgument(0);
-                            uuidList.add(new String(d));
-                            return encodedPayload;
-                        })
-                .when(enclave)
-                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            (invocation) -> {
+                byte[] d = invocation.getArgument(0);
+                uuidList.add(new String(d));
+                return encodedPayload;
+            })
+            .when(enclave)
+            .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -165,8 +167,6 @@ public class PartyInfoResourceTest {
         doAnswer((invocation) -> uuidList.get(0)).when(response).readEntity(String.class);
 
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
-
-
 
         Response result = partyInfoResource.partyInfo(payload, List.of("v1,v2"));
 
@@ -184,9 +184,7 @@ public class PartyInfoResourceTest {
         final NodeInfo nodeInfo = argCaptor.getValue();
         assertThat(nodeInfo).isNotNull();
         assertThat(nodeInfo.getUrl()).isEqualTo(url);
-        assertThat(nodeInfo.supportedApiVersions())
-            .containsExactlyInAnyOrder("v1","v2");
-
+        assertThat(nodeInfo.supportedApiVersions()).containsExactlyInAnyOrder("v1", "v2");
     }
 
     @Test
@@ -241,8 +239,7 @@ public class PartyInfoResourceTest {
 
     @Test
     public void constructWithMinimalArgs() {
-        PartyInfoResource instance =
-                new PartyInfoResource(discovery, partyInfoParser, restClient, enclave, true);
+        PartyInfoResource instance = new PartyInfoResource(discovery, partyInfoParser, restClient, enclave, true);
         assertThat(instance).isNotNull();
     }
 
@@ -353,7 +350,7 @@ public class PartyInfoResourceTest {
         when(invocationBuilder.post(any(Entity.class))).thenReturn(response);
 
         try {
-            partyInfoResource.partyInfo(payload, List.of("v1","v2"));
+            partyInfoResource.partyInfo(payload, List.of("v1", "v2"));
             failBecauseExceptionWasNotThrown(SecurityException.class);
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
@@ -402,10 +399,10 @@ public class PartyInfoResourceTest {
         when(webTarget.request()).thenReturn(invocationBuilder);
 
         when(invocationBuilder.post(any(Entity.class)))
-                .thenThrow(new UncheckedIOException(new IOException("GURU meditation")));
+            .thenThrow(new UncheckedIOException(new IOException("GURU meditation")));
 
         try {
-            partyInfoResource.partyInfo(payload,null);
+            partyInfoResource.partyInfo(payload, null);
             failBecauseExceptionWasNotThrown(SecurityException.class);
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
@@ -419,7 +416,8 @@ public class PartyInfoResourceTest {
     @Test
     public void validationDisabledPassesAllKeysToStore() {
         this.partyInfoResource =
-                new PartyInfoResource(discovery, partyInfoParser, restClient, enclave, payloadEncoder, false,partyStore);
+            new PartyInfoResource(
+                discovery, partyInfoParser, restClient, enclave, payloadEncoder, false, partyStore);
 
         final byte[] payload = "Test message".getBytes();
 
@@ -427,9 +425,9 @@ public class PartyInfoResourceTest {
         final String otherurl = "http://www.randomaddress.com";
         final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
         final Set<Recipient> recipientList =
-                new HashSet<>(Arrays.asList(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl)));
+            new HashSet<>(Arrays.asList(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl)));
         final PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
-        final NodeInfo nodeInfo = NodeInfoUtil.from(partyInfo,null);
+        final NodeInfo nodeInfo = NodeInfoUtil.from(partyInfo, null);
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
         final byte[] serialisedData = "SERIALISED".getBytes();
 
@@ -456,9 +454,9 @@ public class PartyInfoResourceTest {
 
         Set<com.quorum.tessera.partyinfo.node.Recipient> updatedRecipients = modified.getRecipients();
         assertThat(updatedRecipients)
-                .containsExactlyInAnyOrder(com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, url), com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, otherurl));
-
-        assertThat(modified.getParties()).isEmpty();
+            .containsExactlyInAnyOrder(
+                com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, url),
+                com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, otherurl));
 
         verify(discovery).getCurrent();
     }
@@ -473,7 +471,7 @@ public class PartyInfoResourceTest {
 
         PartyInfo partyInfo = new PartyInfo(url, recipients, parties);
 
-        byte[] payload = new byte[]{};
+        byte[] payload = new byte[] {};
         when(partyInfoParser.from(payload)).thenReturn(partyInfo);
 
         when(enclave.defaultPublicKey()).thenReturn(PublicKey.from("defaultKey".getBytes()));
@@ -501,16 +499,18 @@ public class PartyInfoResourceTest {
         when(response.getStatus()).thenReturn(200);
         when(response.getEntity()).thenReturn("");
 
-        doAnswer(new Answer() {
-            private int i = 0;
+        doAnswer(
+            new Answer() {
+                private int i = 0;
 
-            public Object answer(InvocationOnMock invocation) {
-                String result = uuidList.get(i);
-                i++;
-                return result;
-            }
-        }).when(response).readEntity(String.class);
-
+                public Object answer(InvocationOnMock invocation) {
+                    String result = uuidList.get(i);
+                    i++;
+                    return result;
+                }
+            })
+            .when(response)
+            .readEntity(String.class);
 
         // the test
         partyInfoResource.partyInfo(payload, null);
