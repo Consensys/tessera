@@ -91,7 +91,7 @@ public class TestSuite extends Suite {
                         partyInfoSyncLatch.countDown();
                     });
 
-            if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
+            if (!partyInfoSyncLatch.await(5, TimeUnit.MINUTES)) {
 
                 Description de = getDescription();
                 notifier.fireTestFailure(new Failure(de, new IllegalStateException("Unable to sync party info nodes")));
