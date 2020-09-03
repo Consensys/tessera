@@ -19,6 +19,7 @@ public class DiscoveryTest {
     @Before
     public void onSetUp() {
         runtimeContext = RuntimeContext.getInstance();
+        MockDiscoveryHelper.reset();
     }
 
     @After
