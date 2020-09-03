@@ -26,6 +26,12 @@ import java.util.stream.Stream;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+/**
+ * The EncodedPayloadResource allows for manipulation of encrypted payloads
+ * without having extra functionality attached to it that one would get with
+ * the {@see TransactionResource}, such as savings payloads to database and
+ * distributing payloads to peers.
+ */
 @Api
 @Path("/encodedpayload")
 @Consumes(APPLICATION_JSON)
@@ -50,7 +56,7 @@ public class EncodedPayloadResource {
     @Path("create")
     @ApiOperation(value = "Send private transaction payload")
     @ApiResponses({
-        @ApiResponse(code = 200, response = SendResponse.class, message = "Send response"),
+        @ApiResponse(code = 200, response = PayloadEncryptResponse.class, message = "The encrypted payload, listing the recipient data needed to decrypt the payload."),
     })
     public Response createEncodedPayload(
         @ApiParam(value = "Request details containing the data to encrypt and recipients to encrypt for", name = "sendRequest", required = true)
@@ -98,6 +104,7 @@ public class EncodedPayloadResource {
             encodedPayload.getAffectedContractTransactions().entrySet()
                 .stream()
                 .collect(Collectors.toMap(e -> e.getKey().encodeToBase64(), e -> Base64.getEncoder().encodeToString(e.getValue().getData())));
+
         final PayloadEncryptResponse response = new PayloadEncryptResponse();
         response.setSenderKey(encodedPayload.getSenderKey().getKeyBytes());
         response.setCipherText(encodedPayload.getCipherText());
@@ -114,8 +121,8 @@ public class EncodedPayloadResource {
 
     @POST
     @Path("decrypt")
-    @ApiOperation(value = "Returns decrypted payload back to Quorum")
-    @ApiResponses({@ApiResponse(code = 200, response = ReceiveResponse.class, message = "Receive Response object")})
+    @ApiOperation(value = "Decrypts a given payload")
+    @ApiResponses({@ApiResponse(code = 200, response = ReceiveResponse.class, message = "The decrypted data with the exec hash and affected contracts")})
     public Response receive(
         @ApiParam("Encrypted payload that this node should attempt to decrypt")
         @Valid @NotNull final PayloadDecryptRequest request
