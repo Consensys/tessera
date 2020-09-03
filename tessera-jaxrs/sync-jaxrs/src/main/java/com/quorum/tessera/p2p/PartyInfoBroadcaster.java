@@ -4,8 +4,8 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.PartyInfoBuilder;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import com.quorum.tessera.partyinfo.node.Party;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
  * Polls every so often to all known nodes for any new discoverable nodes. This keeps all nodes up-to date and
@@ -37,15 +36,20 @@ public class PartyInfoBroadcaster implements Runnable {
     private final PartyStore partyStore;
 
     public PartyInfoBroadcaster(final P2pClient p2pClient) {
-        this(Discovery.getInstance(), PartyInfoParser.create(), p2pClient, Executors.newCachedThreadPool(),PartyStore.getInstance());
+        this(
+            Discovery.getInstance(),
+            PartyInfoParser.create(),
+            p2pClient,
+            Executors.newCachedThreadPool(),
+            PartyStore.getInstance());
     }
 
     public PartyInfoBroadcaster(
-            final Discovery discovery,
-            final PartyInfoParser partyInfoParser,
-            final P2pClient p2pClient,
-            final Executor executor,
-            final PartyStore partyStore) {
+        final Discovery discovery,
+        final PartyInfoParser partyInfoParser,
+        final P2pClient p2pClient,
+        final Executor executor,
+        final PartyStore partyStore) {
         this.discovery = Objects.requireNonNull(discovery);
         this.partyInfoParser = Objects.requireNonNull(partyInfoParser);
         this.p2pClient = Objects.requireNonNull(p2pClient);
@@ -69,32 +73,27 @@ public class PartyInfoBroadcaster implements Runnable {
     public void run() {
         LOGGER.info("Started PartyInfo polling round");
 
-        if(partyStore.getParties().isEmpty()) {
-            discovery.onCreate();
-        }
+        partyStore.loadFromConfigIfEmpty();
 
-        final NodeInfo storedNodeInfo = discovery.getCurrent();
-        final NodeInfo nodeInfo = NodeInfo.Builder.from(storedNodeInfo)
-            .withParties(partyStore.getParties().stream()
-                .map(NodeUri::create)
-                .map(NodeUri::asString)
-                .map(Party::new)
-                .collect(Collectors.toList()))
-            .build();
+        final NodeInfo nodeInfo = discovery.getCurrent();
 
         final NodeUri ourUrl = NodeUri.create(nodeInfo.getUrl());
 
-        final PartyInfo partyInfo = PartyInfo.from(nodeInfo);
+        final PartyInfo partyInfo =
+            PartyInfoBuilder.create()
+                .withUri(nodeInfo.getUrl())
+                .withRecipients(nodeInfo.getRecipientsAsMap())
+                .build();
+
         final byte[] encodedPartyInfo = partyInfoParser.to(partyInfo);
 
         LOGGER.debug("Contacting following peers with PartyInfo: {}", partyInfo.getParties());
 
-        LOGGER.debug("Sending party info {}",nodeInfo);
-        nodeInfo.getParties().stream()
-                .map(Party::getUrl)
-                .map(NodeUri::create)
-                .filter(url -> !ourUrl.equals(url))
-                .forEach(url -> pollSingleParty(url.asString(), encodedPartyInfo));
+        LOGGER.debug("Sending party info {}", nodeInfo);
+        partyStore.getParties().stream()
+            .map(NodeUri::create)
+            .filter(url -> !ourUrl.equals(url))
+            .forEach(url -> pollSingleParty(url.asString(), encodedPartyInfo));
 
         LOGGER.info("Finished PartyInfo polling round");
     }
@@ -107,27 +106,24 @@ public class PartyInfoBroadcaster implements Runnable {
      */
     protected void pollSingleParty(final String url, final byte[] encodedPartyInfo) {
         final NodeUri nodeUri = NodeUri.create(url);
-        CompletableFuture.runAsync(() -> {
-            LOGGER.debug("Sending party info to {}",nodeUri.asString());
-            p2pClient.sendPartyInfo(url, encodedPartyInfo);
-            LOGGER.debug("Sent party info to {}",nodeUri.asString());
-        }, executor)
-                .exceptionally(
-                        ex -> {
+        CompletableFuture.runAsync(
+            () -> {
+                LOGGER.debug("Sending party info to {}", nodeUri.asString());
+                p2pClient.sendPartyInfo(url, encodedPartyInfo);
+                LOGGER.debug("Sent party info to {}", nodeUri.asString());
+            },
+            executor)
+            .exceptionally(
+                ex -> {
+                    Throwable cause = Optional.of(ex).map(Throwable::getCause).orElse(ex);
 
-                            Throwable cause = Optional.of(ex)
-                                .map(Throwable::getCause)
-                                .orElse(ex);
-
-                            LOGGER.warn("Failed to connect to node {}, due to {}", url, cause.getMessage());
-                            LOGGER.debug("Send failure exception", cause);
-                            if(ProcessingException.class.isInstance(cause)) {
-                                //if(partyStore.getParties().contains(nodeUri.asURI())) {
-                                    discovery.onDisconnect(URI.create(url));
-                                    partyStore.remove(URI.create(url));
-                               // }
-                            }
-                            return null;
-                        });
+                    LOGGER.warn("Failed to connect to node {}, due to {}", url, cause.getMessage());
+                    LOGGER.debug("Send failure exception", cause);
+                    if (ProcessingException.class.isInstance(cause)) {
+                        discovery.onDisconnect(URI.create(url));
+                        partyStore.remove(URI.create(url));
+                    }
+                    return null;
+                });
     }
 }

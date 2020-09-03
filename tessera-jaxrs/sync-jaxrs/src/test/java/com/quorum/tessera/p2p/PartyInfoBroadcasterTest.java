@@ -4,7 +4,6 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import com.quorum.tessera.partyinfo.node.Party;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

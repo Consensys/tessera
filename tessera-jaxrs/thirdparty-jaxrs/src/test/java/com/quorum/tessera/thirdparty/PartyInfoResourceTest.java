@@ -3,7 +3,6 @@ package com.quorum.tessera.thirdparty;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import com.quorum.tessera.partyinfo.node.Party;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import org.junit.After;
 import org.junit.Before;

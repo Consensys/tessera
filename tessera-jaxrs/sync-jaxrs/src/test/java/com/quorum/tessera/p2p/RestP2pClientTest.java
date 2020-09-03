@@ -2,7 +2,6 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.jaxrs.mock.MockClient;
 import com.quorum.tessera.jaxrs.mock.MockWebTarget;
-import com.quorum.tessera.partyinfo.node.Party;
 import org.junit.Before;
 import org.junit.Test;
 

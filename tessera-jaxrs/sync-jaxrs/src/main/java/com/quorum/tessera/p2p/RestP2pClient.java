@@ -2,7 +2,6 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.partyinfo.P2pClient;
-import com.quorum.tessera.partyinfo.node.Party;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

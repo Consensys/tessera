@@ -1,10 +1,13 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.context.RuntimeContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -47,6 +50,35 @@ public class PartyStoreFactoryTest {
     }
 
     @Test
+    public void loadFromConfigIfPartyStoreIsEmpty() {
+        when(partyStore.getParties()).thenReturn(Collections.emptySet());
+
+        partyStoreFactory.loadFromConfigIfEmpty();
+
+        verify(partyStore).getParties();
+        verify(partyStore).store(RuntimeContext.getInstance().getPeers().get(0));
+    }
+
+    @Test
+    public void loadFromConfigIfNoPeerPresentInPartyStore() {
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create("http://otherPeer.com/")));
+
+        partyStoreFactory.loadFromConfigIfEmpty();
+
+        verify(partyStore).getParties();
+        verify(partyStore).store(RuntimeContext.getInstance().getPeers().get(0));
+    }
+
+    @Test
+    public void doNotReloadFromConfigIfAtLeastOneConfiguredPeerPresentInPartyStore() {
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create("http://peer.com/")));
+
+        partyStoreFactory.loadFromConfigIfEmpty();
+
+        verify(partyStore).getParties();
+    }
+
+    @Test
     public void provider() {
         assertThat(PartyStoreFactory.provider()).isSameAs(SimplePartyStore.INSTANCE);
     }
@@ -55,5 +87,4 @@ public class PartyStoreFactoryTest {
     public void defaultConstructor() {
         assertThat(new PartyStoreFactory()).isNotNull();
     }
-
 }
