@@ -35,9 +35,10 @@ public class PartyInfoBuilder {
 
         String formattedUri = NodeUri.create(uri).asString();
         Set<Recipient> recipientSet =
-            recipients.entrySet().stream()
-                .map(e -> Recipient.of(e.getKey(), NodeUri.create(e.getValue()).asString()))
-                .collect(Collectors.toUnmodifiableSet());
+                recipients.entrySet().stream()
+                        .filter(e -> e.getValue().equalsIgnoreCase(uri))
+                        .map(e -> Recipient.of(e.getKey(), NodeUri.create(e.getValue()).asString()))
+                        .collect(Collectors.toUnmodifiableSet());
 
         Set<Party> partySet = recipients.values().stream().map(Party::new).collect(Collectors.toUnmodifiableSet());
 
