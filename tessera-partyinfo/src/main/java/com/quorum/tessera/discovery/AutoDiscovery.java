@@ -34,7 +34,6 @@ public class AutoDiscovery implements Discovery {
 
         final NodeInfo mergedNodeInfo = NodeInfo.Builder.from(currentNodeInfo)
             .withUrl(callerNodeUri.asString())
-            .withParties(nodeInfo.getParties())
             .withRecipients(nodeInfo.getRecipients())
             .withSupportedApiVersions(nodeInfo.supportedApiVersions())
             .build();

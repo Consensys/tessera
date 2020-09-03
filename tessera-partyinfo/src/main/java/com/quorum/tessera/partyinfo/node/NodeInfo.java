@@ -1,13 +1,15 @@
 package com.quorum.tessera.partyinfo.node;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import com.quorum.tessera.encryption.PublicKey;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public interface NodeInfo {
 
-    Set<Party> getParties();
+    default Map<PublicKey,String> getRecipientsAsMap() {
+        return getRecipients().stream().collect(Collectors.toUnmodifiableMap(Recipient::getKey,Recipient::getUrl));
+    }
 
     Set<Recipient> getRecipients();
 
@@ -19,16 +21,10 @@ public interface NodeInfo {
 
         private String url;
 
-        private final Set<Party> parties = new HashSet<>();
-
         private final Set<Recipient> recipients = new HashSet<>();
 
         private Set<String> supportedApiVersions = new HashSet<>();
 
-        public Builder withParties(Collection<Party> parties) {
-            this.parties.addAll(parties);
-            return this;
-        }
 
         public Builder withRecipients(Collection<Recipient> recipients) {
             this.recipients.addAll(recipients);
@@ -49,11 +45,6 @@ public interface NodeInfo {
             return new NodeInfo() {
 
                 @Override
-                public Set<Party> getParties() {
-                    return Set.copyOf(parties);
-                }
-
-                @Override
                 public Set<Recipient> getRecipients() {
                     return Set.copyOf(recipients);
                 }
@@ -70,7 +61,7 @@ public interface NodeInfo {
 
                 @Override
                 public String toString() {
-                    return String.format("NodeInfo[url: %s ,parties: %s, recipients: %s]",url, parties,recipients);
+                    return String.format("NodeInfo[url: %s ,recipients: %s]",url,recipients);
                 }
             };
         }
@@ -81,9 +72,8 @@ public interface NodeInfo {
 
         public static Builder from(NodeInfo nodeInfo) {
             return create()
-                .withRecipients(nodeInfo.getRecipients())
                 .withUrl(nodeInfo.getUrl())
-                .withParties(nodeInfo.getParties())
+                .withRecipients(nodeInfo.getRecipients())
                 .withSupportedApiVersions(nodeInfo.supportedApiVersions());
         }
 
@@ -94,6 +84,5 @@ public interface NodeInfo {
             return this;
         }
     }
-
 
 }

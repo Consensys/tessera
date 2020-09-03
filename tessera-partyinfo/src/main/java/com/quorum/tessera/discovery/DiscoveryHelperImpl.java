@@ -3,7 +3,6 @@ package com.quorum.tessera.discovery;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import com.quorum.tessera.partyinfo.node.Party;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.version.ApiVersion;
 import org.slf4j.Logger;
@@ -44,14 +43,7 @@ public class DiscoveryHelperImpl implements DiscoveryHelper {
                 .map(k -> Recipient.of(k,a.getUri().asString()))
             ).collect(Collectors.toSet());
 
-        Set<Party> parties = activeNodes.stream()
-            .map(ActiveNode::getUri)
-            .map(NodeUri::asString)
-            .map(Party::new)
-            .collect(Collectors.toSet());
-
         NodeInfo nodeInfo = NodeInfo.Builder.create()
-            .withParties(parties)
             .withRecipients(recipients)
             .withUrl(nodeUri.asString())
             .withSupportedApiVersions(ApiVersion.versions())
