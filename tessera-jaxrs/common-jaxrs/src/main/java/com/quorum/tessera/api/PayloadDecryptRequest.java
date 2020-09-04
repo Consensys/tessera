@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,7 +33,7 @@ public class PayloadDecryptRequest {
     @XmlElement
     @XmlMimeType("base64Binary")
     @ApiModelProperty(value = "The encrypted master key, one entry for each recipient", dataType = "string")
-    private List<byte[]> recipientBoxes;
+    private List<byte[]> recipientBoxes = Collections.emptyList();
 
     @XmlElement
     @XmlMimeType("base64Binary")
@@ -42,7 +43,7 @@ public class PayloadDecryptRequest {
     @XmlElement
     @XmlMimeType("base64Binary")
     @ApiModelProperty(value = "The recipient public keys", dataType = "string")
-    private List<byte[]> recipientKeys;
+    private List<byte[]> recipientKeys = Collections.emptyList();
 
     @XmlElement
     @ApiModelProperty(value = "The privacy mode of this transaction", allowableValues = "0, 1, 2")
@@ -51,12 +52,12 @@ public class PayloadDecryptRequest {
     @XmlElement
     @XmlJavaTypeAdapter(MapAdapter.class)
     @ApiModelProperty(value = "A list of contracts that are affected by the execution of this transaction", dataType = "string")
-    private Map<String, String> affectedContractTransactions;
+    private Map<String, String> affectedContractTransactions = Collections.emptyMap();
 
     @XmlElement
     @XmlMimeType("base64Binary")
     @ApiModelProperty(value = "The execution hash resulting from executing the decrypted payload as a private transaction", dataType = "string")
-    private byte[] execHash;
+    private byte[] execHash = new byte[0];
 
     public byte[] getSenderKey() {
         return senderKey;
