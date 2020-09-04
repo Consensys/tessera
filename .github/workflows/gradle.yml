@@ -85,7 +85,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
        java-version: 11
-    - run: ./gradlew :tests:acceptance-test:test -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class" --info
+    - run: ./gradlew :tests:acceptance-test:test -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class"
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
