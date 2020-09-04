@@ -1,9 +1,8 @@
 package com.quorum.tessera.thirdparty;
 
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import com.quorum.tessera.partyinfo.node.Party;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import org.junit.After;
 import org.junit.Before;
@@ -14,7 +13,6 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.ws.rs.core.Response;
 import java.io.StringReader;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 
@@ -23,35 +21,30 @@ import static org.mockito.Mockito.*;
 
 public class PartyInfoResourceTest {
 
-    private PartyInfoService partyInfoService;
+    private Discovery discovery;
 
     private PartyInfoResource partyInfoResource;
 
     @Before
     public void onSetup() {
-        this.partyInfoService = mock(PartyInfoService.class);
+        this.discovery = mock(Discovery.class);
 
-        this.partyInfoResource = new PartyInfoResource(partyInfoService);
+        this.partyInfoResource = new PartyInfoResource(discovery);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(partyInfoService);
+        verifyNoMoreInteractions(discovery);
     }
 
     @Test
     public void getPartyInfoKeys() {
 
         final String partyInfoJson =
-                "{\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
-
-        final Party partyWithoutTimestamp = new Party("http://localhost:9006/");
-        final Party partyWithTimestamp = new Party("http://localhost:9005/");
-        partyWithTimestamp.setLastContacted(Instant.parse("2019-01-02T15:03:22.875Z"));
+            "{\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
 
         final NodeInfo nodeInfo = NodeInfo.Builder.create()
             .withUrl("http://localhost:9001/")
-            .withParties(List.of(partyWithTimestamp, partyWithoutTimestamp))
             .withRecipients(List.of(
                 Recipient.of(
                     PublicKey.from(
@@ -60,14 +53,14 @@ public class PartyInfoResourceTest {
                                 "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")),
                     "http://localhost:9002/"),
                 Recipient.of(
-                PublicKey.from(
-                    Base64.getDecoder()
-                        .decode(
-                            "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
-                "http://localhost:9001/")))
+                    PublicKey.from(
+                        Base64.getDecoder()
+                            .decode(
+                                "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
+                    "http://localhost:9001/")))
             .build();
 
-        when(partyInfoService.getPartyInfo()).thenReturn(nodeInfo);
+        when(discovery.getCurrent()).thenReturn(nodeInfo);
 
         final Response response = partyInfoResource.getPartyInfoKeys();
 
@@ -85,6 +78,6 @@ public class PartyInfoResourceTest {
         assertThat(actualJsonObject.getJsonArray("keys"))
             .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("keys"));
 
-        verify(partyInfoService).getPartyInfo();
+        verify(discovery).getCurrent();
     }
 }

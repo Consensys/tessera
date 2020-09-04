@@ -1,12 +1,15 @@
 package com.quorum.tessera.partyinfo.node;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import com.quorum.tessera.encryption.PublicKey;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public interface NodeInfo {
 
-    Set<Party> getParties();
+    default Map<PublicKey, String> getRecipientsAsMap() {
+        return getRecipients().stream().collect(Collectors.toUnmodifiableMap(Recipient::getKey, Recipient::getUrl));
+    }
 
     Set<Recipient> getRecipients();
 
@@ -18,24 +21,17 @@ public interface NodeInfo {
 
         private String url;
 
-        private Set<Party> parties = Set.of();
+        private final Set<Recipient> recipients = new HashSet<>();
 
-        private Set<Recipient> recipients = Set.of();
-
-        private Set<String> supportedApiVersions = Set.of();
-
-        public Builder withParties(Collection<Party> parties) {
-            this.parties = Set.copyOf(parties);
-            return this;
-        }
+        private Set<String> supportedApiVersions = new HashSet<>();
 
         public Builder withRecipients(Collection<Recipient> recipients) {
-            this.recipients = Set.copyOf(recipients);
+            this.recipients.addAll(recipients);
             return this;
         }
 
         public Builder withSupportedApiVersions(Collection<String> supportedApiVersions) {
-            if(Objects.nonNull(supportedApiVersions)) {
+            if (Objects.nonNull(supportedApiVersions)) {
                 this.supportedApiVersions = Set.copyOf(supportedApiVersions);
             }
             return this;
@@ -43,28 +39,28 @@ public interface NodeInfo {
 
         public NodeInfo build() {
 
-            Objects.requireNonNull(url,"URL is required");
+            Objects.requireNonNull(url, "URL is required");
 
             return new NodeInfo() {
 
                 @Override
-                public Set<Party> getParties() {
-                    return parties;
-                }
-
-                @Override
                 public Set<Recipient> getRecipients() {
-                    return recipients;
+                    return Set.copyOf(recipients);
                 }
 
                 @Override
                 public Set<String> supportedApiVersions() {
-                    return supportedApiVersions;
+                    return Set.copyOf(supportedApiVersions);
                 }
 
                 @Override
                 public String getUrl() {
                     return url;
+                }
+
+                @Override
+                public String toString() {
+                    return String.format("NodeInfo[url: %s ,recipients: %s]", url, recipients);
                 }
             };
         }
@@ -80,6 +76,4 @@ public interface NodeInfo {
             return this;
         }
     }
-
-
 }

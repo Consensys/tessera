@@ -5,7 +5,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -32,7 +31,6 @@ public class ServiceFactoryTest {
         services.add(mock(Config.class));
         services.add(mock(Enclave.class));
         services.add(mock(TransactionManager.class));
-        services.add(mock(PartyInfoService.class));
         services.add(mock(EncryptedTransactionDAO.class));
         services.add(mock(EncryptedRawTransactionDAO.class));
         services.add(mock(ResendManager.class));

@@ -23,7 +23,7 @@ public class PartyTest {
 
     @Test
     public void hashCodeAndEquals() {
-        EqualsVerifier.forClass(Party.class).withIgnoredFields("lastContacted").verify();
+        EqualsVerifier.forClass(Party.class).verify();
     }
 
 }
