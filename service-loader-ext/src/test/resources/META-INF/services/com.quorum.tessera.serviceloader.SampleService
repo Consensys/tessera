@@ -1,0 +1,2 @@
+com.quorum.tessera.serviceloader.SampleServiceImpl
+com.quorum.tessera.serviceloader.SingletonSampleService

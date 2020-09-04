@@ -491,6 +491,7 @@
         <module>tessera-jaxrs</module>
         <module>tessera-data</module>
         <module>tessera-context</module>
+        <module>service-loader-ext</module>
     </modules>
 
     <dependencyManagement>
