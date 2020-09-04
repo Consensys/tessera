@@ -4,13 +4,13 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultApiVersionTest {
+public class BaseVersionTest {
 
-    private DefaultApiVersion apiVersion = new DefaultApiVersion();
+    private BaseVersion apiVersion = new BaseVersion();
 
     @Test
     public void getVersion() {
-         assertThat(apiVersion.getVersion()).isNull();
+         assertThat(apiVersion.getVersion()).isEqualTo("v1");
     }
 
 }
