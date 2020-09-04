@@ -6,7 +6,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -37,7 +36,6 @@ public class P2PRestAppTest {
     public void setUp() throws Exception {
 
         Set services = new HashSet<>();
-        services.add(mock(PartyInfoService.class));
         services.add(mock(TransactionManager.class));
         services.add(mock(Enclave.class));
 

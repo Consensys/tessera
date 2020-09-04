@@ -14,13 +14,9 @@ public interface NodeInfoUtil {
         List<Recipient> recipients = partyInfo.getRecipients().stream()
             .map(r -> Recipient.of(r.getKey(),r.getUrl())).collect(Collectors.toList());
 
-        List<com.quorum.tessera.partyinfo.node.Party> parties = partyInfo.getParties().stream()
-            .map(Party::getUrl).map(com.quorum.tessera.partyinfo.node.Party::new).collect(Collectors.toList());
-
         return NodeInfo.Builder.create()
             .withUrl(partyInfo.getUrl())
             .withRecipients(recipients)
-            .withParties(parties)
             .withSupportedApiVersions(versions)
             .build();
 

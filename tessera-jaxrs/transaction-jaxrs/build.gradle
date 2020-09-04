@@ -9,6 +9,8 @@ dependencies {
     compile project(':tessera-core')
     compile project(':enclave:enclave-api')
 
+    compile project(":tessera-partyinfo")
+
     implementation "org.hibernate:hibernate-validator:6.0.2.Final"
 
     compile 'javax.ws.rs:javax.ws.rs-api'

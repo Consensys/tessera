@@ -30,7 +30,7 @@ public class TransactionRequesterFactoryTest {
         TransactionRequester transactionRequester = transactionRequesterFactory.createTransactionRequester(config);
 
         assertThat(transactionRequester).isNotNull();
-        verifyNoInteractions(transactionRequester);
+        verifyZeroInteractions(transactionRequester);
     }
 
 
