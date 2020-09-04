@@ -1,0 +1,50 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'java'
+}
+
+dependencyCheck {
+    failBuildOnCVSS = 11
+}
+
+dependencies {
+    compile project(':tessera-dist:tessera-launcher')
+    compile 'org.glassfish.jersey.media:jersey-media-json-processing:2.27'
+    compile project(':encryption:encryption-jnacl')
+
+    compile "org.bouncycastle:bcpkix-jdk15on"
+
+}
+
+shadowJar {
+    classifier = 'app'
+
+    mergeServiceFiles()
+    append 'META-INF/spring.handlers'
+    append 'META-INF/spring.schemas'
+    append 'META-INF/spring.tooling'
+    transform(PropertiesFileTransformer) {
+        paths = ['META-INF/spring.factories' ]
+        mergeStrategy = "append"
+    }
+
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+
+}
+
+
+jar {
+    manifest {
+        attributes 'Tessera-Version': version,
+                "Implementation-Version": version,
+                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
+                'Main-Class' : 'com.quorum.tessera.launcher.Main'
+
+    }
+}
+
+build.dependsOn shadowJar
+
+

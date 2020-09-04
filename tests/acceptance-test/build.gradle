@@ -37,7 +37,7 @@ dependencies {
     testCompile 'org.assertj:assertj-core:3.9.1'
     testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
     testCompile 'com.github.jnr:jnr-unixsocket:0.25'
-    testCompile 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
+    testCompile 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.7'
 }
 
 sourceSets {
@@ -75,7 +75,8 @@ test {
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',
-            '**/RunAzureIT.class'
+            '**/RunAzureIT.class',
+            '**/RunHashicorpIT.class'
     )
 
     if (project.hasProperty('excludeTests')) {

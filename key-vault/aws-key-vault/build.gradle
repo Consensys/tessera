@@ -1,3 +1,6 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
+}
 
 def nettyVersion = "4.1.46.Final"
 
@@ -23,3 +26,23 @@ dependencies {
     compile 'io.netty:netty-transport-native-unix-common:'+ nettyVersion
     compile 'io.netty:netty-transport-native-epoll:'+ nettyVersion +':linux-x86_64'
 }
+
+shadowJar {
+    classifier = 'all'
+    mergeServiceFiles()
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Tessera-Version': version,
+                "Implementation-Version": version,
+                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
+                'Main-Class' : 'com.quorum.tessera.data.migration.Main'
+
+    }
+}
+
+build.dependsOn shadowJar

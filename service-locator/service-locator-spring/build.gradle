@@ -4,10 +4,10 @@
 
 dependencies {
     implementation project(':service-locator:service-locator-api')
-    implementation 'org.springframework:spring-core:5.1.2.RELEASE'
-    implementation 'org.springframework:spring-beans:5.1.2.RELEASE'
-    implementation 'org.springframework:spring-context:5.1.2.RELEASE'
-    runtimeOnly 'org.springframework:spring-orm:5.1.2.RELEASE'
+    implementation 'org.springframework:spring-core:5.2.3.RELEASE'
+    implementation 'org.springframework:spring-beans:5.2.3.RELEASE'
+    implementation 'org.springframework:spring-context:5.2.3.RELEASE'
+    runtimeOnly 'org.springframework:spring-orm:5.2.3.RELEASE'
 }
 
 description = 'service-locator-spring'

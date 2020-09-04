@@ -22,7 +22,7 @@ dependencies {
     compileOnly 'javax.inject:javax.inject:1'
     testImplementation 'javax.inject:javax.inject:1'
     testImplementation "javax.persistence:javax.persistence-api:2.2"
-    testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3"
+    testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.7"
 
     implementation "org.hibernate:hibernate-validator:6.0.2.Final"
 
