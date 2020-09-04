@@ -174,7 +174,7 @@ public class ConfigGenerator {
         final FeatureToggles toggles = new FeatureToggles();
         toggles.setEnableRemoteKeyValidation(true);
 
-        final Integer partyInfoInterval = 1000;
+        final Integer partyInfoInterval = 5000;
 
         EncryptorType encryptorType = executionContext.getEncryptorType();
         EncryptorConfig encryptorConfig =
