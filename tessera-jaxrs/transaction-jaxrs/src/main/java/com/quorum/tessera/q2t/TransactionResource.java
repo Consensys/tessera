@@ -64,11 +64,10 @@ public class TransactionResource {
 
         Base64.Decoder base64Decoder = Base64.getDecoder();
 
-        final PublicKey sender =
-                Optional.ofNullable(sendRequest.getFrom())
-                        .map(base64Decoder::decode)
-                        .map(PublicKey::from)
-                        .orElseGet(transactionManager::defaultPublicKey);
+        PublicKey sender = Optional.ofNullable(sendRequest.getFrom())
+            .map(base64Decoder::decode)
+            .map(PublicKey::from)
+            .orElseGet(transactionManager::defaultPublicKey);
 
         final List<PublicKey> recipientList =
                 Stream.of(sendRequest)
@@ -403,9 +402,8 @@ public class TransactionResource {
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(APPLICATION_OCTET_STREAM)
     public Response receiveRaw(
-            @ApiParam("Encoded transaction hash") @ValidBase64 @NotNull @HeaderParam(value = "c11n-key") String hash,
-            @ApiParam("Encoded Recipient Public Key") @ValidBase64 @HeaderParam(value = "c11n-to")
-                    String recipientKey) {
+            @ApiParam("Encoded transaction hash") @NotNull @HeaderParam(value = "c11n-key") String hash,
+            @ApiParam("Encoded Recipient Public Key") @HeaderParam(value = "c11n-to") String recipientKey) {
 
         LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}", hash, recipientKey);
 
@@ -478,7 +476,9 @@ public class TransactionResource {
 
         LOGGER.debug("Received isSender API request for key {}", ptmHash);
 
-        MessageHash transactionHash = Optional.of(ptmHash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
+        MessageHash transactionHash = Optional.of(ptmHash)
+            .map(Base64.getDecoder()::decode)
+            .map(MessageHash::new).get();
 
         boolean isSender = transactionManager.isSender(transactionHash);
 
@@ -491,7 +491,9 @@ public class TransactionResource {
 
         LOGGER.debug("Received participants list API request for key {}", ptmHash);
 
-        MessageHash transactionHash = Optional.of(ptmHash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
+        MessageHash transactionHash = Optional.of(ptmHash)
+            .map(Base64.getDecoder()::decode)
+            .map(MessageHash::new).get();
 
         final String participantList =
                 transactionManager.getParticipants(transactionHash).stream()

@@ -9,6 +9,20 @@ import static java.util.Collections.singletonList;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import com.quorum.tessera.encryption.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.quorum.tessera.encryption.Encryptor;
+import com.quorum.tessera.encryption.KeyManager;
+import com.quorum.tessera.encryption.MasterKey;
+import com.quorum.tessera.encryption.Nonce;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.encryption.SharedKey;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EnclaveImpl implements Enclave {
@@ -96,11 +110,11 @@ public class EnclaveImpl implements Enclave {
         final MasterKey master =
                 this.getMasterKey(
                         payload.getRecipientKeys().get(0), payload.getSenderKey(),
-                        payload.getRecipientNonce(), payload.getRecipientBoxes().get(0));
+                        payload.getRecipientNonce(), payload.getRecipientBoxes().get(0).getData());
 
         final List<byte[]> sealedMasterKeyList =
                 this.buildRecipientMasterKeys(
-                        payload.getSenderKey(), singletonList(publicKey), payload.getRecipientNonce(), master);
+                        payload.getSenderKey(), List.of(publicKey), payload.getRecipientNonce(), master);
 
         return sealedMasterKeyList.get(0);
     }

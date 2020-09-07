@@ -410,7 +410,7 @@ public class HashicorpStepDefs implements En {
                     createTempTesseraConfig();
 
                     final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
-                   // JaxbUtil.marshalWithNoValidation(config, System.out);
+                    // JaxbUtil.marshalWithNoValidation(config, System.out);
                     assertThat(config).isNotNull();
                 });
 
@@ -698,19 +698,19 @@ public class HashicorpStepDefs implements En {
     }
 
     private String getServerTlsCert() {
-        return getClass().getResource("/certificates/localhost-with-san-chain.pem").getFile();
+        return getClass().getResource("/certificates/server-localhost-with-san-ca-chain.cert.pem").getFile();
     }
 
     private String getServerTlsKey() {
-        return getClass().getResource("/certificates/localhost-with-san.key").getFile();
+        return getClass().getResource("/certificates/server-localhost-with-san.key.pem").getFile();
     }
 
     private String getClientCaTlsCert() {
-        return getClass().getResource("/certificates/caRoot.pem").getFile();
+        return getClass().getResource("/certificates/ca-root.cert.pem").getFile();
     }
 
     private String getClientTlsKeystore() {
-        return getClass().getResource("/certificates/quorum-client-keystore.jks").getFile();
+        return getClass().getResource("/certificates/client.jks").getFile();
     }
 
     private String getClientTlsTruststore() {

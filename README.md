@@ -8,7 +8,7 @@
 
 > __Important: Release 0.9 Feature__ <br/>Tessera now supports remote enclaves for increased security. Please refer to the [wiki](https://github.com/jpmorganchase/tessera/wiki/What-is-an-Enclave%3F) for details. 
 
-Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/jpmorganchase/quorum/).
+Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/).
 
 Each Tessera node:
 
@@ -33,9 +33,9 @@ Each Tessera node:
 
     | Tessera version    | Build method                                                                | JDK/JRE version |
     |--------------------|-----------------------------------------------------------------------------|:---------------:|
-    | 0.10.3 and later   | [Pre-built release JARs](https://github.com/jpmorganchase/tessera/releases) |        11       |
+    | 0.10.3 and later   | [Pre-built release JARs](https://github.com/consensys/tessera/releases) |        11       |
     |                    | Building from source                                                        |        11       |
-    | 0.10.2 and earlier | [Pre-built release JARs](https://github.com/jpmorganchase/tessera/releases) |        8        |
+    | 0.10.2 and earlier | [Pre-built release JARs](https://github.com/consensys/tessera/releases) |        8        |
     |                    | Building from source                                                        |     8 or 11     |
 
 - [Maven](https://maven.apache.org) (if building from source)
@@ -103,7 +103,7 @@ Since Tessera 0.7 a timestamp is recorded with each encrypted transaction stored
 A configuration file detailing database, server and network peer information must be provided using the `-configfile`
 command line property.
 
-An in-depth look at configuring Tessera can be found on the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Configuration-overview) and includes details on all aspects of configuration including:
+An in-depth look at configuring Tessera can be found in the [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/HowTo/Configure/Tessera) and includes details on all aspects of configuration including:
 * Cryptographic key config:
     * Using existing private/public key pairs with Tessera
     * How to use Tessera to generate new key pairs 
@@ -163,19 +163,19 @@ rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb
 Pick up this output and wrap it inside `ENC()` function, we should have the following `ENC(rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb)` in the config json file.
  
 ### Migrating from Constellation to Tessera
-Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/Migrating-from-Constellation).
+Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/HowTo/MigrateFromConstellation/).
 
 ## Further reading
-* The [Tessera Wiki](https://github.com/jpmorganchase/tessera/wiki/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
-* [Quorum](https://github.com/jpmorganchase/quorum/) is an Ethereum-based distributed ledger protocol that uses Tessera to provide transaction privacy.
-* Follow the [Quorum Examples](https://github.com/jpmorganchase/quorum-examples) to see Tessera in action in a demo Quorum network.
+* The [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
+* [Quorum](https://github.com/consensys/quorum/) is an Ethereum-based distributed ledger protocol that uses Tessera to provide transaction privacy.
+* Follow the [Quorum Examples](https://github.com/consensys/quorum-examples) to see Tessera in action in a demo Quorum network.
 
 ## Reporting Security Bugs
 Security is part of our commitment to our users. At Quorum we have a close relationship with the security community, we understand the realm, and encourage security researchers to become part of our mission of building secure reliable software. This section explains how to submit security bugs, and what to expect in return.
 
-All security bugs in Quorum and its ecosystem (Tessera, Constellation, Cakeshop, ..etc) should be reported by email to info@goquorum.com. Please use the prefix [security] in your subject. This email is delivered to Quorum security team. Your email will be acknowledged, and you'll receive a more detailed response to your email as soon as possible indicating the next steps in handling your report. After the initial reply to your report, the security team will endeavor to keep you informed of the progress being made towards a fix and full announcement.
+All security bugs in Quorum and its ecosystem (Tessera, Constellation, Cakeshop, ..etc) should be reported by email to security-quorum@consensys.net. Please use the prefix [security] in your subject. This email is delivered to Quorum security team. Your email will be acknowledged, and you'll receive a more detailed response to your email as soon as possible indicating the next steps in handling your report. After the initial reply to your report, the security team will endeavor to keep you informed of the progress being made towards a fix and full announcement.
 
-If you have not received a reply to your email or you have not heard from the security team please contact any team member through quorum slack security channel. *Please note* that Quorum slack channels are public discussion forum. When escalating to this medium, please do not disclose the details of the issue. Simply state that you're trying to reach a member of the security team.
+If you have not received a reply to your email or you have not heard from the security team please contact any team member through [Quorum slack security channel](https://www.goquorum.com/slack-inviter). *Please note* that Quorum slack channels are public discussion forum. When escalating to this medium, please do not disclose the details of the issue. Simply state that you're trying to reach a member of the security team.
 
 ## Responsible Disclosure Process
 Quorum project uses the following responsible disclosure process:
@@ -194,6 +194,9 @@ At this point you would be able to disclose publicly your finding.
 The best way to receive security announcements is to subscribe to the Quorum-announce mailing list/channel. Any messages pertaining to a security issue will be prefixed with [security].
 
 Comments on This Policy If you have any suggestions to improve this policy, please send an email to info@goquorum.com for discussion.
+
+## Contributing
+Tessera is built open source and we welcome external contribution on features and enhancements. Upon review you will be required to complete a Contributor License Agreement (CLA) before we are able to merge. If you have any questions about the contribution process, please feel free to send an email to [info@goquorum.com](mailto:info@goquorum.com). Please see the [Contributors guide](.github/CONTRIBUTING.md) in wiki for more information about the process.
 
 # Getting Help
 Stuck at some step? Please join our  <a href="https://www.goquorum.com/slack-inviter" target="_blank" rel="noopener">slack community</a> for support.

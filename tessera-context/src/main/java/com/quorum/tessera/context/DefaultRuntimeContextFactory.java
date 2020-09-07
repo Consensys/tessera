@@ -37,7 +37,7 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
     @Override
     public RuntimeContext create(Config config) {
         Optional<RuntimeContext> storedContext = contextHolder.getContext();
-        if(storedContext.isPresent()) {
+        if (storedContext.isPresent()) {
             return storedContext.get();
         }
 
@@ -108,7 +108,6 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
                                         .collect(Collectors.toList()))
                         .withAlwaysSendTo(alwaysSendTo)
                         .withUseWhiteList(config.isUseWhiteList())
-                        .withRecoveryMode(config.isRecoveryMode())
                         .build();
 
         contextHolder.setContext(context);

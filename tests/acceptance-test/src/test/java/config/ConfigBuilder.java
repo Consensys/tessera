@@ -4,40 +4,39 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
-
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.stream.Collectors;
 import suite.EnclaveType;
 import suite.ExecutionContext;
 import suite.SocketType;
 
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.stream.Collectors;
+
 public class ConfigBuilder {
 
     private final SslConfig sslConfig =
-            new SslConfig(
-                    SslAuthenticationMode.STRICT,
-                    false,
-                    Paths.get(getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
-                    "testtest".toCharArray(),
-                    Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
-                    "testtest".toCharArray(),
-                    SslTrustMode.CA,
-                    Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile())
-                            .toAbsolutePath(),
-                    "testtest".toCharArray(),
-                    Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
-                    "testtest".toCharArray(),
-                    SslTrustMode.CA,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    null);
+        new SslConfig(
+            SslAuthenticationMode.STRICT,
+            false,
+            Paths.get(getClass().getResource("/certificates/server-localhost-with-san.jks").getFile()),
+            "testtest".toCharArray(),
+            Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+            "testtest".toCharArray(),
+            SslTrustMode.CA,
+            Paths.get(getClass().getResource("/certificates/client.jks").getFile()).toAbsolutePath(),
+            "testtest".toCharArray(),
+            Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+            "testtest".toCharArray(),
+            SslTrustMode.CA,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     private EncryptorConfig encryptorConfig;
 
@@ -161,7 +160,7 @@ public class ConfigBuilder {
         q2tServerConfig.setCommunicationType(executionContext.getCommunicationType());
 
         if (executionContext.getCommunicationType() == CommunicationType.REST
-                && (q2tSocketType == SocketType.UNIX || executionContext.getSocketType() == SocketType.UNIX)) {
+            && (q2tSocketType == SocketType.UNIX || executionContext.getSocketType() == SocketType.UNIX)) {
             q2tServerConfig.setServerAddress(String.format("unix:/tmp/q2t-rest-unix-%d.ipc", nodeNumber));
         } else {
             q2tServerConfig.setServerAddress("http://localhost:" + q2tPort);
@@ -179,7 +178,7 @@ public class ConfigBuilder {
         p2pServerConfig.setBindingAddress("http://0.0.0.0:" + p2pPort);
         if (Objects.nonNull(partyInfoInterval)) {
             p2pServerConfig.setProperties(
-                    Collections.singletonMap("partyInfoInterval", Integer.toString(partyInfoInterval)));
+                Collections.singletonMap("partyInfoInterval", Integer.toString(partyInfoInterval)));
         }
         servers.add(p2pServerConfig);
 
@@ -197,29 +196,28 @@ public class ConfigBuilder {
             ServerConfig enclaveServerConfig = new ServerConfig();
             enclaveServerConfig.setApp(AppType.ENCLAVE);
             SslConfig sslConfig =
-                    new SslConfig(
-                            SslAuthenticationMode.STRICT,
-                            false,
-                            Paths.get(
-                                    getClass().getResource("/certificates/localhost-with-san-keystore.jks").getFile()),
-                            "testtest".toCharArray(),
-                            Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
-                            "testtest".toCharArray(),
-                            SslTrustMode.CA,
-                            Paths.get(getClass().getResource("/certificates/quorum-client-keystore.jks").getFile()),
-                            "testtest".toCharArray(),
-                            Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
-                            "testtest".toCharArray(),
-                            SslTrustMode.CA,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null);
+                new SslConfig(
+                    SslAuthenticationMode.STRICT,
+                    false,
+                    Paths.get(getClass().getResource("/certificates/server-localhost-with-san.jks").getFile()),
+                    "testtest".toCharArray(),
+                    Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+                    "testtest".toCharArray(),
+                    SslTrustMode.CA,
+                    Paths.get(getClass().getResource("/certificates/client.jks").getFile()),
+                    "testtest".toCharArray(),
+                    Paths.get(getClass().getResource("/certificates/truststore.jks").getFile()),
+                    "testtest".toCharArray(),
+                    SslTrustMode.CA,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null);
             enclaveServerConfig.setBindingAddress("http://0.0.0.0:" + enclavePort);
             enclaveServerConfig.setServerAddress("http://localhost:" + enclavePort);
             // enclaveServerConfig.setSslConfig(sslConfig);
@@ -230,21 +228,24 @@ public class ConfigBuilder {
 
         config.setServerConfigs(servers);
 
+        if (peerUrls.isEmpty()) {
+            config.setPeers(new ArrayList<>());
+        }
         peerUrls.stream().map(Peer::new).forEach(config::addPeer);
 
         config.setKeys(new KeyConfiguration());
 
         final List<KeyData> pairs =
-                keys.entrySet().stream()
-                        //  .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
-                        .map(
-                                e -> {
-                                    KeyData keyData = new KeyData();
-                                    keyData.setPublicKey(e.getKey());
-                                    keyData.setPrivateKey(e.getValue());
-                                    return keyData;
-                                })
-                        .collect(Collectors.toList());
+            keys.entrySet().stream()
+                //  .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
+                .map(
+                    e -> {
+                        KeyData keyData = new KeyData();
+                        keyData.setPublicKey(e.getKey());
+                        keyData.setPrivateKey(e.getValue());
+                        return keyData;
+                    })
+                .collect(Collectors.toList());
 
         config.getKeys().setKeyData(pairs);
 
@@ -261,26 +262,26 @@ public class ConfigBuilder {
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         ExecutionContext executionContext =
-                ExecutionContext.Builder.create()
-                        .with(CommunicationType.REST)
-                        .with(DBType.H2)
-                        .with(SocketType.UNIX)
-                        .with(EnclaveType.REMOTE)
-                        .build();
+            ExecutionContext.Builder.create()
+                .with(CommunicationType.REST)
+                .with(DBType.H2)
+                .with(SocketType.UNIX)
+                .with(EnclaveType.REMOTE)
+                .build();
 
         Config config =
-                new ConfigBuilder()
-                        .withExecutionContext(executionContext)
-                        .withNodeId("mynode")
-                        .withNodeNumber(1)
-                        .withPeer("http://localhost:999")
-                        .withKeys(
-                                "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
-                                "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")
-                        .withQt2Port(999)
-                        .withP2pPort(888)
-                        .withEnclavePort(989)
-                        .build();
+            new ConfigBuilder()
+                .withExecutionContext(executionContext)
+                .withNodeId("mynode")
+                .withNodeNumber(1)
+                .withPeer("http://localhost:999")
+                .withKeys(
+                    "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=",
+                    "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=")
+                .withQt2Port(999)
+                .withP2pPort(888)
+                .withEnclavePort(989)
+                .build();
 
         JaxbUtil.marshalWithNoValidation(config, System.out);
     }

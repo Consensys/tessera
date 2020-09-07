@@ -239,7 +239,7 @@ public class CmdLineExecutorTest {
         // if the descriptor count is too high, this test tries to do too much
         // even at 1,000,000 files, it took a long time to run (20 minutes in a vagrant environment)
         //
-        // On MacOS the limit is 10240, and on Travis the limit is 30000.
+        // On MacOS the limit is 10240
 
         if (descriptorCount > 35000) {
             return;

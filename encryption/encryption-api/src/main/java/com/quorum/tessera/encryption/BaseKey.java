@@ -33,16 +33,18 @@ public abstract class BaseKey implements Key {
     }
 
     @Override
-    public final String toString() {
+    public String toString() {
 
-        final String typeName = Stream.of(getClass())
-            .map(Class::getInterfaces)
-            .flatMap(Stream::of)
-            .map(Class::getSimpleName)
-            .findFirst()
-            .get();
+        final String typeName =
+                Stream.of(getClass())
+                        .map(Class::getInterfaces)
+                        .flatMap(Stream::of)
+                        .map(Class::getName)
+                        .findFirst()
+                        .get();
 
-        return String.format("%s[%s]", typeName, encodeToBase64());
+        // we use Object.hashCode to protect against accidentally printing/logging a value derived from the raw bytes
+        // a side effect of this is 2 instances with the same underlying bytes will have different toString values
+        return typeName + "@" + Integer.toHexString(super.hashCode());
     }
-
 }

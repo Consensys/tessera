@@ -73,7 +73,6 @@ test {
             '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
             '**/ConfigMigrationIT.class',
-            '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',

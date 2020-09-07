@@ -8,4 +8,26 @@ dependencies {
     compile project(':tessera-recover')
     compile 'org.apache.commons:commons-lang3'
     compile 'org.glassfish:javax.json'
+    compile "com.h2database:h2"
+    compile project(':config')
+    compile project(':argon2')
+    compile project(':encryption:encryption-api')
+    compile project(':security')
+    compile project(':server:server-api')
+    compile project(':service-locator:service-locator-api')
+    compile project(':tessera-core')
+    compile project(':cli:cli-api')
+    compile project(':cli:config-cli')
+    compile project(':tessera-jaxrs:sync-jaxrs')
+    compile project(':tessera-jaxrs:transaction-jaxrs')
+    compile project(':tessera-jaxrs:thirdparty-jaxrs')
+    compile project(':enclave:enclave-jaxrs')
+    compile project(':service-locator:service-locator-spring')
+    compile 'org.slf4j:jcl-over-slf4j:1.7.5'
+    compile 'org.slf4j:jul-to-slf4j:1.7.5'
+    compile project(':server:jersey-server')
+    compile 'org.glassfish.jersey.media:jersey-media-json-processing:2.27'
+    compile project(':encryption:encryption-jnacl')
+
+    compile "org.bouncycastle:bcpkix-jdk15on"
 }

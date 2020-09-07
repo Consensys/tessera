@@ -117,4 +117,25 @@ public class EncryptorConfigTest {
         assertThat(encryptorConfig.getType()).isEqualTo(EncryptorType.NACL);
         assertThat(encryptorConfig.getProperties()).isNull();
     }
+
+    @Test
+    public void marshalCUSTOM() {
+
+        EncryptorConfig encryptorConfig = new EncryptorConfig();
+        encryptorConfig.setType(EncryptorType.CUSTOM);
+        Map<String, String> properties = new HashMap<>();
+        properties.put("greeting", "Hellow");
+        properties.put("something", "ELSE");
+        properties.put("bogus", null);
+
+        encryptorConfig.setProperties(properties);
+
+        String result = JaxbUtil.marshalToStringNoValidation(encryptorConfig);
+
+        JsonObject json = Json.createReader(new StringReader(result)).readObject();
+
+        assertThat(json.getJsonObject("properties")).containsKeys("greeting", "something", "bogus");
+        assertThat(json.getJsonObject("properties").getString("greeting")).isEqualTo("Hellow");
+        assertThat(json.getJsonObject("properties").getString("something")).isEqualTo("ELSE");
+    }
 }

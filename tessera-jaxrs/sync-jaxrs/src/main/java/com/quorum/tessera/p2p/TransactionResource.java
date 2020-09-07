@@ -4,7 +4,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.partyinfo.ResendRequest;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.recover.resend.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -84,7 +84,7 @@ public class TransactionResource {
 
         com.quorum.tessera.transaction.ResendRequest request =
                 com.quorum.tessera.transaction.ResendRequest.Builder.create()
-                        .withType(resendRequest.getType())
+                        .withType(com.quorum.tessera.transaction.ResendRequest.ResendRequestType.valueOf(resendRequest.getType().name()))
                         .withRecipient(recipient)
                         .withHash(transactionHash)
                         .build();
@@ -129,10 +129,9 @@ public class TransactionResource {
 
         LOGGER.debug("Received push request");
 
-        EncodedPayload encodedPayload = payloadEncoder.decode(payload);
-        final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
+        final MessageHash messageHash = transactionManager.storePayload(encoder.decode(payload));
         LOGGER.debug("Push request generated hash {}", messageHash);
-        // TODO: Return the query url not the string of the messageHAsh
+        // TODO: Return the query url not the string of the messageHash
         return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();
     }
 }

@@ -29,7 +29,6 @@ public interface EncryptorFactory {
         return ServiceLoaderUtil.loadAll(EncryptorFactory.class)
                 .filter(f -> f.getType().equals(type))
                 .findAny()
-                .orElse(ServiceLoaderUtil.load(EncryptorFactory.class).get());
+                .orElseThrow(() -> new EncryptorFactoryNotFoundException(type));
     }
-
 }

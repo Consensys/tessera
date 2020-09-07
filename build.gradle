@@ -9,8 +9,7 @@ plugins {
 
 def jettyVersion = "9.4.25.v20191220"
 def springVersion = "5.2.3.RELEASE"
-def eclipseLinkVersion = "2.7.6"
-
+def eclipselinkVersion = "2.7.7"
 allprojects {
     group = 'com.jpmorgan.quorum'
     //version = '0.11-SNAPSHOT'
@@ -30,10 +29,10 @@ allprojects {
 
                 testCompile "junit:junit:4.12"
                 testCompile "org.assertj:assertj-core:3.9.1"
-                testCompile "org.mockito:mockito-core:3.3.3"
+                testCompile "org.mockito:mockito-core:3.4.4"
                 testCompile "com.openpojo:openpojo:0.8.10"
                 testCompile "com.github.stefanbirkner:system-rules:1.18.0"
-                testCompile "nl.jqno.equalsverifier:equalsverifier:3.1.5"
+                testCompile "nl.jqno.equalsverifier:equalsverifier:3.4.1"
                 compile "com.github.jnr:jnr-unixsocket:0.28"
                 compile "de.mkammerer:argon2-jvm:2.5"
                 compile "javax.validation:validation-api:2.0.1.Final"
@@ -98,8 +97,8 @@ allprojects {
                 compile "org.bouncycastle:bcprov-jdk15on:1.61"
                 compile "com.h2database:h2:1.4.200"
                 compile "com.zaxxer:HikariCP:3.2.0"
-                compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipseLinkVersion
-                compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipseLinkVersion
+                compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipselinkVersion
+                compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipselinkVersion
                 compile "org.hsqldb:hsqldb:2.4.1"
                 compile "org.xerial:sqlite-jdbc:3.23.1"
                 compile "javax.persistence:javax.persistence-api:2.2"
@@ -166,7 +165,7 @@ subprojects {
 
     dependencyCheck {
         failBuildOnCVSS = 0
-        suppressionFile = rootProject.projectDir.getAbsolutePath() +'/cvss-suppressions.xml'
+        suppressionFile = 'cvss-suppressions.xml'
 
 
     }
@@ -226,8 +225,7 @@ subprojects {
                         'com.quorum.tessera.passwords.PasswordReaderFactory',
                         'com.quorum.tessera.enclave.rest.Main',
                         'com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate',
-                        'com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory',
-                        'com.quorum.tessera.context.RuntimeContextFactory'
+                        'com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory'
                 ]
             }
 

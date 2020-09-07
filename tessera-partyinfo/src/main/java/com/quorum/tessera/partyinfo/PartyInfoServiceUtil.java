@@ -1,15 +1,15 @@
 package com.quorum.tessera.partyinfo;
 
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Recipient;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public interface PartyInfoServiceUtil {
 
-    static boolean validateKeysToUrls(final PartyInfo existingPartyInfo, final PartyInfo newPartyInfo) {
+    static boolean validateKeysToUrls(final NodeInfo existingPartyInfo, final NodeInfo newPartyInfo) {
 
         final Map<PublicKey, String> existingRecipientKeyUrlMap =
                 existingPartyInfo.getRecipients().stream()

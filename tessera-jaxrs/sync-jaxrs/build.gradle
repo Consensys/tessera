@@ -14,7 +14,7 @@ dependencies {
     compile project(':enclave:enclave-api')
     compile project(':encryption:encryption-api')
     compile project(':tessera-jaxrs:jaxrs-client')
-
+    implementation project(':tessera-jaxrs:partyinfo-model')
     compile 'io.swagger:swagger-annotations'
 
     compile 'javax.ws.rs:javax.ws.rs-api'
@@ -46,7 +46,7 @@ swagger {
         outputFormats = ['json']
         //attachSwaggerArtifact = true
 
-        locations = ['com.quorum.tessera.p2p']
+        locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
         info {
             title = 'Peer to peer resources'
             version = project.version
@@ -69,7 +69,7 @@ swagger {
         outputFormats = ['json']
         //attachSwaggerArtifact = true
 
-        locations = ['com.quorum.tessera.p2p']
+        locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
         info {
             title = 'Peer to peer resources'
             version = project.version

@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.jpmorgan.quorum</groupId>
         <artifactId>tessera-jaxrs</artifactId>
-        <version>0.10.6-SNAPSHOT</version>
+        <version>0.10.7-SNAPSHOT</version>
     </parent>
     <artifactId>transaction-jaxrs</artifactId>
     <packaging>jar</packaging>
@@ -12,8 +12,16 @@
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>common-jaxrs</artifactId>
+            <version>0.10.7-SNAPSHOT</version>
         </dependency>
-    
+        <dependency>
+            <groupId>com.jpmorgan.quorum</groupId>
+            <artifactId>mock-jaxrs</artifactId>
+            <version>0.10.7-SNAPSHOT</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
+
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-bean-validation</artifactId>
@@ -28,7 +36,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        
+
     </dependencies>
     <build>
         <plugins>
@@ -38,7 +46,7 @@
                 <configuration>
                     <apiSources>
                         <apiSource>
-                            
+
                             <schemes>
                                 <scheme>http</scheme>
                                 <scheme>https</scheme>
@@ -47,7 +55,7 @@
                             <basePath>/</basePath>
                             <springmvc>false</springmvc>
                             <info>
-                                
+
                                 <title>Tessera rest</title>
                                 <version>${project.version}</version>
                             </info>

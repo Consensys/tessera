@@ -5,18 +5,19 @@ import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.Party;
+import com.quorum.tessera.test.PartyHelper;
 import org.junit.Test;
+import suite.ExecutionContext;
 
+import javax.json.Json;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import javax.json.Json;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import com.quorum.tessera.test.PartyHelper;
-import suite.ExecutionContext;
 import static transaction.utils.Utils.generateValidButUnknownPublicKey;
 
 /**
@@ -65,6 +66,7 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location).request().get();
+        AssertApiHeaders.doAsserts(checkPersistedTxnResponse);
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -110,6 +112,8 @@ public class SendIT {
                         .path(SEND_PATH)
                         .request()
                         .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+        AssertApiHeaders.doAsserts(response);
 
         //
         final SendResponse result = response.readEntity(SendResponse.class);
@@ -158,6 +162,8 @@ public class SendIT {
                         .request()
                         .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
+        AssertApiHeaders.doAsserts(response);
+
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
@@ -190,6 +196,8 @@ public class SendIT {
                         .path(SEND_PATH)
                         .request()
                         .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+        AssertApiHeaders.doAsserts(response);
 
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();

@@ -4,7 +4,7 @@ import com.quorum.tessera.jaxrs.mock.MockClient;
 import com.quorum.tessera.partyinfo.PushBatchRequest;
 import com.quorum.tessera.partyinfo.ResendBatchRequest;
 import com.quorum.tessera.partyinfo.ResendBatchResponse;
-import com.quorum.tessera.partyinfo.ResendRequest;
+
 import org.junit.Before;
 import org.junit.Test;
 

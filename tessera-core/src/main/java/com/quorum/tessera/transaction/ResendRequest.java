@@ -2,11 +2,15 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.ResendRequestType;
 
 import java.util.Objects;
 
 public interface ResendRequest {
+
+    // FIXME: also defined in jaxrs module
+    enum ResendRequestType {
+        ALL,INDIVIDUAL
+    }
 
     PublicKey getRecipient();
 
@@ -44,10 +48,10 @@ public interface ResendRequest {
         }
 
         public ResendRequest build() {
-            Objects.requireNonNull(recipient,"Recipient is required");
-            Objects.requireNonNull(type,"ResendRequestType is required");
-            if(type == ResendRequestType.INDIVIDUAL) {
-                Objects.requireNonNull(hash,"Transaction hash is required for individual resends");
+            Objects.requireNonNull(recipient, "Recipient is required");
+            Objects.requireNonNull(type, "ResendRequestType is required");
+            if (type == ResendRequestType.INDIVIDUAL) {
+                Objects.requireNonNull(hash, "Transaction hash is required for individual resends");
             }
 
             return new ResendRequest() {
@@ -67,8 +71,5 @@ public interface ResendRequest {
                 }
             };
         }
-
     }
-
-
 }

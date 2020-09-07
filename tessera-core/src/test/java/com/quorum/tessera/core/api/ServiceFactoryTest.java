@@ -2,20 +2,20 @@ package com.quorum.tessera.core.api;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.ResendBatchPublisher;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.partyinfo.PayloadPublisher;
-import com.quorum.tessera.transaction.resend.ResendManager;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.transaction.publish.PayloadPublisher;
+import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
-import java.util.HashSet;
-import java.util.Set;
-import static org.assertj.core.api.Assertions.assertThat;
+import com.quorum.tessera.transaction.resend.ResendManager;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class ServiceFactoryTest {
@@ -31,27 +31,21 @@ public class ServiceFactoryTest {
         services.add(mock(Config.class));
         services.add(mock(Enclave.class));
         services.add(mock(TransactionManager.class));
-        services.add(mock(PartyInfoService.class));
         services.add(mock(EncryptedTransactionDAO.class));
         services.add(mock(EncryptedRawTransactionDAO.class));
         services.add(mock(ResendManager.class));
         services.add(mock(PayloadPublisher.class));
-        services.add(mock(ResendBatchPublisher.class));
 
         mockServiceLocator.setServices(services);
 
         serviceFactory = (ServiceFactoryImpl) ServiceFactory.create();
     }
 
-
-
     @Test
     public void transactionManager() {
         TransactionManager transactionManager = serviceFactory.transactionManager();
         assertThat(transactionManager).isNotNull();
     }
-
-
 
     @Test(expected = IllegalStateException.class)
     public void findNoServiceFoundThrowsIllegalState() {
@@ -60,8 +54,6 @@ public class ServiceFactoryTest {
     }
 
     static class NonExistentService {}
-
-
 
     @Test
     public void findConfig() {

@@ -43,12 +43,12 @@ public class EncodedPayloadBuilderTest {
                         .withSenderKey(senderKey)
                         .withCipherText(cipherText)
                         .withCipherTextNonce(cipherTextNonce)
-                        .withRecipientBoxes(Arrays.asList(recipientBox))
+                        .withRecipientBox(recipientBox)
                         .withRecipientNonce(recipientNonce)
-                        .withRecipientKeys(Arrays.asList(recipientKey))
                         .withPrivacyFlag(3)
                         .withAffectedContractTransactions(affectedContractTransactionsRaw)
                         .withExecHash(execHash)
+                        .withRecipientKey(recipientKey)
                         .build();
 
         assertThat(sample.getSenderKey()).isEqualTo(senderKey);

@@ -1,13 +1,16 @@
 package com.quorum.tessera.p2p;
 
+
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.*;
 
 import java.util.List;
+import java.util.Optional;
 
-public class MockTransactionManager implements TransactionManager {
+public class MockTransactionManager implements TransactionManager, TransactionManagerFactory {
 
     @Override
     public SendResponse send(SendRequest sendRequest) {
@@ -20,12 +23,10 @@ public class MockTransactionManager implements TransactionManager {
     }
 
     @Override
-    public void delete(MessageHash messageHash) {
-
-    }
+    public void delete(MessageHash messageHash) {}
 
     @Override
-    public ResendResponse resend(ResendRequest request) {
+    public com.quorum.tessera.transaction.ResendResponse resend(com.quorum.tessera.transaction.ResendRequest request) {
         return null;
     }
 
@@ -57,5 +58,15 @@ public class MockTransactionManager implements TransactionManager {
     @Override
     public PublicKey defaultPublicKey() {
         return null;
+    }
+
+    @Override
+    public TransactionManager create(Config config) {
+        return this;
+    }
+
+    @Override
+    public Optional<TransactionManager> transactionManager() {
+        return Optional.of(this);
     }
 }

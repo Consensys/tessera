@@ -69,7 +69,7 @@ public class EncodedPayload {
     }
 
     public List<PublicKey> getRecipientKeys() {
-        return Collections.unmodifiableList(recipientKeys);
+        return recipientKeys;
     }
 
     public PrivacyMode getPrivacyMode() {
@@ -173,6 +173,11 @@ public class EncodedPayload {
 
         public Builder withRecipientBoxes(final List<byte[]> recipientBoxes) {
             this.recipientBoxes = recipientBoxes;
+            return this;
+        }
+
+        public Builder withRecipientBox(byte[] newbox) {
+            this.recipientBoxes.add(newbox);
             return this;
         }
 

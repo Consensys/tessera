@@ -9,11 +9,13 @@ import org.junit.runners.Parameterized;
 import javax.persistence.*;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 @RunWith(Parameterized.class)
 public class EncryptedTransactionDAOTest {
@@ -40,7 +42,7 @@ public class EncryptedTransactionDAOTest {
         properties.put("eclipselink.logging.parameters", "true");
         properties.put("eclipselink.logging.level.sql", "FINE");
         properties.put("eclipselink.cache.shared.default", "false");
-        properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+        properties.put("javax.persistence.schema-generation.database.action", "create");
 
         entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
         encryptedTransactionDAO = new EncryptedTransactionDAOImpl(entityManagerFactory);
@@ -74,6 +76,25 @@ public class EncryptedTransactionDAOTest {
     }
 
     @Test
+    public void saveDoesntAllowNullHash() {
+
+        EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[] {5});
+
+        try {
+            encryptedTransactionDAO.save(encryptedTransaction);
+            failBecauseExceptionWasNotThrown(PersistenceException.class);
+        } catch (PersistenceException ex) {
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "HASH");
+
+            assertThat(ex)
+                    .isInstanceOf(PersistenceException.class)
+                    .hasMessageContaining(expectedMessage)
+                    .hasMessageContaining("HASH");
+        }
+    }
+
+    @Test
     public void updateTransaction() {
 
         final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
@@ -101,25 +122,6 @@ public class EncryptedTransactionDAOTest {
         assertThat(after).isEqualToComparingFieldByField(encryptedTransaction);
 
         entityManager.getTransaction().rollback();
-    }
-
-    @Test
-    public void saveDoesntAllowNullHash() {
-
-        EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-        encryptedTransaction.setEncodedPayload(new byte[] {5});
-
-        try {
-            encryptedTransactionDAO.save(encryptedTransaction);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "HASH");
-
-            assertThat(ex)
-                    .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(expectedMessage)
-                    .hasMessageContaining("HASH");
-        }
     }
 
     @Test
@@ -308,7 +310,6 @@ public class EncryptedTransactionDAOTest {
         assertThat(results).isEmpty();
     }
 
-
     @Test
     public void saveTransactionWithCallback() throws Exception {
 
@@ -319,7 +320,7 @@ public class EncryptedTransactionDAOTest {
 
         Callable<Void> callback = mock(Callable.class);
 
-        encryptedTransactionDAO.save(transaction,callback);
+        encryptedTransactionDAO.save(transaction, callback);
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         final EncryptedTransaction result = entityManager.find(EncryptedTransaction.class, transactionHash);
@@ -376,6 +377,36 @@ public class EncryptedTransactionDAOTest {
         assertThat(result).isNull();
 
         verify(callback).call();
+    }
+
+    @Test
+    public void callBackShouldNotBeExecutedIfSaveFails() {
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setEncodedPayload(new byte[] {5});
+        encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        entityManager.persist(encryptedTransaction);
+        entityManager.getTransaction().commit();
+        entityManager.clear();
+        final EncryptedTransaction duplicateTransaction = new EncryptedTransaction();
+        duplicateTransaction.setEncodedPayload(new byte[] {6});
+        duplicateTransaction.setHash(new MessageHash(new byte[] {1}));
+        AtomicInteger count = new AtomicInteger(0);
+        try {
+            encryptedTransactionDAO.save(
+                    encryptedTransaction,
+                    () -> {
+                        count.incrementAndGet();
+                        return true;
+                    });
+            failBecauseExceptionWasNotThrown(PersistenceException.class);
+        } catch (PersistenceException ex) {
+            assertThat(ex)
+                    .isInstanceOf(PersistenceException.class)
+                    .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+            assertThat(count.get()).isEqualTo(0);
+        }
     }
 
     @Parameterized.Parameters(name = "DB {0}")
