@@ -1,6 +1,7 @@
 package com.quorum.tessera.partyinfo.model;
 
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.node.Recipient;
 import org.junit.Test;
 
 import java.util.Objects;
@@ -63,17 +64,5 @@ public class RecipientTest {
 
         final String recipientAsString = recipient.toString();
         assertThat(recipientAsString).isEqualTo("Recipient{key=PublicKey[AQIDBAUGBwgJ], url='url'}");
-    }
-
-    @Test
-    public void create() {
-        final Recipient oldRecipient = Recipient.of(TEST_KEY, "url");
-        assertThat(oldRecipient.acceptsEnhancedPrivacy()).isFalse();
-
-        final Recipient anotherRecipient = Recipient.of(TEST_KEY, "url", true);
-        assertThat(anotherRecipient.acceptsEnhancedPrivacy()).isTrue();
-
-        final Recipient newRecipient = Recipient.from(oldRecipient, true);
-        assertThat(newRecipient.acceptsEnhancedPrivacy()).isTrue();
     }
 }

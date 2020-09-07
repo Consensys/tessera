@@ -12,6 +12,7 @@ import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.recover.resend.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
@@ -74,9 +75,10 @@ public class P2PRestApp extends TesseraRestApplication {
 
         TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
         TransactionManager transactionManager = transactionManagerFactory.create(config);
+        BatchResendManager batchResendManager = BatchResendManager.create(config);
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-        final TransactionResource transactionResource = new TransactionResource(transactionManager, payloadEncoder);
+        final TransactionResource transactionResource = new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
         final RecoveryResource recoveryResource = new RecoveryResource(batchResendManager);
 
         if (runtimeContext.isRecoveryMode()) {

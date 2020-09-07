@@ -129,7 +129,7 @@ public class TransactionResource {
 
         LOGGER.debug("Received push request");
 
-        final MessageHash messageHash = transactionManager.storePayload(encoder.decode(payload));
+        final MessageHash messageHash = transactionManager.storePayload(payloadEncoder.decode(payload));
         LOGGER.debug("Push request generated hash {}", messageHash);
         // TODO: Return the query url not the string of the messageHash
         return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();

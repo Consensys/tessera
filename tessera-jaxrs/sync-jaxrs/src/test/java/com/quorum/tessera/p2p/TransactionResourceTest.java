@@ -2,7 +2,6 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.partyinfo.ResendRequest;
 import com.quorum.tessera.partyinfo.*;
 import com.quorum.tessera.recover.resend.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;

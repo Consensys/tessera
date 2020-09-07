@@ -223,10 +223,6 @@ public class EncodedPayload {
                     execHash);
         }
 
-        public Builder withRecipientBox(byte[] newbox) {
-            this.recipientBoxes.add(newbox);
-            return this;
-        }
     }
 
     @Override

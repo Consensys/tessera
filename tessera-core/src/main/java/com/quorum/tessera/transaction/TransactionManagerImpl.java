@@ -3,7 +3,6 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
-import com.quorum.tessera.partyinfo.ResendRequestType;
 import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.MessageHash;
@@ -11,14 +10,16 @@ import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PublishPayloadException;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
+import com.quorum.tessera.transaction.publish.PayloadPublisher;
+import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.validation.Payload;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
 
-    private final PartyInfoService partyInfoService;
+    private final PayloadPublisher payloadPublisher;
 
     private final Enclave enclave;
 
@@ -57,17 +58,17 @@ public class TransactionManagerImpl implements TransactionManager {
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
-            PartyInfoService partyInfoService,
+            PayloadPublisher payloadPublisher,
             PrivacyHelper privacyHelper,
             int resendFetchSize) {
         this(
                 Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
-                partyInfoService,
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,
+                payloadPublisher,
                 privacyHelper,
                 resendFetchSize);
     }
@@ -79,10 +80,10 @@ public class TransactionManagerImpl implements TransactionManager {
             Base64Codec base64Codec,
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            PartyInfoService partyInfoService,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
+            PayloadPublisher payloadPublisher,
             PrivacyHelper privacyHelper,
             int resendFetchSize) {
 
@@ -90,11 +91,11 @@ public class TransactionManagerImpl implements TransactionManager {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
-        this.partyInfoService = Objects.requireNonNull(partyInfoService, "partyInfoService is required");
         this.enclave = Objects.requireNonNull(enclave, "enclave is required");
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
         this.resendManager = Objects.requireNonNull(resendManager, "resendManager is required");
+        this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
         this.privacyHelper = Objects.requireNonNull(privacyHelper, "privacyManager is required");
         this.resendFetchSize = resendFetchSize;
     }
@@ -152,7 +153,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 .forEach(
                         recipient -> {
                             final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                            partyInfoService.publishPayload(outgoing, recipient);
+                            payloadPublisher.publishPayload(outgoing, recipient);
                         });
         return true;
     }
@@ -251,7 +252,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
                                 try {
                                     if (!enclave.getPublicKeys().contains(recipientPublicKey)) {
-                                        partyInfoService.publishPayload(prunedPayload, recipientPublicKey);
+                                        payloadPublisher.publishPayload(prunedPayload, recipientPublicKey);
                                     }
                                 } catch (PublishPayloadException ex) {
                                     LOGGER.warn(
@@ -293,7 +294,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final PublicKey recipientPublicKey = request.getRecipient();
 
-        if (request.getType() == ResendRequestType.ALL) {
+        if (request.getType() == ResendRequest.ResendRequestType.ALL) {
             return resendAll(recipientPublicKey);
         } else {
             final MessageHash messageHash = request.getHash();

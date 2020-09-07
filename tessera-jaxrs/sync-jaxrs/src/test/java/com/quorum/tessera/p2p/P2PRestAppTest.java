@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
+import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
