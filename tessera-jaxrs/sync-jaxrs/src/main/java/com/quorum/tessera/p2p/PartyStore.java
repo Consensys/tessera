@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.context.RuntimeContext;
+import com.quorum.tessera.discovery.NodeUri;
 
 import java.net.URI;
 import java.util.ServiceLoader;
@@ -17,7 +18,11 @@ public interface PartyStore {
 
         final Set<URI> parties = getParties();
 
-        if (parties.isEmpty() || !parties.stream().anyMatch(runtimeContext.getPeers()::contains)) {
+        if (parties.isEmpty()
+                || !runtimeContext.getPeers().stream()
+                        .map(NodeUri::create)
+                        .map(NodeUri::asURI)
+                        .anyMatch(parties::contains)) {
             runtimeContext.getPeers().forEach(this::store);
         }
     }
