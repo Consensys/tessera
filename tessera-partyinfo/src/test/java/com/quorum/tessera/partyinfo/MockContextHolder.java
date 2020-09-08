@@ -16,7 +16,7 @@ public class MockContextHolder implements ContextHolder {
         runtimeContextThreadLocal.set(runtimeContext);
     }
 
-    static void reset() {
+    public static void reset() {
         runtimeContextThreadLocal.remove();
     }
 

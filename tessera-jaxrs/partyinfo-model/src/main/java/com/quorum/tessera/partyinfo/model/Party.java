@@ -1,7 +1,6 @@
-package com.quorum.tessera.partyinfo.model;
+package com.quorum.tessera.partyinfo.node;
 
 import com.quorum.tessera.partyinfo.URLNormalizer;
-import java.time.Instant;
 import java.util.Objects;
 
 /**
@@ -10,8 +9,6 @@ import java.util.Objects;
 public class Party {
 
     private final String url;
-
-    private Instant lastContacted;
 
     public Party(final String url) {
         this.url = URLNormalizer.create().normalize(url);

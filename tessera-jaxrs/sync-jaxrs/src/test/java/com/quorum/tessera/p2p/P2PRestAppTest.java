@@ -1,13 +1,13 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.api.filter.IPWhitelistFilter;
+import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
-import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.service.locator.ServiceLocator;
+import com.quorum.tessera.transaction.TransactionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Application;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,21 +35,16 @@ public class P2PRestAppTest {
     @Before
     public void setUp() throws Exception {
 
-        EnclaveFactory enclaveFactory = EnclaveFactory.create();
-        assertThat(enclaveFactory).isExactlyInstanceOf(MockEnclaveFactory.class);
-        Config config = new Config();
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setApp(AppType.P2P);
-        serverConfig.setServerAddress("http://bogus.com");
-        config.setServerConfigs(List.of(serverConfig));
-        config.setJdbcConfig(new JdbcConfig());
-        config.getJdbcConfig().setUsername("JUNIT");
-        config.getJdbcConfig().setPassword("");
-        config.getJdbcConfig().setUrl("dummydburl");
+        Set services = new HashSet<>();
+        services.add(mock(TransactionManager.class));
+        services.add(mock(Enclave.class));
 
         Client client = mock(Client.class);
         when(runtimeContext.getP2pClient()).thenReturn(client);
         when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
+
+        MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
+        serviceLocator.setServices(services);
 
         p2PRestApp = new P2PRestApp();
 
@@ -76,14 +71,7 @@ public class P2PRestAppTest {
     public void getSingletons() {
         Set<Object> results = p2PRestApp.getSingletons();
         assertThat(results).hasSize(3);
-        results.forEach(
-                o ->
-                        assertThat(o)
-                                .isInstanceOfAny(
-                                        PartyInfoResource.class, IPWhitelistFilter.class, TransactionResource.class));
     }
-
-
 
     @Test
     public void appType() {

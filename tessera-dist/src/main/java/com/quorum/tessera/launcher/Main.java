@@ -11,12 +11,10 @@ import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
-import com.quorum.tessera.enclave.EnclaveFactory;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
+import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,21 +58,18 @@ public class Main {
 
             RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
 
-            EnclaveFactory enclaveFactory = EnclaveFactory.create();
-            enclaveFactory.create(config);
+            com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
+            Discovery.getInstance().onCreate();
 
-            PartyInfoService partyInfoService = PartyInfoServiceFactory.create().create(config);
-            partyInfoService.populateStore();
+            LOGGER.debug("Creating service locator");
+            ServiceLocator serviceLocator = ServiceLocator.create();
+            LOGGER.debug("Created service locator {}", serviceLocator);
 
-            TransactionManagerFactory.create().create(config);
+            Set<Object> services = serviceLocator.getServices();
 
-            //ApplicationContext springContext = new ClassPathXmlApplicationContext("tessera-spring.xml");
-            ScheduledServiceFactory scheduledServiceFactory = ScheduledServiceFactory.fromConfig(config);
+            LOGGER.debug("Created {} services", services.size());
 
-            if(Objects.equals(System.getProperty("spring.profiles.active"),"")) {
-                scheduledServiceFactory.enableSync();
-            }
-            scheduledServiceFactory.build();
+            services.forEach(o -> LOGGER.debug("Service : {}", o));
 
             runWebServer(config);
 

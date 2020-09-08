@@ -5,14 +5,18 @@ import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.test.DefaultPartyHelper;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.json.JsonObject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.json.*;
+import javax.json.stream.JsonGenerator;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
+import java.io.StringWriter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RestPartyInfoChecker implements PartyInfoChecker {
 
@@ -22,7 +26,7 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
 
     @Override
     public boolean hasSynced() {
-        LOGGER.info("hasSynced {}", this);
+        LOGGER.trace("hasSynced {}", this);
 
         List<Party> parties = partyHelper.getParties().collect(Collectors.toList());
 
@@ -39,14 +43,27 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
             LOGGER.debug("Requested party info for {} . {}", p.getAlias(), response.getStatus());
             if (response.getStatus() == 200) {
                 final JsonObject result = response.readEntity(JsonObject.class);
-                final long peerCount =
-                        result.getJsonArray("peers").stream()
-                                .map(val -> (JsonObject) val)
-                                .filter(peer -> !peer.isNull("lastContact"))
-                                .count();
 
-                LOGGER.debug("Found {} peers of {} on {}", peerCount, parties.size(), p.getAlias());
-                results[i] = peerCount == parties.size();
+                JsonWriterFactory jsonGeneratorFactory =
+                    Json.createWriterFactory(Map.of(JsonGenerator.PRETTY_PRINTING, true));
+                StringWriter stringWriter = new StringWriter();
+                JsonWriter jsonWriter = jsonGeneratorFactory.createWriter(stringWriter);
+                try (jsonWriter) {
+                    jsonWriter.writeObject(result);
+                    LOGGER.debug("Reponse from node {} is {}", p.getAlias(), stringWriter.toString());
+                }
+
+                final JsonArray keys = result.getJsonArray("keys");
+                final long contactedUrlCount =
+                    keys.stream()
+                        .map(JsonValue::asJsonObject)
+                        .map(o -> o.getString("url"))
+                        .collect(Collectors.toSet())
+                        .size();
+
+                LOGGER.debug("Found {} peers of {} on {}", contactedUrlCount, parties.size(), p.getAlias());
+
+                results[i] = (contactedUrlCount == parties.size());
             } else {
                 results[i] = false;
             }

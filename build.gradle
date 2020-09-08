@@ -16,7 +16,7 @@ def slf4jVersion = "1.7.30"
 def logbackVersion = "1.2.3"
 
 allprojects {
-    group = "com.melowe.tessera"
+    group = "com.jpmorgan.quorum"
     plugins.withType(JavaPlugin).configureEach {
         java {
             modularity.inferModulePath = true

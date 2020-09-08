@@ -1,6 +1,7 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.p2p.ResendRequest;
+import com.quorum.tessera.p2p.ResendRequestType;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;

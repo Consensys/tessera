@@ -1,9 +1,7 @@
 package com.quorum.tessera.partyinfo.model;
 
-import com.quorum.tessera.partyinfo.node.NodeInfo;
-
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Contains all information that is transferred between two nodes on the
@@ -13,7 +11,7 @@ import java.util.stream.Collectors;
  * - all known URLs on the network
  */
 public class PartyInfo {
-    
+
     private final String url;
 
     private Set<Recipient> recipients;

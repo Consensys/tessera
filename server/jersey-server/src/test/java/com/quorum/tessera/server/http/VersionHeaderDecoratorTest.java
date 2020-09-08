@@ -2,8 +2,8 @@ package com.quorum.tessera.server.http;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.server.jersey.JerseyServer;
-import com.quorum.tessera.server.jersey.SampleApplication;
+import com.quorum.tessera.server.JerseyServer;
+import com.quorum.tessera.server.jaxrs.SampleApplication;
 import com.quorum.tessera.shared.Constants;
 import org.junit.After;
 import org.junit.Before;

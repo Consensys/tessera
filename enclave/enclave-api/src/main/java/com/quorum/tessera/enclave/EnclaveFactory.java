@@ -82,6 +82,11 @@ public interface EnclaveFactory {
         }
     }
 
+    default Optional<Enclave> enclave() {
+        EnclaveHolder enclaveHolder = EnclaveHolder.getInstance();
+        return enclaveHolder.getEnclave();
+    }
+
     static EnclaveFactory create() {
         LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating EnclaveFactory");
         return ServiceLoaderUtil.load(EnclaveFactory.class).orElseGet(() -> new EnclaveFactory() {});

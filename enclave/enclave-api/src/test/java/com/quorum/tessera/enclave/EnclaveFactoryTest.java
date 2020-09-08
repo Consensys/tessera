@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.Collections.singletonList;
@@ -169,17 +170,20 @@ public class EnclaveFactoryTest {
 
     }
 
+
     @Test
-    public void callGetEnclaveithStoreInstance() {
+    public void callEnclaveWithStoreInstance() {
 
         Enclave storedEnclave = mock(Enclave.class);
         MockEnclaveHolder.setMockEnclave(storedEnclave);
 
-        Enclave enclave = enclaveFactory.enclave().get();
+        Optional<Enclave> result = enclaveFactory.enclave();
 
-        assertThat(enclave).isSameAs(storedEnclave);
+        assertThat(result).isPresent().contains(storedEnclave);
 
         MockEnclaveHolder.reset();
 
     }
+
+
 }

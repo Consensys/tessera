@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+group 'com.jpmorgan.quorum'
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "javax.inject:javax.inject"
+    testCompile "junit:junit"
+    testCompile "org.assertj:assertj-core"
+    testCompile "javax.inject:javax.inject"
+}
