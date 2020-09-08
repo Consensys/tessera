@@ -3,10 +3,11 @@ package com.quorum.tessera.recover.resend;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransactionUtils;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.*;
+import com.quorum.tessera.partyinfo.ResendBatchPublisher;
 import com.quorum.tessera.util.Base64Codec;
 import java.util.List;
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
-    private final PartyInfoService partyInfoService;
+    private final Discovery discovery;
 
     private final ResendBatchPublisher resendBatchPublisher;
 
@@ -34,7 +35,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
             Enclave enclave,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            PartyInfoService partyInfoService,
+            Discovery discovery,
             ResendBatchPublisher resendBatchPublisher,
             int maxResults) {
         this(
@@ -43,7 +44,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
                 enclave,
                 stagingEntityDAO,
                 encryptedTransactionDAO,
-                partyInfoService,
+                discovery,
                 resendBatchPublisher,
                 maxResults);
     }
@@ -54,7 +55,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
             Enclave enclave,
             StagingEntityDAO stagingEntityDAO,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            PartyInfoService partyInfoService,
+            Discovery discovery,
             ResendBatchPublisher resendBatchPublisher,
             int maxResults) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
@@ -62,7 +63,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
         this.enclave = Objects.requireNonNull(enclave);
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
         this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
-        this.partyInfoService = Objects.requireNonNull(partyInfoService);
+        this.discovery = Objects.requireNonNull(discovery);
         this.resendBatchPublisher = Objects.requireNonNull(resendBatchPublisher);
         this.maxResults = maxResults;
     }
@@ -83,7 +84,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
         final BatchWorkflow batchWorkflow =
                 BatchWorkflowFactory.newFactory(
-                                enclave, payloadEncoder, partyInfoService, resendBatchPublisher, transactionCount)
+                                enclave, payloadEncoder, discovery, resendBatchPublisher, transactionCount)
                         .create();
 
         IntStream.range(0, (int) batchCount)
@@ -99,7 +100,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
                             batchWorkflow.execute(context);
                         });
 
-        return new ResendBatchResponse(batchWorkflow.getPublishedMessageCount());
+        return ResendBatchResponse.from(batchWorkflow.getPublishedMessageCount());
     }
 
     @Override

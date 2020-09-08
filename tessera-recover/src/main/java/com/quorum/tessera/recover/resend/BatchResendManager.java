@@ -5,6 +5,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.partyinfo.*;
@@ -17,19 +18,28 @@ public interface BatchResendManager {
 
     static BatchResendManager create(Config config) {
         return ServiceLoaderUtil.load(BatchResendManager.class)
-            .orElseGet(() -> {
-                PartyInfoService partyInfoService = PartyInfoServiceFactory.create(config).partyInfoService();
-                Enclave enclave = EnclaveFactory.create().create(config);
-                EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
+                .orElseGet(
+                        () -> {
+                            Discovery discovery = Discovery.getInstance();
+                            Enclave enclave = EnclaveFactory.create().create(config);
+                            EntityManagerDAOFactory entityManagerDAOFactory =
+                                    EntityManagerDAOFactory.newFactory(config);
 
-                EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
-                StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
+                            EncryptedTransactionDAO encryptedTransactionDAO =
+                                    entityManagerDAOFactory.createEncryptedTransactionDAO();
+                            StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
 
-                ResendBatchPublisher resendBatchPublisher = ResendBatchPublisherFactory.newFactory(config).create(config);
+                            ResendBatchPublisher resendBatchPublisher =
+                                    ResendBatchPublisherFactory.newFactory(config).create(config);
 
-                final int defaultMaxResults = 10000;
-                return new BatchResendManagerImpl(
-                    enclave, stagingEntityDAO, encryptedTransactionDAO, partyInfoService,resendBatchPublisher,defaultMaxResults);
-            });
+                            final int defaultMaxResults = 10000;
+                            return new BatchResendManagerImpl(
+                                    enclave,
+                                    stagingEntityDAO,
+                                    encryptedTransactionDAO,
+                                    discovery,
+                                    resendBatchPublisher,
+                                    defaultMaxResults);
+                        });
     }
 }

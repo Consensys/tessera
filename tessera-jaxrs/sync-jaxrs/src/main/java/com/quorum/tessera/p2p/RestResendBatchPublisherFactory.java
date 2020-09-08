@@ -4,8 +4,6 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.partyinfo.ResendBatchPublisher;
 import com.quorum.tessera.partyinfo.ResendBatchPublisherFactory;
-import com.quorum.tessera.sync.ResendClient;
-
 
 public class RestResendBatchPublisherFactory implements ResendBatchPublisherFactory {
 

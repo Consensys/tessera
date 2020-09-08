@@ -2,13 +2,13 @@ package com.quorum.tessera.recover;
 
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.sync.TransactionRequester;
+import com.quorum.tessera.partyinfo.TransactionRequester;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.StoreEntityException;
@@ -30,7 +30,7 @@ public class RecoveryImpl implements Recovery {
 
     private final StagingEntityDAO stagingEntityDAO;
 
-    private final PartyInfoService partyInfoService;
+    private final Discovery discovery;
 
     private final TransactionRequester transactionRequester;
 
@@ -40,11 +40,12 @@ public class RecoveryImpl implements Recovery {
 
     public RecoveryImpl(
             StagingEntityDAO stagingEntityDAO,
-            PartyInfoService partyInfoService,
+            Discovery discovery,
             TransactionRequester transactionRequester,
-            TransactionManager transactionManager,PayloadEncoder payloadEncoder) {
+            TransactionManager transactionManager,
+            PayloadEncoder payloadEncoder) {
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);
-        this.partyInfoService = Objects.requireNonNull(partyInfoService);
+        this.discovery = Objects.requireNonNull(discovery);
         this.transactionRequester = Objects.requireNonNull(transactionRequester);
         this.transactionManager = Objects.requireNonNull(transactionManager);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
@@ -53,21 +54,21 @@ public class RecoveryImpl implements Recovery {
     @Override
     public RecoveryResult request() {
 
-        final PartyInfo partyInfo = partyInfoService.getPartyInfo();
+        final NodeInfo nodeInfo = discovery.getCurrent();
 
-        final Set<Party> partiesToRequest =
-                partyInfo.getParties().stream()
-                        .filter(p -> !p.getUrl().equals(partyInfo.getUrl()))
+        final Set<Recipient> recipientsToRequest =
+                nodeInfo.getRecipients().stream()
+                        .filter(p -> !p.getUrl().equals(nodeInfo.getUrl()))
                         .collect(Collectors.toSet());
 
         final long failures =
-                partiesToRequest.stream()
+                recipientsToRequest.stream()
                         .filter(p -> !transactionRequester.requestAllTransactionsFromNode(p.getUrl()))
                         .peek(p -> LOGGER.warn("Fail resend request to {}", p.getUrl()))
                         .count();
 
         if (failures > 0) {
-            if (failures == partiesToRequest.size()) {
+            if (failures == recipientsToRequest.size()) {
                 return RecoveryResult.FAILURE;
             }
             return RecoveryResult.PARTIAL_SUCCESS;

@@ -2,10 +2,9 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.partyinfo.PublishPayloadException;
 import com.quorum.tessera.partyinfo.PushBatchRequest;
 import com.quorum.tessera.partyinfo.ResendBatchPublisher;
-import com.quorum.tessera.sync.ResendClient;
+import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -3,7 +3,7 @@ package com.quorum.tessera.recover.resend;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.Recipient;
 
 public class BatchWorkflowContext {
 

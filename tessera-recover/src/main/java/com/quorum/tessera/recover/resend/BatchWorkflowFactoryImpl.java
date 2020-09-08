@@ -1,8 +1,8 @@
 package com.quorum.tessera.recover.resend;
 
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.partyinfo.PartyInfoService;
 import com.quorum.tessera.partyinfo.ResendBatchPublisher;
 
 import java.util.List;
@@ -15,7 +15,7 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
 
     private PayloadEncoder payloadEncoder;
 
-    private PartyInfoService partyInfoService;
+    private Discovery discovery;
 
     private ResendBatchPublisher resendBatchPublisher;
 
@@ -29,8 +29,8 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
         this.payloadEncoder = payloadEncoder;
     }
 
-    public void setPartyInfoService(PartyInfoService partyInfoService) {
-        this.partyInfoService = partyInfoService;
+    public void setDiscovery(Discovery discovery) {
+        this.discovery = discovery;
     }
 
     public void setResendBatchPublisher(ResendBatchPublisher resendBatchPublisher) {
@@ -47,7 +47,7 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
         ValidateEnclaveStatus validateEnclaveStatus = new ValidateEnclaveStatus(enclave);
         DecodePayloadHandler decodePayloadHandler = new DecodePayloadHandler(payloadEncoder);
         PreparePayloadForRecipient preparePayloadForRecipient = new PreparePayloadForRecipient(payloadEncoder);
-        FindRecipientFromPartyInfo findRecipientFromPartyInfo = new FindRecipientFromPartyInfo(partyInfoService);
+        FindRecipientFromPartyInfo findRecipientFromPartyInfo = new FindRecipientFromPartyInfo(discovery);
         FilterPayload filterPayload = new FilterPayload(enclave);
         SearchRecipentKeyForPayload searchRecipentKeyForPayload = new SearchRecipentKeyForPayload(enclave);
         SenderIsNotRecipient senderIsNotRecipient = new SenderIsNotRecipient(enclave);
