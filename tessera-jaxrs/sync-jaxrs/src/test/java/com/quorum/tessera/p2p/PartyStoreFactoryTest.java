@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.net.URI;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,6 +77,20 @@ public class PartyStoreFactoryTest {
         partyStoreFactory.loadFromConfigIfEmpty();
 
         verify(partyStore).getParties();
+    }
+
+    @Test
+    public void loadFromConfigNormaliseURLsBeforeCompare() {
+
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create("http://peer.com/")));
+
+        when(RuntimeContext.getInstance().getPeers()).thenReturn(List.of(URI.create("http://peer.com")));
+
+        partyStoreFactory.loadFromConfigIfEmpty();
+
+        verify(partyStore).getParties();
+        verify(partyStore, times(0)).store(any());
+
     }
 
     @Test
