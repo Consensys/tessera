@@ -5,7 +5,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
 import com.quorum.tessera.p2p.ResendRequest;
-import com.quorum.tessera.p2p.ResendRequestType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.Before;
@@ -44,11 +43,11 @@ public class ResendIndividualIT {
         recipient = partyHelper.findByAlias("B");
 
         final Response response = client.target(sender.getQ2TUri())
-                .path("/sendraw")
-                .request()
-                .header("c11n-from", sender.getPublicKey())
-                .header("c11n-to", recipient.getPublicKey())
-                .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+            .path("/sendraw")
+            .request()
+            .header("c11n-from", sender.getPublicKey())
+            .header("c11n-to", recipient.getPublicKey())
+            .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
 
         //validate result
         assertThat(response).isNotNull();
@@ -65,9 +64,9 @@ public class ResendIndividualIT {
         request.setPublicKey(recipient.getPublicKey());
 
         final Response response = client.target(sender.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
+            .path(RESEND_PATH)
+            .request()
+            .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
@@ -88,9 +87,9 @@ public class ResendIndividualIT {
         request.setPublicKey(sender.getPublicKey());
 
         final Response response = client.target(recipient.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
+            .path(RESEND_PATH)
+            .request()
+            .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
@@ -108,24 +107,24 @@ public class ResendIndividualIT {
         final ResendRequest request = new ResendRequest();
         request.setType(RESEND_INDIVIDUAL_VALUE);
         request.setKey(this.hash);
-        
+
         Party anyOtherParty = partyHelper.getParties()
-                .filter(p -> !p.equals(sender))
-                .filter(p -> !p.equals(recipient))
-                .findAny()
-                .get();
-        
+            .filter(p -> !p.equals(sender))
+            .filter(p -> !p.equals(recipient))
+            .findAny()
+            .get();
+
         request.setPublicKey(anyOtherParty.getPublicKey());
 
         final Response response = client.target(recipient.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
+            .path(RESEND_PATH)
+            .request()
+            .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(500);
         assertThat(response.readEntity(String.class))
-                .contains("Recipient " + anyOtherParty.getPublicKey() + " is not a recipient of transaction");
+            .contains("Recipient " + anyOtherParty.getPublicKey() + " is not a recipient of transaction");
 
     }
 
@@ -138,17 +137,17 @@ public class ResendIndividualIT {
         request.setType(RESEND_INDIVIDUAL_VALUE);
         request.setKey(unknownHash);
         request.setPublicKey(partyHelper.getParties()
-                .filter(p -> !p.equals(sender))
-                .filter(p -> !p.equals(recipient))
-                .findAny()
-                .get()
-                .getPublicKey()
+            .filter(p -> !p.equals(sender))
+            .filter(p -> !p.equals(recipient))
+            .findAny()
+            .get()
+            .getPublicKey()
         );
 
         final Response response = client.target(recipient.getP2PUri())
-                .path(RESEND_PATH)
-                .request()
-                .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
+            .path(RESEND_PATH)
+            .request()
+            .post(Entity.entity(request, MediaType.APPLICATION_JSON_TYPE));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(404);

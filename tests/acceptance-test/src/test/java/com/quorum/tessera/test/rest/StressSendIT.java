@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StressSendIT {
@@ -32,7 +33,9 @@ public class StressSendIT {
     private static final int MAX_COUNT = 20000;
     private static final int THREAD_COUNT = 10;
 
-    /** Quorum sends transaction with single public recipient key */
+    /**
+     * Quorum sends transaction with single public recipient key
+     */
     @Test
     public void sendToSingleRecipientUntilFailureOrMaxReached() {
         LOGGER.info("stress test starting");
@@ -47,34 +50,34 @@ public class StressSendIT {
         final List<Thread> stressThreads = new ArrayList<>();
         for (int i = 0; i < THREAD_COUNT; i++) {
             final Thread stressThread =
-                    new Thread(
-                            () -> {
-                                int currentCount = sendCounter.incrementAndGet();
-                                while (currentCount < MAX_COUNT) {
-                                    final SendRequest sendRequest = new SendRequest();
-                                    sendRequest.setFrom(firstParty.getPublicKey());
-                                    sendRequest.setTo(secondParty.getPublicKey());
-                                    sendRequest.setPayload(transactionData);
+                new Thread(
+                    () -> {
+                        int currentCount = sendCounter.incrementAndGet();
+                        while (currentCount < MAX_COUNT) {
+                            final SendRequest sendRequest = new SendRequest();
+                            sendRequest.setFrom(firstParty.getPublicKey());
+                            sendRequest.setTo(secondParty.getPublicKey());
+                            sendRequest.setPayload(transactionData);
 
-                                    try (Response response =
-                                            client.target(firstParty.getQ2TUri())
-                                                    .path(SEND_PATH)
-                                                    .request()
-                                                    .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON))) {
+                            try (Response response =
+                                     client.target(firstParty.getQ2TUri())
+                                         .path(SEND_PATH)
+                                         .request()
+                                         .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON))) {
 
-                                        if (response.getStatus() != 201) {
-                                            LOGGER.info("Response is not 201. MessageCount=" + currentCount);
-                                            sendCounter.addAndGet(MAX_COUNT);
-                                            invalidResults.incrementAndGet();
-                                        }
-                                    }
-
-                                    currentCount = sendCounter.incrementAndGet();
-                                    if (currentCount % 1000 == 0) {
-                                        LOGGER.info("currentCount={}", currentCount);
-                                    }
+                                if (response.getStatus() != 201) {
+                                    LOGGER.info("Response is not 201. MessageCount=" + currentCount);
+                                    sendCounter.addAndGet(MAX_COUNT);
+                                    invalidResults.incrementAndGet();
                                 }
-                            });
+                            }
+
+                            currentCount = sendCounter.incrementAndGet();
+                            if (currentCount % 1000 == 0) {
+                                LOGGER.info("currentCount={}", currentCount);
+                            }
+                        }
+                    });
             stressThread.start();
             stressThreads.add(stressThread);
         }

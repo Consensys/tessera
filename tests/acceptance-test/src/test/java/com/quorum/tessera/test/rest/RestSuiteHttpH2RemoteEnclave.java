@@ -12,9 +12,10 @@ import suite.TestSuite;
 
 @RunWith(TestSuite.class)
 @ProcessConfig(
-        communicationType = CommunicationType.REST,
-        dbType = DBType.H2,
-        socketType = SocketType.HTTP,
-        enclaveType = EnclaveType.REMOTE,
-        encryptorType = EncryptorType.NACL)
-public class RestSuiteHttpH2RemoteEnclave extends RestSuite {}
+    communicationType = CommunicationType.REST,
+    dbType = DBType.H2,
+    socketType = SocketType.HTTP,
+    enclaveType = EnclaveType.REMOTE,
+    encryptorType = EncryptorType.NACL)
+public class RestSuiteHttpH2RemoteEnclave extends RestSuite {
+}

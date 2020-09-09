@@ -39,15 +39,15 @@ public class ExecutionContext {
     private EncryptorType encryptorType;
 
     private ExecutionContext(
-            DBType dbType,
-            CommunicationType communicationType,
-            SocketType socketType,
-            EnclaveType enclaveType,
-            boolean admin,
-            String prefix,
-            CommunicationType p2pCommunicationType,
-            boolean p2pSsl,
-            EncryptorType encryptorType) {
+        DBType dbType,
+        CommunicationType communicationType,
+        SocketType socketType,
+        EnclaveType enclaveType,
+        boolean admin,
+        String prefix,
+        CommunicationType p2pCommunicationType,
+        boolean p2pSsl,
+        EncryptorType encryptorType) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -117,7 +117,8 @@ public class ExecutionContext {
 
         private EncryptorType encryptorType;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public static Builder create() {
             return new Builder();
@@ -172,21 +173,21 @@ public class ExecutionContext {
 
         public ExecutionContext build() {
             Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
-                    .forEach(Objects::requireNonNull);
+                .forEach(Objects::requireNonNull);
 
             this.p2pCommunicationType = Optional.ofNullable(p2pCommunicationType).orElse(communicationType);
 
             ExecutionContext executionContext =
-                    new ExecutionContext(
-                            dbType,
-                            communicationType,
-                            socketType,
-                            enclaveType,
-                            admin,
-                            prefix,
-                            p2pCommunicationType,
-                            p2pSsl,
-                            encryptorType);
+                new ExecutionContext(
+                    dbType,
+                    communicationType,
+                    socketType,
+                    enclaveType,
+                    admin,
+                    prefix,
+                    p2pCommunicationType,
+                    p2pSsl,
+                    encryptorType);
 
             return executionContext;
         }
@@ -207,7 +208,7 @@ public class ExecutionContext {
         public ExecutionContext createAndSetupContext() {
 
             Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
-                    .forEach(Objects::requireNonNull);
+                .forEach(Objects::requireNonNull);
 
             ExecutionContext executionContext = build();
 
@@ -215,7 +216,7 @@ public class ExecutionContext {
             configs.stream()
                 .map(ConfigDescriptor::getConfig)
                 .forEach(c -> {
-                    LOGGER.debug("Generated config {}",JaxbUtil.marshalToStringNoValidation(c));
+                    LOGGER.debug("Generated config {}", JaxbUtil.marshalToStringNoValidation(c));
                 });
             // FIXME: YUk
             executionContext.configs = configs;

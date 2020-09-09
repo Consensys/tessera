@@ -47,29 +47,29 @@ public class FileKeygenSteps implements En {
     public FileKeygenSteps() {
 
         Given(
-                "the application is available",
-                () -> {
-                    this.exitCode = null;
-                    this.buildDir = Files.createTempDirectory(UUID.randomUUID().toString());
+            "the application is available",
+            () -> {
+                this.exitCode = null;
+                this.buildDir = Files.createTempDirectory(UUID.randomUUID().toString());
 
-                    final String appPath = System.getProperty("application.jar");
+                final String appPath = System.getProperty("application.jar");
 
-                    if (Objects.equals("", appPath)) {
-                        throw new IllegalStateException("No application.jar system property defined");
-                    }
+                if (Objects.equals("", appPath)) {
+                    throw new IllegalStateException("No application.jar system property defined");
+                }
 
-                    final Path applicationJar = Paths.get(appPath);
+                final Path applicationJar = Paths.get(appPath);
 
-                    this.args =
-                            new ArrayList<>(
-                                    Arrays.asList(
-                                            "java",
-                                            "-jar",
-                                            applicationJar.toString(),
-                                            "-keygen",
-                                            "--encryptor.type",
-                                            "NACL"));
-                });
+                this.args =
+                    new ArrayList<>(
+                        Arrays.asList(
+                            "java",
+                            "-jar",
+                            applicationJar.toString(),
+                            "-keygen",
+                            "--encryptor.type",
+                            "NACL"));
+            });
 
         Given("no file exists at {string}", (String path) -> Files.deleteIfExists(Paths.get(path)));
 
@@ -78,76 +78,77 @@ public class FileKeygenSteps implements En {
         Given("a password of {string}", (String password) -> this.password = password);
 
         // here to explicitly state we are doing nothing
-        Given("no file path is provided", () -> {});
+        Given("no file path is provided", () -> {
+        });
 
         Given("a file path of {string}", (String path) -> this.args.addAll(Arrays.asList("-filename", path)));
 
         When(
-                "new keys are generated",
-                () -> {
-                    final ProcessBuilder processBuilder = new ProcessBuilder(args);
-                    processBuilder.directory(buildDir.toFile());
+            "new keys are generated",
+            () -> {
+                final ProcessBuilder processBuilder = new ProcessBuilder(args);
+                processBuilder.directory(buildDir.toFile());
 
-                    final Process process = processBuilder.start();
-                    executorService.submit(
-                            new FileKeygenStreamConsumer(
-                                    process.getInputStream(), process.getOutputStream(), password));
-                    executorService.submit(
-                            new FileKeygenStreamConsumer(
-                                    process.getErrorStream(), process.getOutputStream(), password));
+                final Process process = processBuilder.start();
+                executorService.submit(
+                    new FileKeygenStreamConsumer(
+                        process.getInputStream(), process.getOutputStream(), password));
+                executorService.submit(
+                    new FileKeygenStreamConsumer(
+                        process.getErrorStream(), process.getOutputStream(), password));
 
-                    this.exitCode = process.waitFor();
-                });
+                this.exitCode = process.waitFor();
+            });
 
         Then(
-                "the application has an exit code of {int}",
-                (Integer expectedExitCode) -> assertThat(exitCode).isEqualTo(expectedExitCode));
+            "the application has an exit code of {int}",
+            (Integer expectedExitCode) -> assertThat(exitCode).isEqualTo(expectedExitCode));
 
         And(
-                "public key file {string} exists and private key file {string} exists",
-                (String publicKeyPath, String privateKeyPath) -> {
-                    this.publicKeyPath = buildDir.resolve(publicKeyPath);
-                    this.privateKeyPath = buildDir.resolve(privateKeyPath);
+            "public key file {string} exists and private key file {string} exists",
+            (String publicKeyPath, String privateKeyPath) -> {
+                this.publicKeyPath = buildDir.resolve(publicKeyPath);
+                this.privateKeyPath = buildDir.resolve(privateKeyPath);
 
-                    assertThat(this.publicKeyPath).exists();
-                    assertThat(this.privateKeyPath).exists();
-                });
+                assertThat(this.publicKeyPath).exists();
+                assertThat(this.privateKeyPath).exists();
+            });
 
         And(
-                "the generated keys are valid",
-                () -> {
-                    final Encryptor naclFacade = transaction.utils.Utils.getEncryptor(EncryptorType.NACL);
-                    KeyPair knownGoodKeypair = naclFacade.generateNewKeys();
+            "the generated keys are valid",
+            () -> {
+                final Encryptor naclFacade = transaction.utils.Utils.getEncryptor(EncryptorType.NACL);
+                KeyPair knownGoodKeypair = naclFacade.generateNewKeys();
 
-                    InlineKeypair inlineKeypair = mock(InlineKeypair.class);
+                InlineKeypair inlineKeypair = mock(InlineKeypair.class);
 
-                    String encodedPublicKey = knownGoodKeypair.getPublicKey().encodeToBase64();
-                    String encodedPrivateKey = knownGoodKeypair.getPrivateKey().encodeToBase64();
+                String encodedPublicKey = knownGoodKeypair.getPublicKey().encodeToBase64();
+                String encodedPrivateKey = knownGoodKeypair.getPrivateKey().encodeToBase64();
 
-                    when(inlineKeypair.getPublicKey()).thenReturn(encodedPublicKey);
-                    when(inlineKeypair.getPrivateKey()).thenReturn(encodedPrivateKey);
+                when(inlineKeypair.getPublicKey()).thenReturn(encodedPublicKey);
+                when(inlineKeypair.getPrivateKey()).thenReturn(encodedPrivateKey);
 
-                    KeyEncryptor keyEncryptor =
-                            KeyEncryptorFactory.newFactory()
-                                    .create(
-                                            new EncryptorConfig() {
-                                                {
-                                                    setType(EncryptorType.NACL);
-                                                }
-                                            });
+                KeyEncryptor keyEncryptor =
+                    KeyEncryptorFactory.newFactory()
+                        .create(
+                            new EncryptorConfig() {
+                                {
+                                    setType(EncryptorType.NACL);
+                                }
+                            });
 
-                    final FilesystemKeyPair generatedKeys =
-                            new FilesystemKeyPair(this.publicKeyPath, this.privateKeyPath, keyEncryptor);
-                    generatedKeys.withPassword(this.password.toCharArray());
+                final FilesystemKeyPair generatedKeys =
+                    new FilesystemKeyPair(this.publicKeyPath, this.privateKeyPath, keyEncryptor);
+                generatedKeys.withPassword(this.password.toCharArray());
 
-                    final PublicKey publicKey = PublicKey.from(DECODER.decode(generatedKeys.getPublicKey()));
-                    final PrivateKey privateKey = PrivateKey.from(DECODER.decode(generatedKeys.getPrivateKey()));
+                final PublicKey publicKey = PublicKey.from(DECODER.decode(generatedKeys.getPublicKey()));
+                final PrivateKey privateKey = PrivateKey.from(DECODER.decode(generatedKeys.getPrivateKey()));
 
-                    final SharedKey firstKey = naclFacade.computeSharedKey(publicKey, knownGoodKeypair.getPrivateKey());
-                    final SharedKey secondKey =
-                            naclFacade.computeSharedKey(knownGoodKeypair.getPublicKey(), privateKey);
+                final SharedKey firstKey = naclFacade.computeSharedKey(publicKey, knownGoodKeypair.getPrivateKey());
+                final SharedKey secondKey =
+                    naclFacade.computeSharedKey(knownGoodKeypair.getPublicKey(), privateKey);
 
-                    assertThat(firstKey).isEqualTo(secondKey);
-                });
+                assertThat(firstKey).isEqualTo(secondKey);
+            });
     }
 }

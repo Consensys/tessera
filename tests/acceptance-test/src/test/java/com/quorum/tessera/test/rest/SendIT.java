@@ -37,7 +37,9 @@ public class SendIT {
 
     private PartyHelper partyHelper = PartyHelper.create();
 
-    /** Quorum sends transaction with single public recipient key */
+    /**
+     * Quorum sends transaction with single public recipient key
+     */
     @Test
     public void sendToSingleRecipient() {
 
@@ -51,10 +53,10 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response =
-                client.target(firstParty.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(firstParty.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         // validate result
         final SendResponse result = response.readEntity(SendResponse.class);
@@ -77,19 +79,21 @@ public class SendIT {
             .isEqualTo(transactionData);
 
         utils.findTransaction(result.getKey(), partyHelper.findByAlias("A"), partyHelper.findByAlias("B"))
-                .forEach(
-                        r -> {
-                            assertThat(r.getStatus()).isEqualTo(200);
-                        });
+            .forEach(
+                r -> {
+                    assertThat(r.getStatus()).isEqualTo(200);
+                });
 
         utils.findTransaction(result.getKey(), partyHelper.findByAlias("D"))
-                .forEach(
-                        r -> {
-                            assertThat(r.getStatus()).isEqualTo(404);
-                        });
+            .forEach(
+                r -> {
+                    assertThat(r.getStatus()).isEqualTo(404);
+                });
     }
 
-    /** Quorum sends transaction with multiple public recipient keys */
+    /**
+     * Quorum sends transaction with multiple public recipient keys
+     */
     @Test
     public void firstPartyForwardsToTwoOtherParties() {
 
@@ -108,10 +112,10 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response =
-                client.target(sendingParty.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(sendingParty.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         AssertApiHeaders.doAsserts(response);
 
@@ -133,16 +137,16 @@ public class SendIT {
         assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
         utils.findTransaction(result.getKey(), sendingParty, secondParty, thirdParty)
-                .forEach(
-                        r -> {
-                            assertThat(r.getStatus()).isEqualTo(200);
-                        });
+            .forEach(
+                r -> {
+                    assertThat(r.getStatus()).isEqualTo(200);
+                });
 
         utils.findTransaction(result.getKey(), excludedParty)
-                .forEach(
-                        r -> {
-                            assertThat(r.getStatus()).isEqualTo(404);
-                        });
+            .forEach(
+                r -> {
+                    assertThat(r.getStatus()).isEqualTo(404);
+                });
     }
 
     @Test
@@ -157,10 +161,10 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response =
-                client.target(recipient.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(recipient.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         AssertApiHeaders.doAsserts(response);
 
@@ -192,10 +196,10 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response =
-                client.target(sendingParty.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(sendingParty.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         AssertApiHeaders.doAsserts(response);
 
@@ -227,17 +231,17 @@ public class SendIT {
         Party recipient = partyHelper.getParties().filter(p -> p != sendingParty).findAny().get();
 
         final String sendRequest =
-                Json.createObjectBuilder()
-                        .add("from", sendingParty.getPublicKey())
-                        .add("to", Json.createArrayBuilder().add(recipient.getPublicKey()))
-                        .build()
-                        .toString();
+            Json.createObjectBuilder()
+                .add("from", sendingParty.getPublicKey())
+                .add("to", Json.createArrayBuilder().add(recipient.getPublicKey()))
+                .build()
+                .toString();
 
         final Response response =
-                client.target(sendingParty.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(sendingParty.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         // validate result
         assertThat(response).isNotNull();
@@ -251,10 +255,10 @@ public class SendIT {
         final String sendRequest = "this is clearly a garbage message";
 
         final Response response =
-                client.target(sendingParty.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(sendingParty.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         // validate result
         assertThat(response).isNotNull();
@@ -268,17 +272,19 @@ public class SendIT {
         final String sendRequest = "{}";
 
         final Response response =
-                client.target(sendingParty.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(sendingParty.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         // validate result
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(400);
     }
 
-    /** Quorum sends transaction with unknown public key */
+    /**
+     * Quorum sends transaction with unknown public key
+     */
     @Test
     public void sendUnknownPublicKey() {
 
@@ -291,22 +297,24 @@ public class SendIT {
         ExecutionContext executionContext = ExecutionContext.currentContext();
 
         final String unknownkey =
-                generateValidButUnknownPublicKey(executionContext.getEncryptorType()).encodeToBase64();
+            generateValidButUnknownPublicKey(executionContext.getEncryptorType()).encodeToBase64();
         sendRequest.setTo(unknownkey);
 
         sendRequest.setPayload(transactionData);
 
         final Response response =
-                client.target(sendingParty.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(sendingParty.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(404);
     }
 
-    /** config3.json has party 1's key in always send to list */
+    /**
+     * config3.json has party 1's key in always send to list
+     */
     @Test
     public void partyAlwaysSendsToPartyOne() {
 
@@ -321,26 +329,26 @@ public class SendIT {
         sendRequest.setPayload(transactionData);
 
         final Response response =
-                client.target(sender.getQ2TUri())
-                        .path(SEND_PATH)
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(sender.getQ2TUri())
+                .path(SEND_PATH)
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
         // Party one recieved by always send to
         utils.findTransaction(result.getKey(), sender, recipient, partyHelper.findByAlias("A"))
-                .forEach(
-                        r -> {
-                            assertThat(r.getStatus()).isEqualTo(200);
-                        });
+            .forEach(
+                r -> {
+                    assertThat(r.getStatus()).isEqualTo(200);
+                });
 
         // Party 2 is out of the loop
         utils.findTransaction(result.getKey(), partyHelper.findByAlias("B"))
-                .forEach(
-                        r -> {
-                            assertThat(r.getStatus()).isEqualTo(404);
-                        });
+            .forEach(
+                r -> {
+                    assertThat(r.getStatus()).isEqualTo(404);
+                });
     }
 }

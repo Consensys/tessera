@@ -6,7 +6,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
 
-public class RestResendClient implements ResendClient<ResendRequest> {
+public class RestResendClient implements ResendClient {
 
     private final Client client;
 

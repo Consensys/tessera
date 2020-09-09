@@ -111,7 +111,7 @@ public class ExecArgsBuilder {
         final List<String> tokens = new ArrayList<>();
         tokens.add(startScript.toAbsolutePath().toString());
 
-        if(!classpathItems.isEmpty()) {
+        if (!classpathItems.isEmpty()) {
             final String classpathStr =
                 classpathItems.stream()
                     .map(Path::toAbsolutePath)
@@ -125,7 +125,7 @@ public class ExecArgsBuilder {
             tokens.addAll(subcommands);
         }
 
-        if(Objects.nonNull(configFile)) {
+        if (Objects.nonNull(configFile)) {
             tokens.add("-configfile");
             tokens.add(configFile.toAbsolutePath().toString());
         }

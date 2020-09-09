@@ -1,4 +1,4 @@
-package com.quorum.tessera.partyinfo.node;
+package com.quorum.tessera.partyinfo.model;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;

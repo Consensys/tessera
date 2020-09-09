@@ -1,30 +1,22 @@
 package com.quorum.tessera.transaction;
 
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
-import com.quorum.tessera.util.Base64Codec;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
@@ -1098,16 +1090,6 @@ public class TransactionManagerTest {
 
     @Test
     public void constructWithLessArgs() {
-        final MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
-
-        final Config config = new Config();
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setCommunicationType(CommunicationType.REST);
-        serverConfig.setApp(AppType.P2P);
-        config.setServerConfigs(Arrays.asList(serverConfig));
-
-        serviceLocator.setServices(
-                Stream.of(config, payloadPublisher, enclave, payloadPublisher).collect(Collectors.toSet()));
 
         TransactionManager tm =
                 new TransactionManagerImpl(

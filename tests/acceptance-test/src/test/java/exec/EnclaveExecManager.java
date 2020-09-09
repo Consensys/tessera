@@ -3,6 +3,7 @@ package exec;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import config.ConfigDescriptor;
+
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
@@ -36,8 +37,8 @@ public class EnclaveExecManager implements ExecManager {
     public EnclaveExecManager(ConfigDescriptor configDescriptor) {
         this.configDescriptor = configDescriptor;
         this.pid =
-                Paths.get(
-                        System.getProperty("java.io.tmpdir"), "enclave" + configDescriptor.getAlias().name() + ".pid");
+            Paths.get(
+                System.getProperty("java.io.tmpdir"), "enclave" + configDescriptor.getAlias().name() + ".pid");
         this.nodeId = suite.NodeId.generate(ExecutionContext.currentContext(), configDescriptor.getAlias());
     }
 
@@ -47,32 +48,32 @@ public class EnclaveExecManager implements ExecManager {
     public Process doStart() throws Exception {
 
         final Path enclaveServerJar =
-                Paths.get(
-                        System.getProperty(
-                                "enclave.jaxrs.server.jar",
-                                "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
+            Paths.get(
+                System.getProperty(
+                    "enclave.jaxrs.server.jar",
+                    "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
 
         final ServerConfig serverConfig = configDescriptor.getEnclaveConfig().get().getServerConfigs().get(0);
 
         ExecArgsBuilder execArgsBuilder = new ExecArgsBuilder();
 
         final List<String> cmd =
-                execArgsBuilder
-                        .withPidFile(pid)
-                        .withJvmArg("-Dnode.number=" + nodeId)
-                        .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
-                        .withStartScriptOrExecutableJarFile(enclaveServerJar)
-                        .withConfigFile(configDescriptor.getEnclavePath())
-                        .build();
+            execArgsBuilder
+                .withPidFile(pid)
+                .withJvmArg("-Dnode.number=" + nodeId)
+                .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
+                .withStartScriptOrExecutableJarFile(enclaveServerJar)
+                .withConfigFile(configDescriptor.getEnclavePath())
+                .build();
 
         LOGGER.info("Starting enclave {}", configDescriptor.getAlias());
 
         String javaOpts =
-                "-Dnode.number="
-                        .concat(nodeId)
-                        .concat(" ")
-                        .concat("-Dlogback.configurationFile=")
-                        .concat(logbackConfigFile.toString());
+            "-Dnode.number="
+                .concat(nodeId)
+                .concat(" ")
+                .concat("-Dlogback.configurationFile=")
+                .concat(logbackConfigFile.toString());
 
         Map<String, String> env = new HashMap<>();
         env.put("JAVA_OPTS", javaOpts);
@@ -82,7 +83,7 @@ public class EnclaveExecManager implements ExecManager {
         Process process = ExecUtils.start(cmd, executorService, env);
 
         ServerStatusCheckExecutor serverStatusCheckExecutor =
-                new ServerStatusCheckExecutor(ServerStatusCheck.create(serverConfig));
+            new ServerStatusCheckExecutor(ServerStatusCheck.create(serverConfig));
 
         Future<Boolean> future = executorService.submit(serverStatusCheckExecutor);
 
@@ -133,8 +134,8 @@ public class EnclaveExecManager implements ExecManager {
         keyPairData.setPrivateKey("yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=");
 
         enclaveConfig
-                .getKeys()
-                .setKeyData(Arrays.asList(keyPairData));
+            .getKeys()
+            .setKeyData(Arrays.asList(keyPairData));
 
         Path configFile = Paths.get("target", UUID.randomUUID().toString() + ".json");
 

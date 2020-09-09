@@ -12,6 +12,7 @@ import java.net.URI;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class EnclaveKeySynchroniserTest {
@@ -109,5 +110,12 @@ public class EnclaveKeySynchroniserTest {
 
         verify(runtimeContext).getP2pServerUri();
         verify(networkStore).getActiveNodes();
+    }
+
+
+    @Test
+    public void getInstance() {
+        assertThat(EnclaveKeySynchroniser.getInstance()).isNotNull();
+
     }
 }

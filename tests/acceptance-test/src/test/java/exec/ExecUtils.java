@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +17,7 @@ public class ExecUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExecUtils.class);
 
     public static Process start(List<String> cmd, ExecutorService executorService, Map<String, String> env)
-            throws IOException {
+        throws IOException {
 
         LOGGER.info("Executing {}", String.join(" ", cmd));
 
@@ -28,31 +29,31 @@ public class ExecUtils {
         Process process = processBuilder.start();
 
         executorService.submit(
-                () -> {
-                    try (BufferedReader reader =
-                            Stream.of(process.getInputStream())
-                                    .map(InputStreamReader::new)
-                                    .map(BufferedReader::new)
-                                    .findAny()
-                                    .get()) {
+            () -> {
+                try (BufferedReader reader =
+                         Stream.of(process.getInputStream())
+                             .map(InputStreamReader::new)
+                             .map(BufferedReader::new)
+                             .findAny()
+                             .get()) {
 
-                        String line = null;
-                        while ((line = reader.readLine()) != null) {
-                            LOGGER.debug("Exec : {}", line);
-                        }
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        LOGGER.debug("Exec : {}", line);
                     }
-                    return null;
-                });
+                }
+                return null;
+            });
 
         executorService.submit(
-                () -> {
-                    try {
-                        int exitCode = process.waitFor();
-                        LOGGER.info("Exec exit code: {}", exitCode);
-                    } catch (InterruptedException ex) {
-                        LOGGER.warn(ex.getMessage());
-                    }
-                });
+            () -> {
+                try {
+                    int exitCode = process.waitFor();
+                    LOGGER.info("Exec exit code: {}", exitCode);
+                } catch (InterruptedException ex) {
+                    LOGGER.warn(ex.getMessage());
+                }
+            });
 
         return process;
     }

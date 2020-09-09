@@ -1,4 +1,4 @@
-package com.quorum.tessera.partyinfo.node;
+package com.quorum.tessera.partyinfo.model;
 
 import com.quorum.tessera.partyinfo.URLNormalizer;
 import java.util.Objects;

@@ -7,9 +7,9 @@ import java.util.List;
 public class FileKeygenStreamConsumer implements Runnable {
 
     private static final List<String> REQUEST_STRINGS =
-            Arrays.asList(
-                    "Enter a password if you want to lock the private key or leave blank",
-                    "Please re-enter the password (or lack of) to confirm");
+        Arrays.asList(
+            "Enter a password if you want to lock the private key or leave blank",
+            "Please re-enter the password (or lack of) to confirm");
 
     private final InputStream inputStream;
 

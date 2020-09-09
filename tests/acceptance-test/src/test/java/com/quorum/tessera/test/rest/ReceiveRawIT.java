@@ -10,8 +10,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.test.PartyHelper;
+
 import javax.ws.rs.client.ClientBuilder;
 
 public class ReceiveRawIT {
@@ -23,7 +26,7 @@ public class ReceiveRawIT {
     private static final String C11N_KEY = "c11n-key";
 
     private static final byte[] PAYLOAD = "TXN_DATA".getBytes();
-    
+
     private PartyHelper partyHelper = PartyHelper.create();
 
     private Client client = ClientBuilder.newClient();
@@ -31,16 +34,16 @@ public class ReceiveRawIT {
     private String hash;
 
     private Party partyOne;
-    
+
     private Party partyTwo;
-    
+
     //Persist a single transaction that can be used later
     @Before
     public void init() {
-        
+
         this.partyOne = partyHelper.findByAlias("A");
         this.partyTwo = partyHelper.findByAlias("B");
-        
+
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(PAYLOAD);
         sendRequest.setTo(partyTwo.getPublicKey());
@@ -104,14 +107,14 @@ public class ReceiveRawIT {
     public void fetchExistingTransactionNotUsingKeyOnRecipient() {
 
         Party sender = partyHelper.findByAlias("A");
-        
+
         byte[] transactionPayload = new RestUtils().createTransactionData();
 
         SendRequest sendRequest = new SendRequest();
         sendRequest.setPayload(transactionPayload);
         sendRequest.setFrom(sender.getPublicKey());
         sendRequest.setTo(partyHelper.findByAlias("B").getPublicKey());
-        
+
 
         final Response r = client.target(sender.getQ2TUri())
             .path("/send")
@@ -177,7 +180,7 @@ public class ReceiveRawIT {
 
         final String result = response.readEntity(String.class);
         assertThat(result).isEqualTo("Message with hash invalidhashvalue was not found");
-  
+
     }
 
 }

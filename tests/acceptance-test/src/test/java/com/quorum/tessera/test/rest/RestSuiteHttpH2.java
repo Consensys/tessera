@@ -10,8 +10,9 @@ import suite.TestSuite;
 
 @RunWith(TestSuite.class)
 @ProcessConfig(
-        communicationType = CommunicationType.REST,
-        dbType = DBType.H2,
-        socketType = SocketType.HTTP,
-        encryptorType = EncryptorType.NACL)
-public class RestSuiteHttpH2 extends RestSuite {}
+    communicationType = CommunicationType.REST,
+    dbType = DBType.H2,
+    socketType = SocketType.HTTP,
+    encryptorType = EncryptorType.NACL)
+public class RestSuiteHttpH2 extends RestSuite {
+}

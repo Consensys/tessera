@@ -2,6 +2,7 @@ package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.test.Party;
+
 import java.net.URI;
 import java.util.UUID;
 import javax.ws.rs.client.Client;
@@ -9,7 +10,9 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Test;
 import com.quorum.tessera.test.PartyHelper;
 
@@ -24,7 +27,7 @@ public class AdminConfigIT {
 
         Party party = partyHelper.getParties().findAny().get();
 
-        String url = "http://"+ UUID.randomUUID().toString().replaceAll("-", "");
+        String url = "http://" + UUID.randomUUID().toString().replaceAll("-", "");
 
         Peer peer = new Peer(url);
 

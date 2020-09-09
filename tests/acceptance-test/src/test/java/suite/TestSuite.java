@@ -33,32 +33,32 @@ public class TestSuite extends Suite {
         try {
 
             final ProcessConfig annotatedConfig =
-                    Arrays.stream(getRunnerAnnotations())
-                            .filter(ProcessConfig.class::isInstance)
-                            .map(ProcessConfig.class::cast)
-                            .findAny()
-                            .orElseThrow(() -> new AssertionError("No Test config found"));
+                Arrays.stream(getRunnerAnnotations())
+                    .filter(ProcessConfig.class::isInstance)
+                    .map(ProcessConfig.class::cast)
+                    .findAny()
+                    .orElseThrow(() -> new AssertionError("No Test config found"));
 
             ExecutionContext executionContext =
-                    ExecutionContext.Builder.create()
-                            .with(annotatedConfig.communicationType())
-                            .with(annotatedConfig.dbType())
-                            .with(annotatedConfig.socketType())
-                            .with(annotatedConfig.enclaveType())
-                            .withAdmin(annotatedConfig.admin())
-                            .with(annotatedConfig.encryptorType())
-                            .prefix(annotatedConfig.prefix())
-                            .createAndSetupContext();
+                ExecutionContext.Builder.create()
+                    .with(annotatedConfig.communicationType())
+                    .with(annotatedConfig.dbType())
+                    .with(annotatedConfig.socketType())
+                    .with(annotatedConfig.enclaveType())
+                    .withAdmin(annotatedConfig.admin())
+                    .with(annotatedConfig.encryptorType())
+                    .prefix(annotatedConfig.prefix())
+                    .createAndSetupContext();
 
             if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
 
                 executionContext.getConfigs().stream()
-                        .map(EnclaveExecManager::new)
-                        .forEach(
-                                exec -> {
-                                    exec.start();
-                                    executors.add(exec);
-                                });
+                    .map(EnclaveExecManager::new)
+                    .forEach(
+                        exec -> {
+                            exec.start();
+                            executors.add(exec);
+                        });
             }
 
             String nodeId = NodeId.generate(executionContext);
@@ -69,27 +69,27 @@ public class TestSuite extends Suite {
             setupDatabase.setUp();
 
             executionContext.getConfigs().stream()
-                    .map(NodeExecManager::new)
-                    .forEach(
-                            exec -> {
-                                exec.start();
-                                executors.add(exec);
-                            });
+                .map(NodeExecManager::new)
+                .forEach(
+                    exec -> {
+                        exec.start();
+                        executors.add(exec);
+                    });
 
             PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getCommunicationType());
 
             CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
             ExecutorService executorService = Executors.newSingleThreadExecutor();
             executorService.submit(
-                    () -> {
-                        while (!partyInfoChecker.hasSynced()) {
-                            try {
-                                Thread.sleep(1000L);
-                            } catch (InterruptedException ex) {
-                            }
+                () -> {
+                    while (!partyInfoChecker.hasSynced()) {
+                        try {
+                            Thread.sleep(1000L);
+                        } catch (InterruptedException ex) {
                         }
-                        partyInfoSyncLatch.countDown();
-                    });
+                    }
+                    partyInfoSyncLatch.countDown();
+                });
 
             if (!partyInfoSyncLatch.await(10, TimeUnit.MINUTES)) {
 

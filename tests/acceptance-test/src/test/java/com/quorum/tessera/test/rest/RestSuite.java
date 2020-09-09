@@ -19,4 +19,5 @@ import suite.TestSuite;
     CucumberRestIT.class,
     CucumberRawIT.class
 })
-public abstract class RestSuite {}
+public abstract class RestSuite {
+}

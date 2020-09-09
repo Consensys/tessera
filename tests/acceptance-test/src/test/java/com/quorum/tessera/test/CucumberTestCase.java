@@ -11,5 +11,5 @@ import org.junit.runner.RunWith;
     plugin = {"progress"}
 )
 public abstract class CucumberTestCase {
-    
+
 }

@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "classpath:features/migration/config-migration.feature",
-        plugin = {"pretty"})
-public class ConfigMigrationIT {}
+    features = "classpath:features/migration/config-migration.feature",
+    plugin = {"pretty"})
+public class ConfigMigrationIT {
+}
