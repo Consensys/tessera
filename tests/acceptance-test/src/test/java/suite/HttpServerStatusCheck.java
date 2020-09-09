@@ -32,12 +32,12 @@ public class HttpServerStatusCheck implements ServerStatusCheck {
         this.uri = uri;
         this.appType = appType;
         sslContext =
-                Optional.ofNullable(sslConfig)
-                        .map(
-                                config -> {
-                                    return new ClientSSLContextFactoryImpl().from(uri.toString(), config);
-                                })
-                        .orElse(null);
+            Optional.ofNullable(sslConfig)
+                .map(
+                    config -> {
+                        return new ClientSSLContextFactoryImpl().from(uri.toString(), config);
+                    })
+                .orElse(null);
     }
 
     @Override

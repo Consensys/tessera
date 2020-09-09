@@ -17,8 +17,11 @@ import java.net.URI;
 import java.net.URLEncoder;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -35,24 +38,24 @@ public class TransactionForwardingIT {
     private final Client client = ClientBuilder.newClient();
 
     private Party sender;
-    
+
     private Party reciepient;
-    
+
     private Party otherRecipient;
-    
+
     private final PartyHelper parytyHelper = PartyHelper.create();
-    
+
     private byte[] transactionData;
-    
+
     @Before
     public void onSetUp() {
         transactionData = UUID.randomUUID().toString().getBytes();
         sender = parytyHelper.findByAlias("A");
-        
+
         reciepient = parytyHelper.findByAlias("B");
-        
+
         otherRecipient = parytyHelper.findByAlias("C");
-        
+
     }
 
     @Test
@@ -62,11 +65,11 @@ public class TransactionForwardingIT {
 
         //check the transaction is in node 1
         final Response response = this.client.target(sender.getQ2TUri())
-                .path("transaction")
-                .path(URLEncoder.encode(hash, UTF_8.toString()))
-                .property("to", URLEncoder.encode(sender.getPublicKey(), UTF_8.toString()))
-                .request()
-                .get();
+            .path("transaction")
+            .path(URLEncoder.encode(hash, UTF_8.toString()))
+            .property("to", URLEncoder.encode(sender.getPublicKey(), UTF_8.toString()))
+            .request()
+            .get();
 
         //validate result
         assertThat(response).isNotNull();
@@ -75,7 +78,7 @@ public class TransactionForwardingIT {
         final ReceiveResponse result = response.readEntity(ReceiveResponse.class);
 
         assertThat(result.getPayload())
-                .isEqualTo(transactionData);
+            .isEqualTo(transactionData);
 
     }
 
@@ -86,11 +89,11 @@ public class TransactionForwardingIT {
 
         //check the transaction is not in node 1
         final Response response = this.client.target(sender.getQ2TUri())
-                .path("transaction")
-                .path(URLEncoder.encode(hash, UTF_8.toString()))
-                .property("to", URLEncoder.encode(sender.getPublicKey(), UTF_8.toString()))
-                .request()
-                .get();
+            .path("transaction")
+            .path(URLEncoder.encode(hash, UTF_8.toString()))
+            .property("to", URLEncoder.encode(sender.getPublicKey(), UTF_8.toString()))
+            .request()
+            .get();
 
         //validate result
         assertThat(response).isNotNull();
@@ -105,11 +108,11 @@ public class TransactionForwardingIT {
 
         //check the transaction is in node 1
         final Response response = this.client.target(reciepient.getQ2TUri())
-                .path("transaction")
-                .path(URLEncoder.encode(hash, UTF_8.toString()))
-                .property("to", URLEncoder.encode(sender.getPublicKey(), UTF_8.toString()))
-                .request()
-                .get();
+            .path("transaction")
+            .path(URLEncoder.encode(hash, UTF_8.toString()))
+            .property("to", URLEncoder.encode(sender.getPublicKey(), UTF_8.toString()))
+            .request()
+            .get();
 
         //validate result
         assertThat(response).isNotNull();
@@ -132,9 +135,9 @@ public class TransactionForwardingIT {
         LOGGER.debug("Sending {} to {}", sendRequest, node);
 
         final Response response = this.client.target(node)
-                .path("/send")
-                .request()
-                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            .path("/send")
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);

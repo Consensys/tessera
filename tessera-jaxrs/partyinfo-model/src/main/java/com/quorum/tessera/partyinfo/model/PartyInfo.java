@@ -2,7 +2,8 @@ package com.quorum.tessera.partyinfo.model;
 
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -13,7 +14,7 @@ import java.util.stream.Collectors;
  * - all known URLs on the network
  */
 public class PartyInfo {
-    
+
     private final String url;
 
     private Set<Recipient> recipients;
@@ -44,8 +45,8 @@ public class PartyInfo {
             .map(r -> Recipient.of(r.getKey(), r.getUrl()))
             .collect(Collectors.toUnmodifiableSet());
 
-        Set<Party> parties = nodeInfo.getParties().stream()
-            .map(com.quorum.tessera.partyinfo.node.Party::getUrl)
+        Set<Party> parties = nodeInfo.getRecipients().stream()
+            .map(com.quorum.tessera.partyinfo.node.Recipient::getUrl)
             .map(Party::new)
             .collect(Collectors.toUnmodifiableSet());
 

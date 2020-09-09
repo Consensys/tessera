@@ -25,17 +25,17 @@ public class P2PRestAppIT {
     private static final Logger LOGGER = LoggerFactory.getLogger(P2PRestAppIT.class);
 
     private Party actor;
-    
+
     @Rule
     public TestName testName = new TestName();
 
     @Before
     public void beforeTest() {
         this.actor = PartyHelper.create()
-                .getParties()
-                .findFirst()
-                .get();
-        
+            .getParties()
+            .findFirst()
+            .get();
+
         LOGGER.debug("Begin test: {}", testName.getMethodName());
     }
 
@@ -51,9 +51,9 @@ public class P2PRestAppIT {
         InputStream data = new ByteArrayInputStream("SOMEDATA".getBytes());
 
         javax.ws.rs.core.Response response = client.target(actor.getP2PUri())
-                .path("/partyinfo")
-                .request()
-                .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
+            .path("/partyinfo")
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -62,13 +62,13 @@ public class P2PRestAppIT {
     @Test
     public void upcheck() {
         javax.ws.rs.core.Response response = client.target(actor.getP2PUri())
-                .path("/upcheck")
-                .request()
-                .get();
+            .path("/upcheck")
+            .request()
+            .get();
 
         assertThat(response).isNotNull();
         assertThat(response.readEntity(String.class))
-                .isEqualTo("I'm up!");
+            .isEqualTo("I'm up!");
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
@@ -76,13 +76,13 @@ public class P2PRestAppIT {
     public void requestVersion() {
 
         javax.ws.rs.core.Response response = client.target(actor.getP2PUri())
-                .path("/version")
-                .request()
-                .get();
+            .path("/version")
+            .request()
+            .get();
 
         assertThat(response).isNotNull();
         assertThat(response.readEntity(String.class))
-                .isEqualTo(Version.getVersion());
+            .isEqualTo(Version.getVersion());
         assertThat(response.getStatus()).isEqualTo(200);
 
     }
@@ -91,10 +91,10 @@ public class P2PRestAppIT {
     public void requestOpenApiSchema() throws IOException {
 
         javax.ws.rs.core.Response response = client
-                .target(actor.getP2PUri())
-                .path("/api")
-                .request(MediaType.APPLICATION_JSON)
-                .get();
+            .target(actor.getP2PUri())
+            .path("/api")
+            .request(MediaType.APPLICATION_JSON)
+            .get();
 
         assertThat(response).isNotNull();
         String body = response.readEntity(String.class);
@@ -102,7 +102,7 @@ public class P2PRestAppIT {
 
         assertThat(body).isNotEmpty();
         assertThat(response.getMediaType())
-                .isEqualTo(MediaType.APPLICATION_JSON_TYPE);
+            .isEqualTo(MediaType.APPLICATION_JSON_TYPE);
         assertThat(response.getStatus()).isEqualTo(200);
 
         try (Reader reader = new StringReader(body)) {
@@ -118,19 +118,19 @@ public class P2PRestAppIT {
     public void requestOpenApiSchemaDocument() {
 
         javax.ws.rs.core.Response response = client
-                .target(actor.getP2PUri())
-                .path("/api")
-                .request(MediaType.TEXT_HTML)
-                .get();
+            .target(actor.getP2PUri())
+            .path("/api")
+            .request(MediaType.TEXT_HTML)
+            .get();
 
         assertThat(response).isNotNull();
         String body = response.readEntity(String.class);
         LOGGER.debug("Doc {}", body);
         assertThat(body).isNotEmpty();
-         assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getStatus()).isEqualTo(200);
         assertThat(response.getMediaType())
-                .isEqualTo(MediaType.TEXT_HTML_TYPE);
-       
+            .isEqualTo(MediaType.TEXT_HTML_TYPE);
+
 
     }
 

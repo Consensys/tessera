@@ -2,6 +2,7 @@ package admin.cmd;
 
 import com.quorum.tessera.test.Party;
 import exec.ExecArgsBuilder;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,11 +27,11 @@ public class Utils {
     public static ExecutionResult start(Party party) throws IOException, InterruptedException {
 
         List<String> args =
-                new ExecArgsBuilder()
-                        .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
-                        .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
-                        .withConfigFile(party.getConfigFilePath())
-                        .build();
+            new ExecArgsBuilder()
+                .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
+                .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+                .withConfigFile(party.getConfigFilePath())
+                .build();
 
         ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -42,45 +44,45 @@ public class Utils {
         ExecutionResult executionResult = new ExecutionResult();
 
         executorService.submit(
-                () -> {
-                    try (BufferedReader reader =
-                            Stream.of(process.getInputStream())
-                                    .map(InputStreamReader::new)
-                                    .map(BufferedReader::new)
-                                    .findAny()
-                                    .get()) {
+            () -> {
+                try (BufferedReader reader =
+                         Stream.of(process.getInputStream())
+                             .map(InputStreamReader::new)
+                             .map(BufferedReader::new)
+                             .findAny()
+                             .get()) {
 
-                        String line = null;
-                        while ((line = reader.readLine()) != null) {
-                            System.out.println(line);
-                            LOGGER.info(line);
-                            executionResult.addOutputLine(line);
-                        }
-
-                    } catch (IOException ex) {
-                        throw new UncheckedIOException(ex);
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        System.out.println(line);
+                        LOGGER.info(line);
+                        executionResult.addOutputLine(line);
                     }
-                });
+
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            });
 
         executorService.submit(
-                () -> {
-                    try (BufferedReader reader =
-                            Stream.of(process.getErrorStream())
-                                    .map(InputStreamReader::new)
-                                    .map(BufferedReader::new)
-                                    .findAny()
-                                    .get()) {
+            () -> {
+                try (BufferedReader reader =
+                         Stream.of(process.getErrorStream())
+                             .map(InputStreamReader::new)
+                             .map(BufferedReader::new)
+                             .findAny()
+                             .get()) {
 
-                        String line = null;
-                        while ((line = reader.readLine()) != null) {
-                            LOGGER.error(line);
-                            executionResult.addErrorLine(line);
-                        }
-
-                    } catch (IOException ex) {
-                        throw new UncheckedIOException(ex);
+                    String line = null;
+                    while ((line = reader.readLine()) != null) {
+                        LOGGER.error(line);
+                        executionResult.addErrorLine(line);
                     }
-                });
+
+                } catch (IOException ex) {
+                    throw new UncheckedIOException(ex);
+                }
+            });
 
         executionResult.setExitCode(process.waitFor());
 
@@ -90,13 +92,13 @@ public class Utils {
     public static int addPeer(Party party, String url) throws IOException, InterruptedException {
 
         List<String> args =
-                new ExecArgsBuilder()
-                        .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
-                        .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
-                        .withConfigFile(party.getConfigFilePath())
-                        .withSubcommands("admin", "addpeer")
-                        .withArg(url)
-                        .build();
+            new ExecArgsBuilder()
+                .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
+                .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+                .withConfigFile(party.getConfigFilePath())
+                .withSubcommands("admin", "addpeer")
+                .withArg(url)
+                .build();
 
         LOGGER.info("exec : {}", String.join(" ", args));
         ProcessBuilder processBuilder = new ProcessBuilder(args);
@@ -105,9 +107,9 @@ public class Utils {
         Process process = processBuilder.start();
 
         Collection<StreamConsumer> streamConsumers =
-                Arrays.asList(
-                        new StreamConsumer(process.getErrorStream(), true),
-                        new StreamConsumer(process.getInputStream(), false));
+            Arrays.asList(
+                new StreamConsumer(process.getErrorStream(), true),
+                new StreamConsumer(process.getInputStream(), false));
 
         Executors.newCachedThreadPool().invokeAll(streamConsumers);
 
@@ -129,7 +131,7 @@ public class Utils {
         public Void call() throws Exception {
 
             try (BufferedReader reader =
-                    Stream.of(inputStream).map(InputStreamReader::new).map(BufferedReader::new).findAny().get()) {
+                     Stream.of(inputStream).map(InputStreamReader::new).map(BufferedReader::new).findAny().get()) {
 
                 String line = null;
                 while ((line = reader.readLine()) != null) {

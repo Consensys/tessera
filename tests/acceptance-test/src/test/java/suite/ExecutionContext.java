@@ -2,15 +2,21 @@ package suite;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
 import config.ConfigGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ExecutionContext {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionContext.class);
 
     private final DBType dbType;
 
@@ -33,15 +39,15 @@ public class ExecutionContext {
     private EncryptorType encryptorType;
 
     private ExecutionContext(
-            DBType dbType,
-            CommunicationType communicationType,
-            SocketType socketType,
-            EnclaveType enclaveType,
-            boolean admin,
-            String prefix,
-            CommunicationType p2pCommunicationType,
-            boolean p2pSsl,
-            EncryptorType encryptorType) {
+        DBType dbType,
+        CommunicationType communicationType,
+        SocketType socketType,
+        EnclaveType enclaveType,
+        boolean admin,
+        String prefix,
+        CommunicationType p2pCommunicationType,
+        boolean p2pSsl,
+        EncryptorType encryptorType) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -111,7 +117,8 @@ public class ExecutionContext {
 
         private EncryptorType encryptorType;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         public static Builder create() {
             return new Builder();
@@ -166,21 +173,21 @@ public class ExecutionContext {
 
         public ExecutionContext build() {
             Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
-                    .forEach(Objects::requireNonNull);
+                .forEach(Objects::requireNonNull);
 
             this.p2pCommunicationType = Optional.ofNullable(p2pCommunicationType).orElse(communicationType);
 
             ExecutionContext executionContext =
-                    new ExecutionContext(
-                            dbType,
-                            communicationType,
-                            socketType,
-                            enclaveType,
-                            admin,
-                            prefix,
-                            p2pCommunicationType,
-                            p2pSsl,
-                            encryptorType);
+                new ExecutionContext(
+                    dbType,
+                    communicationType,
+                    socketType,
+                    enclaveType,
+                    admin,
+                    prefix,
+                    p2pCommunicationType,
+                    p2pSsl,
+                    encryptorType);
 
             return executionContext;
         }
@@ -201,12 +208,16 @@ public class ExecutionContext {
         public ExecutionContext createAndSetupContext() {
 
             Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
-                    .forEach(Objects::requireNonNull);
+                .forEach(Objects::requireNonNull);
 
             ExecutionContext executionContext = build();
 
             List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
-
+            configs.stream()
+                .map(ConfigDescriptor::getConfig)
+                .forEach(c -> {
+                    LOGGER.debug("Generated config {}", JaxbUtil.marshalToStringNoValidation(c));
+                });
             // FIXME: YUk
             executionContext.configs = configs;
 

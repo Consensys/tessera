@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.jaxrs.mock.MockClient;
+import com.quorum.tessera.jaxrs.mock.MockWebTarget;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +30,8 @@ public class RestP2pClientTest {
     @Test
     public void sendPartyInfo() {
 
-        Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
+        MockWebTarget webTarget = restClient.getWebTarget();
+        Invocation.Builder m = webTarget.getMockInvocationBuilder();
 
         byte[] responseData = "Result".getBytes();
         Response response = mock(Response.class);
@@ -38,12 +40,12 @@ public class RestP2pClientTest {
 
         List<Entity> postedEntities = new ArrayList<>();
         doAnswer(
-                        (invocation) -> {
-                            postedEntities.add(invocation.getArgument(0));
-                            return response;
-                        })
-                .when(m)
-                .post(any(Entity.class));
+            (invocation) -> {
+                postedEntities.add(invocation.getArgument(0));
+                return response;
+            })
+            .when(m)
+            .post(any(Entity.class));
 
         String targetUrl = "http://somedomain.com";
         byte[] data = "Some Data".getBytes();
@@ -64,21 +66,16 @@ public class RestP2pClientTest {
 
     @Test
     public void sendPartyInfoReturns400() {
+        MockWebTarget webTarget = restClient.getWebTarget();
 
-        Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
-
+        Invocation.Builder m = webTarget.getMockInvocationBuilder();
         byte[] responseData = "Result".getBytes();
 
         Response response = mock(Response.class);
         when(response.readEntity(byte[].class)).thenReturn(responseData);
         when(response.getStatus()).thenReturn(400);
 
-        doAnswer(
-                        (invocation) -> {
-                            return Response.status(400).build();
-                        })
-                .when(m)
-                .post(any(Entity.class));
+        when(m.post(any(Entity.class))).thenReturn(response);
 
         String targetUrl = "http://somedomain.com";
         byte[] data = "Some Data".getBytes();
@@ -87,4 +84,7 @@ public class RestP2pClientTest {
 
         assertThat(outcome).isFalse();
     }
+
+
+
 }

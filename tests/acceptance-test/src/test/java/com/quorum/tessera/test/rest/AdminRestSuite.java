@@ -11,10 +11,11 @@ import suite.TestSuite;
 
 @RunWith(TestSuite.class)
 @ProcessConfig(
-        communicationType = CommunicationType.REST,
-        dbType = DBType.H2,
-        socketType = SocketType.HTTP,
-        admin = true,
-        encryptorType = EncryptorType.NACL)
+    communicationType = CommunicationType.REST,
+    dbType = DBType.H2,
+    socketType = SocketType.HTTP,
+    admin = true,
+    encryptorType = EncryptorType.NACL)
 @TestSuite.SuiteClasses({AdminConfigIT.class, CucumberAdminIT.class})
-public class AdminRestSuite {}
+public class AdminRestSuite {
+}

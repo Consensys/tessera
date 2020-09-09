@@ -29,11 +29,12 @@ import static suite.SocketType.HTTP;
     CucumberRawIT.class
 })
 @ProcessConfig(
-        dbType = DBType.H2,
-        communicationType = REST,
-        enclaveType = LOCAL,
-        admin = false,
-        prefix = "",
-        socketType = HTTP,
-        encryptorType = EncryptorType.NACL)
-public class RestSuiteSimple {}
+    dbType = DBType.H2,
+    communicationType = REST,
+    enclaveType = LOCAL,
+    admin = false,
+    prefix = "",
+    socketType = HTTP,
+    encryptorType = EncryptorType.NACL)
+public class RestSuiteSimple {
+}

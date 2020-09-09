@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
@@ -18,7 +19,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PushIT {
-
 
 
     private static final String MSG_BASE64 = "AAAAAAAAACDIZyOQXJmSVNNeufz5YiRjCJwDYQYGf3BkWRy0Bp3hfQAAAAAAAAATJ9Sb5lOtjzaZayBRFP9jOUDczAAAAAAAAAAYggoaH+1mIGV91rR0KkrM89Pizi0e6MYGAAAAAAAAAAEAAAAAAAAAMP+KGceAS1WXguC8E6lq4tvtBi2gJfMa0QZ6DAGBdBp3fDAdTq8tKOjstP1aNIFqvAAAAAAAAAAYM9xGQhx2/GYXetUmFZNMe9ED57Rh58MWAAAAAAAAAAA=";

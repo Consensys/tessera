@@ -13,10 +13,12 @@ import java.net.URLEncoder;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import com.quorum.tessera.test.PartyHelper;
+
 import java.util.Arrays;
 
 
@@ -45,7 +47,7 @@ public class MultipleKeyNodeIT {
     public void onSetUp() {
 
         Party sender = partyHelper.findByAlias("A");
-        
+
         Party recipient = partyHelper.findByAlias(recipientAlias);
         byte[] transactionData = restUtils.createTransactionData();
         final SendResponse result = restUtils.sendRequestAssertSuccess(sender, transactionData, recipient);
@@ -56,7 +58,6 @@ public class MultipleKeyNodeIT {
     }
 
 
-
     @Test
     public void thenTransactionHasBeenPersistedOnOtherNode() throws UnsupportedEncodingException {
 
@@ -65,28 +66,28 @@ public class MultipleKeyNodeIT {
         Party recipient = partyHelper.findByAlias(recipientAlias);
         //retrieve the transaction
         final Response retrieveResponse = this.client.target(recipient.getQ2TUri())
-                .path("transaction")
-                .path(URLEncoder.encode(txHash, "UTF-8"))
-                .queryParam("to", recipient.getPublicKey())
-                .request()
-                .get();
+            .path("transaction")
+            .path(URLEncoder.encode(txHash, "UTF-8"))
+            .queryParam("to", recipient.getPublicKey())
+            .request()
+            .get();
 
         assertThat(retrieveResponse).isNotNull();
         assertThat(retrieveResponse.getStatus())
-                .describedAs(txHash + " should be present on other node")
-                .isEqualTo(200);
+            .describedAs(txHash + " should be present on other node")
+            .isEqualTo(200);
 
         final ReceiveResponse result = retrieveResponse.readEntity(ReceiveResponse.class);
         //TODO: Verify payload
         assertThat(result).isNotNull();
-        
+
 
     }
 
     @Parameterized.Parameters
     public static List<String> recipients() {
-        return Arrays.asList("C","D");
-        
+        return Arrays.asList("C", "D");
+
     }
 
 }

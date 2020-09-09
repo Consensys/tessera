@@ -29,14 +29,14 @@ public class ProcessConfiguration {
     private EncryptorType encryptorType;
 
     public ProcessConfiguration(
-            final DBType dbType,
-            final CommunicationType communicationType,
-            final SocketType socketType,
-            final EnclaveType enclaveType,
-            final boolean admin,
-            final String prefix,
-            boolean p2pSsl,
-            EncryptorType encryptorType) {
+        final DBType dbType,
+        final CommunicationType communicationType,
+        final SocketType socketType,
+        final EnclaveType enclaveType,
+        final boolean admin,
+        final String prefix,
+        boolean p2pSsl,
+        EncryptorType encryptorType) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -47,7 +47,8 @@ public class ProcessConfiguration {
         this.encryptorType = encryptorType;
     }
 
-    public ProcessConfiguration() {}
+    public ProcessConfiguration() {
+    }
 
     public DBType getDbType() {
         return dbType;

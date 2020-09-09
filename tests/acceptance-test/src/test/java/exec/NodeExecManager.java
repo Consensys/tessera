@@ -4,6 +4,7 @@ import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
+
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import suite.EnclaveType;
@@ -35,7 +37,7 @@ public class NodeExecManager implements ExecManager {
     public NodeExecManager(ConfigDescriptor configDescriptor) {
         this.configDescriptor = configDescriptor;
         this.pid =
-                Paths.get(System.getProperty("java.io.tmpdir"), "node-" + configDescriptor.getAlias().name() + ".pid");
+            Paths.get(System.getProperty("java.io.tmpdir"), "node-" + configDescriptor.getAlias().name() + ".pid");
         this.nodeId = suite.NodeId.generate(ExecutionContext.currentContext(), configDescriptor.getAlias());
     }
 
@@ -45,30 +47,30 @@ public class NodeExecManager implements ExecManager {
     public Process doStart() throws Exception {
 
         Path nodeServerJar =
-                Paths.get(
-                        System.getProperty(
-                                "application.jar", "../../tessera-app/target/tessrea-app-0.10-SNAPSHOT-app.jar"));
+            Paths.get(
+                System.getProperty(
+                    "application.jar", "../../tessera-app/target/tessrea-app-0.10-SNAPSHOT-app.jar"));
 
         ExecutionContext executionContext = ExecutionContext.currentContext();
 
         ExecArgsBuilder argsBuilder =
-                new ExecArgsBuilder()
-                        .withJvmArg("-Ddebug=true")
-                        .withJvmArg("-Dnode.number=" + nodeId)
-                        .withStartScriptOrJarFile(nodeServerJar)
-                        .withMainClass(Main.class)
-                        .withPidFile(pid)
-                        .withConfigFile(configDescriptor.getPath())
-                        .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
-                        .withClassPathItem(nodeServerJar);
+            new ExecArgsBuilder()
+                .withJvmArg("-Ddebug=true")
+                .withJvmArg("-Dnode.number=" + nodeId)
+                .withStartScriptOrJarFile(nodeServerJar)
+                .withMainClass(Main.class)
+                .withPidFile(pid)
+                .withConfigFile(configDescriptor.getPath())
+                .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
+                .withClassPathItem(nodeServerJar);
         // .withArg("-jdbc.autoCreateTables", "true");
 
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
             Path enclaveJar =
-                    Paths.get(
-                            System.getProperty(
-                                    "enclave.jaxrs.jar",
-                                    "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.10-SNAPSHOT.jar"));
+                Paths.get(
+                    System.getProperty(
+                        "enclave.jaxrs.jar",
+                        "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.10-SNAPSHOT.jar"));
             // argsBuilder.withClassPathItem(enclaveJar);
         }
 
@@ -78,7 +80,7 @@ public class NodeExecManager implements ExecManager {
 
         if (executionContext.getDbType() != DBType.H2) {
             final Path jdbcJar =
-                    Paths.get(System.getProperty("jdbc." + executionContext.getDbType().name().toLowerCase() + ".jar"));
+                Paths.get(System.getProperty("jdbc." + executionContext.getDbType().name().toLowerCase() + ".jar"));
             argsBuilder.withClassPathItem(jdbcJar);
         }
 
@@ -87,15 +89,15 @@ public class NodeExecManager implements ExecManager {
         LOGGER.info("Exec : {}", String.join(" ", args));
 
         String javaOpts =
-                "-Dnode.number="
-                        .concat(nodeId)
-                        .concat(" ")
-                        .concat("-Dlogback.configurationFile=")
-                        .concat(logbackConfigFile.toString());
+            "-Dnode.number="
+                .concat(nodeId)
+                .concat(" ")
+                .concat("-Dlogback.configurationFile=")
+                .concat(logbackConfigFile.toString());
 
         LOGGER.info("EXT DIR : {}", System.getProperty("jdbc.dir"));
         if (System.getProperties().containsKey("jdbc.dir")) {
-          //  javaOpts += " -Djava.ext.dirs=" + System.getProperty("jdbc.dir");
+            //  javaOpts += " -Djava.ext.dirs=" + System.getProperty("jdbc.dir");
         }
 
         Map<String, String> env = new HashMap<>();
@@ -106,31 +108,31 @@ public class NodeExecManager implements ExecManager {
         final Process process = ExecUtils.start(args, executorService, env);
 
         List<ServerStatusCheckExecutor> serverStatusCheckList =
-                configDescriptor.getConfig().getServerConfigs().stream()
-                        .filter(s -> s.getApp() != AppType.ENCLAVE)
-                        .map(ServerStatusCheck::create)
-                        .map(ServerStatusCheckExecutor::new)
-                        .collect(Collectors.toList());
+            configDescriptor.getConfig().getServerConfigs().stream()
+                .filter(s -> s.getApp() != AppType.ENCLAVE)
+                .map(ServerStatusCheck::create)
+                .map(ServerStatusCheckExecutor::new)
+                .collect(Collectors.toList());
 
         serverStatusCheckList.forEach(
-                s -> {
-                    LOGGER.info("Created {}", s);
-                });
+            s -> {
+                LOGGER.info("Created {}", s);
+            });
 
         CountDownLatch startUpLatch = new CountDownLatch(serverStatusCheckList.size());
 
         executorService
-                .invokeAll(serverStatusCheckList)
-                .forEach(
-                        f -> {
-                            try {
-                                f.get(30, TimeUnit.SECONDS);
-                                startUpLatch.countDown();
-                            } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-                                LOGGER.debug(null, ex);
-                                LOGGER.error("Exception message {}", ex.getMessage());
-                            }
-                        });
+            .invokeAll(serverStatusCheckList)
+            .forEach(
+                f -> {
+                    try {
+                        f.get(30, TimeUnit.SECONDS);
+                        startUpLatch.countDown();
+                    } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                        LOGGER.debug(null, ex);
+                        LOGGER.error("Exception message {}", ex.getMessage());
+                    }
+                });
 
         boolean started = startUpLatch.await(2, TimeUnit.MINUTES);
 
@@ -139,14 +141,14 @@ public class NodeExecManager implements ExecManager {
         }
 
         executorService.submit(
-                () -> {
-                    try {
-                        int exitCode = process.waitFor();
-                        LOGGER.info("Node {} exited with code {}", nodeId, exitCode);
-                    } catch (InterruptedException ex) {
-                        LOGGER.warn(ex.getMessage());
-                    }
-                });
+            () -> {
+                try {
+                    int exitCode = process.waitFor();
+                    LOGGER.info("Node {} exited with code {}", nodeId, exitCode);
+                } catch (InterruptedException ex) {
+                    LOGGER.warn(ex.getMessage());
+                }
+            });
 
         return process;
     }

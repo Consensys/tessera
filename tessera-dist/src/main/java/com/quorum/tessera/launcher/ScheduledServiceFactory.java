@@ -2,13 +2,18 @@ package com.quorum.tessera.launcher;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.IntervalPropertyHelper;
+import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.discovery.EnclaveKeySynchroniser;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
-import com.quorum.tessera.p2p.PartyInfoPoller;
+import com.quorum.tessera.p2p.PartyInfoBroadcaster;
 import com.quorum.tessera.p2p.ResendPartyStore;
 import com.quorum.tessera.p2p.ResendPartyStoreImpl;
 import com.quorum.tessera.p2p.SyncPoller;
-import com.quorum.tessera.partyinfo.*;
+import com.quorum.tessera.partyinfo.P2pClient;
+import com.quorum.tessera.partyinfo.P2pClientFactory;
+import com.quorum.tessera.partyinfo.TransactionRequester;
+import com.quorum.tessera.partyinfo.TransactionRequesterFactory;
 import com.quorum.tessera.service.ServiceContainer;
 import com.quorum.tessera.threading.TesseraScheduledExecutor;
 
@@ -42,11 +47,8 @@ public class ScheduledServiceFactory {
     public void build() {
 
         IntervalPropertyHelper intervalPropertyHelper = new IntervalPropertyHelper(config.getP2PServerConfig().getProperties());
-        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
 
-
-        PartyInfoService partyInfoService = partyInfoServiceFactory.partyInfoService()
-            .orElseGet(() -> partyInfoServiceFactory.create(config));
+        Discovery partyInfoService = Discovery.getInstance();
 
         P2pClient p2pClient = P2pClientFactory.newFactory(config).create(config);
 
@@ -54,16 +56,16 @@ public class ScheduledServiceFactory {
 
             ResendPartyStore resendPartyStore = new ResendPartyStoreImpl();
             TransactionRequester transactionRequester = TransactionRequesterFactory.newFactory().createTransactionRequester(config);
-            SyncPoller syncPoller = new SyncPoller(resendPartyStore, transactionRequester, partyInfoService, p2pClient);
+            SyncPoller syncPoller = new SyncPoller(resendPartyStore, transactionRequester, p2pClient);
             ScheduledExecutorService scheduledExecutorService = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
             tesseraScheduledExecutors.add(new TesseraScheduledExecutor(scheduledExecutorService,syncPoller,intervalPropertyHelper.syncInterval(),5000L));
         }
 
-        EnclaveKeySynchroniser enclaveKeySynchroniser = new EnclaveKeySynchroniser(partyInfoService);
+        EnclaveKeySynchroniser enclaveKeySynchroniser = EnclaveKeySynchroniser.getInstance();
 
         tesseraScheduledExecutors.add(new TesseraScheduledExecutor(java.util.concurrent.Executors.newSingleThreadScheduledExecutor(),enclaveKeySynchroniser,intervalPropertyHelper.enclaveKeySyncInterval(),5000L));
 
-        PartyInfoPoller partyInfoPoller = new PartyInfoPoller(partyInfoService,p2pClient);
+        PartyInfoBroadcaster partyInfoPoller = new PartyInfoBroadcaster(p2pClient);
 
         tesseraScheduledExecutors.add(new TesseraScheduledExecutor(java.util.concurrent.Executors.newSingleThreadScheduledExecutor(),partyInfoPoller,intervalPropertyHelper.partyInfoInterval(),5000L));
 

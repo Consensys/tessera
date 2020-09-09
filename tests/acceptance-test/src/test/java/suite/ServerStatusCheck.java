@@ -25,8 +25,8 @@ public interface ServerStatusCheck {
                 return new UnixSocketServerStatusCheck(serverConfig.getServerUri());
             } else {
                 final URI url =
-                        IOCallback.execute(
-                                () -> UriBuilder.fromUri(serverConfig.getServerUri()).path("upcheck").build());
+                    IOCallback.execute(
+                        () -> UriBuilder.fromUri(serverConfig.getServerUri()).path("upcheck").build());
                 if (serverConfig.isSsl()) {
                     return new HttpServerStatusCheck(serverConfig.getApp(), url, serverConfig.getSslConfig());
                 } else {

@@ -8,6 +8,7 @@ module tessera.tessera.partyinfo.main {
     requires tessera.shared.main;
     requires tessera.tessera.context.main;
 
+    exports com.quorum.tessera.discovery;
     exports com.quorum.tessera.partyinfo;
     exports com.quorum.tessera.partyinfo.node;
 }

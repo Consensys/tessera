@@ -16,7 +16,7 @@ def slf4jVersion = "1.7.30"
 def logbackVersion = "1.2.3"
 
 allprojects {
-    group = "com.melowe.tessera"
+    group = "com.jpmorgan.quorum"
     plugins.withType(JavaPlugin).configureEach {
         java {
             modularity.inferModulePath = true
@@ -215,7 +215,7 @@ subprojects {
         configFile project.getRootProject().file("checkstyle.xml")
         configProperties.put("checkstyle.suppressions.file",project.getRootProject().file("checkstyle-suppressions.xml"))
         dependencies{
-            checkstyle "com.puppycrawl.tools:checkstyle:8.34"
+            checkstyle "com.puppycrawl.tools:checkstyle:8.36"
             checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
         }
     }

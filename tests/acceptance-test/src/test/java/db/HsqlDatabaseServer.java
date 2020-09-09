@@ -25,20 +25,20 @@ public class HsqlDatabaseServer implements DatabaseServer {
             properties.setProperty("server.database." + i, "file:build/hsql/" + db);
             properties.setProperty("server.dbname." + i, db);
         }
-        
+
         properties.setProperty("server.database.4", "file:build/hsql/rest-httpwhitelist5");
         properties.setProperty("server.dbname.4", "rest-httpwhitelist5");
 
         hsqlServer.setPort(9189);
         hsqlServer.setSilent(true);
         hsqlServer.setTrace(false);
-        try{
+        try {
             hsqlServer.setProperties(properties);
         } catch (IOException | ServerAcl.AclFormatException ex) {
             throw new RuntimeException(ex);
         }
         hsqlServer.start();
-        if(hsqlServer.isNotRunning()) {
+        if (hsqlServer.isNotRunning()) {
             throw new IllegalStateException("HSQL DB not started. ");
         }
 

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class PartyInfoTest {
 
@@ -28,7 +29,7 @@ public class PartyInfoTest {
     @Test
     public void fromNodeInfo() {
         com.quorum.tessera.partyinfo.node.Recipient recipient = mock(com.quorum.tessera.partyinfo.node.Recipient.class);
-
+        when(recipient.getUrl()).thenReturn("http://somedomain.com/");
         NodeInfo nodeInfo = NodeInfo.Builder.create()
             .withUrl("url")
             .withRecipients(List.of(recipient))

@@ -12,10 +12,11 @@ import static suite.SocketType.HTTP;
 @TestSuite.SuiteClasses({StressSendIT.class})
 @RunWith(TestSuite.class)
 @ProcessConfig(
-        dbType = DBType.H2,
-        socketType = HTTP,
-        communicationType = REST,
-        admin = false,
-        prefix = "",
-        encryptorType = EncryptorType.NACL)
-public class StressRestSuite {}
+    dbType = DBType.H2,
+    socketType = HTTP,
+    communicationType = REST,
+    admin = false,
+    prefix = "",
+    encryptorType = EncryptorType.NACL)
+public class StressRestSuite {
+}

@@ -5,6 +5,7 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.test.DBType;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -91,7 +92,7 @@ public class ConfigGenerator {
         final Config enclaveConfig = new Config();
 
         ServerConfig serverConfig =
-                config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.ENCLAVE).findAny().get();
+            config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.ENCLAVE).findAny().get();
 
         enclaveConfig.setServerConfigs(Arrays.asList(serverConfig));
 
@@ -106,13 +107,13 @@ public class ConfigGenerator {
             URI baseUri = ConfigGenerator.class.getResource("/").toURI();
 
             return executionContext
-                    .getPrefix()
-                    .map(v -> Paths.get(baseUri).resolve(v))
-                    .orElse(Paths.get(baseUri))
-                    .resolve(executionContext.getCommunicationType().name().toLowerCase())
-                    .resolve(executionContext.getSocketType().name().toLowerCase())
-                    .resolve(executionContext.getDbType().name().toLowerCase())
-                    .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
+                .getPrefix()
+                .map(v -> Paths.get(baseUri).resolve(v))
+                .orElse(Paths.get(baseUri))
+                .resolve(executionContext.getCommunicationType().name().toLowerCase())
+                .resolve(executionContext.getSocketType().name().toLowerCase())
+                .resolve(executionContext.getDbType().name().toLowerCase())
+                .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
         } catch (URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
@@ -123,46 +124,46 @@ public class ConfigGenerator {
         return new HashMap<Integer, SortedMap<String, String>>() {
             {
                 put(
-                        1,
-                        new TreeMap<String, String>() {
-                            KeyPair pair = encryptor.generateNewKeys();
+                    1,
+                    new TreeMap<String, String>() {
+                        KeyPair pair = encryptor.generateNewKeys();
 
-                            {
-                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                            }
-                        });
-
-                put(
-                        2,
-                        new TreeMap<String, String>() {
-                            KeyPair pair = encryptor.generateNewKeys();
-
-                            {
-                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                            }
-                        });
+                        {
+                            put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                        }
+                    });
 
                 put(
-                        3,
-                        new TreeMap<String, String>() {
-                            KeyPair pair = encryptor.generateNewKeys();
-                            KeyPair pair2 = encryptor.generateNewKeys();
+                    2,
+                    new TreeMap<String, String>() {
+                        KeyPair pair = encryptor.generateNewKeys();
 
-                            {
-                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                                put(pair2.getPublicKey().encodeToBase64(), pair2.getPrivateKey().encodeToBase64());
-                            }
-                        });
+                        {
+                            put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                        }
+                    });
 
                 put(
-                        4,
-                        new TreeMap<String, String>() {
-                            KeyPair pair = encryptor.generateNewKeys();
+                    3,
+                    new TreeMap<String, String>() {
+                        KeyPair pair = encryptor.generateNewKeys();
+                        KeyPair pair2 = encryptor.generateNewKeys();
 
-                            {
-                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                            }
-                        });
+                        {
+                            put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                            put(pair2.getPublicKey().encodeToBase64(), pair2.getPrivateKey().encodeToBase64());
+                        }
+                    });
+
+                put(
+                    4,
+                    new TreeMap<String, String>() {
+                        KeyPair pair = encryptor.generateNewKeys();
+
+                        {
+                            put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                        }
+                    });
             }
         };
     }
@@ -174,78 +175,78 @@ public class ConfigGenerator {
         final FeatureToggles toggles = new FeatureToggles();
         toggles.setEnableRemoteKeyValidation(true);
 
-        final Integer partyInfoInterval = 10000;
+        final Integer partyInfoInterval = 5000;
 
         EncryptorType encryptorType = executionContext.getEncryptorType();
         EncryptorConfig encryptorConfig =
-                new EncryptorConfig() {
-                    {
-                        setType(encryptorType);
-                    }
-                };
+            new EncryptorConfig() {
+                {
+                    setType(encryptorType);
+                }
+            };
 
         Map<Integer, SortedMap<String, String>> keyLookUp = keyLookup(encryptorType);
 
         Config first =
-                new ConfigBuilder()
-                        .withNodeId(nodeId)
-                        .withNodeNumber(1)
-                        .withExecutionContext(executionContext)
-                        .withQt2Port(port.nextPort())
-                        .withP2pPort(port.nextPort())
-                        //  .withAdminPort(port.nextPort())
-                        .withEnclavePort(port.nextPort())
-                        .withPartyInfoInterval(partyInfoInterval)
-                        .withKeys(keyLookUp.get(1))
-                        .withFeatureToggles(toggles)
-                        .withEncryptorConfig(encryptorConfig)
-                        .build();
+            new ConfigBuilder()
+                .withNodeId(nodeId)
+                .withNodeNumber(1)
+                .withExecutionContext(executionContext)
+                .withQt2Port(port.nextPort())
+                .withP2pPort(port.nextPort())
+                //  .withAdminPort(port.nextPort())
+                .withEnclavePort(port.nextPort())
+                .withPartyInfoInterval(partyInfoInterval)
+                .withKeys(keyLookUp.get(1))
+                .withFeatureToggles(toggles)
+                .withEncryptorConfig(encryptorConfig)
+                .build();
 
         Config second =
-                new ConfigBuilder()
-                        .withNodeId(nodeId)
-                        .withNodeNumber(2)
-                        .withExecutionContext(executionContext)
-                        .withQt2Port(port.nextPort())
-                        .withP2pPort(port.nextPort())
-                        // .withAdminPort(port.nextPort())
-                        .withEnclavePort(port.nextPort())
-                        .withPartyInfoInterval(partyInfoInterval)
-                        .withKeys(keyLookUp.get(2))
-                        .withFeatureToggles(toggles)
-                        .withEncryptorConfig(encryptorConfig)
-                        .build();
+            new ConfigBuilder()
+                .withNodeId(nodeId)
+                .withNodeNumber(2)
+                .withExecutionContext(executionContext)
+                .withQt2Port(port.nextPort())
+                .withP2pPort(port.nextPort())
+                // .withAdminPort(port.nextPort())
+                .withEnclavePort(port.nextPort())
+                .withPartyInfoInterval(partyInfoInterval)
+                .withKeys(keyLookUp.get(2))
+                .withFeatureToggles(toggles)
+                .withEncryptorConfig(encryptorConfig)
+                .build();
 
         Config third =
-                new ConfigBuilder()
-                        .withNodeId(nodeId)
-                        .withNodeNumber(3)
-                        .withExecutionContext(executionContext)
-                        .withQt2Port(port.nextPort())
-                        .withP2pPort(port.nextPort())
-                        // .withAdminPort(port.nextPort())
-                        .withEnclavePort(port.nextPort())
-                        .withPartyInfoInterval(partyInfoInterval)
-                        .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
-                        .withKeys(keyLookUp.get(3))
-                        .withFeatureToggles(toggles)
-                        .withEncryptorConfig(encryptorConfig)
-                        .build();
+            new ConfigBuilder()
+                .withNodeId(nodeId)
+                .withNodeNumber(3)
+                .withExecutionContext(executionContext)
+                .withQt2Port(port.nextPort())
+                .withP2pPort(port.nextPort())
+                // .withAdminPort(port.nextPort())
+                .withEnclavePort(port.nextPort())
+                .withPartyInfoInterval(partyInfoInterval)
+                .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
+                .withKeys(keyLookUp.get(3))
+                .withFeatureToggles(toggles)
+                .withEncryptorConfig(encryptorConfig)
+                .build();
 
         Config fourth =
-                new ConfigBuilder()
-                        .withNodeId(nodeId)
-                        .withNodeNumber(4)
-                        .withExecutionContext(executionContext)
-                        .withQt2Port(port.nextPort())
-                        .withP2pPort(port.nextPort())
-                        // .withAdminPort(port.nextPort())
-                        .withEnclavePort(port.nextPort())
-                        .withPartyInfoInterval(partyInfoInterval)
-                        .withKeys(keyLookUp.get(4))
-                        .withFeatureToggles(toggles)
-                        .withEncryptorConfig(encryptorConfig)
-                        .build();
+            new ConfigBuilder()
+                .withNodeId(nodeId)
+                .withNodeNumber(4)
+                .withExecutionContext(executionContext)
+                .withQt2Port(port.nextPort())
+                .withP2pPort(port.nextPort())
+                // .withAdminPort(port.nextPort())
+                .withEnclavePort(port.nextPort())
+                .withPartyInfoInterval(partyInfoInterval)
+                .withKeys(keyLookUp.get(4))
+                .withFeatureToggles(toggles)
+                .withEncryptorConfig(encryptorConfig)
+                .build();
 
         first.addPeer(new Peer(second.getP2PServerConfig().getServerAddress()));
         second.addPeer(new Peer(third.getP2PServerConfig().getServerAddress()));
@@ -255,11 +256,11 @@ public class ConfigGenerator {
         List<Config> configList = List.of(first, second, third, fourth);
         if (LOGGER.isDebugEnabled()) {
             configList.stream()
-                    .map(JaxbUtil::marshalToString)
-                    .forEach(
-                            s -> {
-                                LOGGER.debug(s);
-                            });
+                .map(JaxbUtil::marshalToString)
+                .forEach(
+                    s -> {
+                        LOGGER.debug(s);
+                    });
         }
         return configList;
     }
@@ -270,13 +271,13 @@ public class ConfigGenerator {
         System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
         ExecutionContext executionContext =
-                ExecutionContext.Builder.create()
-                        .with(CommunicationType.REST)
-                        .with(DBType.H2)
-                        .with(SocketType.UNIX)
-                        .with(EnclaveType.LOCAL)
-                        .prefix("p2p")
-                        .build();
+            ExecutionContext.Builder.create()
+                .with(CommunicationType.REST)
+                .with(DBType.H2)
+                .with(SocketType.UNIX)
+                .with(EnclaveType.LOCAL)
+                .prefix("p2p")
+                .build();
 
         Path path = ConfigGenerator.calculatePath(executionContext);
 

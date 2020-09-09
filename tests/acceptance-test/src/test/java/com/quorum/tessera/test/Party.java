@@ -53,12 +53,12 @@ public class Party {
         this.p2pUri = p2pServerConfig.getServerUri();
 
         ServerConfig q2tServerConfig =
-                config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.Q2T).findFirst().get();
+            config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.Q2T).findFirst().get();
 
         this.q2tUri = q2tServerConfig.getServerUri();
 
         Optional<ServerConfig> adminServerConfig =
-                config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.ADMIN).findFirst();
+            config.getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.ADMIN).findFirst();
         this.adminUri = adminServerConfig.map(ServerConfig::getServerUri).orElse(null);
 
         this.alias = Objects.requireNonNull(alias);
@@ -100,14 +100,14 @@ public class Party {
 
     public Client getRestClient() {
         ServerConfig serverConfig =
-                config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
+            config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
 
         return new ClientFactory().buildFrom(serverConfig);
     }
 
     public WebTarget getRestClientWebTarget() {
         ServerConfig serverConfig =
-                config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
+            config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.Q2T).findAny().get();
         return getRestClient().target(serverConfig.getServerUri());
     }
 

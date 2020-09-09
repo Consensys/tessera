@@ -11,11 +11,9 @@ import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -60,11 +58,9 @@ public class Main {
 
             RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
 
-            EnclaveFactory enclaveFactory = EnclaveFactory.create();
-            enclaveFactory.create(config);
+            com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
+            Discovery.getInstance().onCreate();
 
-            PartyInfoService partyInfoService = PartyInfoServiceFactory.create().create(config);
-            partyInfoService.populateStore();
 
             TransactionManagerFactory.create().create(config);
 

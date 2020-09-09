@@ -10,6 +10,7 @@ import config.ConfigDescriptor;
 import config.PortUtil;
 import exec.EnclaveExecManager;
 import exec.NodeExecManager;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -23,7 +24,9 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,19 +62,19 @@ public class SendWithRemoteEnclaveReconnectIT {
     public void onSetup() throws IOException {
 
         EncryptorConfig encryptorConfig =
-                new EncryptorConfig() {
-                    {
-                        setType(EncryptorType.NACL);
-                    }
-                };
+            new EncryptorConfig() {
+                {
+                    setType(EncryptorType.NACL);
+                }
+            };
 
         ExecutionContext.Builder.create()
-                .with(CommunicationType.REST)
-                .with(DBType.H2)
-                .with(SocketType.HTTP)
-                .with(EnclaveType.REMOTE)
-                .with(encryptorConfig.getType())
-                .buildAndStoreContext();
+            .with(CommunicationType.REST)
+            .with(DBType.H2)
+            .with(SocketType.HTTP)
+            .with(EnclaveType.REMOTE)
+            .with(encryptorConfig.getType())
+            .buildAndStoreContext();
 
         final PortUtil portGenerator = new PortUtil(50100);
 
@@ -137,7 +140,7 @@ public class SendWithRemoteEnclaveReconnectIT {
             out.flush();
         }
         ConfigDescriptor configDescriptor =
-                new ConfigDescriptor(NodeAlias.A, configPath, nodeConfig, enclaveConfig, enclaveConfigPath);
+            new ConfigDescriptor(NodeAlias.A, configPath, nodeConfig, enclaveConfig, enclaveConfigPath);
 
         String key = configDescriptor.getKey().getPublicKey();
         URL file = Utils.toUrl(configDescriptor.getPath());
@@ -178,10 +181,10 @@ public class SendWithRemoteEnclaveReconnectIT {
         Client client = ClientBuilder.newClient();
 
         final Response response =
-                client.target(party.getQ2TUri())
-                        .path("send")
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            client.target(party.getQ2TUri())
+                .path("send")
+                .request()
+                .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
         assertThat(response.getStatus()).isEqualTo(503);
 

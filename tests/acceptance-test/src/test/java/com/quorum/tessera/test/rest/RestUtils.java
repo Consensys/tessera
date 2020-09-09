@@ -3,8 +3,10 @@ package com.quorum.tessera.test.rest;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.Party;
+
 import static com.quorum.tessera.test.rest.RawHeaderName.RECIPIENTS;
 import static com.quorum.tessera.test.rest.RawHeaderName.SENDER;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -17,7 +19,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import transaction.utils.Utils;
@@ -40,14 +44,12 @@ public class RestUtils {
             .collect(Collectors.joining(","));
 
 
-        LOGGER.debug("Sending txn  to {}",recipientString);
-        
+        LOGGER.debug("Sending txn  to {}", recipientString);
+
         Invocation.Builder invocationBuilder = sender.getRestClientWebTarget()
             .path("sendraw")
             .request()
             .header(SENDER, sender.getPublicKey());
-
-
 
 
         Optional.of(recipientString)
@@ -145,8 +147,8 @@ public class RestUtils {
             .path("receiveraw")
             .request()
             .header(C11N_KEY, transactionKey)
-            
-            .header(C11N_TO, Stream.concat(Stream.of(recipients),Stream.of(party))
+
+            .header(C11N_TO, Stream.concat(Stream.of(recipients), Stream.of(party))
                 .map(Party::getPublicKey)
                 .collect(Collectors.joining(",")))
             .get();
