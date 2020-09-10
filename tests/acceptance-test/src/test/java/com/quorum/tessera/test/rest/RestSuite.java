@@ -17,6 +17,7 @@ import suite.TestSuite;
     P2PRestAppIT.class,
     TransactionForwardingIT.class,
     CucumberRestIT.class,
-    CucumberRawIT.class
+    CucumberRawIT.class,
+    CustomPayloadEncryptionIT.class
 })
 public abstract class RestSuite {}

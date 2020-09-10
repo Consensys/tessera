@@ -4,9 +4,6 @@ import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
-import java.util.Set;
-import javax.ws.rs.core.Application;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -14,7 +11,11 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.*;
+import javax.ws.rs.core.Application;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class Q2TRestAppTest {
 
@@ -26,24 +27,21 @@ public class Q2TRestAppTest {
 
     @Before
     public void setUp() throws Exception {
-
-        final Set services = Set.of(mock(Config.class));
+        final Set<Object> services = Set.of(mock(Config.class));
 
         serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);
 
         q2TRestApp = new Q2TRestApp();
 
-        jersey =
-                new JerseyTest() {
-                    @Override
-                    protected Application configure() {
-                        enable(TestProperties.LOG_TRAFFIC);
-                        enable(TestProperties.DUMP_ENTITY);
-                        ResourceConfig jerseyconfig = ResourceConfig.forApplication(q2TRestApp);
-                        return jerseyconfig;
-                    }
-                };
+        jersey = new JerseyTest() {
+            @Override
+            protected Application configure() {
+                enable(TestProperties.LOG_TRAFFIC);
+                enable(TestProperties.DUMP_ENTITY);
+                return ResourceConfig.forApplication(q2TRestApp);
+            }
+        };
 
         jersey.setUp();
     }
@@ -55,10 +53,7 @@ public class Q2TRestAppTest {
 
     @Test
     public void getSingletons() {
-
-        Set<Object> results = q2TRestApp.getSingletons();
-
-        assertThat(results).hasSize(2);
+        assertThat(q2TRestApp.getSingletons()).hasSize(3);
     }
 
     @Test
