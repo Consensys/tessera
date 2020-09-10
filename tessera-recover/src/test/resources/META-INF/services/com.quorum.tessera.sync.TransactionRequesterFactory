@@ -1,1 +1,1 @@
-com.quorum.tessera.recover.MockTransactionRequesterFactory
+com.quorum.tessera.recovery.MockTransactionRequesterFactory

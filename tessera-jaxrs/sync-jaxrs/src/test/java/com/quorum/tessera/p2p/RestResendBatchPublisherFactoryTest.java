@@ -3,7 +3,9 @@ package com.quorum.tessera.p2p;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.partyinfo.ResendBatchPublisher;
+import com.quorum.tessera.p2p.recovery.RestResendBatchPublisher;
+import com.quorum.tessera.p2p.recovery.RestResendBatchPublisherFactory;
+import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import org.junit.Before;
 import org.junit.Test;
 

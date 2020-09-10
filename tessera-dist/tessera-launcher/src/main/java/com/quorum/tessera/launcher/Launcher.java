@@ -4,7 +4,7 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.apps.TesseraAppFactory;
-import com.quorum.tessera.recover.RecoveryFactory;
+import com.quorum.tessera.recovery.RecoveryFactory;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import org.slf4j.Logger;

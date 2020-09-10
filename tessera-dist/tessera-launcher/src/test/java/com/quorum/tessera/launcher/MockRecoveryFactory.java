@@ -1,8 +1,8 @@
 package com.quorum.tessera.launcher;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.recover.Recovery;
-import com.quorum.tessera.recover.RecoveryFactory;
+import com.quorum.tessera.recovery.Recovery;
+import com.quorum.tessera.recovery.RecoveryFactory;
 
 import java.util.ArrayList;
 import java.util.List;

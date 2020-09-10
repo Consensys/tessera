@@ -1,6 +1,6 @@
 package com.quorum.tessera.launcher;
 
-import com.quorum.tessera.recover.Recovery;
+import com.quorum.tessera.recovery.Recovery;
 import com.quorum.tessera.server.TesseraServer;
 import org.junit.Before;
 import org.junit.Test;

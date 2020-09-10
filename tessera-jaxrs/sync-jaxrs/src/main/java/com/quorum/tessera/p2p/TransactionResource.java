@@ -1,12 +1,11 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.*;
+import com.quorum.tessera.p2p.recovery.model.ResendBatchRequest;
+import com.quorum.tessera.p2p.recovery.model.ResendBatchResponse;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.recover.resend.BatchResendManager;
+import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.util.Base64Codec;
 import io.swagger.annotations.*;

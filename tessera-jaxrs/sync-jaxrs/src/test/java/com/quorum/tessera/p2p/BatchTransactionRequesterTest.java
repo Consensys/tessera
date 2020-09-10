@@ -2,8 +2,9 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.ResendBatchRequest;
-import com.quorum.tessera.partyinfo.ResendBatchResponse;
+import com.quorum.tessera.p2p.recovery.BatchTransactionRequesterImpl;
+import com.quorum.tessera.p2p.recovery.model.ResendBatchRequest;
+import com.quorum.tessera.p2p.recovery.model.ResendBatchResponse;
 import com.quorum.tessera.partyinfo.TransactionRequester;
 import org.junit.After;
 import org.junit.Before;

@@ -1,7 +1,7 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.partyinfo.PushBatchRequest;
-import com.quorum.tessera.recover.resend.BatchResendManager;
+import com.quorum.tessera.p2p.recovery.model.PushBatchRequest;
+import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
