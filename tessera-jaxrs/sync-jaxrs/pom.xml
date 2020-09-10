@@ -8,7 +8,7 @@
     </parent>
     <artifactId>sync-jaxrs</artifactId>
     <packaging>jar</packaging>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
@@ -22,14 +22,14 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-    
+
         <dependency>
             <groupId>com.jpmorgan.quorum</groupId>
             <artifactId>partyinfo-model</artifactId>
         </dependency>
-        
+
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -38,7 +38,7 @@
                 <configuration>
                     <apiSources>
                         <apiSource>
-                            
+
                             <schemes>
                                 <scheme>http</scheme>
                                 <scheme>https</scheme>
@@ -47,7 +47,7 @@
                             <basePath>/</basePath>
                             <springmvc>false</springmvc>
                             <info>
-                                
+
                                 <title>Peer to peer resources</title>
                                 <version>${project.version}</version>
                             </info>
@@ -56,7 +56,7 @@
                                 <location>com.quorum.tessera.p2p.ApiResource</location>
                                 <location>com.quorum.tessera.p2p.PartyInfoResource</location>
                                 <location>com.quorum.tessera.p2p.TransactionResource</location>
-   
+
                             </locations>
                             <templatePath>${project.parent.basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
                             <outputPath>${project.build.directory}/generated-resources/swagger/p2p.html</outputPath>
