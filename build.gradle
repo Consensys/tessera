@@ -9,7 +9,8 @@ plugins {
 
 def jettyVersion = "9.4.25.v20191220"
 def springVersion = "5.2.3.RELEASE"
-def eclipselinkVersion = "2.7.7"
+def eclipseLinkVersion = "2.7.7"
+
 allprojects {
     group = 'com.jpmorgan.quorum'
     //version = '0.11-SNAPSHOT'
@@ -97,8 +98,8 @@ allprojects {
                 compile "org.bouncycastle:bcprov-jdk15on:1.61"
                 compile "com.h2database:h2:1.4.200"
                 compile "com.zaxxer:HikariCP:3.2.0"
-                compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipselinkVersion
-                compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipselinkVersion
+                compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipseLinkVersion
+                compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipseLinkVersion
                 compile "org.hsqldb:hsqldb:2.4.1"
                 compile "org.xerial:sqlite-jdbc:3.23.1"
                 compile "javax.persistence:javax.persistence-api:2.2"

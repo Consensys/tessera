@@ -75,8 +75,7 @@ public class P2PRestApp extends TesseraRestApplication {
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
-        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-        TransactionManager transactionManager = transactionManagerFactory.create(config);
+        TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
         BatchResendManager batchResendManager = BatchResendManager.create(config);
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
