@@ -12,6 +12,8 @@ import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
+import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
@@ -55,17 +57,17 @@ public class P2PRestApp extends TesseraRestApplication {
     public Set<Object> getSingletons() {
 
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
-        LOGGER.debug("Found configured peers {}",runtimeContext.getPeers());
+        LOGGER.debug("Found configured peers {}", runtimeContext.getPeers());
 
         runtimeContext.getPeers().stream()
-            .map(NodeUri::create)
-            .map(NodeUri::asURI)
-            .peek(u -> LOGGER.debug("Adding {} to party store",u))
-            .forEach(partyStore::store);
+                .map(NodeUri::create)
+                .map(NodeUri::asURI)
+                .peek(u -> LOGGER.debug("Adding {} to party store", u))
+                .forEach(partyStore::store);
 
         final PartyInfoResource partyInfoResource =
                 new PartyInfoResource(
-                    discovery,
+                        discovery,
                         partyInfoParser,
                         runtimeContext.getP2pClient(),
                         enclave,

@@ -1,11 +1,10 @@
 package com.quorum.tessera.test.rest;
 
-
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
-import com.quorum.tessera.p2p.ResendRequest;
-import com.quorum.tessera.p2p.ResendRequestType;
+import com.quorum.tessera.p2p.resend.ResendRequest;
+import com.quorum.tessera.p2p.resend.ResendRequestType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.Before;
@@ -41,12 +40,13 @@ public class ResendIndividualIT {
         sender = partyHelper.findByAlias("A");
         recipient = partyHelper.findByAlias("B");
 
-        final Response response = client.target(sender.getQ2TUri())
-                .path("/sendraw")
-                .request()
-                .header("c11n-from", sender.getPublicKey())
-                .header("c11n-to", recipient.getPublicKey())
-                .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+        final Response response =
+                client.target(sender.getQ2TUri())
+                        .path("/sendraw")
+                        .request()
+                        .header("c11n-from", sender.getPublicKey())
+                        .header("c11n-to", recipient.getPublicKey())
+                        .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
 
         // validate result
         assertThat(response).isNotNull();

@@ -25,8 +25,8 @@
     <logger name="com.quorum.tessera.encryption" level="INFO" />
     <logger name="com.quorum.tessera.discovery" level="DEBUG" />
     <logger name="com.quorum.tessera.p2p" level="DEBUG" />
-    <logger name="com.quorum.tessera.p2p.SyncPoller" level="DEBUG" />
-    <logger name="com.quorum.tessera.p2p.PartyInfoBroadcaster" level="DEBUG" />
+    <logger name="com.quorum.tessera.p2p.resend.SyncPoller" level="DEBUG" />
+    <logger name="com.quorum.tessera.p2p.partyinfo.PartyInfoBroadcaster" level="DEBUG" />
     <logger name="com.quorum.tessera.p2p.P2PRestApp" level="DEBUG" />
     <logger name="com.quorum.tessera.server.jaxrs" level="DEBUG" />
 

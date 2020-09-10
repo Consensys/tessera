@@ -11,7 +11,7 @@
         <constructor-arg ref="config"/>
     </bean>
 
-    <bean id="resendClientFactory" class="com.quorum.tessera.p2p.ResendClientFactory" factory-method="newFactory">
+    <bean id="resendClientFactory" class="com.quorum.tessera.p2p.resend.ResendClientFactory" factory-method="newFactory">
         <constructor-arg ref="config"/>
     </bean>
 
@@ -36,7 +36,7 @@
             <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
         </constructor-arg>
         <constructor-arg>
-            <bean class="com.quorum.tessera.p2p.PartyInfoBroadcaster">
+            <bean class="com.quorum.tessera.p2p.partyinfo.PartyInfoBroadcaster">
                 <constructor-arg ref="p2pClient"/>
             </bean>
         </constructor-arg>
@@ -66,14 +66,14 @@
     <!-- Node synchronization management-->
     <beans profile="enable-sync-poller">
 
-        <bean name="resendPartyStore" class="com.quorum.tessera.p2p.ResendPartyStoreImpl"/>
+        <bean name="resendPartyStore" class="com.quorum.tessera.p2p.resend.ResendPartyStoreImpl"/>
 
-        <bean name="transactionRequester" class="com.quorum.tessera.p2p.TransactionRequesterImpl">
+        <bean name="transactionRequester" class="com.quorum.tessera.p2p.resend.TransactionRequesterImpl">
             <constructor-arg ref="enclave" />
             <constructor-arg ref="resendClient" />
         </bean>
 
-        <bean name="syncPoller" class="com.quorum.tessera.p2p.SyncPoller">
+        <bean name="syncPoller" class="com.quorum.tessera.p2p.resend.SyncPoller">
             <constructor-arg ref="resendPartyStore" />
             <constructor-arg ref="transactionRequester" />
             <constructor-arg ref="p2pClient"/>

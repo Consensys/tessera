@@ -7,6 +7,8 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
+import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.partyinfo.model.NodeInfoUtil;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
