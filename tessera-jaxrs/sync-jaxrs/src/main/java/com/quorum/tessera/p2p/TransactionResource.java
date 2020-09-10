@@ -1,10 +1,10 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchRequest;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchResponse;
+import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.recovery.resend.ResendBatchResponse;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -112,9 +112,20 @@ public class TransactionResource {
 
         LOGGER.debug("Received resend request");
 
-        ResendBatchResponse response = batchResendManager.resendBatch(resendBatchRequest);
+        com.quorum.tessera.recovery.resend.ResendBatchRequest request =
+                com.quorum.tessera.recovery.resend.ResendBatchRequest.Builder.create()
+                        .withPublicKey(resendBatchRequest.getPublicKey())
+                        .withBatchSize(resendBatchRequest.getBatchSize())
+                        .build();
+
+        ResendBatchResponse response = batchResendManager.resendBatch(request);
+
+        com.quorum.tessera.p2p.recovery.ResendBatchResponse responseEntity =
+                new com.quorum.tessera.p2p.recovery.ResendBatchResponse();
+        responseEntity.setTotal(response.getTotal());
+
         Response.ResponseBuilder builder = Response.status(Response.Status.OK);
-        builder.entity(response);
+        builder.entity(responseEntity);
         return builder.build();
     }
 

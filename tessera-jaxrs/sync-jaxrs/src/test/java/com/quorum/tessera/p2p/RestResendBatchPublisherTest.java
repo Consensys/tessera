@@ -5,7 +5,7 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.jaxrs.mock.MockClient;
 import com.quorum.tessera.p2p.recovery.RestResendBatchPublisher;
 import com.quorum.tessera.partyinfo.PublishPayloadException;
-import com.quorum.tessera.p2p.recovery.model.PushBatchRequest;
+import com.quorum.tessera.p2p.recovery.PushBatchRequest;
 import com.quorum.tessera.sync.ResendClient;
 import org.junit.After;
 import org.junit.Before;

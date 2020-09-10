@@ -17,4 +17,11 @@ public interface BatchTransactionRequester {
      */
     boolean requestAllTransactionsFromNode(String url);
 
+    /**
+     * Makes a request to the given node that run on a legacy version to resend transactions
+     *
+     * @param url
+     * @return
+     */
+    boolean requestAllTransactionsFromLegacyNode(String url);
 }

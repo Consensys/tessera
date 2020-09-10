@@ -2,9 +2,9 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.p2p.recovery.BatchTransactionRequesterImpl;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchRequest;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchResponse;
+import com.quorum.tessera.p2p.recovery.RestBatchTransactionRequester;
+import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
+import com.quorum.tessera.p2p.recovery.ResendBatchResponse;
 import com.quorum.tessera.partyinfo.TransactionRequester;
 import org.junit.After;
 import org.junit.Before;
@@ -43,7 +43,7 @@ public class BatchTransactionRequesterTest {
                 .when(p2pClient)
                 .makeBatchResendRequest(anyString(), any(ResendBatchRequest.class));
 
-        this.transactionRequester = new BatchTransactionRequesterImpl(enclave, p2pClient, 100);
+        this.transactionRequester = new RestBatchTransactionRequester(enclave, p2pClient, 100);
     }
 
     @After

@@ -1,6 +1,6 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.p2p.recovery.model.PushBatchRequest;
+import com.quorum.tessera.p2p.recovery.PushBatchRequest;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
@@ -42,7 +42,10 @@ public class RecoveryResource {
 
         LOGGER.debug("Received push request");
 
-        batchResendManager.storeResendBatch(pushBatchRequest);
+        com.quorum.tessera.recovery.resend.PushBatchRequest request =
+                com.quorum.tessera.recovery.resend.PushBatchRequest.from(pushBatchRequest.getEncodedPayloads());
+
+        batchResendManager.storeResendBatch(request);
 
         LOGGER.debug("Push batch processed successfully");
         return Response.status(Response.Status.OK).build();

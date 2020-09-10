@@ -6,9 +6,9 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.partyinfo.TransactionRequester;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.StoreEntityException;
@@ -32,7 +32,7 @@ public class RecoveryImpl implements Recovery {
 
     private final Discovery discovery;
 
-    private final TransactionRequester transactionRequester;
+    private final BatchTransactionRequester transactionRequester;
 
     private final TransactionManager transactionManager;
 
@@ -41,7 +41,7 @@ public class RecoveryImpl implements Recovery {
     public RecoveryImpl(
             StagingEntityDAO stagingEntityDAO,
             Discovery discovery,
-            TransactionRequester transactionRequester,
+            BatchTransactionRequester transactionRequester,
             TransactionManager transactionManager,
             PayloadEncoder payloadEncoder) {
         this.stagingEntityDAO = Objects.requireNonNull(stagingEntityDAO);

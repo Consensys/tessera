@@ -1,11 +1,8 @@
 package com.quorum.tessera.p2p.resend;
 
-import com.quorum.tessera.p2p.resend.ResendClient;
-import com.quorum.tessera.p2p.resend.ResendRequest;
-
-import com.quorum.tessera.p2p.recovery.model.PushBatchRequest;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchRequest;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchResponse;
+import com.quorum.tessera.p2p.recovery.PushBatchRequest;
+import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
+import com.quorum.tessera.p2p.recovery.ResendBatchResponse;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -30,31 +27,31 @@ public class RestResendClient implements ResendClient {
         }
     }
 
-    @Override
-    public boolean pushBatch(String targetUrl, PushBatchRequest pushBatchRequest) {
-
-        final Response response =
-            client.target(targetUrl)
-                .path("/pushBatch")
-                .request()
-                .post(Entity.entity(pushBatchRequest, MediaType.APPLICATION_JSON));
-
-        return Response.Status.OK.getStatusCode() == response.getStatus();
-    }
-
-    @Override
-    public ResendBatchResponse makeBatchResendRequest(String targetUrl, ResendBatchRequest request) {
-        final Response response =
-            client.target(targetUrl)
-                .path("/resendBatch")
-                .request()
-                .post(Entity.entity(request, MediaType.APPLICATION_JSON));
-
-        if (Response.Status.OK.getStatusCode() == response.getStatus()) {
-            return response.readEntity(ResendBatchResponse.class);
-        }
-
-        return null;
-    }
+    //    @Override
+    //    public boolean pushBatch(String targetUrl, PushBatchRequest pushBatchRequest) {
+    //
+    //        final Response response =
+    //            client.target(targetUrl)
+    //                .path("/pushBatch")
+    //                .request()
+    //                .post(Entity.entity(pushBatchRequest, MediaType.APPLICATION_JSON));
+    //
+    //        return Response.Status.OK.getStatusCode() == response.getStatus();
+    //    }
+    //
+    //    @Override
+    //    public ResendBatchResponse makeBatchResendRequest(String targetUrl, ResendBatchRequest request) {
+    //        final Response response =
+    //            client.target(targetUrl)
+    //                .path("/resendBatch")
+    //                .request()
+    //                .post(Entity.entity(request, MediaType.APPLICATION_JSON));
+    //
+    //        if (Response.Status.OK.getStatusCode() == response.getStatus()) {
+    //            return response.readEntity(ResendBatchResponse.class);
+    //        }
+    //
+    //        return null;
+    //    }
 
 }

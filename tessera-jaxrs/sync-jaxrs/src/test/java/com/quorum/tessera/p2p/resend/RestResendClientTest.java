@@ -1,12 +1,10 @@
 package com.quorum.tessera.p2p.resend;
 
 import com.quorum.tessera.jaxrs.mock.MockClient;
-import com.quorum.tessera.p2p.recovery.model.PushBatchRequest;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchRequest;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchResponse;
+import com.quorum.tessera.p2p.recovery.PushBatchRequest;
+import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
+import com.quorum.tessera.p2p.recovery.ResendBatchResponse;
 
-import com.quorum.tessera.p2p.resend.ResendRequest;
-import com.quorum.tessera.p2p.resend.RestResendClient;
 import org.junit.Before;
 import org.junit.Test;
 

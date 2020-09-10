@@ -4,8 +4,8 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.p2p.resend.ResendRequestType;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchRequest;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchResponse;
+import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
+import com.quorum.tessera.p2p.recovery.ResendBatchResponse;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
@@ -34,13 +34,12 @@ public class TransactionResourceTest {
         transactionManager = mock(TransactionManager.class);
         batchResendManager = mock(BatchResendManager.class);
         this.payloadEncoder = mock(PayloadEncoder.class);
-        transactionResource = new TransactionResource(transactionManager, batchResendManager,payloadEncoder);
-
+        transactionResource = new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(transactionManager,batchResendManager,payloadEncoder);
+        verifyNoMoreInteractions(transactionManager, batchResendManager, payloadEncoder);
     }
 
     @Test
@@ -64,11 +63,12 @@ public class TransactionResourceTest {
         resendRequest.setPublicKey(Base64.getEncoder().encodeToString("JUNIT".getBytes()));
 
         EncodedPayload payload = mock(EncodedPayload.class);
-        com.quorum.tessera.transaction.ResendResponse resendResponse = mock(com.quorum.tessera.transaction.ResendResponse.class);
+        com.quorum.tessera.transaction.ResendResponse resendResponse =
+                mock(com.quorum.tessera.transaction.ResendResponse.class);
         when(resendResponse.getPayload()).thenReturn(payload);
 
         when(transactionManager.resend(any(com.quorum.tessera.transaction.ResendRequest.class)))
-            .thenReturn(resendResponse);
+                .thenReturn(resendResponse);
 
         when(payloadEncoder.encode(payload)).thenReturn("SUCCESS".getBytes());
 
@@ -79,7 +79,6 @@ public class TransactionResourceTest {
         verify(transactionManager).resend(any(com.quorum.tessera.transaction.ResendRequest.class));
 
         verify(payloadEncoder).encode(payload);
-
     }
 
     @Test

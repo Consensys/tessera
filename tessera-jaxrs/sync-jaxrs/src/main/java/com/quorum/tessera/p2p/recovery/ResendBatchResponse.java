@@ -1,4 +1,4 @@
-package com.quorum.tessera.p2p.recovery.model;
+package com.quorum.tessera.p2p.recovery;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

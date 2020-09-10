@@ -2,27 +2,24 @@ package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.p2p.ResendClient;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchRequest;
-import com.quorum.tessera.p2p.recovery.model.ResendBatchResponse;
-import com.quorum.tessera.partyinfo.TransactionRequester;
+import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Base64;
 import java.util.Objects;
 
-public class BatchTransactionRequesterImpl implements TransactionRequester {
+public class RestBatchTransactionRequester implements BatchTransactionRequester {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BatchTransactionRequesterImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RestBatchTransactionRequester.class);
 
     private final Enclave enclave;
 
-    private final ResendClient client;
+    private final RecoveryClient client;
 
     private final int batchSize;
 
-    public BatchTransactionRequesterImpl(final Enclave enclave, final ResendClient client, int batchSize) {
+    public RestBatchTransactionRequester(final Enclave enclave, final RecoveryClient client, int batchSize) {
         this.enclave = Objects.requireNonNull(enclave);
         this.client = Objects.requireNonNull(client);
         this.batchSize = batchSize;
@@ -36,6 +33,11 @@ public class BatchTransactionRequesterImpl implements TransactionRequester {
         return this.enclave.getPublicKeys().stream()
                 .map(this::createRequestAllEntity)
                 .allMatch(req -> this.makeRequest(uri, req) >= 0);
+    }
+
+    @Override
+    public boolean requestAllTransactionsFromLegacyNode(String url) {
+        return false;
     }
 
     /**

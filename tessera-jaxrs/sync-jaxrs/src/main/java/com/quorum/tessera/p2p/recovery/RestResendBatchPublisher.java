@@ -2,8 +2,6 @@ package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.p2p.ResendClient;
-import com.quorum.tessera.p2p.recovery.model.PushBatchRequest;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import org.slf4j.Logger;
@@ -19,13 +17,13 @@ public class RestResendBatchPublisher implements ResendBatchPublisher {
 
     private final PayloadEncoder payloadEncoder;
 
-    private final ResendClient resendClient;
+    private final RecoveryClient resendClient;
 
-    public RestResendBatchPublisher(ResendClient resendClient) {
+    public RestResendBatchPublisher(RecoveryClient resendClient) {
         this(PayloadEncoder.create(), resendClient);
     }
 
-    public RestResendBatchPublisher(final PayloadEncoder payloadEncoder, final ResendClient resendClient) {
+    public RestResendBatchPublisher(final PayloadEncoder payloadEncoder, final RecoveryClient resendClient) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.resendClient = Objects.requireNonNull(resendClient);
     }
