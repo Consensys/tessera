@@ -2,15 +2,16 @@ package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
 import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.p2p.resend.ResendRequestType;
-import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
-import com.quorum.tessera.p2p.recovery.ResendBatchResponse;
+import com.quorum.tessera.recovery.resend.ResendBatchResponse;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.core.Response;
 
@@ -83,14 +84,29 @@ public class TransactionResourceTest {
 
     @Test
     public void resendBatch() {
-        ResendBatchRequest resendRequest = mock(ResendBatchRequest.class);
-        ResendBatchResponse resendResponse = new ResendBatchResponse(1);
 
-        when(batchResendManager.resendBatch(resendRequest)).thenReturn(resendResponse);
+        ResendBatchRequest incoming = new ResendBatchRequest();
+        incoming.setPublicKey("someKey");
+        incoming.setBatchSize(1);
 
-        Response result = transactionResource.resendBatch(resendRequest);
+        ResendBatchResponse resendResponse = ResendBatchResponse.from(1);
+        when(batchResendManager.resendBatch(any())).thenReturn(resendResponse);
+
+        Response result = transactionResource.resendBatch(incoming);
         assertThat(result.getStatus()).isEqualTo(200);
-        assertThat(result.getEntity()).isEqualTo(resendResponse);
-        verify(batchResendManager).resendBatch(resendRequest);
+        com.quorum.tessera.p2p.recovery.ResendBatchResponse convertedResponse =
+                (com.quorum.tessera.p2p.recovery.ResendBatchResponse) result.getEntity();
+
+        assertThat(convertedResponse.getTotal()).isEqualTo(1);
+
+        ArgumentCaptor<com.quorum.tessera.recovery.resend.ResendBatchRequest> captor =
+                ArgumentCaptor.forClass(com.quorum.tessera.recovery.resend.ResendBatchRequest.class);
+
+        verify(batchResendManager).resendBatch(captor.capture());
+
+        com.quorum.tessera.recovery.resend.ResendBatchRequest convertedRequest = captor.getValue();
+
+        assertThat(convertedRequest.getPublicKey()).isEqualTo("someKey");
+        assertThat(convertedRequest.getBatchSize()).isEqualTo(1);
     }
 }

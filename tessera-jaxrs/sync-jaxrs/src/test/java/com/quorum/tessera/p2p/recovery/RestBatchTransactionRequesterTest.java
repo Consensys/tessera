@@ -1,11 +1,8 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.p2p.recovery.RestBatchTransactionRequester;
-import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
-import com.quorum.tessera.p2p.recovery.ResendBatchResponse;
-import com.quorum.tessera.partyinfo.TransactionRequester;
+import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-public class BatchTransactionRequesterTest {
+public class RestBatchTransactionRequesterTest {
 
     private static final PublicKey KEY_ONE = PublicKey.from(new byte[] {1});
 
@@ -29,15 +26,15 @@ public class BatchTransactionRequesterTest {
 
     private Enclave enclave;
 
-    private ResendClient p2pClient;
+    private RecoveryClient p2pClient;
 
-    private TransactionRequester transactionRequester;
+    private BatchTransactionRequester transactionRequester;
 
     @Before
     public void init() {
 
         this.enclave = mock(Enclave.class);
-        this.p2pClient = mock(ResendClient.class);
+        this.p2pClient = mock(RecoveryClient.class);
 
         doReturn(new ResendBatchResponse(100))
                 .when(p2pClient)
@@ -106,5 +103,10 @@ public class BatchTransactionRequesterTest {
 
         verify(p2pClient, times(5)).makeBatchResendRequest(eq("fakeurl.com"), any(ResendBatchRequest.class));
         verify(enclave).getPublicKeys();
+    }
+
+    @Test
+    public void requestFromLegacyNode() {
+        assertThat(transactionRequester.requestAllTransactionsFromLegacyNode("test")).isFalse();
     }
 }

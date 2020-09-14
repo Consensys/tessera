@@ -169,6 +169,44 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
     }
 
     @Test
+    public void createMinimalRecoveryMode() {
+
+        when(contextHolder.getContext()).thenReturn(Optional.empty());
+
+        Config confg = mock(Config.class);
+        EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
+        when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
+
+        when(confg.getEncryptor()).thenReturn(encryptorConfig);
+
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+
+        when(confg.getKeys()).thenReturn(keyConfiguration);
+
+        ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getApp()).thenReturn(AppType.P2P);
+        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
+        when(confg.getP2PServerConfig()).thenReturn(serverConfig);
+        when(serverConfig.getServerUri()).thenReturn(URI.create("http://bogus"));
+        when(serverConfig.getBindingUri()).thenReturn(URI.create("http://bogus"));
+        when(serverConfig.getProperties()).thenReturn(Collections.emptyMap());
+
+        when(confg.getServerConfigs()).thenReturn(List.of(serverConfig));
+
+        FeatureToggles featureToggles = mock(FeatureToggles.class);
+        when(confg.getFeatures()).thenReturn(featureToggles);
+        when(confg.isRecoveryMode()).thenReturn(true);
+
+        RuntimeContext result = runtimeContextFactory.create(confg);
+
+        assertThat(result).isNotNull();
+
+        assertThat(result.isRecoveryMode()).isTrue();
+        verify(contextHolder).getContext();
+        verify(contextHolder).setContext(any(RuntimeContext.class));
+    }
+
+    @Test
     public void createWithExistingContextPopulated() {
         RuntimeContext runtimeContext = mock(RuntimeContext.class);
         when(contextHolder.getContext()).thenReturn(Optional.of(runtimeContext));

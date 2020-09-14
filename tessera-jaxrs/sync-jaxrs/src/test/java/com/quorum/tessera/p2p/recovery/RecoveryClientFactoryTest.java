@@ -1,4 +1,4 @@
-package com.quorum.tessera.p2p.resend;
+package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ResendClientFactoryTest {
+public class RecoveryClientFactoryTest {
 
     @Test
     public void newFactory() {
@@ -21,9 +21,9 @@ public class ResendClientFactoryTest {
         when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
-        ResendClientFactory factory = ResendClientFactory.newFactory(config);
+        RecoveryClientFactory factory = RecoveryClientFactory.newFactory(config);
 
-        assertThat(factory).isExactlyInstanceOf(MockResendClientFactory.class);
+        assertThat(factory).isExactlyInstanceOf(MockRecoveryClientFactory.class);
     }
 
     @Test(expected = NoSuchElementException.class)
@@ -33,6 +33,6 @@ public class ResendClientFactoryTest {
         ServerConfig serverConfig = mock(ServerConfig.class);
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
-        ResendClientFactory.newFactory(config);
+        RecoveryClientFactory.newFactory(config);
     }
 }

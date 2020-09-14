@@ -1,4 +1,4 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
@@ -27,6 +27,7 @@ public class RestResendBatchPublisherFactoryTest {
     public void create() {
         Config config = mock(Config.class);
         ServerConfig serverConfig = mock(ServerConfig.class);
+        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
         ResendBatchPublisher result = resendBatchPublisherFactory.create(config);

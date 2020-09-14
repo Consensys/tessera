@@ -1,12 +1,9 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.jaxrs.mock.MockClient;
-import com.quorum.tessera.p2p.recovery.RestResendBatchPublisher;
-import com.quorum.tessera.partyinfo.PublishPayloadException;
-import com.quorum.tessera.p2p.recovery.PushBatchRequest;
-import com.quorum.tessera.sync.ResendClient;
+import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,9 +34,9 @@ public class RestResendBatchPublisherTest {
 
         restclient = new MockClient();
 
-        ResendClient resendClient = new RestResendClient(restclient);
+        RecoveryClient recoveryClient = new RestRecoveryClient(restclient);
 
-        resendBatchPublisher = new RestResendBatchPublisher(payloadEncoder, resendClient);
+        resendBatchPublisher = new RestResendBatchPublisher(payloadEncoder, recoveryClient);
     }
 
     @After
@@ -126,6 +123,6 @@ public class RestResendBatchPublisherTest {
 
     @Test
     public void createMinimal() {
-        assertThat(new RestResendBatchPublisher(new RestResendClient(restclient))).isNotNull();
+        assertThat(new RestResendBatchPublisher(new RestRecoveryClient(restclient))).isNotNull();
     }
 }

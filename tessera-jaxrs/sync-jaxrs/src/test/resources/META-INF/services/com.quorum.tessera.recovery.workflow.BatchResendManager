@@ -1,1 +1,1 @@
-com.quorum.tessera.p2p.MockBatchResendManager
+com.quorum.tessera.p2p.recovery.MockBatchResendManager

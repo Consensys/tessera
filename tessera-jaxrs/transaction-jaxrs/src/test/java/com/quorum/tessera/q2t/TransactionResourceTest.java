@@ -715,7 +715,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void validationRecieveIsRawMustBeBoolean() {
+    public void validationReceiveIsRawMustBeBoolean() {
         Response response = jersey.target("transaction").path("MYHASH").queryParam("isRaw", "bogus").request().get();
         assertThat(response.getStatus()).isEqualTo(400);
     }

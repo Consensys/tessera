@@ -18,8 +18,6 @@ import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.validation.Payload;
 import java.util.*;
 import java.util.stream.Collectors;
 

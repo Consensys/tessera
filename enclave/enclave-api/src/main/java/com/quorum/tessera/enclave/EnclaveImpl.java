@@ -5,13 +5,8 @@ import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static java.util.Collections.singletonList;
-
 import java.nio.ByteBuffer;
 import java.util.*;
-import com.quorum.tessera.encryption.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyManager;
@@ -57,8 +52,12 @@ public class EnclaveImpl implements Enclave {
                 buildRecipientMasterKeys(senderPublicKey, recipientPublicKeys, recipientNonce, masterKey);
 
         final Map<TxHash, byte[]> affectedContractTransactionHashes =
-                buildAffectedContractTransactionHashes(affectedContractTransactions.stream()
-                    .collect(Collectors.toUnmodifiableMap(AffectedTransaction::getHash,AffectedTransaction::getPayload)), cipherText);
+                buildAffectedContractTransactionHashes(
+                        affectedContractTransactions.stream()
+                                .collect(
+                                        Collectors.toUnmodifiableMap(
+                                                AffectedTransaction::getHash, AffectedTransaction::getPayload)),
+                        cipherText);
 
         return EncodedPayload.Builder.create()
                 .withSenderKey(senderPublicKey)
@@ -139,7 +138,11 @@ public class EnclaveImpl implements Enclave {
 
         final Map<TxHash, byte[]> affectedContractTransactionHashes =
                 buildAffectedContractTransactionHashes(
-                        affectedContractTransactions.stream().collect(Collectors.toMap(AffectedTransaction::getHash,AffectedTransaction::getPayload)), rawTransaction.getEncryptedPayload());
+                        affectedContractTransactions.stream()
+                                .collect(
+                                        Collectors.toMap(
+                                                AffectedTransaction::getHash, AffectedTransaction::getPayload)),
+                        rawTransaction.getEncryptedPayload());
 
         return EncodedPayload.Builder.create()
                 .withSenderKey(rawTransaction.getFrom())
@@ -164,9 +167,11 @@ public class EnclaveImpl implements Enclave {
                             LOGGER.info("Verifying hash for TxKey {}", entry.getKey().encodeToBase64());
                             TxHash txHash = entry.getKey();
 
-                            final Optional<EncodedPayload> affectedTransaction = affectedContractTransactions.stream()
-                                .filter(t -> Objects.equals(t.getHash(),txHash))
-                                .findFirst().map(AffectedTransaction::getPayload);
+                            final Optional<EncodedPayload> affectedTransaction =
+                                    affectedContractTransactions.stream()
+                                            .filter(t -> Objects.equals(t.getHash(), txHash))
+                                            .findFirst()
+                                            .map(AffectedTransaction::getPayload);
                             if (affectedTransaction.isEmpty()) {
                                 return true;
                             }
@@ -178,7 +183,6 @@ public class EnclaveImpl implements Enclave {
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
     }
-
 
     private List<byte[]> buildRecipientMasterKeys(
             final PublicKey senderPublicKey,
@@ -234,7 +238,8 @@ public class EnclaveImpl implements Enclave {
 
         final Nonce recipientNonce = payload.getRecipientNonce();
 
-        final byte[] masterKeyBytes = encryptor.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
+        final byte[] masterKeyBytes =
+                encryptor.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
 
         final MasterKey masterKey = MasterKey.from(masterKeyBytes);
 
@@ -275,7 +280,7 @@ public class EnclaveImpl implements Enclave {
     }
 
     private MasterKey getMasterKey(PublicKey recipient, PublicKey sender, Nonce nonce, RecipientBox encryptedKey) {
-        return getMasterKey(recipient,sender,nonce,encryptedKey.getData());
+        return getMasterKey(recipient, sender, nonce, encryptedKey.getData());
     }
 
     private MasterKey getMasterKey(EncodedPayload encodedPayload) {

@@ -1,4 +1,4 @@
-package com.quorum.tessera.p2p;
+package com.quorum.tessera.p2p.resend;
 
 import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.Validator;

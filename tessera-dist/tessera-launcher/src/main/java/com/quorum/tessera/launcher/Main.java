@@ -10,8 +10,6 @@ import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.server.TesseraServer;
-import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;

@@ -1,1 +1,1 @@
-com.quorum.tessera.partyinfo.MockResendBatchPublisherFactory
+com.quorum.tessera.recovery.MockResendBatchPublisherFactory

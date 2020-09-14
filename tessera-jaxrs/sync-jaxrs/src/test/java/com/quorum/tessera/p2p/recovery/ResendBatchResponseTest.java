@@ -1,4 +1,4 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.p2p.recovery;
 
 import org.junit.Test;
 
