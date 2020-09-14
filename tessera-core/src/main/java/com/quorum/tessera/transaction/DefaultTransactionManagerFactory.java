@@ -33,7 +33,6 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         EncryptedRawTransactionDAO encryptedRawTransactionDAO =
                 entityManagerDAOFactory.createEncryptedRawTransactionDAO();
-        entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
         PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO);

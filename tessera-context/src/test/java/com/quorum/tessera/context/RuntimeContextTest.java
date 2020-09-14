@@ -33,6 +33,7 @@ public class RuntimeContextTest extends ContextTestCase {
         assertThat(runtimeContext.getPublicKeys()).isEmpty();
         assertThat(runtimeContext.getPeers()).isEmpty();
         assertThat(runtimeContext.isRemoteKeyValidation()).isFalse();
+        assertThat(runtimeContext.isEnhancedPrivacy()).isFalse();
         assertThat(runtimeContext.isUseWhiteList()).isFalse();
         assertThat(runtimeContext.isRecoveryMode()).isFalse();
 

@@ -63,6 +63,8 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         RuntimeContext result = runtimeContextFactory.create(confg);
 
         assertThat(result).isNotNull();
+        assertThat(result.isRecoveryMode()).isFalse();
+        assertThat(result.isEnhancedPrivacy()).isFalse();
 
         verify(contextHolder).getContext();
         verify(contextHolder).setContext(any(RuntimeContext.class));
@@ -194,6 +196,7 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         when(confg.getServerConfigs()).thenReturn(List.of(serverConfig));
 
         FeatureToggles featureToggles = mock(FeatureToggles.class);
+        when(featureToggles.isEnableEnhancedPrivacy()).thenReturn(true);
         when(confg.getFeatures()).thenReturn(featureToggles);
         when(confg.isRecoveryMode()).thenReturn(true);
 
@@ -202,6 +205,7 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         assertThat(result).isNotNull();
 
         assertThat(result.isRecoveryMode()).isTrue();
+        assertThat(result.isEnhancedPrivacy()).isTrue();
         verify(contextHolder).getContext();
         verify(contextHolder).setContext(any(RuntimeContext.class));
     }

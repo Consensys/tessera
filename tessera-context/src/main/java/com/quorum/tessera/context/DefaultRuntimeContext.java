@@ -22,6 +22,8 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     private final boolean remoteKeyValidation;
 
+    private final boolean enhancedPrivacy;
+
     private final URI p2pServerUri;
 
     private final boolean disablePeerDiscovery;
@@ -37,6 +39,7 @@ class DefaultRuntimeContext implements RuntimeContext {
             List<URI> peers,
             Client p2pClient,
             boolean remoteKeyValidation,
+            boolean enhancedPrivacy,
             URI p2pServerUri,
             boolean disablePeerDiscovery,
             boolean useWhiteList,
@@ -47,6 +50,7 @@ class DefaultRuntimeContext implements RuntimeContext {
         this.peers = List.copyOf(peers);
         this.p2pClient = p2pClient;
         this.remoteKeyValidation = remoteKeyValidation;
+        this.enhancedPrivacy = enhancedPrivacy;
         this.p2pServerUri = p2pServerUri;
         this.disablePeerDiscovery = disablePeerDiscovery;
         this.useWhiteList = useWhiteList;
@@ -75,6 +79,11 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     public boolean isRemoteKeyValidation() {
         return remoteKeyValidation;
+    }
+
+    @Override
+    public boolean isEnhancedPrivacy() {
+        return enhancedPrivacy;
     }
 
     public URI getP2pServerUri() {
@@ -110,6 +119,8 @@ class DefaultRuntimeContext implements RuntimeContext {
                 + p2pClient
                 + ", remoteKeyValidation="
                 + remoteKeyValidation
+                + ", enhancedPrivacy="
+                + enhancedPrivacy
                 + ", p2pServerUri="
                 + p2pServerUri
                 + ", disablePeerDiscovery="

@@ -46,8 +46,7 @@ public class P2PRestApp extends TesseraRestApplication {
     private final PartyStore partyStore;
 
     public P2PRestApp() {
-        final ServiceFactory serviceFactory = ServiceFactory.create();
-        this.config = serviceFactory.config();
+        this.config = ServiceFactory.create().config();
         this.enclave = EnclaveFactory.create().create(config);
         this.discovery = Discovery.getInstance();
         this.partyStore = PartyStore.getInstance();
@@ -79,7 +78,8 @@ public class P2PRestApp extends TesseraRestApplication {
         BatchResendManager batchResendManager = BatchResendManager.create(config);
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-        final TransactionResource transactionResource = new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
+        final TransactionResource transactionResource =
+                new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
         final RecoveryResource recoveryResource = new RecoveryResource(batchResendManager);
 
         if (runtimeContext.isRecoveryMode()) {

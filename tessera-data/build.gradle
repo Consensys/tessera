@@ -20,6 +20,7 @@ dependencies {
     compileOnly 'javax.inject:javax.inject:1'
     testImplementation 'javax.persistence:javax.persistence-api:2.2'
     testImplementation 'javax.inject:javax.inject:1'
+    testImplementation "com.zaxxer:HikariCP"
 
 
 }

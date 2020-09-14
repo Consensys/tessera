@@ -24,11 +24,9 @@ public interface RuntimeContext {
 
     boolean isRemoteKeyValidation();
 
-    URI getP2pServerUri();
+    boolean isEnhancedPrivacy();
 
-    static RuntimeContext getInstance() {
-        return ContextHolder.getInstance().getContext().get();
-    }
+    URI getP2pServerUri();
 
     boolean isDisablePeerDiscovery();
 
@@ -38,5 +36,9 @@ public interface RuntimeContext {
 
     default Set<PublicKey> getPublicKeys() {
         return getKeys().stream().map(KeyPair::getPublicKey).collect(Collectors.toSet());
+    }
+
+    static RuntimeContext getInstance() {
+        return ContextHolder.getInstance().getContext().get();
     }
 }
