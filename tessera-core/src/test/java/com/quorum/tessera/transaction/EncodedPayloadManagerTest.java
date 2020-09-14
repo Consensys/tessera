@@ -20,7 +20,7 @@ public class EncodedPayloadManagerTest {
         when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
-        final JdbcConfig jdbcConfig = new JdbcConfig("junit", "juint", "jdbc:h2:mem:junit");
+        final JdbcConfig jdbcConfig = new JdbcConfig("junit", "junit", "jdbc:h2:mem:junit");
         when(config.getJdbcConfig()).thenReturn(jdbcConfig);
 
         final EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create(config);
