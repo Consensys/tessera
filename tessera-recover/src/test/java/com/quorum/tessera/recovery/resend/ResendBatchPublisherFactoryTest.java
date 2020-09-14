@@ -1,9 +1,10 @@
-package com.quorum.tessera.partyinfo;
+package com.quorum.tessera.recovery.resend;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.recovery.MockResendBatchPublisherFactory;
 import org.junit.Test;
 
 import java.util.Arrays;

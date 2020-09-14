@@ -2,8 +2,8 @@ package com.quorum.tessera.recovery.workflow;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
-import com.quorum.tessera.partyinfo.model.Recipient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -30,15 +30,12 @@ public class EncodedPayloadPublisherTest {
         resendBatchPublisher = mock(ResendBatchPublisher.class);
 
         encodedPayloadPublisher = new EncodedPayloadPublisher(resendBatchPublisher);
-
     }
 
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(resendBatchPublisher);
     }
-
-
 
     @Test
     public void executeSingleBatch() {
@@ -57,17 +54,17 @@ public class EncodedPayloadPublisherTest {
         batchWorkflowContext.setRecipientKey(recipientKey);
         batchWorkflowContext.setRecipient(recipient);
 
-        boolean result = IntStream.range(0,batchSize).allMatch(i -> encodedPayloadPublisher.execute(batchWorkflowContext));
+        boolean result =
+                IntStream.range(0, batchSize).allMatch(i -> encodedPayloadPublisher.execute(batchWorkflowContext));
 
         assertThat(result).isTrue();
 
         assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(9);
 
         List<EncodedPayload> sent = new ArrayList<>(batchSize);
-        Collections.fill(sent,encodedPayload);
+        Collections.fill(sent, encodedPayload);
 
-        verify(resendBatchPublisher).publishBatch(sent,"http://junit.com");
-
+        verify(resendBatchPublisher).publishBatch(sent, "http://junit.com");
     }
 
     @Test
@@ -86,18 +83,16 @@ public class EncodedPayloadPublisherTest {
         batchWorkflowContext.setRecipientKey(recipientKey);
         batchWorkflowContext.setRecipient(recipient);
 
-
-        boolean result = IntStream.range(0,batchSize)
-            .allMatch(i -> encodedPayloadPublisher.execute(batchWorkflowContext));
+        boolean result =
+                IntStream.range(0, batchSize).allMatch(i -> encodedPayloadPublisher.execute(batchWorkflowContext));
 
         assertThat(result).isTrue();
 
         assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(9);
 
         List<EncodedPayload> sent = new ArrayList<>(batchSize);
-        Collections.fill(sent,encodedPayload);
+        Collections.fill(sent, encodedPayload);
 
-        verify(resendBatchPublisher).publishBatch(sent,"http://junit.com");
-
+        verify(resendBatchPublisher).publishBatch(sent, "http://junit.com");
     }
 }

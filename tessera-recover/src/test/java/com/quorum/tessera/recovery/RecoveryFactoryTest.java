@@ -3,7 +3,6 @@ package com.quorum.tessera.recovery;
 import com.quorum.tessera.config.*;
 import org.junit.Test;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RecoveryFactoryTest extends RecoveryTestCase {

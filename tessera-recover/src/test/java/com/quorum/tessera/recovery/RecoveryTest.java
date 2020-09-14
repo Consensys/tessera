@@ -3,11 +3,11 @@ package com.quorum.tessera.recovery;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.sync.TransactionRequester;
+import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import org.junit.After;
@@ -25,9 +25,9 @@ public class RecoveryTest extends RecoveryTestCase {
 
     private StagingEntityDAO stagingEntityDAO;
 
-    private TransactionRequester transactionRequester;
+    private BatchTransactionRequester transactionRequester;
 
-    private PartyInfoService partyInfoService;
+    private Discovery discovery;
 
     private TransactionManager transactionManager;
 
@@ -36,10 +36,10 @@ public class RecoveryTest extends RecoveryTestCase {
     @Before
     public void onSetUp() {
 
-        partyInfoService = mock(PartyInfoService.class);
-        when(partyInfoService.getPartyInfo()).thenReturn(getPartyInfo());
+        discovery = mock(Discovery.class);
+        when(discovery.getCurrent()).thenReturn(getCurrent());
 
-        transactionRequester = mock(TransactionRequester.class);
+        transactionRequester = mock(BatchTransactionRequester.class);
         when(transactionRequester.requestAllTransactionsFromNode(anyString())).thenReturn(true);
 
         stagingEntityDAO = mock(StagingEntityDAO.class);
@@ -47,13 +47,14 @@ public class RecoveryTest extends RecoveryTestCase {
 
         payloadEncoder = mock(PayloadEncoder.class);
 
-        this.recovery = new RecoveryImpl(stagingEntityDAO, partyInfoService, transactionRequester, transactionManager,payloadEncoder);
+        this.recovery =
+                new RecoveryImpl(stagingEntityDAO, discovery, transactionRequester, transactionManager, payloadEncoder);
     }
 
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(transactionRequester);
-        verifyNoMoreInteractions(partyInfoService);
+        verifyNoMoreInteractions(discovery);
         verifyNoMoreInteractions(stagingEntityDAO);
         verifyNoMoreInteractions(transactionManager);
         verifyNoMoreInteractions(payloadEncoder);
@@ -67,20 +68,20 @@ public class RecoveryTest extends RecoveryTestCase {
         assertThat(result).isEqualTo(RecoveryResult.SUCCESS);
 
         verify(transactionRequester, times(4)).requestAllTransactionsFromNode(anyString());
-        verify(partyInfoService).getPartyInfo();
+        verify(discovery).getCurrent();
     }
 
     @Test
     public void testRequestPartialSuccess() {
 
-        when(transactionRequester.requestAllTransactionsFromNode(eq("http://party2/"))).thenReturn(false);
+        when(transactionRequester.requestAllTransactionsFromNode(eq("http://party2"))).thenReturn(false);
 
         final RecoveryResult result = recovery.request();
 
         assertThat(result).isEqualTo(RecoveryResult.PARTIAL_SUCCESS);
 
         verify(transactionRequester, times(4)).requestAllTransactionsFromNode(anyString());
-        verify(partyInfoService).getPartyInfo();
+        verify(discovery).getCurrent();
     }
 
     @Test
@@ -93,7 +94,7 @@ public class RecoveryTest extends RecoveryTestCase {
         assertThat(result).isEqualTo(RecoveryResult.FAILURE);
 
         verify(transactionRequester, times(4)).requestAllTransactionsFromNode(anyString());
-        verify(partyInfoService).getPartyInfo();
+        verify(discovery).getCurrent();
     }
 
     @Test
@@ -184,7 +185,6 @@ public class RecoveryTest extends RecoveryTestCase {
 
         verify(transactionManager).storePayload(firstPayload);
         verify(transactionManager).storePayload(secondPayload);
-
     }
 
     @Test
@@ -224,7 +224,6 @@ public class RecoveryTest extends RecoveryTestCase {
         verify(transactionManager).storePayload(encodedPayload2);
     }
 
-
     @Test
     public void testSyncFailed() {
 
@@ -236,14 +235,12 @@ public class RecoveryTest extends RecoveryTestCase {
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
         EncodedPayload encodedPayload2 = mock(EncodedPayload.class);
 
-        when(payloadEncoder.decode(any()))
-            .thenReturn(encodedPayload).thenReturn(encodedPayload2);
+        when(payloadEncoder.decode(any())).thenReturn(encodedPayload).thenReturn(encodedPayload2);
 
         List<StagingTransaction> stagingTransactions = List.of(version1, version2);
 
         when(stagingEntityDAO.retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt()))
                 .thenReturn(stagingTransactions);
-
 
         when(stagingEntityDAO.countAll()).thenReturn((long) stagingTransactions.size());
 
@@ -256,11 +253,9 @@ public class RecoveryTest extends RecoveryTestCase {
         verify(stagingEntityDAO).retrieveTransactionBatchOrderByStageAndHash(anyInt(), anyInt());
         verify(stagingEntityDAO, times(2)).countAll();
 
-        verify(payloadEncoder,times(2)).decode(any());
+        verify(payloadEncoder, times(2)).decode(any());
 
-
-        verify(transactionManager,times(2)).storePayload(any());
-
+        verify(transactionManager, times(2)).storePayload(any());
     }
 
     @Test
@@ -282,7 +277,6 @@ public class RecoveryTest extends RecoveryTestCase {
         EncodedPayload encodedPayload2 = mock(EncodedPayload.class);
         when(payloadEncoder.decode("payload1".getBytes())).thenReturn(encodedPayload);
         when(payloadEncoder.decode("payload2".getBytes())).thenReturn(encodedPayload2);
-
 
         when(version1.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
         when(version2.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);

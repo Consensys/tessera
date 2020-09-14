@@ -1,10 +1,10 @@
 package com.quorum.tessera.recovery.workflow;
 
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Recipient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,17 +19,17 @@ public class FindRecipientFromPartyInfoTest {
 
     private FindRecipientFromPartyInfo findRecipientFromPartyInfo;
 
-    private PartyInfoService partyInfoService;
+    private Discovery discovery;
+
     @Before
     public void onSetUp() {
-        partyInfoService = mock(PartyInfoService.class);
-        findRecipientFromPartyInfo = new FindRecipientFromPartyInfo(partyInfoService);
-
+        discovery = mock(Discovery.class);
+        findRecipientFromPartyInfo = new FindRecipientFromPartyInfo(discovery);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(partyInfoService);
+        verifyNoMoreInteractions(discovery);
     }
 
     @Test
@@ -39,22 +39,20 @@ public class FindRecipientFromPartyInfoTest {
         PublicKey publicKey = mock(PublicKey.class);
         batchWorkflowContext.setRecipientKey(publicKey);
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
+        NodeInfo nodeInfo = mock(NodeInfo.class);
         Recipient recipient = mock(Recipient.class);
         when(recipient.getKey()).thenReturn(publicKey);
 
-        when(partyInfo.getRecipients()).thenReturn(Set.of(recipient));
+        when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
 
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(discovery.getCurrent()).thenReturn(nodeInfo);
 
         boolean result = findRecipientFromPartyInfo.execute(batchWorkflowContext);
         assertThat(result).isTrue();
 
         assertThat(batchWorkflowContext.getRecipient()).isSameAs(recipient);
 
-        verify(partyInfoService).getPartyInfo();
-
-
+        verify(discovery).getCurrent();
     }
 
     @Test
@@ -64,23 +62,21 @@ public class FindRecipientFromPartyInfoTest {
         PublicKey publicKey = mock(PublicKey.class);
         batchWorkflowContext.setRecipientKey(publicKey);
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
+        NodeInfo nodeInfo = mock(NodeInfo.class);
         Recipient recipient = mock(Recipient.class);
         when(recipient.getKey()).thenReturn(mock(PublicKey.class));
 
-        when(partyInfo.getRecipients()).thenReturn(Set.of(recipient));
+        when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
 
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(discovery.getCurrent()).thenReturn(nodeInfo);
 
         try {
             findRecipientFromPartyInfo.execute(batchWorkflowContext);
             failBecauseExceptionWasNotThrown(KeyNotFoundException.class);
         } catch (KeyNotFoundException ex) {
-            verify(partyInfoService).getPartyInfo();
+            verify(discovery).getCurrent();
             assertThat(batchWorkflowContext.getRecipient()).isNull();
             assertThat(batchWorkflowContext.getRecipientKey()).isSameAs(publicKey);
         }
-
     }
-
 }

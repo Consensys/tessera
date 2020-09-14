@@ -1,25 +1,28 @@
 package com.quorum.tessera.recovery;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Recipient;
 
 import java.util.*;
 
+import static org.mockito.Mockito.mock;
+
 public abstract class RecoveryTestCase {
 
-    protected PartyInfo getPartyInfo() {
+    protected NodeInfo getCurrent() {
 
         final String url = "http://myurl/";
 
-        final Set<Party> parties = new HashSet<>();
-        parties.add(new Party("http://party1"));
-        parties.add(new Party("http://party2"));
-        parties.add(new Party("http://party3"));
-        parties.add(new Party("http://party4"));
-        parties.add(new Party("http://myurl/"));
+        final Set<Recipient> recipients = new HashSet<>();
+        recipients.add(Recipient.of(mock(PublicKey.class), "http://party1"));
+        recipients.add(Recipient.of(mock(PublicKey.class), "http://party2"));
+        recipients.add(Recipient.of(mock(PublicKey.class), "http://party3"));
+        recipients.add(Recipient.of(mock(PublicKey.class), "http://party4"));
+        recipients.add(Recipient.of(mock(PublicKey.class), "http://myurl/"));
 
-        return new PartyInfo(url, Collections.emptySet(), parties);
+        return NodeInfo.Builder.create().withUrl(url).withRecipients(recipients).build();
     }
 
     protected Config getConfig() {

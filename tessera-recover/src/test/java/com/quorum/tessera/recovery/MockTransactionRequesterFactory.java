@@ -1,30 +1,24 @@
 package com.quorum.tessera.recovery;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.sync.TransactionRequester;
-import com.quorum.tessera.sync.TransactionRequesterFactory;
+import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
+import com.quorum.tessera.recovery.resend.BatchTransactionRequesterFactory;
 
 import static org.mockito.Mockito.mock;
 
+public class MockTransactionRequesterFactory implements BatchTransactionRequesterFactory {
 
-public class MockTransactionRequesterFactory implements TransactionRequesterFactory {
+    private static BatchTransactionRequester transactionRequester;
 
-    private static TransactionRequester transactionRequester;
-
-    static void setTransactionRequester(TransactionRequester tr) {
+    static void setTransactionRequester(BatchTransactionRequester tr) {
         transactionRequester = tr;
     }
 
     @Override
-    public TransactionRequester createBatchTransactionRequester(Config config) {
-        if(transactionRequester == null) {
-            return mock(TransactionRequester.class);
+    public BatchTransactionRequester createBatchTransactionRequester(Config config) {
+        if (transactionRequester == null) {
+            return mock(BatchTransactionRequester.class);
         }
         return transactionRequester;
-    }
-
-    @Override
-    public TransactionRequester createTransactionRequester(Config config) {
-        throw new UnsupportedOperationException("");
     }
 }

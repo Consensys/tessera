@@ -1,14 +1,14 @@
 package com.quorum.tessera.recovery.workflow;
 
 import com.quorum.tessera.data.EncryptedTransaction;
+import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.PartyInfoService;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.service.Service;
 import org.junit.After;
 import org.junit.Test;
@@ -23,20 +23,20 @@ public class BatchWorkflowFactoryTest {
 
     private Enclave enclave = mock(Enclave.class);
     private PayloadEncoder payloadEncoder = mock(PayloadEncoder.class);
-    private PartyInfoService partyInfoService = mock(PartyInfoService.class);
+    private Discovery discovery = mock(Discovery.class);
     private ResendBatchPublisher resendBatchPublisher = mock(ResendBatchPublisher.class);
 
     @After
     public void onTearDown() {
         MockBatchWorkflowFactory.reset();
-        verifyNoMoreInteractions(enclave, payloadEncoder, partyInfoService, resendBatchPublisher);
+        verifyNoMoreInteractions(enclave, payloadEncoder, discovery, resendBatchPublisher);
     }
 
     @Test
     public void loadMockBatchWorkflowFactory() {
 
         BatchWorkflowFactory batchWorkflowFactory =
-                BatchWorkflowFactory.newFactory(enclave, payloadEncoder, partyInfoService, resendBatchPublisher, 99L);
+                BatchWorkflowFactory.newFactory(enclave, payloadEncoder, discovery, resendBatchPublisher, 99L);
 
         assertThat(batchWorkflowFactory).isExactlyInstanceOf(MockBatchWorkflowFactory.class);
     }
@@ -48,7 +48,7 @@ public class BatchWorkflowFactoryTest {
         batchWorkflowFactory.setResendBatchPublisher(resendBatchPublisher);
         batchWorkflowFactory.setPayloadEncoder(payloadEncoder);
         batchWorkflowFactory.setEnclave(enclave);
-        batchWorkflowFactory.setPartyInfoService(partyInfoService);
+        batchWorkflowFactory.setDiscovery(discovery);
         batchWorkflowFactory.setTransactionCount(999L);
 
         BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
@@ -75,10 +75,10 @@ public class BatchWorkflowFactoryTest {
         when(enclave.status()).thenReturn(Service.Status.STARTED);
         when(enclave.getPublicKeys()).thenReturn(Set.of(ownedKey));
 
-        PartyInfo partyInfo = mock(PartyInfo.class);
-        when(partyInfo.getRecipients()).thenReturn(Set.of(Recipient.of(recipientKey, "url")));
+        NodeInfo nodeInfo = mock(NodeInfo.class);
+        when(nodeInfo.getRecipients()).thenReturn(Set.of(Recipient.of(recipientKey, "url")));
 
-        when(partyInfoService.getPartyInfo()).thenReturn(partyInfo);
+        when(discovery.getCurrent()).thenReturn(nodeInfo);
 
         assertThat(batchWorkflow.execute(batchWorkflowContext)).isTrue();
         assertThat(batchWorkflow.getPublishedMessageCount()).isOne();
@@ -87,7 +87,7 @@ public class BatchWorkflowFactoryTest {
         verify(enclave).status();
         verify(enclave, times(2)).getPublicKeys();
         verify(payloadEncoder).forRecipient(any(), any());
-        verify(partyInfoService).getPartyInfo();
+        verify(discovery).getCurrent();
 
         verify(resendBatchPublisher).publishBatch(any(), any());
     }
@@ -99,7 +99,7 @@ public class BatchWorkflowFactoryTest {
         batchWorkflowFactory.setResendBatchPublisher(resendBatchPublisher);
         batchWorkflowFactory.setPayloadEncoder(payloadEncoder);
         batchWorkflowFactory.setEnclave(enclave);
-        batchWorkflowFactory.setPartyInfoService(partyInfoService);
+        batchWorkflowFactory.setDiscovery(discovery);
         batchWorkflowFactory.setTransactionCount(999L);
 
         BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
