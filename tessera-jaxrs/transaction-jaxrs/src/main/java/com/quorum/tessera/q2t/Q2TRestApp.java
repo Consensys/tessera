@@ -41,10 +41,7 @@ public class Q2TRestApp extends TesseraRestApplication {
                         .findAny()
                         .get();
 
-        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-
-        TransactionManager transactionManager = transactionManagerFactory.create(config);
-        TransactionManager transactionManager = TransactionManager.create(config);
+        TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
         EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create(config);
 
         TransactionResource transactionResource = new TransactionResource(transactionManager);
