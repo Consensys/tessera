@@ -31,9 +31,7 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
         Enclave enclave = EnclaveFactory.create().create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
-                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
-        entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO = entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
 
