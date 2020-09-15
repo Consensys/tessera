@@ -6,84 +6,84 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera-dist</artifactId>
-        <version>0.10.7-SNAPSHOT</version>
+        <version>0.11.0-SNAPSHOT</version>
     </parent>
 
     <dependencies>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>tessera-launcher</artifactId>
             <type>jar</type>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>argon2</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>config-cli</artifactId>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>encryption-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>security</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>sync-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>transaction-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>thirdparty-jaxrs</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>enclave-jaxrs</artifactId>
             <scope>runtime</scope>
             <exclusions>
                 <exclusion>
-                    <groupId>com.jpmorgan.quorum</groupId>
+                    <groupId>net.consensys.quorum.tessera</groupId>
                     <artifactId>enclave-server</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>server-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>service-locator-api</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>tessera-core</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>service-locator-spring</artifactId>
             <scope>runtime</scope>
         </dependency>
@@ -99,7 +99,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>jersey-server</artifactId>
             <scope>runtime</scope>
             <exclusions>
@@ -120,7 +120,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>azure-key-vault</artifactId>
             <scope>runtime</scope>
             <exclusions>
@@ -133,13 +133,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>hashicorp-key-vault</artifactId>
             <scope>runtime</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>aws-key-vault</artifactId>
             <scope>runtime</scope>
             <exclusions>
@@ -183,7 +183,7 @@
             </activation>
             <dependencies>
                 <dependency>
-                    <groupId>com.jpmorgan.quorum</groupId>
+                    <groupId>net.consensys.quorum.tessera</groupId>
                     <artifactId>encryption-jnacl</artifactId>
                 </dependency>
             </dependencies>
@@ -193,7 +193,7 @@
             <id>kalium</id>
             <dependencies>
                 <dependency>
-                    <groupId>com.jpmorgan.quorum</groupId>
+                    <groupId>net.consensys.quorum.tessera</groupId>
                     <artifactId>encryption-kalium</artifactId>
                 </dependency>
             </dependencies>

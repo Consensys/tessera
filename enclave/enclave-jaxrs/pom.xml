@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>enclave</artifactId>
-        <version>0.10.7-SNAPSHOT</version>
+        <version>0.11.0-SNAPSHOT</version>
     </parent>
     <artifactId>enclave-jaxrs</artifactId>
     <packaging>jar</packaging>
@@ -20,7 +20,7 @@
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.jpmorgan.quorum</groupId>
+                    <groupId>net.consensys.quorum.tessera</groupId>
                     <artifactId>service-locator-api</artifactId>
                 </exclusion>
             </exclusions>
@@ -114,13 +114,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>server-api</artifactId>
             <type>jar</type>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>jersey-server</artifactId>
             <scope>runtime</scope>
             <exclusions>
@@ -153,7 +153,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>cli-api</artifactId>
         </dependency>
     </dependencies>

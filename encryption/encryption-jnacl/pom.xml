@@ -9,9 +9,9 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>encryption</artifactId>
-        <version>0.10.7-SNAPSHOT</version>
+        <version>0.11.0-SNAPSHOT</version>
     </parent>
 
     <dependencyManagement>
@@ -31,7 +31,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>encryption-api</artifactId>
         </dependency>
 

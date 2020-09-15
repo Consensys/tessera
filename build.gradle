@@ -12,7 +12,7 @@ def springVersion = "5.2.3.RELEASE"
 def eclipseLinkVersion = "2.7.7"
 
 allprojects {
-    group = 'com.jpmorgan.quorum'
+    group = 'net.consensys.quorum.tessera'
     //version = '0.11-SNAPSHOT'
 
 
@@ -281,9 +281,9 @@ subprojects {
                 }
 
                 pom {
-                    groupId = 'com.jpmorgan.quorum'
+                    groupId = 'net.consensys.quorum.tessera'
 //                    description = 'A concise description of my library'
-                    url = 'https://github.com/jpmorganchase/tessera'
+                    url = 'https://github.com/ConsenSys/tessera'
                     licenses {
                         license {
                             name = 'The Apache License, Version 2.0'
@@ -325,9 +325,9 @@ subprojects {
                     }
 
                     scm {
-                        connection = 'scm:git:https://github.com/jpmorganchase/tessera.git'
-                        developerConnection = 'scm:git:https://github.com/jpmorganchase/tessera.git'
-                        url = 'https://github.com/jpmorganchase/tessera'
+                        connection = 'scm:git:https://github.com/ConsenSys/tessera.git'
+                        developerConnection = 'scm:git:https://github.com/ConsenSys/tessera.git'
+                        url = 'https://github.com/ConsenSys/tessera'
                         tag = 'HEAD'
                     }
 
