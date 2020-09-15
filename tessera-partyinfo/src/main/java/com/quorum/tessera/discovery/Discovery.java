@@ -1,9 +1,12 @@
 package com.quorum.tessera.discovery;
 
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 
 import java.net.URI;
 import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.stream.Stream;
 
 public interface Discovery {
 
@@ -14,17 +17,24 @@ public interface Discovery {
 
     void onUpdate(NodeInfo nodeInfo);
 
+    void onDisconnect(URI nodeUri);
+
     default NodeInfo getCurrent() {
         DiscoveryHelper discoveryHelper = DiscoveryHelper.getInstance();
         return discoveryHelper.buildCurrent();
     }
 
-    void onDisconnect(URI nodeUri);
+    default NodeInfo getRemoteNodeInfo(PublicKey publicKey) {
+        DiscoveryHelper discoveryHelper = DiscoveryHelper.getInstance();
+        return discoveryHelper.buildRemoteNodeInfo(publicKey);
+    }
+
+    default Set<NodeInfo> getRemoteNodeInfos() {
+        DiscoveryHelper discoveryHelper = DiscoveryHelper.getInstance();
+        return discoveryHelper.buildRemoteNodeInfos();
+    }
 
     static Discovery getInstance() {
         return ServiceLoader.load(Discovery.class).findFirst().get();
     }
-
-
-
 }
