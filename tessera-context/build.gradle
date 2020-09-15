@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'com.jpmorgan.quorum'
+group 'net.consensys.quorum.tessera'
 version '0.11-SNAPSHOT'
 
 dependencies {
