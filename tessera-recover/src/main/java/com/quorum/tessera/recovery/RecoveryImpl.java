@@ -7,7 +7,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
@@ -58,17 +57,18 @@ public class RecoveryImpl implements Recovery {
 
         final Set<NodeInfo> remoteNodeInfos = discovery.getRemoteNodeInfos();
 
-        final Predicate<NodeInfo> sendRequestsToNode = nodeInfo ->
-            nodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)
-            && transactionRequester.requestAllTransactionsFromNode(nodeInfo.getUrl());
+        final Predicate<NodeInfo> sendRequestsToNode =
+                nodeInfo ->
+                        nodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)
+                                && transactionRequester.requestAllTransactionsFromNode(nodeInfo.getUrl());
 
-        final Predicate<NodeInfo> sendRequestsToLegacyNode = nodeInfo ->
-            !nodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)
-            && transactionRequester.requestAllTransactionsFromLegacyNode(nodeInfo.getUrl());
-
+        final Predicate<NodeInfo> sendRequestsToLegacyNode =
+                nodeInfo ->
+                        !nodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)
+                                && transactionRequester.requestAllTransactionsFromLegacyNode(nodeInfo.getUrl());
 
         final long failures =
-            remoteNodeInfos.stream()
+                remoteNodeInfos.stream()
                         .filter(sendRequestsToNode.or(sendRequestsToLegacyNode).negate())
                         .peek(p -> LOGGER.warn("Fail resend request to {}", p.getUrl()))
                         .count();

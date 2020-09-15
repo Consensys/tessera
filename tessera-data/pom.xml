@@ -95,7 +95,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>eclipselink-utils</artifactId>
             <scope>runtime</scope>
         </dependency>

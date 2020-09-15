@@ -22,7 +22,7 @@
         <dependencies>
 
             <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
+                <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>common-jaxrs</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -46,9 +46,8 @@
                 <type>jar</type>
             </dependency>
 
-
             <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
+                <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>mock-jaxrs</artifactId>
                 <version>${project.version}</version>
             </dependency>
