@@ -9,7 +9,7 @@
 
     <parent>
         <artifactId>cli</artifactId>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <version>0.10.7-SNAPSHOT</version>
     </parent>
 

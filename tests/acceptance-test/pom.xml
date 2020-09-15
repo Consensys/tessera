@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tests</artifactId>
         <version>0.10.7-SNAPSHOT</version>
     </parent>
@@ -15,14 +15,14 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>${tesssra.app.classifer}</classifier>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>tessera-simple</artifactId>
             <classifier>${tesssra.app.classifer}</classifier>
             <scope>test</scope>
@@ -30,26 +30,26 @@
 
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>enclave-jaxrs</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>enclave-jaxrs</artifactId>
             <classifier>${enclave.server.classifer}</classifier>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>test-util</artifactId>
             <scope>test</scope>
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>config-migration</artifactId>
             <scope>test</scope>
             <classifier>cli</classifier>
@@ -57,7 +57,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>ddls</artifactId>
             <scope>test</scope>
         </dependency>
@@ -88,7 +88,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>tessera-partyinfo</artifactId>
             <scope>test</scope>
             <type>jar</type>
@@ -126,7 +126,7 @@
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>com.jpmorgan.quorum</groupId>
+                                    <groupId>net.consensys.quorum.tessera</groupId>
                                     <artifactId>ddls</artifactId>
                                 </artifactItem>
                             </artifactItems>
@@ -153,7 +153,7 @@
                         def classifier = project.properties['tesssra.app.classifer']
 
                         def arts = project.artifacts
-                        .findAll{item -&gt; item.getGroupId().equals('com.jpmorgan.quorum')}
+                        .findAll{item -&gt; item.getGroupId().equals('net.consensys.quorum.tessera')}
 
 
                         def dep = arts
@@ -193,9 +193,9 @@
                         <application.jar>${application.jar}</application.jar>
                         <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
                         <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
-                        <enclave.jaxrs.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar}</enclave.jaxrs.jar>
+                        <enclave.jaxrs.jar>${net.consensys.quorum.tessera:enclave-jaxrs:jar}</enclave.jaxrs.jar>
                         <enclave.jaxrs.server.jar>${enclave.jaxrs.server.jar}</enclave.jaxrs.server.jar>
-                        <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
+                        <config-migration-app.jar>${net.consensys.quorum.tessera:config-migration:jar:cli}</config-migration-app.jar>
                     </systemPropertyVariables>
                     <includes>
                         <include>CucumberFileKeyGenerationIT</include>
@@ -338,7 +338,7 @@
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
                             <systemPropertyVariables>
-                                <application.jar>${com.jpmorgan.quorum:tessera-simple:jar:app}</application.jar>
+                                <application.jar>${net.consensys.quorum.tessera:tessera-simple:jar:app}</application.jar>
                                 <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
                                 <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
                             </systemPropertyVariables>

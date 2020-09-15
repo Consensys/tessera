@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera-jaxrs</artifactId>
         <version>0.10.7-SNAPSHOT</version>
     </parent>
@@ -12,7 +12,7 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.jpmorgan.quorum</groupId>
+                <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>mock-service-locator</artifactId>
                 <version>0.10.7-SNAPSHOT</version>
                 <scope>test</scope>
@@ -25,13 +25,13 @@
     
     <dependencies>
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>mock-service-locator</artifactId>
             <scope>test</scope>
         </dependency>
         
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>service-locator-spring</artifactId>
         </dependency>
         
@@ -41,7 +41,7 @@
         </dependency>
         
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>jaxrs-client</artifactId>
         </dependency>
     </dependencies>
@@ -52,7 +52,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <classpathDependencyExcludes>com.jpmorgan.quorum:service-locator-spring</classpathDependencyExcludes>
+                    <classpathDependencyExcludes>net.consensys.quorum.tessera:service-locator-spring</classpathDependencyExcludes>
                 </configuration>
 
             </plugin>

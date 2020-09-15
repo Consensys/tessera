@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>encryption</artifactId>
         <version>0.10.7-SNAPSHOT</version>
     </parent>
@@ -16,7 +16,7 @@
 
 <!--        TODO: remove this as its not used-->
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>service-locator-api</artifactId>
             <type>jar</type>
         </dependency>
@@ -28,7 +28,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>shared</artifactId>
         </dependency>
 
