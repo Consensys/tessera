@@ -38,6 +38,7 @@ public class RecoveryTest extends RecoveryTestCase {
 
         discovery = mock(Discovery.class);
         when(discovery.getCurrent()).thenReturn(getCurrent());
+        when(discovery.getRemoteNodeInfos()).thenReturn(getAllNodeInfos());
 
         transactionRequester = mock(BatchTransactionRequester.class);
         when(transactionRequester.requestAllTransactionsFromNode(anyString())).thenReturn(true);
@@ -63,38 +64,48 @@ public class RecoveryTest extends RecoveryTestCase {
     @Test
     public void testRequestSuccess() {
 
+        when(transactionRequester.requestAllTransactionsFromLegacyNode(anyString())).thenReturn(true);
+
         final RecoveryResult result = recovery.request();
 
         assertThat(result).isEqualTo(RecoveryResult.SUCCESS);
 
-        verify(transactionRequester, times(4)).requestAllTransactionsFromNode(anyString());
-        verify(discovery).getCurrent();
+        verify(transactionRequester).requestAllTransactionsFromNode("http://party1/");
+        verify(transactionRequester).requestAllTransactionsFromNode("http://party3/");
+
+        verify(transactionRequester).requestAllTransactionsFromLegacyNode("http://party2/");
+        verify(transactionRequester).requestAllTransactionsFromLegacyNode("http://party4/");
+
+        verify(discovery).getRemoteNodeInfos();
     }
 
     @Test
     public void testRequestPartialSuccess() {
 
-        when(transactionRequester.requestAllTransactionsFromNode(eq("http://party2"))).thenReturn(false);
+        when(transactionRequester.requestAllTransactionsFromLegacyNode(eq("http://party2"))).thenReturn(false);
 
         final RecoveryResult result = recovery.request();
 
         assertThat(result).isEqualTo(RecoveryResult.PARTIAL_SUCCESS);
 
-        verify(transactionRequester, times(4)).requestAllTransactionsFromNode(anyString());
-        verify(discovery).getCurrent();
+        verify(transactionRequester, times(2)).requestAllTransactionsFromNode(anyString());
+        verify(transactionRequester, times(2)).requestAllTransactionsFromLegacyNode(anyString());
+        verify(discovery).getRemoteNodeInfos();
     }
 
     @Test
     public void testRequestFailed() {
 
         when(transactionRequester.requestAllTransactionsFromNode(anyString())).thenReturn(false);
+        when(transactionRequester.requestAllTransactionsFromLegacyNode(anyString())).thenReturn(false);
 
         final RecoveryResult result = recovery.request();
 
         assertThat(result).isEqualTo(RecoveryResult.FAILURE);
 
-        verify(transactionRequester, times(4)).requestAllTransactionsFromNode(anyString());
-        verify(discovery).getCurrent();
+        verify(transactionRequester, times(2)).requestAllTransactionsFromNode(anyString());
+        verify(transactionRequester, times(2)).requestAllTransactionsFromLegacyNode(anyString());
+        verify(discovery).getRemoteNodeInfos();
     }
 
     @Test

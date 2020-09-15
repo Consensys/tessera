@@ -1,9 +1,14 @@
 package com.quorum.tessera.recovery;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.discovery.ActiveNode;
+import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.version.ApiVersion;
+import com.quorum.tessera.version.BaseVersion;
+import com.quorum.tessera.version.EnhancedPrivacyVersion;
 
 import java.util.*;
 
@@ -23,6 +28,41 @@ public abstract class RecoveryTestCase {
         recipients.add(Recipient.of(mock(PublicKey.class), "http://myurl/"));
 
         return NodeInfo.Builder.create().withUrl(url).withRecipients(recipients).build();
+    }
+
+    protected Set<NodeInfo> getAllNodeInfos() {
+
+        final NodeInfo node1 = NodeInfo.Builder.create()
+            .withUrl(NodeUri.create("http://party1").asString())
+            .withRecipients(Set.of(mock(Recipient.class)))
+            .withSupportedApiVersions(Set.of(BaseVersion.API_VERSION_1, EnhancedPrivacyVersion.API_VERSION_2))
+            .build();
+
+        final NodeInfo node2 = NodeInfo.Builder.create()
+            .withUrl(NodeUri.create("http://party2").asString())
+            .withRecipients(Set.of(mock(Recipient.class)))
+            .withSupportedApiVersions(Set.of(BaseVersion.API_VERSION_1))
+            .build();
+
+        final NodeInfo node3 = NodeInfo.Builder.create()
+            .withUrl(NodeUri.create("http://party3").asString())
+            .withRecipients(Set.of(mock(Recipient.class)))
+            .withSupportedApiVersions(Set.of(BaseVersion.API_VERSION_1, EnhancedPrivacyVersion.API_VERSION_2))
+            .build();
+
+        final NodeInfo node4 = NodeInfo.Builder.create()
+            .withUrl(NodeUri.create("http://party4").asString())
+            .withRecipients(Set.of(mock(Recipient.class)))
+            .withSupportedApiVersions(Set.of(BaseVersion.API_VERSION_1))
+            .build();
+
+//        final NodeInfo own = NodeInfo.Builder.create()
+//            .withUrl(NodeUri.create("http://myurl/").asString())
+//            .withRecipients(Set.of(mock(Recipient.class)))
+//            .withSupportedApiVersions(ApiVersion.versions())
+//            .build();
+
+        return Set.of(node1, node2, node3, node4);
     }
 
     protected Config getConfig() {

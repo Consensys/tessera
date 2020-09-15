@@ -12,12 +12,14 @@ import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.StoreEntityException;
+import com.quorum.tessera.version.EnhancedPrivacyVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -54,21 +56,25 @@ public class RecoveryImpl implements Recovery {
     @Override
     public RecoveryResult request() {
 
-        final NodeInfo nodeInfo = discovery.getCurrent();
+        final Set<NodeInfo> remoteNodeInfos = discovery.getRemoteNodeInfos();
 
-        final Set<Recipient> recipientsToRequest =
-                nodeInfo.getRecipients().stream()
-                        .filter(p -> !p.getUrl().equals(nodeInfo.getUrl()))
-                        .collect(Collectors.toSet());
+        final Predicate<NodeInfo> sendRequestsToNode = nodeInfo ->
+            nodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)
+            && transactionRequester.requestAllTransactionsFromNode(nodeInfo.getUrl());
+
+        final Predicate<NodeInfo> sendRequestsToLegacyNode = nodeInfo ->
+            !nodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)
+            && transactionRequester.requestAllTransactionsFromLegacyNode(nodeInfo.getUrl());
+
 
         final long failures =
-                recipientsToRequest.stream()
-                        .filter(p -> !transactionRequester.requestAllTransactionsFromNode(p.getUrl()))
+            remoteNodeInfos.stream()
+                        .filter(sendRequestsToNode.or(sendRequestsToLegacyNode).negate())
                         .peek(p -> LOGGER.warn("Fail resend request to {}", p.getUrl()))
                         .count();
 
         if (failures > 0) {
-            if (failures == recipientsToRequest.size()) {
+            if (failures == remoteNodeInfos.size()) {
                 return RecoveryResult.FAILURE;
             }
             return RecoveryResult.PARTIAL_SUCCESS;
