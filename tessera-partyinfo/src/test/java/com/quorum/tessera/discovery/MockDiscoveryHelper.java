@@ -1,12 +1,10 @@
 package com.quorum.tessera.discovery;
 
-import com.openpojo.validation.test.impl.SerializableTester;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 import static org.mockito.Mockito.mock;
 

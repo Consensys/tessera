@@ -6,7 +6,6 @@ import com.quorum.tessera.partyinfo.node.NodeInfo;
 import java.net.URI;
 import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.stream.Stream;
 
 public interface Discovery {
 
