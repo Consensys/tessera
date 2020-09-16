@@ -2,11 +2,14 @@ package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import java.util.Base64;
 import java.util.Collections;
@@ -26,7 +29,7 @@ public class RestBatchTransactionRequesterTest {
 
     private Enclave enclave;
 
-    private RecoveryClient p2pClient;
+    private RecoveryClient recoveryClient;
 
     private BatchTransactionRequester transactionRequester;
 
@@ -34,18 +37,22 @@ public class RestBatchTransactionRequesterTest {
     public void init() {
 
         this.enclave = mock(Enclave.class);
-        this.p2pClient = mock(RecoveryClient.class);
+        this.recoveryClient = mock(RecoveryClient.class);
 
         doReturn(new ResendBatchResponse(100))
-                .when(p2pClient)
+                .when(recoveryClient)
                 .makeBatchResendRequest(anyString(), any(ResendBatchRequest.class));
 
-        this.transactionRequester = new RestBatchTransactionRequester(enclave, p2pClient, 100);
+        doReturn(true)
+            .when(recoveryClient)
+            .makeResendRequest(anyString(), any(ResendRequest.class));
+
+        this.transactionRequester = new RestBatchTransactionRequester(enclave, recoveryClient, 100);
     }
 
     @After
     public void after() {
-        verifyNoMoreInteractions(enclave, p2pClient);
+        verifyNoMoreInteractions(enclave, recoveryClient);
     }
 
     @Test
@@ -54,7 +61,7 @@ public class RestBatchTransactionRequesterTest {
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verifyZeroInteractions(p2pClient);
+        verifyZeroInteractions(recoveryClient);
         verify(enclave).getPublicKeys();
     }
 
@@ -68,7 +75,7 @@ public class RestBatchTransactionRequesterTest {
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl1.com");
 
         final ArgumentCaptor<ResendBatchRequest> captor = ArgumentCaptor.forClass(ResendBatchRequest.class);
-        verify(p2pClient, times(2)).makeBatchResendRequest(eq("fakeurl1.com"), captor.capture());
+        verify(recoveryClient, times(2)).makeBatchResendRequest(eq("fakeurl1.com"), captor.capture());
         verify(enclave).getPublicKeys();
 
         String encodedKeyOne = Base64.getEncoder().encodeToString(KEY_ONE.getKeyBytes());
@@ -84,11 +91,11 @@ public class RestBatchTransactionRequesterTest {
     public void failedCallRetries() {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
 
-        when(p2pClient.makeBatchResendRequest(anyString(), any(ResendBatchRequest.class))).thenReturn(null);
+        when(recoveryClient.makeBatchResendRequest(anyString(), any(ResendBatchRequest.class))).thenReturn(null);
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verify(p2pClient, times(5)).makeBatchResendRequest(eq("fakeurl.com"), any(ResendBatchRequest.class));
+        verify(recoveryClient, times(5)).makeBatchResendRequest(eq("fakeurl.com"), any(ResendBatchRequest.class));
         verify(enclave).getPublicKeys();
     }
 
@@ -96,17 +103,57 @@ public class RestBatchTransactionRequesterTest {
     public void calltoPostDelegateThrowsException() {
 
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
-        when(p2pClient.makeBatchResendRequest(anyString(), any(ResendBatchRequest.class)))
+        when(recoveryClient.makeBatchResendRequest(anyString(), any(ResendBatchRequest.class)))
                 .thenThrow(RuntimeException.class);
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verify(p2pClient, times(5)).makeBatchResendRequest(eq("fakeurl.com"), any(ResendBatchRequest.class));
+        verify(recoveryClient, times(5)).makeBatchResendRequest(eq("fakeurl.com"), any(ResendBatchRequest.class));
         verify(enclave).getPublicKeys();
     }
 
     @Test
-    public void requestFromLegacyNode() {
-        assertThat(transactionRequester.requestAllTransactionsFromLegacyNode("test")).isFalse();
+    public void legacyRequest_noPublicKeysMakesNoCalls() {
+        when(enclave.getPublicKeys()).thenReturn(Collections.emptySet());
+
+        final boolean success = this.transactionRequester.requestAllTransactionsFromLegacyNode("fakeurl.com");
+
+        assertThat(success).isTrue();
+
+        Mockito.verifyZeroInteractions(recoveryClient);
+        verify(enclave).getPublicKeys();
+    }
+
+    @Test
+    public void legacyRequest_multipleKeysMakesCorrectCalls() {
+        final Set<PublicKey> allKeys = Stream.of(KEY_ONE, KEY_TWO).collect(Collectors.toSet());
+
+        when(enclave.getPublicKeys()).thenReturn(allKeys);
+
+        final boolean success = this.transactionRequester.requestAllTransactionsFromLegacyNode("fakeurl1.com");
+
+        assertThat(success).isTrue();
+
+        final ArgumentCaptor<ResendRequest> captor = ArgumentCaptor.forClass(ResendRequest.class);
+        verify(recoveryClient, times(2)).makeResendRequest(eq("fakeurl1.com"), captor.capture());
+        verify(enclave).getPublicKeys();
+
+        Assertions.assertThat(captor.getAllValues())
+            .hasSize(2)
+            .extracting("publicKey")
+            .containsExactlyInAnyOrder(KEY_ONE.encodeToBase64(), KEY_TWO.encodeToBase64());
+    }
+
+    @Test
+    public void legacyRequest_callToPostDelegateThrowsException() {
+        when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
+        when(recoveryClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenThrow(RuntimeException.class);
+
+        final boolean success = this.transactionRequester.requestAllTransactionsFromLegacyNode("fakeurl.com");
+
+        assertThat(success).isFalse();
+
+        verify(recoveryClient).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
+        verify(enclave).getPublicKeys();
     }
 }

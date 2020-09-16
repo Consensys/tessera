@@ -2,6 +2,8 @@ package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.p2p.resend.ResendRequest;
+import com.quorum.tessera.p2p.resend.ResendRequestType;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +38,10 @@ public class RestBatchTransactionRequester implements BatchTransactionRequester 
     }
 
     @Override
-    public boolean requestAllTransactionsFromLegacyNode(String url) {
-        return false;
+    public boolean requestAllTransactionsFromLegacyNode(String uri) {
+        return this.enclave.getPublicKeys().stream()
+            .map(this::createLegacyRequest)
+            .allMatch(req -> this.makeLegacyRequest(uri, req));
     }
 
     /**
@@ -80,6 +84,44 @@ public class RestBatchTransactionRequester implements BatchTransactionRequester 
         String encoded = Base64.getEncoder().encodeToString(key.getKeyBytes());
         request.setPublicKey(encoded);
         request.setBatchSize(batchSize);
+
+        return request;
+    }
+
+
+    /**
+     * Will make the legacy resend request to legacy nodes that don't support the new recovery process
+     *
+     * @param uri the URI to call
+     * @param request the request object to send
+     */
+    private boolean makeLegacyRequest(final String uri, final ResendRequest request) {
+        LOGGER.debug("Requesting a resend to {} for key {}", uri, request.getPublicKey());
+
+        try {
+            return client.makeResendRequest(uri, request);
+        } catch (final Exception ex) {
+            LOGGER.warn(
+                "Failed to make resend request to node {} for key {}, due to {}",
+                uri,
+                request.getPublicKey(),
+                ex.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Creates the legacy entity that should be sent to the legacy target URL
+     *
+     * @param key the public key that transactions should be resent for
+     * @return the request to be sent
+     */
+    private ResendRequest createLegacyRequest(final PublicKey key) {
+
+        final ResendRequest request = new ResendRequest();
+        final String encoded = key.encodeToBase64();
+        request.setPublicKey(encoded);
+        request.setType(ResendRequestType.ALL);
 
         return request;
     }
