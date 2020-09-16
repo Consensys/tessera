@@ -11,7 +11,7 @@
     <parent>
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>service-locator</artifactId>
-        <version>0.11.0</version>
+        <version>0.11.1-SNAPSHOT</version>
     </parent>
 
 
