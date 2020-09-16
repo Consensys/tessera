@@ -79,8 +79,9 @@ public class P2PRestApp extends TesseraRestApplication {
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
         final TransactionResource transactionResource =
-                new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
-        final RecoveryResource recoveryResource = new RecoveryResource(batchResendManager);
+            new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
+        final RecoveryResource recoveryResource =
+            new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
 
         if (runtimeContext.isRecoveryMode()) {
             return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
