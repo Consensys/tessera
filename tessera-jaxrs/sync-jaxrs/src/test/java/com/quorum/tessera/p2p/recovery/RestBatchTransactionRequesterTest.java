@@ -43,9 +43,7 @@ public class RestBatchTransactionRequesterTest {
                 .when(recoveryClient)
                 .makeBatchResendRequest(anyString(), any(ResendBatchRequest.class));
 
-        doReturn(true)
-            .when(recoveryClient)
-            .makeResendRequest(anyString(), any(ResendRequest.class));
+        doReturn(true).when(recoveryClient).makeResendRequest(anyString(), any(ResendRequest.class));
 
         this.transactionRequester = new RestBatchTransactionRequester(enclave, recoveryClient, 100);
     }
@@ -113,7 +111,7 @@ public class RestBatchTransactionRequesterTest {
     }
 
     @Test
-    public void legacyRequest_noPublicKeysMakesNoCalls() {
+    public void legacyRequestNoPublicKeysMakesNoCalls() {
         when(enclave.getPublicKeys()).thenReturn(Collections.emptySet());
 
         final boolean success = this.transactionRequester.requestAllTransactionsFromLegacyNode("fakeurl.com");
@@ -125,7 +123,7 @@ public class RestBatchTransactionRequesterTest {
     }
 
     @Test
-    public void legacyRequest_multipleKeysMakesCorrectCalls() {
+    public void legacyRequestMultipleKeysMakesCorrectCalls() {
         final Set<PublicKey> allKeys = Stream.of(KEY_ONE, KEY_TWO).collect(Collectors.toSet());
 
         when(enclave.getPublicKeys()).thenReturn(allKeys);
@@ -139,13 +137,13 @@ public class RestBatchTransactionRequesterTest {
         verify(enclave).getPublicKeys();
 
         Assertions.assertThat(captor.getAllValues())
-            .hasSize(2)
-            .extracting("publicKey")
-            .containsExactlyInAnyOrder(KEY_ONE.encodeToBase64(), KEY_TWO.encodeToBase64());
+                .hasSize(2)
+                .extracting("publicKey")
+                .containsExactlyInAnyOrder(KEY_ONE.encodeToBase64(), KEY_TWO.encodeToBase64());
     }
 
     @Test
-    public void legacyRequest_callToPostDelegateThrowsException() {
+    public void legacyRequestCallToPostDelegateThrowsException() {
         when(enclave.getPublicKeys()).thenReturn(Collections.singleton(KEY_ONE));
         when(recoveryClient.makeResendRequest(anyString(), any(ResendRequest.class))).thenThrow(RuntimeException.class);
 

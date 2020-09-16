@@ -44,16 +44,6 @@ public class RestPayloadPublisher implements PayloadPublisher {
     @Override
     public void publishPayload(EncodedPayload payload, PublicKey recipientKey) {
 
-        //        final Recipient retrievedRecipientFromStore =
-        //                discovery.getCurrent().getRecipients().stream()
-        //                        .filter(recipient -> recipientKey.equals(recipient.getKey()))
-        //                        .findAny()
-        //                        .orElseThrow(
-        //                                () ->
-        //                                        new KeyNotFoundException(
-        //                                                "Recipient not found for key: " +
-        // recipientKey.encodeToBase64()));
-
         final NodeInfo remoteNodeInfo = discovery.getRemoteNodeInfo(recipientKey);
 
         if (PrivacyMode.STANDARD_PRIVATE != payload.getPrivacyMode()

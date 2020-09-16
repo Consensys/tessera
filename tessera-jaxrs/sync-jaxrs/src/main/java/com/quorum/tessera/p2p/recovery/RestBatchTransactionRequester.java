@@ -39,6 +39,9 @@ public class RestBatchTransactionRequester implements BatchTransactionRequester 
 
     @Override
     public boolean requestAllTransactionsFromLegacyNode(String uri) {
+
+        LOGGER.info("Requesting transactions get resent for legacy node {}", uri);
+
         return this.enclave.getPublicKeys().stream()
             .map(this::createLegacyRequest)
             .allMatch(req -> this.makeLegacyRequest(uri, req));
