@@ -1,9 +1,6 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -22,6 +19,10 @@ public class EncodedPayloadManagerTest {
 
         final JdbcConfig jdbcConfig = new JdbcConfig("junit", "junit", "jdbc:h2:mem:junit");
         when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+
+        final FeatureToggles features = new FeatureToggles();
+        features.setEnableEnhancedPrivacy(true);
+        when(config.getFeatures()).thenReturn(features);
 
         final EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create(config);
         assertThat(encodedPayloadManager).isNotNull();

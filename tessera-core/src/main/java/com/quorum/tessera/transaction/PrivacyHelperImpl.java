@@ -5,6 +5,7 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +21,11 @@ public class PrivacyHelperImpl implements PrivacyHelper {
 
     private EncryptedTransactionDAO encryptedTransactionDAO;
 
-    public PrivacyHelperImpl(EncryptedTransactionDAO encryptedTransactionDAO) {
+    private boolean isEnhancedPrivacyEnabled;
+
+    public PrivacyHelperImpl(EncryptedTransactionDAO encryptedTransactionDAO, boolean isEnhancedPrivacyEnabled) {
         this.encryptedTransactionDAO = encryptedTransactionDAO;
+        this.isEnhancedPrivacyEnabled = isEnhancedPrivacyEnabled;
     }
 
     @Override
@@ -33,14 +37,13 @@ public class PrivacyHelperImpl implements PrivacyHelper {
 
         final List<EncryptedTransaction> encryptedTransactions = encryptedTransactionDAO.findByHashes(affectedHashes);
         final Set<MessageHash> foundHashes =
-            encryptedTransactions.stream()
-                .map(EncryptedTransaction::getHash)
-                .collect(Collectors.toSet());
+                encryptedTransactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toSet());
 
         affectedHashes.stream()
                 .filter(Predicate.not(foundHashes::contains))
                 .findAny()
-                .ifPresent(messageHash -> {
+                .ifPresent(
+                        messageHash -> {
                             throw new PrivacyViolationException(
                                     "Unable to find affectedContractTransaction " + messageHash);
                         });
@@ -48,11 +51,11 @@ public class PrivacyHelperImpl implements PrivacyHelper {
         return encryptedTransactions.stream()
                 .map(
                         et ->
-                            AffectedTransaction.Builder.create()
-                                .withHash(et.getHash().getHashBytes())
-                                .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
-                                .build()
-                ).collect(Collectors.toList());
+                                AffectedTransaction.Builder.create()
+                                        .withHash(et.getHash().getHashBytes())
+                                        .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
+                                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -69,25 +72,29 @@ public class PrivacyHelperImpl implements PrivacyHelper {
 
         final List<EncryptedTransaction> encryptedTransactions = encryptedTransactionDAO.findByHashes(hashesToFind);
         final Set<MessageHash> foundHashes =
-            encryptedTransactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toSet());
+                encryptedTransactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toSet());
 
         hashesToFind.stream()
                 .filter(Predicate.not(foundHashes::contains))
                 .forEach(txHash -> LOGGER.debug("Unable to find affectedContractTransaction {}", txHash));
 
         return encryptedTransactions.stream()
-            .map(
-                et ->
-                    AffectedTransaction.Builder.create()
-                        .withHash(et.getHash().getHashBytes())
-                        .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
-                        .build()
-            ).collect(Collectors.toList());
+                .map(
+                        et ->
+                                AffectedTransaction.Builder.create()
+                                        .withHash(et.getHash().getHashBytes())
+                                        .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
+                                        .build())
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean validateSendRequest(
             PrivacyMode privacyMode, List<PublicKey> recipientList, List<AffectedTransaction> affectedTransactions) {
+
+        if (privacyMode != PrivacyMode.STANDARD_PRIVATE) {
+            checkIfEnhancedPrivacyIsEnabled();
+        }
 
         if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
             validateRecipients(recipientList, affectedTransactions)
@@ -118,6 +125,10 @@ public class PrivacyHelperImpl implements PrivacyHelper {
             TxHash txHash, EncodedPayload payload, List<AffectedTransaction> affectedTransactions) {
 
         final PrivacyMode privacyMode = payload.getPrivacyMode();
+
+        if (privacyMode != PrivacyMode.STANDARD_PRIVATE) {
+            checkIfEnhancedPrivacyIsEnabled();
+        }
 
         boolean flagMismatched =
                 affectedTransactions.stream()
@@ -221,5 +232,14 @@ public class PrivacyHelperImpl implements PrivacyHelper {
                 payloadRecipientsHasAllRecipients.and(recipientsHaveAllPayloadRecipients);
 
         return affectedContractTransactions.stream().filter(allRecipientsMatch.negate());
+    }
+
+    private boolean checkIfEnhancedPrivacyIsEnabled() {
+
+        if (!isEnhancedPrivacyEnabled) {
+            throw new EnhancedPrivacyNotSupportedException("Enhanced Privacy is not enabled");
+        }
+
+        return true;
     }
 }

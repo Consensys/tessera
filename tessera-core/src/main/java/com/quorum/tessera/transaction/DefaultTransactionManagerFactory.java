@@ -31,10 +31,12 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
         Enclave enclave = EnclaveFactory.create().create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO = entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
-        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO);
+        boolean privacyEnabled = config.getFeatures().isEnableEnhancedPrivacy();
+        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled);
 
         TransactionManager transactionManager =
                 new TransactionManagerImpl(

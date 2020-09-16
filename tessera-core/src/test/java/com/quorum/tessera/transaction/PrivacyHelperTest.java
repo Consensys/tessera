@@ -5,6 +5,7 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import org.junit.After;
 import org.junit.Before;
@@ -12,8 +13,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
+import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.*;
@@ -27,7 +27,7 @@ public class PrivacyHelperTest {
     @Before
     public void setUp() {
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
-        privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO);
+        privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, true);
     }
 
     @After
@@ -51,7 +51,7 @@ public class PrivacyHelperTest {
         when(encryptedTransactionDAO.findByHashes(anyCollection())).thenReturn(List.of(et1, et2));
 
         List<AffectedTransaction> affectedTransactions =
-                privacyHelper.findAffectedContractTransactionsFromSendRequest(Set.of(hash1,hash2));
+                privacyHelper.findAffectedContractTransactionsFromSendRequest(Set.of(hash1, hash2));
 
         assertThat(affectedTransactions).isNotNull();
         assertThat(affectedTransactions.size()).isEqualTo(2);
@@ -428,5 +428,31 @@ public class PrivacyHelperTest {
         EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getAffectedContractTransactions()).thenReturn(emptyMap());
         assertThat(privacyHelper.findAffectedContractTransactionsFromPayload(payload)).hasSize(0);
+    }
+
+    @Test
+    public void throwExceptionForSendRequestWhenPrivacyNotEnabled() {
+        final PrivacyHelper anotherHelper = new PrivacyHelperImpl(encryptedTransactionDAO, false);
+
+        assertThatExceptionOfType(EnhancedPrivacyNotSupportedException.class)
+                .isThrownBy(
+                        () -> {
+                            anotherHelper.validateSendRequest(
+                                    PrivacyMode.PRIVATE_STATE_VALIDATION, emptyList(), emptyList());
+                        });
+    }
+
+    @Test
+    public void throwExceptionForPayloadWhenPrivacyNotEnabled() {
+        final PrivacyHelper anotherHelper = new PrivacyHelperImpl(encryptedTransactionDAO, false);
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
+
+        assertThatExceptionOfType(EnhancedPrivacyNotSupportedException.class)
+                .isThrownBy(
+                        () -> {
+                            anotherHelper.validatePayload(mock(TxHash.class), payload, emptyList());
+                        });
     }
 }
