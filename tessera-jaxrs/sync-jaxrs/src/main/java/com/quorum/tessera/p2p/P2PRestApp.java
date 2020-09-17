@@ -6,6 +6,7 @@ import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;

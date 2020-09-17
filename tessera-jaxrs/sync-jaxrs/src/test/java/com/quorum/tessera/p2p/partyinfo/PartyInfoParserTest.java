@@ -1,8 +1,6 @@
 package com.quorum.tessera.p2p.partyinfo;
 
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
-import com.quorum.tessera.p2p.partyinfo.PartyInfoParserException;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;

@@ -1,8 +1,8 @@
 package com.quorum.tessera.p2p.resend;
 
-import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.loader.ServiceLoaderUtil;
 
 public interface ResendClientFactory {
 

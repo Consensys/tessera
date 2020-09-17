@@ -3,7 +3,7 @@ package com.quorum.tessera.server.http;
 import com.jpmorgan.quorum.server.utils.ServerUtils;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.server.jaxrs.SampleApplication;
+import com.quorum.tessera.server.jersey.SampleApplication;
 import com.quorum.tessera.shared.Constants;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;

@@ -9,7 +9,7 @@ import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
-import com.quorum.tessera.p2p.PartyInfoParser;
+import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import org.junit.After;

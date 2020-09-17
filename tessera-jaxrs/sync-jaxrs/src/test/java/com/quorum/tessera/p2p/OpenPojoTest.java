@@ -7,6 +7,7 @@ import com.openpojo.validation.rule.impl.GetterMustExistRule;
 import com.openpojo.validation.rule.impl.SetterMustExistRule;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
+import com.quorum.tessera.p2p.resend.ResendRequest;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

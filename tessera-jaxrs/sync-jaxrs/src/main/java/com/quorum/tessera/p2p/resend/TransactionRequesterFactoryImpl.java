@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.EnclaveFactory;
 
 public class TransactionRequesterFactoryImpl implements TransactionRequesterFactory {
 
+    @Override
     public TransactionRequester createTransactionRequester(Config config) {
         Enclave enclave = EnclaveFactory.create().create(config);
         ResendClient resendClient = ResendClientFactory.newFactory(config).create(config);
