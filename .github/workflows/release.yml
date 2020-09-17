@@ -23,15 +23,16 @@ jobs:
           java-version: 11
       - name: Create release branch
         run: |
-          git config user.name "melowe"
+          git config user.name "quorumbot"
           export now=`date +%Y%m%d%H%M%S`
           git checkout -b "release-$now"
 
       - name: Release Prepare
         run: |
-          mvn --settings .maven.xml release:prepare -DskipTests -Darguments="-DskipTests"
+          mvn --settings .maven.xml release:prepare -DskipTests -Darguments="-DskipTests" -DdryRun=true
       - name: Release Perform
         run: |
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          mvn --settings .maven.xml release:perform -DskipTests -Darguments="-DskipTests"
+#          mvn --settings .maven.xml release:perform -DskipTests -Darguments="-DskipTests"
+          mvn --settings .maven.xml deploy -P release -DskipTests -Darguments="-DskipTests"
