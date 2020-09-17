@@ -4,7 +4,8 @@ package com.quorum.tessera.test.rest;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
-import com.quorum.tessera.p2p.ResendRequest;
+import com.quorum.tessera.p2p.resend.ResendRequest;
+import com.quorum.tessera.p2p.resend.ResendRequestType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.Before;
@@ -131,7 +132,8 @@ public class ResendIndividualIT {
     @Test
     public void resendTransactionThatDoesntExist() {
 
-        final String unknownHash = "2xTEBlTtYXSBXZD4jDDp83cVJbnkzP6PbUoUJx076BO/FSR75NXwDDpLDu3AIiDV1TlK8nGK4mlhsg4Xzpd5og==";
+        final String unknownHash =
+                "2xTEBlTtYXSBXZD4jDDp83cVJbnkzP6PbUoUJx076BO/FSR75NXwDDpLDu3AIiDV1TlK8nGK4mlhsg4Xzpd5og==";
 
         final ResendRequest request = new ResendRequest();
         request.setType(RESEND_INDIVIDUAL_VALUE);
@@ -152,7 +154,5 @@ public class ResendIndividualIT {
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(404);
         assertThat(response.readEntity(String.class)).contains("Message with hash " + unknownHash + " was not found");
-
     }
-
 }

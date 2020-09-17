@@ -1,7 +1,6 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.shared.Constants;
-
 import javax.ws.rs.core.Response;
 
 import static org.assertj.core.api.Assertions.assertThat;
