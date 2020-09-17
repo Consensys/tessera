@@ -1,9 +1,9 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.p2p.ResendRequest;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
+import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.Before;
@@ -181,7 +181,6 @@ public class ResendAllIT {
                 assertThat(payload.getRecipientBoxes()).hasSize(3);
             }
         }
-
     }
 
     @Test
@@ -202,21 +201,15 @@ public class ResendAllIT {
 
         final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
-        //delete it from a recipient node
-        final Response deleteReq = client.target(partyTwo.getQ2TUri())
-            .path("transaction")
-            .path(encodedHash)
-            .request()
-            .delete();
+        // delete it from a recipient node
+        final Response deleteReq =
+                client.target(partyTwo.getQ2TUri()).path("transaction").path(encodedHash).request().delete();
         assertThat(deleteReq).isNotNull();
         assertThat(deleteReq.getStatus()).isEqualTo(204);
 
-        //check it is deleted
-        final Response deleteCheck = client.target(partyTwo.getQ2TUri())
-            .path("transaction")
-            .path(encodedHash)
-            .request()
-            .get();
+        // check it is deleted
+        final Response deleteCheck =
+                client.target(partyTwo.getQ2TUri()).path("transaction").path(encodedHash).request().get();
 
         assertThat(deleteCheck).isNotNull();
         assertThat(deleteCheck.getStatus()).isEqualTo(404);

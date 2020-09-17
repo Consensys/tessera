@@ -4,6 +4,7 @@ import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;

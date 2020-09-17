@@ -3,16 +3,14 @@ package com.quorum.tessera.p2p;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import javax.ws.rs.core.Response;
-
 import java.util.Base64;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class TransactionResourceTest {

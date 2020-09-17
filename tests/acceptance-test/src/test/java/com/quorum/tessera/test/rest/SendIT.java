@@ -1,6 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-
 import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
@@ -68,15 +67,14 @@ public class SendIT {
         URI location = response.getLocation();
 
         final Response checkPersistedTxnResponse = client.target(location).request().get();
-        AssertApiHeaders.doAsserts(checkPersistedTxnResponse);
 
         assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
         ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
 
         assertThat(receiveResponse.getPayload())
-            .describedAs("The response payload should be equal to the sent txn data")
-            .isEqualTo(transactionData);
+                .describedAs("The response payload should be equal to the sent txn data")
+                .isEqualTo(transactionData);
 
         utils.findTransaction(result.getKey(), partyHelper.findByAlias("A"), partyHelper.findByAlias("B"))
             .forEach(
@@ -116,8 +114,6 @@ public class SendIT {
                 .path(SEND_PATH)
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-        AssertApiHeaders.doAsserts(response);
 
         //
         final SendResponse result = response.readEntity(SendResponse.class);
@@ -166,8 +162,6 @@ public class SendIT {
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
-        AssertApiHeaders.doAsserts(response);
-
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
 
@@ -200,8 +194,6 @@ public class SendIT {
                 .path(SEND_PATH)
                 .request()
                 .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-        AssertApiHeaders.doAsserts(response);
 
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
