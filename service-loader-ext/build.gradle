@@ -1,15 +1,14 @@
 plugins {
-    id 'java'
+    id "java-library"
 }
 
-group 'com.jpmorgan.quorum'
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile "javax.inject:javax.inject"
-    testCompile "junit:junit"
-    testCompile "org.assertj:assertj-core"
-    testCompile "javax.inject:javax.inject"
+    implementation "javax.inject:javax.inject"
+    testImplementation "junit:junit"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "javax.inject:javax.inject"
 }

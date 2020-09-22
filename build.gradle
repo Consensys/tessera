@@ -16,7 +16,7 @@ def slf4jVersion = "1.7.30"
 def logbackVersion = "1.2.3"
 
 allprojects {
-    group = "com.jpmorgan.quorum"
+    group = "net.consensys.quorum.tessera"
     plugins.withType(JavaPlugin).configureEach {
         java {
             modularity.inferModulePath = true
@@ -92,7 +92,6 @@ allprojects {
                 implementation "org.hsqldb:hsqldb:2.4.1"
                 implementation "org.xerial:sqlite-jdbc:3.23.1"
 
-
                 implementation "jakarta.ws.rs:jakarta.ws.rs-api:2.1.6"
                 implementation "jakarta.persistence:jakarta.persistence-api:2.2.3"
                 implementation "jakarta.inject:jakarta.inject-api:1.0.1"
@@ -116,7 +115,7 @@ allprojects {
                 implementation "jakarta.validation:jakarta.validation-api:2.0.2"
                 implementation "org.hibernate:hibernate-validator:6.1.5.Final"
 
-                implementation 'com.github.tomakehurst:wiremock:2.27.1'
+                implementation "com.github.tomakehurst:wiremock:2.27.1"
             }
         }
     }
@@ -330,9 +329,9 @@ subprojects {
                 }
 
                 pom {
-                    groupId = "com.jpmorgan.quorum"
+                    groupId = "net.consensys.quorum.tessera"
 //                    description = "A concise description of my library"
-                    url = "https://github.com/jpmorganchase/tessera"
+                    url = "https://github.com/ConsenSys/tessera"
                     licenses {
                         license {
                             name = "The Apache License, Version 2.0"
@@ -374,9 +373,9 @@ subprojects {
                     }
 
                     scm {
-                        connection = "scm:git:https://github.com/jpmorganchase/tessera.git"
-                        developerConnection = "scm:git:https://github.com/jpmorganchase/tessera.git"
-                        url = "https://github.com/jpmorganchase/tessera"
+                        connection = "scm:git:https://github.com/ConsenSys/tessera.git"
+                        developerConnection = "scm:git:https://github.com/ConsenSys/tessera.git"
+                        url = "https://github.com/ConsenSys/tessera"
                         tag = "HEAD"
                     }
 
@@ -385,7 +384,7 @@ subprojects {
 
                             //https://oss.sonatype.org/service/local/staging/deploy/maven2
                             // change URLs to point to your repos, e.g. http://my.org/repo
-                            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"//"$buildDir/repos/releases"
+                            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2" //"$buildDir/repos/releases"
                             def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots" //"$buildDir/repos/snapshots"
                             url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
 
