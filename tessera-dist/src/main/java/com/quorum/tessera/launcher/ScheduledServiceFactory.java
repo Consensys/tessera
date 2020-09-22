@@ -6,14 +6,10 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.discovery.EnclaveKeySynchroniser;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
-import com.quorum.tessera.p2p.PartyInfoBroadcaster;
-import com.quorum.tessera.p2p.ResendPartyStore;
-import com.quorum.tessera.p2p.ResendPartyStoreImpl;
-import com.quorum.tessera.p2p.SyncPoller;
+import com.quorum.tessera.p2p.partyinfo.PartyInfoBroadcaster;
+import com.quorum.tessera.p2p.resend.*;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.P2pClientFactory;
-import com.quorum.tessera.partyinfo.TransactionRequester;
-import com.quorum.tessera.partyinfo.TransactionRequesterFactory;
 import com.quorum.tessera.service.ServiceContainer;
 import com.quorum.tessera.threading.TesseraScheduledExecutor;
 
