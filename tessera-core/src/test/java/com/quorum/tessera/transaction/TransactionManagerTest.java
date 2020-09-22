@@ -84,36 +84,6 @@ public class TransactionManagerTest {
         when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
 
         when(enclave.encryptPayload(any(), any(), any())).thenReturn(encodedPayload);
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        PublicKey sender = PublicKey.from("SENDER".getBytes());
-        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
-
-        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
-
-        SendRequest sendRequest = mock(SendRequest.class);
-        when(sendRequest.getPayload()).thenReturn(payload);
-        when(sendRequest.getSender()).thenReturn(sender);
-        when(sendRequest.getRecipients()).thenReturn(List.of(receiver));
-
-        SendResponse result = transactionManager.send(sendRequest);
-
-        assertThat(result).isNotNull();
-
-        verify(enclave).encryptPayload(any(), any(), any());
-        verify(payloadEncoder).encode(encodedPayload);
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
-        verify(enclave).getForwardingKeys();
-    }
-
-    @Test
-    public void sendAlsoWithPublishCallbackCoverage() {
-
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-
-        when(enclave.encryptPayload(any(), any(), any())).thenReturn(encodedPayload);
 
         doAnswer(
                         invocation -> {
@@ -252,44 +222,6 @@ public class TransactionManagerTest {
 
     @Test
     public void sendSignedTransaction() {
-
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        EncryptedRawTransaction encryptedRawTransaction =
-                new EncryptedRawTransaction(
-                        new MessageHash("HASH".getBytes()),
-                        "ENCRYPTED_PAYLOAD".getBytes(),
-                        "ENCRYPTED_KEY".getBytes(),
-                        "NONCE".getBytes(),
-                        "SENDER".getBytes());
-
-        when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
-                .thenReturn(Optional.of(encryptedRawTransaction));
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
-
-        when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
-
-        when(enclave.encryptPayload(any(RawTransaction.class), any())).thenReturn(payload);
-
-        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
-
-        SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
-        when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver));
-        when(sendSignedRequest.getSignedData()).thenReturn("HASH".getBytes());
-
-        SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
-
-        assertThat(result).isNotNull();
-
-        verify(enclave).encryptPayload(any(RawTransaction.class), any());
-        verify(payloadEncoder).encode(payload);
-        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
-        verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
-        verify(enclave).getForwardingKeys();
-    }
-
-    @Test
-    public void sendSignedTransactionWithCallbackCoverage() {
 
         EncodedPayload payload = mock(EncodedPayload.class);
 
