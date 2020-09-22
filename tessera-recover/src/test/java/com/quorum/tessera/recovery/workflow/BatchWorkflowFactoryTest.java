@@ -49,7 +49,7 @@ public class BatchWorkflowFactoryTest {
         batchWorkflowFactory.setPayloadEncoder(payloadEncoder);
         batchWorkflowFactory.setEnclave(enclave);
         batchWorkflowFactory.setDiscovery(discovery);
-        batchWorkflowFactory.setTransactionCount(999L);
+        batchWorkflowFactory.setTransactionCount(1L);
 
         BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
 

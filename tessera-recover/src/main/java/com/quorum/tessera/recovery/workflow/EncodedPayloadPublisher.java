@@ -2,15 +2,13 @@ package com.quorum.tessera.recovery.workflow;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EncodedPayloadPublisher implements BatchWorkflowAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EncodedPayloadPublisher.class);
+    private String targetUrl;
 
     private List<EncodedPayload> payloads;
 
@@ -28,12 +26,14 @@ public class EncodedPayloadPublisher implements BatchWorkflowAction {
 
         final int batchSize = event.getBatchSize();
 
+        targetUrl = event.getRecipient().getUrl();
+
         payloads.add(event.getEncodedPayload());
 
         long total = event.getExpectedTotal();
 
-        if((payloads.size() == batchSize || total <= payloads.size()) || messageCounter >= total) {
-            resendBatchPublisher.publishBatch(payloads, event.getRecipient().getUrl());
+        if (payloads.size() == batchSize || payloads.size() >= total || messageCounter + payloads.size() >= total) {
+            resendBatchPublisher.publishBatch(payloads, targetUrl);
             messageCounter += payloads.size();
             payloads.clear();
         }
@@ -43,5 +43,18 @@ public class EncodedPayloadPublisher implements BatchWorkflowAction {
 
     public long getPublishedCount() {
         return messageCounter;
+    }
+
+    public void checkOutstandingPayloads(BatchWorkflowContext event) {
+
+        final long total = event.getExpectedTotal();
+
+        final int noOfPayloads = payloads.size();
+
+        if (noOfPayloads > 0 && (noOfPayloads >= total || messageCounter + noOfPayloads >= total)) {
+            resendBatchPublisher.publishBatch(payloads, targetUrl);
+            messageCounter += payloads.size();
+            payloads.clear();
+        }
     }
 }

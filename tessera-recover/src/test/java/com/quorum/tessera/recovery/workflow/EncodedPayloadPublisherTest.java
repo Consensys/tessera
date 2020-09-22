@@ -38,19 +38,45 @@ public class EncodedPayloadPublisherTest {
     }
 
     @Test
-    public void executeSingleBatch() {
+    public void executeIfNumberOfPayloadsReachBatchSize() {
 
         BatchWorkflowContext batchWorkflowContext = new BatchWorkflowContext();
-        batchWorkflowContext.setBatchSize(batchSize);
-        batchWorkflowContext.setExpectedTotal(999L);
+        batchWorkflowContext.setBatchSize(2);
+        batchWorkflowContext.setExpectedTotal(9L);
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
         batchWorkflowContext.setEncodedPayload(encodedPayload);
         PublicKey recipientKey = mock(PublicKey.class);
         Recipient recipient = mock(Recipient.class);
         when(recipient.getUrl()).thenReturn("http://junit.com");
+        batchWorkflowContext.setRecipientKey(recipientKey);
+        batchWorkflowContext.setRecipient(recipient);
 
+        boolean result =
+                IntStream.range(0, batchSize).allMatch(i -> encodedPayloadPublisher.execute(batchWorkflowContext));
+
+        assertThat(result).isTrue();
+
+        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(9);
+
+        List<EncodedPayload> sent = new ArrayList<>(batchSize);
+        Collections.fill(sent, encodedPayload);
+
+        verify(resendBatchPublisher, times(5)).publishBatch(sent, "http://junit.com");
+    }
+
+    @Test
+    public void executeIfNumberOfPayloadsReachTotal() {
+
+        BatchWorkflowContext batchWorkflowContext = new BatchWorkflowContext();
+        batchWorkflowContext.setBatchSize(100);
+        batchWorkflowContext.setExpectedTotal(9L);
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        batchWorkflowContext.setEncodedPayload(encodedPayload);
+        PublicKey recipientKey = mock(PublicKey.class);
+        Recipient recipient = mock(Recipient.class);
+        when(recipient.getUrl()).thenReturn("http://junit.com");
         batchWorkflowContext.setRecipientKey(recipientKey);
         batchWorkflowContext.setRecipient(recipient);
 
@@ -68,31 +94,92 @@ public class EncodedPayloadPublisherTest {
     }
 
     @Test
-    public void executePartialBatch() {
+    public void noOutstandingPayload() {
 
         BatchWorkflowContext batchWorkflowContext = new BatchWorkflowContext();
-        batchWorkflowContext.setBatchSize(batchSize);
-        batchWorkflowContext.setExpectedTotal(999L);
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        batchWorkflowContext.setBatchSize(100);
+        batchWorkflowContext.setExpectedTotal(4L);
 
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
         batchWorkflowContext.setEncodedPayload(encodedPayload);
         PublicKey recipientKey = mock(PublicKey.class);
         Recipient recipient = mock(Recipient.class);
         when(recipient.getUrl()).thenReturn("http://junit.com");
-
         batchWorkflowContext.setRecipientKey(recipientKey);
         batchWorkflowContext.setRecipient(recipient);
 
-        boolean result =
-                IntStream.range(0, batchSize).allMatch(i -> encodedPayloadPublisher.execute(batchWorkflowContext));
+        encodedPayloadPublisher.checkOutstandingPayloads(batchWorkflowContext);
+        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(0);
+    }
 
-        assertThat(result).isTrue();
+    @Test
+    public void outstandingPayloadsReachTotalExpected() {
+        BatchWorkflowContext batchWorkflowContext = new BatchWorkflowContext();
+        batchWorkflowContext.setBatchSize(100);
+        batchWorkflowContext.setExpectedTotal(4L);
 
-        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(9);
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        batchWorkflowContext.setEncodedPayload(encodedPayload);
+        PublicKey recipientKey = mock(PublicKey.class);
+        Recipient recipient = mock(Recipient.class);
+        when(recipient.getUrl()).thenReturn("http://junit.com");
+        batchWorkflowContext.setRecipientKey(recipientKey);
+        batchWorkflowContext.setRecipient(recipient);
 
-        List<EncodedPayload> sent = new ArrayList<>(batchSize);
+        encodedPayloadPublisher.execute(batchWorkflowContext);
+
+        batchWorkflowContext.setExpectedTotal(3L);
+        encodedPayloadPublisher.checkOutstandingPayloads(batchWorkflowContext);
+        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(0);
+
+        encodedPayloadPublisher.execute(batchWorkflowContext);
+
+        batchWorkflowContext.setExpectedTotal(2L);
+        encodedPayloadPublisher.checkOutstandingPayloads(batchWorkflowContext);
+
+        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(2);
+
+        List<EncodedPayload> sent = new ArrayList<>(2);
         Collections.fill(sent, encodedPayload);
 
         verify(resendBatchPublisher).publishBatch(sent, "http://junit.com");
+    }
+
+    @Test
+    public void outstandingPayloadsPlusPublishedReachTotalExpected() {
+        BatchWorkflowContext batchWorkflowContext = new BatchWorkflowContext();
+        batchWorkflowContext.setBatchSize(2);
+        batchWorkflowContext.setExpectedTotal(6L);
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        batchWorkflowContext.setEncodedPayload(encodedPayload);
+        PublicKey recipientKey = mock(PublicKey.class);
+        Recipient recipient = mock(Recipient.class);
+        when(recipient.getUrl()).thenReturn("http://junit.com");
+        batchWorkflowContext.setRecipientKey(recipientKey);
+        batchWorkflowContext.setRecipient(recipient);
+
+        encodedPayloadPublisher.execute(batchWorkflowContext);
+
+        batchWorkflowContext.setExpectedTotal(5L);
+        encodedPayloadPublisher.checkOutstandingPayloads(batchWorkflowContext);
+        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(0);
+
+        encodedPayloadPublisher.execute(batchWorkflowContext);
+
+        batchWorkflowContext.setExpectedTotal(4L);
+        encodedPayloadPublisher.checkOutstandingPayloads(batchWorkflowContext);
+        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(2);
+
+        // Not publish yet as not yet reach batch size
+        encodedPayloadPublisher.execute(batchWorkflowContext);
+        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(2);
+
+        batchWorkflowContext.setExpectedTotal(3L);
+        encodedPayloadPublisher.checkOutstandingPayloads(batchWorkflowContext);
+        // Publish here because message count + outstanding = expected total
+        assertThat(encodedPayloadPublisher.getPublishedCount()).isEqualTo(3);
+
+        verify(resendBatchPublisher, times(2)).publishBatch(anyList(), eq("http://junit.com"));
     }
 }

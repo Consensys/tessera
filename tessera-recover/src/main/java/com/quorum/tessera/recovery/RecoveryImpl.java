@@ -10,11 +10,11 @@ import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
-import com.quorum.tessera.transaction.exception.StoreEntityException;
 import com.quorum.tessera.version.EnhancedPrivacyVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.PersistenceException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -128,7 +128,7 @@ public class RecoveryImpl implements Recovery {
                                                 try {
                                                     EncodedPayload encodedPayload = payloadEncoder.decode(payload);
                                                     transactionManager.storePayload(encodedPayload);
-                                                } catch (PrivacyViolationException | StoreEntityException ex) {
+                                                } catch (PrivacyViolationException | PersistenceException ex) {
                                                     LOGGER.error(
                                                             "An error occurred during batch resend sync stage.", ex);
                                                     syncFailureCount.incrementAndGet();

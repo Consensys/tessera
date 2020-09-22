@@ -70,15 +70,15 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
 
             @Override
             public boolean execute(BatchWorkflowContext context) {
-                boolean outcome =
-                        handlers.stream()
-                                .filter(Predicate.not(h -> h.execute(context)))
-                                .peek(h -> System.out.println(h))
-                                .findFirst()
-                                .isEmpty();
 
-                if (outcome) {
+                context.setExpectedTotal(filteredMessageCount.get());
+
+                boolean outcome =
+                        handlers.stream().filter(Predicate.not(h -> h.execute(context))).findFirst().isEmpty();
+
+                if (!outcome) {
                     context.setExpectedTotal(filteredMessageCount.decrementAndGet());
+                    encodedPayloadPublisher.checkOutstandingPayloads(context);
                 }
                 return outcome;
             }
