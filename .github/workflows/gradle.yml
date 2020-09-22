@@ -3,7 +3,7 @@ name: Tessera Gradle Build
 on: 
   push:
     branches: 
-      - new-psv
+      - master
   pull_request:
     branches: 
       - master
