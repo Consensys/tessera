@@ -17,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
@@ -119,15 +123,33 @@ public class TransactionManagerImpl implements TransactionManager {
         return SendResponse.from(transactionHash);
     }
 
+    private final Executor executor = Executors.newCachedThreadPool();
+
     boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
-        recipientList.stream()
+        CompletableFuture<Void>[] cfs =
+            recipientList.stream()
                 .filter(k -> !enclave.getPublicKeys().contains(k))
-                .forEach(
-                        recipient -> {
-                            final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                            payloadPublisher.publishPayload(outgoing, recipient);
-                        });
-        return true;
+                .map(
+                    recipient ->
+                        CompletableFuture.runAsync(
+                            () -> {
+                                final EncodedPayload outgoing =
+                                    payloadEncoder.forRecipient(payload, recipient);
+                                payloadPublisher.publishPayload(outgoing, recipient);
+                            },
+                            executor))
+                .toArray(CompletableFuture[]::new);
+        try {
+            CompletableFuture.allOf(cfs).join();
+            return true;
+        } catch (CompletionException e) {
+            // unwrap the exception to ensure the error bubbling up is similar to the single thread behavior
+            LOGGER.debug("Unable to publish payload", e);
+            if (e.getCause() instanceof RuntimeException){
+                throw (RuntimeException)e.getCause();
+            }
+            throw e;
+        }
     }
 
     @Override
