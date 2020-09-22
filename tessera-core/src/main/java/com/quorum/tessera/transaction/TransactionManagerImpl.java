@@ -17,10 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -124,6 +121,40 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     private final Executor executor = Executors.newCachedThreadPool();
+
+    boolean publishFailFast(List<PublicKey> recipientList, EncodedPayload payload) {
+        CompletionService<Void> completionService = new ExecutorCompletionService<>(executor);
+
+        // asynchronously submit all publishes
+        List<Future<Void>> futures = recipientList.stream()
+            .filter(k -> !enclave.getPublicKeys().contains(k))
+            .map(
+                recipient -> completionService.submit(() -> {
+                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
+                    payloadPublisher.publishPayload(outgoing, recipient);
+                    return null;
+                })
+            )
+            .collect(Collectors.toList());
+
+        // wait for publishes to complete, exiting if at least one returns an error
+        for (int i = 0; i < futures.size(); i++) {
+            try {
+                completionService.take().get();
+            } catch(ExecutionException e) {
+                LOGGER.debug("Unable to publish payload", e);
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException)cause;
+                }
+                throw new RuntimeException(e.getCause());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return true;
+    }
 
     boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
         CompletableFuture<Void>[] cfs =

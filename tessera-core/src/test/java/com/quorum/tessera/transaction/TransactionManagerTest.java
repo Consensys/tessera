@@ -21,9 +21,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -32,6 +36,8 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class TransactionManagerTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerTest.class);
 
     private TransactionManager transactionManager;
 
@@ -1357,5 +1363,58 @@ public class TransactionManagerTest {
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).forRecipient(payload, reipcient);
         verify(payloadPublisher).publishPayload(eq(payload), any(PublicKey.class));
+    }
+
+    @Test
+    public void publishDoesNotWaitForAllResponsesIfOneFails() {
+        List<PublicKey> recipients = List.of(mock(PublicKey.class), mock(PublicKey.class), mock(PublicKey.class));
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
+        when(payloadEncoder.forRecipient(eq(payload), any(PublicKey.class))).thenReturn(payload);
+
+        AtomicInteger atomicInt = new AtomicInteger();
+
+        doAnswer(
+            invocation -> {
+                longRunningTaskThenIncrement(atomicInt);
+                return null;
+            })
+        .doAnswer(
+            invocation -> {
+                longRunningTaskThenIncrement(atomicInt);
+                return null;
+            })
+        .doThrow(new RuntimeException("some publisher exception"))
+        .when(payloadPublisher)
+        .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+
+        long startTime = System.nanoTime();
+        Throwable ex = catchThrowable(() -> TransactionManagerImpl.class.cast(transactionManager).publishFailFast(recipients, payload));
+
+        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
+        assertThat(ex).hasMessage("some publisher exception");
+
+        long stopTime = System.nanoTime();
+        LOGGER.debug("test execution time = " + ((double)(stopTime - startTime)/1000000000));
+
+        assertThat(atomicInt.get()).isEqualTo(0)
+            .withFailMessage("publish should have failed-fast and not waited for completion of all tasks");
+
+        verify(enclave, times(3)).getPublicKeys();
+        verify(payloadEncoder, times(3)).forRecipient(eq(payload), any(PublicKey.class));
+        verify(payloadPublisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+    }
+
+    void longRunningTaskThenIncrement(AtomicInteger atomicInteger) {
+        int id = new Random().nextInt();
+
+        LOGGER.debug("long running task " + id + " started");
+        long startTime = System.nanoTime();
+        new BigInteger(5000, 9, new Random());
+        long stopTime = System.nanoTime();
+        LOGGER.debug("long running task " + id + " completed: " + ((double)(stopTime - startTime)/1000000000));
+
+        atomicInteger.incrementAndGet();
     }
 }
