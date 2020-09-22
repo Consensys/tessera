@@ -31,5 +31,10 @@
             <artifactId>config-cli</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>tessera-recover</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

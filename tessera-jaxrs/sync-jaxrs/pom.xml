@@ -15,6 +15,12 @@
             <artifactId>common-jaxrs</artifactId>
             <version>0.11.1-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>tessera-recover</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>mock-jaxrs</artifactId>

@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.quorum.tessera.config.util.EncryptedStringResolver;
+import com.quorum.tessera.data.staging.StagingEntityDAO;
+import com.quorum.tessera.data.staging.StagingEntityDAOImpl;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
@@ -21,8 +23,12 @@ public class EntityManagerDAOFactory {
 
     private final EntityManagerFactory entityManagerFactory;
 
-    private EntityManagerDAOFactory(EntityManagerFactory entityManagerFactory) {
+    private final EntityManagerFactory stagingEntityManagerFactory;
+
+    private EntityManagerDAOFactory(
+            EntityManagerFactory entityManagerFactory, EntityManagerFactory stagingEntityManagerFactory) {
         this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);
+        this.stagingEntityManagerFactory = Objects.requireNonNull(stagingEntityManagerFactory);
     }
 
     public static EntityManagerDAOFactory newFactory(Config config) {
@@ -56,7 +62,14 @@ public class EntityManagerDAOFactory {
         final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
         LOGGER.debug("Created EntityManagerFactory from {}", properties);
 
-        return new EntityManagerDAOFactory(entityManagerFactory);
+        final Map stagingProperties = new HashMap(properties);
+        stagingProperties.put("eclipselink.session.customizer", "com.quorum.tessera.eclipselink.AtomicLongSequence");
+        stagingProperties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+
+        final EntityManagerFactory stagingEntityManagerFactory =
+                Persistence.createEntityManagerFactory("tessera-recover", stagingProperties);
+
+        return new EntityManagerDAOFactory(entityManagerFactory, stagingEntityManagerFactory);
     }
 
     public EncryptedTransactionDAO createEncryptedTransactionDAO() {
@@ -67,5 +80,10 @@ public class EntityManagerDAOFactory {
     public EncryptedRawTransactionDAO createEncryptedRawTransactionDAO() {
         LOGGER.debug("Create EncryptedRawTransactionDAO");
         return new EncryptedRawTransactionDAOImpl(entityManagerFactory);
+    }
+
+    public StagingEntityDAO createStagingEntityDAO() {
+        LOGGER.debug("Create StagingEntityDAO");
+        return new StagingEntityDAOImpl(stagingEntityManagerFactory);
     }
 }

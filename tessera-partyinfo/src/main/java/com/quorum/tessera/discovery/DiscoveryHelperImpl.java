@@ -2,6 +2,8 @@ package com.quorum.tessera.discovery;
 
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.encryption.KeyNotFoundException;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.version.ApiVersion;
@@ -28,30 +30,6 @@ public class DiscoveryHelperImpl implements DiscoveryHelper {
     }
 
     @Override
-    public NodeInfo buildCurrent() {
-
-        final URI uri = RuntimeContext.getInstance().getP2pServerUri();
-        final NodeUri nodeUri = NodeUri.create(uri);
-        final List<ActiveNode> activeNodes = networkStore.getActiveNodes().collect(Collectors.toList());
-
-        Set<Recipient> recipients =
-            activeNodes.stream()
-                .filter(a -> !a.getKeys().isEmpty())
-                .flatMap(a -> a.getKeys().stream().map(k -> Recipient.of(k, a.getUri().asString())))
-                .collect(Collectors.toSet());
-
-        NodeInfo nodeInfo =
-            NodeInfo.Builder.create()
-                .withRecipients(recipients)
-                .withUrl(nodeUri.asString())
-                .withSupportedApiVersions(ApiVersion.versions())
-                .build();
-
-        LOGGER.debug("Built nodeinfo {}", nodeInfo);
-        return nodeInfo;
-    }
-
-    @Override
     public void onCreate() {
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
 
@@ -66,5 +44,75 @@ public class DiscoveryHelperImpl implements DiscoveryHelper {
                 .build();
 
         networkStore.store(thisNode);
+    }
+
+    @Override
+    public NodeInfo buildCurrent() {
+
+        final URI uri = RuntimeContext.getInstance().getP2pServerUri();
+        final NodeUri nodeUri = NodeUri.create(uri);
+        final List<ActiveNode> activeNodes = networkStore.getActiveNodes().collect(Collectors.toList());
+
+        Set<Recipient> recipients =
+                activeNodes.stream()
+                        .filter(a -> !a.getKeys().isEmpty())
+                        .flatMap(a -> a.getKeys().stream().map(k -> Recipient.of(k, a.getUri().asString())))
+                        .collect(Collectors.toSet());
+
+        NodeInfo nodeInfo =
+                NodeInfo.Builder.create()
+                        .withRecipients(recipients)
+                        .withUrl(nodeUri.asString())
+                        .withSupportedApiVersions(ApiVersion.versions())
+                        .build();
+
+        LOGGER.debug("Built nodeinfo {}", nodeInfo);
+        return nodeInfo;
+    }
+
+    @Override
+    public NodeInfo buildRemoteNodeInfo(PublicKey recipientKey) {
+
+        final ActiveNode activeNode =
+                networkStore
+                        .getActiveNodes()
+                        .filter(node -> node.getKeys().contains(recipientKey))
+                        .findAny()
+                        .orElseThrow(
+                                () ->
+                                        new KeyNotFoundException(
+                                                "Recipient not found for key: " + recipientKey.encodeToBase64()));
+
+        final String nodeUrl = activeNode.getUri().asString();
+
+        final Set<Recipient> recipients =
+                activeNode.getKeys().stream().map(k -> Recipient.of(k, nodeUrl)).collect(Collectors.toSet());
+
+        final NodeInfo nodeInfo =
+                NodeInfo.Builder.create()
+                        .withUrl(nodeUrl)
+                        .withRecipients(recipients)
+                        .withSupportedApiVersions(activeNode.getSupportedVersions())
+                        .build();
+
+        return nodeInfo;
+    }
+
+    @Override
+    public Set<NodeInfo> buildRemoteNodeInfos() {
+
+        final NodeUri uri = NodeUri.create(RuntimeContext.getInstance().getP2pServerUri());
+
+        return networkStore.getActiveNodes()
+            .filter(n -> !n.getUri().equals(uri))
+            .map(activeNode -> {
+                String url = activeNode.getUri().asString();
+                return NodeInfo.Builder.create()
+                    .withUrl(url)
+                    .withRecipients(activeNode.getKeys().stream().map(k -> Recipient.of(k, url)).collect(Collectors.toSet()))
+                    .withSupportedApiVersions(activeNode.getSupportedVersions())
+                    .build();
+            }
+        ).collect(Collectors.toSet());
     }
 }

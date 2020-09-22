@@ -1,9 +1,6 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
@@ -12,9 +9,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.ws.rs.core.Response.Status;
@@ -84,7 +79,15 @@ public class EnclaveResource {
         List<PublicKey> recipientPublicKeys =
                 payload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
 
-        EncodedPayload outcome = enclave.encryptPayload(payload.getData(), senderKey, recipientPublicKeys);
+        // TODO Nam Replace emptyMap
+        EncodedPayload outcome =
+                enclave.encryptPayload(
+                        payload.getData(),
+                        senderKey,
+                        recipientPublicKeys,
+                        payload.getPrivacyMode(),
+                        Collections.emptyList(),
+                        payload.getExecHash());
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
@@ -107,7 +110,14 @@ public class EnclaveResource {
 
         RawTransaction rawTransaction = new RawTransaction(encryptedPayload, encryptedKey, nonce, from);
 
-        EncodedPayload outcome = enclave.encryptPayload(rawTransaction, recipientPublicKeys);
+        // TODO Nam - replace emptyMap
+        EncodedPayload outcome =
+                enclave.encryptPayload(
+                        rawTransaction,
+                        recipientPublicKeys,
+                        enclaveRawPayload.getPrivacyMode(),
+                        Collections.emptyList(),
+                        enclaveRawPayload.getExecHash());
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
@@ -130,6 +140,53 @@ public class EnclaveResource {
         enclaveRawPayload.setEncryptedKey(rawTransaction.getEncryptedKey());
 
         return Response.ok(enclaveRawPayload).build();
+    }
+
+    @POST
+    @Path("findinvalidsecurityhashes")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findInvalidSecurityHashes(EnclaveFindInvalidSecurityHashesRequestPayload payload) {
+
+        EncodedPayload encodedPayload = payloadEncoder.decode(payload.getEncodedPayload());
+
+        List<AffectedTransaction> affectedTransactions =
+                payload.getAffectedContractTransactions().stream()
+                        .map(
+                                keyValuePair ->
+                                        AffectedTransaction.Builder.create()
+                                                .withHash(keyValuePair.getKey())
+                                                .withPayload(PayloadEncoder.create().decode(keyValuePair.getValue()))
+                                                .build())
+                        .collect(Collectors.toList());
+
+        Set<TxHash> invalidSecurityHashes = enclave.findInvalidSecurityHashes(encodedPayload, affectedTransactions);
+
+        EnclaveFindInvalidSecurityHashesResponsePayload responsePayload =
+                new EnclaveFindInvalidSecurityHashesResponsePayload();
+        responsePayload.setInvalidSecurityHashes(
+                invalidSecurityHashes.stream().map(TxHash::getBytes).collect(Collectors.toList()));
+
+        return Response.ok(responsePayload).build();
+    }
+
+    @POST
+    @Path("unencrypt/raw")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response unencryptRawPayload(EnclaveRawPayload enclaveRawPayload) {
+
+        RawTransaction rawTransaction =
+                new RawTransaction(
+                        enclaveRawPayload.getEncryptedPayload(),
+                        enclaveRawPayload.getEncryptedKey(),
+                        new Nonce(enclaveRawPayload.getNonce()),
+                        PublicKey.from(enclaveRawPayload.getFrom()));
+
+        byte[] response = enclave.unencryptRawPayload(rawTransaction);
+
+        final StreamingOutput streamingOutput = out -> out.write(response);
+        return Response.ok(streamingOutput).build();
     }
 
     @POST

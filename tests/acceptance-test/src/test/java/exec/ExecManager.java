@@ -1,5 +1,6 @@
 package exec;
 
+import config.ConfigDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,5 +30,8 @@ public interface ExecManager {
         } 
 
     }
+
+
+    ConfigDescriptor getConfigDescriptor();
 
 }

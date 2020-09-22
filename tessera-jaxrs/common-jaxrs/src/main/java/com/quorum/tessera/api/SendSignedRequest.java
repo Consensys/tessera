@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.XmlMimeType;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * Used when a new transaction is to be created where this node is the sender
+ * <p>Used when a new transaction is to be created where this node is the sender
  */
 @ApiModel
 public class SendSignedRequest {
@@ -23,6 +23,15 @@ public class SendSignedRequest {
 
     @ApiModelProperty("Recipient public keys")
     private String[] to;
+
+    @ApiModelProperty("Privacy flag")
+    private int privacyFlag;
+
+    @ApiModelProperty("Affected contract transactions")
+    private String[] affectedContractTransactions;
+
+    @ApiModelProperty("Execution hash")
+    private String execHash;
 
     public byte[] getHash() {
         return hash;
@@ -38,5 +47,29 @@ public class SendSignedRequest {
 
     public void setTo(final String... to) {
         this.to = to;
+    }
+
+    public int getPrivacyFlag() {
+        return privacyFlag;
+    }
+
+    public void setPrivacyFlag(int privacyFlag) {
+        this.privacyFlag = privacyFlag;
+    }
+
+    public String[] getAffectedContractTransactions() {
+        return affectedContractTransactions;
+    }
+
+    public void setAffectedContractTransactions(String... affectedContractTransactions) {
+        this.affectedContractTransactions = affectedContractTransactions;
+    }
+
+    public String getExecHash() {
+        return execHash;
+    }
+
+    public void setExecHash(String execHash) {
+        this.execHash = execHash;
     }
 }

@@ -492,6 +492,8 @@
         <module>tessera-data</module>
         <module>tessera-context</module>
         <module>service-loader-ext</module>
+        <module>tessera-recover</module>
+        <module>eclipselink-utils</module>
     </modules>
 
     <dependencyManagement>
@@ -705,6 +707,18 @@
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-context</artifactId>
                 <version>0.11.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.consensys.quorum.tessera</groupId>
+                <artifactId>eclipselink-utils</artifactId>
+                <version>0.11.0-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.consensys.quorum.tessera</groupId>
+                <artifactId>tessera-recover</artifactId>
+                <version>0.11.0-SNAPSHOT</version>
             </dependency>
 
             <dependency>

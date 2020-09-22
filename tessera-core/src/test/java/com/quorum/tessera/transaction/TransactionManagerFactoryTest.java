@@ -1,9 +1,6 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.JdbcConfig;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,6 +25,10 @@ public class TransactionManagerFactoryTest {
         when(jdbcConfig.getPassword()).thenReturn("junit");
         when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:junit");
         when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+
+        FeatureToggles features = mock(FeatureToggles.class);
+        when(features.isEnableEnhancedPrivacy()).thenReturn(false);
+        when(config.getFeatures()).thenReturn(features);
 
         TransactionManager transactionManager = result.create(config);
         assertThat(transactionManager).isNotNull();
