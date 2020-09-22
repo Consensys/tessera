@@ -30,6 +30,8 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
+    private final Executor executor = Executors.newCachedThreadPool();
+
     private final PayloadEncoder payloadEncoder;
 
     private final Base64Codec base64Codec;
@@ -120,9 +122,7 @@ public class TransactionManagerImpl implements TransactionManager {
         return SendResponse.from(transactionHash);
     }
 
-    private final Executor executor = Executors.newCachedThreadPool();
-
-    boolean publishFailFast(List<PublicKey> recipientList, EncodedPayload payload) {
+    boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
         CompletionService<Void> completionService = new ExecutorCompletionService<>(executor);
 
         // asynchronously submit all publishes
@@ -154,33 +154,6 @@ public class TransactionManagerImpl implements TransactionManager {
         }
 
         return true;
-    }
-
-    boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
-        CompletableFuture<Void>[] cfs =
-            recipientList.stream()
-                .filter(k -> !enclave.getPublicKeys().contains(k))
-                .map(
-                    recipient ->
-                        CompletableFuture.runAsync(
-                            () -> {
-                                final EncodedPayload outgoing =
-                                    payloadEncoder.forRecipient(payload, recipient);
-                                payloadPublisher.publishPayload(outgoing, recipient);
-                            },
-                            executor))
-                .toArray(CompletableFuture[]::new);
-        try {
-            CompletableFuture.allOf(cfs).join();
-            return true;
-        } catch (CompletionException e) {
-            // unwrap the exception to ensure the error bubbling up is similar to the single thread behavior
-            LOGGER.debug("Unable to publish payload", e);
-            if (e.getCause() instanceof RuntimeException){
-                throw (RuntimeException)e.getCause();
-            }
-            throw e;
-        }
     }
 
     @Override

@@ -191,9 +191,21 @@ public class TransactionManagerTest {
 
         when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
 
-        doNothing()
+        final AtomicInteger atomicInt = new AtomicInteger();
+
+        doAnswer(
+            invocation -> {
+                longRunningTaskThenIncrement(atomicInt);
+                return null;
+            })
+        .doAnswer(
+            invocation -> {
+                longRunningTaskThenIncrement(atomicInt);
+                return null;
+            })
         .doThrow(new RuntimeException("some publisher exception"))
-        .when(payloadPublisher).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        .when(payloadPublisher)
+        .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
 
         PublicKey sender = PublicKey.from("SENDER".getBytes());
         PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
@@ -216,10 +228,13 @@ public class TransactionManagerTest {
         verify(enclave).encryptPayload(any(), any(), recipientCaptor.capture());
         assertThat(recipientCaptor.getValue()).hasSize(3);
 
-        // publish should have failed on the 2nd recipient
-        verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave, times(2)).getPublicKeys();
+        // publish should have been asynchronously executed for all recipients
+        verify(payloadEncoder, times(3)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
+        verify(payloadPublisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(enclave, times(3)).getPublicKeys();
+
+        assertThat(atomicInt.get()).isEqualTo(0)
+            .withFailMessage("publish should have failed-fast and not waited for completion of all tasks");
 
         verify(payloadEncoder).encode(encodedPayload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
@@ -382,9 +397,21 @@ public class TransactionManagerTest {
         PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
         PublicKey anotherReceiver = PublicKey.from("ANOTHERRECEIVER".getBytes());
 
-        doNothing()
+        final AtomicInteger atomicInt = new AtomicInteger();
+
+        doAnswer(
+            invocation -> {
+                longRunningTaskThenIncrement(atomicInt);
+                return null;
+            })
+            .doAnswer(
+                invocation -> {
+                    longRunningTaskThenIncrement(atomicInt);
+                    return null;
+                })
             .doThrow(new RuntimeException("some publisher exception"))
-            .when(payloadPublisher).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+            .when(payloadPublisher)
+            .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
 
         SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
         when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver, anotherReceiver));
@@ -400,10 +427,13 @@ public class TransactionManagerTest {
         verify(enclave).encryptPayload(any(RawTransaction.class), recipientCaptor.capture());
         assertThat(recipientCaptor.getValue()).hasSize(3);
 
-        // publish should have failed on the 2nd recipient
-        verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave, times(2)).getPublicKeys();
+        // publish should have been asynchronously executed for all recipients
+        verify(payloadEncoder, times(3)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
+        verify(payloadPublisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(enclave, times(3)).getPublicKeys();
+
+        assertThat(atomicInt.get()).isEqualTo(0)
+            .withFailMessage("publish should have failed-fast and not waited for completion of all tasks");
 
         verify(payloadEncoder).encode(payload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
@@ -1207,7 +1237,7 @@ public class TransactionManagerTest {
     }
 
     @Test
-    public void publishDoesNotPublishToSender() {
+    public void publishDoesNotPublishToSelf() {
 
         TransactionManagerImpl impl = TransactionManagerImpl.class.cast(transactionManager);
         EncodedPayload transaction = mock(EncodedPayload.class);
@@ -1221,6 +1251,8 @@ public class TransactionManagerTest {
         impl.publish(recipients, transaction);
 
         verify(enclave).getPublicKeys();
+        verify(payloadEncoder, never()).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
+        verify(payloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
     }
 
     @Test
@@ -1363,47 +1395,6 @@ public class TransactionManagerTest {
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).forRecipient(payload, reipcient);
         verify(payloadPublisher).publishPayload(eq(payload), any(PublicKey.class));
-    }
-
-    @Test
-    public void publishDoesNotWaitForAllResponsesIfOneFails() {
-        List<PublicKey> recipients = List.of(mock(PublicKey.class), mock(PublicKey.class), mock(PublicKey.class));
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
-        when(payloadEncoder.forRecipient(eq(payload), any(PublicKey.class))).thenReturn(payload);
-
-        AtomicInteger atomicInt = new AtomicInteger();
-
-        doAnswer(
-            invocation -> {
-                longRunningTaskThenIncrement(atomicInt);
-                return null;
-            })
-        .doAnswer(
-            invocation -> {
-                longRunningTaskThenIncrement(atomicInt);
-                return null;
-            })
-        .doThrow(new RuntimeException("some publisher exception"))
-        .when(payloadPublisher)
-        .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-
-        long startTime = System.nanoTime();
-        Throwable ex = catchThrowable(() -> TransactionManagerImpl.class.cast(transactionManager).publishFailFast(recipients, payload));
-
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex).hasMessage("some publisher exception");
-
-        long stopTime = System.nanoTime();
-        LOGGER.debug("test execution time = " + ((double)(stopTime - startTime)/1000000000));
-
-        assertThat(atomicInt.get()).isEqualTo(0)
-            .withFailMessage("publish should have failed-fast and not waited for completion of all tasks");
-
-        verify(enclave, times(3)).getPublicKeys();
-        verify(payloadEncoder, times(3)).forRecipient(eq(payload), any(PublicKey.class));
-        verify(payloadPublisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
     }
 
     void longRunningTaskThenIncrement(AtomicInteger atomicInteger) {
