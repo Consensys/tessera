@@ -196,6 +196,61 @@ public class TransactionManagerTest {
     }
 
     @Test
+    public void sendStopsIfPublishFails() {
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
+
+        when(enclave.encryptPayload(any(), any(), any())).thenReturn(encodedPayload);
+
+        doAnswer(
+            invocation -> {
+                Callable callable = invocation.getArgument(1);
+                callable.call();
+                return mock(EncryptedTransaction.class);
+            })
+            .when(encryptedTransactionDAO)
+            .save(any(EncryptedTransaction.class), any(Callable.class));
+
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
+
+        doNothing()
+        .doThrow(new RuntimeException("some publisher exception"))
+        .when(payloadPublisher).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+
+        PublicKey sender = PublicKey.from("SENDER".getBytes());
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
+        PublicKey anotherReceiver = PublicKey.from("ANOTHERRECEIVER".getBytes());
+
+        byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
+
+        SendRequest sendRequest = mock(SendRequest.class);
+        when(sendRequest.getPayload()).thenReturn(payload);
+        when(sendRequest.getSender()).thenReturn(sender);
+        when(sendRequest.getRecipients()).thenReturn(List.of(receiver, anotherReceiver));
+
+        Throwable ex = catchThrowable(() -> transactionManager.send(sendRequest));
+
+        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
+        assertThat(ex).hasMessage("some publisher exception");
+
+        // there should be 3 recipients
+        ArgumentCaptor<List<PublicKey>> recipientCaptor = ArgumentCaptor.forClass(List.class);
+        verify(enclave).encryptPayload(any(), any(), recipientCaptor.capture());
+        assertThat(recipientCaptor.getValue()).hasSize(3);
+
+        // publish should have failed on the 2nd recipient
+        verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
+        verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(enclave, times(2)).getPublicKeys();
+
+        verify(payloadEncoder).encode(encodedPayload);
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
+        verify(enclave).getForwardingKeys();
+    }
+
+    @Test
     public void sendSignedTransaction() {
 
         EncodedPayload payload = mock(EncodedPayload.class);
@@ -353,6 +408,69 @@ public class TransactionManagerTest {
             verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
             verify(enclave).getForwardingKeys();
         }
+    }
+
+    @Test
+    public void sendSignedTransactionStopsIfPublishFails() {
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        EncryptedRawTransaction encryptedRawTransaction =
+            new EncryptedRawTransaction(
+                new MessageHash("HASH".getBytes()),
+                "ENCRYPTED_PAYLOAD".getBytes(),
+                "ENCRYPTED_KEY".getBytes(),
+                "NONCE".getBytes(),
+                "SENDER".getBytes());
+
+        when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
+            .thenReturn(Optional.of(encryptedRawTransaction));
+
+        doAnswer(
+            invocation -> {
+                Callable callable = invocation.getArgument(1);
+                callable.call();
+                return mock(EncryptedTransaction.class);
+            })
+            .when(encryptedTransactionDAO)
+            .save(any(EncryptedTransaction.class), any(Callable.class));
+
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
+
+        when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
+
+        when(enclave.encryptPayload(any(RawTransaction.class), any())).thenReturn(payload);
+
+        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
+        PublicKey anotherReceiver = PublicKey.from("ANOTHERRECEIVER".getBytes());
+
+        doNothing()
+            .doThrow(new RuntimeException("some publisher exception"))
+            .when(payloadPublisher).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+
+        SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
+        when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver, anotherReceiver));
+        when(sendSignedRequest.getSignedData()).thenReturn("HASH".getBytes());
+
+        Throwable ex = catchThrowable(() -> transactionManager.sendSignedTransaction(sendSignedRequest));
+
+        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
+        assertThat(ex).hasMessage("some publisher exception");
+
+        // there should be 3 recipients
+        ArgumentCaptor<List<PublicKey>> recipientCaptor = ArgumentCaptor.forClass(List.class);
+        verify(enclave).encryptPayload(any(RawTransaction.class), recipientCaptor.capture());
+        assertThat(recipientCaptor.getValue()).hasSize(3);
+
+        // publish should have failed on the 2nd recipient
+        verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
+        verify(payloadPublisher, times(2)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(enclave, times(2)).getPublicKeys();
+
+        verify(payloadEncoder).encode(payload);
+        verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
+        verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
+        verify(enclave).getForwardingKeys();
     }
 
     @Test
