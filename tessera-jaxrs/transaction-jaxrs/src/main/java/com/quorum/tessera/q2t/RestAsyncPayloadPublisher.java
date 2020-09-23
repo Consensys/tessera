@@ -2,6 +2,7 @@ package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.publish.AsyncPayloadPublisher;
 import com.quorum.tessera.transaction.publish.AsyncPublishPayloadException;
@@ -23,7 +24,8 @@ public class RestAsyncPayloadPublisher implements AsyncPayloadPublisher {
 
     private final PayloadEncoder encoder;
 
-    public RestAsyncPayloadPublisher(CompletionService<Void> completionService, PayloadPublisher publisher, PayloadEncoder encoder) {
+    public RestAsyncPayloadPublisher(
+            CompletionService<Void> completionService, PayloadPublisher publisher, PayloadEncoder encoder) {
         this.completionService = completionService;
         this.publisher = publisher;
         this.encoder = encoder;
@@ -32,28 +34,34 @@ public class RestAsyncPayloadPublisher implements AsyncPayloadPublisher {
     @Override
     public void publishPayload(EncodedPayload payload, List<PublicKey> recipientKeys) {
         // asynchronously submit all publishes
-        List<Future<Void>> futures = recipientKeys.stream()
-            .map(
-                recipient -> completionService.submit(() -> {
-                    final EncodedPayload outgoing = encoder.forRecipient(payload, recipient);
-                    publisher.publishPayload(outgoing, recipient);
-                    return null;
-                })
-            )
-            .collect(Collectors.toList());
+        List<Future<Void>> futures =
+                recipientKeys.stream()
+                        .map(
+                                recipient ->
+                                        completionService.submit(
+                                                () -> {
+                                                    final EncodedPayload outgoing =
+                                                            encoder.forRecipient(payload, recipient);
+                                                    publisher.publishPayload(outgoing, recipient);
+                                                    return null;
+                                                }))
+                        .collect(Collectors.toList());
 
         // wait for publishes to complete, exiting if at least one returns an error
         for (int i = 0; i < futures.size(); i++) {
             try {
                 completionService.take().get();
-            } catch(ExecutionException e) {
-                LOGGER.debug("Unable to publish payload, exiting async publish", e.getCause());
-                throw new AsyncPublishPayloadException(e.getCause());
+            } catch (ExecutionException e) {
+                Throwable cause = e.getCause();
+                LOGGER.debug("Unable to publish payload, exiting async publish", cause);
+                if (cause instanceof KeyNotFoundException) {
+                    throw (KeyNotFoundException) cause;
+                }
+                throw new AsyncPublishPayloadException(cause);
             } catch (InterruptedException e) {
                 LOGGER.debug("Async payload publish interrupted", e);
                 throw new AsyncPublishPayloadException(e);
             }
         }
     }
-
 }

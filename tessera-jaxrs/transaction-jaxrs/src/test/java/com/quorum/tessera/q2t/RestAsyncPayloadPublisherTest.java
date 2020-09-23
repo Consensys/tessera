@@ -2,6 +2,7 @@ package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.publish.AsyncPublishPayloadException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
@@ -56,7 +57,7 @@ public class RestAsyncPayloadPublisherTest {
         List<PublicKey> recipients = List.of(recipient, otherRecipient);
 
         when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class)))
-            .thenReturn(mock(EncodedPayload.class));
+                .thenReturn(mock(EncodedPayload.class));
 
         asyncPublisher.publishPayload(encodedPayload, recipients);
 
@@ -77,23 +78,23 @@ public class RestAsyncPayloadPublisherTest {
         List<PublicKey> recipients = List.of(recipient, otherRecipient, anotherRecipient);
 
         when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class)))
-            .thenReturn(mock(EncodedPayload.class));
+                .thenReturn(mock(EncodedPayload.class));
 
         final AtomicInteger atomicInt = new AtomicInteger();
 
         doAnswer(
-            invocation -> {
-                longRunningTaskThenIncrement(atomicInt);
-                return null;
-            })
-        .doAnswer(
-            invocation -> {
-                longRunningTaskThenIncrement(atomicInt);
-                return null;
-            })
-        .doThrow(new PublishPayloadException("some publisher exception"))
-        .when(publisher)
-        .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+                        invocation -> {
+                            longRunningTaskThenIncrement(atomicInt);
+                            return null;
+                        })
+                .doAnswer(
+                        invocation -> {
+                            longRunningTaskThenIncrement(atomicInt);
+                            return null;
+                        })
+                .doThrow(new PublishPayloadException("some publisher exception"))
+                .when(publisher)
+                .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
 
         Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
 
@@ -102,8 +103,8 @@ public class RestAsyncPayloadPublisherTest {
         assertThat(ex.getCause()).hasMessage("some publisher exception");
 
         assertThat(atomicInt.get())
-            .withFailMessage("publish should have failed-fast and not waited for completion of all tasks")
-            .isEqualTo(0);
+                .withFailMessage("publish should have failed-fast and not waited for completion of all tasks")
+                .isEqualTo(0);
 
         verify(encoder, times(3)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
         verify(publisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
@@ -123,7 +124,7 @@ public class RestAsyncPayloadPublisherTest {
         when(completionService.submit(any(Callable.class))).thenReturn(mock(Future.class));
 
         when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class)))
-            .thenReturn(mock(EncodedPayload.class));
+                .thenReturn(mock(EncodedPayload.class));
 
         when(completionService.take()).thenThrow(new InterruptedException("some publish interrupted error"));
 
@@ -137,6 +138,36 @@ public class RestAsyncPayloadPublisherTest {
         verify(completionService).take();
     }
 
+    @Test
+    public void publishPayloadKeyNotFound() {
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
+        PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
+
+        List<PublicKey> recipients = List.of(recipient);
+
+        when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class)))
+                .thenReturn(mock(EncodedPayload.class));
+
+        final AtomicInteger atomicInt = new AtomicInteger();
+
+        doThrow(new KeyNotFoundException("some error"))
+                .when(publisher)
+                .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+
+        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
+
+        assertThat(ex).isExactlyInstanceOf(KeyNotFoundException.class);
+        assertThat(ex).hasMessage("some error");
+
+        assertThat(atomicInt.get())
+                .withFailMessage("publish should have failed-fast and not waited for completion of all tasks")
+                .isEqualTo(0);
+
+        verify(encoder).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
+        verify(publisher).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+    }
+
     void longRunningTaskThenIncrement(AtomicInteger atomicInteger) {
         int id = new Random().nextInt();
 
@@ -144,9 +175,8 @@ public class RestAsyncPayloadPublisherTest {
         long startTime = System.nanoTime();
         new BigInteger(5000, 9, new Random());
         long stopTime = System.nanoTime();
-        LOGGER.debug("long running task " + id + " completed: " + ((double)(stopTime - startTime)/1000000000));
+        LOGGER.debug("long running task " + id + " completed: " + ((double) (stopTime - startTime) / 1000000000));
 
         atomicInteger.incrementAndGet();
     }
-
 }
