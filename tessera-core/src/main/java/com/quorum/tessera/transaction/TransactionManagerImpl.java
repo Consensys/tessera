@@ -142,7 +142,7 @@ public class TransactionManagerImpl implements TransactionManager {
             try {
                 completionService.take().get();
             } catch(ExecutionException e) {
-                LOGGER.debug("Unable to publish payload", e);
+                LOGGER.debug("Unable to publish payload", e.getCause());
                 Throwable cause = e.getCause();
                 if (cause instanceof RuntimeException) {
                     throw (RuntimeException)cause;
