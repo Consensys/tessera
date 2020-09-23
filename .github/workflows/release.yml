@@ -29,10 +29,9 @@ jobs:
 
       - name: Release Prepare
         run: |
-          mvn --settings .maven.xml release:prepare -DskipTests -Darguments="-DskipTests" -DdryRun=true
+          mvn --settings .maven.xml release:prepare -DskipTests -Darguments="-DskipTests"
       - name: Release Perform
         run: |
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          mvn --settings .maven.xml deploy -P release -DskipTests -Darguments="-DskipTests"
-#          mvn --settings .maven.xml release:perform -DskipTests -Darguments="-DskipTests"
+          mvn --settings .maven.xml release:perform -DskipTests -Darguments="-DskipTests"
