@@ -5,8 +5,8 @@
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera</artifactId>
         <version>0.11.1-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
+
     <artifactId>tessera-recover</artifactId>
     <packaging>jar</packaging>
     <dependencies>

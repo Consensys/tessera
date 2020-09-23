@@ -6,6 +6,7 @@
         <artifactId>tessera</artifactId>
         <version>0.11.1-SNAPSHOT</version>
     </parent>
+
     <artifactId>eclipselink-utils</artifactId>
     <packaging>jar</packaging>
 
