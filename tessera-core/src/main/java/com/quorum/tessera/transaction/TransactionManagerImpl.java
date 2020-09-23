@@ -6,6 +6,7 @@ import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
+import com.quorum.tessera.transaction.publish.AsyncPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -17,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
@@ -30,8 +30,6 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
-    private final Executor executor = Executors.newCachedThreadPool();
-
     private final PayloadEncoder payloadEncoder;
 
     private final Base64Codec base64Codec;
@@ -39,6 +37,8 @@ public class TransactionManagerImpl implements TransactionManager {
     private final EncryptedTransactionDAO encryptedTransactionDAO;
 
     private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
+
+    private final AsyncPayloadPublisher asyncPayloadPublisher;
 
     private final PayloadPublisher payloadPublisher;
 
@@ -56,12 +56,14 @@ public class TransactionManagerImpl implements TransactionManager {
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
             PayloadPublisher payloadPublisher,
+            AsyncPayloadPublisher asyncPayloadPublisher,
             int resendFetchSize) {
         this(
                 Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
                 payloadPublisher,
+                asyncPayloadPublisher,
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,
@@ -76,6 +78,7 @@ public class TransactionManagerImpl implements TransactionManager {
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PayloadPublisher payloadPublisher,
+            AsyncPayloadPublisher asyncPayloadPublisher,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
@@ -86,6 +89,7 @@ public class TransactionManagerImpl implements TransactionManager {
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
+        this.asyncPayloadPublisher = Objects.requireNonNull(asyncPayloadPublisher, "asyncPayloadPublisher is required");
         this.enclave = Objects.requireNonNull(enclave, "enclave is required");
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
@@ -117,43 +121,27 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
+        this.encryptedTransactionDAO.save(newTransaction, () -> publishToRemotes(recipientListNoDuplicate, payload));
 
         return SendResponse.from(transactionHash);
     }
 
-    boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
-        CompletionService<Void> completionService = new ExecutorCompletionService<>(executor);
-
-        // asynchronously submit all publishes
-        List<Future<Void>> futures = recipientList.stream()
+    /**
+     * publishToRemotes filters the recipientList to remove any of this node's public keys,
+     *  then publishes the payload to the remaining recipients
+      */
+    Void publishToRemotes(List<PublicKey> recipientList, EncodedPayload payload) {
+        List<PublicKey> filteredRecipients = recipientList.stream()
             .filter(k -> !enclave.getPublicKeys().contains(k))
-            .map(
-                recipient -> completionService.submit(() -> {
-                    final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                    payloadPublisher.publishPayload(outgoing, recipient);
-                    return null;
-                })
-            )
             .collect(Collectors.toList());
 
-        // wait for publishes to complete, exiting if at least one returns an error
-        for (int i = 0; i < futures.size(); i++) {
-            try {
-                completionService.take().get();
-            } catch(ExecutionException e) {
-                LOGGER.debug("Unable to publish payload", e.getCause());
-                Throwable cause = e.getCause();
-                if (cause instanceof RuntimeException) {
-                    throw (RuntimeException)cause;
-                }
-                throw new RuntimeException(e.getCause());
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        if (filteredRecipients.size() != 0) {
+            asyncPayloadPublisher.publishPayload(payload, filteredRecipients);
+        } else {
+            LOGGER.debug("not publishing as no remote recipients");
         }
 
-        return true;
+        return null;
     }
 
     @Override
@@ -182,7 +170,7 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
+        this.encryptedTransactionDAO.save(newTransaction, () -> publishToRemotes(recipientListNoDuplicate, payload));
 
         return SendResponse.from(messageHash);
     }

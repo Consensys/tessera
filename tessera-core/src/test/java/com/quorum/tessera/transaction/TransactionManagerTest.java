@@ -13,6 +13,7 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
+import com.quorum.tessera.transaction.publish.AsyncPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -49,6 +50,8 @@ public class TransactionManagerTest {
 
     private PayloadPublisher payloadPublisher;
 
+    private AsyncPayloadPublisher asyncPayloadPublisher;
+
     private ResendManager resendManager;
 
     private Enclave enclave;
@@ -63,6 +66,7 @@ public class TransactionManagerTest {
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
         encryptedRawTransactionDAO = mock(EncryptedRawTransactionDAO.class);
         payloadPublisher = mock(PayloadPublisher.class);
+        asyncPayloadPublisher = mock(AsyncPayloadPublisher.class);
         this.resendManager = mock(ResendManager.class);
 
         transactionManager =
@@ -71,6 +75,7 @@ public class TransactionManagerTest {
                         payloadEncoder,
                         encryptedTransactionDAO,
                         payloadPublisher,
+                        asyncPayloadPublisher,
                         enclave,
                         encryptedRawTransactionDAO,
                         resendManager,
@@ -79,7 +84,7 @@ public class TransactionManagerTest {
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(payloadEncoder, encryptedTransactionDAO, payloadPublisher, enclave);
+        verifyNoMoreInteractions(payloadEncoder, encryptedTransactionDAO, payloadPublisher, asyncPayloadPublisher, enclave);
     }
 
     @Test
@@ -116,13 +121,15 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
+        ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
+        verify(asyncPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        List<PublicKey> capturedRecipients = captor.getValue();
+        assertThat(capturedRecipients).containsExactlyInAnyOrder(sender, receiver);
+
         verify(enclave).encryptPayload(any(), any(), any());
         verify(payloadEncoder).encode(encodedPayload);
-        verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(enclave).getForwardingKeys();
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), eq(receiver));
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), eq(sender));
         verify(enclave, times(2)).getPublicKeys();
     }
 
@@ -161,9 +168,11 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
+        ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
+        verify(asyncPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        List<PublicKey> capturedRecipients = captor.getValue();
+        assertThat(capturedRecipients).containsExactlyInAnyOrder(sender, receiver);
+
         verify(enclave, times(2)).getPublicKeys();
         verify(enclave).encryptPayload(any(), any(), any());
         verify(payloadEncoder).encode(encodedPayload);
@@ -172,13 +181,18 @@ public class TransactionManagerTest {
     }
 
     @Test
-    public void sendStopsIfPublishFails() {
+    public void sendDontPublishIfNoRemoteRecipients() {
+
+        PublicKey localKey = PublicKey.from("LOCAL".getBytes());
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
         when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
 
         when(enclave.encryptPayload(any(), any(), any())).thenReturn(encodedPayload);
+        when(enclave.getPublicKeys()).thenReturn(Set.of(localKey));
+
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
 
         doAnswer(
             invocation -> {
@@ -189,53 +203,21 @@ public class TransactionManagerTest {
             .when(encryptedTransactionDAO)
             .save(any(EncryptedTransaction.class), any(Callable.class));
 
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
-        final AtomicInteger atomicInt = new AtomicInteger();
-
-        doAnswer(
-            invocation -> {
-                longRunningTaskThenIncrement(atomicInt);
-                return null;
-            })
-        .doAnswer(
-            invocation -> {
-                longRunningTaskThenIncrement(atomicInt);
-                return null;
-            })
-        .doThrow(new RuntimeException("some publisher exception"))
-        .when(payloadPublisher)
-        .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-
-        PublicKey sender = PublicKey.from("SENDER".getBytes());
-        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
-        PublicKey anotherReceiver = PublicKey.from("ANOTHERRECEIVER".getBytes());
-
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
 
         SendRequest sendRequest = mock(SendRequest.class);
         when(sendRequest.getPayload()).thenReturn(payload);
-        when(sendRequest.getSender()).thenReturn(sender);
-        when(sendRequest.getRecipients()).thenReturn(List.of(receiver, anotherReceiver));
+        when(sendRequest.getSender()).thenReturn(localKey);
+        when(sendRequest.getRecipients()).thenReturn(List.of(localKey));
 
-        Throwable ex = catchThrowable(() -> transactionManager.send(sendRequest));
+        SendResponse result = transactionManager.send(sendRequest);
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex).hasMessage("some publisher exception");
+        assertThat(result).isNotNull();
 
-        // there should be 3 recipients
-        ArgumentCaptor<List<PublicKey>> recipientCaptor = ArgumentCaptor.forClass(List.class);
-        verify(enclave).encryptPayload(any(), any(), recipientCaptor.capture());
-        assertThat(recipientCaptor.getValue()).hasSize(3);
+        verify(asyncPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
 
-        // publish should have been asynchronously executed for all recipients
-        verify(payloadEncoder, times(3)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(payloadPublisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave, times(3)).getPublicKeys();
-
-        assertThat(atomicInt.get()).isEqualTo(0)
-            .withFailMessage("publish should have failed-fast and not waited for completion of all tasks");
-
+        verify(enclave).getPublicKeys();
+        verify(enclave).encryptPayload(any(), any(), any());
         verify(payloadEncoder).encode(encodedPayload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(enclave).getForwardingKeys();
@@ -282,14 +264,16 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
+        ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
+        verify(asyncPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        List<PublicKey> capturedRecipients = captor.getValue();
+        assertThat(capturedRecipients).containsExactlyInAnyOrder(PublicKey.from("SENDER".getBytes()), receiver);
+
         verify(enclave).encryptPayload(any(RawTransaction.class), any());
         verify(payloadEncoder).encode(payload);
-        verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(enclave).getForwardingKeys();
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
         verify(enclave, times(2)).getPublicKeys();
     }
 
@@ -333,9 +317,11 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(payloadEncoder, times(2)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("SENDER".getBytes())));
-        verify(payloadPublisher, times(1)).publishPayload(any(EncodedPayload.class), eq(PublicKey.from("RECEIVER".getBytes())));
+        ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
+        verify(asyncPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        List<PublicKey> capturedRecipients = captor.getValue();
+        assertThat(capturedRecipients).containsExactlyInAnyOrder(PublicKey.from("SENDER".getBytes()), receiver);
+
         verify(enclave, times(2)).getPublicKeys();
         verify(enclave).encryptPayload(any(RawTransaction.class), any());
         verify(payloadEncoder).encode(payload);
@@ -364,7 +350,9 @@ public class TransactionManagerTest {
     }
 
     @Test
-    public void sendSignedTransactionStopsIfPublishFails() {
+    public void sendSignedTransactionDontPublishIfNoRemoteRecipients() {
+
+        PublicKey localKey = PublicKey.from("LOCAL".getBytes());
 
         EncodedPayload payload = mock(EncodedPayload.class);
 
@@ -374,10 +362,15 @@ public class TransactionManagerTest {
                 "ENCRYPTED_PAYLOAD".getBytes(),
                 "ENCRYPTED_KEY".getBytes(),
                 "NONCE".getBytes(),
-                "SENDER".getBytes());
+                localKey.getKeyBytes());
 
         when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
             .thenReturn(Optional.of(encryptedRawTransaction));
+        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
+
+        when(enclave.encryptPayload(any(RawTransaction.class), any())).thenReturn(payload);
+
+        when(enclave.getPublicKeys()).thenReturn(Set.of(localKey));
 
         doAnswer(
             invocation -> {
@@ -388,53 +381,18 @@ public class TransactionManagerTest {
             .when(encryptedTransactionDAO)
             .save(any(EncryptedTransaction.class), any(Callable.class));
 
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
-
-        when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
-
-        when(enclave.encryptPayload(any(RawTransaction.class), any())).thenReturn(payload);
-
-        PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
-        PublicKey anotherReceiver = PublicKey.from("ANOTHERRECEIVER".getBytes());
-
-        final AtomicInteger atomicInt = new AtomicInteger();
-
-        doAnswer(
-            invocation -> {
-                longRunningTaskThenIncrement(atomicInt);
-                return null;
-            })
-            .doAnswer(
-                invocation -> {
-                    longRunningTaskThenIncrement(atomicInt);
-                    return null;
-                })
-            .doThrow(new RuntimeException("some publisher exception"))
-            .when(payloadPublisher)
-            .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-
         SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
-        when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver, anotherReceiver));
+        when(sendSignedRequest.getRecipients()).thenReturn(List.of(localKey));
         when(sendSignedRequest.getSignedData()).thenReturn("HASH".getBytes());
 
-        Throwable ex = catchThrowable(() -> transactionManager.sendSignedTransaction(sendSignedRequest));
+        SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
 
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex).hasMessage("some publisher exception");
+        assertThat(result).isNotNull();
 
-        // there should be 3 recipients
-        ArgumentCaptor<List<PublicKey>> recipientCaptor = ArgumentCaptor.forClass(List.class);
-        verify(enclave).encryptPayload(any(RawTransaction.class), recipientCaptor.capture());
-        assertThat(recipientCaptor.getValue()).hasSize(3);
+        verify(asyncPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
 
-        // publish should have been asynchronously executed for all recipients
-        verify(payloadEncoder, times(3)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(payloadPublisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-        verify(enclave, times(3)).getPublicKeys();
-
-        assertThat(atomicInt.get()).isEqualTo(0)
-            .withFailMessage("publish should have failed-fast and not waited for completion of all tasks");
-
+        verify(enclave).getPublicKeys();
+        verify(enclave).encryptPayload(any(RawTransaction.class), any());
         verify(payloadEncoder).encode(payload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
@@ -1231,6 +1189,7 @@ public class TransactionManagerTest {
                         encryptedRawTransactionDAO,
                         resendManager,
                         payloadPublisher,
+                        asyncPayloadPublisher,
                         1000);
 
         assertThat(tm).isNotNull();
@@ -1248,11 +1207,11 @@ public class TransactionManagerTest {
 
         when(enclave.getPublicKeys()).thenReturn(singleton(someKey));
 
-        impl.publish(recipients, transaction);
+        impl.publishToRemotes(recipients, transaction);
 
         verify(enclave).getPublicKeys();
         verify(payloadEncoder, never()).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(payloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(asyncPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
     }
 
     @Test
@@ -1390,22 +1349,9 @@ public class TransactionManagerTest {
         when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
         when(payloadEncoder.forRecipient(payload, reipcient)).thenReturn(payload);
 
-        TransactionManagerImpl.class.cast(transactionManager).publish(recipients, payload);
+        TransactionManagerImpl.class.cast(transactionManager).publishToRemotes(recipients, payload);
 
         verify(enclave).getPublicKeys();
-        verify(payloadEncoder).forRecipient(payload, reipcient);
-        verify(payloadPublisher).publishPayload(eq(payload), any(PublicKey.class));
-    }
-
-    void longRunningTaskThenIncrement(AtomicInteger atomicInteger) {
-        int id = new Random().nextInt();
-
-        LOGGER.debug("long running task " + id + " started");
-        long startTime = System.nanoTime();
-        new BigInteger(5000, 9, new Random());
-        long stopTime = System.nanoTime();
-        LOGGER.debug("long running task " + id + " completed: " + ((double)(stopTime - startTime)/1000000000));
-
-        atomicInteger.incrementAndGet();
+        verify(asyncPayloadPublisher).publishPayload(eq(payload), any(List.class));
     }
 }
