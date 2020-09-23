@@ -19,6 +19,7 @@ jobs:
           with:
               java-version: 11
         - run: |
+           mvn -v
            mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
            mvn de.qaware.maven:go-offline-maven-plugin:resolve-dependencies -B
            mvn dependency:go-offline -B
