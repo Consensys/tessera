@@ -4,6 +4,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.threading.CompletionServiceFactory;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.BatchPublishPayloadException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
@@ -11,21 +12,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncBatchPayloadPublisher.class);
 
-    private final CompletionService<Void> completionService;
+    private final CompletionServiceFactory completionServiceFactory;
 
     private final PayloadPublisher publisher;
 
     private final PayloadEncoder encoder;
 
-    public AsyncBatchPayloadPublisher(CompletionService<Void> completionService, PayloadPublisher publisher, PayloadEncoder encoder) {
-        this.completionService = completionService;
+    public AsyncBatchPayloadPublisher(CompletionServiceFactory completionServiceFactory, PayloadPublisher publisher, PayloadEncoder encoder) {
+        this.completionServiceFactory = completionServiceFactory;
         this.publisher = publisher;
         this.encoder = encoder;
     }
@@ -41,6 +44,8 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
      */
     @Override
     public void publishPayload(EncodedPayload payload, List<PublicKey> recipientKeys) {
+        final CompletionService<Void> completionService = completionServiceFactory.create();
+
         // asynchronously submit all publishes
         List<Future<Void>> futures =
                 recipientKeys.stream()
