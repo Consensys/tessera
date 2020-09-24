@@ -4,12 +4,12 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AsyncPublishPayloadExceptionTest {
+public class BatchPublishPayloadExceptionTest {
 
     @Test
     public void constructor() {
         final RuntimeException root = new RuntimeException("root cause");
-        AsyncPublishPayloadException exception = new AsyncPublishPayloadException(root);
+        BatchPublishPayloadException exception = new BatchPublishPayloadException(root);
 
         assertThat(exception).hasCause(root);
     }

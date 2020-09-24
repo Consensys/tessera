@@ -4,7 +4,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.transaction.publish.AsyncPublishPayloadException;
+import com.quorum.tessera.transaction.publish.BatchPublishPayloadException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import org.junit.After;
@@ -23,11 +23,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
-public class RestAsyncPayloadPublisherTest {
+public class AsyncBatchPayloadPublisherTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestAsyncPayloadPublisherTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncBatchPayloadPublisherTest.class);
 
-    private RestAsyncPayloadPublisher asyncPublisher;
+    private AsyncBatchPayloadPublisher asyncPublisher;
 
     private PayloadPublisher publisher;
 
@@ -39,7 +39,7 @@ public class RestAsyncPayloadPublisherTest {
         CompletionService<Void> completionService = new ExecutorCompletionService<>(executor);
         this.publisher = mock(PayloadPublisher.class);
         this.encoder = mock(PayloadEncoder.class);
-        this.asyncPublisher = new RestAsyncPayloadPublisher(completionService, publisher, encoder);
+        this.asyncPublisher = new AsyncBatchPayloadPublisher(completionService, publisher, encoder);
     }
 
     @After
@@ -98,7 +98,7 @@ public class RestAsyncPayloadPublisherTest {
 
         Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
 
-        assertThat(ex).isExactlyInstanceOf(AsyncPublishPayloadException.class);
+        assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
         assertThat(ex.getCause()).isExactlyInstanceOf(PublishPayloadException.class);
         assertThat(ex.getCause()).hasMessage("some publisher exception");
 
@@ -113,7 +113,7 @@ public class RestAsyncPayloadPublisherTest {
     @Test
     public void publishPayloadInterrupted() throws InterruptedException {
         CompletionService<Void> completionService = mock(CompletionService.class);
-        asyncPublisher = new RestAsyncPayloadPublisher(completionService, publisher, encoder);
+        asyncPublisher = new AsyncBatchPayloadPublisher(completionService, publisher, encoder);
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
@@ -130,7 +130,7 @@ public class RestAsyncPayloadPublisherTest {
 
         Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
 
-        assertThat(ex).isExactlyInstanceOf(AsyncPublishPayloadException.class);
+        assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
         assertThat(ex.getCause()).isExactlyInstanceOf(InterruptedException.class);
         assertThat(ex.getCause()).hasMessage("some publish interrupted error");
 

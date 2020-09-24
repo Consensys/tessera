@@ -6,8 +6,8 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
-import com.quorum.tessera.transaction.publish.AsyncPayloadPublisher;
-import com.quorum.tessera.transaction.publish.AsyncPayloadPublisherFactory;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -30,7 +30,7 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
         }
 
         PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
-        AsyncPayloadPublisher asyncPayloadPublisher = AsyncPayloadPublisherFactory.newFactory().create(payloadPublisher);
+        BatchPayloadPublisher asyncPayloadPublisher = BatchPayloadPublisherFactory.newFactory().create(payloadPublisher);
         Enclave enclave = EnclaveFactory.create().create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();

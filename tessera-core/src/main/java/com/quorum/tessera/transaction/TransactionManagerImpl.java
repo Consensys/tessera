@@ -6,7 +6,7 @@ import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
-import com.quorum.tessera.transaction.publish.AsyncPayloadPublisher;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -38,7 +38,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
 
-    private final AsyncPayloadPublisher asyncPayloadPublisher;
+    private final BatchPayloadPublisher batchPayloadPublisher;
 
     private final PayloadPublisher payloadPublisher;
 
@@ -56,14 +56,14 @@ public class TransactionManagerImpl implements TransactionManager {
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
             PayloadPublisher payloadPublisher,
-            AsyncPayloadPublisher asyncPayloadPublisher,
+            BatchPayloadPublisher batchPayloadPublisher,
             int resendFetchSize) {
         this(
                 Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
                 payloadPublisher,
-                asyncPayloadPublisher,
+            batchPayloadPublisher,
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,
@@ -78,7 +78,7 @@ public class TransactionManagerImpl implements TransactionManager {
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PayloadPublisher payloadPublisher,
-            AsyncPayloadPublisher asyncPayloadPublisher,
+            BatchPayloadPublisher batchPayloadPublisher,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
@@ -89,7 +89,7 @@ public class TransactionManagerImpl implements TransactionManager {
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
-        this.asyncPayloadPublisher = Objects.requireNonNull(asyncPayloadPublisher, "asyncPayloadPublisher is required");
+        this.batchPayloadPublisher = Objects.requireNonNull(batchPayloadPublisher, "batchPayloadPublisher is required");
         this.enclave = Objects.requireNonNull(enclave, "enclave is required");
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
@@ -136,7 +136,7 @@ public class TransactionManagerImpl implements TransactionManager {
             .collect(Collectors.toList());
 
         if (filteredRecipients.size() != 0) {
-            asyncPayloadPublisher.publishPayload(payload, filteredRecipients);
+            batchPayloadPublisher.publishPayload(payload, filteredRecipients);
         } else {
             LOGGER.debug("not publishing as no remote recipients");
         }

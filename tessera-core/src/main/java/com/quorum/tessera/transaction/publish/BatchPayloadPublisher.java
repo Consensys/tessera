@@ -5,13 +5,11 @@ import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.List;
 
-public interface AsyncPayloadPublisher {
+public interface BatchPayloadPublisher {
 
     /**
-     * Asynchronously strips (leaving data intended only for that particular recipient) and publishes the payload to
+     * Strips (leaving data intended only for that particular recipient) and publishes the payload to
      * each recipient identified by the provided keys.
-     * This method blocks until all pushes return successfully; if a push fails with an exception, the method exits
-     * immediately and does not wait for the remaining responses.
      *
      * @param payload the payload object to be stripped and pushed
      * @param recipientKeys list of public keys identifying the target nodes

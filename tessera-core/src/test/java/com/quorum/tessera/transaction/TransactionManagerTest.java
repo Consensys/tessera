@@ -13,7 +13,7 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
-import com.quorum.tessera.transaction.publish.AsyncPayloadPublisher;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -48,7 +48,7 @@ public class TransactionManagerTest {
 
     private PayloadPublisher payloadPublisher;
 
-    private AsyncPayloadPublisher asyncPayloadPublisher;
+    private BatchPayloadPublisher batchPayloadPublisher;
 
     private ResendManager resendManager;
 
@@ -64,7 +64,7 @@ public class TransactionManagerTest {
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
         encryptedRawTransactionDAO = mock(EncryptedRawTransactionDAO.class);
         payloadPublisher = mock(PayloadPublisher.class);
-        asyncPayloadPublisher = mock(AsyncPayloadPublisher.class);
+        batchPayloadPublisher = mock(BatchPayloadPublisher.class);
         this.resendManager = mock(ResendManager.class);
 
         transactionManager =
@@ -73,7 +73,7 @@ public class TransactionManagerTest {
                         payloadEncoder,
                         encryptedTransactionDAO,
                         payloadPublisher,
-                        asyncPayloadPublisher,
+                    batchPayloadPublisher,
                         enclave,
                         encryptedRawTransactionDAO,
                         resendManager,
@@ -82,7 +82,7 @@ public class TransactionManagerTest {
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(payloadEncoder, encryptedTransactionDAO, payloadPublisher, asyncPayloadPublisher, enclave);
+        verifyNoMoreInteractions(payloadEncoder, encryptedTransactionDAO, payloadPublisher, batchPayloadPublisher, enclave);
     }
 
     @Test
@@ -120,7 +120,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(asyncPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
         List<PublicKey> capturedRecipients = captor.getValue();
         assertThat(capturedRecipients).containsExactlyInAnyOrder(sender, receiver);
 
@@ -167,7 +167,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(asyncPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
         List<PublicKey> capturedRecipients = captor.getValue();
         assertThat(capturedRecipients).containsExactlyInAnyOrder(sender, receiver);
 
@@ -212,7 +212,7 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(asyncPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
+        verify(batchPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
 
         verify(enclave).getPublicKeys();
         verify(enclave).encryptPayload(any(), any(), any());
@@ -263,7 +263,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(asyncPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
         List<PublicKey> capturedRecipients = captor.getValue();
         assertThat(capturedRecipients).containsExactlyInAnyOrder(PublicKey.from("SENDER".getBytes()), receiver);
 
@@ -316,7 +316,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(asyncPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
         List<PublicKey> capturedRecipients = captor.getValue();
         assertThat(capturedRecipients).containsExactlyInAnyOrder(PublicKey.from("SENDER".getBytes()), receiver);
 
@@ -387,7 +387,7 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(asyncPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
+        verify(batchPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
 
         verify(enclave).getPublicKeys();
         verify(enclave).encryptPayload(any(RawTransaction.class), any());
@@ -1187,7 +1187,7 @@ public class TransactionManagerTest {
                         encryptedRawTransactionDAO,
                         resendManager,
                         payloadPublisher,
-                        asyncPayloadPublisher,
+                    batchPayloadPublisher,
                         1000);
 
         assertThat(tm).isNotNull();
@@ -1209,7 +1209,7 @@ public class TransactionManagerTest {
 
         verify(enclave).getPublicKeys();
         verify(payloadEncoder, never()).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(asyncPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
+        verify(batchPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
     }
 
     @Test
@@ -1350,6 +1350,6 @@ public class TransactionManagerTest {
         TransactionManagerImpl.class.cast(transactionManager).publishToRemotes(recipients, payload);
 
         verify(enclave).getPublicKeys();
-        verify(asyncPayloadPublisher).publishPayload(eq(payload), any(List.class));
+        verify(batchPayloadPublisher).publishPayload(eq(payload), any(List.class));
     }
 }

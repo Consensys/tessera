@@ -4,11 +4,11 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AsyncPayloadPublisherFactoryTest {
+public class BatchPayloadPublisherFactoryTest {
 
     @Test
     public void newFactory() {
-        AsyncPayloadPublisherFactory factory = AsyncPayloadPublisherFactory.newFactory();
+        BatchPayloadPublisherFactory factory = BatchPayloadPublisherFactory.newFactory();
         assertThat(factory).isNotNull();
     }
 
