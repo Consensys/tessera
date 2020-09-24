@@ -91,8 +91,9 @@ public class PartyInfoResource {
      * Update the local partyinfo store with the encoded partyinfo included in the request.
      *
      * @param payload The encoded partyinfo information pushed by the caller
-     * @return an empty 200 OK Response if the local node is using remote key validation, else a 200 OK Response
-     *     wrapping an encoded partyinfo containing only the local node's URL
+     * @return an empty 200 OK Response if the local node is using remote key validation; a 200 OK Response
+     *     wrapping an encoded partyinfo that contains only the local node's URL if not using remote key validation;
+     *     a 500 Internal Server Error if remote key validation fails
      */
     @POST
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
