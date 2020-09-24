@@ -63,7 +63,7 @@ public class Config extends ConfigItem {
 
     @XmlElement private EncryptorConfig encryptor;
 
-    @XmlElement private boolean recoveryMode;
+    @XmlTransient private boolean recoveryMode;
 
     @Deprecated
     public Config(
