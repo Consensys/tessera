@@ -68,6 +68,7 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
             LOGGER.debug("Async publish exited early, cleaning up", e);
             long count = awaitingCompletionCount;
             executor.execute(() -> waitForMultipleCompletions(completionService, count));
+            throw e;
         }
     }
 
@@ -94,6 +95,8 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
             throw new BatchPublishPayloadException(cause);
         } catch (InterruptedException e) {
             LOGGER.debug("Async payload publish interrupted", e);
+            throw new BatchPublishPayloadException(e);
+        } catch (RuntimeException e) {
             throw new BatchPublishPayloadException(e);
         }
     }
