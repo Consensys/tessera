@@ -29,7 +29,8 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
 
     private final PayloadEncoder encoder;
 
-    public AsyncBatchPayloadPublisher(CompletionServiceFactory completionServiceFactory, PayloadPublisher publisher, PayloadEncoder encoder) {
+    public AsyncBatchPayloadPublisher(
+            CompletionServiceFactory completionServiceFactory, PayloadPublisher publisher, PayloadEncoder encoder) {
         this.completionServiceFactory = completionServiceFactory;
         this.publisher = publisher;
         this.encoder = encoder;
@@ -49,33 +50,36 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
     public void publishPayload(EncodedPayload payload, List<PublicKey> recipientKeys) {
         final CompletionService<Void> completionService = completionServiceFactory.create(executor);
 
-        long notCompletedCount = recipientKeys
-            .stream()
-            .map(recipient -> completionService.submit(
-                () -> {
-                    final EncodedPayload outgoing = encoder.forRecipient(payload, recipient);
-                    publisher.publishPayload(outgoing, recipient);
-                    return null;
-                }))
-            .count();
+        long notCompletedCount =
+                recipientKeys.stream()
+                        .map(
+                                recipient ->
+                                        completionService.submit(
+                                                () -> {
+                                                    final EncodedPayload outgoing =
+                                                            encoder.forRecipient(payload, recipient);
+                                                    publisher.publishPayload(outgoing, recipient);
+                                                    return null;
+                                                }))
+                        .count();
 
         try {
             while (notCompletedCount > 0) {
                 notCompletedCount--;
                 waitForNextCompletion(completionService);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOGGER.debug("Async batch public exited early, cleaning up", e);
-            long n = notCompletedCount;
-            executor.execute(() -> drainN(completionService, n));
+            long count = notCompletedCount;
+            executor.execute(() -> waitForMultipleCompletions(completionService, count));
         }
     }
 
     /**
      * Waits until a task submitted to the CompletionService completes.
      *
-     * <p>If an {@link ExecutionException} or {@link InterruptedException} is encountered,
-     * the method throws an exception and exits without waiting for the remaining tasks to complete.
+     * <p>If an {@link ExecutionException} or {@link InterruptedException} is encountered, the method throws an
+     * exception and exits without waiting for the remaining tasks to complete.
      *
      * <p>To prevent a memory leak, the caller should remove the remaining tasks from the CompletionService after this
      * method exits.
@@ -99,21 +103,22 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
     }
 
     /**
-     * Removes n tasks from the CompletionService, waiting for each to complete in turn.
+     * Removes count tasks from the CompletionService, waiting for each to complete in turn.
      *
      * <p>If an exception is encountered, it is ignored so that the remaining tasks can be removed.
      *
      * @param completionService a service with submitted tasks
-     * @param n the number of tasks to drain from the completionService
+     * @param count the number of tasks to drain from the completionService
      */
-    private void drainN(CompletionService<Void> completionService, long n) {
+    private void waitForMultipleCompletions(CompletionService<Void> completionService, long count) {
+        long n = count;
         while (n > 0) {
+            n--;
             try {
                 waitForNextCompletion(completionService);
             } catch (Exception e) {
                 LOGGER.debug("Unable to drain task from CompletionService", e);
             }
-            n--;
         }
     }
 }
