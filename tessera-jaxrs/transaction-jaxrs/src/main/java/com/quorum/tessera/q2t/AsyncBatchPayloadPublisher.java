@@ -29,8 +29,7 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
 
     private final PayloadEncoder encoder;
 
-    public AsyncBatchPayloadPublisher(
-            CompletionServiceFactory completionServiceFactory, PayloadPublisher publisher, PayloadEncoder encoder) {
+    public AsyncBatchPayloadPublisher(CompletionServiceFactory completionServiceFactory, PayloadPublisher publisher, PayloadEncoder encoder) {
         this.completionServiceFactory = completionServiceFactory;
         this.publisher = publisher;
         this.encoder = encoder;
@@ -50,27 +49,24 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
     public void publishPayload(EncodedPayload payload, List<PublicKey> recipientKeys) {
         final CompletionService<Void> completionService = completionServiceFactory.create(executor);
 
-        long notCompletedCount =
-                recipientKeys.stream()
-                        .map(
-                                recipient ->
-                                        completionService.submit(
-                                                () -> {
-                                                    final EncodedPayload outgoing =
-                                                            encoder.forRecipient(payload, recipient);
-                                                    publisher.publishPayload(outgoing, recipient);
-                                                    return null;
-                                                }))
-                        .count();
+        recipientKeys.forEach(
+            recipient -> completionService.submit(() -> {
+                final EncodedPayload outgoing = encoder.forRecipient(payload, recipient);
+                publisher.publishPayload(outgoing, recipient);
+                return null;
+            })
+        );
+
+        int awaitingCompletionCount = recipientKeys.size();
 
         try {
-            while (notCompletedCount > 0) {
-                notCompletedCount--;
+            while (awaitingCompletionCount > 0) {
+                awaitingCompletionCount--;
                 waitForNextCompletion(completionService);
             }
         } catch (Exception e) {
-            LOGGER.debug("Async batch public exited early, cleaning up", e);
-            long count = notCompletedCount;
+            LOGGER.debug("Async publish exited early, cleaning up", e);
+            long count = awaitingCompletionCount;
             executor.execute(() -> waitForMultipleCompletions(completionService, count));
         }
     }

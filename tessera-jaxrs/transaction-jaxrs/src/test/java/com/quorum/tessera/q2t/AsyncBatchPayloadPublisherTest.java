@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import static org.mockito.Mockito.*;
 
@@ -23,6 +21,8 @@ public class AsyncBatchPayloadPublisherTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncBatchPayloadPublisherTest.class);
 
     private AsyncBatchPayloadPublisher asyncPublisher;
+
+    private CompletionService<Void> completionService;
 
     private CompletionServiceFactory completionServiceFactory;
 
@@ -33,8 +33,8 @@ public class AsyncBatchPayloadPublisherTest {
     @Before
     public void onSetup() {
         this.completionServiceFactory = mock(CompletionServiceFactory.class);
-        Executor executor = Executors.newCachedThreadPool();
-        when(completionServiceFactory.create(any(Executor.class))).thenReturn(new ExecutorCompletionService<>(executor));
+        this.completionService = mock(CompletionService.class);
+        when(completionServiceFactory.create(any(Executor.class))).thenReturn(completionService);
 
         this.publisher = mock(PayloadPublisher.class);
         this.encoder = mock(PayloadEncoder.class);
@@ -43,12 +43,34 @@ public class AsyncBatchPayloadPublisherTest {
 
     @After
     public void onTeardown() {
-        verifyNoMoreInteractions(publisher, encoder);
+        verifyNoMoreInteractions(completionService, completionServiceFactory, publisher, encoder);
     }
 
     @Test
-    public void publishPayload() {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    public void publishPayloadMockCompletionService() throws InterruptedException {
+        EncodedPayload payload = mock(EncodedPayload.class);
+
+        PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
+        PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
+
+        List<PublicKey> recipients = List.of(recipient, otherRecipient);
+
+        when(completionService.take()).thenReturn(mock(Future.class));
+
+        asyncPublisher.publishPayload(payload, recipients);
+
+        verify(completionServiceFactory).create(any(Executor.class));
+        verify(completionService, times(2)).submit(any(Callable.class));
+        verify(completionService, times(2)).take();
+    }
+
+    @Test
+    public void publishPayloadRealCompletionService() {
+        Executor executor = Executors.newCachedThreadPool();
+        when(completionServiceFactory.create(any(Executor.class))).thenReturn(new ExecutorCompletionService<>(executor));
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+        EncodedPayload strippedPayload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
         PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
@@ -56,18 +78,19 @@ public class AsyncBatchPayloadPublisherTest {
         List<PublicKey> recipients = List.of(recipient, otherRecipient);
 
         when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenReturn(mock(EncodedPayload.class));
+                .thenReturn(strippedPayload);
 
-        asyncPublisher.publishPayload(encodedPayload, recipients);
+        asyncPublisher.publishPayload(payload, recipients);
 
-        verify(encoder).forRecipient(any(EncodedPayload.class), eq(recipient));
-        verify(encoder).forRecipient(any(EncodedPayload.class), eq(otherRecipient));
-        verify(publisher).publishPayload(any(EncodedPayload.class), eq(recipient));
-        verify(publisher).publishPayload(any(EncodedPayload.class), eq(otherRecipient));
+        verify(completionServiceFactory).create(any(Executor.class));
+        verify(encoder).forRecipient(payload, recipient);
+        verify(encoder).forRecipient(payload, otherRecipient);
+        verify(publisher).publishPayload(strippedPayload, recipient);
+        verify(publisher).publishPayload(strippedPayload, otherRecipient);
     }
 
 //    @Test
-//    public void publishPayloadStopsIfOneFails() {
+//    public void publishPayloadExitsEarlyIfTaskFails() {
 //        EncodedPayload encodedPayload = mock(EncodedPayload.class);
 //
 //        PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
