@@ -121,27 +121,13 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> publishToRemotes(recipientListNoDuplicate, payload));
-
-        return SendResponse.from(transactionHash);
-    }
-
-    /**
-     * publishToRemotes filters the recipientList to remove any of this node's public keys,
-     *  then publishes the payload to the remaining recipients
-      */
-    Void publishToRemotes(List<PublicKey> recipientList, EncodedPayload payload) {
-        List<PublicKey> filteredRecipients = recipientList.stream()
+        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
             .filter(k -> !enclave.getPublicKeys().contains(k))
             .collect(Collectors.toList());
 
-        if (filteredRecipients.size() != 0) {
-            batchPayloadPublisher.publishPayload(payload, filteredRecipients);
-        } else {
-            LOGGER.debug("not publishing as no remote recipients");
-        }
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListRemotesOnly, payload));
 
-        return null;
+        return SendResponse.from(transactionHash);
     }
 
     @Override
@@ -170,9 +156,18 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> publishToRemotes(recipientListNoDuplicate, payload));
+        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
+            .filter(k -> !enclave.getPublicKeys().contains(k))
+            .collect(Collectors.toList());
+
+        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListRemotesOnly, payload));
 
         return SendResponse.from(messageHash);
+    }
+
+    Void publish(List<PublicKey> recipientList, EncodedPayload payload) {
+        batchPayloadPublisher.publishPayload(payload, recipientList);
+        return null;
     }
 
     @Override

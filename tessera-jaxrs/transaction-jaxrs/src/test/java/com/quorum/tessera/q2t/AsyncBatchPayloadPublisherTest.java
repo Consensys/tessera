@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
@@ -95,6 +96,16 @@ public class AsyncBatchPayloadPublisherTest {
         verify(encoder).forRecipient(payload, otherRecipient);
         verify(publisher).publishPayload(strippedPayload, recipient);
         verify(publisher).publishPayload(strippedPayload, otherRecipient);
+    }
+
+    @Test
+    public void publishPayloadNoRecipientsDoesNothing() {
+        EncodedPayload payload = mock(EncodedPayload.class);
+        List<PublicKey> recipients = Collections.emptyList();
+
+        asyncPublisher.publishPayload(payload, recipients);
+
+        verify(completionServiceFactory).create(any(Executor.class));
     }
 
     @Test

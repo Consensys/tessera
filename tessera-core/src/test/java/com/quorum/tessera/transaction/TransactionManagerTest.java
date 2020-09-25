@@ -179,7 +179,7 @@ public class TransactionManagerTest {
     }
 
     @Test
-    public void sendDontPublishIfNoRemoteRecipients() {
+    public void sendWithNoRemoteRecipients() {
 
         PublicKey localKey = PublicKey.from("LOCAL".getBytes());
 
@@ -212,7 +212,10 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(batchPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
+        ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
+        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        List<PublicKey> captured = captor.getValue();
+        assertThat(captured).isEmpty();
 
         verify(enclave).getPublicKeys();
         verify(enclave).encryptPayload(any(), any(), any());
@@ -348,7 +351,7 @@ public class TransactionManagerTest {
     }
 
     @Test
-    public void sendSignedTransactionDontPublishIfNoRemoteRecipients() {
+    public void sendSignedTransactionWithNoRemoteRecipients() {
 
         PublicKey localKey = PublicKey.from("LOCAL".getBytes());
 
@@ -387,7 +390,10 @@ public class TransactionManagerTest {
 
         assertThat(result).isNotNull();
 
-        verify(batchPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
+        ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
+        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        List<PublicKey> captured = captor.getValue();
+        assertThat(captured).isEmpty();
 
         verify(enclave).getPublicKeys();
         verify(enclave).encryptPayload(any(RawTransaction.class), any());
@@ -1194,25 +1200,6 @@ public class TransactionManagerTest {
     }
 
     @Test
-    public void publishDoesNotPublishToSelf() {
-
-        TransactionManagerImpl impl = TransactionManagerImpl.class.cast(transactionManager);
-        EncodedPayload transaction = mock(EncodedPayload.class);
-
-        PublicKey someKey = mock(PublicKey.class);
-
-        List<PublicKey> recipients = Arrays.asList(someKey);
-
-        when(enclave.getPublicKeys()).thenReturn(singleton(someKey));
-
-        impl.publishToRemotes(recipients, transaction);
-
-        verify(enclave).getPublicKeys();
-        verify(payloadEncoder, never()).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(batchPayloadPublisher, never()).publishPayload(any(EncodedPayload.class), any(List.class));
-    }
-
-    @Test
     public void isSenderThrowsOnMissingTransaction() {
 
         MessageHash transactionHash = mock(MessageHash.class);
@@ -1339,17 +1326,12 @@ public class TransactionManagerTest {
 
     @Test
     public void publish() {
-
-        PublicKey reipcient = mock(PublicKey.class);
-        List<PublicKey> recipients = List.of(reipcient);
+        PublicKey recipient = mock(PublicKey.class);
+        List<PublicKey> recipients = List.of(recipient);
         EncodedPayload payload = mock(EncodedPayload.class);
 
-        when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
-        when(payloadEncoder.forRecipient(payload, reipcient)).thenReturn(payload);
+        TransactionManagerImpl.class.cast(transactionManager).publish(recipients, payload);
 
-        TransactionManagerImpl.class.cast(transactionManager).publishToRemotes(recipients, payload);
-
-        verify(enclave).getPublicKeys();
-        verify(batchPayloadPublisher).publishPayload(eq(payload), any(List.class));
+        verify(batchPayloadPublisher).publishPayload(payload, recipients);
     }
 }
