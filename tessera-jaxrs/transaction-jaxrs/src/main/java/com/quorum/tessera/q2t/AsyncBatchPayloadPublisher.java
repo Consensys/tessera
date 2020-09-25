@@ -29,7 +29,10 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
 
     private final PayloadEncoder encoder;
 
-    public AsyncBatchPayloadPublisher(CompletionServiceFactory<Void> completionServiceFactory, PayloadPublisher publisher, PayloadEncoder encoder) {
+    public AsyncBatchPayloadPublisher(
+            CompletionServiceFactory<Void> completionServiceFactory,
+            PayloadPublisher publisher,
+            PayloadEncoder encoder) {
         this.completionServiceFactory = completionServiceFactory;
         this.publisher = publisher;
         this.encoder = encoder;
@@ -50,12 +53,13 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
         final CompletionService<Void> completionService = completionServiceFactory.create(executor);
 
         recipientKeys.forEach(
-            recipient -> completionService.submit(() -> {
-                final EncodedPayload outgoing = encoder.forRecipient(payload, recipient);
-                publisher.publishPayload(outgoing, recipient);
-                return null;
-            })
-        );
+                recipient ->
+                        completionService.submit(
+                                () -> {
+                                    final EncodedPayload outgoing = encoder.forRecipient(payload, recipient);
+                                    publisher.publishPayload(outgoing, recipient);
+                                    return null;
+                                }));
 
         int awaitingCompletionCount = recipientKeys.size();
 
@@ -111,6 +115,7 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
         while (n > 0) {
             n--;
             try {
+                LOGGER.debug("Draining task from CompletionService");
                 waitForNextCompletion(completionService);
             } catch (Exception e) {
                 LOGGER.debug("Unable to drain task from CompletionService: {}", e.getMessage());
