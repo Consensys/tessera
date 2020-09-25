@@ -208,15 +208,15 @@ public class AsyncBatchPayloadPublisherTest {
         PublishPayloadException cause = new PublishPayloadException("some publisher exception");
 
         doAnswer(
-                    invocation -> {
-                        longRunningTaskThenIncrement(atomicInt);
+                invocation -> {
+                    longRunningTaskThenIncrement(atomicInt);
                         return null;
-                    })
+                })
             .doAnswer(
-                    invocation -> {
-                        longRunningTaskThenIncrement(atomicInt);
-                        return null;
-                    })
+                invocation -> {
+                    longRunningTaskThenIncrement(atomicInt);
+                    return null;
+                })
             .doThrow(cause)
             .when(publisher)
             .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
@@ -236,10 +236,7 @@ public class AsyncBatchPayloadPublisherTest {
     }
 
     @Test
-    public void publishPayloadRealCompletionServiceExitsEarlyIfTaskFails() {
-        Executor executor = Executors.newCachedThreadPool();
-        when(completionServiceFactory.create(any(Executor.class))).thenReturn(new ExecutorCompletionService<>(executor));
-
+    public void publishPayloadAllTasksDrainedFromCompletionServiceIfOneFails() throws InterruptedException {
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
@@ -248,88 +245,15 @@ public class AsyncBatchPayloadPublisherTest {
 
         List<PublicKey> recipients = List.of(recipient, otherRecipient, anotherRecipient);
 
-        when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class)))
-            .thenReturn(mock(EncodedPayload.class));
+        when(completionService.take()).thenThrow(new RuntimeException("some error"));
 
-        final AtomicInteger atomicInt = new AtomicInteger();
+        catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
 
-        PublishPayloadException cause = new PublishPayloadException("some publisher exception");
-
-        doThrow(cause)
-            .doAnswer(
-                invocation -> {
-                    LOGGER.debug("publisher::publishPayload, args={}", invocation.getArguments());
-                    return null;
-                })
-            .doAnswer(
-                invocation -> {
-                    LOGGER.debug("publisher::publishPayload, args={}", invocation.getArguments());
-                    return null;
-                })
-            .when(publisher)
-            .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-
-        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
-
-        assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
-        assertThat(ex.getCause()).isEqualTo(cause);
-
-        assertThat(atomicInt.get())
-            .withFailMessage("publish should have failed-fast and not waited for completion of all tasks")
-            .isEqualTo(0);
+        Thread.sleep(200); // sleep to let cleanup thread work
 
         verify(completionServiceFactory).create(any(Executor.class));
-        verify(encoder, times(3)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(publisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-    }
-
-    @Test
-    public void publishPayloadRealCompletionServiceIsDrainedInBackgroundIfTaskFails() {
-        Executor executor = Executors.newCachedThreadPool();
-        when(completionServiceFactory.create(any(Executor.class))).thenReturn(new ExecutorCompletionService<>(executor));
-
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-        PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
-        PublicKey anotherRecipient = PublicKey.from("ANOTHERRECIPIENT".getBytes());
-
-        List<PublicKey> recipients = List.of(recipient, otherRecipient, anotherRecipient);
-
-        when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class)))
-            .thenReturn(mock(EncodedPayload.class));
-
-        final AtomicInteger atomicInt = new AtomicInteger();
-
-        PublishPayloadException cause = new PublishPayloadException("some publisher exception");
-
-        doThrow(cause)
-            .doAnswer(
-                invocation -> {
-                    atomicInt.incrementAndGet();
-                    return null;
-                })
-            .doAnswer(
-                invocation -> {
-                    atomicInt.incrementAndGet();
-                    return null;
-                })
-            .when(publisher)
-            .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
-
-        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
-
-        assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
-        assertThat(ex.getCause()).isEqualTo(cause);
-
-        int want = 2;
-        assertThat(atomicInt.get())
-            .withFailMessage("expected <%s> tasks to be executed in background, got %<s>", want, atomicInt.get())
-            .isEqualTo(want);
-
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(encoder, times(3)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(publisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(completionService, times(3)).submit(any(Callable.class));
+        verify(completionService, times(3)).take();
     }
 
     void longRunningTaskThenIncrement(AtomicInteger atomicInt) {

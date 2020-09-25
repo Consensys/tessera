@@ -65,7 +65,7 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
                 waitForNextCompletion(completionService);
             }
         } catch (Exception e) {
-            LOGGER.debug("Cleaning up after async payload publish exited early", e);
+            LOGGER.debug("Cleaning up after async payload publish exited early");
             long count = awaitingCompletionCount;
             executor.execute(() -> waitForMultipleCompletions(completionService, count));
             throw e;
@@ -85,6 +85,7 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
      */
     private void waitForNextCompletion(CompletionService<Void> completionService) {
         try {
+            LOGGER.debug("waiting for task to complete...");
             completionService.take().get();
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
@@ -112,7 +113,7 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
             try {
                 waitForNextCompletion(completionService);
             } catch (Exception e) {
-                LOGGER.debug("Unable to drain task from CompletionService", e);
+                LOGGER.debug("Unable to drain task from CompletionService: {}", e.getMessage());
             }
         }
     }
