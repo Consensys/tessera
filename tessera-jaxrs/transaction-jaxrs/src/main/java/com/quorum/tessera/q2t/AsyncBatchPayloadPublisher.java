@@ -23,13 +23,13 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
 
     private final Executor executor = Executors.newCachedThreadPool();
 
-    private final CompletionServiceFactory completionServiceFactory;
+    private final CompletionServiceFactory<Void> completionServiceFactory;
 
     private final PayloadPublisher publisher;
 
     private final PayloadEncoder encoder;
 
-    public AsyncBatchPayloadPublisher(CompletionServiceFactory completionServiceFactory, PayloadPublisher publisher, PayloadEncoder encoder) {
+    public AsyncBatchPayloadPublisher(CompletionServiceFactory<Void> completionServiceFactory, PayloadPublisher publisher, PayloadEncoder encoder) {
         this.completionServiceFactory = completionServiceFactory;
         this.publisher = publisher;
         this.encoder = encoder;

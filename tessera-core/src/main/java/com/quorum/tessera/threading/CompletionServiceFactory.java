@@ -4,11 +4,9 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 
-public class CompletionServiceFactory {
+public class CompletionServiceFactory<T> {
 
-    // TODO(cjh) make generic
-    public CompletionService<Void> create(Executor executor) {
+    public CompletionService<T> create(Executor executor) {
         return new ExecutorCompletionService<>(executor);
     }
-
 }

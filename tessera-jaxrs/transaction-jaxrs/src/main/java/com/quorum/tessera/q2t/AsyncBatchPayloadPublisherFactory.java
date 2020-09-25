@@ -10,7 +10,7 @@ public class AsyncBatchPayloadPublisherFactory implements BatchPayloadPublisherF
 
     @Override
     public BatchPayloadPublisher create(PayloadPublisher publisher) {
-        CompletionServiceFactory completionServiceFactory = new CompletionServiceFactory();
+        CompletionServiceFactory<Void> completionServiceFactory = new CompletionServiceFactory<>();
         PayloadEncoder encoder = PayloadEncoder.create();
         return new AsyncBatchPayloadPublisher(completionServiceFactory, publisher, encoder);
     }
