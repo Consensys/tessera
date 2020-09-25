@@ -30,7 +30,7 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
         }
 
         PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
-        BatchPayloadPublisher asyncPayloadPublisher = BatchPayloadPublisherFactory.newFactory().create(payloadPublisher);
+        BatchPayloadPublisher batchPayloadPublisher = BatchPayloadPublisherFactory.newFactory().create(payloadPublisher);
         Enclave enclave = EnclaveFactory.create().create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
@@ -45,7 +45,7 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
                         encryptedRawTransactionDAO,
                         resendManager,
                         payloadPublisher,
-                        asyncPayloadPublisher,
+                        batchPayloadPublisher,
                         100);
 
         REF.set(transactionManager);
