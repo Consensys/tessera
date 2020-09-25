@@ -102,9 +102,8 @@ public class AsyncBatchPayloadPublisherTest {
         EncodedPayload payload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-        PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
 
-        List<PublicKey> recipients = List.of(recipient, otherRecipient);
+        List<PublicKey> recipients = List.of(recipient);
 
         RuntimeException cause = new RuntimeException("some error");
 
@@ -115,8 +114,8 @@ public class AsyncBatchPayloadPublisherTest {
         assertThat(ex.getCause()).isEqualTo(cause);
 
         verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService, times(2)).submit(any(Callable.class));
-        verify(completionService, times(2)).take();
+        verify(completionService).submit(any(Callable.class));
+        verify(completionService).take();
     }
 
     @Test
@@ -124,9 +123,8 @@ public class AsyncBatchPayloadPublisherTest {
         EncodedPayload payload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-        PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
 
-        List<PublicKey> recipients = List.of(recipient, otherRecipient);
+        List<PublicKey> recipients = List.of(recipient);
 
         RuntimeException rootCause = new RuntimeException("some error");
         ExecutionException cause = new ExecutionException(rootCause);
@@ -140,8 +138,8 @@ public class AsyncBatchPayloadPublisherTest {
         assertThat(ex.getCause()).isEqualTo(rootCause);
 
         verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService, times(2)).submit(any(Callable.class));
-        verify(completionService, times(2)).take();
+        verify(completionService).submit(any(Callable.class));
+        verify(completionService).take();
     }
 
     @Test
@@ -149,9 +147,8 @@ public class AsyncBatchPayloadPublisherTest {
         EncodedPayload payload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-        PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
 
-        List<PublicKey> recipients = List.of(recipient, otherRecipient);
+        List<PublicKey> recipients = List.of(recipient);
 
         KeyNotFoundException rootCause = new KeyNotFoundException("some key not found error");
         ExecutionException cause = new ExecutionException(rootCause);
@@ -165,18 +162,17 @@ public class AsyncBatchPayloadPublisherTest {
         assertThat(ex).isEqualTo(rootCause);
 
         verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService, times(2)).submit(any(Callable.class));
-        verify(completionService, times(2)).take();
+        verify(completionService).submit(any(Callable.class));
+        verify(completionService).take();
     }
 
     @Test
-    public void publishPayloadWrapsInterruptedException() throws InterruptedException, ExecutionException {
+    public void publishPayloadWrapsInterruptedException() throws InterruptedException {
         EncodedPayload payload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-        PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
 
-        List<PublicKey> recipients = List.of(recipient, otherRecipient);
+        List<PublicKey> recipients = List.of(recipient);
 
         InterruptedException cause = new InterruptedException("some interrupted error");
 
@@ -187,8 +183,8 @@ public class AsyncBatchPayloadPublisherTest {
         assertThat(ex.getCause()).isEqualTo(cause);
 
         verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService, times(2)).submit(any(Callable.class));
-        verify(completionService, times(2)).take();
+        verify(completionService).submit(any(Callable.class));
+        verify(completionService).take();
     }
 
     @Test

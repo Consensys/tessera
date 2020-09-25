@@ -65,7 +65,7 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
                 waitForNextCompletion(completionService);
             }
         } catch (Exception e) {
-            LOGGER.debug("Async publish exited early, cleaning up", e);
+            LOGGER.debug("Cleaning up after async payload publish exited early", e);
             long count = awaitingCompletionCount;
             executor.execute(() -> waitForMultipleCompletions(completionService, count));
             throw e;
@@ -88,15 +88,11 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
             completionService.take().get();
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
-            LOGGER.debug("Unable to publish payload, exiting async publish", cause);
             if (cause instanceof KeyNotFoundException) {
                 throw (KeyNotFoundException) cause;
             }
             throw new BatchPublishPayloadException(cause);
-        } catch (InterruptedException e) {
-            LOGGER.debug("Async payload publish interrupted", e);
-            throw new BatchPublishPayloadException(e);
-        } catch (RuntimeException e) {
+        } catch (InterruptedException | RuntimeException e) {
             throw new BatchPublishPayloadException(e);
         }
     }
