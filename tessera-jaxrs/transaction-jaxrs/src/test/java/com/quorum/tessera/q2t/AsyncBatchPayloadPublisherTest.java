@@ -274,7 +274,7 @@ public class AsyncBatchPayloadPublisherTest {
     }
 
     @Test
-    public void publishPayloadAllTasksDrainedAfterOneFailuresAndSubsequentFailuresDoNothing()
+    public void publishPayloadAllTasksDrainedAfterOneFailsAndSubsequentFailuresDoNothing()
             throws InterruptedException {
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 

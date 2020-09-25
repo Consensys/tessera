@@ -73,7 +73,7 @@ public class TransactionManagerTest {
                         payloadEncoder,
                         encryptedTransactionDAO,
                         payloadPublisher,
-                    batchPayloadPublisher,
+                        batchPayloadPublisher,
                         enclave,
                         encryptedRawTransactionDAO,
                         resendManager,
@@ -103,8 +103,6 @@ public class TransactionManagerTest {
                 .when(encryptedTransactionDAO)
                 .save(any(EncryptedTransaction.class), any(Callable.class));
 
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
         PublicKey sender = PublicKey.from("SENDER".getBytes());
         PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
 
@@ -120,7 +118,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(eq(encodedPayload), captor.capture());
         List<PublicKey> capturedRecipients = captor.getValue();
         assertThat(capturedRecipients).containsExactlyInAnyOrder(sender, receiver);
 
@@ -140,8 +138,6 @@ public class TransactionManagerTest {
 
         when(enclave.encryptPayload(any(), any(), any())).thenReturn(encodedPayload);
         when(enclave.getForwardingKeys()).thenReturn(Set.of(PublicKey.from("RECEIVER".getBytes())));
-
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
 
         doAnswer(
             invocation -> {
@@ -167,7 +163,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(eq(encodedPayload), captor.capture());
         List<PublicKey> capturedRecipients = captor.getValue();
         assertThat(capturedRecipients).containsExactlyInAnyOrder(sender, receiver);
 
@@ -190,8 +186,6 @@ public class TransactionManagerTest {
         when(enclave.encryptPayload(any(), any(), any())).thenReturn(encodedPayload);
         when(enclave.getPublicKeys()).thenReturn(Set.of(localKey));
 
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(encodedPayload);
-
         doAnswer(
             invocation -> {
                 Callable callable = invocation.getArgument(1);
@@ -213,7 +207,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(eq(encodedPayload), captor.capture());
         List<PublicKey> captured = captor.getValue();
         assertThat(captured).isEmpty();
 
@@ -249,8 +243,6 @@ public class TransactionManagerTest {
                 .when(encryptedTransactionDAO)
                 .save(any(EncryptedTransaction.class), any(Callable.class));
 
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
-
         when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
 
         when(enclave.encryptPayload(any(RawTransaction.class), any())).thenReturn(payload);
@@ -266,7 +258,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(eq(payload), captor.capture());
         List<PublicKey> capturedRecipients = captor.getValue();
         assertThat(capturedRecipients).containsExactlyInAnyOrder(PublicKey.from("SENDER".getBytes()), receiver);
 
@@ -293,7 +285,6 @@ public class TransactionManagerTest {
 
         when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
                 .thenReturn(Optional.of(encryptedRawTransaction));
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
 
         when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
         when(enclave.getForwardingKeys()).thenReturn(Set.of(PublicKey.from("RECEIVER".getBytes())));
@@ -319,7 +310,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(eq(payload), captor.capture());
         List<PublicKey> capturedRecipients = captor.getValue();
         assertThat(capturedRecipients).containsExactlyInAnyOrder(PublicKey.from("SENDER".getBytes()), receiver);
 
@@ -367,7 +358,6 @@ public class TransactionManagerTest {
 
         when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
             .thenReturn(Optional.of(encryptedRawTransaction));
-        when(payloadEncoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(payload);
 
         when(enclave.encryptPayload(any(RawTransaction.class), any())).thenReturn(payload);
 
@@ -391,7 +381,7 @@ public class TransactionManagerTest {
         assertThat(result).isNotNull();
 
         ArgumentCaptor<List<PublicKey>> captor = ArgumentCaptor.forClass(List.class);
-        verify(batchPayloadPublisher).publishPayload(any(EncodedPayload.class), captor.capture());
+        verify(batchPayloadPublisher).publishPayload(eq(payload), captor.capture());
         List<PublicKey> captured = captor.getValue();
         assertThat(captured).isEmpty();
 
@@ -1193,7 +1183,7 @@ public class TransactionManagerTest {
                         encryptedRawTransactionDAO,
                         resendManager,
                         payloadPublisher,
-                    batchPayloadPublisher,
+                        batchPayloadPublisher,
                         1000);
 
         assertThat(tm).isNotNull();
@@ -1322,16 +1312,5 @@ public class TransactionManagerTest {
     public void defaultPublicKey() {
         transactionManager.defaultPublicKey();
         verify(enclave).defaultPublicKey();
-    }
-
-    @Test
-    public void publish() {
-        PublicKey recipient = mock(PublicKey.class);
-        List<PublicKey> recipients = List.of(recipient);
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        TransactionManagerImpl.class.cast(transactionManager).publish(recipients, payload);
-
-        verify(batchPayloadPublisher).publishPayload(payload, recipients);
     }
 }

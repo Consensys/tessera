@@ -18,4 +18,17 @@ public class CompletionServiceFactoryTest {
         CompletionService<Void> service = factory.create(executor);
         assertThat(service).isNotNull();
     }
+
+    @Test
+    public void createMultiple() {
+        CompletionServiceFactory<Void> factory = new CompletionServiceFactory<>();
+        Executor executor = mock(Executor.class);
+
+        CompletionService<Void> service = factory.create(executor);
+        CompletionService<Void> anotherService = factory.create(executor);
+
+        assertThat(service).isNotNull();
+        assertThat(anotherService).isNotNull();
+        assertThat(service).isNotEqualTo(anotherService);
+    }
 }

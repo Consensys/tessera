@@ -125,7 +125,10 @@ public class TransactionManagerImpl implements TransactionManager {
             .filter(k -> !enclave.getPublicKeys().contains(k))
             .collect(Collectors.toList());
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListRemotesOnly, payload));
+        this.encryptedTransactionDAO.save(newTransaction, () -> {
+            batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
+            return null;
+        });
 
         return SendResponse.from(transactionHash);
     }
@@ -160,14 +163,12 @@ public class TransactionManagerImpl implements TransactionManager {
             .filter(k -> !enclave.getPublicKeys().contains(k))
             .collect(Collectors.toList());
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListRemotesOnly, payload));
+        this.encryptedTransactionDAO.save(newTransaction, () -> {
+            batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
+            return null;
+        });
 
         return SendResponse.from(messageHash);
-    }
-
-    Void publish(List<PublicKey> recipientList, EncodedPayload payload) {
-        batchPayloadPublisher.publishPayload(payload, recipientList);
-        return null;
     }
 
     @Override
