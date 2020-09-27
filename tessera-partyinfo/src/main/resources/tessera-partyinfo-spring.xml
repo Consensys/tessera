@@ -63,30 +63,4 @@
         <constructor-arg value="5000"/>
     </bean>
 
-    <!-- Node synchronization management-->
-    <beans profile="enable-sync-poller">
-
-        <bean name="resendPartyStore" class="com.quorum.tessera.p2p.resend.ResendPartyStoreImpl"/>
-
-        <bean name="transactionRequester" class="com.quorum.tessera.p2p.resend.TransactionRequesterImpl">
-            <constructor-arg ref="enclave" />
-            <constructor-arg ref="resendClient" />
-        </bean>
-
-        <bean name="syncPoller" class="com.quorum.tessera.p2p.resend.SyncPoller">
-            <constructor-arg ref="resendPartyStore" />
-            <constructor-arg ref="transactionRequester" />
-            <constructor-arg ref="p2pClient"/>
-        </bean>
-
-        <bean class="com.quorum.tessera.threading.TesseraScheduledExecutor">
-            <constructor-arg>
-                <bean class="java.util.concurrent.Executors" factory-method="newSingleThreadScheduledExecutor"/>
-            </constructor-arg>
-            <constructor-arg ref="syncPoller"/>
-            <constructor-arg value="#{propertyHelper.syncInterval()}"/>
-            <constructor-arg value="5000"/>
-        </bean>
-    </beans>
-
 </beans>

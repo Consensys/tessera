@@ -61,9 +61,6 @@ public class Main {
                 config.setRecoveryMode(System.getenv("SPRING_PROFILES_ACTIVE").contains("enable-sync-poller"));
             }
 
-            if(config.isRecoveryMode()) {
-                System.setProperty("spring.profiles.active", "enable-sync-poller");
-            }
             //Start end spring profile stuff
 
             final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
