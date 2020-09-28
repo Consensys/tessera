@@ -26,7 +26,7 @@ jobs:
           ls
           output_dir=${{ runner.temp }}/docker
           mkdir -p $output_dir
-          cd /home/runner/work/tessera/quorum
+          cd quorum
           docker build -t quorumengineering/quorum:pr .
           docker save quorumengineering/quorum:pr > quorum-pr.tar
           tar cfvz $output_dir/quorum-pr.tar.gz quorum-pr.tar
