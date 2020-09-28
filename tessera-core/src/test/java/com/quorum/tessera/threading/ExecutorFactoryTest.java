@@ -9,8 +9,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ExecutorFactoryTest {
 
     @Test
-    public void create() {
-        Executor executor = new ExecutorFactory().create();
+    public void createCachedThreadPool() {
+        Executor executor = new ExecutorFactory().createCachedThreadPool();
         assertThat(executor).isNotNull();
     }
 }

@@ -32,7 +32,7 @@ public class AsyncBatchPayloadPublisher implements BatchPayloadPublisher {
             CancellableCountDownLatchFactory countDownLatchFactory,
             PayloadPublisher publisher,
             PayloadEncoder encoder) {
-        this.executor = executorFactory.create();
+        this.executor = executorFactory.createCachedThreadPool();
         this.countDownLatchFactory = countDownLatchFactory;
         this.publisher = publisher;
         this.encoder = encoder;

@@ -63,7 +63,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
                 payloadPublisher,
-            batchPayloadPublisher,
+                batchPayloadPublisher,
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,

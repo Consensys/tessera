@@ -2,6 +2,8 @@ package com.quorum.tessera.threading;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -12,6 +14,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 public class CancellableCountDownLatchTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CancellableCountDownLatchTest.class);
 
     private final int initCount = 10;
 
@@ -79,18 +83,26 @@ public class CancellableCountDownLatchTest {
 
     @Test
     public void await() throws InterruptedException {
+        LOGGER.info("await test");
         final AtomicBoolean isThreadFinished = new AtomicBoolean();
 
         final Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(
                 () -> {
+                    LOGGER.info("await test - open latch thread: starting");
                     while (countDownLatch.getCount() > 0) {
+                        LOGGER.info("await test - open latch thread: counting down, {}", countDownLatch.getCount());
+                        if (countDownLatch.getCount() == 1) {
+                            isThreadFinished.set(true);
+                        }
                         countDownLatch.countDown();
                     }
-                    isThreadFinished.set(true);
+                    LOGGER.info("await test - open latch thread: finishing, {}", isThreadFinished.get());
                 });
 
+        LOGGER.info("await test - main thread: awaiting");
         countDownLatch.await();
+        LOGGER.info("await test - main thread: awaited");
 
         assertThat(isThreadFinished.get()).isTrue();
     }
@@ -117,18 +129,26 @@ public class CancellableCountDownLatchTest {
 
     @Test
     public void awaitTimeout() throws InterruptedException {
+        LOGGER.info("awaitTimeout test");
         final AtomicBoolean isThreadFinished = new AtomicBoolean();
 
         final Executor executor = Executors.newSingleThreadExecutor();
         executor.execute(
                 () -> {
+                    LOGGER.info("awaitTimeout test - open latch thread: starting");
                     while (countDownLatch.getCount() > 0) {
+                        LOGGER.info("awaitTimeout test - open latch thread: counting down, {}", countDownLatch.getCount());
+                        if (countDownLatch.getCount() == 1) {
+                            isThreadFinished.set(true);
+                        }
                         countDownLatch.countDown();
                     }
                     isThreadFinished.set(true);
                 });
 
+        LOGGER.info("awaitTimeout test - main thread: awaiting");
         final boolean result = countDownLatch.await(100, TimeUnit.MILLISECONDS);
+        LOGGER.info("awaitTimeout test - main thread: awaited");
 
         assertThat(result).isTrue();
         assertThat(isThreadFinished.get()).isTrue();
@@ -136,13 +156,6 @@ public class CancellableCountDownLatchTest {
 
     @Test
     public void awaitTimeoutExceeded() throws InterruptedException {
-        final Executor executor = Executors.newSingleThreadExecutor();
-        executor.execute(
-                () -> {
-                    Throwable ex = catchThrowable(() -> Thread.sleep(1000));
-                    assertThat(ex).isNull();
-                });
-
         final boolean result = countDownLatch.await(100, TimeUnit.MILLISECONDS);
 
         assertThat(result).isFalse();
