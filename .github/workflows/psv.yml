@@ -37,7 +37,7 @@ jobs:
           docker save quorumengineering/tessera:pe > tessera-pe.tar
           tar cfvz $output_dir/tessera-pe.tar.gz tessera-pe.tar
 
-          cd ../quorum-acceptance-tests
+          cd quorum-acceptance-tests
           docker build -t quorumengineering/quorum-acceptance-tests:pe .
           docker save quorumengineering/quorum-acceptance-tests:pe > qat-pe.tar
           tar cfvz $output_dir/qat-pe.tar.gz qat-pe.tar
