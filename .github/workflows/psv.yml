@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: nicolae-leonte-go/quorum
-          path: ../quorum
+          path: /home/runner/work/tessera/quorum
           ref: feature/privacyEnhancements
       - name: 'Check out tessera project files'
         uses: actions/checkout@v2
@@ -26,12 +26,11 @@ jobs:
           ls
           output_dir=${{ runner.temp }}/docker
           mkdir -p $output_dir
-          cd quorum
+          cd /home/runner/work/tessera/quorum
           docker build -t quorumengineering/quorum:pr .
           docker save quorumengineering/quorum:pr > quorum-pr.tar
           tar cfvz $output_dir/quorum-pr.tar.gz quorum-pr.tar
-          cd ..
-          cd tessera
+          cd /home/runner/work/tessera/tessera
           docker build -t quorumengineering/tessera:pe .
           docker save quorumengineering/tessera:pe > tessera-pe.tar
           tar cfvz $output_dir/tessera-pe.tar.gz tessera-pe.tar
