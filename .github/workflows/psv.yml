@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: nicolae-leonte-go/quorum
-          path: /home/runner/work/tessera/quorum
+          path: quorum
           ref: feature/privacyEnhancements
       - name: 'Check out tessera project files'
         uses: actions/checkout@v2
