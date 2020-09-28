@@ -12,9 +12,9 @@ jobs:
           repository: nicolae-leonte-go/quorum
           path: quorum
           ref: feature/privacyEnhancements
-    - name: 'Check out tessera project files'
+      - name: 'Check out tessera project files'
         uses: actions/checkout@v2
-    - name: 'Check out quorum-acceptance-tests project files'
+      - name: 'Check out quorum-acceptance-tests project files'
         uses: actions/checkout@v2
         with:
           repository: nicolae-leonte-go/quorum-acceptance-tests
