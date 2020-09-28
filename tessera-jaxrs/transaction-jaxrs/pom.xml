@@ -57,7 +57,7 @@
                             <info>
 
                                 <title>Tessera rest</title>
-                                <version>${project.version}</version>
+                                <version>${tessera.api.version}</version>
                             </info>
 
                             <locations>

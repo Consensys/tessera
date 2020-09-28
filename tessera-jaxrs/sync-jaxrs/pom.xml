@@ -55,7 +55,7 @@
                             <info>
 
                                 <title>Peer to peer resources</title>
-                                <version>${project.version}</version>
+                                <version>${tessera.api.version}</version>
                             </info>
 
                             <locations>

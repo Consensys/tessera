@@ -3,6 +3,6 @@ package com.quorum.tessera.api;
 public class Version {
 
     public static String getVersion() {
-        return Version.class.getPackage().getSpecificationVersion();
+        return "1.0.0";
     }
 }

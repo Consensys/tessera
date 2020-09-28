@@ -54,7 +54,7 @@ swagger {
         locations = ['com.quorum.tessera.q2t','com.quorum.tessera.api.common']
         info {
             title = 'Tessera rest'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'

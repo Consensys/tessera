@@ -8,6 +8,11 @@
     </parent>
     <artifactId>tessera-jaxrs</artifactId>
     <packaging>pom</packaging>
+
+    <properties>
+        <tessera.api.version>1.0.0</tessera.api.version>
+    </properties>
+
     <modules>
         <module>transaction-jaxrs</module>
         <module>common-jaxrs</module>
