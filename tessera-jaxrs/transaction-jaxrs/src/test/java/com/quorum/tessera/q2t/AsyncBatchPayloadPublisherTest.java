@@ -2,9 +2,10 @@ package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.threading.CompletionServiceFactory;
+import com.quorum.tessera.threading.CancellableCountDownLatch;
+import com.quorum.tessera.threading.CancellableCountDownLatchFactory;
+import com.quorum.tessera.threading.ExecutorFactory;
 import com.quorum.tessera.transaction.publish.BatchPublishPayloadException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
@@ -18,11 +19,12 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class AsyncBatchPayloadPublisherTest {
@@ -31,9 +33,13 @@ public class AsyncBatchPayloadPublisherTest {
 
     private AsyncBatchPayloadPublisher asyncPublisher;
 
-    private CompletionService<Void> completionService;
+    private Executor executor;
 
-    private CompletionServiceFactory completionServiceFactory;
+    private ExecutorFactory executorFactory;
+
+    private CancellableCountDownLatch countDownLatch;
+
+    private CancellableCountDownLatchFactory countDownLatchFactory;
 
     private PayloadPublisher publisher;
 
@@ -41,22 +47,27 @@ public class AsyncBatchPayloadPublisherTest {
 
     @Before
     public void onSetup() {
-        this.completionServiceFactory = mock(CompletionServiceFactory.class);
-        this.completionService = mock(CompletionService.class);
-        when(completionServiceFactory.create(any(Executor.class))).thenReturn(completionService);
+        this.executorFactory = mock(ExecutorFactory.class);
+        this.executor = mock(Executor.class);
+        when(executorFactory.create()).thenReturn(executor);
+
+        this.countDownLatchFactory = mock(CancellableCountDownLatchFactory.class);
+        this.countDownLatch = mock(CancellableCountDownLatch.class);
+        when(countDownLatchFactory.create(anyInt())).thenReturn(countDownLatch);
 
         this.publisher = mock(PayloadPublisher.class);
         this.encoder = mock(PayloadEncoder.class);
-        this.asyncPublisher = new AsyncBatchPayloadPublisher(completionServiceFactory, publisher, encoder);
+        this.asyncPublisher =
+                new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, publisher, encoder);
     }
 
     @After
     public void onTeardown() {
-        verifyNoMoreInteractions(completionService, completionServiceFactory, publisher, encoder);
+        verifyNoMoreInteractions(executor, executorFactory, countDownLatch, countDownLatchFactory, publisher, encoder);
     }
 
     @Test
-    public void publishPayloadMockCompletionService() throws InterruptedException {
+    public void publishPayloadUsesThreadForEachRecipient() throws InterruptedException {
         EncodedPayload payload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
@@ -64,20 +75,21 @@ public class AsyncBatchPayloadPublisherTest {
 
         List<PublicKey> recipients = List.of(recipient, otherRecipient);
 
-        when(completionService.take()).thenReturn(mock(Future.class));
-
         asyncPublisher.publishPayload(payload, recipients);
 
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService, times(2)).submit(any(Callable.class));
-        verify(completionService, times(2)).take();
+        verify(countDownLatchFactory).create(2);
+        verify(executorFactory).create();
+        verify(executor, times(2)).execute(any(Runnable.class));
+        verify(countDownLatch).await();
     }
 
     @Test
-    public void publishPayloadRealCompletionService() {
-        Executor executor = Executors.newCachedThreadPool();
-        when(completionServiceFactory.create(any(Executor.class)))
-                .thenReturn(new ExecutorCompletionService<>(executor));
+    public void publishPayloadStripsAndPublishes() throws InterruptedException {
+        Executor realExecutor = Executors.newCachedThreadPool();
+        when(executorFactory.create()).thenReturn(realExecutor);
+
+        asyncPublisher =
+            new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, publisher, encoder);
 
         EncodedPayload payload = mock(EncodedPayload.class);
         EncodedPayload strippedPayload = mock(EncodedPayload.class);
@@ -89,122 +101,112 @@ public class AsyncBatchPayloadPublisherTest {
 
         when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(strippedPayload);
 
+        doAnswer(
+                        invocation -> {
+                            // sleep main thread so publish threads can work
+                            Thread.sleep(200);
+                            return null;
+                        })
+                .when(countDownLatch)
+                .await();
+
         asyncPublisher.publishPayload(payload, recipients);
 
-        verify(completionServiceFactory).create(any(Executor.class));
+        verify(executorFactory, times(2)).create();
+        verify(countDownLatchFactory).create(2);
         verify(encoder).forRecipient(payload, recipient);
         verify(encoder).forRecipient(payload, otherRecipient);
         verify(publisher).publishPayload(strippedPayload, recipient);
         verify(publisher).publishPayload(strippedPayload, otherRecipient);
+        verify(countDownLatch, times(2)).countDown();
+        verify(countDownLatch).await();
     }
 
+        @Test
+        public void publishPayloadNoRecipientsDoesNothing() {
+            EncodedPayload payload = mock(EncodedPayload.class);
+            List<PublicKey> recipients = Collections.emptyList();
+
+            asyncPublisher.publishPayload(payload, recipients);
+
+            verify(executorFactory).create();
+        }
+
+        @Test
+        public void publishPayloadWrapsInterruptedException() throws InterruptedException {
+            EncodedPayload payload = mock(EncodedPayload.class);
+
+            PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
+            PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
+
+            List<PublicKey> recipients = List.of(recipient, otherRecipient);
+
+            InterruptedException cause = new InterruptedException("some exception");
+
+            doThrow(cause).when(countDownLatch).await();
+
+            Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(payload, recipients));
+            assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
+            assertThat(ex).hasCause(cause);
+
+            verify(executorFactory).create();
+            verify(executor, times(2)).execute(any(Runnable.class));
+            verify(countDownLatchFactory).create(2);
+            verify(countDownLatch).await();
+        }
+
     @Test
-    public void publishPayloadNoRecipientsDoesNothing() {
+    public void publishPayloadThrowsTaskExceptionIfOneFails() throws InterruptedException {
+        Executor realExecutor = Executors.newCachedThreadPool();
+        when(executorFactory.create()).thenReturn(realExecutor);
+
+        asyncPublisher =
+            new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, publisher, encoder);
+
         EncodedPayload payload = mock(EncodedPayload.class);
-        List<PublicKey> recipients = Collections.emptyList();
-
-        asyncPublisher.publishPayload(payload, recipients);
-
-        verify(completionServiceFactory).create(any(Executor.class));
-    }
-
-    @Test
-    public void publishPayloadWrapsRuntimeException() throws InterruptedException {
-        EncodedPayload payload = mock(EncodedPayload.class);
+        EncodedPayload strippedPayload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
+        PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
 
-        List<PublicKey> recipients = List.of(recipient);
+        List<PublicKey> recipients = List.of(recipient, otherRecipient);
 
-        RuntimeException cause = new RuntimeException("some error");
+        when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(strippedPayload);
 
-        when(completionService.take()).thenThrow(cause);
+        PublishPayloadException cause = new PublishPayloadException("some exception");
+
+        doThrow(cause)
+            .doNothing()
+            .when(publisher).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+
+        doThrow(cause).when(countDownLatch).await();
 
         Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(payload, recipients));
-        assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
-        assertThat(ex.getCause()).isEqualTo(cause);
+        assertThat(ex).isEqualTo(cause);
 
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService).submit(any(Callable.class));
-        verify(completionService).take();
+        verify(executorFactory, times(2)).create();
+        verify(countDownLatchFactory).create(2);
+        verify(encoder).forRecipient(payload, recipient);
+        verify(encoder).forRecipient(payload, otherRecipient);
+        verify(publisher).publishPayload(strippedPayload, recipient);
+        verify(publisher).publishPayload(strippedPayload, otherRecipient);
+        verify(countDownLatch).countDown();
+        verify(countDownLatch).cancelWithException(cause);
+        verify(countDownLatch).await();
     }
 
     @Test
-    public void publishPayloadExecutionExceptionRewrapped() throws InterruptedException, ExecutionException {
+    public void publishPayloadRealLatchDoesNotWaitForAllTasksIfOneFails() throws InterruptedException {
+        Executor realExecutor = Executors.newCachedThreadPool();
+        when(executorFactory.create()).thenReturn(realExecutor);
+
+        when(countDownLatchFactory.create(3)).thenReturn(new CancellableCountDownLatch(3));
+
+        asyncPublisher =
+            new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, publisher, encoder);
+
         EncodedPayload payload = mock(EncodedPayload.class);
-
-        PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-
-        List<PublicKey> recipients = List.of(recipient);
-
-        RuntimeException rootCause = new RuntimeException("some error");
-        ExecutionException cause = new ExecutionException(rootCause);
-
-        Future<Void> future = mock(Future.class);
-        when(completionService.take()).thenReturn(future);
-        when(future.get()).thenThrow(cause);
-
-        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(payload, recipients));
-        assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
-        assertThat(ex.getCause()).isEqualTo(rootCause);
-
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService).submit(any(Callable.class));
-        verify(completionService).take();
-    }
-
-    @Test
-    public void publishPayloadUnwrapsKeyNotFoundException() throws InterruptedException, ExecutionException {
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-
-        List<PublicKey> recipients = List.of(recipient);
-
-        KeyNotFoundException rootCause = new KeyNotFoundException("some key not found error");
-        ExecutionException cause = new ExecutionException(rootCause);
-
-        Future<Void> future = mock(Future.class);
-        when(completionService.take()).thenReturn(future);
-        when(future.get()).thenThrow(cause);
-
-        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(payload, recipients));
-        assertThat(ex).isExactlyInstanceOf(KeyNotFoundException.class);
-        assertThat(ex).isEqualTo(rootCause);
-
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService).submit(any(Callable.class));
-        verify(completionService).take();
-    }
-
-    @Test
-    public void publishPayloadWrapsInterruptedException() throws InterruptedException {
-        EncodedPayload payload = mock(EncodedPayload.class);
-
-        PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-
-        List<PublicKey> recipients = List.of(recipient);
-
-        InterruptedException cause = new InterruptedException("some interrupted error");
-
-        when(completionService.take()).thenThrow(cause);
-
-        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(payload, recipients));
-        assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
-        assertThat(ex.getCause()).isEqualTo(cause);
-
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService).submit(any(Callable.class));
-        verify(completionService).take();
-    }
-
-    @Test
-    public void publishPayloadRealCompletionServiceDoesNotWaitForAllTasksIfOneFails() {
-        Executor executor = Executors.newCachedThreadPool();
-        when(completionServiceFactory.create(any(Executor.class)))
-                .thenReturn(new ExecutorCompletionService<>(executor));
-
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        EncodedPayload strippedPayload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
         PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
@@ -212,8 +214,7 @@ public class AsyncBatchPayloadPublisherTest {
 
         List<PublicKey> recipients = List.of(recipient, otherRecipient, anotherRecipient);
 
-        when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class)))
-                .thenReturn(mock(EncodedPayload.class));
+        when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(strippedPayload);
 
         final AtomicInteger atomicInt = new AtomicInteger();
 
@@ -233,50 +234,32 @@ public class AsyncBatchPayloadPublisherTest {
                 .when(publisher)
                 .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
 
-        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
+        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(payload, recipients));
+        assertThat(ex).isEqualTo(cause);
 
-        assertThat(ex).isExactlyInstanceOf(BatchPublishPayloadException.class);
-        assertThat(ex.getCause()).isEqualTo(cause);
-
-        assertThat(atomicInt.get())
-                .withFailMessage("publish should have failed-fast and not waited for completion of all tasks")
-                .isEqualTo(0);
-
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(encoder, times(3)).forRecipient(any(EncodedPayload.class), any(PublicKey.class));
-        verify(publisher, times(3)).publishPayload(any(EncodedPayload.class), any(PublicKey.class));
+        verify(executorFactory, times(2)).create();
+        verify(countDownLatchFactory).create(3);
+        verify(encoder).forRecipient(payload, recipient);
+        verify(encoder).forRecipient(payload, otherRecipient);
+        verify(encoder).forRecipient(payload, anotherRecipient);
+        verify(publisher).publishPayload(strippedPayload, recipient);
+        verify(publisher).publishPayload(strippedPayload, otherRecipient);
+        verify(publisher).publishPayload(strippedPayload, anotherRecipient);
     }
 
     @Test
-    public void publishPayloadAllTasksDrainedAfterOneFails() throws InterruptedException {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-        PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-        PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
-        PublicKey anotherRecipient = PublicKey.from("ANOTHERRECIPIENT".getBytes());
-
-        List<PublicKey> recipients = List.of(recipient, otherRecipient, anotherRecipient);
-
-        Future<Void> future = mock(Future.class);
-
-        when(completionService.take())
-                .thenThrow(new RuntimeException("some error"))
-                .thenReturn(future)
-                .thenReturn(future);
-
-        catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
-
-        Thread.sleep(50); // sleep to let cleanup thread work
-
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService, times(3)).submit(any(Callable.class));
-        verify(completionService, times(3)).take();
-    }
-
-    @Test
-    public void publishPayloadAllTasksDrainedAfterOneFailsAndSubsequentFailuresDoNothing()
+    public void publishPayloadRealLatchSubsequentFailuresDoNothing()
             throws InterruptedException {
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        Executor realExecutor = Executors.newCachedThreadPool();
+        when(executorFactory.create()).thenReturn(realExecutor);
+
+        when(countDownLatchFactory.create(3)).thenReturn(new CancellableCountDownLatch(3));
+
+        asyncPublisher =
+            new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, publisher, encoder);
+
+        EncodedPayload payload = mock(EncodedPayload.class);
+        EncodedPayload strippedPayload = mock(EncodedPayload.class);
 
         PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
         PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
@@ -284,18 +267,27 @@ public class AsyncBatchPayloadPublisherTest {
 
         List<PublicKey> recipients = List.of(recipient, otherRecipient, anotherRecipient);
 
-        when(completionService.take())
-                .thenThrow(new RuntimeException("some error"))
-                .thenThrow(new RuntimeException("some other error"))
-                .thenThrow(new RuntimeException("yet another error"));
+        when(encoder.forRecipient(any(EncodedPayload.class), any(PublicKey.class))).thenReturn(strippedPayload);
 
-        catchThrowable(() -> asyncPublisher.publishPayload(encodedPayload, recipients));
+        PublishPayloadException cause = new PublishPayloadException("some publisher exception");
 
-        Thread.sleep(50); // sleep to let cleanup thread work
+        doThrow(cause)
+            .doThrow(new PublishPayloadException("some other exception"))
+            .doThrow(new PublishPayloadException("yet another exception"))
+            .when(publisher)
+            .publishPayload(any(EncodedPayload.class), any(PublicKey.class));
 
-        verify(completionServiceFactory).create(any(Executor.class));
-        verify(completionService, times(3)).submit(any(Callable.class));
-        verify(completionService, times(3)).take();
+        Throwable ex = catchThrowable(() -> asyncPublisher.publishPayload(payload, recipients));
+        assertThat(ex).isEqualTo(cause);
+
+        verify(executorFactory, times(2)).create();
+        verify(countDownLatchFactory).create(3);
+        verify(encoder).forRecipient(payload, recipient);
+        verify(encoder).forRecipient(payload, otherRecipient);
+        verify(encoder).forRecipient(payload, anotherRecipient);
+        verify(publisher).publishPayload(strippedPayload, recipient);
+        verify(publisher).publishPayload(strippedPayload, otherRecipient);
+        verify(publisher).publishPayload(strippedPayload, anotherRecipient);
     }
 
     void longRunningTaskThenIncrement(AtomicInteger atomicInt) {
