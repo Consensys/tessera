@@ -78,7 +78,7 @@ jobs:
       - name: "Run acceptance tests"
         run: |
           mkdir -p /tmp/gauge/reports/
-          docker run --mount source=/tmp/gauge/reports/,target=/workspace/target/gauge/reports/ --rm \
+          docker run --mount,type=bind,source=/tmp/gauge/reports/,target=/workspace/target/gauge/reports/ --rm \
             --network host \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
