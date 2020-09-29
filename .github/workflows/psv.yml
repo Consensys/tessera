@@ -90,12 +90,12 @@ jobs:
               -Dtags="basic || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft"
       - name: "Copy gauge reports"
         id: copyreports
-#        if: success()
+        if: always()
         run: |
           docker cp /workspace/target/gauge/reports/ /tmp/gauge/reports/
       - name: "Upload gauge reports"
         uses: actions/upload-artifact@v1
-#        if: success()
+        if: always()
         with:
           name: gauge-reports
           path: /tmp/gauge/reports/
@@ -143,12 +143,12 @@ jobs:
               -Dtags="privacy-enhancements-upgrade || networks/template::raft-4nodes-pe"
       - name: "Copy gauge reports"
         id: copyreports
-#        if: success()
+        if: always()
         run: |
           docker cp /workspace/target/gauge/reports/ /tmp/gauge/reports/
       - name: "Upload gauge reports"
         uses: actions/upload-artifact@v1
-#        if: success()
+        if: always()
         with:
           name: gauge-reports
           path: /tmp/gauge/reports/
