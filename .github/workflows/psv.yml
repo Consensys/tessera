@@ -77,7 +77,8 @@ jobs:
           docker load --input qat-pe.tar
       - name: "Run acceptance tests"
         run: |
-          docker run --name test_psv_raft --rm \
+          mkdir -p /tmp/gauge/reports/
+          docker run --mount source=/tmp/gauge/reports/,target=/workspace/target/gauge/reports/ --rm \
             --network host \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
@@ -88,12 +89,6 @@ jobs:
               -Pauto \
               -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
               -Dtags="basic || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft"
-      - name: "Copy gauge reports"
-        id: copyreports
-        if: always()
-        run: |
-          mkdir -p /tmp/gauge/reports/
-          docker cp test_psv_raft:/workspace/target/gauge/reports/ /tmp/gauge/reports/
       - name: "Upload gauge reports"
         uses: actions/upload-artifact@v1
         if: always()
