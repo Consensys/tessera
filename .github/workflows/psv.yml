@@ -92,6 +92,7 @@ jobs:
         id: copyreports
         if: always()
         run: |
+          mkdir -p /tmp/gauge/reports/
           docker cp container:/workspace/target/gauge/reports/ /tmp/gauge/reports/
       - name: "Upload gauge reports"
         uses: actions/upload-artifact@v1
@@ -145,6 +146,7 @@ jobs:
         id: copyreports
         if: always()
         run: |
+          mkdir -p /tmp/gauge/reports/
           docker cp container:/workspace/target/gauge/reports/ /tmp/gauge/reports/
       - name: "Upload gauge reports"
         uses: actions/upload-artifact@v1
