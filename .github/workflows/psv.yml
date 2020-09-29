@@ -94,8 +94,7 @@ jobs:
         run: |
           docker cp /workspace/target/gauge/reports/ /tmp/gauge/reports/
       - name: "Upload gauge reports"
-        needs: copyreports
-      - uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v1
 #        if: success()
         with:
           name: gauge-reports
@@ -144,13 +143,12 @@ jobs:
               -Dtags="privacy-enhancements-upgrade || networks/template::raft-4nodes-pe"
       - name: "Copy gauge reports"
         id: copyreports
-        #        if: success()
+#        if: success()
         run: |
           docker cp /workspace/target/gauge/reports/ /tmp/gauge/reports/
       - name: "Upload gauge reports"
-        needs: copyreports
-      - uses: actions/upload-artifact@v1
-        #        if: success()
+        uses: actions/upload-artifact@v1
+#        if: success()
         with:
           name: gauge-reports
           path: /tmp/gauge/reports/
