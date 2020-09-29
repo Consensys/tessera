@@ -89,7 +89,7 @@ jobs:
               -Pauto \
               -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
               -Dtags="basic || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft"
-              --mount type=bind,source=/tmp/gauge/reports/,target=/workspace/target/gauge/reports/
+              --mount "type=bind,source=/tmp/gauge/reports/,destination=/workspace/target/gauge/reports/"
       - name: "Upload gauge reports"
         uses: actions/upload-artifact@v1
         if: always()
