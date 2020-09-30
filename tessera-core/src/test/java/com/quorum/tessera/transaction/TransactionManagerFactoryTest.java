@@ -27,7 +27,7 @@ public class TransactionManagerFactoryTest {
         when(config.getJdbcConfig()).thenReturn(jdbcConfig);
 
         FeatureToggles features = mock(FeatureToggles.class);
-        when(features.isEnableEnhancedPrivacy()).thenReturn(false);
+        when(features.isEnablePrivacyEnhancements()).thenReturn(false);
         when(config.getFeatures()).thenReturn(features);
 
         TransactionManager transactionManager = result.create(config);

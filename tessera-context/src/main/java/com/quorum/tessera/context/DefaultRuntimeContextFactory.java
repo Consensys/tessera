@@ -101,7 +101,7 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
                         .withKeyEncryptor(keyEncryptor)
                         .withDisablePeerDiscovery(config.isDisablePeerDiscovery())
                         .withRemoteKeyValidation(config.getFeatures().isEnableRemoteKeyValidation())
-                        .withEnhancedPrivacy(config.getFeatures().isEnableEnhancedPrivacy())
+                        .withEnhancedPrivacy(config.getFeatures().isEnablePrivacyEnhancements())
                         .withPeers(
                                 config.getPeers().stream()
                                         .map(Peer::getUrl)

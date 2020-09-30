@@ -39,7 +39,7 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
                 entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
-        boolean privacyEnabled = config.getFeatures().isEnableEnhancedPrivacy();
+        boolean privacyEnabled = config.getFeatures().isEnablePrivacyEnhancements();
         PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled);
 
         TransactionManager transactionManager =

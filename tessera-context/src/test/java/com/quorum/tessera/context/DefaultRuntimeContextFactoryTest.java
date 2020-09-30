@@ -196,7 +196,7 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         when(confg.getServerConfigs()).thenReturn(List.of(serverConfig));
 
         FeatureToggles featureToggles = mock(FeatureToggles.class);
-        when(featureToggles.isEnableEnhancedPrivacy()).thenReturn(true);
+        when(featureToggles.isEnablePrivacyEnhancements()).thenReturn(true);
         when(confg.getFeatures()).thenReturn(featureToggles);
         when(confg.isRecoveryMode()).thenReturn(true);
 

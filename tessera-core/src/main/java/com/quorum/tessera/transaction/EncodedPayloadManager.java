@@ -42,7 +42,7 @@ public interface EncodedPayloadManager {
                         () -> {
                             final Enclave enclave = EnclaveFactory.create().create(config);
                             final EntityManagerDAOFactory emDAOFactory = EntityManagerDAOFactory.newFactory(config);
-                            boolean privacyEnabled = config.getFeatures().isEnableEnhancedPrivacy();
+                            boolean privacyEnabled = config.getFeatures().isEnablePrivacyEnhancements();
                             final PrivacyHelper privacyHelper =
                                     new PrivacyHelperImpl(emDAOFactory.createEncryptedTransactionDAO(), privacyEnabled);
 

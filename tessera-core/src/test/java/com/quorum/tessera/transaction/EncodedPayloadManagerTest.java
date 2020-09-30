@@ -21,7 +21,7 @@ public class EncodedPayloadManagerTest {
         when(config.getJdbcConfig()).thenReturn(jdbcConfig);
 
         final FeatureToggles features = new FeatureToggles();
-        features.setEnableEnhancedPrivacy(true);
+        features.setEnablePrivacyEnhancements(true);
         when(config.getFeatures()).thenReturn(features);
 
         final EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create(config);
