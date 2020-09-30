@@ -100,6 +100,8 @@ public class TransactionManagerTest {
         PublicKey sender = PublicKey.from("SENDER".getBytes());
         PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
 
+        when(enclave.getPublicKeys()).thenReturn(Set.of(receiver));
+
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
 
         SendRequest sendRequest = mock(SendRequest.class);
@@ -221,6 +223,8 @@ public class TransactionManagerTest {
         when(enclave.encryptPayload(any(RawTransaction.class), any(), any(), any(), any())).thenReturn(payload);
 
         PublicKey receiver = PublicKey.from("RECEIVER".getBytes());
+
+        when(enclave.getPublicKeys()).thenReturn(Set.of(receiver));
 
         SendSignedRequest sendSignedRequest = mock(SendSignedRequest.class);
         when(sendSignedRequest.getRecipients()).thenReturn(List.of(receiver));
