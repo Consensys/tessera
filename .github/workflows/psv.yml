@@ -77,7 +77,7 @@ jobs:
       - name: "Run acceptance tests"
         run: |
           mkdir -p /tmp/gauge/reports/
-          docker run --rm \
+          docker run --mount 'type=bind,source=/tmp/gauge/reports/,destination=/workspace/target/gauge/reports/' --rm \
             --network host \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
@@ -89,12 +89,12 @@ jobs:
               -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
               -Dtags='basic || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft'
               
-#      - name: "Upload gauge reports"
-#        uses: actions/upload-artifact@v1
-#        if: always()
-#        with:
-#          name: gauge-reports
-#          path: /tmp/gauge/reports/
+      - name: "Upload gauge reports"
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: gauge-reports
+          path: /tmp/gauge/reports/
 
   atest_psv_upgrade_raft:
     runs-on: ubuntu-latest
@@ -126,7 +126,7 @@ jobs:
       - name: "Run acceptance tests"
         run: |
           mkdir -p /tmp/gauge/reports/
-          docker run --rm \
+          docker run --mount 'type=bind,source=/tmp/gauge/reports/,destination=/workspace/target/gauge/reports/' --rm \
             --network host \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
@@ -137,9 +137,9 @@ jobs:
               -Pauto \
               -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
               -Dtags="privacy-enhancements-upgrade || networks/template::raft-4nodes-pe"
-#      - name: "Upload gauge reports"
-#        uses: actions/upload-artifact@v1
-#        if: always()
-#        with:
-#          name: gauge-reports
-#          path: /tmp/gauge/reports/
+      - name: "Upload gauge reports"
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: gauge-reports
+          path: /tmp/gauge/reports/
