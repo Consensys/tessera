@@ -60,8 +60,8 @@ public class TransactionManagerImpl implements TransactionManager {
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
             PayloadPublisher payloadPublisher,
-            PrivacyHelper privacyHelper,
             BatchPayloadPublisher batchPayloadPublisher,
+            PrivacyHelper privacyHelper,
             int resendFetchSize) {
         this(
                 Base64Codec.create(),
@@ -72,7 +72,6 @@ public class TransactionManagerImpl implements TransactionManager {
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,
-                payloadPublisher,
                 privacyHelper,
                 resendFetchSize);
     }
@@ -81,7 +80,7 @@ public class TransactionManagerImpl implements TransactionManager {
     Only use for tests
     */
     public TransactionManagerImpl(
-            Base64Codec base64Codec,
+            Base64Codec base64Decoder,
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PayloadPublisher payloadPublisher,
@@ -89,11 +88,10 @@ public class TransactionManagerImpl implements TransactionManager {
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
-            PayloadPublisher payloadPublisher,
             PrivacyHelper privacyHelper,
             int resendFetchSize) {
 
-        this.base64Codec = Objects.requireNonNull(base64Codec, "base64Decoder is required");
+        this.base64Codec = Objects.requireNonNull(base64Decoder, "base64Codec is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
@@ -103,9 +101,8 @@ public class TransactionManagerImpl implements TransactionManager {
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
         this.resendManager = Objects.requireNonNull(resendManager, "resendManager is required");
-        this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
-        this.privacyHelper = Objects.requireNonNull(privacyHelper, "privacyManager is required");
         this.resendFetchSize = resendFetchSize;
+        this.privacyHelper = Objects.requireNonNull(privacyHelper, "privacyHelper is required");
     }
 
     @Override
@@ -149,15 +146,17 @@ public class TransactionManagerImpl implements TransactionManager {
         byte[] payloadData = this.payloadEncoder.encode(payload);
         final EncryptedTransaction newTransaction = new EncryptedTransaction(transactionHash, payloadData);
 
-        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
-            .filter(k -> !enclave.getPublicKeys().contains(k))
-            .collect(Collectors.toList());
+        final List<PublicKey> recipientListRemotesOnly =
+                recipientListNoDuplicate.stream()
+                        .filter(k -> !enclave.getPublicKeys().contains(k))
+                        .collect(Collectors.toList());
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> {
-            batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
-            return null;
-        });
-
+        this.encryptedTransactionDAO.save(
+                newTransaction,
+                () -> {
+                    batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
+                    return null;
+                });
 
         return SendResponse.from(transactionHash);
     }
@@ -204,14 +203,17 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
-            .filter(k -> !enclave.getPublicKeys().contains(k))
-            .collect(Collectors.toList());
+        final List<PublicKey> recipientListRemotesOnly =
+                recipientListNoDuplicate.stream()
+                        .filter(k -> !enclave.getPublicKeys().contains(k))
+                        .collect(Collectors.toList());
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> {
-            batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
-            return null;
-        });
+        this.encryptedTransactionDAO.save(
+                newTransaction,
+                () -> {
+                    batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
+                    return null;
+                });
 
         return SendResponse.from(messageHash);
     }
