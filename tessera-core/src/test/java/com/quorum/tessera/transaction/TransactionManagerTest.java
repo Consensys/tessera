@@ -423,7 +423,7 @@ public class TransactionManagerTest {
         EncodedPayload payload = mock(EncodedPayload.class);
 
         when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
 
         transactionManager.storePayload(payload);
 
@@ -463,17 +463,13 @@ public class TransactionManagerTest {
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(affectedContractEncodedPayload.getRecipientKeys()).thenReturn(Arrays.asList(senderKey));
 
-        // when(payloadEncoder.decode(input)).thenReturn(payload);
-
         when(encryptedTransactionDAO.findByHashes(any())).thenReturn(List.of(affectedContractTx));
         when(affectedContractTx.getEncodedPayload()).thenReturn(affectedContractPayload);
         when(payloadEncoder.decode(affectedContractPayload)).thenReturn(affectedContractEncodedPayload);
 
         transactionManager.storePayload(payload);
         // Ignore transaction - not save
-        verify(encryptedTransactionDAO, times(0)).save(any(EncryptedTransaction.class));
         verify(encryptedTransactionDAO).findByHashes(any());
-        // verify(payloadEncoder, times(1)).decode(any());
     }
 
     @Test
@@ -1696,24 +1692,6 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     }
 
-    //    @Test
-    //    public void create() {
-    //
-    //        Config config = mock(Config.class);
-    //        ServerConfig serverConfig = mock(ServerConfig.class);
-    //        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
-    //        when(config.getP2PServerConfig()).thenReturn(serverConfig);
-    //
-    //        JdbcConfig jdbcConfig = mock(JdbcConfig.class);
-    //        when(jdbcConfig.getUsername()).thenReturn("junit");
-    //        when(jdbcConfig.getPassword()).thenReturn("junit");
-    //        when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:junit");
-    //        when(config.getJdbcConfig()).thenReturn(jdbcConfig);
-    //
-    //        TransactionManager transactionManager = TransactionManager.create(config);
-    //        assertThat(transactionManager).isNotNull();
-    //
-    //    }
 
     @Test
     public void defaultPublicKey() {
