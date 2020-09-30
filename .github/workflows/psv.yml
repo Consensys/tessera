@@ -81,13 +81,13 @@ jobs:
             --network host \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
-            -e TF_VAR_quorum_docker_image="{ name = 'quorumengineering/quorum:latest', local = true }" \
-            -e TF_VAR_tessera_docker_image="{ name = 'quorumengineering/tessera:latest', local = true }" \
-            -e TF_VAR_privacy_enhancements="{ block = 0, enabled = true }" \
+            -e TF_VAR_quorum_docker_image='{ name = 'quorumengineering/quorum:latest', local = true }' \
+            -e TF_VAR_tessera_docker_image='{ name = 'quorumengineering/tessera:latest', local = true }' \
+            -e TF_VAR_privacy_enhancements='{ block = 0, enabled = true }' \
             quorumengineering/quorum-acceptance-tests:pe test \
               -Pauto \
               -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
-              -Dtags="basic || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft"
+              -Dtags='basic || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft'
               
 #      - name: "Upload gauge reports"
 #        uses: actions/upload-artifact@v1
