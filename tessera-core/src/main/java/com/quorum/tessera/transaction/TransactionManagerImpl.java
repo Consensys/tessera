@@ -6,6 +6,7 @@ import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -37,6 +38,8 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
 
+    private final BatchPayloadPublisher batchPayloadPublisher;
+
     private final PayloadPublisher payloadPublisher;
 
     private final Enclave enclave;
@@ -53,12 +56,14 @@ public class TransactionManagerImpl implements TransactionManager {
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
             PayloadPublisher payloadPublisher,
+            BatchPayloadPublisher batchPayloadPublisher,
             int resendFetchSize) {
         this(
                 Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
                 payloadPublisher,
+                batchPayloadPublisher,
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,
@@ -73,6 +78,7 @@ public class TransactionManagerImpl implements TransactionManager {
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
             PayloadPublisher payloadPublisher,
+            BatchPayloadPublisher batchPayloadPublisher,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
@@ -83,6 +89,7 @@ public class TransactionManagerImpl implements TransactionManager {
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
         this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
+        this.batchPayloadPublisher = Objects.requireNonNull(batchPayloadPublisher, "batchPayloadPublisher is required");
         this.enclave = Objects.requireNonNull(enclave, "enclave is required");
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
@@ -114,20 +121,16 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(transactionHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
+        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
+            .filter(k -> !enclave.getPublicKeys().contains(k))
+            .collect(Collectors.toList());
+
+        this.encryptedTransactionDAO.save(newTransaction, () -> {
+            batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
+            return null;
+        });
 
         return SendResponse.from(transactionHash);
-    }
-
-    boolean publish(List<PublicKey> recipientList, EncodedPayload payload) {
-        recipientList.stream()
-                .filter(k -> !enclave.getPublicKeys().contains(k))
-                .forEach(
-                        recipient -> {
-                            final EncodedPayload outgoing = payloadEncoder.forRecipient(payload, recipient);
-                            payloadPublisher.publishPayload(outgoing, recipient);
-                        });
-        return true;
     }
 
     @Override
@@ -156,7 +159,14 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        this.encryptedTransactionDAO.save(newTransaction, () -> publish(recipientListNoDuplicate, payload));
+        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
+            .filter(k -> !enclave.getPublicKeys().contains(k))
+            .collect(Collectors.toList());
+
+        this.encryptedTransactionDAO.save(newTransaction, () -> {
+            batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
+            return null;
+        });
 
         return SendResponse.from(messageHash);
     }
