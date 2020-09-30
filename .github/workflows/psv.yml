@@ -1,4 +1,4 @@
-name: Pull Request Check
+name: PSV Acceptance tests
 on: pull_request
 
 jobs:
