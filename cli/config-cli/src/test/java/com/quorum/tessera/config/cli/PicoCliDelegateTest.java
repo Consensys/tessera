@@ -550,7 +550,6 @@ public class PicoCliDelegateTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-        assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.isSuppressStartup()).isFalse();
@@ -568,7 +567,6 @@ public class PicoCliDelegateTest {
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-        assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.isSuppressStartup()).isFalse();
@@ -581,7 +579,6 @@ public class PicoCliDelegateTest {
         CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus", "bogus value");
 
         assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
@@ -597,7 +594,6 @@ public class PicoCliDelegateTest {
                         "-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
 
         assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
@@ -615,7 +611,6 @@ public class PicoCliDelegateTest {
         CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-r");
 
         assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
 
