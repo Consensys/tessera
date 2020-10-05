@@ -91,7 +91,6 @@ public class RestfulEnclaveClientTest {
         verify(enclave).getForwardingKeys();
     }
 
-    @Ignore
     @Test
     public void encryptPayload() {
 
@@ -102,7 +101,12 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayload = Fixtures.createSample();
 
-        when(enclave.encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(), emptyList(), any()))
+        List<AffectedTransaction> affectedTransactions = List.of(AffectedTransaction.Builder.create()
+            .withHash("hash".getBytes())
+            .withPayload(encodedPayload)
+            .build());
+
+        when(enclave.encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(), eq(affectedTransactions), any()))
                 .thenReturn(encodedPayload);
 
         EncodedPayload result =
@@ -110,8 +114,8 @@ public class RestfulEnclaveClientTest {
                         message,
                         senderPublicKey,
                         recipientPublicKeys,
-                        PrivacyMode.STANDARD_PRIVATE,
-                        emptyList(),
+                        PrivacyMode.PARTY_PROTECTION,
+                        affectedTransactions,
                         new byte[0]);
 
         assertThat(result).isNotNull();
@@ -122,7 +126,7 @@ public class RestfulEnclaveClientTest {
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
         verify(enclave)
-                .encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(), anyList(), any());
+                .encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(), eq(affectedTransactions), any());
     }
 
     @Test
@@ -142,15 +146,20 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayload = Fixtures.createSample();
 
-        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any(), anyList(), any()))
+        List<AffectedTransaction> affectedTransactions = List.of(AffectedTransaction.Builder.create()
+            .withHash("hash".getBytes())
+            .withPayload(encodedPayload)
+            .build());
+
+        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any(), eq(affectedTransactions), any()))
                 .thenReturn(encodedPayload);
 
         EncodedPayload result =
                 enclaveClient.encryptPayload(
                         rawTransaction,
                         recipientPublicKeys,
-                        PrivacyMode.STANDARD_PRIVATE,
-                        Collections.emptyList(),
+                        PrivacyMode.PARTY_PROTECTION,
+                        affectedTransactions,
                         new byte[0]);
 
         assertThat(result).isNotNull();

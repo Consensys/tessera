@@ -318,10 +318,11 @@ public class RestfulEnclaveClient implements EnclaveClient {
         }
     }
 
-    private List<KeyValuePair> convertAffectedContractTransactions(
-            List<AffectedTransaction> affectedContractTransactions) {
-        return affectedContractTransactions.stream().map(affectedTransaction -> {
-            return new KeyValuePair(affectedTransaction.getHash().getBytes(),this.payloadEncoder.encode(affectedTransaction.getPayload()));
-        }).collect(Collectors.toList());
+    private List<KeyValuePair> convertAffectedContractTransactions(List<AffectedTransaction> affectedContractTransactions) {
+        return affectedContractTransactions.stream().map(
+            affectedTransaction ->
+                new KeyValuePair(affectedTransaction.getHash().getBytes(),
+                    this.payloadEncoder.encode(affectedTransaction.getPayload())))
+            .collect(Collectors.toList());
     }
 }

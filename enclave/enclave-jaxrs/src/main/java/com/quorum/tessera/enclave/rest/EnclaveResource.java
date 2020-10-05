@@ -52,7 +52,7 @@ public class EnclaveResource {
     public Response getForwardingKeys() {
 
         List<String> body =
-                enclave.getForwardingKeys().stream().map(PublicKey::encodeToBase64).collect(Collectors.toList());
+            enclave.getForwardingKeys().stream().map(PublicKey::encodeToBase64).collect(Collectors.toList());
 
         return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE).build();
     }
@@ -63,7 +63,7 @@ public class EnclaveResource {
     public Response getPublicKeys() {
 
         List<String> body =
-                enclave.getPublicKeys().stream().map(PublicKey::encodeToBase64).collect(Collectors.toList());
+            enclave.getPublicKeys().stream().map(PublicKey::encodeToBase64).collect(Collectors.toList());
 
         return Response.ok(Json.createArrayBuilder(body).build().toString(), MediaType.APPLICATION_JSON_TYPE).build();
     }
@@ -74,20 +74,22 @@ public class EnclaveResource {
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
     public Response encryptPayload(EnclavePayload payload) {
 
-        PublicKey senderKey = PublicKey.from(payload.getSenderKey());
+        final PublicKey senderKey = PublicKey.from(payload.getSenderKey());
 
-        List<PublicKey> recipientPublicKeys =
-                payload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
+        final List<PublicKey> recipientPublicKeys =
+            payload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
 
-        // TODO Nam Replace emptyMap
+        final List<AffectedTransaction> affectedTransactions =
+            convertToAffectedTransactions(payload.getAffectedContractTransactions());
+
         EncodedPayload outcome =
-                enclave.encryptPayload(
-                        payload.getData(),
-                        senderKey,
-                        recipientPublicKeys,
-                        payload.getPrivacyMode(),
-                        Collections.emptyList(),
-                        payload.getExecHash());
+            enclave.encryptPayload(
+                payload.getData(),
+                senderKey,
+                recipientPublicKeys,
+                payload.getPrivacyMode(),
+                affectedTransactions,
+                payload.getExecHash());
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
@@ -106,18 +108,20 @@ public class EnclaveResource {
         PublicKey from = PublicKey.from(enclaveRawPayload.getFrom());
 
         List<PublicKey> recipientPublicKeys =
-                enclaveRawPayload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
+            enclaveRawPayload.getRecipientPublicKeys().stream().map(PublicKey::from).collect(Collectors.toList());
 
         RawTransaction rawTransaction = new RawTransaction(encryptedPayload, encryptedKey, nonce, from);
 
-        // TODO Nam - replace emptyMap
+        final List<AffectedTransaction> affectedTransactions =
+            convertToAffectedTransactions(enclaveRawPayload.getAffectedContractTransactions());
+
         EncodedPayload outcome =
-                enclave.encryptPayload(
-                        rawTransaction,
-                        recipientPublicKeys,
-                        enclaveRawPayload.getPrivacyMode(),
-                        Collections.emptyList(),
-                        enclaveRawPayload.getExecHash());
+            enclave.encryptPayload(
+                rawTransaction,
+                recipientPublicKeys,
+                enclaveRawPayload.getPrivacyMode(),
+                affectedTransactions,
+                enclaveRawPayload.getExecHash());
 
         byte[] response = payloadEncoder.encode(outcome);
         final StreamingOutput streamingOutput = out -> out.write(response);
@@ -131,7 +135,7 @@ public class EnclaveResource {
     public Response encryptRawPayload(EnclavePayload payload) {
 
         RawTransaction rawTransaction =
-                enclave.encryptRawPayload(payload.getData(), PublicKey.from(payload.getSenderKey()));
+            enclave.encryptRawPayload(payload.getData(), PublicKey.from(payload.getSenderKey()));
 
         EnclaveRawPayload enclaveRawPayload = new EnclaveRawPayload();
         enclaveRawPayload.setFrom(rawTransaction.getFrom().getKeyBytes());
@@ -151,21 +155,21 @@ public class EnclaveResource {
         EncodedPayload encodedPayload = payloadEncoder.decode(payload.getEncodedPayload());
 
         List<AffectedTransaction> affectedTransactions =
-                payload.getAffectedContractTransactions().stream()
-                        .map(
-                                keyValuePair ->
-                                        AffectedTransaction.Builder.create()
-                                                .withHash(keyValuePair.getKey())
-                                                .withPayload(PayloadEncoder.create().decode(keyValuePair.getValue()))
-                                                .build())
-                        .collect(Collectors.toList());
+            payload.getAffectedContractTransactions().stream()
+                .map(
+                    keyValuePair ->
+                        AffectedTransaction.Builder.create()
+                            .withHash(keyValuePair.getKey())
+                            .withPayload(PayloadEncoder.create().decode(keyValuePair.getValue()))
+                            .build())
+                .collect(Collectors.toList());
 
         Set<TxHash> invalidSecurityHashes = enclave.findInvalidSecurityHashes(encodedPayload, affectedTransactions);
 
         EnclaveFindInvalidSecurityHashesResponsePayload responsePayload =
-                new EnclaveFindInvalidSecurityHashesResponsePayload();
+            new EnclaveFindInvalidSecurityHashesResponsePayload();
         responsePayload.setInvalidSecurityHashes(
-                invalidSecurityHashes.stream().map(TxHash::getBytes).collect(Collectors.toList()));
+            invalidSecurityHashes.stream().map(TxHash::getBytes).collect(Collectors.toList()));
 
         return Response.ok(responsePayload).build();
     }
@@ -177,11 +181,11 @@ public class EnclaveResource {
     public Response unencryptRawPayload(EnclaveRawPayload enclaveRawPayload) {
 
         RawTransaction rawTransaction =
-                new RawTransaction(
-                        enclaveRawPayload.getEncryptedPayload(),
-                        enclaveRawPayload.getEncryptedKey(),
-                        new Nonce(enclaveRawPayload.getNonce()),
-                        PublicKey.from(enclaveRawPayload.getFrom()));
+            new RawTransaction(
+                enclaveRawPayload.getEncryptedPayload(),
+                enclaveRawPayload.getEncryptedKey(),
+                new Nonce(enclaveRawPayload.getNonce()),
+                PublicKey.from(enclaveRawPayload.getFrom()));
 
         byte[] response = enclave.unencryptRawPayload(rawTransaction);
 
@@ -197,7 +201,7 @@ public class EnclaveResource {
 
         EncodedPayload payload = payloadEncoder.decode(enclaveUnencryptPayload.getData());
         PublicKey providedKey =
-                Optional.ofNullable(enclaveUnencryptPayload.getProvidedKey()).map(PublicKey::from).orElse(null);
+            Optional.ofNullable(enclaveUnencryptPayload.getProvidedKey()).map(PublicKey::from).orElse(null);
 
         byte[] response = enclave.unencryptTransaction(payload, providedKey);
 
@@ -218,5 +222,14 @@ public class EnclaveResource {
 
         final StreamingOutput streamingOutput = out -> out.write(response);
         return Response.ok(streamingOutput).build();
+    }
+
+    private List<AffectedTransaction> convertToAffectedTransactions(final List<KeyValuePair> keyValuePairs) {
+        return keyValuePairs.stream().map(
+            kvp -> AffectedTransaction.Builder.create()
+                .withHash(kvp.getKey())
+                .withPayload(payloadEncoder.decode(kvp.getValue()))
+                .build()
+        ).collect(Collectors.toUnmodifiableList());
     }
 }
