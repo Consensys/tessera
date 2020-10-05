@@ -10,6 +10,7 @@ dependencies {
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile 'io.swagger:swagger-annotations'
 
+    compile "org.glassfish:javax.json"
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.apache.commons:commons-lang3'
     compile 'javax.persistence:javax.persistence-api'
