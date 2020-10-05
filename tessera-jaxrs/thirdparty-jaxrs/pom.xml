@@ -42,7 +42,7 @@
                             <info>
                                 
                                 <title>Third party resources</title>
-                                <version>${project.version}</version>
+                                <version>${tessera.api.version}</version>
                             </info>
 
                             <locations>

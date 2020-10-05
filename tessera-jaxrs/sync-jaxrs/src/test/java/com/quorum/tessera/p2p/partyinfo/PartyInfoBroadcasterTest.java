@@ -1,15 +1,11 @@
 package com.quorum.tessera.p2p.partyinfo;
 
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.p2p.partyinfo.PartyInfoBroadcaster;
-import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
-import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -54,17 +50,17 @@ public class PartyInfoBroadcasterTest {
         this.partyStore = mock(PartyStore.class);
 
         doAnswer(
-            (InvocationOnMock invocation) -> {
-                ((Runnable) invocation.getArguments()[0]).run();
-                return null;
-            })
-            .when(executor)
-            .execute(any(Runnable.class));
+                        (InvocationOnMock invocation) -> {
+                            ((Runnable) invocation.getArguments()[0]).run();
+                            return null;
+                        })
+                .when(executor)
+                .execute(any(Runnable.class));
 
         when(partyInfoParser.to(any(PartyInfo.class))).thenReturn(DATA);
 
         this.partyInfoBroadcaster =
-            new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor, partyStore);
+                new PartyInfoBroadcaster(discovery, partyInfoParser, p2pClient, executor, partyStore);
     }
 
     @After
@@ -149,20 +145,5 @@ public class PartyInfoBroadcasterTest {
         verify(discovery).onDisconnect(URI.create(uriData));
         verify(partyStore).remove(URI.create(uriData));
         verify(p2pClient).sendPartyInfo(anyString(), any(byte[].class));
-    }
-
-    @Ignore
-    public void repopulateIfPartyStoreIsEmpty() {
-        final NodeInfo partyInfo = NodeInfo.Builder.create().withUrl(OWN_URL).build();
-
-        when(partyStore.getParties()).thenReturn(Set.of(URI.create(OWN_URL), URI.create(TARGET_URL)));
-        when(discovery.getCurrent()).thenReturn(partyInfo);
-        when(p2pClient.sendPartyInfo(TARGET_URL, DATA)).thenReturn(true);
-
-        partyInfoBroadcaster.run();
-        verify(partyStore, times(3)).getParties();
-        verify(discovery).getCurrent();
-        verify(partyInfoParser).to(any(PartyInfo.class));
-        verify(p2pClient).sendPartyInfo(TARGET_URL, DATA);
     }
 }

@@ -30,9 +30,13 @@ public class RuntimeContextBuilder {
 
     private boolean remoteKeyValidation;
 
+    private boolean enhancedPrivacy;
+
     private boolean disablePeerDiscovery;
 
     private boolean useWhiteList;
+
+    private boolean recoveryMode;
 
     private RuntimeContextBuilder() {}
 
@@ -75,6 +79,11 @@ public class RuntimeContextBuilder {
         return this;
     }
 
+    public RuntimeContextBuilder withEnhancedPrivacy(boolean enhancedPrivacy) {
+        this.enhancedPrivacy = enhancedPrivacy;
+        return this;
+    }
+
     public RuntimeContextBuilder withDisablePeerDiscovery(boolean disablePeerDiscovery) {
         this.disablePeerDiscovery = disablePeerDiscovery;
         return this;
@@ -82,6 +91,11 @@ public class RuntimeContextBuilder {
 
     public RuntimeContextBuilder withUseWhiteList(boolean useWhiteList) {
         this.useWhiteList = useWhiteList;
+        return this;
+    }
+
+    public RuntimeContextBuilder withRecoveryMode(boolean recoveryMode) {
+        this.recoveryMode = recoveryMode;
         return this;
     }
 
@@ -101,9 +115,11 @@ public class RuntimeContextBuilder {
                         peers,
                         p2pClient,
                         remoteKeyValidation,
+                        enhancedPrivacy,
                         p2pServerUri,
                         disablePeerDiscovery,
-                        useWhiteList);
+                        useWhiteList,
+                        recoveryMode);
         LOGGER.debug("Built {}", this);
         return instance;
     }

@@ -1,5 +1,6 @@
 package com.quorum.tessera.discovery;
 
+import com.quorum.tessera.encryption.PublicKey;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,20 +38,27 @@ public class DiscoveryHelperFactoryTest {
     }
 
     @Test
-    public void provider() {
-        DiscoveryHelper helper = DiscoveryHelperFactory.provider();
-        assertThat(helper).isNotNull()
-            .isExactlyInstanceOf(DiscoveryHelperImpl.class);
-
+    public void buildRemoteNodeInfo() {
+        PublicKey key = mock(PublicKey.class);
+        discoveryHelperFactory.buildRemoteNodeInfo(key);
+        verify(discoveryHelper).buildRemoteNodeInfo(key);
     }
 
+    @Test
+    public void buildAllNodeInfos() {
+        discoveryHelperFactory.buildRemoteNodeInfos();
+        verify(discoveryHelper).buildRemoteNodeInfos();
+    }
+
+    @Test
+    public void provider() {
+        DiscoveryHelper helper = DiscoveryHelperFactory.provider();
+        assertThat(helper).isNotNull().isExactlyInstanceOf(DiscoveryHelperImpl.class);
+    }
 
     @Test
     public void defaultConstructor() {
         DiscoveryHelper helper = new DiscoveryHelperFactory();
-        assertThat(helper).isNotNull()
-            .isExactlyInstanceOf(DiscoveryHelperFactory.class);
-
+        assertThat(helper).isNotNull().isExactlyInstanceOf(DiscoveryHelperFactory.class);
     }
-
 }

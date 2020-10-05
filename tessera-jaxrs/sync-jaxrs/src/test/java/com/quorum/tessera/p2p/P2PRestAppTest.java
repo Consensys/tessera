@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
+import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
@@ -71,6 +72,24 @@ public class P2PRestAppTest {
     public void getSingletons() {
         Set<Object> results = p2PRestApp.getSingletons();
         assertThat(results).hasSize(3);
+        results.forEach(
+                o ->
+                        assertThat(o)
+                                .isInstanceOfAny(
+                                        PartyInfoResource.class, IPWhitelistFilter.class, TransactionResource.class));
+    }
+
+    @Test
+    public void recoverP2PApp() {
+        when(runtimeContext.isRecoveryMode()).thenReturn(true);
+        p2PRestApp = new P2PRestApp();
+        Set<Object> results = p2PRestApp.getSingletons();
+        assertThat(results).hasSize(3);
+        results.forEach(
+                o ->
+                        assertThat(o)
+                                .isInstanceOfAny(
+                                        PartyInfoResource.class, IPWhitelistFilter.class, RecoveryResource.class));
     }
 
     @Test

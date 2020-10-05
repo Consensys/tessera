@@ -1,10 +1,6 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveException;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.RawTransaction;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
@@ -12,18 +8,17 @@ import com.quorum.tessera.service.Service.Status;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.ArgumentMatchers.any;
@@ -106,9 +101,22 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayload = Fixtures.createSample();
 
-        when(enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys)).thenReturn(encodedPayload);
+        List<AffectedTransaction> affectedTransactions = List.of(AffectedTransaction.Builder.create()
+            .withHash("hash".getBytes())
+            .withPayload(encodedPayload)
+            .build());
 
-        EncodedPayload result = enclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        when(enclave.encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(), eq(affectedTransactions), any()))
+                .thenReturn(encodedPayload);
+
+        EncodedPayload result =
+                enclaveClient.encryptPayload(
+                        message,
+                        senderPublicKey,
+                        recipientPublicKeys,
+                        PrivacyMode.PARTY_PROTECTION,
+                        affectedTransactions,
+                        new byte[0]);
 
         assertThat(result).isNotNull();
 
@@ -117,7 +125,8 @@ public class RestfulEnclaveClientTest {
 
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
-        verify(enclave).encryptPayload(message, senderPublicKey, recipientPublicKeys);
+        verify(enclave)
+                .encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(), eq(affectedTransactions), any());
     }
 
     @Test
@@ -137,9 +146,21 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayload = Fixtures.createSample();
 
-        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class))).thenReturn(encodedPayload);
+        List<AffectedTransaction> affectedTransactions = List.of(AffectedTransaction.Builder.create()
+            .withHash("hash".getBytes())
+            .withPayload(encodedPayload)
+            .build());
 
-        EncodedPayload result = enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys);
+        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any(), eq(affectedTransactions), any()))
+                .thenReturn(encodedPayload);
+
+        EncodedPayload result =
+                enclaveClient.encryptPayload(
+                        rawTransaction,
+                        recipientPublicKeys,
+                        PrivacyMode.PARTY_PROTECTION,
+                        affectedTransactions,
+                        new byte[0]);
 
         assertThat(result).isNotNull();
 
@@ -148,7 +169,7 @@ public class RestfulEnclaveClientTest {
 
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
-        verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class));
+        verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class), any(), anyList(), any());
     }
 
     @Test
@@ -192,6 +213,52 @@ public class RestfulEnclaveClientTest {
     }
 
     @Test
+    public void unencryptRawPayload() throws Exception {
+
+        byte[] message = "HELLOW".getBytes();
+
+        PublicKey senderPublicKey = PublicKey.from("SenderPublicKey".getBytes());
+
+        byte[] encryptedKey = "encryptedKey".getBytes();
+        Nonce nonce = new Nonce("Nonce".getBytes());
+
+        RawTransaction rawTransaction = new RawTransaction(message, encryptedKey, nonce, senderPublicKey);
+
+        when(enclave.unencryptRawPayload(any(RawTransaction.class))).thenReturn("unencryptedRawTransaction".getBytes());
+
+        byte[] result = enclaveClient.unencryptRawPayload(rawTransaction);
+
+        assertThat(result).containsExactly("unencryptedRawTransaction".getBytes());
+
+        verify(enclave).unencryptRawPayload(any(RawTransaction.class));
+    }
+
+    @Test
+    public void findInvalidSecurityHashes() throws Exception {
+
+        EncodedPayload payload = Fixtures.createSample();
+
+
+        TxHash txHash = new TxHash("acoth1".getBytes());
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+        when(affectedTransaction.getPayload()).thenReturn(payload);
+
+        Set<TxHash> invalidSecHashes = Set.of(txHash);
+
+        when(enclave.findInvalidSecurityHashes(any(EncodedPayload.class), anyList())).thenReturn(invalidSecHashes);
+
+        Set<TxHash> result = enclaveClient.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
+
+        assertThat(result).containsExactly(txHash);
+        assertThat(result.iterator().next())
+            .isNotSameAs(txHash)
+            .isEqualTo(txHash);
+
+        verify(enclave).findInvalidSecurityHashes(any(EncodedPayload.class), anyList());
+    }
+
+    @Test
     public void createNewRecipientBox() {
 
         EncodedPayload payload = Fixtures.createSample();
@@ -226,7 +293,7 @@ public class RestfulEnclaveClientTest {
     }
 
     @Test
-    public void enclaveUnavialable() throws Exception {
+    public void enclaveUnavailable() throws Exception {
 
         ExecutorService executorService = mock(ExecutorService.class);
 
@@ -245,7 +312,7 @@ public class RestfulEnclaveClientTest {
     }
 
     @Test
-    public void remoteEncalveReturnsError() {
+    public void remoteEnclaveReturnsError() {
 
         when(enclave.defaultPublicKey()).thenThrow(new RuntimeException());
 

@@ -1,0 +1,18 @@
+plugins {
+    id 'java'
+}
+
+group 'com.jpmorgan.quorum'
+version '0.11-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile "org.mockito:mockito-core"
+    testCompile 'junit:junit'
+    compile 'org.eclipse.persistence:org.eclipse.persistence.jpa'
+    compile 'org.eclipse.persistence:org.eclipse.persistence.extension'
+    testRuntime 'com.h2database:h2'
+}

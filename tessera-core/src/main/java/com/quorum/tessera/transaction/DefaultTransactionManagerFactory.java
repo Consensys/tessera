@@ -30,13 +30,17 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
         }
 
         PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
-        BatchPayloadPublisher batchPayloadPublisher = BatchPayloadPublisherFactory.newFactory().create(payloadPublisher);
+        BatchPayloadPublisher batchPayloadPublisher =
+                BatchPayloadPublisherFactory.newFactory().create(payloadPublisher);
         Enclave enclave = EnclaveFactory.create().create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO = entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
+        boolean privacyEnabled = config.getFeatures().isEnablePrivacyEnhancements();
+        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled);
 
         TransactionManager transactionManager =
                 new TransactionManagerImpl(
@@ -46,6 +50,7 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
                         resendManager,
                         payloadPublisher,
                         batchPayloadPublisher,
+                        privacyHelper,
                         100);
 
         REF.set(transactionManager);
