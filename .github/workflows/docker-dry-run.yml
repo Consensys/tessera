@@ -1,19 +1,17 @@
-name: Tessera Docker Build
+name: Tessera Docker Dry Run
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
 
 jobs:
   docker-build:
+    name: Build Docker image without pushing
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: docker/build-push-action@v1
         with:
-          repository: quorumengineering/tessera
+          repository: ${{ secrets.DOCKER_REPO }}
           push: false
