@@ -27,7 +27,19 @@ public class VersionIT {
 
         allUris.forEach(u -> {
             final String version = client.target(u).path("/version").request().get(String.class);
-            assertThat(version).isEqualTo("v2");
+            assertThat(version).isEqualTo("0.11.1");
+        });
+    }
+
+    @Test
+    public void getDistributionVersion() {
+        final List<URI> allUris = partyHelper.getParties()
+            .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
+            .collect(Collectors.toList());
+
+        allUris.forEach(u -> {
+            final String version = client.target(u).path("/version/distribution").request().get(String.class);
+            assertThat(version).isEqualTo("0.11.1");
         });
     }
 

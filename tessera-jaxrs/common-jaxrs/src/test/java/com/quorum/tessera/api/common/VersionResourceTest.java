@@ -1,5 +1,6 @@
 package com.quorum.tessera.api.common;
 
+import com.quorum.tessera.api.Version;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -11,8 +12,6 @@ public class VersionResourceTest {
 
     private VersionResource instance;
 
-    public VersionResourceTest() {}
-
     @Before
     public void onSetUp() {
         instance = new VersionResource();
@@ -20,7 +19,12 @@ public class VersionResourceTest {
 
     @Test
     public void getVersion() {
-        assertThat(instance.getVersion()).isEqualTo("v2");
+        assertThat(instance.getVersion()).isEqualTo(Version.getVersion());
+    }
+
+    @Test
+    public void getDistributionVersion() {
+        assertThat(instance.getDistributionVersion()).isEqualTo(Version.getVersion());
     }
 
     @Test
