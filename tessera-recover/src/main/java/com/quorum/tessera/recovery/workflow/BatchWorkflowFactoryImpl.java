@@ -49,7 +49,7 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
         PreparePayloadForRecipient preparePayloadForRecipient = new PreparePayloadForRecipient(payloadEncoder);
         FindRecipientFromPartyInfo findRecipientFromPartyInfo = new FindRecipientFromPartyInfo(discovery);
         FilterPayload filterPayload = new FilterPayload(enclave);
-        SearchRecipentKeyForPayload searchRecipentKeyForPayload = new SearchRecipentKeyForPayload(enclave);
+        SearchRecipientKeyForPayload searchRecipientKeyForPayload = new SearchRecipientKeyForPayload(enclave);
         SenderIsNotRecipient senderIsNotRecipient = new SenderIsNotRecipient(enclave);
         EncodedPayloadPublisher encodedPayloadPublisher = new EncodedPayloadPublisher(resendBatchPublisher);
 
@@ -59,7 +59,7 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
                         decodePayloadHandler,
                         filterPayload,
                         preparePayloadForRecipient,
-                        searchRecipentKeyForPayload,
+                        searchRecipientKeyForPayload,
                         findRecipientFromPartyInfo,
                         senderIsNotRecipient,
                         encodedPayloadPublisher);

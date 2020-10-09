@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Optional;
 
-public class SearchRecipentKeyForPayload implements BatchWorkflowAction {
+public class SearchRecipientKeyForPayload implements BatchWorkflowAction {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SearchRecipentKeyForPayload.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchRecipientKeyForPayload.class);
 
     private Enclave enclave;
 
-    public SearchRecipentKeyForPayload(Enclave enclave) {
+    public SearchRecipientKeyForPayload(Enclave enclave) {
         this.enclave = enclave;
     }
 
@@ -33,23 +33,22 @@ public class SearchRecipentKeyForPayload implements BatchWorkflowAction {
             return true;
         }
 
-         PublicKey recipientKey = searchForRecipientKey(encodedPayload)
-                .orElseThrow(
-                    () -> {
-                        EncryptedTransaction encryptedTransaction = event.getEncryptedTransaction();
-                        final MessageHash hash = encryptedTransaction.getHash();
-                        String message = String.format("No key found as recipient of message %s", hash);
-                        return new RecipientKeyNotFoundException(message);
-                    });
+        PublicKey recipientKey =
+                searchForRecipientKey(encodedPayload)
+                        .orElseThrow(
+                                () -> {
+                                    EncryptedTransaction encryptedTransaction = event.getEncryptedTransaction();
+                                    final MessageHash hash = encryptedTransaction.getHash();
+                                    String message = String.format("No key found as recipient of message %s", hash);
+                                    return new RecipientKeyNotFoundException(message);
+                                });
 
-        EncodedPayload adjustedPayload = EncodedPayload.Builder.from(encodedPayload)
-            .withRecipientKeys(List.of(recipientKey))
-            .build();
+        EncodedPayload adjustedPayload =
+                EncodedPayload.Builder.from(encodedPayload).withRecipientKeys(List.of(recipientKey)).build();
 
-            event.setRecipientKey(recipientKey);
-            event.setEncodedPayload(adjustedPayload);
+        event.setEncodedPayload(adjustedPayload);
 
-            return true;
+        return true;
     }
 
     private Optional<PublicKey> searchForRecipientKey(final EncodedPayload payload) {

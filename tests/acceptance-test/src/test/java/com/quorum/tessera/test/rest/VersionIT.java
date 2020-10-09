@@ -21,42 +21,47 @@ public class VersionIT {
 
     @Test
     public void getVersion() {
-        final List<URI> allUris = partyHelper.getParties()
-            .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
-            .collect(Collectors.toList());
+        final List<URI> allUris =
+                partyHelper
+                        .getParties()
+                        .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
+                        .collect(Collectors.toList());
 
-        allUris.forEach(u -> {
-            final String version = client.target(u).path("/version").request().get(String.class);
-            assertThat(version).isEqualTo("0.11.1");
-        });
+        allUris.forEach(
+                u -> {
+                    final String version = client.target(u).path("/version").request().get(String.class);
+                    assertThat(version).startsWith("0.11.1");
+                });
     }
 
     @Test
     public void getDistributionVersion() {
-        final List<URI> allUris = partyHelper.getParties()
-            .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
-            .collect(Collectors.toList());
+        final List<URI> allUris =
+                partyHelper
+                        .getParties()
+                        .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
+                        .collect(Collectors.toList());
 
-        allUris.forEach(u -> {
-            final String version = client.target(u).path("/version/distribution").request().get(String.class);
-            assertThat(version).isEqualTo("0.11.1");
-        });
+        allUris.forEach(
+                u -> {
+                    final String version = client.target(u).path("/version/distribution").request().get(String.class);
+                    assertThat(version).startsWith("0.11.1");
+                });
     }
 
     @Test
     public void getSupportedVersions() {
-        final List<URI> allUris = partyHelper.getParties()
-            .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
-            .collect(Collectors.toList());
+        final List<URI> allUris =
+                partyHelper
+                        .getParties()
+                        .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
+                        .collect(Collectors.toList());
 
         final String expectedVersionResponse = "{\"versions\":[{\"version\":\"1.0\"},{\"version\":\"2.0\"}]}";
-        allUris.forEach(u -> {
-            final JsonObject versions = client.target(u).path("/version/api").request().get(JsonObject.class);
-            assertThat(versions.toString()).isEqualTo(expectedVersionResponse);
-        });
+        allUris.forEach(
+                u -> {
+                    final JsonObject versions = client.target(u).path("/version/api").request().get(JsonObject.class);
+                    assertThat(versions.toString()).isEqualTo(expectedVersionResponse);
+                });
     }
-
 }
-
-
-
