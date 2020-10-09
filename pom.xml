@@ -179,6 +179,12 @@
                         </dependency>
                     </dependencies>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.1.2</version>
+                </plugin>
             </plugins>
 
         </pluginManagement>
@@ -492,6 +498,8 @@
         <module>tessera-data</module>
         <module>tessera-context</module>
         <module>service-loader-ext</module>
+        <module>tessera-recover</module>
+        <module>eclipselink-utils</module>
     </modules>
 
     <dependencyManagement>
@@ -704,6 +712,18 @@
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-context</artifactId>
+                <version>0.11.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.consensys.quorum.tessera</groupId>
+                <artifactId>eclipselink-utils</artifactId>
+                <version>0.11.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.consensys.quorum.tessera</groupId>
+                <artifactId>tessera-recover</artifactId>
                 <version>0.11.1-SNAPSHOT</version>
             </dependency>
 

@@ -3,6 +3,10 @@ plugins {
 }
 
 dependencies {
+    compile project(':tessera-recover')
+    compile project(':tessera-core')
+    compile project(':tessera-partyinfo')
+    compile project(':tessera-data')
     compile project(':tessera-jaxrs:common-jaxrs')
     compile project(':security')
     compile project(':shared')
@@ -12,9 +16,7 @@ dependencies {
     compile project(':tessera-jaxrs:jaxrs-client')
     implementation project(':tessera-jaxrs:partyinfo-model')
     compile 'io.swagger:swagger-annotations'
-    compile project(':tessera-core')
-    compile project(':tessera-partyinfo')
-    compile project(':tessera-data')
+
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile project(':tessera-jaxrs:common-jaxrs')
     compile 'org.glassfish:javax.json'
@@ -25,7 +27,6 @@ dependencies {
     testCompile 'org.glassfish.jersey.media:jersey-media-json-processing'
     testCompile 'org.glassfish.jersey.media:jersey-media-moxy'
     testCompile "org.glassfish.jersey.inject:jersey-hk2:2.27"
-
 
     compile project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
@@ -48,7 +49,7 @@ swagger {
         locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
         info {
             title = 'Peer to peer resources'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'
@@ -71,7 +72,7 @@ swagger {
         locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
         info {
             title = 'Peer to peer resources'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'

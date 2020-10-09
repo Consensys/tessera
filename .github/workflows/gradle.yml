@@ -51,7 +51,7 @@ jobs:
           ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/setup-java@v1
       with:
-       java-version: 11
+        java-version: 11
     - run: ./gradlew dependencyCheckAnalyze -x test
        
   test: 
@@ -68,8 +68,8 @@ jobs:
           ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/setup-java@v1
       with:
-       java-version: 11
-    - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test
+        java-version: 11
+    - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test --info
   itest: 
     runs-on: ubuntu-latest
     needs: [build]
@@ -84,7 +84,7 @@ jobs:
           ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/setup-java@v1
       with:
-       java-version: 11
+        java-version: 11
     - run: ./gradlew :tests:acceptance-test:test -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class"
     - uses: actions/upload-artifact@v1
       if: failure()

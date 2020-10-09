@@ -42,7 +42,7 @@ swagger {
         locations = ['com.quorum.tessera.thirdparty']
         info {
             title = 'Third party resources'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'
@@ -65,7 +65,7 @@ swagger {
         locations = ['com.quorum.tessera.thirdparty']
         info {
             title = 'Third party resources'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'

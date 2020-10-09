@@ -3,15 +3,15 @@ package com.quorum.tessera.q2t;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.encryption.KeyNotFoundException;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.jaxrs.mock.MockClient;
+import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
@@ -47,6 +47,11 @@ public class RestPayloadPublisherTest {
         publisher = new RestPayloadPublisher(mockClient, encoder, discovery);
     }
 
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(encoder, discovery);
+    }
+
     @Test
     public void publish() {
 
@@ -65,6 +70,7 @@ public class RestPayloadPublisherTest {
         String targetUrl = "http://someplace.com";
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         byte[] payloadData = "Some Data".getBytes();
         when(encoder.encode(encodedPayload)).thenReturn(payloadData);
 
@@ -74,7 +80,7 @@ public class RestPayloadPublisherTest {
         when(recipient.getKey()).thenReturn(recipientKey);
         when(recipient.getUrl()).thenReturn(targetUrl);
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(discovery.getCurrent()).thenReturn(nodeInfo);
+        when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
 
         publisher.publishPayload(encodedPayload, recipientKey);
 
@@ -86,6 +92,7 @@ public class RestPayloadPublisherTest {
 
         verify(encoder).encode(encodedPayload);
         verify(invocationBuilder).post(any(javax.ws.rs.client.Entity.class));
+        verify(discovery).getRemoteNodeInfo(eq(recipientKey));
     }
 
     @Test
@@ -106,6 +113,7 @@ public class RestPayloadPublisherTest {
         String targetUrl = "http://someplace.com";
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         byte[] payloadData = "Some Data".getBytes();
         when(encoder.encode(encodedPayload)).thenReturn(payloadData);
 
@@ -115,7 +123,7 @@ public class RestPayloadPublisherTest {
         when(recipient.getKey()).thenReturn(recipientKey);
         when(recipient.getUrl()).thenReturn(targetUrl);
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(discovery.getCurrent()).thenReturn(nodeInfo);
+        when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
 
         publisher.publishPayload(encodedPayload, recipientKey);
 
@@ -127,6 +135,7 @@ public class RestPayloadPublisherTest {
 
         verify(encoder).encode(encodedPayload);
         verify(invocationBuilder).post(any(javax.ws.rs.client.Entity.class));
+        verify(discovery).getRemoteNodeInfo(eq(recipientKey));
     }
 
     @Test
@@ -144,6 +153,7 @@ public class RestPayloadPublisherTest {
         String targetUrl = "http://someplace.com";
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         byte[] payloadData = "Some Data".getBytes();
         when(encoder.encode(encodedPayload)).thenReturn(payloadData);
 
@@ -153,7 +163,7 @@ public class RestPayloadPublisherTest {
         when(recipient.getKey()).thenReturn(recipientKey);
         when(recipient.getUrl()).thenReturn(targetUrl);
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(discovery.getCurrent()).thenReturn(nodeInfo);
+        when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
 
         try {
             publisher.publishPayload(encodedPayload, recipientKey);
@@ -161,32 +171,38 @@ public class RestPayloadPublisherTest {
         } catch (PublishPayloadException ex) {
             verify(encoder).encode(encodedPayload);
             verify(invocationBuilder).post(any(javax.ws.rs.client.Entity.class));
+            verify(discovery).getRemoteNodeInfo(eq(recipientKey));
         }
     }
 
     @Test
-    public void publishToUnknownRecipient() throws Exception {
+    public void publishEnhancedTransactionsToNodesThatDoNotSupport() {
 
         String targetUrl = "http://someplace.com";
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
         byte[] payloadData = "Some Data".getBytes();
         when(encoder.encode(encodedPayload)).thenReturn(payloadData);
 
         PublicKey recipientKey = mock(PublicKey.class);
         NodeInfo nodeInfo = mock(NodeInfo.class);
+        when(nodeInfo.supportedApiVersions()).thenReturn(Set.of("v1"));
         Recipient recipient = mock(Recipient.class);
         when(recipient.getKey()).thenReturn(recipientKey);
         when(recipient.getUrl()).thenReturn(targetUrl);
 
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(discovery.getCurrent()).thenReturn(nodeInfo);
+        when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
 
         try {
-            publisher.publishPayload(encodedPayload, mock(PublicKey.class));
-            failBecauseExceptionWasNotThrown(KeyNotFoundException.class);
-        } catch (KeyNotFoundException ex) {
+            publisher.publishPayload(encodedPayload, recipientKey);
+            failBecauseExceptionWasNotThrown(EnhancedPrivacyNotSupportedException.class);
+        } catch (EnhancedPrivacyNotSupportedException ex) {
             assertThat(ex).isNotNull();
+            assertThat(ex).hasMessageContaining("Transactions with enhanced privacy is not currently supported");
+        } finally {
+            verify(discovery).getRemoteNodeInfo(eq(recipientKey));
         }
     }
 
@@ -202,15 +218,17 @@ public class RestPayloadPublisherTest {
 
         NodeInfo nodeInfo = mock(NodeInfo.class);
         when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
-        when(discovery.getCurrent()).thenReturn(nodeInfo);
+        when(nodeInfo.getUrl()).thenReturn(targetUri);
+        when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
 
         Client client = mock(Client.class);
         when(client.target(targetUri)).thenThrow(ProcessingException.class);
 
         final EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(encoder.encode(payload)).thenReturn("SomeData".getBytes());
 
-        RestPayloadPublisher restPayloadPublisher = new RestPayloadPublisher(client,encoder,discovery);
+        RestPayloadPublisher restPayloadPublisher = new RestPayloadPublisher(client, encoder, discovery);
 
         try {
             restPayloadPublisher.publishPayload(payload, recipientKey);
@@ -218,10 +236,9 @@ public class RestPayloadPublisherTest {
         } catch (NodeOfflineException ex) {
             assertThat(ex).hasMessageContaining(targetUri);
             verify(client).target(targetUri);
-            verify(discovery).getCurrent();
+            verify(discovery).getRemoteNodeInfo(eq(recipientKey));
             verify(encoder).encode(payload);
+            verify(discovery).getRemoteNodeInfo(eq(recipientKey));
         }
-
     }
-
 }

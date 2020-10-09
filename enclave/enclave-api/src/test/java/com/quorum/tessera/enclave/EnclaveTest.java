@@ -2,17 +2,16 @@ package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.*;
 import com.quorum.tessera.service.Service;
+import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.nio.ByteBuffer;
+import java.util.*;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static java.util.Collections.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class EnclaveTest {
@@ -112,6 +111,44 @@ public class EnclaveTest {
     }
 
     @Test
+    public void unencryptRawPayload() {
+
+        PublicKey senderKey = mock(PublicKey.class);
+
+        byte[] cipherText = "cipherText".getBytes();
+
+        byte[] recipientBox = "RecipientBox".getBytes();
+
+        Nonce nonce = mock(Nonce.class);
+
+        RawTransaction rawTransaction = new RawTransaction(cipherText, recipientBox, nonce, senderKey);
+
+        PrivateKey senderPrivateKey = mock(PrivateKey.class);
+
+        when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(senderPrivateKey);
+
+        SharedKey sharedKey = mock(SharedKey.class);
+        when(nacl.computeSharedKey(senderKey, senderPrivateKey)).thenReturn(sharedKey);
+
+        byte[] expectedOutcome = "SUCCESS".getBytes();
+
+        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class)))
+                .thenReturn("sharedOrMasterKeyBytes".getBytes());
+
+        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
+
+        byte[] result = enclave.unencryptRawPayload(rawTransaction);
+
+        assertThat(result).isNotNull().isSameAs(expectedOutcome);
+
+        verify(nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
+        verify(nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class));
+        verify(keyManager).getPrivateKeyForPublicKey(senderKey);
+        verify(nacl).computeSharedKey(senderKey, senderPrivateKey);
+    }
+
+    @Test
     public void unencryptTransactionFromAnotherNode() {
 
         PublicKey senderKey = mock(PublicKey.class);
@@ -135,6 +172,9 @@ public class EnclaveTest {
         when(payload.getRecipientBoxes()).thenReturn(singletonList(recipientBox));
         when(payload.getRecipientNonce()).thenReturn(recipientNonce);
         when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(payload.getAffectedContractTransactions()).thenReturn(emptyMap());
+        when(payload.getExecHash()).thenReturn(new byte[0]);
 
         when(keyManager.getPublicKeys()).thenReturn(Collections.emptySet());
 
@@ -193,7 +233,14 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        EncodedPayload result = enclave.encryptPayload(message, senderPublicKey, Arrays.asList(recipientPublicKey));
+        EncodedPayload result =
+                enclave.encryptPayload(
+                        message,
+                        senderPublicKey,
+                        Arrays.asList(recipientPublicKey),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        emptyList(),
+                        null);
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -208,6 +255,84 @@ public class EnclaveTest {
         verify(nacl).sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey);
         verify(nacl).computeSharedKey(recipientPublicKey, senderPrivateKey);
         verify(keyManager).getPrivateKeyForPublicKey(senderPublicKey);
+    }
+
+    @Test
+    public void encryptPayloadWithAffectedTransactions() {
+
+        byte[] message = "MESSAGE".getBytes();
+
+        PublicKey senderPublicKey = mock(PublicKey.class);
+        PublicKey recipientPublicKey = mock(PublicKey.class);
+
+        byte[] masterKeyBytes = "masterKeyBytes".getBytes();
+        MasterKey masterKey = MasterKey.from(masterKeyBytes);
+        Nonce cipherNonce = mock(Nonce.class);
+        Nonce recipientNonce = mock(Nonce.class);
+        final RecipientBox closedbox = RecipientBox.from("closed".getBytes());
+        final byte[] openbox = "open".getBytes();
+        byte[] cipherText = "cipherText".getBytes();
+
+        when(nacl.createMasterKey()).thenReturn(masterKey);
+        when(nacl.randomNonce()).thenReturn(cipherNonce, recipientNonce);
+
+        when(nacl.sealAfterPrecomputation(message, cipherNonce, masterKey)).thenReturn(cipherText);
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(senderPublicKey));
+
+        PrivateKey senderPrivateKey = mock(PrivateKey.class);
+        when(keyManager.getPrivateKeyForPublicKey(senderPublicKey)).thenReturn(senderPrivateKey);
+
+        SharedKey sharedKey = mock(SharedKey.class);
+        when(nacl.computeSharedKey(recipientPublicKey, senderPrivateKey)).thenReturn(sharedKey);
+        when(nacl.openAfterPrecomputation(closedbox.getData(), recipientNonce, sharedKey)).thenReturn(openbox);
+        byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
+        when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
+
+        EncodedPayload affectedTxPayload = mock(EncodedPayload.class);
+        when(affectedTxPayload.getSenderKey()).thenReturn(senderPublicKey);
+        when(affectedTxPayload.getCipherText()).thenReturn(cipherText);
+        when(affectedTxPayload.getCipherTextNonce()).thenReturn(cipherNonce);
+        when(affectedTxPayload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(affectedTxPayload.getRecipientNonce()).thenReturn(recipientNonce);
+        when(affectedTxPayload.getRecipientKeys()).thenReturn(singletonList(recipientPublicKey));
+        when(affectedTxPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
+        when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
+
+
+        TxHash txnHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txnHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+        List<AffectedTransaction> affectedContractTransactions = List.of(affectedTransaction);
+
+        final EncodedPayload result =
+                enclave.encryptPayload(
+                        message,
+                        senderPublicKey,
+                        Arrays.asList(recipientPublicKey),
+                        PrivacyMode.STANDARD_PRIVATE,
+                    affectedContractTransactions,
+                        new byte[0]);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
+        assertThat(result.getCipherText()).isEqualTo(cipherText);
+        assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
+        assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
+        assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
+        assertThat(result.getAffectedContractTransactions()).containsOnlyKeys(txnHash);
+
+        verify(nacl).createMasterKey();
+        verify(nacl, times(2)).randomNonce();
+        verify(nacl).sealAfterPrecomputation(message, cipherNonce, masterKey);
+        verify(nacl).sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey);
+        verify(nacl).openAfterPrecomputation(closedbox.getData(), recipientNonce, sharedKey);
+        verify(nacl, times(2)).computeSharedKey(recipientPublicKey, senderPrivateKey);
+        verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderPublicKey);
+        verify(keyManager).getPublicKeys();
     }
 
     @Test
@@ -247,7 +372,13 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        EncodedPayload result = enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey));
+        EncodedPayload result =
+                enclave.encryptPayload(
+                        rawTransaction,
+                        Arrays.asList(recipientPublicKey),
+                        PrivacyMode.STANDARD_PRIVATE,
+                        emptyList(),
+                        new byte[0]);
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -372,5 +503,331 @@ public class EnclaveTest {
         verify(nacl).openAfterPrecomputation(closedbox.getData(), nonce, recipientSenderShared);
         verify(nacl).sealAfterPrecomputation(openbox, nonce, senderShared);
         verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderKey);
+    }
+
+    @Test
+    public void findInvalidSecurityHashesTransactionSentToCurrentNode() {
+
+        final PublicKey recipientKey = PublicKey.from("recipient".getBytes());
+        final PublicKey senderKey = PublicKey.from("sender".getBytes());
+        final PrivateKey privateKey = PrivateKey.from("private".getBytes());
+
+        final SharedKey sharedKey = SharedKey.from("shared".getBytes());
+        final RecipientBox closedbox = RecipientBox.from("closed".getBytes());
+        final byte[] openbox = "open".getBytes();
+        final Nonce nonce = new Nonce("nonce".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(privateKey);
+
+        when(nacl.computeSharedKey(senderKey, privateKey)).thenReturn(sharedKey);
+        when(nacl.openAfterPrecomputation(closedbox.getData(), nonce, sharedKey)).thenReturn(openbox);
+        when(nacl.sealAfterPrecomputation(openbox, nonce, sharedKey)).thenReturn("newbox".getBytes());
+
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(recipientKey));
+
+        TxHash txHash = TxHash.from(Base64.getDecoder().decode("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="));
+        Map<TxHash, SecurityHash> affectedContractTransactionHashes = Map.of(txHash,SecurityHash.from("securityHash".getBytes()));
+
+        final EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn(cipherText);
+        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(payload.getRecipientNonce()).thenReturn(nonce);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(payload.getAffectedContractTransactions()).thenReturn(affectedContractTransactionHashes);
+        when(payload.getExecHash()).thenReturn(new byte[0]);
+
+        final EncodedPayload affectedTxPayload = mock(EncodedPayload.class);
+        when(affectedTxPayload.getSenderKey()).thenReturn(senderKey);
+        when(affectedTxPayload.getCipherText()).thenReturn(cipherText);
+        when(affectedTxPayload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(affectedTxPayload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(affectedTxPayload.getRecipientNonce()).thenReturn(nonce);
+        when(affectedTxPayload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(affectedTxPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
+        when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
+
+
+        var txnHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txnHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+
+        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
+
+        assertThat(invalidHashes).hasSize(1);
+
+        verify(nacl).computeSharedKey(senderKey, privateKey);
+        verify(nacl).openAfterPrecomputation(closedbox.getData(), nonce, sharedKey);
+        verify(keyManager, times(2)).getPublicKeys();
+        verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
+    }
+
+    @Test
+    public void findInvalidSecurityHashesTransactionSentToCurrentNodeAllHashesMatch() {
+
+        final PublicKey recipientKey = PublicKey.from("recipient".getBytes());
+        final PublicKey senderKey = PublicKey.from("sender".getBytes());
+        final PrivateKey privateKey = PrivateKey.from("private".getBytes());
+
+        final SharedKey sharedKey = SharedKey.from("shared".getBytes());
+        final RecipientBox closedbox = RecipientBox.from("closed".getBytes());
+        final byte[] openbox = "open".getBytes();
+        final Nonce nonce = new Nonce("nonce".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(privateKey);
+
+        when(nacl.computeSharedKey(senderKey, privateKey)).thenReturn(sharedKey);
+        when(nacl.openAfterPrecomputation(closedbox.getData(), nonce, sharedKey)).thenReturn(openbox);
+        when(nacl.sealAfterPrecomputation(openbox, nonce, sharedKey)).thenReturn("newbox".getBytes());
+
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(recipientKey));
+
+        final SHA3.DigestSHA3 digestSHA3 = new SHA3.Digest512();
+
+        TxHash txHash =
+                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+
+        final Map<TxHash, SecurityHash> affectedContractTransactionHashes = Map.of(txHash,SecurityHash.from(digestSHA3.digest("cipherTextcipherTextopen".getBytes())));
+        final EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn(cipherText);
+        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(payload.getRecipientNonce()).thenReturn(nonce);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(payload.getAffectedContractTransactions()).thenReturn(affectedContractTransactionHashes);
+        when(payload.getExecHash()).thenReturn(new byte[0]);
+
+        final EncodedPayload affectedTxPayload = mock(EncodedPayload.class);
+        when(affectedTxPayload.getSenderKey()).thenReturn(senderKey);
+        when(affectedTxPayload.getCipherText()).thenReturn(cipherText);
+        when(affectedTxPayload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(affectedTxPayload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(affectedTxPayload.getRecipientNonce()).thenReturn(nonce);
+        when(affectedTxPayload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(affectedTxPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
+        when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
+
+        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
+        affectedContractTransactions.put(txHash, affectedTxPayload);
+
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+
+        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
+
+        assertThat(invalidHashes).hasSize(0);
+
+        verify(nacl).computeSharedKey(senderKey, privateKey);
+        verify(nacl).openAfterPrecomputation(closedbox.getData(), nonce, sharedKey);
+        verify(keyManager, times(2)).getPublicKeys();
+        verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
+    }
+
+    @Test
+    public void findInvalidSecurityHashesTransactionSentToCurrentNodeEmptyRecipientBoxes() {
+
+        final PublicKey recipientKey = PublicKey.from("recipient".getBytes());
+        final PublicKey senderKey = PublicKey.from("sender".getBytes());
+        final PrivateKey privateKey = PrivateKey.from("private".getBytes());
+
+        final Nonce nonce = new Nonce("nonce".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(privateKey);
+
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(recipientKey));
+
+        final Map<TxHash, SecurityHash> affectedContractTransactionHashes = Map.of(new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+            SecurityHash.from("securityHash".getBytes()));
+
+        final EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn(cipherText);
+        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(payload.getRecipientBoxes()).thenReturn(emptyList());
+        when(payload.getRecipientNonce()).thenReturn(nonce);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(payload.getAffectedContractTransactions()).thenReturn(affectedContractTransactionHashes);
+        when(payload.getExecHash()).thenReturn(new byte[0]);
+
+        final EncodedPayload affectedTxPayload = mock(EncodedPayload.class);
+        when(affectedTxPayload.getSenderKey()).thenReturn(senderKey);
+        when(affectedTxPayload.getCipherText()).thenReturn(cipherText);
+        when(affectedTxPayload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(affectedTxPayload.getRecipientBoxes()).thenReturn(emptyList());
+        when(affectedTxPayload.getRecipientNonce()).thenReturn(nonce);
+        when(affectedTxPayload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(affectedTxPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
+        when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
+
+        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+        try {
+            enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
+        } catch (Throwable e) {
+            assertThat(e).isInstanceOf(RuntimeException.class);
+            assertThat(e).hasMessageContaining("An EncodedPayload should have at least one recipient box.");
+        }
+    }
+
+    @Test
+    public void findInvalidSecurityHashesTransactionSentFromCurrentNode() {
+
+        final PublicKey recipientKey = PublicKey.from("recipient".getBytes());
+        final PublicKey senderKey = PublicKey.from("sender".getBytes());
+        final PrivateKey privateKey = PrivateKey.from("sender-priv".getBytes());
+
+        final SharedKey sharedKey = SharedKey.from("shared".getBytes());
+        final RecipientBox closedbox = RecipientBox.from("closed".getBytes());
+        final byte[] openbox = "open".getBytes();
+        final Nonce nonce = new Nonce("nonce".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+
+        when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(privateKey);
+
+        when(nacl.computeSharedKey(recipientKey, privateKey)).thenReturn(sharedKey);
+        when(nacl.openAfterPrecomputation(closedbox.getData(), nonce, sharedKey)).thenReturn(openbox);
+        when(nacl.sealAfterPrecomputation(openbox, nonce, sharedKey)).thenReturn("newbox".getBytes());
+
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(senderKey));
+
+        // compute the security hash
+        ByteBuffer byteBuffer = ByteBuffer.allocate(2 * cipherText.length + openbox.length);
+        byteBuffer.put(cipherText);
+        byteBuffer.put(cipherText);
+        byteBuffer.put(openbox);
+
+        final SHA3.DigestSHA3 digestSHA3 = new SHA3.Digest512();
+        final byte[] securityHash = digestSHA3.digest(byteBuffer.array());
+
+        Map<TxHash, SecurityHash> affectedContractTransactionHashes = new HashMap<>();
+        affectedContractTransactionHashes.put(
+                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+                SecurityHash.from(securityHash));
+        affectedContractTransactionHashes.put(
+                new TxHash("afMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+            SecurityHash.from("securityHash2".getBytes()));
+        final EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn(cipherText);
+        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(payload.getRecipientNonce()).thenReturn(nonce);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
+        when(payload.getAffectedContractTransactions()).thenReturn(affectedContractTransactionHashes);
+        when(payload.getExecHash()).thenReturn(new byte[0]);
+
+        final EncodedPayload affectedTxPayload = mock(EncodedPayload.class);
+        when(affectedTxPayload.getSenderKey()).thenReturn(senderKey);
+        when(affectedTxPayload.getCipherText()).thenReturn(cipherText);
+        when(affectedTxPayload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(affectedTxPayload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(affectedTxPayload.getRecipientNonce()).thenReturn(nonce);
+        when(affectedTxPayload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(affectedTxPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
+        when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
+        when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
+
+        Map<TxHash, EncodedPayload> affectedContractTransactions = new HashMap<>();
+        affectedContractTransactions.put(
+                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+                affectedTxPayload);
+
+        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+        Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
+
+        assertThat(invalidHashes).hasSize(1);
+
+        verify(nacl).computeSharedKey(recipientKey, privateKey);
+        verify(nacl).openAfterPrecomputation(closedbox.getData(), nonce, sharedKey);
+        verify(keyManager, times(1)).getPublicKeys();
+        verify(keyManager).getPrivateKeyForPublicKey(senderKey);
+    }
+
+    @Test
+    public void notAbleToDecryptMasterKey() {
+        final PublicKey recipientKey = PublicKey.from("recipient".getBytes());
+        final PublicKey senderKey = PublicKey.from("sender".getBytes());
+        final PrivateKey privateKey = PrivateKey.from("sender-priv".getBytes());
+        final RecipientBox closedbox = RecipientBox.from("closed".getBytes());
+        final Nonce nonce = new Nonce("nonce".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(privateKey);
+        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(recipientKey));
+
+        when(nacl.computeSharedKey(senderKey, privateKey))
+                .thenThrow(new EncryptorException("JNacl could not compute the shared key"));
+
+        Map<TxHash, SecurityHash> affectedContractTransactionHashes = Map.of(
+            new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+            SecurityHash.from("securityHash".getBytes()));
+
+        final EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(senderKey);
+        when(payload.getCipherText()).thenReturn(cipherText);
+        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(payload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(payload.getRecipientNonce()).thenReturn(nonce);
+        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(payload.getAffectedContractTransactions()).thenReturn(affectedContractTransactionHashes);
+        when(payload.getExecHash()).thenReturn(new byte[0]);
+
+        final EncodedPayload affectedTxPayload = mock(EncodedPayload.class);
+        when(affectedTxPayload.getSenderKey()).thenReturn(senderKey);
+        when(affectedTxPayload.getCipherText()).thenReturn(cipherText);
+        when(affectedTxPayload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+        when(affectedTxPayload.getRecipientBoxes()).thenReturn(singletonList(closedbox));
+        when(affectedTxPayload.getRecipientNonce()).thenReturn(nonce);
+        when(affectedTxPayload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
+        when(affectedTxPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+        when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
+        when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
+
+
+        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+        when(affectedTransaction.getHash()).thenReturn(txHash);
+        when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
+
+
+        try {
+            enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
+            failBecauseExceptionWasNotThrown(any());
+        } catch (Throwable ex) {
+            assertThat(ex).isInstanceOf(RuntimeException.class);
+            assertThat(ex).hasMessageContaining("Unable to decrypt master key");
+        }
+
+        verify(keyManager, times(2)).getPublicKeys();
+        verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
+        verify(nacl).computeSharedKey(senderKey, privateKey);
     }
 }

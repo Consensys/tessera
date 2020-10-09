@@ -8,6 +8,11 @@
     </parent>
     <artifactId>tessera-jaxrs</artifactId>
     <packaging>pom</packaging>
+
+    <properties>
+        <tessera.api.version>1.0.0</tessera.api.version>
+    </properties>
+
     <modules>
         <module>transaction-jaxrs</module>
         <module>common-jaxrs</module>
@@ -16,16 +21,23 @@
         <module>jaxrs-client</module>
         <module>partyinfo-model</module>
     </modules>
-    
-    
+
+
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>net.consensys.quorum.tessera</groupId>
+                <artifactId>common-jaxrs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-util</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>jaxrs-client</artifactId>
@@ -39,9 +51,15 @@
                 <type>jar</type>
             </dependency>
 
+            <dependency>
+                <groupId>net.consensys.quorum.tessera</groupId>
+                <artifactId>mock-jaxrs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
-    
+
     <dependencies>
         <dependency>
             <groupId>javax.ws.rs</groupId>
@@ -68,9 +86,9 @@
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>config</artifactId>
         </dependency>
-        
 
-        
+
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -83,7 +101,7 @@
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>security</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>jersey-server</artifactId>
@@ -95,20 +113,20 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.test-framework</groupId>
             <artifactId>jersey-test-framework-core</artifactId>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-        
+
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>mock-service-locator</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-grizzly2</artifactId>
@@ -121,10 +139,10 @@
                 </exclusion>
             </exclusions>-->
         </dependency>
-        
+
     </dependencies>
-    
-    
+
+
     <build>
         <pluginManagement>
             <plugins>
@@ -135,7 +153,7 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-         
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -160,7 +178,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -170,7 +188,7 @@
 
             </plugin>
 
-            
+
         </plugins>
     </build>
 </project>

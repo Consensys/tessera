@@ -232,7 +232,8 @@ public class ResendAllIT {
                 assertThat(rs.next()).isTrue();
                 final byte[] output = rs.getBytes(1);
                 final EncodedPayload payload = ENCODER.decode(output);
-                assertThat(payload.getRecipientKeys()).hasSize(0);
+                assertThat(payload.getRecipientKeys()).hasSize(1);
+                assertThat(payload.getRecipientKeys().get(0).encodeToBase64()).isEqualTo(partyTwo.getPublicKey());
                 assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(partyOne.getPublicKey());
                 assertThat(payload.getRecipientBoxes()).hasSize(1);
             }

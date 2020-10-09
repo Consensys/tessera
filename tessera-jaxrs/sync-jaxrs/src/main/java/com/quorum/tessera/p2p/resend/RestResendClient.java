@@ -1,8 +1,5 @@
 package com.quorum.tessera.p2p.resend;
 
-import com.quorum.tessera.p2p.resend.ResendClient;
-import com.quorum.tessera.p2p.resend.ResendRequest;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -25,5 +22,4 @@ public class RestResendClient implements ResendClient {
             return Response.Status.OK.getStatusCode() == response.getStatus();
         }
     }
-
 }

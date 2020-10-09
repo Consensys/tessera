@@ -21,6 +21,22 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.ext</groupId>
+            <artifactId>jersey-bean-validation</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.glassfish.web</groupId>
+                    <artifactId>javax.el</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.el</groupId>
+                    <artifactId>javax.el-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
@@ -30,7 +46,7 @@
                 <configuration>
                     <apiSources>
                         <apiSource>
-                            
+
                             <schemes>
                                 <scheme>http</scheme>
                                 <scheme>https</scheme>
@@ -39,9 +55,9 @@
                             <basePath>/</basePath>
                             <springmvc>false</springmvc>
                             <info>
-                                
+
                                 <title>Tessera rest</title>
-                                <version>${project.version}</version>
+                                <version>${tessera.api.version}</version>
                             </info>
 
                             <locations>

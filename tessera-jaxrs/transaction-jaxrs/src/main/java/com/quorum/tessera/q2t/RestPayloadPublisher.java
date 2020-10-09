@@ -3,12 +3,14 @@ package com.quorum.tessera.q2t;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.encryption.KeyNotFoundException;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.node.Recipient;
+import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
+import com.quorum.tessera.version.EnhancedPrivacyVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,16 +44,16 @@ public class RestPayloadPublisher implements PayloadPublisher {
     @Override
     public void publishPayload(EncodedPayload payload, PublicKey recipientKey) {
 
-        final Recipient retrievedRecipientFromStore =
-                discovery.getCurrent().getRecipients().stream()
-                        .filter(recipient -> recipientKey.equals(recipient.getKey()))
-                        .findAny()
-                        .orElseThrow(
-                                () ->
-                                        new KeyNotFoundException(
-                                                "Recipient not found for key: " + recipientKey.encodeToBase64()));
+        final NodeInfo remoteNodeInfo = discovery.getRemoteNodeInfo(recipientKey);
 
-        final String targetUrl = retrievedRecipientFromStore.getUrl();
+        if (PrivacyMode.STANDARD_PRIVATE != payload.getPrivacyMode()
+                && !remoteNodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)) {
+            throw new EnhancedPrivacyNotSupportedException(
+                    "Transactions with enhanced privacy is not currently supported on recipient "
+                            + recipientKey.encodeToBase64());
+        }
+
+        final String targetUrl = remoteNodeInfo.getUrl();
 
         LOGGER.info("Publishing message to {}", targetUrl);
 
@@ -71,7 +73,7 @@ public class RestPayloadPublisher implements PayloadPublisher {
 
             LOGGER.info("Published to {}", targetUrl);
         } catch (ProcessingException ex) {
-            LOGGER.debug("",ex);
+            LOGGER.debug("", ex);
             throw new NodeOfflineException(URI.create(targetUrl));
         }
     }
