@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.11.0-SNAPSHOT</version>
+        <version>0.11.1-SNAPSHOT</version>
     </parent>
     <artifactId>ddls</artifactId>
     <packaging>jar</packaging>
@@ -46,7 +46,7 @@
                     <dependency>
                         <groupId>net.consensys.quorum.tessera</groupId>
                         <artifactId>tessera-core</artifactId>
-                        <version>0.11.0-SNAPSHOT</version>
+                        <version>0.11.1-SNAPSHOT</version>
                     </dependency>
                     
                     <dependency>
@@ -126,8 +126,10 @@
                             <goal>execute</goal>
                         </goals>
                     </execution>-->
+
+                    <!-- FIXME: Sqlite does not support the "alter table add constraint" syntax. Using static file in create-table for now. -->
                     
-                    <execution>
+<!--                    <execution>
                         <id>sqlite-generate</id>
                         <phase>process-resources</phase>
                         <configuration>
@@ -142,7 +144,7 @@
                         <goals>
                             <goal>execute</goal>
                         </goals>
-                    </execution>
+                    </execution>-->
                                         
                 </executions>
                 

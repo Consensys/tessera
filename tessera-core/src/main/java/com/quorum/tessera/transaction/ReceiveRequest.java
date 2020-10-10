@@ -12,11 +12,20 @@ public interface ReceiveRequest {
 
     Optional<PublicKey> getRecipient();
 
+    boolean isRaw();
+
     class Builder {
 
         private MessageHash messageHash;
 
         private PublicKey recipient;
+
+        private boolean raw;
+
+        public Builder withRaw(boolean raw) {
+            this.raw = raw;
+            return this;
+        }
 
         public Builder withRecipient(PublicKey recipient) {
             this.recipient = recipient;
@@ -44,6 +53,11 @@ public interface ReceiveRequest {
                 @Override
                 public Optional<PublicKey> getRecipient() {
                     return Optional.ofNullable(recipient);
+                }
+
+                @Override
+                public boolean isRaw() {
+                    return raw;
                 }
             };
         }

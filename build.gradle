@@ -8,8 +8,10 @@ plugins {
 }
 
 def jettyVersion = "9.4.25.v20191220"
-def springVersion = "5.2.3.RELEASE"
-def eclipselinkVersion = "2.7.7"
+
+def springVersion = "5.2.9.RELEASE"
+def eclipseLinkVersion = "2.7.7"
+
 allprojects {
     group = 'net.consensys.quorum.tessera'
     //version = '0.11-SNAPSHOT'
@@ -25,7 +27,7 @@ allprojects {
                 runtimeOnly "ch.qos.logback:logback-core:1.2.3"
                 runtimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
                 runtimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
-                runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy:"+ eclipselinkVersion
+                runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy:"+ eclipseLinkVersion
 
                 testCompile "junit:junit:4.12"
                 testCompile "org.assertj:assertj-core:3.9.1"
@@ -78,6 +80,9 @@ allprojects {
                 compile "org.glassfish.jersey.core:jersey-common:2.27"
                 compile "org.eclipse.jetty:jetty-unixsocket:"+ jettyVersion
                 compile "org.eclipse.jetty:jetty-server:"+ jettyVersion
+                compile "org.eclipse.jetty:jetty-jndi:"+ jettyVersion
+                compile "org.eclipse.jetty:jetty-plus:"+ jettyVersion
+
 
                 compile "io.swagger:swagger-annotations:1.5.4"
                 compile "javax.transaction:javax.transaction-api:1.3"
@@ -94,8 +99,8 @@ allprojects {
                 compile "org.bouncycastle:bcprov-jdk15on:1.61"
                 compile "com.h2database:h2:1.4.200"
                 compile "com.zaxxer:HikariCP:3.2.0"
-                compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipselinkVersion
-                compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipselinkVersion
+                compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipseLinkVersion
+                compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipseLinkVersion
                 compile "org.hsqldb:hsqldb:2.4.1"
                 compile "org.xerial:sqlite-jdbc:3.23.1"
                 compile "javax.persistence:javax.persistence-api:2.2"
@@ -213,6 +218,9 @@ subprojects {
                 }
 
                 excludes = [
+                        'com.quorum.tessera.launcher.Launcher',
+                        'com.quorum.tessera.launcher.Launcher.*',
+                        'com.quorum.tessera.launcher.Main',
                         'com.quorum.tessera.config.migration.Main',
                         'com.quorum.tessera.data.migration.Main',
                         'com.quorum.tessera.passwords.ConsolePasswordReader',
@@ -364,10 +372,6 @@ subprojects {
         enabled = false
     }
 
-
-    test {
-        exclude '**/*IT.class'
-    }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
     check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification

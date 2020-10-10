@@ -14,6 +14,7 @@ import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
+import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
@@ -45,8 +46,7 @@ public class P2PRestApp extends TesseraRestApplication {
     private final PartyStore partyStore;
 
     public P2PRestApp() {
-        final ServiceFactory serviceFactory = ServiceFactory.create();
-        this.config = serviceFactory.config();
+        this.config = ServiceFactory.create().config();
         this.enclave = EnclaveFactory.create().create(config);
         this.discovery = Discovery.getInstance();
         this.partyStore = PartyStore.getInstance();
@@ -74,12 +74,18 @@ public class P2PRestApp extends TesseraRestApplication {
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
-        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-        TransactionManager transactionManager = transactionManagerFactory.create(config);
+        TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
+        BatchResendManager batchResendManager = BatchResendManager.create(config);
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-        final TransactionResource transactionResource = new TransactionResource(transactionManager, payloadEncoder);
+        final TransactionResource transactionResource =
+            new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
+        final RecoveryResource recoveryResource =
+            new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
 
+        if (runtimeContext.isRecoveryMode()) {
+            return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
+        }
         return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource);
     }
 

@@ -4,16 +4,12 @@ import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
-import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
-import com.quorum.tessera.config.apps.TesseraAppFactory;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.server.TesseraServer;
-import com.quorum.tessera.server.TesseraServerFactory;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -23,7 +19,6 @@ import javax.json.JsonException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /** The main entry point for the application. This just starts up the application in the embedded container. */
 public class Main {
@@ -56,7 +51,19 @@ public class Main {
                             .getConfig()
                             .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
-            RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
+            //Start legacy spring profile stuff
+            final String springProfileWarning = "Warn: Spring profiles will not be supported in future. To start in recover mode use 'tessera recover'";
+            if(System.getProperties().containsKey("spring.profiles.active")) {
+                System.out.println(springProfileWarning);
+                config.setRecoveryMode(System.getProperty("spring.profiles.active").contains("enable-sync-poller"));
+            } else if(System.getenv().containsKey("SPRING_PROFILES_ACTIVE")) {
+                System.out.println(springProfileWarning);
+                config.setRecoveryMode(System.getenv("SPRING_PROFILES_ACTIVE").contains("enable-sync-poller"));
+            }
+
+            //Start end spring profile stuff
+
+            final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
 
             com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
             Discovery.getInstance().onCreate();
@@ -71,7 +78,7 @@ public class Main {
 
             services.forEach(o -> LOGGER.debug("Service : {}", o));
 
-            runWebServer(config);
+            Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
 
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
@@ -108,6 +115,7 @@ public class Main {
 
             System.exit(5);
         } catch (final Throwable ex) {
+            LOGGER.debug(null, ex);
             if (Arrays.asList(args).contains("--debug")) {
                 ex.printStackTrace();
             } else {
@@ -119,44 +127,6 @@ public class Main {
             }
 
             System.exit(2);
-        }
-    }
-
-    private static void runWebServer(final Config config) throws Exception {
-
-        final List<TesseraServer> servers =
-                config.getServerConfigs().stream()
-                        .filter(server -> !AppType.ENCLAVE.equals(server.getApp()))
-                        .map(
-                                conf -> {
-                                    Object app =
-                                            TesseraAppFactory.create(conf.getCommunicationType(), conf.getApp())
-                                                    .orElseThrow(
-                                                            () ->
-                                                                    new IllegalStateException(
-                                                                            "Cant create app for " + conf.getApp()));
-
-                                    return TesseraServerFactory.create(conf.getCommunicationType())
-                                            .createServer(conf, Collections.singleton(app));
-                                })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-
-        Runtime.getRuntime()
-                .addShutdownHook(
-                        new Thread(
-                                () -> {
-                                    try {
-                                        for (TesseraServer ts : servers) {
-                                            ts.stop();
-                                        }
-                                    } catch (Exception ex) {
-                                        LOGGER.error(null, ex);
-                                    }
-                                }));
-
-        for (TesseraServer ts : servers) {
-            ts.start();
         }
     }
 }

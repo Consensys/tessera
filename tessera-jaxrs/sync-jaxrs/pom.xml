@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera-jaxrs</artifactId>
-        <version>0.11.0-SNAPSHOT</version>
+        <version>0.11.1-SNAPSHOT</version>
     </parent>
     <artifactId>sync-jaxrs</artifactId>
     <packaging>jar</packaging>
@@ -13,12 +13,18 @@
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>common-jaxrs</artifactId>
-            <version>0.11.0-SNAPSHOT</version>
+            <version>0.11.1-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>tessera-recover</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>mock-jaxrs</artifactId>
-            <version>0.11.0-SNAPSHOT</version>
+            <version>0.11.1-SNAPSHOT</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
@@ -49,7 +55,7 @@
                             <info>
 
                                 <title>Peer to peer resources</title>
-                                <version>${project.version}</version>
+                                <version>${tessera.api.version}</version>
                             </info>
 
                             <locations>

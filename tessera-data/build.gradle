@@ -8,6 +8,7 @@ dependencies {
     implementation 'com.zaxxer:HikariCP'
     runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.jpa'
     runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.extension'
+    runtimeOnly project(':eclipselink-utils')
 
     testImplementation 'org.springframework:spring-context:5.1.2.RELEASE'
     testImplementation 'org.springframework:spring-orm:5.1.2.RELEASE'

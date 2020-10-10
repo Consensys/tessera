@@ -9,7 +9,6 @@ import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.cli.admin.AdminCliAdapter;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.reflect.ReflectException;
 import org.slf4j.Logger;
@@ -54,7 +53,6 @@ public class PicoCliDelegate {
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
 
         commandLine.addSubcommand(new CommandLine(CommandLine.HelpCommand.class));
-        commandLine.addSubcommand(new CommandLine(AdminCliAdapter.class));
         commandLine.addSubcommand(new CommandLine(KeyGenCommand.class, new KeyGenCommandFactory()));
         commandLine.addSubcommand(new CommandLine(KeyUpdateCommand.class, new KeyUpdateCommandFactory()));
 
@@ -144,6 +142,10 @@ public class PicoCliDelegate {
                 OverrideUtil.setValue(config, target, value);
                 LOGGER.debug("Set : {} with value(s) {}", target, value);
             }
+        }
+
+        if (parseResult.hasMatchedOption("recover")) {
+            config.setRecoveryMode(true);
         }
 
         if (Objects.nonNull(parseResult.unmatched())) {
