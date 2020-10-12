@@ -13,6 +13,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /** Provides endpoints to determine versioning information */
@@ -22,11 +23,7 @@ public class VersionResource {
 
     private static final String VERSION = Version.getVersion();
 
-    /**
-     * An endpoint describing the current version of the application
-     *
-     * @return the version of the application
-     */
+    @Deprecated //getDistributionVersion
     @GET
     @Path("version")
     @Produces(MediaType.TEXT_PLAIN)
@@ -50,19 +47,17 @@ public class VersionResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Request all API versions available")
     @ApiResponses({@ApiResponse(code = 200, message = "All supported api versions", response = JsonArray.class)})
-    public JsonObject getVersions() {
-        final List<JsonObjectBuilder> sortedAllVersions = ApiVersion.versions()
+    public JsonArray getVersions() {
+        List<String> versions = ApiVersion.versions()
             .stream()
             .map(version -> version.substring(1)) //remove the "v" prefix
             .map(Double::parseDouble)
             .sorted()
-            .map(Object::toString)
-            .map(version -> Json.createObjectBuilder().add("version", version))
+            .map(Objects::toString)
             .collect(Collectors.toList());
 
-        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-        sortedAllVersions.forEach(arrayBuilder::add);
 
-        return Json.createObjectBuilder().add("versions", arrayBuilder).build();
+        return Json.createArrayBuilder(versions).build();
     }
+
 }

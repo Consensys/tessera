@@ -1,6 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.api.Version;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.*;
@@ -72,20 +71,7 @@ public class P2PRestAppIT {
         assertThat(response.getStatus()).isEqualTo(200);
     }
 
-    @Test
-    public void requestVersion() {
 
-        javax.ws.rs.core.Response response = client.target(actor.getP2PUri())
-                .path("/version")
-                .request()
-                .get();
-
-        assertThat(response).isNotNull();
-        assertThat(response.readEntity(String.class))
-                .isEqualTo(Version.getVersion());
-        assertThat(response.getStatus()).isEqualTo(200);
-
-    }
 
     @Test
     public void requestOpenApiSchema() throws IOException {
