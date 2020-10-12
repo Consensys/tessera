@@ -4,7 +4,6 @@ import com.quorum.tessera.test.PartyHelper;
 import org.junit.Test;
 
 import javax.json.JsonArray;
-import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -55,28 +54,7 @@ public class VersionIT {
         });
 
     }
-    @Test
-    public void getAllVersionInfo() {
 
-        List<URI> allUris = partyHelper.getParties().flatMap(p ->
-            Stream.of(p.getQ2TUri(),p.getP2PUri())
-        ).collect(Collectors.toList());
-
-        allUris.forEach(u -> {
-
-            JsonObject info = client.target(u).path("/version").path("info").request().get(JsonObject.class);
-            JsonArray versions = info.getJsonArray("versions");
-            assertThat(versions.stream()
-                .map(JsonString.class::cast)
-                .map(JsonString::getString)
-                .toArray(String[]::new)).containsExactly("1.0", "2.0");
-
-            String distVersion = info.getString("dist");
-            assertThat(distVersion).isNotNull();
-
-        });
-
-    }
 }
 
 
