@@ -30,13 +30,30 @@ public class VersionIT {
 
         allUris.forEach(u -> {
 
-            String version = client.target(u).path("/version").request().get(String.class);
+            String version = client.target(u).path("version").request().get(String.class);
             assertThat(version).isEqualTo(Version.getVersion());
 
         });
 
     }
+    @Test
+    public void getDistVersion() {
 
+        List<URI> allUris = partyHelper.getParties().flatMap(p ->
+            Stream.of(p.getQ2TUri(),p.getP2PUri())
+        ).collect(Collectors.toList());
+
+        allUris.forEach(u -> {
+
+            String version = client.target(u)
+                .path("version")
+                .path("distribution")
+                .request().get(String.class);
+            assertThat(version).isEqualTo(Version.getVersion());
+
+        });
+
+    }
     @Test
     public void getSupportedVersions() {
 
@@ -46,7 +63,10 @@ public class VersionIT {
 
         allUris.forEach(u -> {
 
-            JsonArray versions = client.target(u).path("/versions").request().get(JsonArray.class);
+            JsonArray versions = client.target(u)
+                .path("version")
+                .path("api")
+                .request().get(JsonArray.class);
             assertThat(versions.stream()
                 .map(JsonString.class::cast)
                 .map(JsonString::getString)

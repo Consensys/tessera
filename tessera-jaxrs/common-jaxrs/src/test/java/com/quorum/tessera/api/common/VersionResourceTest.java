@@ -26,6 +26,11 @@ public class VersionResourceTest {
         assertThat(instance.getVersion()).isEqualTo(MockVersion.VERSION);
     }
 
+    @Test
+    public void getDistributionVersion() {
+        assertThat(instance.getDistributionVersion()).isEqualTo(MockVersion.VERSION);
+    }
+
 
     @Test
     public void getVersions() {

@@ -21,19 +21,29 @@ import java.util.stream.Collectors;
 @Api
 public class VersionResource {
 
+    private static final String VERSION = Version.getVersion();
 
-    @Deprecated //Callers shouldn't need the build version
+    @Deprecated //getDistributionVersion
     @GET
     @Path("version")
     @Produces(MediaType.TEXT_PLAIN)
     @ApiOperation(value = "Request distribution version of Tessera")
     @ApiResponses({@ApiResponse(code = 200, message = "Current application version ", response = String.class)})
     public String getVersion() {
-        return Version.getVersion();
+        return VERSION;
     }
 
     @GET
-    @Path("versions")
+    @Path("version/distribution")
+    @Produces(MediaType.TEXT_PLAIN)
+    @ApiOperation(value = "Request distribution version of Tessera")
+    @ApiResponses({@ApiResponse(code = 200, message = "Current application version ", response = String.class)})
+    public String getDistributionVersion() {
+        return VERSION;
+    }
+
+    @GET
+    @Path("version/api")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Request all API versions available")
     @ApiResponses({@ApiResponse(code = 200, message = "All supported api versions", response = JsonArray.class)})
