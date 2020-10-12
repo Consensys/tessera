@@ -8,7 +8,7 @@ dependencies {
     compile project(':enclave:enclave-api')
     compile project(':tessera-context')
 
-    compile 'io.swagger:swagger-annotations'
+    compile 'io.swagger.core.v3:swagger-annotations'
     compile project(':tessera-data')
     compile 'org.apache.commons:commons-lang3'
 

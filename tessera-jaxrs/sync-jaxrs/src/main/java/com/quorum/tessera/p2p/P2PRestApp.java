@@ -18,7 +18,7 @@ import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
-import io.swagger.annotations.Api;
+// import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ import java.util.Set;
  * The main application that is submitted to the HTTP server Contains all the service classes created by the service
  * locator
  */
-@Api
+// @Api
 @GlobalFilter
 @ApplicationPath("/")
 public class P2PRestApp extends TesseraRestApplication {
@@ -80,7 +80,7 @@ public class P2PRestApp extends TesseraRestApplication {
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
         final TransactionResource transactionResource =
-            new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
+                new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
         final RecoveryResource recoveryResource =
             new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);

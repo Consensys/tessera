@@ -1,13 +1,11 @@
 package com.quorum.tessera.p2p.recovery;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /** Resend batch response. */
-@ApiModel
 public class ResendBatchResponse {
 
-    @ApiModelProperty("message count")
+    @Schema(description = "count of total transactions being resent")
     private long total;
 
     public ResendBatchResponse() {}

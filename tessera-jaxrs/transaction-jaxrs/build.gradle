@@ -14,7 +14,7 @@ dependencies {
     implementation "org.hibernate:hibernate-validator:6.0.2.Final"
 
     compile 'javax.ws.rs:javax.ws.rs-api'
-    compile 'io.swagger:swagger-annotations'
+    compile 'io.swagger.core.v3:swagger-annotations'
 
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.apache.commons:commons-lang3'

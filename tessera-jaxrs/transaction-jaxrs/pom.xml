@@ -38,52 +38,52 @@
         </dependency>
 
     </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.github.kongchen</groupId>
-                <artifactId>swagger-maven-plugin</artifactId>
-                <configuration>
-                    <apiSources>
-                        <apiSource>
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>io.swagger.core.v3</groupId>-->
+<!--                <artifactId>swagger-maven-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <apiSources>-->
+<!--                        <apiSource>-->
 
-                            <schemes>
-                                <scheme>http</scheme>
-                                <scheme>https</scheme>
-                            </schemes>
-                            <host>localhost:8080</host>
-                            <basePath>/</basePath>
-                            <springmvc>false</springmvc>
-                            <info>
+<!--                            <schemes>-->
+<!--                                <scheme>http</scheme>-->
+<!--                                <scheme>https</scheme>-->
+<!--                            </schemes>-->
+<!--                            <host>localhost:8080</host>-->
+<!--                            <basePath>/</basePath>-->
+<!--                            <springmvc>false</springmvc>-->
+<!--                            <info>-->
 
-                                <title>Tessera rest</title>
-                                <version>${tessera.api.version}</version>
-                            </info>
+<!--                                <title>Tessera rest</title>-->
+<!--                                <version>${tessera.api.version}</version>-->
+<!--                            </info>-->
 
-                            <locations>
-                                <location>com.quorum.tessera.api.common</location>
-                                <location>com.quorum.tessera.q2t</location>
-                            </locations>
-                            <templatePath>${project.parent.basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
-                            <outputPath>${project.build.directory}/generated-resources/swagger/swagger.html</outputPath>
-                            <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
-                            <swaggerFileName>swagger</swaggerFileName>
-                        </apiSource>
+<!--                            <locations>-->
+<!--                                <location>com.quorum.tessera.api.common</location>-->
+<!--                                <location>com.quorum.tessera.q2t</location>-->
+<!--                            </locations>-->
+<!--                            <templatePath>${project.parent.basedir}/src/main/swagger/strapdown.html.hbs</templatePath>-->
+<!--                            <outputPath>${project.build.directory}/generated-resources/swagger/swagger.html</outputPath>-->
+<!--                            <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>-->
+<!--                            <swaggerFileName>swagger</swaggerFileName>-->
+<!--                        </apiSource>-->
 
-                    </apiSources>
+<!--                    </apiSources>-->
 
-                </configuration>
+<!--                </configuration>-->
 
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>compile</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>generate</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
     <name>transaction-jaxrs</name>
 </project>

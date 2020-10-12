@@ -15,7 +15,7 @@ dependencies {
     compile project(':encryption:encryption-api')
     compile project(':tessera-jaxrs:jaxrs-client')
     implementation project(':tessera-jaxrs:partyinfo-model')
-    compile 'io.swagger:swagger-annotations'
+    compile 'io.swagger.core.v3:swagger-annotations'
 
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile project(':tessera-jaxrs:common-jaxrs')

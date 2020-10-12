@@ -23,52 +23,52 @@
 
     </dependencies>
     
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.github.kongchen</groupId>
-                <artifactId>swagger-maven-plugin</artifactId>
-                <configuration>
-                    <apiSources>
-                        <apiSource>
-                            
-                            <schemes>
-                                <scheme>http</scheme>
-                                <scheme>https</scheme>
-                            </schemes>
-                            <host>localhost:8080</host>
-                            <basePath>/</basePath>
-                            <springmvc>false</springmvc>
-                            <info>
-                                
-                                <title>Third party resources</title>
-                                <version>${tessera.api.version}</version>
-                            </info>
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>io.swagger.core.v3</groupId>-->
+<!--                <artifactId>swagger-maven-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <apiSources>-->
+<!--                        <apiSource>-->
+<!--                            -->
+<!--                            <schemes>-->
+<!--                                <scheme>http</scheme>-->
+<!--                                <scheme>https</scheme>-->
+<!--                            </schemes>-->
+<!--                            <host>localhost:8080</host>-->
+<!--                            <basePath>/</basePath>-->
+<!--                            <springmvc>false</springmvc>-->
+<!--                            <info>-->
+<!--                                -->
+<!--                                <title>Third party resources</title>-->
+<!--                                <version>${tessera.api.version}</version>-->
+<!--                            </info>-->
 
-                            <locations>
-                                <location>com.quorum.tessera.thirdparty</location>
-   
-                            </locations>
-                            <templatePath>${project.parent.basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
-                            <outputPath>${project.build.directory}/generated-resources/swagger/thirdpty.html</outputPath>
-                            <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>
-                            <swaggerFileName>thirdpty</swaggerFileName>
-                        </apiSource>
+<!--                            <locations>-->
+<!--                                <location>com.quorum.tessera.thirdparty</location>-->
+<!--   -->
+<!--                            </locations>-->
+<!--                            <templatePath>${project.parent.basedir}/src/main/swagger/strapdown.html.hbs</templatePath>-->
+<!--                            <outputPath>${project.build.directory}/generated-resources/swagger/thirdpty.html</outputPath>-->
+<!--                            <swaggerDirectory>${project.build.directory}/generated-resources/swagger</swaggerDirectory>-->
+<!--                            <swaggerFileName>thirdpty</swaggerFileName>-->
+<!--                        </apiSource>-->
 
-                    </apiSources>
+<!--                    </apiSources>-->
 
-                </configuration>
+<!--                </configuration>-->
 
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>compile</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>generate</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
     <name>thirdparty-jaxrs</name>
 </project>

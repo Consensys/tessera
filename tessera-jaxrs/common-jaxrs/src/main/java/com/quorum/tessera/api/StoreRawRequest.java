@@ -1,7 +1,6 @@
 package com.quorum.tessera.api;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -11,17 +10,21 @@ import java.util.Optional;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * Used when a new raw transaction is to be created where this node is the sender
+ * <p>Used when a new raw transaction is to be created where this node is the sender
  */
-@ApiModel
 public class StoreRawRequest {
 
+    @Schema(description = "data to be encrypted and stored", required = true, type = "string", format = "base64")
     @Size(min = 1)
     @NotNull
     @XmlInlineBinaryData
     private byte[] payload;
 
-    @ApiModelProperty("Sender public key")
+    @Schema(
+            description =
+                    "public key identifying the key pair that will be used in the encryption; if not set, default used",
+            type = "string",
+            format = "base64")
     @XmlInlineBinaryData
     private byte[] from;
 

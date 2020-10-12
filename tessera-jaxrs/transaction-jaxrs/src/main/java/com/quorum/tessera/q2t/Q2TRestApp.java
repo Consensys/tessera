@@ -9,7 +9,7 @@ import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
-import io.swagger.annotations.Api;
+// import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
 import java.util.Set;
@@ -18,7 +18,7 @@ import java.util.Set;
  * The main application that is submitted to the HTTP server Contains all the service classes created by the service
  * locator
  */
-@Api
+// @Api
 @ApplicationPath("/")
 public class Q2TRestApp extends TesseraRestApplication {
 

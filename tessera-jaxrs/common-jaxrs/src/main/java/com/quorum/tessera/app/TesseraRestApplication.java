@@ -6,12 +6,12 @@ import com.quorum.tessera.api.common.VersionResource;
 import com.quorum.tessera.api.exception.*;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.apps.TesseraApp;
-import io.swagger.annotations.Api;
+// import io.swagger.annotations.Api;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
-@Api
+// @Api
 public abstract class TesseraRestApplication extends Application implements TesseraApp {
 
     @Override

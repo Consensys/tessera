@@ -1,7 +1,6 @@
 package com.quorum.tessera.api;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -9,14 +8,13 @@ import javax.validation.constraints.Size;
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * Contains information that is used to delete a transaction
+ * <p>Contains information that is used to delete a transaction
  */
-@ApiModel
 public class DeleteRequest {
 
+    @Schema(description = "hash indicating encrypted payload to delete from database", format = "base64")
     @Size(min = 1)
     @NotNull
-    @ApiModelProperty(name = "Encoded transaction hash")
     private String key;
 
     public String getKey() {
@@ -26,5 +24,4 @@ public class DeleteRequest {
     public void setKey(final String key) {
         this.key = key;
     }
-
 }

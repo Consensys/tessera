@@ -9,7 +9,7 @@ import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
-import io.swagger.annotations.Api;
+// import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
 import java.util.Set;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /** The third party API */
-@Api
+// @Api
 @ApplicationPath("/")
 public class ThirdPartyRestApp extends TesseraRestApplication {
 

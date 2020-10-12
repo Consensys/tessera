@@ -86,7 +86,7 @@ allprojects {
                 compile "org.eclipse.jetty:jetty-plus:$jettyVersion"
 
 
-                compile "io.swagger:swagger-annotations:1.5.4"
+                compile "io.swagger.core.v3:swagger-annotations:2.1.5"
                 compile "javax.transaction:javax.transaction-api:1.3"
                 compile "org.bouncycastle:bcpkix-jdk15on:1.61"
 

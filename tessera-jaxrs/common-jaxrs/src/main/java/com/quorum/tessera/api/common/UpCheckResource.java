@@ -1,24 +1,25 @@
 package com.quorum.tessera.api.common;
 
 import com.quorum.tessera.transaction.TransactionManager;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 
 /** Provides endpoints about the health status of this node */
-@Api
+@Tags({@Tag(name = "quorum-to-tessera"), @Tag(name = "peer-to-peer"), @Tag(name = "third-party")})
 @Path("/upcheck")
 public class UpCheckResource {
 
@@ -39,13 +40,23 @@ public class UpCheckResource {
      *
      * @return a string stating the application is running
      */
+    @Operation(
+            summary = "/upcheck",
+            operationId = "upcheck",
+            description = "simple operation to check the server is up")
+    @ApiResponse(
+            responseCode = "200",
+            description = "upcheck response",
+            content =
+                    @Content(
+                            mediaType = MediaType.TEXT_PLAIN,
+                            schema = @Schema(type = "string"),
+                            examples = {
+                                @ExampleObject(value = UPCHECK_RESPONSE_IS_UP),
+                                @ExampleObject(value = UPCHECK_RESPONSE_DB)
+                            }))
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiResponses({
-        @ApiResponse(code = 200, message = UPCHECK_RESPONSE_IS_UP),
-        @ApiResponse(code = 200, message = UPCHECK_RESPONSE_DB)
-    })
-    @ApiOperation(value = "Check if local P2PRestApp Node is up")
     public Response upCheck() {
         LOGGER.info("GET upcheck");
 
