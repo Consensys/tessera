@@ -30,7 +30,7 @@ public class VersionIT {
         allUris.forEach(u -> {
 
             String version = client.target(u).path("/version").request().get(String.class);
-            assertThat(version).isEqualTo("2.0");
+            assertThat(version).isEqualTo("0.11.1");
 
         });
 
