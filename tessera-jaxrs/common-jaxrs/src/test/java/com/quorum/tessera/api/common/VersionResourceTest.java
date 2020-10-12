@@ -1,16 +1,20 @@
 package com.quorum.tessera.api.common;
 
-import com.quorum.tessera.api.Version;
+import com.quorum.tessera.api.MockVersion;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.json.JsonObject;
+import javax.json.Json;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class VersionResourceTest {
 
     private VersionResource instance;
+
+    public VersionResourceTest() {}
 
     @Before
     public void onSetUp() {
@@ -19,23 +23,20 @@ public class VersionResourceTest {
 
     @Test
     public void getVersion() {
-        assertThat(instance.getVersion()).isEqualTo(Version.getVersion());
+        assertThat(instance.getVersion()).isEqualTo(MockVersion.VERSION);
     }
 
     @Test
     public void getDistributionVersion() {
-        assertThat(instance.getDistributionVersion()).isEqualTo(Version.getVersion());
+        assertThat(instance.getDistributionVersion()).isEqualTo(MockVersion.VERSION);
     }
+
 
     @Test
     public void getVersions() {
-        final JsonObject versions = instance.getVersions();
-
-        final String expected = "{\"versions\":[{\"version\":\"1.0\"},{\"version\":\"2.0\"}]}";
-
-        // since the versions should be sorted, we know that the JSON string is in a particular order
-        final String versionJson = versions.toString();
-
-        assertThat(versionJson).isEqualTo(expected);
+        assertThat(instance.getVersions())
+            .containsExactlyElementsOf(Stream.of("1.0", "2.0")
+                .map(Json::createValue)
+                .collect(Collectors.toSet()));
     }
 }
