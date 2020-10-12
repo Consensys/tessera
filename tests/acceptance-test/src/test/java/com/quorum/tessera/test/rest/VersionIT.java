@@ -1,5 +1,6 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.api.Version;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class VersionIT {
         allUris.forEach(u -> {
 
             String version = client.target(u).path("/version").request().get(String.class);
-            assertThat(version).isEqualTo("0.11.1");
+            assertThat(version).isEqualTo(Version.getVersion());
 
         });
 
