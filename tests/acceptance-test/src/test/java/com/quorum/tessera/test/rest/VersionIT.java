@@ -24,36 +24,36 @@ public class VersionIT {
     @Test
     public void getVersion() {
 
-        List<URI> allUris = partyHelper.getParties().flatMap(p ->
-            Stream.of(p.getQ2TUri(),p.getP2PUri())
-        ).collect(Collectors.toList());
+        final List<URI> allUris =
+                partyHelper
+                        .getParties()
+                        .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
+                        .collect(Collectors.toList());
 
-        allUris.forEach(u -> {
-
-            String version = client.target(u).path("version").request().get(String.class);
-            assertThat(version).isEqualTo(Version.getVersion());
-
-        });
-
+        allUris.forEach(
+                u -> {
+                    final String version = client.target(u).path("/version").request().get(String.class);
+                    assertThat(version).isEqualTo(Version.getVersion());
+                });
     }
+
     @Test
-    public void getDistVersion() {
+    public void getDistributionVersion() {
+        final List<URI> allUris =
+                partyHelper
+                        .getParties()
+                        .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
+                        .collect(Collectors.toList());
 
-        List<URI> allUris = partyHelper.getParties().flatMap(p ->
-            Stream.of(p.getQ2TUri(),p.getP2PUri())
-        ).collect(Collectors.toList());
-
-        allUris.forEach(u -> {
-
-            String version = client.target(u)
-                .path("version")
-                .path("distribution")
-                .request().get(String.class);
-            assertThat(version).isEqualTo(Version.getVersion());
-
-        });
+        allUris.forEach(
+                u -> {
+                    final String version = client.target(u).path("/version/distribution").request().get(String.class);
+                    assertThat(version).isEqualTo(Version.getVersion());
+                });
 
     }
+  
+
     @Test
     public void getSupportedVersions() {
 
