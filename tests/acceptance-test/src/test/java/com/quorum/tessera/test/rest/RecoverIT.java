@@ -147,6 +147,7 @@ public class RecoverIT {
         for (NodeAlias nodeAlias : aliases) {
             recoverNode(nodeAlias);
         }
+
     }
 
     private void recoverNode(NodeAlias nodeAlias) throws Exception {
