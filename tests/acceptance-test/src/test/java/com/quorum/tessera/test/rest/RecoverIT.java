@@ -144,9 +144,11 @@ public class RecoverIT {
         List<NodeAlias> aliases = Arrays.asList(NodeAlias.values());
         Collections.shuffle(aliases);
 
-        for (NodeAlias nodeAlias : aliases) {
-            recoverNode(nodeAlias);
-        }
+//        for (NodeAlias nodeAlias : aliases) {
+//            recoverNode(nodeAlias);
+//        }
+
+        recoverNode(NodeAlias.A);
     }
 
     private void recoverNode(NodeAlias nodeAlias) throws Exception {
