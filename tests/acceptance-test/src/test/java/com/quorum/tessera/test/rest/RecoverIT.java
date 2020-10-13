@@ -103,9 +103,9 @@ public class RecoverIT {
 
     @After
     public void stopNetwork() throws Exception {
+        setupDatabase.dropAll();
         ExecutionContext.destroyContext();
         executors.values().forEach(ExecManager::stop);
-        setupDatabase.dropAll();
     }
 
     void sendTransactions() {
