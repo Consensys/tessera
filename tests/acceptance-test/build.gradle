@@ -80,47 +80,13 @@ test {
     )
 
     if (project.hasProperty('excludeTests')) {
-        exclude project.property('excludeTests')
+        def tokens = project.property('excludeTests').split(",")
+        tokens.each {v ->
+            exclude "**/"+ v +".class";
+        }
     }
-
-//    '**/RestSuite.class',
-//            '**/P2pTestSuite.class',
-//            '**/CucumberFileKeyGenerationIT.class',
-//            '**/AdminRestSuite.class',
-//            '**/RestSuiteUnixH2.class',
-//            '**/CucumberWhitelistIT.class',
-//            '**/ConfigMigrationIT.class'
-  //  '**/RestSuiteHttpH2RemoteEnclave.class'//,
-
-
-
-
-    /*
-                            <application.jar>${application.jar}</application.jar>
-                        <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
-                        <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
-                        <enclave.jaxrs.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar}</enclave.jaxrs.jar>
-                        <enclave.jaxrs.server.jar>${enclave.jaxrs.server.jar}</enclave.jaxrs.server.jar>
-                        <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
-     */
-
-
 }
 
-//task unzipTessera(type: Copy) {
-//    def zipFile = file(project(':tessera-dist:tessera-app').distZip.outputs.files.getFiles()[0])
-//    def outputDir = file("${buildDir}/unpacked/dist")
-//    from zipTree(zipFile)
-//    into outputDir
-//
-//}
-
-//task unzipEnclave(type: Copy) {
-//    def zipFile = file(project(':enclave:enclave-jaxrs').distZip.outputs.files.getFiles()[0])
-//    def outputDir = file("${buildDir}/unpacked/dist")
-//    from zipTree(zipFile)
-//    into outputDir
-//}
 
 
 task unzipDdl(type:Copy) {
