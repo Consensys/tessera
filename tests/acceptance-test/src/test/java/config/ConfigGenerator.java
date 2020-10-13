@@ -169,10 +169,14 @@ public class ConfigGenerator {
 
     public List<Config> createConfigs(ExecutionContext executionContext) {
 
-        PortUtil port = new PortUtil(50520);
-        String nodeId = NodeId.generate(executionContext);
+        final PortUtil port = new PortUtil(50520);
+        final String nodeId = NodeId.generate(executionContext);
         final FeatureToggles toggles = new FeatureToggles();
         toggles.setEnableRemoteKeyValidation(true);
+
+        final FeatureToggles enhancedPrivacyEnabledToggle = new FeatureToggles();
+        enhancedPrivacyEnabledToggle.setEnableRemoteKeyValidation(true);
+        enhancedPrivacyEnabledToggle.setEnablePrivacyEnhancements(true);
 
         final Integer partyInfoInterval = 5000;
 
@@ -186,6 +190,8 @@ public class ConfigGenerator {
 
         Map<Integer, SortedMap<String, String>> keyLookUp = keyLookup(encryptorType);
 
+        // Node A,B,C have enhanced private enabled, node D does not
+
         Config first =
                 new ConfigBuilder()
                         .withNodeId(nodeId)
@@ -193,11 +199,10 @@ public class ConfigGenerator {
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
-                        //  .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
                         .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(1))
-                        .withFeatureToggles(toggles)
+                        .withFeatureToggles(enhancedPrivacyEnabledToggle)
                         .withEncryptorConfig(encryptorConfig)
                         .build();
 
@@ -208,11 +213,10 @@ public class ConfigGenerator {
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
-                        // .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
                         .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(2))
-                        .withFeatureToggles(toggles)
+                        .withFeatureToggles(enhancedPrivacyEnabledToggle)
                         .withEncryptorConfig(encryptorConfig)
                         .build();
 
@@ -223,12 +227,11 @@ public class ConfigGenerator {
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
-                        // .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
                         .withPartyInfoInterval(partyInfoInterval)
                         .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
                         .withKeys(keyLookUp.get(3))
-                        .withFeatureToggles(toggles)
+                        .withFeatureToggles(enhancedPrivacyEnabledToggle)
                         .withEncryptorConfig(encryptorConfig)
                         .build();
 
@@ -239,7 +242,6 @@ public class ConfigGenerator {
                         .withExecutionContext(executionContext)
                         .withQt2Port(port.nextPort())
                         .withP2pPort(port.nextPort())
-                        // .withAdminPort(port.nextPort())
                         .withEnclavePort(port.nextPort())
                         .withPartyInfoInterval(partyInfoInterval)
                         .withKeys(keyLookUp.get(4))
@@ -284,8 +286,8 @@ public class ConfigGenerator {
 
         for (int i = 1; i <= configs.size(); i++) {
             String filename = String.format("config%d.json", i);
-            Path ouputFile = path.resolve(filename);
-            System.out.println(ouputFile);
+            Path outputFile = path.resolve(filename);
+            System.out.println(outputFile);
         }
     }
 }

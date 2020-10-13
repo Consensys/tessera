@@ -1,12 +1,10 @@
 package com.quorum.tessera.test.rest;
 
 import com.quorum.tessera.api.SendRequest;
+import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
@@ -19,8 +17,6 @@ import exec.RecoveryExecManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import suite.*;
@@ -41,7 +37,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.*;
 
-@RunWith(Parameterized.class)
 public class RecoverIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecoverIT.class);
@@ -52,17 +47,9 @@ public class RecoverIT {
 
     private PartyHelper partyHelper;
 
-    private static final long TXN_COUNT = 10;
-
     private Party sender;
 
     private List<Party> recipients;
-
-    private final PrivacyMode privacyMode;
-
-    public RecoverIT(PrivacyMode privacyMode) {
-        this.privacyMode = privacyMode;
-    }
 
     @Before
     public void startNetwork() throws Exception {
@@ -73,7 +60,7 @@ public class RecoverIT {
                         .with(SocketType.HTTP)
                         .with(EnclaveType.LOCAL)
                         .with(EncryptorType.NACL)
-                        .prefix(RecoverIT.class.getSimpleName().toLowerCase().concat("-").concat(privacyMode.name().toLowerCase()))
+                        .prefix(RecoverIT.class.getSimpleName().toLowerCase())
                         .createAndSetupContext();
 
         partyHelper = PartyHelper.create();
@@ -98,108 +85,72 @@ public class RecoverIT {
 
         executors.values().forEach(ExecManager::start);
 
-        PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(executionContext.getCommunicationType());
+        partyInfoSync();
 
-        final CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(
-                () -> {
-                    while (!partyInfoChecker.hasSynced()) {
-                        try {
-                            Thread.sleep(1000L);
-                        } catch (InterruptedException ex) {
-                        }
-                    }
-                    partyInfoSyncLatch.countDown();
-                });
-
-        if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
-            fail("Unable to sync party info");
-        }
-        executorService.shutdown();
-
-        sendTxns(privacyMode);
+        sendTransactions();
 
         Arrays.stream(NodeAlias.values())
                 .forEach(
                         a -> {
                             long count = doCount(a);
-                            assertThat(count).describedAs(a + " should have 10 ").isEqualTo(10L);
+                            if (a == NodeAlias.D) {
+                                assertThat(count).describedAs(a + " should have 100 ").isEqualTo(100L);
+                            } else {
+                                assertThat(count).describedAs(a + " should have 500 ").isEqualTo(500L);
+                            }
                         });
     }
 
     @After
     public void stopNetwork() throws Exception {
+        setupDatabase.dropAll();
         ExecutionContext.destroyContext();
         executors.values().forEach(ExecManager::stop);
-        setupDatabase.dropAll();
     }
 
-    byte[] createPayload(PrivacyMode privacyMode) {
+    void sendTransactions() {
 
-        if (privacyMode == PrivacyMode.STANDARD_PRIVATE) {
-            return new RestUtils().createTransactionData();
+        final List<String> recipientList = recipients.stream().map(Party::getPublicKey).collect(Collectors.toList());
+
+        final List<String> privacyRecipients =
+                recipients.stream()
+                        .filter(r -> r != partyHelper.findByAlias(NodeAlias.D))
+                        .map(Party::getPublicKey)
+                        .collect(Collectors.toList());
+
+        // Creating SP Contract
+        final String spOriginalHash = sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[0], recipientList);
+        for (int i = 0; i < 99; i++) {
+            sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[] {spOriginalHash}, recipientList);
         }
-        PublicKey senderKey = extractKey(sender);
 
-        List<PublicKey> recipientKeys = recipients.stream().map(RecoverIT::extractKey).collect(Collectors.toList());
+        // Creating PP Contract
+        final String ppOriginalHash = sendTransaction(PrivacyMode.PARTY_PROTECTION, new String[0], privacyRecipients);
+        for (int i = 0; i < 199; i++) {
+            sendTransaction(PrivacyMode.PARTY_PROTECTION, new String[] {ppOriginalHash}, privacyRecipients);
+        }
 
-        PayloadEncoder payloadEncoder = PayloadEncoder.create();
-        EncodedPayload encodedPayload =
-                EncodedPayload.Builder.create()
-                        .withRecipientKeys(recipientKeys)
-                        .withPrivacyMode(privacyMode)
-                        .withSenderKey(senderKey)
-                        .withCipherText("CIPHER".getBytes())
-                        .withCipherTextNonce("NONCE".getBytes())
-                        .withRecipientNonce("RECIPIENT_NONCE".getBytes())
-                        .build();
-        return payloadEncoder.encode(encodedPayload);
-    }
-
-    static PublicKey extractKey(Party party) {
-        return Optional.of(party).map(Party::getPublicKey).map(Base64.getDecoder()::decode).map(PublicKey::from).get();
-    }
-
-    void sendTxns(PrivacyMode privacyMode) {
-
-        for (int i = 0; i < TXN_COUNT; i++) {
-            SendRequest sendRequest = new SendRequest();
-            sendRequest.setPayload(createPayload(privacyMode));
-            sendRequest.setFrom(sender.getPublicKey());
-
-            List<String> recipientList = recipients.stream().map(Party::getPublicKey).collect(Collectors.toList());
-
-            sendRequest.setTo(recipientList.toArray(new String[recipientList.size()]));
-            sendRequest.setPrivacyFlag(privacyMode.getPrivacyFlag());
-            sendRequest.setExecHash("ExecHash");
-            sendRequest.setAffectedContractTransactions(new String[0]);
-
-            Response response =
-                    sender.getRestClientWebTarget()
-                            .path("send")
-                            .request()
-                            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-            assertThat(response.getStatus()).isEqualTo(201);
+        // Creating PSV Contract
+        final String psvOriginalHash =
+            sendTransaction(PrivacyMode.PRIVATE_STATE_VALIDATION, new String[0], privacyRecipients);
+        for (int i = 0; i < 199; i++) {
+            sendTransaction(PrivacyMode.PRIVATE_STATE_VALIDATION, new String[] {psvOriginalHash}, privacyRecipients);
         }
     }
 
     @Test
-    public void doStuff() throws Exception {
+    public void recoverNodes() throws Exception {
 
         List<NodeAlias> aliases = Arrays.asList(NodeAlias.values());
         Collections.shuffle(aliases);
 
         for (NodeAlias nodeAlias : aliases) {
-            assertThat(doCount(nodeAlias)).isEqualTo(TXN_COUNT);
-
             recoverNode(nodeAlias);
         }
+
     }
 
-    void recoverNode(NodeAlias nodeAlias) throws Exception {
-        assertThat(doCount(nodeAlias)).isEqualTo(TXN_COUNT);
+    private void recoverNode(NodeAlias nodeAlias) throws Exception {
 
         ExecManager execManager = executors.get(nodeAlias);
         execManager.stop();
@@ -216,13 +167,19 @@ public class RecoverIT {
 
         process.waitFor();
 
-        assertThat(doCount(nodeAlias)).isEqualTo(TXN_COUNT);
+        if (nodeAlias == NodeAlias.D) {
+            assertThat(doCount(nodeAlias)).isEqualTo(100);
+        } else {
+            assertThat(doCount(nodeAlias)).isEqualTo(500);
+        }
 
         recoveryExecManager.stop();
 
         NodeExecManager nodeExecManager = new NodeExecManager(execManager.getConfigDescriptor());
 
         nodeExecManager.start();
+
+        partyInfoSync();
 
         executors.replace(nodeAlias, nodeExecManager);
     }
@@ -248,8 +205,51 @@ public class RecoverIT {
         }
     }
 
-    @Parameterized.Parameters(name = "Private mode : {0}")
-    public static Collection<PrivacyMode> privacyModes() {
-        return Arrays.asList(PrivacyMode.values());
+    private String sendTransaction(PrivacyMode privacyMode, String[] affectedHash, List<String> recipients) {
+
+        Party sender = partyHelper.findByAlias(NodeAlias.A);
+
+        SendRequest sendRequest = new SendRequest();
+        sendRequest.setPayload(new RestUtils().createTransactionData());
+        sendRequest.setFrom(sender.getPublicKey());
+        sendRequest.setTo(recipients.toArray(new String[recipients.size()]));
+        sendRequest.setPrivacyFlag(privacyMode.getPrivacyFlag());
+        sendRequest.setAffectedContractTransactions(affectedHash);
+        if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+            sendRequest.setExecHash("execHash");
+        }
+
+        Response response =
+                sender.getRestClientWebTarget()
+                        .path("send")
+                        .request()
+                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+        assertThat(response.getStatus()).isEqualTo(201);
+        final SendResponse result = response.readEntity(SendResponse.class);
+
+        return result.getKey();
+    }
+
+    private void partyInfoSync() throws InterruptedException {
+        PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(CommunicationType.REST);
+
+        final CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.submit(
+                () -> {
+                    while (!partyInfoChecker.hasSynced()) {
+                        try {
+                            Thread.sleep(1000L);
+                        } catch (InterruptedException ex) {
+                        }
+                    }
+                    partyInfoSyncLatch.countDown();
+                });
+
+        if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
+            fail("Unable to sync party info");
+        }
+        executorService.shutdown();
     }
 }
