@@ -7,7 +7,7 @@ import java.net.URL;
 
 public enum DBType {
     
-    H2("jdbc:h2:./target/h2/%s%d;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE;AUTO_RECONNECT=TRUE","/ddls/h2-ddl.sql"),
+    H2("jdbc:h2:./target/h2/%s%d;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE","/ddls/h2-ddl.sql"),
     HSQL("jdbc:hsqldb:hsql://127.0.0.1:9189/%s%d","/ddls/hsql-ddl.sql"),
     SQLITE("jdbc:sqlite:target/sqlite-%s%d.db","/ddls/sqlite-ddl.sql");
 
