@@ -18,7 +18,10 @@ dependencies {
     implementation project(":tessera-partyinfo")
     implementation project(":tessera-data")
     implementation project(":tessera-context")
+    implementation project(":tessera-recover")
     implementation "org.apache.commons:commons-lang3"
+
+    implementation "jakarta.validation:jakarta.validation-api"
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
     implementation "org.glassfish:jakarta.json"
@@ -46,10 +49,10 @@ swagger {
         outputFormats = ["json"]
         //attachSwaggerArtifact = true
 
-        locations = ["com.quorum.tessera.p2p"]
+        locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
         info {
             title = "Peer to peer resources"
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = "http://www.apache.org/licenses/LICENSE-2.0.html"
                 name = "Apache 2.0"
@@ -69,7 +72,7 @@ swagger {
         outputFormats = ["json"]
         //attachSwaggerArtifact = true
 
-        locations = ["com.quorum.tessera.p2p"]
+        locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
         info {
             title = "Peer to peer resources"
             version = project.version

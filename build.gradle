@@ -9,7 +9,6 @@ plugins {
 
 
 def jettyVersion = "9.4.25.v20191220"
-
 def eclipselinkVersion = "2.7.7"
 def jerseyVersion = "2.27"
 def slf4jVersion = "1.7.30"
@@ -47,7 +46,7 @@ allprojects {
 
                 testImplementation "com.openpojo:openpojo:0.8.10"
                 testImplementation "com.github.stefanbirkner:system-rules:1.19.0"
-                testImplementation "nl.jqno.equalsverifier:equalsverifier:3.1.5"
+                testImplementation "nl.jqno.equalsverifier:equalsverifier:3.4.3"
                 testImplementation "com.mockrunner:mockrunner-jdbc:2.0.4"
 
                 implementation "commons-cli:commons-cli:1.4"
@@ -209,7 +208,7 @@ subprojects {
         systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
         systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
     }
-    
+
     checkstyle {
         configFile project.getRootProject().file("checkstyle.xml")
         configProperties.put("checkstyle.suppressions.file",project.getRootProject().file("checkstyle-suppressions.xml"))
@@ -224,7 +223,7 @@ subprojects {
         suppressionFile = project.getRootProject().file("cvss-suppressions.xml")
       //  analyzedTypes = ["zip"]
     }
-    
+
     jacoco {
         toolVersion = "0.8.5"
     }
@@ -274,6 +273,14 @@ subprojects {
                         "com.quorum.tessera.passwords.PasswordReaderFactory",
                         "com.quorum.tessera.enclave.rest.Main",
                         "com.quorum.tessera.key.vault.azure.AzureSecretClientDelegate",
+                        "com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory",
+                        "com.quorum.tessera.launcher.Launcher",
+                        "com.quorum.tessera.launcher.Launcher.*",
+                        "com.quorum.tessera.launcher.Main",
+                        "com.quorum.tessera.passwords.ConsolePasswordReader",
+                        "com.quorum.tessera.passwords.PasswordReaderFactory",
+                        "com.quorum.tessera.enclave.rest.Main",
+                        "com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate",
                         "com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory"
                 ]
             }

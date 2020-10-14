@@ -5,6 +5,7 @@ import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
@@ -29,8 +30,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptySet;
+import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
 /** Defines endpoints for requesting node discovery (partyinfo) information */
@@ -149,7 +149,12 @@ public class PartyInfoResource {
                     final String dataToEncrypt = UUID.randomUUID().toString();
                     final EncodedPayload encodedPayload =
                         enclave.encryptPayload(
-                            dataToEncrypt.getBytes(), localPublicKey, Arrays.asList(r.getKey()));
+                            dataToEncrypt.getBytes(),
+                            localPublicKey,
+                            Arrays.asList(r.getKey()),
+                            PrivacyMode.STANDARD_PRIVATE,
+                            emptyList(),
+                            new byte[0]);
 
                     final byte[] encodedPayloadBytes = payloadEncoder.encode(encodedPayload);
 

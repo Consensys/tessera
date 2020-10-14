@@ -85,7 +85,7 @@ public class ResendAllIT {
         assertThat(deleteCheck).isNotNull();
         assertThat(deleteCheck.getStatus()).isEqualTo(404);
 
-        //request resend from recipient
+        // request resend from recipient
         final ResendRequest req = new ResendRequest();
         req.setType(RESEND_ALL_VALUE);
         req.setPublicKey(partyOne.getPublicKey());
@@ -145,7 +145,7 @@ public class ResendAllIT {
         assertThat(deleteCheck).isNotNull();
         assertThat(deleteCheck.getStatus()).isEqualTo(404);
 
-        //request resend from recipients
+        // request resend from recipients
         final ResendRequest req = new ResendRequest();
         req.setType(RESEND_ALL_VALUE);
         req.setPublicKey(partyOne.getPublicKey());
@@ -169,7 +169,8 @@ public class ResendAllIT {
         assertThat(resendRequestNode3.getStatus()).isEqualTo(200);
 
         final String fetch = "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
-        final Connection databaseConnection = PartyHelper.create().findByPublicKey(partyOne.getPublicKey()).getDatabaseConnection();
+        final Connection databaseConnection =
+                PartyHelper.create().findByPublicKey(partyOne.getPublicKey()).getDatabaseConnection();
         try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
             statement.setBytes(1, Base64.getDecoder().decode(hash));
             try (ResultSet rs = statement.executeQuery()) {
@@ -230,14 +231,16 @@ public class ResendAllIT {
         assertThat(resendRequest.getStatus()).isEqualTo(200);
 
         final String fetch = "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
-        final Connection databaseConnection = PartyHelper.create().findByPublicKey(partyTwo.getPublicKey()).getDatabaseConnection();
+        final Connection databaseConnection =
+                PartyHelper.create().findByPublicKey(partyTwo.getPublicKey()).getDatabaseConnection();
         try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
             statement.setBytes(1, Base64.getDecoder().decode(hash));
             try (ResultSet rs = statement.executeQuery()) {
                 assertThat(rs.next()).isTrue();
                 final byte[] output = rs.getBytes(1);
                 final EncodedPayload payload = ENCODER.decode(output);
-                assertThat(payload.getRecipientKeys()).hasSize(0);
+                assertThat(payload.getRecipientKeys()).hasSize(1);
+                assertThat(payload.getRecipientKeys().get(0).encodeToBase64()).isEqualTo(partyTwo.getPublicKey());
                 assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(partyOne.getPublicKey());
                 assertThat(payload.getRecipientBoxes()).hasSize(1);
             }

@@ -63,6 +63,8 @@ public class Config extends ConfigItem {
 
     @XmlElement private EncryptorConfig encryptor;
 
+    @XmlTransient private boolean recoveryMode;
+
     @Deprecated
     public Config(
             final JdbcConfig jdbcConfig,
@@ -210,5 +212,13 @@ public class Config extends ConfigItem {
 
     public void setEncryptor(EncryptorConfig encryptor) {
         this.encryptor = encryptor;
+    }
+
+    public boolean isRecoveryMode() {
+        return recoveryMode;
+    }
+
+    public void setRecoveryMode(boolean recoveryMode) {
+        this.recoveryMode = recoveryMode;
     }
 }

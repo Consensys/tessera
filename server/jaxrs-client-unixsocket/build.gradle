@@ -27,3 +27,7 @@ compileJava {
         classpath = files()
     }
 }
+
+jacocoTestCoverageVerification {
+    enabled false
+}

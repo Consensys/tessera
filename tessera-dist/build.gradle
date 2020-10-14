@@ -30,10 +30,12 @@ dependencies {
     implementation project(":tessera-jaxrs:transaction-jaxrs")
     implementation project(":tessera-jaxrs:thirdparty-jaxrs")
     implementation project(":enclave:enclave-jaxrs")
-
+    implementation project(":tessera-recover")
     implementation project(":server:jersey-server")
     implementation "org.glassfish.jersey.media:jersey-media-json-processing"
     implementation project(":encryption:encryption-jnacl")
+
+    implementation "jakarta.validation:jakarta.validation-api"
 
     implementation project(":tessera-context")
 

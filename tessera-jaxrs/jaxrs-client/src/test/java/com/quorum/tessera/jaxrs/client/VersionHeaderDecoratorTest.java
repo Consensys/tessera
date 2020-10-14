@@ -26,7 +26,9 @@ public class VersionHeaderDecoratorTest {
 
         assertThat(headers.get(Constants.API_VERSION_HEADER)).isNotNull().isEqualTo(ApiVersion.versions());
 
-        verify(requestContext).getHeaders();
+        int count = ApiVersion.versions().size();
+
+        verify(requestContext, times(count)).getHeaders();
         verifyNoMoreInteractions(requestContext);
     }
 }

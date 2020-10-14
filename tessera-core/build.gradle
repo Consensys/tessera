@@ -5,6 +5,8 @@ plugins {
 dependencies {
 
     implementation project(":tessera-data")
+
+
     implementation project(":shared")
     implementation project(":tessera-context")
     implementation project(":tessera-partyinfo")
@@ -19,13 +21,14 @@ dependencies {
 
     implementation "org.bouncycastle:bcpkix-jdk15on"
 
-    testCompile project(":cli:cli-api")
+    testImplementation project(":cli:cli-api")
 
 
-    testCompile "jakarta.persistence:jakarta.persistence-api"
+    testImplementation "jakarta.persistence:jakarta.persistence-api"
     testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    testImplementation project(":eclipselink-utils")
 
-    compile "jakarta.validation:jakarta.validation-api"
+    testImplementation "jakarta.validation:jakarta.validation-api"
     implementation "org.hibernate:hibernate-validator"
 
 }

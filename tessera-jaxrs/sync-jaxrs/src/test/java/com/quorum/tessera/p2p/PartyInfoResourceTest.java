@@ -4,13 +4,11 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
-import com.quorum.tessera.partyinfo.model.NodeInfoUtil;
-import com.quorum.tessera.partyinfo.model.Party;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.partyinfo.model.*;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.junit.After;
 import org.junit.Before;
@@ -33,8 +31,7 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoResourceTest {
@@ -62,8 +59,8 @@ public class PartyInfoResourceTest {
         this.payloadEncoder = mock(PayloadEncoder.class);
         this.partyStore = mock(PartyStore.class);
         this.partyInfoResource =
-            new PartyInfoResource(
-                discovery, partyInfoParser, restClient, enclave, payloadEncoder, true, partyStore);
+                new PartyInfoResource(
+                        discovery, partyInfoParser, restClient, enclave, payloadEncoder, true, partyStore);
     }
 
     @After
@@ -75,31 +72,31 @@ public class PartyInfoResourceTest {
     public void partyInfoGet() {
 
         final String partyInfoJson =
-            "{\"url\":\"http://localhost:9001/\",\"peers\":[{\"url\":\"http://localhost:9006/\"},{\"url\":\"http://localhost:9005/\"}],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
+                "{\"url\":\"http://localhost:9001/\",\"peers\":[{\"url\":\"http://localhost:9006/\"},{\"url\":\"http://localhost:9005/\"}],\"keys\":[{\"key\":\"BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=\",\"url\":\"http://localhost:9001/\"},{\"key\":\"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\",\"url\":\"http://localhost:9002/\"}]}";
 
         NodeInfo partyInfo =
-            NodeInfo.Builder.create()
-                .withUrl("http://localhost:9001/")
-                .withRecipients(
-                    List.of(
-                        com.quorum.tessera.partyinfo.node.Recipient.of(
-                            PublicKey.from(
-                                Base64.getDecoder()
-                                    .decode(
-                                        "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
-                            "http://localhost:9001/"),
-                        com.quorum.tessera.partyinfo.node.Recipient.of(
-                            PublicKey.from(
-                                Base64.getDecoder()
-                                    .decode(
-                                        "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")),
-                            "http://localhost:9002/")))
-                .build();
+                NodeInfo.Builder.create()
+                        .withUrl("http://localhost:9001/")
+                        .withRecipients(
+                                List.of(
+                                        com.quorum.tessera.partyinfo.node.Recipient.of(
+                                                PublicKey.from(
+                                                        Base64.getDecoder()
+                                                                .decode(
+                                                                        "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")),
+                                                "http://localhost:9001/"),
+                                        com.quorum.tessera.partyinfo.node.Recipient.of(
+                                                PublicKey.from(
+                                                        Base64.getDecoder()
+                                                                .decode(
+                                                                        "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=")),
+                                                "http://localhost:9002/")))
+                        .build();
 
         when(discovery.getCurrent()).thenReturn(partyInfo);
 
         when(partyStore.getParties())
-            .thenReturn(Set.of(URI.create("http://localhost:9006/"), URI.create("http://localhost:9005/")));
+                .thenReturn(Set.of(URI.create("http://localhost:9006/"), URI.create("http://localhost:9005/")));
 
         final Response response = partyInfoResource.getPartyInfo();
 
@@ -114,9 +111,9 @@ public class PartyInfoResourceTest {
         JsonObject actualJsonObject = actual.readObject();
 
         assertThat(actualJsonObject.getJsonArray("keys"))
-            .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("keys"));
+                .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("keys"));
         assertThat(actualJsonObject.getJsonArray("peers"))
-            .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("peers"));
+                .containsExactlyInAnyOrderElementsOf(expectedJsonObject.getJsonArray("peers"));
         assertThat(actualJsonObject.getString("url")).isEqualTo(expectedJsonObject.getString("url"));
 
         verify(discovery).getCurrent();
@@ -151,13 +148,19 @@ public class PartyInfoResourceTest {
 
         List<String> uuidList = new ArrayList<>();
         doAnswer(
-            (invocation) -> {
-                byte[] d = invocation.getArgument(0);
-                uuidList.add(new String(d));
-                return encodedPayload;
-            })
-            .when(enclave)
-            .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+                        (invocation) -> {
+                            byte[] d = invocation.getArgument(0);
+                            uuidList.add(new String(d));
+                            return encodedPayload;
+                        })
+                .when(enclave)
+                .encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        eq(PrivacyMode.STANDARD_PRIVATE),
+                        any(),
+                        any());
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -180,7 +183,14 @@ public class PartyInfoResourceTest {
 
         verify(partyInfoParser).from(payload);
         verify(enclave).defaultPublicKey();
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+        verify(enclave)
+                .encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        eq(PrivacyMode.STANDARD_PRIVATE),
+                        any(),
+                        any());
         verify(payloadEncoder).encode(encodedPayload);
         verify(restClient).target(url);
 
@@ -279,7 +289,14 @@ public class PartyInfoResourceTest {
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        eq(PrivacyMode.STANDARD_PRIVATE),
+                        any(),
+                        any()))
+                .thenReturn(encodedPayload);
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -302,7 +319,14 @@ public class PartyInfoResourceTest {
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
-            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(enclave)
+                    .encryptPayload(
+                            any(byte[].class),
+                            any(PublicKey.class),
+                            anyList(),
+                            eq(PrivacyMode.STANDARD_PRIVATE),
+                            any(),
+                            any());
             verify(payloadEncoder).encode(encodedPayload);
             verify(restClient).target(url);
         }
@@ -338,7 +362,14 @@ public class PartyInfoResourceTest {
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        eq(PrivacyMode.STANDARD_PRIVATE),
+                        any(),
+                        any()))
+                .thenReturn(encodedPayload);
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -361,7 +392,14 @@ public class PartyInfoResourceTest {
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
-            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(enclave)
+                    .encryptPayload(
+                            any(byte[].class),
+                            any(PublicKey.class),
+                            anyList(),
+                            eq(PrivacyMode.STANDARD_PRIVATE),
+                            any(),
+                            any());
             verify(payloadEncoder).encode(encodedPayload);
             verify(restClient).target(url);
         }
@@ -394,7 +432,14 @@ public class PartyInfoResourceTest {
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-        when(enclave.encryptPayload(any(byte[].class), any(PublicKey.class), anyList())).thenReturn(encodedPayload);
+        when(enclave.encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        eq(PrivacyMode.STANDARD_PRIVATE),
+                        any(),
+                        any()))
+                .thenReturn(encodedPayload);
 
         when(payloadEncoder.encode(encodedPayload)).thenReturn(payload);
 
@@ -405,7 +450,7 @@ public class PartyInfoResourceTest {
         when(webTarget.request()).thenReturn(invocationBuilder);
 
         when(invocationBuilder.post(any(Entity.class)))
-            .thenThrow(new UncheckedIOException(new IOException("GURU meditation")));
+                .thenThrow(new UncheckedIOException(new IOException("GURU meditation")));
 
         try {
             partyInfoResource.partyInfo(payload, null);
@@ -413,7 +458,14 @@ public class PartyInfoResourceTest {
         } catch (SecurityException ex) {
             verify(partyInfoParser).from(payload);
             verify(enclave).defaultPublicKey();
-            verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+            verify(enclave)
+                    .encryptPayload(
+                            any(byte[].class),
+                            any(PublicKey.class),
+                            anyList(),
+                            eq(PrivacyMode.STANDARD_PRIVATE),
+                            any(),
+                            any());
             verify(payloadEncoder).encode(encodedPayload);
             verify(restClient).target(url);
         }
@@ -422,8 +474,8 @@ public class PartyInfoResourceTest {
     @Test
     public void validationDisabledPassesAllKeysToStore() {
         this.partyInfoResource =
-            new PartyInfoResource(
-                discovery, partyInfoParser, restClient, enclave, payloadEncoder, false, partyStore);
+                new PartyInfoResource(
+                        discovery, partyInfoParser, restClient, enclave, payloadEncoder, false, partyStore);
 
         final byte[] payload = "Test message".getBytes();
 
@@ -431,7 +483,7 @@ public class PartyInfoResourceTest {
         final String otherurl = "http://www.randomaddress.com";
         final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
         final Set<Recipient> recipientList =
-            new HashSet<>(Arrays.asList(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl)));
+                new HashSet<>(Arrays.asList(Recipient.of(recipientKey, url), Recipient.of(recipientKey, otherurl)));
         final PartyInfo partyInfo = new PartyInfo(url, recipientList, Collections.emptySet());
         final NodeInfo nodeInfo = NodeInfoUtil.from(partyInfo, null);
         final ArgumentCaptor<PartyInfo> captor = ArgumentCaptor.forClass(PartyInfo.class);
@@ -460,9 +512,9 @@ public class PartyInfoResourceTest {
 
         Set<com.quorum.tessera.partyinfo.node.Recipient> updatedRecipients = modified.getRecipients();
         assertThat(updatedRecipients)
-            .containsExactlyInAnyOrder(
-                com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, url),
-                com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, otherurl));
+                .containsExactlyInAnyOrder(
+                        com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, url),
+                        com.quorum.tessera.partyinfo.node.Recipient.of(recipientKey, otherurl));
 
         verify(discovery).getCurrent();
     }
@@ -484,13 +536,19 @@ public class PartyInfoResourceTest {
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
         List<String> uuidList = new ArrayList<>();
         doAnswer(
-            (invocation) -> {
-                byte[] d = invocation.getArgument(0);
-                uuidList.add(new String(d));
-                return encodedPayload;
-            })
-            .when(enclave)
-            .encryptPayload(any(byte[].class), any(PublicKey.class), anyList());
+                        (invocation) -> {
+                            byte[] d = invocation.getArgument(0);
+                            uuidList.add(new String(d));
+                            return encodedPayload;
+                        })
+                .when(enclave)
+                .encryptPayload(
+                        any(byte[].class),
+                        any(PublicKey.class),
+                        anyList(),
+                        eq(PrivacyMode.STANDARD_PRIVATE),
+                        any(),
+                        any());
 
         when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("somedata".getBytes());
 
@@ -506,23 +564,30 @@ public class PartyInfoResourceTest {
         when(response.getEntity()).thenReturn("");
 
         doAnswer(
-            new Answer() {
-                private int i = 0;
+                        new Answer() {
+                            private int i = 0;
 
-                public Object answer(InvocationOnMock invocation) {
-                    String result = uuidList.get(i);
-                    i++;
-                    return result;
-                }
-            })
-            .when(response)
-            .readEntity(String.class);
+                            public Object answer(InvocationOnMock invocation) {
+                                String result = uuidList.get(i);
+                                i++;
+                                return result;
+                            }
+                        })
+                .when(response)
+                .readEntity(String.class);
 
         // the test
         partyInfoResource.partyInfo(payload, null);
 
         ArgumentCaptor<byte[]> uuidCaptor = ArgumentCaptor.forClass(byte[].class);
-        verify(enclave, times(2)).encryptPayload(uuidCaptor.capture(), any(PublicKey.class), anyList());
+        verify(enclave, times(2))
+                .encryptPayload(
+                        uuidCaptor.capture(),
+                        any(PublicKey.class),
+                        anyList(),
+                        eq(PrivacyMode.STANDARD_PRIVATE),
+                        any(),
+                        any());
         List<byte[]> capturedUUIDs = uuidCaptor.getAllValues();
         assertThat(capturedUUIDs).hasSize(2);
         assertThat(capturedUUIDs.get(0)).isNotEqualTo(capturedUUIDs.get(1));

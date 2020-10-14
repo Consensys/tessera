@@ -167,4 +167,8 @@ public class NodeExecManager implements ExecManager {
             executorService.shutdown();
         }
     }
+
+    public ConfigDescriptor getConfigDescriptor() {
+        return configDescriptor;
+    }
 }

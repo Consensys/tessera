@@ -7,11 +7,10 @@ import com.quorum.tessera.encryption.PublicKey;
 public interface PayloadPublisher {
 
     /**
-     * Formats, encodes and publishes encrypted messages using the target public key as the identifier, instead of the
-     * URL
+     * Publishes an EncodedPayload to the recipient identified by the provided key
      *
-     * @param payload the pre-formatted payload object (i.e. with all recipients still present)
-     * @param recipienyKey the target public key to publish the payload to
+     * @param payload the payload object to be pushed
+     * @param recipientKey the public key identifying the target node
      */
-    void publishPayload(EncodedPayload payload, PublicKey recipienyKey);
+    void publishPayload(EncodedPayload payload, PublicKey recipientKey);
 }

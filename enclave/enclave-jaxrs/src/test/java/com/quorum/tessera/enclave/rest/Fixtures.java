@@ -1,8 +1,11 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 
 public class Fixtures {
 
@@ -63,6 +66,9 @@ public class Fixtures {
                 .withRecipientBoxes(singletonList(recipientBox))
                 .withRecipientNonce(recipientNonce)
                 .withRecipientKeys(singletonList(PublicKey.from(recipientKey)))
+                .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                .withAffectedContractTransactions(singletonMap(new TxHash("test".getBytes()), "test".getBytes()))
+                .withExecHash(new byte[0])
                 .build();
     }
 }

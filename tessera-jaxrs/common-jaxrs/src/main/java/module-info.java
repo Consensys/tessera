@@ -15,9 +15,11 @@ module tessera.tessera.jaxrs.common.jaxrs.main {
     requires tessera.tessera.data.main;
     requires tessera.tessera.partyinfo.main;
     requires java.servlet;
+    requires java.json;
 
     exports com.quorum.tessera.api;
     exports com.quorum.tessera.api.common;
     exports com.quorum.tessera.api.filter;
     exports com.quorum.tessera.app;
+    exports com.quorum.tessera.api.constraint;
 }

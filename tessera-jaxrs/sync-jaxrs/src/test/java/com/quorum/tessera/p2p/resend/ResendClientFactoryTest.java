@@ -27,7 +27,7 @@ public class ResendClientFactoryTest {
     }
 
     @Test(expected = NoSuchElementException.class)
-    public void newFactoryNullCommuicationType() {
+    public void newFactoryNullCommunicationType() {
 
         Config config = mock(Config.class);
         ServerConfig serverConfig = mock(ServerConfig.class);

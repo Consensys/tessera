@@ -4,9 +4,9 @@ module tessera.server.jersey.server.main {
   //  requires javax.servlet.api;
    // requires jersey.bean.validation;
     requires java.validation;
-    requires jersey.server;
+ //   requires jersey.server;
     requires jersey.container.servlet.core;
-    requires jul.to.slf4j;
+//    requires jul.to.slf4j;
     requires org.eclipse.jetty.server;
     requires org.eclipse.jetty.servlet;
     requires org.slf4j;

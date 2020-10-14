@@ -2,7 +2,10 @@ package com.quorum.tessera.discovery;
 
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
+
+import java.util.Set;
 
 public class DiscoveryHelperFactory implements DiscoveryHelper {
 
@@ -10,7 +13,7 @@ public class DiscoveryHelperFactory implements DiscoveryHelper {
         NetworkStore networkStore = NetworkStore.getInstance();
         Enclave enclave = EnclaveFactory.create().enclave().get();
 
-        return new DiscoveryHelperImpl(networkStore,enclave);
+        return new DiscoveryHelperImpl(networkStore, enclave);
     }
 
     private final DiscoveryHelper discoveryHelper;
@@ -31,5 +34,15 @@ public class DiscoveryHelperFactory implements DiscoveryHelper {
     @Override
     public void onCreate() {
         discoveryHelper.onCreate();
+    }
+
+    @Override
+    public NodeInfo buildRemoteNodeInfo(PublicKey publicKey) {
+        return discoveryHelper.buildRemoteNodeInfo(publicKey);
+    }
+
+    @Override
+    public Set<NodeInfo> buildRemoteNodeInfos() {
+        return discoveryHelper.buildRemoteNodeInfos();
     }
 }

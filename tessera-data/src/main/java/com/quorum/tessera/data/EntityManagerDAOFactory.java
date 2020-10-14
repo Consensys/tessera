@@ -1,11 +1,6 @@
 package com.quorum.tessera.data;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.util.EncryptedStringResolver;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -14,15 +9,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.quorum.tessera.config.util.EncryptedStringResolver;
+import com.quorum.tessera.data.staging.StagingEntityDAO;
+import com.quorum.tessera.data.staging.StagingEntityDAOImpl;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class EntityManagerDAOFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityManagerDAOFactory.class);
 
     private final EntityManagerFactory entityManagerFactory;
 
+    private final EntityManagerFactory stagingEntityManagerFactory;
+
     private EntityManagerDAOFactory(
-            EntityManagerFactory entityManagerFactory) {
+            EntityManagerFactory entityManagerFactory, EntityManagerFactory stagingEntityManagerFactory) {
         this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);
+        this.stagingEntityManagerFactory = Objects.requireNonNull(stagingEntityManagerFactory);
     }
 
     public static EntityManagerDAOFactory newFactory(Config config) {
@@ -56,7 +62,14 @@ public class EntityManagerDAOFactory {
         final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
         LOGGER.debug("Created EntityManagerFactory from {}", properties);
 
-        return new EntityManagerDAOFactory(entityManagerFactory);
+        final Map stagingProperties = new HashMap(properties);
+        stagingProperties.put("eclipselink.session.customizer", "com.quorum.tessera.eclipselink.AtomicLongSequence");
+        stagingProperties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+
+        final EntityManagerFactory stagingEntityManagerFactory =
+                Persistence.createEntityManagerFactory("tessera-recover", stagingProperties);
+
+        return new EntityManagerDAOFactory(entityManagerFactory, stagingEntityManagerFactory);
     }
 
     public EncryptedTransactionDAO createEncryptedTransactionDAO() {
@@ -69,4 +82,8 @@ public class EntityManagerDAOFactory {
         return new EncryptedRawTransactionDAOImpl(entityManagerFactory);
     }
 
+    public StagingEntityDAO createStagingEntityDAO() {
+        LOGGER.debug("Create StagingEntityDAO");
+        return new StagingEntityDAOImpl(stagingEntityManagerFactory);
+    }
 }
