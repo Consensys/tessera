@@ -26,11 +26,6 @@ public class MockTransactionManager implements TransactionManager, TransactionMa
     public void delete(MessageHash messageHash) {}
 
     @Override
-    public com.quorum.tessera.transaction.ResendResponse resend(com.quorum.tessera.transaction.ResendRequest request) {
-        return null;
-    }
-
-    @Override
     public MessageHash storePayload(EncodedPayload transactionPayload) {
         return null;
     }

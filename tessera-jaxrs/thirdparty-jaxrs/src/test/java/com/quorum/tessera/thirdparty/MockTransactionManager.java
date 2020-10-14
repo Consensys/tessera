@@ -25,11 +25,6 @@ public class MockTransactionManager implements TransactionManager, TransactionMa
     public void delete(MessageHash messageHash) {}
 
     @Override
-    public ResendResponse resend(ResendRequest request) {
-        return null;
-    }
-
-    @Override
     public MessageHash storePayload(EncodedPayload transactionPayload) {
         return null;
     }

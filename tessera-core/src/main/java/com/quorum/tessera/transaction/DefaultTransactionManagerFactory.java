@@ -48,10 +48,8 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
                         enclave,
                         encryptedRawTransactionDAO,
                         resendManager,
-                        payloadPublisher,
                         batchPayloadPublisher,
-                        privacyHelper,
-                        100);
+                        privacyHelper);
 
         REF.set(transactionManager);
         return transactionManager;
