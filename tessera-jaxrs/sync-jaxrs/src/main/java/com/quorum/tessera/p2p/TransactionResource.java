@@ -7,6 +7,7 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.recovery.resend.ResendBatchResponse;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.p2p.resend.ResendRequest;
+import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.util.Base64Codec;
 import io.swagger.annotations.*;
@@ -20,7 +21,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
@@ -45,13 +45,16 @@ public class TransactionResource {
 
     private final PayloadEncoder payloadEncoder;
 
-    public TransactionResource(
-            TransactionManager transactionManager,
-            BatchResendManager batchResendManager,
-            PayloadEncoder payloadEncoder) {
+    private final LegacyResendManager legacyResendManager;
+
+    public TransactionResource(final TransactionManager transactionManager,
+                               final BatchResendManager batchResendManager,
+                               final PayloadEncoder payloadEncoder,
+                               final LegacyResendManager legacyResendManager) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
         this.batchResendManager = Objects.requireNonNull(batchResendManager);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+        this.legacyResendManager = Objects.requireNonNull(legacyResendManager);
     }
 
     @ApiOperation("Resend transactions for given key or message hash/recipient")
@@ -76,7 +79,7 @@ public class TransactionResource {
                         .get();
 
         MessageHash transactionHash =
-                Optional.ofNullable(resendRequest)
+                Optional.of(resendRequest)
                         .map(ResendRequest::getKey)
                         .map(Base64.getDecoder()::decode)
                         .map(MessageHash::new)
@@ -91,8 +94,9 @@ public class TransactionResource {
                         .withHash(transactionHash)
                         .build();
 
-        com.quorum.tessera.transaction.ResendResponse response = transactionManager.resend(request);
-        Response.ResponseBuilder builder = Response.status(Status.OK);
+        com.quorum.tessera.transaction.ResendResponse response = legacyResendManager.resend(request);
+
+        Response.ResponseBuilder builder = Response.ok();
         Optional.ofNullable(response.getPayload()).map(payloadEncoder::encode).ifPresent(builder::entity);
         return builder.build();
     }
