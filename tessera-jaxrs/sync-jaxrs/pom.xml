@@ -2,28 +2,40 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera-jaxrs</artifactId>
-        <version>0.10.7-SNAPSHOT</version>
+        <version>0.11.1-SNAPSHOT</version>
     </parent>
     <artifactId>sync-jaxrs</artifactId>
     <packaging>jar</packaging>
-    
+
     <dependencies>
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>common-jaxrs</artifactId>
-            <version>0.10.7-SNAPSHOT</version>
+            <version>0.11.1-SNAPSHOT</version>
         </dependency>
+
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>tessera-recover</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>mock-jaxrs</artifactId>
-            <version>0.10.7-SNAPSHOT</version>
+            <version>0.11.1-SNAPSHOT</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
+
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>partyinfo-model</artifactId>
+        </dependency>
+
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -32,7 +44,7 @@
                 <configuration>
                     <apiSources>
                         <apiSource>
-                            
+
                             <schemes>
                                 <scheme>http</scheme>
                                 <scheme>https</scheme>
@@ -41,16 +53,16 @@
                             <basePath>/</basePath>
                             <springmvc>false</springmvc>
                             <info>
-                                
+
                                 <title>Peer to peer resources</title>
-                                <version>${project.version}</version>
+                                <version>${tessera.api.version}</version>
                             </info>
 
                             <locations>
                                 <location>com.quorum.tessera.p2p.ApiResource</location>
                                 <location>com.quorum.tessera.p2p.PartyInfoResource</location>
                                 <location>com.quorum.tessera.p2p.TransactionResource</location>
-   
+
                             </locations>
                             <templatePath>${project.parent.basedir}/src/main/swagger/strapdown.html.hbs</templatePath>
                             <outputPath>${project.build.directory}/generated-resources/swagger/p2p.html</outputPath>

@@ -1,17 +1,17 @@
 package com.quorum.tessera.test;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.KeyDataUtil;
-import com.quorum.tessera.partyinfo.PartyInfoParser;
-import com.quorum.tessera.partyinfo.model.PartyInfo;
-import com.quorum.tessera.partyinfo.model.Recipient;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
+import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

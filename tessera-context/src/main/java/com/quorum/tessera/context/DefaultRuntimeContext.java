@@ -22,11 +22,15 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     private final boolean remoteKeyValidation;
 
+    private final boolean enhancedPrivacy;
+
     private final URI p2pServerUri;
 
     private final boolean disablePeerDiscovery;
 
     private final boolean useWhiteList;
+
+    private final boolean recoveryMode;
 
     protected DefaultRuntimeContext(
             List<KeyPair> keys,
@@ -35,18 +39,22 @@ class DefaultRuntimeContext implements RuntimeContext {
             List<URI> peers,
             Client p2pClient,
             boolean remoteKeyValidation,
+            boolean enhancedPrivacy,
             URI p2pServerUri,
             boolean disablePeerDiscovery,
-            boolean useWhiteList) {
+            boolean useWhiteList,
+            boolean recoveryMode) {
         this.keys = List.copyOf(keys);
         this.keyEncryptor = keyEncryptor;
         this.alwaysSendTo = List.copyOf(alwaysSendTo);
         this.peers = List.copyOf(peers);
         this.p2pClient = p2pClient;
         this.remoteKeyValidation = remoteKeyValidation;
+        this.enhancedPrivacy = enhancedPrivacy;
         this.p2pServerUri = p2pServerUri;
         this.disablePeerDiscovery = disablePeerDiscovery;
         this.useWhiteList = useWhiteList;
+        this.recoveryMode = recoveryMode;
     }
 
     public List<KeyPair> getKeys() {
@@ -73,6 +81,11 @@ class DefaultRuntimeContext implements RuntimeContext {
         return remoteKeyValidation;
     }
 
+    @Override
+    public boolean isEnhancedPrivacy() {
+        return enhancedPrivacy;
+    }
+
     public URI getP2pServerUri() {
         return p2pServerUri;
     }
@@ -85,6 +98,10 @@ class DefaultRuntimeContext implements RuntimeContext {
     @Override
     public boolean isUseWhiteList() {
         return useWhiteList;
+    }
+
+    public boolean isRecoveryMode() {
+        return recoveryMode;
     }
 
     @Override
@@ -102,12 +119,16 @@ class DefaultRuntimeContext implements RuntimeContext {
                 + p2pClient
                 + ", remoteKeyValidation="
                 + remoteKeyValidation
+                + ", enhancedPrivacy="
+                + enhancedPrivacy
                 + ", p2pServerUri="
                 + p2pServerUri
                 + ", disablePeerDiscovery="
                 + disablePeerDiscovery
                 + ", useWhiteList="
                 + useWhiteList
+                + ", recoveryMode="
+                + recoveryMode
                 + '}';
     }
 }

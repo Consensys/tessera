@@ -35,6 +35,11 @@ public class TesseraCommand {
             paramLabel = "KEY=VALUE")
     private Map<String, String> overrides = new LinkedHashMap<>();
 
+    @CommandLine.Option(
+            names = {"-r", "--recover"},
+            description = "Start Tessera in recovery mode")
+    private boolean recover;
+
     @CommandLine.Mixin public DebugOptions debugOptions;
 
     @CommandLine.Unmatched public List<String> unmatchedEntries;

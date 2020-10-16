@@ -36,7 +36,7 @@ public class ResendManagerImpl implements ResendManager {
 
     // TODO: synchronize based on messagehash, so different message don't lock each other
     public synchronized void acceptOwnMessage(final EncodedPayload payload) {
-        // check the payload can be decrpyted to ensure it isn't rubbish being sent to us
+        // check the payload can be decrypted to ensure it isn't rubbish being sent to us
         final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
 
         final MessageHash transactionHash =
@@ -98,9 +98,12 @@ public class ResendManagerImpl implements ResendManager {
                 payloadBuilder.withRecipientKey(sender);
             }
 
-            // we need to recreate this
-            byte[] newbox = enclave.createNewRecipientBox(payload, sender);
-            payloadBuilder.withRecipientBox(newbox);
+            // add recipient boxes for all recipients (applicable for PSV transactions)
+            for (int i = payload.getRecipientBoxes().size(); i < recipientKeys.size(); i++) {
+                PublicKey recipient = recipientKeys.get(i);
+                byte[] newBox = enclave.createNewRecipientBox(payload, recipient);
+                payloadBuilder.withRecipientBox(newBox);
+            }
 
             final byte[] encoded = payloadEncoder.encode(payloadBuilder.build());
 

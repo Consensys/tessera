@@ -49,8 +49,11 @@ include(':tessera-jaxrs:common-jaxrs')
 include(':tessera-jaxrs:thirdparty-jaxrs')
 include(':tessera-jaxrs:sync-jaxrs')
 include(':tessera-jaxrs:jaxrs-client')
+include(":tessera-jaxrs:partyinfo-model")
 include(':tessera-jaxrs')
 include(':tessera-data')
+include(':tessera-context')
+include(':tessera-recover')
 project(':cli:cli-api').projectDir = file('cli/cli-api')
 project(':cli:config-cli').projectDir = file('cli/config-cli')
 project(':tests:acceptance-test').projectDir = file('tests/acceptance-test')
@@ -83,5 +86,7 @@ project(':tessera-jaxrs:common-jaxrs').projectDir = file('tessera-jaxrs/common-j
 project(':tessera-jaxrs:thirdparty-jaxrs').projectDir = file('tessera-jaxrs/thirdparty-jaxrs')
 project(':tessera-jaxrs:sync-jaxrs').projectDir = file('tessera-jaxrs/sync-jaxrs')
 project(':tessera-jaxrs:jaxrs-client').projectDir = file('tessera-jaxrs/jaxrs-client')
-include 'tessera-context'
+project(':tessera-jaxrs:partyinfo-model').projectDir = file('tessera-jaxrs/partyinfo-model')
+include 'service-loader-ext'
+include 'eclipselink-utils'
 

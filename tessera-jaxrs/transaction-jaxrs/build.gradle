@@ -9,6 +9,8 @@ dependencies {
     compile project(':tessera-core')
     compile project(':enclave:enclave-api')
 
+    compile project(":tessera-partyinfo")
+
     implementation "org.hibernate:hibernate-validator:6.0.2.Final"
 
     compile 'javax.ws.rs:javax.ws.rs-api'
@@ -17,6 +19,8 @@ dependencies {
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.apache.commons:commons-lang3'
     compile 'javax.persistence:javax.persistence-api'
+    compile "javax.activation:javax.activation-api"
+    compile "com.sun.mail:javax.mail"
     compile project(':encryption:encryption-api')
 
     testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
@@ -24,10 +28,14 @@ dependencies {
     testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-json-processing'
     testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-moxy'
     testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2:2.27"
+    testImplementation project(':test-utils:mock-jaxrs')
 
     compile project(':service-locator:service-locator-api')
     runtimeOnly project(':service-locator:service-locator-spring')
     testImplementation project(':test-utils:mock-service-locator')
+    testCompile "org.slf4j:jul-to-slf4j:1.7.5"
+    testRuntime "org.glassfish.jersey.ext:jersey-bean-validation"
+
 }
 
 
@@ -46,7 +54,7 @@ swagger {
         locations = ['com.quorum.tessera.q2t','com.quorum.tessera.api.common']
         info {
             title = 'Tessera rest'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'
@@ -72,7 +80,7 @@ swagger {
         locations = ['com.quorum.tessera.q2t','com.quorum.tessera.api.common']
         info {
             title = 'Tessera rest'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'

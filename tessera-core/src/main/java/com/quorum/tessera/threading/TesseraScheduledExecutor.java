@@ -45,7 +45,7 @@ public class TesseraScheduledExecutor {
         final Runnable exceptionSafeRunnable =
                 () -> {
                     try {
-                        LOGGER.debug("{} has started running", getClass().getSimpleName());
+                        LOGGER.debug("{} has started running", action.getClass().getSimpleName());
 
                         this.action.run();
                     } catch (final Throwable ex) {
@@ -54,7 +54,7 @@ public class TesseraScheduledExecutor {
                                 action.getClass().getSimpleName(),
                                 ex);
                     } finally {
-                        LOGGER.debug("{} has finished running", getClass().getSimpleName());
+                        LOGGER.debug("{} has finished running", action.getClass().getSimpleName());
                     }
                 };
 

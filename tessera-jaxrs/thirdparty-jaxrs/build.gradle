@@ -9,6 +9,7 @@ dependencies {
     compile project(':tessera-partyinfo')
     compile project(':encryption:encryption-api')
     compile project(':tessera-jaxrs:common-jaxrs')
+    implementation project(':tessera-jaxrs:partyinfo-model')
     compile 'io.swagger:swagger-annotations'
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile 'org.glassfish:javax.json'
@@ -41,7 +42,7 @@ swagger {
         locations = ['com.quorum.tessera.thirdparty']
         info {
             title = 'Third party resources'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'
@@ -64,7 +65,7 @@ swagger {
         locations = ['com.quorum.tessera.thirdparty']
         info {
             title = 'Third party resources'
-            version = project.version
+            version = project.properties["tessera.api.version"]
             license {
                 url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
                 name = 'Apache 2.0'

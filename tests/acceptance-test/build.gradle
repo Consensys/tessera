@@ -32,7 +32,7 @@ dependencies {
 
     testCompile 'org.xerial:sqlite-jdbc:3.23.1'
     testCompile 'org.hsqldb:hsqldb:2.4.1'
-    testCompile 'com.github.tomakehurst:wiremock-jre8:2.24.1'
+    testCompile 'com.github.tomakehurst:wiremock-jre8:2.26.3'
     testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
     testCompile 'org.assertj:assertj-core:3.9.1'
     testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
@@ -56,13 +56,14 @@ sourceSets {
 test {
 
     systemProperty 'application.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('tessera-app')}
-
+    systemProperty 'config-migration-app.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('config-migration')}
     systemProperty 'enclave.jaxrs.server.jar',project.configurations.testCompileClasspath.find { it.name.startsWith('enclave-jaxrs') }
     systemProperty 'jdbc.hsql.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
     systemProperty 'jdbc.sqlite.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
     systemProperty 'jdbc.dir',"${buildDir}/ext"
 
     include(
+            '**/RecoverIT.class',
            '**/RestSuiteHttpH2RemoteEnclave.class',
             '**/RestSuiteHttpHSQL.class',
             '**/RestSuiteUnixH2.class',
@@ -72,7 +73,6 @@ test {
             '**/RestSuiteHttpqlite.class',
             '**/CucumberWhitelistIT.class',
             '**/ConfigMigrationIT.class',
-            '**/P2pTestSuite.class',
             '**/CucumberFileKeyGenerationIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',
@@ -80,47 +80,13 @@ test {
     )
 
     if (project.hasProperty('excludeTests')) {
-        exclude project.property('excludeTests')
+        def tokens = project.property('excludeTests').split(",")
+        tokens.each {v ->
+            exclude "**/"+ v +".class";
+        }
     }
-
-//    '**/RestSuite.class',
-//            '**/P2pTestSuite.class',
-//            '**/CucumberFileKeyGenerationIT.class',
-//            '**/AdminRestSuite.class',
-//            '**/RestSuiteUnixH2.class',
-//            '**/CucumberWhitelistIT.class',
-//            '**/ConfigMigrationIT.class'
-  //  '**/RestSuiteHttpH2RemoteEnclave.class'//,
-
-
-
-
-    /*
-                            <application.jar>${application.jar}</application.jar>
-                        <jdbc.hsql.jar>${org.hsqldb:hsqldb:jar}</jdbc.hsql.jar>
-                        <jdbc.sqlite.jar>${org.xerial:sqlite-jdbc:jar}</jdbc.sqlite.jar>
-                        <enclave.jaxrs.jar>${com.jpmorgan.quorum:enclave-jaxrs:jar}</enclave.jaxrs.jar>
-                        <enclave.jaxrs.server.jar>${enclave.jaxrs.server.jar}</enclave.jaxrs.server.jar>
-                        <config-migration-app.jar>${com.jpmorgan.quorum:config-migration:jar:cli}</config-migration-app.jar>
-     */
-
-
 }
 
-//task unzipTessera(type: Copy) {
-//    def zipFile = file(project(':tessera-dist:tessera-app').distZip.outputs.files.getFiles()[0])
-//    def outputDir = file("${buildDir}/unpacked/dist")
-//    from zipTree(zipFile)
-//    into outputDir
-//
-//}
-
-//task unzipEnclave(type: Copy) {
-//    def zipFile = file(project(':enclave:enclave-jaxrs').distZip.outputs.files.getFiles()[0])
-//    def outputDir = file("${buildDir}/unpacked/dist")
-//    from zipTree(zipFile)
-//    into outputDir
-//}
 
 
 task unzipDdl(type:Copy) {

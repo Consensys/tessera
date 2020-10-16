@@ -2,9 +2,9 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>com.jpmorgan.quorum</groupId>
+        <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tests</artifactId>
-        <version>0.10.7-SNAPSHOT</version>
+        <version>0.11.1-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -14,7 +14,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.jpmorgan.quorum</groupId>
+            <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>tessera-app</artifactId>
             <classifier>${tesssra.app.classifer}</classifier>
             <scope>test</scope>
@@ -122,7 +122,7 @@
                         <configuration>
                             <skip>true</skip>
                             <properties>
-                                <jarfile>${com.jpmorgan.quorum:tessera-app:jar:app}</jarfile>
+                                <jarfile>${net.consensys.quorum.tessera:tessera-app:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config1.json</configFile>
                                 <pidFile>${project.build.directory}/node1.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node1.xml</logbackConfigFile>
@@ -138,7 +138,7 @@
                         </goals>
                         <configuration>
                             <properties>
-                                <jarfile>${com.jpmorgan.quorum:tessera-app:jar:app}</jarfile>
+                                <jarfile>${net.consensys.quorum.tessera:tessera-app:jar:app}</jarfile>
                                 <configFile>${project.build.testOutputDirectory}/config2.json</configFile>
                                 <pidFile>${project.build.directory}/node2.pid</pidFile>
                                 <logbackConfigFile>${project.build.testOutputDirectory}/logback-node2.xml</logbackConfigFile>

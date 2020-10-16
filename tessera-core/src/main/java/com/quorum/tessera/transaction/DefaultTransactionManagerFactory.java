@@ -6,8 +6,10 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
+import com.quorum.tessera.transaction.publish.PayloadPublisher;
+import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.resend.ResendManagerImpl;
 
@@ -27,17 +29,18 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
             return REF.get();
         }
 
-        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
-
-        PartyInfoService partyInfoService = partyInfoServiceFactory.create(config);
+        PayloadPublisher payloadPublisher = PayloadPublisherFactory.newFactory(config).create(config);
+        BatchPayloadPublisher batchPayloadPublisher =
+                BatchPayloadPublisherFactory.newFactory().create(payloadPublisher);
         Enclave enclave = EnclaveFactory.create().create(config);
         EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         EncryptedRawTransactionDAO encryptedRawTransactionDAO =
                 entityManagerDAOFactory.createEncryptedRawTransactionDAO();
-        entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
         ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
+        boolean privacyEnabled = config.getFeatures().isEnablePrivacyEnhancements();
+        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled);
 
         TransactionManager transactionManager =
                 new TransactionManagerImpl(
@@ -45,7 +48,9 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
                         enclave,
                         encryptedRawTransactionDAO,
                         resendManager,
-                        partyInfoService,
+                        payloadPublisher,
+                        batchPayloadPublisher,
+                        privacyHelper,
                         100);
 
         REF.set(transactionManager);

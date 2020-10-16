@@ -8,15 +8,19 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.core.api.ServiceFactory;
+import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.partyinfo.PartyInfoParser;
-import com.quorum.tessera.partyinfo.PartyInfoService;
-import com.quorum.tessera.partyinfo.PartyInfoServiceFactory;
+import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
+import com.quorum.tessera.p2p.partyinfo.PartyStore;
+import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ApplicationPath;
 import java.util.Set;
@@ -30,7 +34,9 @@ import java.util.Set;
 @ApplicationPath("/")
 public class P2PRestApp extends TesseraRestApplication {
 
-    private final PartyInfoService partyInfoService;
+    private static final Logger LOGGER = LoggerFactory.getLogger(P2PRestApp.class);
+
+    private final Discovery discovery;
 
     private final PartyInfoParser partyInfoParser = PartyInfoParser.create();
 
@@ -38,22 +44,30 @@ public class P2PRestApp extends TesseraRestApplication {
 
     private final Config config;
 
+    private final PartyStore partyStore;
+
     public P2PRestApp() {
-        final ServiceFactory serviceFactory = ServiceFactory.create();
-        this.config = serviceFactory.config();
-        PartyInfoServiceFactory partyInfoServiceFactory = PartyInfoServiceFactory.create();
-        this.partyInfoService = partyInfoServiceFactory.create(config);
+        this.config = ServiceFactory.create().config();
         this.enclave = EnclaveFactory.create().create(config);
+        this.discovery = Discovery.getInstance();
+        this.partyStore = PartyStore.getInstance();
     }
 
     @Override
     public Set<Object> getSingletons() {
 
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
+        LOGGER.debug("Found configured peers {}", runtimeContext.getPeers());
+
+        runtimeContext.getPeers().stream()
+                .map(NodeUri::create)
+                .map(NodeUri::asURI)
+                .peek(u -> LOGGER.debug("Adding {} to party store", u))
+                .forEach(partyStore::store);
 
         final PartyInfoResource partyInfoResource =
                 new PartyInfoResource(
-                        partyInfoService,
+                        discovery,
                         partyInfoParser,
                         runtimeContext.getP2pClient(),
                         enclave,
@@ -61,13 +75,19 @@ public class P2PRestApp extends TesseraRestApplication {
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
-        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-        TransactionManager transactionManager = transactionManagerFactory.create(config);
+        TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
+        BatchResendManager batchResendManager = BatchResendManager.create(config);
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-        final TransactionResource transactionResource = new TransactionResource(transactionManager, payloadEncoder);
+        final TransactionResource transactionResource =
+            new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
+        final RecoveryResource recoveryResource =
+            new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
+        if (runtimeContext.isRecoveryMode()) {
+            return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource);
+        }
         return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource, upCheckResource);
     }
 
