@@ -738,7 +738,8 @@ public class TransactionManagerTest {
                 .thenReturn(Optional.of(encryptedTransaction));
 
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
+        when(encodedPayload.getRecipientBoxes())
+                .thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
 
         byte[] encodedOutcome = "SUCCESS".getBytes();
         PublicKey recipientKey = PublicKey.from("PUBLICKEY".getBytes());
@@ -781,7 +782,8 @@ public class TransactionManagerTest {
         final EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
         when(encodedPayload.getSenderKey()).thenReturn(senderKey);
-        when(encodedPayload.getRecipientBoxes()).thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
+        when(encodedPayload.getRecipientBoxes())
+                .thenReturn(singletonList(RecipientBox.from("RECIPIENTBOX".getBytes())));
         when(encodedPayload.getRecipientKeys()).thenReturn(new ArrayList<>());
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
@@ -1246,5 +1248,40 @@ public class TransactionManagerTest {
         verify(enclave).getPublicKeys();
         verify(payloadEncoder).forRecipient(payload, reipcient);
         verify(partyInfoService).publishPayload(payload, reipcient);
+    }
+
+    @Test
+    public void upcheckReturnsTrue() {
+
+        when(encryptedTransactionDAO.upcheck()).thenReturn(true);
+        when(encryptedRawTransactionDAO.upcheck()).thenReturn(true);
+
+        assertThat(transactionManager.upcheck()).isTrue();
+
+        verify(encryptedRawTransactionDAO).upcheck();
+        verify(encryptedTransactionDAO).upcheck();
+    }
+
+    @Test
+    public void upcheckReturnsFalseIfEncryptedTransactionDBFail() {
+
+        when(encryptedTransactionDAO.upcheck()).thenReturn(false);
+        when(encryptedRawTransactionDAO.upcheck()).thenReturn(true);
+
+        assertThat(transactionManager.upcheck()).isFalse();
+
+        verify(encryptedRawTransactionDAO).upcheck();
+        verify(encryptedTransactionDAO).upcheck();
+    }
+
+    @Test
+    public void upcheckReturnsFalseIfEncryptedRawTransactionDBFail() {
+
+        when(encryptedTransactionDAO.upcheck()).thenReturn(true);
+        when(encryptedRawTransactionDAO.upcheck()).thenReturn(false);
+
+        assertThat(transactionManager.upcheck()).isFalse();
+
+        verify(encryptedRawTransactionDAO).upcheck();
     }
 }

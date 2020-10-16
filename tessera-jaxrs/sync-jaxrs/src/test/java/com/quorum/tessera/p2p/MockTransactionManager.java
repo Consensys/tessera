@@ -45,6 +45,11 @@ public class MockTransactionManager implements TransactionManager, TransactionMa
     }
 
     @Override
+    public boolean upcheck() {
+        return true;
+    }
+
+    @Override
     public boolean isSender(MessageHash transactionHash) {
         return false;
     }

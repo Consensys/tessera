@@ -1,6 +1,7 @@
 package com.quorum.tessera.thirdparty;
 
 import com.quorum.tessera.api.common.RawTransactionResource;
+import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
@@ -41,8 +42,10 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
         final RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
         final PartyInfoResource partyInfoResource = new PartyInfoResource(partyInfoService);
         final KeyResource keyResource = new KeyResource();
+        final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
-        return Stream.of(rawTransactionResource, partyInfoResource, keyResource).collect(Collectors.toSet());
+        return Stream.of(rawTransactionResource, partyInfoResource, keyResource, upCheckResource)
+                .collect(Collectors.toSet());
     }
 
     @Override

@@ -15,7 +15,6 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 @RunWith(Parameterized.class)
 public class EncryptedTransactionDAOTest {
@@ -412,5 +411,26 @@ public class EncryptedTransactionDAOTest {
     @Parameterized.Parameters(name = "DB {0}")
     public static Collection<TestConfig> connectionDetails() {
         return List.of(TestConfig.values());
+    }
+
+    @Test
+    public void upcheckReturnsTrue() {
+        assertThat(encryptedTransactionDAO.upcheck());
+    }
+
+    @Test
+    public void upcheckFailDueToDB() {
+        EntityManagerFactory mockEntityManagerFactory = mock(EntityManagerFactory.class);
+        EntityManager mockEntityManager = mock(EntityManager.class);
+        EntityTransaction mockEntityTransaction = mock(EntityTransaction.class);
+        EntityManagerCallback mockEntityManagerCallback = mock(EntityManagerCallback.class);
+
+        when(mockEntityManagerFactory.createEntityManager()).thenReturn(mockEntityManager);
+        when(mockEntityManager.getTransaction()).thenReturn(mockEntityTransaction);
+        when(mockEntityManagerCallback.execute(mockEntityManager)).thenThrow(RuntimeException.class);
+
+        EncryptedTransactionDAO encryptedTransactionDAO = new EncryptedTransactionDAOImpl(mockEntityManagerFactory);
+
+        assertThat(encryptedTransactionDAO.upcheck()).isFalse();
     }
 }

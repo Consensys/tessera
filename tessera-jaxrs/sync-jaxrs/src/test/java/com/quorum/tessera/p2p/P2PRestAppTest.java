@@ -72,7 +72,7 @@ public class P2PRestAppTest {
     @Test
     public void getSingletons() {
         Set<Object> results = p2PRestApp.getSingletons();
-        assertThat(results).hasSize(3);
+        assertThat(results).hasSize(4);
     }
 
     @Test
