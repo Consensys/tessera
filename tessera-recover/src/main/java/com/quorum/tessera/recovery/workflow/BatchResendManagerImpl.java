@@ -78,7 +78,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
     @Override
     public ResendBatchResponse resendBatch(ResendBatchRequest request) {
 
-        final int batchSize = request.getBatchSize();
+        final int batchSize = validateRequestBatchSize(request.getBatchSize());
         final byte[] publicKeyData = base64Decoder.decode(request.getPublicKey());
         final PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
 
@@ -111,5 +111,12 @@ public class BatchResendManagerImpl implements BatchResendManager {
         resendPushBatchRequest.getEncodedPayloads().stream()
                 .map(StagingTransactionUtils::fromRawPayload)
                 .forEach(stagingEntityDAO::save);
+    }
+
+    private int validateRequestBatchSize(int s) {
+        if (Math.max(1, s) == Math.min(s, maxResults)) {
+            return s;
+        }
+        return maxResults;
     }
 }
