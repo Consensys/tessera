@@ -12,16 +12,16 @@ jobs:
       - name: "Check out project files"
         uses: actions/checkout@v2
         with:
-          repository: nicolae-leonte-go/quorum
+          repository: ConsenSys/quorum
           path: quorum
-          ref: feature/privacyEnhancements
+          ref: master
 
       - name: "Check out quorum-acceptance-tests project files"
         uses: actions/checkout@v2
         with:
-          repository: nicolae-leonte-go/quorum-acceptance-tests
+          repository: ConsenSys/quorum-acceptance-tests
           path: quorum-acceptance-tests
-          ref: feature/privacyEnhancements
+          ref: master
       - name: "Build docker image"
         id: build
         run: |
@@ -87,7 +87,7 @@ jobs:
             quorumengineering/quorum-acceptance-tests:pe test \
               -Pauto \
               -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
-              -Dtags='basic || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft'
+              -Dtags='(basic && !privacy-enhancements-disabled) || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft'
 
       - name: "Upload gauge reports"
         uses: actions/upload-artifact@v1
@@ -132,7 +132,7 @@ jobs:
             -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
             -e TF_VAR_quorum_docker_image='{ name = "quorumengineering/quorum:latest", local = true }' \
             -e TF_VAR_tessera_docker_image='{ name = "quorumengineering/tessera:latest", local = true }' \
-            -e TF_VAR_privacy_enhancements='{ block = 0, enabled = true }' \
+            -e TF_VAR_privacy_enhancements='{ block = 0, enabled = false }' \
             quorumengineering/quorum-acceptance-tests:pe test \
               -Pauto \
               -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
