@@ -9,6 +9,8 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.loader.ServiceLoaderUtil;
 
+import java.util.Optional;
+
 /**
  * The EncodedPayloadManager handles requests for translating and validating an incoming request to de/encrypt to pass
  * to the enclave.
@@ -37,7 +39,7 @@ public interface EncodedPayloadManager {
     ReceiveResponse decrypt(EncodedPayload payload, PublicKey maybeDefaultRecipient);
 
     static EncodedPayloadManager create(Config config) {
-        return ServiceLoaderUtil.load(EncodedPayloadManager.class)
+        EncodedPayloadManager encodedPayloadManager = ServiceLoaderUtil.load(EncodedPayloadManager.class)
                 .orElseGet(
                         () -> {
                             final Enclave enclave = EnclaveFactory.create().create(config);
@@ -48,10 +50,15 @@ public interface EncodedPayloadManager {
 
                             return new EncodedPayloadManagerImpl(enclave, privacyHelper, MessageHashFactory.create());
                         });
+
+
+        EncodedPayloadManagerHolder.getInstance().storeInstance(encodedPayloadManager);
+
+        return encodedPayloadManager;
     }
 
-    static EncodedPayloadManager getInstance() {
-        throw new UnsupportedOperationException("FIXME");
+    static Optional<EncodedPayloadManager> getInstance() {
+        return EncodedPayloadManagerHolder.getInstance().getEncodedPayloadManager();
     }
 
 }

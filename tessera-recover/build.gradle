@@ -6,6 +6,7 @@ dependencies {
     implementation project(":tessera-partyinfo")
     implementation project(":tessera-core")
     implementation project(":tessera-jaxrs")
+    implementation project(":tessera-context")
     implementation project(":shared")
     implementation project(":config")
     implementation project(":enclave:enclave-api")

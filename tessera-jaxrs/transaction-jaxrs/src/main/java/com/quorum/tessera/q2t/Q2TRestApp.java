@@ -26,8 +26,9 @@ public class Q2TRestApp extends TesseraRestApplication {
     public Set<Object> getSingletons() {
 
         TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-        EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.getInstance();
+        EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.getInstance().orElseThrow(() -> new IllegalStateException("EncodedPayloadManager has not been initialised"));
         TransactionManager transactionManager = transactionManagerFactory.transactionManager().get();
+
         TransactionResource transactionResource = new TransactionResource(transactionManager);
         RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
         EncodedPayloadResource encodedPayloadResource

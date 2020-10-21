@@ -64,9 +64,7 @@ public class Main {
             }
 
             //Start end spring profile stuff
-
             final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
-
             com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
             Discovery.getInstance().onCreate();
 
@@ -77,6 +75,7 @@ public class Main {
 
             //ApplicationContext springContext = new ClassPathXmlApplicationContext("tessera-spring.xml");
             ScheduledServiceFactory scheduledServiceFactory = ScheduledServiceFactory.fromConfig(config);
+            scheduledServiceFactory.build();
 
             Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
 

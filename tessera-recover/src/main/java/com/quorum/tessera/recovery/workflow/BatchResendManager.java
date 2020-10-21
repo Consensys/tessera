@@ -33,18 +33,19 @@ public interface BatchResendManager {
                                     ResendBatchPublisherFactory.newFactory(config).create(config);
 
                             final int defaultMaxResults = 10000;
-                            return new BatchResendManagerImpl(
+                            return BatchResendManagerHolder.getInstance().setBatchResendManager(new BatchResendManagerImpl(
                                     enclave,
                                     stagingEntityDAO,
                                     encryptedTransactionDAO,
                                     discovery,
                                     resendBatchPublisher,
-                                    defaultMaxResults);
+                                    defaultMaxResults));
                         });
+
     }
 
     static BatchResendManager getInstance() {
-        throw new UnsupportedOperationException("FIXME");
+        return BatchResendManagerHolder.getInstance().getBatchResendManager().orElseThrow(() -> new IllegalStateException("BatchResendManager has not been initialised"));
     }
 
 
