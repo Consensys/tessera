@@ -1,12 +1,6 @@
 name: Tessera Gradle Build
 
-on: 
-  push:
-    branches: 
-      - master
-  pull_request:
-    branches: 
-      - master
+on: push
 
 env:     
   GRADLE_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
