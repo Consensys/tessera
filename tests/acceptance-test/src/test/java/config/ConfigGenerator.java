@@ -5,7 +5,6 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.test.DBType;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -170,10 +169,14 @@ public class ConfigGenerator {
 
     public List<Config> createConfigs(ExecutionContext executionContext) {
 
-        PortUtil port = new PortUtil(50520);
-        String nodeId = NodeId.generate(executionContext);
+        final PortUtil port = new PortUtil(50520);
+        final String nodeId = NodeId.generate(executionContext);
         final FeatureToggles toggles = new FeatureToggles();
         toggles.setEnableRemoteKeyValidation(true);
+
+        final FeatureToggles enhancedPrivacyEnabledToggle = new FeatureToggles();
+        enhancedPrivacyEnabledToggle.setEnableRemoteKeyValidation(true);
+        enhancedPrivacyEnabledToggle.setEnablePrivacyEnhancements(true);
 
         final Integer partyInfoInterval = 5000;
 
@@ -187,6 +190,8 @@ public class ConfigGenerator {
 
         Map<Integer, SortedMap<String, String>> keyLookUp = keyLookup(encryptorType);
 
+        // Node A,B,C have enhanced private enabled, node D does not
+
         Config first =
             new ConfigBuilder()
                 .withNodeId(nodeId)
@@ -194,59 +199,55 @@ public class ConfigGenerator {
                 .withExecutionContext(executionContext)
                 .withQt2Port(port.nextPort())
                 .withP2pPort(port.nextPort())
-                //  .withAdminPort(port.nextPort())
                 .withEnclavePort(port.nextPort())
                 .withPartyInfoInterval(partyInfoInterval)
                 .withKeys(keyLookUp.get(1))
-                .withFeatureToggles(toggles)
+                .withFeatureToggles(enhancedPrivacyEnabledToggle)
                 .withEncryptorConfig(encryptorConfig)
                 .build();
 
         Config second =
-            new ConfigBuilder()
-                .withNodeId(nodeId)
-                .withNodeNumber(2)
-                .withExecutionContext(executionContext)
-                .withQt2Port(port.nextPort())
-                .withP2pPort(port.nextPort())
-                // .withAdminPort(port.nextPort())
-                .withEnclavePort(port.nextPort())
-                .withPartyInfoInterval(partyInfoInterval)
-                .withKeys(keyLookUp.get(2))
-                .withFeatureToggles(toggles)
-                .withEncryptorConfig(encryptorConfig)
-                .build();
+                new ConfigBuilder()
+                        .withNodeId(nodeId)
+                        .withNodeNumber(2)
+                        .withExecutionContext(executionContext)
+                        .withQt2Port(port.nextPort())
+                        .withP2pPort(port.nextPort())
+                        .withEnclavePort(port.nextPort())
+                        .withPartyInfoInterval(partyInfoInterval)
+                        .withKeys(keyLookUp.get(2))
+                        .withFeatureToggles(enhancedPrivacyEnabledToggle)
+                        .withEncryptorConfig(encryptorConfig)
+                        .build();
 
         Config third =
-            new ConfigBuilder()
-                .withNodeId(nodeId)
-                .withNodeNumber(3)
-                .withExecutionContext(executionContext)
-                .withQt2Port(port.nextPort())
-                .withP2pPort(port.nextPort())
-                // .withAdminPort(port.nextPort())
-                .withEnclavePort(port.nextPort())
-                .withPartyInfoInterval(partyInfoInterval)
-                .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
-                .withKeys(keyLookUp.get(3))
-                .withFeatureToggles(toggles)
-                .withEncryptorConfig(encryptorConfig)
-                .build();
+                new ConfigBuilder()
+                        .withNodeId(nodeId)
+                        .withNodeNumber(3)
+                        .withExecutionContext(executionContext)
+                        .withQt2Port(port.nextPort())
+                        .withP2pPort(port.nextPort())
+                        .withEnclavePort(port.nextPort())
+                        .withPartyInfoInterval(partyInfoInterval)
+                        .withAlwaysSendTo(keyLookUp.get(1).keySet().iterator().next())
+                        .withKeys(keyLookUp.get(3))
+                        .withFeatureToggles(enhancedPrivacyEnabledToggle)
+                        .withEncryptorConfig(encryptorConfig)
+                        .build();
 
         Config fourth =
-            new ConfigBuilder()
-                .withNodeId(nodeId)
-                .withNodeNumber(4)
-                .withExecutionContext(executionContext)
-                .withQt2Port(port.nextPort())
-                .withP2pPort(port.nextPort())
-                // .withAdminPort(port.nextPort())
-                .withEnclavePort(port.nextPort())
-                .withPartyInfoInterval(partyInfoInterval)
-                .withKeys(keyLookUp.get(4))
-                .withFeatureToggles(toggles)
-                .withEncryptorConfig(encryptorConfig)
-                .build();
+                new ConfigBuilder()
+                        .withNodeId(nodeId)
+                        .withNodeNumber(4)
+                        .withExecutionContext(executionContext)
+                        .withQt2Port(port.nextPort())
+                        .withP2pPort(port.nextPort())
+                        .withEnclavePort(port.nextPort())
+                        .withPartyInfoInterval(partyInfoInterval)
+                        .withKeys(keyLookUp.get(4))
+                        .withFeatureToggles(toggles)
+                        .withEncryptorConfig(encryptorConfig)
+                        .build();
 
         first.addPeer(new Peer(second.getP2PServerConfig().getServerAddress()));
         second.addPeer(new Peer(third.getP2PServerConfig().getServerAddress()));
@@ -285,8 +286,8 @@ public class ConfigGenerator {
 
         for (int i = 1; i <= configs.size(); i++) {
             String filename = String.format("config%d.json", i);
-            Path ouputFile = path.resolve(filename);
-            System.out.println(ouputFile);
+            Path outputFile = path.resolve(filename);
+            System.out.println(outputFile);
         }
     }
 }

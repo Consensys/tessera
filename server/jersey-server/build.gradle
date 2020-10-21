@@ -11,14 +11,30 @@ dependencies {
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
     implementation "org.glassfish.jersey.media:jersey-media-moxy"
     implementation "org.glassfish.jersey.core:jersey-server"
-    implementation "org.glassfish.jersey.ext:jersey-bean-validation"
+    implementation("org.glassfish.jersey.ext:jersey-bean-validation") {
+        exclude group: "jakarta.el", module: "jakarta.el-api"
+    }
     implementation "org.slf4j:jul-to-slf4j"
     implementation "org.glassfish.jersey.containers:jersey-container-servlet-core"
     implementation "jakarta.servlet:jakarta.servlet-api"
     implementation "com.sun.mail:jakarta.mail"
     implementation "org.eclipse.jetty:jetty-servlet"
     implementation "org.glassfish.jersey.inject:jersey-hk2"
-    implementation "org.glassfish.jersey.core:jersey-common"
+    implementation("org.glassfish.jersey.core:jersey-common") {
+        exclude group: "jakarta.annotation", module: "jakarta.annotation-api"
+
+    }
+
+    implementation "org.glassfish.hk2:hk2-api:2.6.1"
+
+
+    implementation "jakarta.inject:jakarta.inject-api"
+
+   // implementation "jakarta.el:jakarta.el-api"
+    //implementation "org.glassfish:jakarta.el"
+
+    implementation "jakarta.annotation:jakarta.annotation-api"
+
 
 }
 
@@ -35,7 +51,12 @@ compileJava {
                 '--module-path', classpath.asPath,
                 '--add-modules', 'jul.to.slf4j',
                 '--add-modules', 'jersey.server',
-                '--add-modules', 'jersey.container.servlet.core'
+                '--add-modules', 'jersey.common',
+                '--add-modules', 'jersey.container.servlet.core',
+                '--add-modules','jersey.bean.validation',
+                '--add-modules','jersey.hk2',
+                '--add-modules','hk2.api'
+
         ]
         classpath = files()
     }

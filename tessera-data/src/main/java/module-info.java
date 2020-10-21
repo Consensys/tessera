@@ -8,6 +8,8 @@ module tessera.tessera.data.main {
     requires tessera.shared.main;
     requires java.sql;
     requires com.zaxxer.hikari;
+    requires java.validation;
 
     exports com.quorum.tessera.data;
+    exports com.quorum.tessera.data.staging;
 }

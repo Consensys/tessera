@@ -1,0 +1,18 @@
+plugins {
+    id "java-library"
+}
+
+dependencies {
+
+    implementation "org.eclipse.persistence:org.eclipse.persistence.core"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+    testImplementation "com.h2database:h2"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "junit:junit"
+
+
+    testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    testImplementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+
+}

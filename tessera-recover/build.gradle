@@ -1,0 +1,31 @@
+plugins {
+    id "java-library"
+}
+
+dependencies {
+    implementation project(":tessera-partyinfo")
+    implementation project(":tessera-core")
+    implementation project(":tessera-jaxrs")
+    implementation project(":tessera-context")
+    implementation project(":shared")
+    implementation project(":config")
+    implementation project(":enclave:enclave-api")
+    implementation project(":tessera-data")
+    implementation project(":encryption:encryption-api")
+    runtimeOnly "org.slf4j:jul-to-slf4j"
+
+    implementation "javax.persistence:javax.persistence-api:2.2"
+
+    testImplementation "junit:junit"
+    testImplementation "jakarta.persistence:jakarta.persistence-api"
+    testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    testImplementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+
+    runtimeOnly "com.h2database:h2:1.4.200"
+    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.extension"
+//    compile "com.zaxxer:HikariCP"
+//    compile "org.eclipse.jetty:jetty-jndi"
+//    compile "org.eclipse.jetty:jetty-plus"
+
+}

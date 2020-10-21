@@ -21,6 +21,9 @@ dependencies {
     runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
 
+    testImplementation "nl.jqno.equalsverifier:equalsverifier"
+    testImplementation "jakarta.el:jakarta.el-api"
+
 }
 
 description = "config"

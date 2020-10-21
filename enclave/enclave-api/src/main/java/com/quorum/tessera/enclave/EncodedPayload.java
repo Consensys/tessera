@@ -21,19 +21,31 @@ public class EncodedPayload {
 
     private final List<PublicKey> recipientKeys;
 
+    private final PrivacyMode privacyMode;
+
+    private final Map<TxHash, SecurityHash> affectedContractTransactions;
+
+    private final byte[] execHash;
+
     private EncodedPayload(
             final PublicKey senderKey,
             final byte[] cipherText,
             final Nonce cipherTextNonce,
             final List<RecipientBox> recipientBoxes,
             final Nonce recipientNonce,
-            final List<PublicKey> recipientKeys) {
+            final List<PublicKey> recipientKeys,
+            final PrivacyMode privacyMode,
+            final Map<TxHash, SecurityHash> affectedContractTransactions,
+            final byte[] execHash) {
         this.senderKey = senderKey;
         this.cipherText = cipherText;
         this.cipherTextNonce = cipherTextNonce;
         this.recipientNonce = recipientNonce;
         this.recipientBoxes = recipientBoxes;
         this.recipientKeys = recipientKeys;
+        this.privacyMode = privacyMode;
+        this.affectedContractTransactions = affectedContractTransactions;
+        this.execHash = execHash;
     }
 
     public PublicKey getSenderKey() {
@@ -60,6 +72,18 @@ public class EncodedPayload {
         return recipientKeys;
     }
 
+    public PrivacyMode getPrivacyMode() {
+        return privacyMode;
+    }
+
+    public Map<TxHash, SecurityHash> getAffectedContractTransactions() {
+        return Collections.unmodifiableMap(affectedContractTransactions);
+    }
+
+    public byte[] getExecHash() {
+        return execHash;
+    }
+
     public static class Builder {
 
         private Builder() {}
@@ -70,7 +94,11 @@ public class EncodedPayload {
 
         public static Builder from(EncodedPayload encodedPayload) {
 
-            return create()
+            final Map<TxHash, byte[]> affectedContractTransactionMap =
+                    encodedPayload.getAffectedContractTransactions().entrySet().stream()
+                            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getData()));
+
+            return create().withPrivacyMode(encodedPayload.getPrivacyMode())
                     .withSenderKey(encodedPayload.getSenderKey())
                     .withRecipientNonce(encodedPayload.getRecipientNonce())
                     .withRecipientKeys(encodedPayload.getRecipientKeys())
@@ -78,8 +106,11 @@ public class EncodedPayload {
                             encodedPayload.getRecipientBoxes().stream()
                                     .map(RecipientBox::getData)
                                     .collect(Collectors.toList()))
+                    .withPrivacyMode(encodedPayload.getPrivacyMode())
+                    .withExecHash(encodedPayload.getExecHash())
                     .withCipherText(encodedPayload.getCipherText())
-                    .withCipherTextNonce(encodedPayload.getCipherTextNonce());
+                    .withCipherTextNonce(encodedPayload.getCipherTextNonce())
+                    .withAffectedContractTransactions(affectedContractTransactionMap);
         }
 
         private PublicKey senderKey;
@@ -93,6 +124,12 @@ public class EncodedPayload {
         private List<byte[]> recipientBoxes = new ArrayList<>();
 
         private List<PublicKey> recipientKeys = new ArrayList<>();
+
+        private PrivacyMode privacyMode = PrivacyMode.STANDARD_PRIVATE;
+
+        private Map<TxHash, byte[]> affectedContractTransactions = Collections.emptyMap();
+
+        private byte[] execHash = new byte[0];
 
         public Builder withSenderKey(final PublicKey senderKey) {
             this.senderKey = senderKey;
@@ -144,16 +181,49 @@ public class EncodedPayload {
             return this;
         }
 
+        public Builder withPrivacyFlag(final int privacyFlag) {
+            return this.withPrivacyMode(PrivacyMode.fromFlag(privacyFlag));
+        }
+
+        public Builder withPrivacyMode(final PrivacyMode privacyMode) {
+            this.privacyMode = privacyMode;
+            return this;
+        }
+
+        public Builder withAffectedContractTransactions(final Map<TxHash, byte[]> affectedContractTransactions) {
+            this.affectedContractTransactions = affectedContractTransactions;
+            return this;
+        }
+
+        public Builder withExecHash(final byte[] execHash) {
+            this.execHash = execHash;
+            return this;
+        }
+
         public EncodedPayload build() {
+
+            Map<TxHash, SecurityHash> affectedTxns =
+                    affectedContractTransactions.entrySet().stream()
+                            .collect(
+                                    Collectors.toUnmodifiableMap(
+                                            e -> e.getKey(), e -> SecurityHash.from(e.getValue())));
+
             List<RecipientBox> recipientBoxes =
-                this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
+                    this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
 
             return new EncodedPayload(
-                    senderKey, cipherText, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
+                    senderKey,
+                    cipherText,
+                    cipherTextNonce,
+                    recipientBoxes,
+                    recipientNonce,
+                    recipientKeys,
+                    privacyMode,
+                    affectedTxns,
+                    execHash);
         }
 
     }
-
 
     @Override
     public boolean equals(Object o) {
@@ -165,13 +235,17 @@ public class EncodedPayload {
                 && Objects.equals(cipherTextNonce, that.cipherTextNonce)
                 && Objects.equals(recipientBoxes, that.recipientBoxes)
                 && Objects.equals(recipientNonce, that.recipientNonce)
-                && Objects.equals(recipientKeys, that.recipientKeys);
+                && Objects.equals(recipientKeys, that.recipientKeys)
+                && privacyMode == that.privacyMode
+                && Arrays.equals(execHash, that.execHash);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys);
+        int result =
+                Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys, privacyMode);
         result = 31 * result + Arrays.hashCode(cipherText);
+        result = 31 * result + Arrays.hashCode(execHash);
         return result;
     }
 }

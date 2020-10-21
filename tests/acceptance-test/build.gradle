@@ -76,8 +76,9 @@ test {
     systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-"+ project.version +"/lib/"
 
     include(
-           "**/RestSuiteHttpH2RemoteEnclave.class",
-           "**/RestSuiteHttpHSQL.class",
+            "**/RecoverIT.class",
+            "**/RestSuiteHttpH2RemoteEnclave.class",
+            "**/RestSuiteHttpHSQL.class",
             "**/RestSuiteUnixH2.class",
             "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
@@ -88,11 +89,15 @@ test {
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
             "**/P2pTestSuite.class",
-            "**/VaultTestSuite.class"
+            "**/RunAwsIT.class",
+            "**/RunAzureIT.class"
     )
 
-    if (project.hasProperty("excludeTests")) {
-        exclude project.property("excludeTests")
+    if (project.hasProperty('excludeTests')) {
+        def tokens = project.property('excludeTests').split(",")
+        tokens.each {v ->
+            exclude "**/"+ v +".class";
+        }
     }
 
 }

@@ -1,6 +1,8 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.transaction.EncodedPayloadManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -12,6 +14,7 @@ import javax.ws.rs.core.Application;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class Q2TRestAppTest {
 
@@ -21,6 +24,9 @@ public class Q2TRestAppTest {
 
     @Before
     public void setUp() throws Exception {
+
+        Config config = mock(Config.class);
+        EncodedPayloadManager.create(config);
 
         q2TRestApp = new Q2TRestApp();
 
@@ -48,7 +54,7 @@ public class Q2TRestAppTest {
 
         Set<Object> results = q2TRestApp.getSingletons();
 
-        assertThat(results).hasSize(2);
+        assertThat(results).hasSize(3);
     }
 
     @Test

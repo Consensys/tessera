@@ -3,6 +3,7 @@ package com.quorum.tessera.q2t;
 import com.quorum.tessera.api.common.RawTransactionResource;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
@@ -25,12 +26,15 @@ public class Q2TRestApp extends TesseraRestApplication {
     public Set<Object> getSingletons() {
 
         TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-
+        EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.getInstance().orElseThrow(() -> new IllegalStateException("EncodedPayloadManager has not been initialised"));
         TransactionManager transactionManager = transactionManagerFactory.transactionManager().get();
+
         TransactionResource transactionResource = new TransactionResource(transactionManager);
         RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
+        EncodedPayloadResource encodedPayloadResource
+            = new EncodedPayloadResource(encodedPayloadManager, transactionManager);
 
-        return Set.of(transactionResource, rawTransactionResource);
+        return Set.of(transactionResource, rawTransactionResource, encodedPayloadResource);
     }
 
     @Override

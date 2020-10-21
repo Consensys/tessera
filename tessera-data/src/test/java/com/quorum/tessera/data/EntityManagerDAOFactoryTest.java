@@ -2,6 +2,7 @@ package com.quorum.tessera.data;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.data.staging.StagingEntityDAO;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,12 +32,11 @@ public class EntityManagerDAOFactoryTest {
         assertThat(entityManagerDAOFactory).isNotNull();
     }
 
-
     @Test
     public void createEncryptedRawTransactionDAO() {
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO = entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
         assertThat(encryptedRawTransactionDAO).isNotNull();
-
     }
 
     @Test
@@ -46,5 +46,10 @@ public class EntityManagerDAOFactoryTest {
 
     }
 
+    @Test
+    public void createStagingEntityDAO() {
+        StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
+        assertThat(stagingEntityDAO).isNotNull();
 
+    }
 }

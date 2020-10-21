@@ -23,6 +23,8 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
 
     private boolean remoteKeyValidation;
 
+    private boolean enhancedPrivacy;
+
     private boolean disablePeerDiscovery;
 
     private URI p2pServerUri = URI.create("http://someurl.com");
@@ -60,6 +62,11 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
     }
 
     @Override
+    public boolean isEnhancedPrivacy() {
+        return enhancedPrivacy;
+    }
+
+    @Override
     public URI getP2pServerUri() {
         return p2pServerUri;
     }
@@ -71,6 +78,11 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
 
     @Override
     public boolean isUseWhiteList() {
+        return false;
+    }
+
+    @Override
+    public boolean isRecoveryMode() {
         return false;
     }
 
@@ -96,6 +108,11 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
 
     public MockRuntimeContext setRemoteKeyValidation(boolean remoteKeyValidation) {
         this.remoteKeyValidation = remoteKeyValidation;
+        return this;
+    }
+
+    public MockRuntimeContext setEnhancedPrivacy(boolean enhancedPrivacy) {
+        this.enhancedPrivacy = enhancedPrivacy;
         return this;
     }
 

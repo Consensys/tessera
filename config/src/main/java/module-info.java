@@ -16,4 +16,6 @@ module tessera.config.main {
     exports com.quorum.tessera.config.keys;
     exports com.quorum.tessera.config.util;
     exports com.quorum.tessera.config.vault.data;
+    exports com.quorum.tessera.config.adapters;
+    exports com.quorum.tessera.config.constraints;
 }

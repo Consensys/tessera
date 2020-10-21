@@ -13,32 +13,19 @@ public class ApiObjectTest {
     @Test
     public void testAccessorsForApiObjects() {
         Validator validator = ValidatorBuilder.create()
-            .with(new GetterTester())
-            .with(new SetterTester())
-            .build();
+            .with(new GetterTester()).with(new SetterTester()).build();
 
-        validator.validate("com.quorum.tessera.api");
+        validator.validate("com.quorum.tessera.api", pojoClass -> !pojoClass.getClazz().getName().contains(VersionTest.class.getName()));
     }
 
     @Test
     public void nonEmptyConstructor() {
-        assertThat(new ReceiveResponse("Data".getBytes())).isNotNull()
-            .extracting(ReceiveResponse::getPayload).isNotNull();
 
-        assertThat(new SendResponse("Data"))
-            .isNotNull()
-            .extracting(SendResponse::getKey)
-            .isNotNull();
-
-        assertThat(new ReceiveResponse("Data".getBytes()))
-            .isNotNull()
-            .extracting(ReceiveResponse::getPayload)
-            .isNotNull();
+        assertThat(new SendResponse("Data")).isNotNull().extracting(SendResponse::getKey).isNotNull();
 
         assertThat(new StoreRawResponse("Data".getBytes()))
-            .isNotNull()
-            .extracting(StoreRawResponse::getKey)
-            .isNotNull();
+                .isNotNull()
+                .extracting(StoreRawResponse::getKey)
+                .isNotNull();
     }
-
 }

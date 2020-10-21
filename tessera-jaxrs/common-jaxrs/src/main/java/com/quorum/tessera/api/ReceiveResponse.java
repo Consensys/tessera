@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlMimeType;
 /**
  * Model representation of a JSON body on outgoing HTTP requests
  *
- * Contains a Base64 encoded string that is the decrypting payload of a transaction
+ * <p>Contains a Base64 encoded string that is the decrypting payload of a transaction
  */
 @ApiModel
 public class ReceiveResponse {
@@ -17,12 +17,16 @@ public class ReceiveResponse {
     @ApiModelProperty("Encode response servicing receive requests")
     private byte[] payload;
 
-    public ReceiveResponse(final byte[] payload) {
-        this.payload = payload;
-    }
+    @ApiModelProperty("Privacy flag")
+    private int privacyFlag;
 
-    public ReceiveResponse() {
-    }
+    @ApiModelProperty("Affected contract transactions")
+    private String[] affectedContractTransactions;
+
+    @ApiModelProperty("Execution hash")
+    private String execHash;
+
+    public ReceiveResponse() {}
 
     public byte[] getPayload() {
         return payload;
@@ -30,5 +34,29 @@ public class ReceiveResponse {
 
     public void setPayload(final byte[] payload) {
         this.payload = payload;
+    }
+
+    public int getPrivacyFlag() {
+        return privacyFlag;
+    }
+
+    public void setPrivacyFlag(int privacyFlag) {
+        this.privacyFlag = privacyFlag;
+    }
+
+    public String[] getAffectedContractTransactions() {
+        return affectedContractTransactions;
+    }
+
+    public void setAffectedContractTransactions(String[] affectedContractTransactions) {
+        this.affectedContractTransactions = affectedContractTransactions;
+    }
+
+    public String getExecHash() {
+        return execHash;
+    }
+
+    public void setExecHash(String execHash) {
+        this.execHash = execHash;
     }
 }

@@ -12,6 +12,7 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
     requires tessera.enclave.enclave.api.main;
     requires tessera.tessera.context.main;
     requires tessera.tessera.jaxrs.jaxrs.client.main;
+    requires tessera.shared.main;
 
     provides com.quorum.tessera.transaction.publish.PayloadPublisherFactory
         with com.quorum.tessera.q2t.RestPayloadPublisherFactory;

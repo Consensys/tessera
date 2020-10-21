@@ -17,8 +17,12 @@ public interface TesseraServerFactory<T> {
     CommunicationType communicationType();
 
     static TesseraServerFactory create(CommunicationType communicationType) {
+        LOGGER.debug("Creating TesseraServerFactory for {}",communicationType);
+
+
         return ServiceLoaderUtil.loadAll(TesseraServerFactory.class)
                 .filter(f -> f.communicationType() == communicationType)
+                .peek(tesseraServerFactory -> LOGGER.debug("Found factory {} for {}",tesseraServerFactory,communicationType))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("No server factory found for " + communicationType));
     }

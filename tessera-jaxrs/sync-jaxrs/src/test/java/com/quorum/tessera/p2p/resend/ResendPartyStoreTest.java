@@ -1,5 +1,8 @@
 package com.quorum.tessera.p2p.resend;
 
+import com.quorum.tessera.p2p.resend.ResendPartyStore;
+import com.quorum.tessera.p2p.resend.ResendPartyStoreImpl;
+import com.quorum.tessera.p2p.resend.SyncableParty;
 import com.quorum.tessera.partyinfo.model.Party;
 import org.junit.Before;
 import org.junit.Test;

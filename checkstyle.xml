@@ -44,7 +44,7 @@
         <module name="SimplifyBooleanReturn"/>
         <module name="VariableDeclarationUsageDistance"/>
         <module name="ParameterNumber">
-            <property name="max" value="5"/>
+            <property name="max" value="7"/>
             <property name="tokens" value="METHOD_DEF"/>
         </module>
         <module name="JavadocMethod">
@@ -107,7 +107,7 @@
             <property name="tokens" value="SR_ASSIGN, BSR_ASSIGN, SL_ASSIGN, BXOR_ASSIGN, BOR_ASSIGN, BAND_ASSIGN"/>
 
             <!--<property name="tokens" value="PLUS"/>--> <!-- TODO: uncomment -->
-            <property name="tokens" value="DIV, MINUS, STAR, MOD"/>
+<!--            <property name="tokens" value="DIV, MINUS, STAR, MOD"/>-->
             <property name="tokens" value="PLUS_ASSIGN, DIV_ASSIGN, MINUS_ASSIGN, STAR_ASSIGN, MOD_ASSIGN"/>
             <property name="tokens" value="LITERAL_INSTANCEOF, METHOD_REF, QUESTION, COLON"/>
             <property name="tokens" value="GE, GT, LE, LT"/>

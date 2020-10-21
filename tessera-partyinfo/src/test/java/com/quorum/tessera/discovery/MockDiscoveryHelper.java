@@ -1,7 +1,9 @@
 package com.quorum.tessera.discovery;
 
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.mockito.Mockito.mock;
@@ -12,6 +14,10 @@ public class MockDiscoveryHelper implements DiscoveryHelper {
 
     private static final AtomicInteger BUILDCURRENT_COUNTER = new AtomicInteger(0);
 
+    private static final AtomicInteger BUILDREMOTE_COUNTER = new AtomicInteger(0);
+
+    private static final AtomicInteger BUILDALL_COUNTER = new AtomicInteger(0);
+
     @Override
     public NodeInfo buildCurrent() {
         BUILDCURRENT_COUNTER.incrementAndGet();
@@ -21,6 +27,18 @@ public class MockDiscoveryHelper implements DiscoveryHelper {
     @Override
     public void onCreate() {
         ONCREATE_COUNTER.incrementAndGet();
+    }
+
+    @Override
+    public NodeInfo buildRemoteNodeInfo(PublicKey publicKey) {
+        BUILDREMOTE_COUNTER.incrementAndGet();
+        return mock(NodeInfo.class);
+    }
+
+    @Override
+    public Set<NodeInfo> buildRemoteNodeInfos() {
+        BUILDALL_COUNTER.incrementAndGet();
+        return mock(Set.class);
     }
 
     static void reset() {
@@ -34,5 +52,13 @@ public class MockDiscoveryHelper implements DiscoveryHelper {
 
     int getBuildCurrentInvocationCounter() {
         return BUILDCURRENT_COUNTER.get();
+    }
+
+    int getBuildRemoteInvocationCounter() {
+        return BUILDREMOTE_COUNTER.get();
+    }
+
+    int getBuildAllInvocationCounter() {
+        return BUILDALL_COUNTER.get();
     }
 }

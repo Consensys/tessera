@@ -4,6 +4,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
+import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Before;
 import org.junit.Test;
 

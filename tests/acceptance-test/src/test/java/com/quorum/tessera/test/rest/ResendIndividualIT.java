@@ -35,7 +35,6 @@ public class ResendIndividualIT {
     private Party recipient;
 
     private static final String RESEND_INDIVIDUAL_VALUE = "INDIVIDUAL";
-
     @Before
     public void init() {
 
@@ -49,7 +48,7 @@ public class ResendIndividualIT {
             .header("c11n-to", recipient.getPublicKey())
             .post(Entity.entity("Zm9v".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
 
-        //validate result
+        // validate result
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(200);
         this.hash = response.readEntity(String.class);
@@ -75,7 +74,8 @@ public class ResendIndividualIT {
         final EncodedPayload payload = ENCODER.decode(returnValue);
 
         assertThat(payload).isNotNull();
-        assertThat(payload.getRecipientKeys()).isEmpty();
+        assertThat(payload.getRecipientKeys()).hasSize(1);
+        assertThat(payload.getRecipientKeys().get(0).encodeToBase64()).isEqualTo(recipient.getPublicKey());
         assertThat(payload.getSenderKey().encodeToBase64()).isEqualTo(sender.getPublicKey());
     }
 
@@ -113,7 +113,6 @@ public class ResendIndividualIT {
             .filter(p -> !p.equals(recipient))
             .findAny()
             .get();
-
         request.setPublicKey(anyOtherParty.getPublicKey());
 
         final Response response = client.target(recipient.getP2PUri())
@@ -125,7 +124,6 @@ public class ResendIndividualIT {
         assertThat(response.getStatus()).isEqualTo(500);
         assertThat(response.readEntity(String.class))
             .contains("Recipient " + anyOtherParty.getPublicKey() + " is not a recipient of transaction");
-
     }
 
     @Test
