@@ -60,23 +60,24 @@ public class ExecUtils {
         Optional<ProcessHandle> optionalProcessHandle = ProcessHandle.of(Long.valueOf(pid));
         try {
             ProcessHandle processHandle = optionalProcessHandle.get();
-            LOGGER.debug("Killing process: {}", processHandle.pid());
+            LOGGER.debug("Killing process, pid: {}", processHandle.pid());
             processHandle.destroy();
 
             for (int i = 0; i < 10; i++) {
                 if (processHandle.isAlive()) {
-                    LOGGER.debug("Waiting for process to exit: {}", processHandle.pid());
+                    LOGGER.debug("Waiting for process to exit, pid: {}", processHandle.pid());
                     try {
                         Thread.sleep(100L);
                     } catch (InterruptedException ex) {
                     }
                 } else {
-                    LOGGER.debug("Process successfully killed: {}", processHandle.pid());
-                    break;
+                    LOGGER.debug("Process successfully killed, pid: {}", processHandle.pid());
+                    return;
                 }
             }
         } catch (NoSuchElementException e) {
-            LOGGER.debug("No such process: {}", pid);
+            LOGGER.debug("No such process, pid: {}", pid);
         }
+        LOGGER.warn("Process did not exit yet, pid: {}", pid);
     }
 }
