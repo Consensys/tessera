@@ -3,9 +3,7 @@ package exec;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -57,12 +55,28 @@ public class ExecUtils {
         return process;
     }
 
-    public static void kill(String pid) throws IOException, InterruptedException {
+    public static void kill(String pid) {
 
-        List<String> args = Arrays.asList("kill", pid);
-        ProcessBuilder processBuilder = new ProcessBuilder(args);
-        Process process = processBuilder.start();
+        Optional<ProcessHandle> optionalProcessHandle = ProcessHandle.of(Long.valueOf(pid));
+        try {
+            ProcessHandle processHandle = optionalProcessHandle.get();
+            LOGGER.debug("Killing process: {}", processHandle.pid());
+            processHandle.destroy();
 
-        int exitCode = process.waitFor();
+            for (int i = 0; i < 10; i++) {
+                if (processHandle.isAlive()) {
+                    LOGGER.debug("Waiting for process to exit: {}", processHandle.pid());
+                    try {
+                        Thread.sleep(100L);
+                    } catch (InterruptedException ex) {
+                    }
+                } else {
+                    LOGGER.debug("Process successfully killed: {}", processHandle.pid());
+                    break;
+                }
+            }
+        } catch (NoSuchElementException e) {
+            LOGGER.debug("No such process: {}", pid);
+        }
     }
 }
