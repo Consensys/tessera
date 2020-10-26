@@ -85,16 +85,16 @@ public class TransactionResource {
                         .map(MessageHash::new)
                         .orElse(null);
 
-        com.quorum.tessera.transaction.ResendRequest request =
-                com.quorum.tessera.transaction.ResendRequest.Builder.create()
+        com.quorum.tessera.recovery.resend.ResendRequest request =
+            com.quorum.tessera.recovery.resend.ResendRequest.Builder.create()
                         .withType(
-                                com.quorum.tessera.transaction.ResendRequest.ResendRequestType.valueOf(
+                            com.quorum.tessera.recovery.resend.ResendRequest.ResendRequestType.valueOf(
                                         resendRequest.getType().name()))
                         .withRecipient(recipient)
                         .withHash(transactionHash)
                         .build();
 
-        com.quorum.tessera.transaction.ResendResponse response = legacyResendManager.resend(request);
+        com.quorum.tessera.recovery.resend.ResendResponse response = legacyResendManager.resend(request);
 
         Response.ResponseBuilder builder = Response.ok();
         Optional.ofNullable(response.getPayload()).map(payloadEncoder::encode).ifPresent(builder::entity);

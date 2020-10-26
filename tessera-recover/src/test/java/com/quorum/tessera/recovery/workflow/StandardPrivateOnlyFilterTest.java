@@ -4,6 +4,8 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PrivacyMode;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StandardPrivateOnlyFilterTest {
@@ -21,19 +23,15 @@ public class StandardPrivateOnlyFilterTest {
 
     @Test
     public void nonStandardPrivateDoesntPass() {
-        final EncodedPayload payload = EncodedPayload.Builder.create()
-            .withPrivacyMode(PrivacyMode.PARTY_PROTECTION).build();
-        final BatchWorkflowContext context = new BatchWorkflowContext();
-        context.setEncodedPayload(payload);
-        final boolean success = filter.filter(context);
-        assertThat(success).isFalse();
+        Arrays.stream(PrivacyMode.values())
+            .filter(p -> !PrivacyMode.STANDARD_PRIVATE.equals(p))
+            .forEach(p -> {
+                final EncodedPayload psvPayload = EncodedPayload.Builder.create().withPrivacyMode(p).build();
+                final BatchWorkflowContext contextPsv = new BatchWorkflowContext();
+                contextPsv.setEncodedPayload(psvPayload);
 
-        final EncodedPayload psvPayload = EncodedPayload.Builder.create()
-            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION).build();
-        final BatchWorkflowContext contextPsv = new BatchWorkflowContext();
-        contextPsv.setEncodedPayload(psvPayload);
-        final boolean successPsv = filter.filter(contextPsv);
-        assertThat(successPsv).isFalse();
+                assertThat(filter.filter(contextPsv)).isFalse();
+            });
     }
 
     @Test

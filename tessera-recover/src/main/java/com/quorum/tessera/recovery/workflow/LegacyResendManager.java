@@ -8,8 +8,8 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.transaction.ResendRequest;
-import com.quorum.tessera.transaction.ResendResponse;
+import com.quorum.tessera.recovery.resend.ResendRequest;
+import com.quorum.tessera.recovery.resend.ResendResponse;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 
