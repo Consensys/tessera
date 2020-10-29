@@ -29,16 +29,14 @@ jobs:
       - uses: actions/checkout@v2
       - name: Determine tag name
         id: tag
-        shell: bash
         run: |
           REF=${{ github.ref }}
-          PREFIX="refs\/tags\/tessera-"
-          TAG=$(echo "$REF" | sed "s/^$PREFIX//")
-          echo "::set-output name=name::$TAG"
+          echo ::set-output name=name::$(echo $REF | sed 's/refs\/tags\/tessera-//g')
+          echo ::set-output name=minor::$(echo $REF | sed -e 's/refs\/tags\/tessera-//g' -e 's/^\([[:digit:]]*\.[[:digit:]]*\).*/\1/')
       - uses: docker/build-push-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           repository: ${{ secrets.DOCKER_REPO }}
-          tags: ${{ steps.tag.outputs.name }}
+          tags: ${{ steps.tag.outputs.name }}, ${{ steps.tag.outputs.minor }}
           add_git_labels: true
