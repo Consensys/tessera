@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera</artifactId>
-        <version>0.11.1-SNAPSHOT</version>
+        <version>20.10.0-SNAPSHOT</version>
     </parent>
     <artifactId>tessera-core</artifactId>
     <packaging>jar</packaging>
