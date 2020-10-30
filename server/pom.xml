@@ -10,7 +10,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>net.consensys.quorum.tessera</groupId>
-        <version>20.10.0-SNAPSHOT</version>
+        <version>20.10.0</version>
     </parent>
 
     <modules>
@@ -26,7 +26,7 @@
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>server-utils</artifactId>
-                <version>20.10.0-SNAPSHOT</version>
+                <version>20.10.0</version>
             </dependency>
  
         </dependencies>
