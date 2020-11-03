@@ -73,4 +73,11 @@ public interface EncryptedTransactionDAO {
      * @throws RuntimeException if the callback fails
      */
     <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer);
+
+    /**
+     * Check whether data store is available
+     *
+     * @return true if data store is up and running ok, else false
+     */
+    boolean upcheck();
 }

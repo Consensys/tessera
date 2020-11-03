@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.api.filter.GlobalFilter;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
@@ -82,11 +83,12 @@ public class P2PRestApp extends TesseraRestApplication {
             new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
         final RecoveryResource recoveryResource =
             new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
+        final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
         if (runtimeContext.isRecoveryMode()) {
-            return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
+            return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource);
         }
-        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource);
+        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource, upCheckResource);
     }
 
     @Override

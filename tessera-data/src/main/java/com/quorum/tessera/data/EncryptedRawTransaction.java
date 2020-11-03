@@ -12,7 +12,8 @@ import java.util.Objects;
 @NamedQueries({
     @NamedQuery(
             name = "EncryptedRawTransaction.DeleteByHash",
-            query = "delete from EncryptedRawTransaction where hash.hashBytes = :hash")
+            query = "delete from EncryptedRawTransaction where hash.hashBytes = :hash"),
+    @NamedQuery(name = "EncryptedRawTransaction.Upcheck", query = "select count(c) from EncryptedRawTransaction c")
 })
 @Entity
 @Table(name = "ENCRYPTED_RAW_TRANSACTION")

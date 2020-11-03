@@ -119,6 +119,22 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
     }
 
     @Override
+    public boolean upcheck() {
+        // if query succeeds then DB is up and running (else get exception)
+        try {
+            return entityManagerTemplate.execute(
+                    entityManager -> {
+                        Object result =
+                                entityManager.createNamedQuery("EncryptedTransaction.Upcheck").getSingleResult();
+
+                        return true;
+                    });
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public List<EncryptedTransaction> findByHashes(Collection<MessageHash> messageHashes) {
         if (Objects.isNull(messageHashes) || messageHashes.isEmpty()) {
             return Collections.EMPTY_LIST;

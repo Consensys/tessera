@@ -23,6 +23,8 @@ public interface TransactionManager {
 
     StoreRawResponse store(StoreRawRequest storeRequest);
 
+    boolean upcheck();
+
     boolean isSender(MessageHash transactionHash);
 
     List<PublicKey> getParticipants(MessageHash transactionHash);

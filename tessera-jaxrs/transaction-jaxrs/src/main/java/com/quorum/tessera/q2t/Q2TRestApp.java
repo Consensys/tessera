@@ -1,6 +1,7 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.common.RawTransactionResource;
+import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
@@ -48,8 +49,9 @@ public class Q2TRestApp extends TesseraRestApplication {
         RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
         EncodedPayloadResource encodedPayloadResource
             = new EncodedPayloadResource(encodedPayloadManager, transactionManager);
+        final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
-        return Set.of(transactionResource, rawTransactionResource, encodedPayloadResource);
+        return Set.of(transactionResource, rawTransactionResource, encodedPayloadResource, upCheckResource);
     }
 
     @Override
