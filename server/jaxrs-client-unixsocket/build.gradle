@@ -1,8 +1,8 @@
 dependencies {
     implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
-    implementation 'org.eclipse.jetty:jetty-unixsocket:9.4.33.v20201020'
+    implementation 'org.eclipse.jetty:jetty-unixsocket:$jettyVersion'
     implementation 'org.glassfish.jersey.core:jersey-client:2.27'
-    implementation 'org.eclipse.jetty:jetty-client:9.4.33.v20201020'
+    implementation 'org.eclipse.jetty:jetty-client:$jettyVersion'
     runtimeOnly project(':shared')
     implementation project(':server:server-api')
     testImplementation project(':config')
