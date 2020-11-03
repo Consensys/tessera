@@ -7,7 +7,7 @@ plugins {
 
 }
 
-def jettyVersion = "9.4.25.v20191220"
+def jettyVersion = "9.4.33.v20201020"
 
 def springVersion = "5.2.9.RELEASE"
 def eclipseLinkVersion = "2.7.7"
@@ -64,9 +64,9 @@ allprojects {
                 compile "org.cryptacular:cryptacular:1.2.2"
                 compile "eu.neilalexander:jnacl:1.0.0"
                 compile "javax.ws.rs:javax.ws.rs-api:2.1"
-                compile "org.eclipse.jetty:jetty-unixsocket:9.4.17.v20190418"
+                compile "org.eclipse.jetty:jetty-unixsocket:9.4.33.v20201020"
                 compile "org.glassfish.jersey.core:jersey-client:2.27"
-                compile "org.eclipse.jetty:jetty-client:9.4.17.v20190418"
+                compile "org.eclipse.jetty:jetty-client:9.4.33.v20201020"
                 compile "org.glassfish.jersey.media:jersey-media-moxy:2.27"
                 compile "org.glassfish.jersey.core:jersey-server:2.27"
                 compile "org.glassfish.jersey.ext:jersey-bean-validation:2.27"
