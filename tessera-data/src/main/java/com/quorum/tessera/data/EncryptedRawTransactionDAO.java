@@ -28,4 +28,11 @@ public interface EncryptedRawTransactionDAO {
      * @throws javax.persistence.EntityNotFoundException if there hash doesn't exist
      */
     void delete(MessageHash hash);
+
+    /**
+     * Check whether data store is available
+     *
+     * @return true if data store is up and running ok, else false
+     */
+    boolean upcheck();
 }

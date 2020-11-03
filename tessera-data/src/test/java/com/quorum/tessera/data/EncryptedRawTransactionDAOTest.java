@@ -10,6 +10,8 @@ import javax.persistence.*;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class EncryptedRawTransactionDAOTest {
@@ -282,5 +284,27 @@ public class EncryptedRawTransactionDAOTest {
     public static Collection<TestConfig> connectionDetails() {
 
         return List.of(TestConfig.values());
+    }
+
+    @Test
+    public void upcheckReturnsTrue() {
+        assertThat(encryptedRawTransactionDAO.upcheck());
+    }
+
+    @Test
+    public void upcheckFailDueToDB() {
+        EntityManagerFactory mockEntityManagerFactory = mock(EntityManagerFactory.class);
+        EntityManager mockEntityManager = mock(EntityManager.class);
+        EntityTransaction mockEntityTransaction = mock(EntityTransaction.class);
+        EntityManagerCallback mockEntityManagerCallback = mock(EntityManagerCallback.class);
+
+        when(mockEntityManagerFactory.createEntityManager()).thenReturn(mockEntityManager);
+        when(mockEntityManager.getTransaction()).thenReturn(mockEntityTransaction);
+        when(mockEntityManagerCallback.execute(mockEntityManager)).thenThrow(RuntimeException.class);
+
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+                new EncryptedRawTransactionDAOImpl(mockEntityManagerFactory);
+
+        assertThat(encryptedRawTransactionDAO.upcheck()).isFalse();
     }
 }

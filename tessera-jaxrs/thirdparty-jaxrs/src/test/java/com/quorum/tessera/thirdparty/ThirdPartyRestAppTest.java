@@ -60,7 +60,7 @@ public class ThirdPartyRestAppTest {
 
         Set<Object> results = thirdParty.getSingletons();
 
-        assertThat(results).hasSize(3);
+        assertThat(results).hasSize(4);
     }
 
     @Test

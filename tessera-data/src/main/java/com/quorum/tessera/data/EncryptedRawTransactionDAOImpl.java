@@ -65,6 +65,22 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
                 });
     }
 
+    @Override
+    public boolean upcheck() {
+        // if query succeeds then DB is up and running (else get exception)
+        try {
+            return entityManagerTemplate.execute(
+                    entityManager -> {
+                        Object result =
+                                entityManager.createNamedQuery("EncryptedRawTransaction.Upcheck").getSingleResult();
+
+                        return true;
+                    });
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private String toHexString(byte[] val) {
         if (null == val) {
             return "null";
