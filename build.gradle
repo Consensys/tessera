@@ -29,7 +29,7 @@ allprojects {
                 runtimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
                 runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy:"+ eclipseLinkVersion
 
-                testCompile "junit:junit:4.12"
+                testCompile "junit:junit:4.13.1"
                 testCompile "org.assertj:assertj-core:3.9.1"
                 testCompile "org.mockito:mockito-core:3.4.4"
                 testCompile "com.openpojo:openpojo:0.8.10"
