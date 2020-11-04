@@ -6,6 +6,7 @@ import com.quorum.tessera.discovery.NodeUri;
 import java.net.URI;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*
  * Support legacy collation of all parties to be added to
@@ -18,12 +19,17 @@ public interface PartyStore {
 
         final Set<URI> parties = getParties();
 
-        if (parties.isEmpty()
-                || !runtimeContext.getPeers().stream()
+        final URI ownUri = NodeUri.create(runtimeContext.getP2pServerUri()).asURI();
+
+        final Set<URI> peerList =
+                runtimeContext.getPeers().stream()
                         .map(NodeUri::create)
                         .map(NodeUri::asURI)
-                        .anyMatch(parties::contains)) {
-            runtimeContext.getPeers().forEach(this::store);
+                        .filter(p -> !p.equals(ownUri))
+                        .collect(Collectors.toUnmodifiableSet());
+
+        if (parties.isEmpty() || !peerList.stream().anyMatch(parties::contains)) {
+            peerList.forEach(this::store);
         }
     }
 

@@ -19,7 +19,9 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Application;
+import java.net.URI;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,6 +46,8 @@ public class P2PRestAppTest {
         Client client = mock(Client.class);
         when(runtimeContext.getP2pClient()).thenReturn(client);
         when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
+        when(runtimeContext.getP2pServerUri()).thenReturn(URI.create("http://own.com/"));
+        when(runtimeContext.getPeers()).thenReturn(List.of(URI.create("http://peer.com/")));
 
         MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);
@@ -77,7 +81,10 @@ public class P2PRestAppTest {
                 o ->
                         assertThat(o)
                                 .isInstanceOfAny(
-                                        PartyInfoResource.class, IPWhitelistFilter.class, UpCheckResource.class, TransactionResource.class));
+                                        PartyInfoResource.class,
+                                        IPWhitelistFilter.class,
+                                        UpCheckResource.class,
+                                        TransactionResource.class));
     }
 
     @Test
@@ -90,7 +97,10 @@ public class P2PRestAppTest {
                 o ->
                         assertThat(o)
                                 .isInstanceOfAny(
-                                        PartyInfoResource.class, IPWhitelistFilter.class, UpCheckResource.class, RecoveryResource.class));
+                                        PartyInfoResource.class,
+                                        IPWhitelistFilter.class,
+                                        UpCheckResource.class,
+                                        RecoveryResource.class));
     }
 
     @Test
