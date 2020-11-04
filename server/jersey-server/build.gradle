@@ -11,7 +11,7 @@ dependencies {
     implementation 'org.glassfish.jersey.containers:jersey-container-servlet-core:2.27'
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'com.sun.mail:javax.mail:1.6.2'
-    implementation 'org.eclipse.jetty:jetty-servlet:9.4.17.v20190418'
+    implementation 'org.eclipse.jetty:jetty-servlet:$jettyVersion'
     implementation 'org.glassfish.jersey.inject:jersey-hk2:2.27'
     implementation 'org.glassfish.jersey.core:jersey-common:2.27'
     implementation project(':server:server-utils')
