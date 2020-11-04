@@ -1,9 +1,9 @@
 package com.quorum.tessera.p2p.partyinfo;
 
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.p2p.partyinfo.PartyStore;
-import com.quorum.tessera.p2p.partyinfo.PartyStoreFactory;
-import com.quorum.tessera.p2p.partyinfo.SimplePartyStore;
+import com.quorum.tessera.context.RuntimeContextFactory;
+import com.quorum.tessera.discovery.NodeUri;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,10 +22,15 @@ public class PartyStoreFactoryTest {
 
     private PartyStore partyStore;
 
+    static final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(mock(Config.class));
+
     @Before
     public void beforeTest() {
         partyStore = mock(PartyStore.class);
         partyStoreFactory = new PartyStoreFactory(partyStore);
+
+        when(runtimeContext.getP2pServerUri()).thenReturn(URI.create("http://own.com/"));
+        when(runtimeContext.getPeers()).thenReturn(List.of(URI.create("http://peer.com/")));
     }
 
     @After
@@ -60,7 +65,21 @@ public class PartyStoreFactoryTest {
         partyStoreFactory.loadFromConfigIfEmpty();
 
         verify(partyStore).getParties();
-        verify(partyStore).store(RuntimeContext.getInstance().getPeers().get(0));
+        verify(partyStore).store(runtimeContext.getPeers().get(0));
+    }
+
+    @Test
+    public void whenPeerListContainsSelf() {
+
+        when(runtimeContext.getPeers())
+                .thenReturn(List.of(URI.create("http://peer.com/"), URI.create("http://own.com/")));
+
+        when(partyStore.getParties()).thenReturn(Set.of(URI.create("http://own.com/")));
+
+        partyStoreFactory.loadFromConfigIfEmpty();
+
+        verify(partyStore).getParties();
+        verify(partyStore).store(NodeUri.create("http://peer.com/").asURI());
     }
 
     @Test
@@ -70,7 +89,7 @@ public class PartyStoreFactoryTest {
         partyStoreFactory.loadFromConfigIfEmpty();
 
         verify(partyStore).getParties();
-        verify(partyStore).store(RuntimeContext.getInstance().getPeers().get(0));
+        verify(partyStore).store(runtimeContext.getPeers().get(0));
     }
 
     @Test
@@ -87,13 +106,12 @@ public class PartyStoreFactoryTest {
 
         when(partyStore.getParties()).thenReturn(Set.of(URI.create("http://peer.com/")));
 
-        when(RuntimeContext.getInstance().getPeers()).thenReturn(List.of(URI.create("http://peer.com")));
+        when(runtimeContext.getPeers()).thenReturn(List.of(URI.create("http://peer.com")));
 
         partyStoreFactory.loadFromConfigIfEmpty();
 
         verify(partyStore).getParties();
         verify(partyStore, times(0)).store(any());
-
     }
 
     @Test
