@@ -44,6 +44,11 @@
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>jaxrs-client</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-jaxrs2</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
