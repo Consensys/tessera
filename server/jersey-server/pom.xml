@@ -53,6 +53,16 @@
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-moxy</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.json</groupId>
+                    <artifactId>jakarta.json-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>jakarta.activation</groupId>
+                    <artifactId>jakarta.activation-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -64,13 +74,13 @@
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-bean-validation</artifactId>
             <exclusions>
+<!--                <exclusion>-->
+<!--                    <groupId>org.glassfish</groupId>-->
+<!--                    <artifactId>jakarta.el</artifactId>-->
+<!--                </exclusion>-->
                 <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.el</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>javax.el</groupId>
-                    <artifactId>javax.el-api</artifactId>
+                    <groupId>jakarta.el</groupId>
+                    <artifactId>jakarta.el-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
