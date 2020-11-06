@@ -1,0 +1,11 @@
+scannerClass: io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner
+prettyPrint: true
+modelConverterClasses:
+  - com.quorum.tessera.openapi.FullyQualifiedNameResolver
+cacheTTL: 0
+openAPI:
+  info:
+    title: Tessera API reference
+    description: |
+      Tessera openapi document detailing the available endpoints for this API
+    version: 1.0
