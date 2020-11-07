@@ -6,8 +6,6 @@ import com.quorum.tessera.api.common.VersionResource;
 import com.quorum.tessera.api.exception.*;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.apps.TesseraApp;
-import io.swagger.v3.jaxrs2.integration.resources.AcceptHeaderOpenApiResource;
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
@@ -33,9 +31,7 @@ public abstract class TesseraRestApplication extends Application implements Tess
                 NodeOfflineExceptionMapper.class,
                 VersionResource.class,
                 ApiResource.class,
-                BaseResource.class,
-                OpenApiResource.class,
-                AcceptHeaderOpenApiResource.class);
+                BaseResource.class);
     }
 
     @Override
