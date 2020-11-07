@@ -8,4 +8,4 @@ openAPI:
     title: Tessera API reference
     description: |
       Tessera openapi document detailing the available endpoints for this API
-    version: 1.0
+    version: latest
