@@ -58,6 +58,7 @@
         <jasypt.version>1.9.3</jasypt.version>
         <picocli.version>4.0.4</picocli.version>
         <awssdk.version>2.10.25</awssdk.version>
+        <swagger.version>2.1.5</swagger.version>
     </properties>
 
     <build>
@@ -1003,19 +1004,19 @@
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-core</artifactId>
-                <version>2.1.5</version>
+                <version>${swagger.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.1.5</version>
+                <version>${swagger.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-jaxrs2</artifactId>
-                <version>2.1.5</version>
+                <version>${swagger.version}</version>
             </dependency>
 
             <dependency>
