@@ -13,7 +13,7 @@ dependencies {
 
 resolve {
     classpath = sourceSets.main.runtimeClasspath
-    outputDir = file("${project.buildDir}/generated-resources")
+    outputDir = file("${project.buildDir}/generated-resources/openapi")
     outputFormat = 'JSONANDYAML'
     prettyPrint = 'TRUE'
     openApiFile = file("${project.projectDir}/src/main/resources/openapi-base.yaml")
