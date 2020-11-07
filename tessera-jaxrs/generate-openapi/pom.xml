@@ -46,8 +46,17 @@
                 <configuration>
                     <outputPath>${project.build.directory}/generated-resources/openapi</outputPath>
                     <outputFormat>JSONANDYAML</outputFormat>
-                    <configurationFilePath>${project.basedir}/src/main/resources/openapi-configuration.yaml</configurationFilePath>
                     <prettyPrint>true</prettyPrint>
+                    <openapiFilePath>${project.basedir}/src/main/resources/openapi-base.yaml</openapiFilePath>
+                    <resourcePackages>
+                        <resourcePackage>com.quorum.tessera.api.common</resourcePackage>
+                        <resourcePackage>com.quorum.tessera.p2p</resourcePackage>
+                        <resourcePackage>com.quorum.tessera.thirdparty</resourcePackage>
+                        <resourcePackage>com.quorum.tessera.q2t</resourcePackage>
+                    </resourcePackages>
+                    <modelConverterClasses>
+                        <modelConverterClass>com.quorum.tessera.openapi.FullyQualifiedNameResolver</modelConverterClass>
+                    </modelConverterClasses>
                 </configuration>
                 <executions>
                     <execution>
