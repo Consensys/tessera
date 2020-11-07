@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - yaml-api-docs-endpoints
     paths:
       - 'tessera-jaxrs/**'
 jobs:
@@ -13,7 +14,7 @@ jobs:
       - name: Fire repository_dispatch event
         uses: peter-evans/repository-dispatch@v1
         with:
-          repository: ConsenSys/doc.tessera
+          repository: chris-j-h/doc.tessera
           token: ${{ secrets.QUORUMBOT_PAT }}
           event-type: jaxrs-files-updated
           client-payload: '{"repo": "${{ github.repository }}", "ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "openapi-path": "tessera-jaxrs/generate-openapi/build/generated-resources/openapi.yaml"}'
