@@ -45,7 +45,48 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>2.1.5</version>
+                <configuration>
+                    <outputPath>${project.build.directory}/generated-resources/openapi</outputPath>
+                    <outputFileName>openapi.p2p</outputFileName>
+                    <outputFormat>JSONANDYAML</outputFormat>
+                    <prettyPrint>true</prettyPrint>
+                    <openapiFilePath>${project.basedir}/src/main/resources/openapi-base-p2p.yaml</openapiFilePath>
+                    <resourcePackages>
+                        <resourcePackage>com.quorum.tessera.api.common</resourcePackage>
+                        <resourcePackage>com.quorum.tessera.p2p</resourcePackage>
+                        <resourcePackage>com.quorum.tessera.thirdparty</resourcePackage>
+                        <resourcePackage>com.quorum.tessera.q2t</resourcePackage>
+                    </resourcePackages>
+                    <modelConverterClasses>
+                        <modelConverterClass>com.quorum.tessera.openapi.FullyQualifiedNameResolver</modelConverterClass>
+                    </modelConverterClasses>
+                    <filterClass>com.quorum.tessera.openapi.P2POperationsFilter</filterClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>resolve</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <name>sync-jaxrs</name>
 </project>
