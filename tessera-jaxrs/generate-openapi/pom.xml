@@ -5,7 +5,7 @@
     <parent>
         <artifactId>tessera-jaxrs</artifactId>
         <groupId>net.consensys.quorum.tessera</groupId>
-        <version>0.11.1-SNAPSHOT</version>
+        <version>20.10.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,22 +15,22 @@
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>common-jaxrs</artifactId>
-            <version>0.11.1-SNAPSHOT</version>
+            <version>20.10.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>sync-jaxrs</artifactId>
-            <version>0.11.1-SNAPSHOT</version>
+            <version>20.10.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>thirdparty-jaxrs</artifactId>
-            <version>0.11.1-SNAPSHOT</version>
+            <version>20.10.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>transaction-jaxrs</artifactId>
-            <version>0.11.1-SNAPSHOT</version>
+            <version>20.10.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
