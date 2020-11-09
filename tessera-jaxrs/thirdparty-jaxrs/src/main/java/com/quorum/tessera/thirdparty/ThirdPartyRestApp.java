@@ -16,6 +16,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toSet;
+
 /** The third party API */
 // @Api
 @ApplicationPath("/")
@@ -42,6 +44,12 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
 
         return Stream.of(rawTransactionResource, partyInfoResource, keyResource, upCheckResource)
                 .collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<Class<?>> getClasses() {
+        return Stream.concat(super.getClasses().stream(), Stream.of(ApiResource.class))
+            .collect(toSet());
     }
 
     @Override

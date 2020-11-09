@@ -1,4 +1,4 @@
-package com.quorum.tessera.api.common;
+package com.quorum.tessera.p2p;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,9 +11,7 @@ import javax.servlet.ServletConfig;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.*;
-import java.net.URL;
 import java.util.List;
-import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
 
@@ -50,22 +48,23 @@ public class ApiResource {
             @Context UriInfo uriInfo,
             @Context Request request)
             throws Exception {
-        final Optional<MediaType> mediaType =
-                Optional.ofNullable(request.selectVariant(variants())).map(Variant::getMediaType);
-
-        final Optional<String> mediaSubType = mediaType.map(MediaType::getSubtype);
-
-        if (mediaSubType.isPresent()) {
-            final URL url;
-            if (mediaSubType.filter("json"::equals).isPresent()) {
-                url = getClass().getResource("/swagger.json");
-            } else {
-                url = getClass().getResource("/swagger.html");
-            }
-            return Response.ok(url.openStream(), mediaType.get()).build();
-        } else {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
+        //        final Optional<MediaType> mediaType =
+        // Optional.ofNullable(request.selectVariant(variants())).map(Variant::getMediaType);
+        //
+        //        final Optional<String> mediaSubType = mediaType.map(MediaType::getSubtype);
+        //
+        //        if (mediaSubType.isPresent()) {
+        //            final URL url;
+        //            if (mediaSubType.filter("json"::equals).isPresent()) {
+        //                url = getClass().getResource("/swagger.json");
+        //            } else {
+        //                url = getClass().getResource("/swagger.html");
+        //            }
+        //            return Response.ok(url.openStream(), mediaType.get()).build();
+        //        } else {
+        //            return Response.status(Response.Status.BAD_REQUEST).build();
+        //        }
+        return Response.ok("p2p openapi doc").build();
     }
 
     static List<Variant> variants() {

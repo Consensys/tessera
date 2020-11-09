@@ -18,12 +18,14 @@ import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
-// import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ApplicationPath;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * The main application that is submitted to the HTTP server Contains all the service classes created by the service
@@ -82,13 +84,19 @@ public class P2PRestApp extends TesseraRestApplication {
         final TransactionResource transactionResource =
                 new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
         final RecoveryResource recoveryResource =
-            new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
+                new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
         if (runtimeContext.isRecoveryMode()) {
             return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource);
         }
         return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource, upCheckResource);
+    }
+
+    @Override
+    public Set<Class<?>> getClasses() {
+        return Stream.concat(super.getClasses().stream(), Stream.of(ApiResource.class))
+            .collect(toSet());
     }
 
     @Override
