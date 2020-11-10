@@ -3,8 +3,8 @@ package com.quorum.tessera.context;
 import com.quorum.tessera.config.*;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -15,7 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
 
     private DefaultRuntimeContextFactory runtimeContextFactory;
@@ -26,7 +25,6 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
     public void onSetUp() {
         contextHolder = mock(ContextHolder.class);
         runtimeContextFactory = new DefaultRuntimeContextFactory(contextHolder);
-
     }
 
     @After
@@ -63,15 +61,21 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         FeatureToggles featureToggles = mock(FeatureToggles.class);
         when(confg.getFeatures()).thenReturn(featureToggles);
 
-        RuntimeContext result = runtimeContextFactory.create(confg);
+        try (MockedStatic<RestClientFactory> restClientFactory = mockStatic(RestClientFactory.class)) {
+            restClientFactory.when(RestClientFactory::create)
+                .thenReturn(new MockRestClientFactory());
 
-        assertThat(result).isNotNull();
-        assertThat(result.isRecoveryMode()).isFalse();
-        assertThat(result.isEnhancedPrivacy()).isFalse();
+            RuntimeContext result = runtimeContextFactory.create(confg);
+
+            assertThat(result).isNotNull();
+            assertThat(result.isRecoveryMode()).isFalse();
+            assertThat(result.isEnhancedPrivacy()).isFalse();
 
 
-        verify(contextHolder).getContext();
-        verify(contextHolder).setContext(any(RuntimeContext.class));
+            verify(contextHolder).getContext();
+            verify(contextHolder).setContext(any(RuntimeContext.class));
+
+        }
     }
 
     @Test
@@ -109,11 +113,15 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         FeatureToggles featureToggles = mock(FeatureToggles.class);
         when(confg.getFeatures()).thenReturn(featureToggles);
 
-        RuntimeContext result = runtimeContextFactory.create(confg);
+        try (MockedStatic<RestClientFactory> restClientFactory = mockStatic(RestClientFactory.class)) {
+            restClientFactory.when(RestClientFactory::create)
+                .thenReturn(new MockRestClientFactory());
+            RuntimeContext result = runtimeContextFactory.create(confg);
 
-        assertThat(result).isNotNull();
-        verify(contextHolder).getContext();
-        verify(contextHolder).setContext(any(RuntimeContext.class));
+            assertThat(result).isNotNull();
+            verify(contextHolder).getContext();
+            verify(contextHolder).setContext(any(RuntimeContext.class));
+        }
     }
 
     @Test
@@ -134,13 +142,18 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         ConstraintViolation<?> violation = mock(ConstraintViolation.class);
         MockKeyVaultConfigValidations.addConstraintViolation(violation);
 
-        try {
+        try(MockedStatic<KeyVaultConfigValidations> validationsMockedStatic = mockStatic(KeyVaultConfigValidations.class)) {
+            validationsMockedStatic.when(KeyVaultConfigValidations::create)
+                .thenReturn(new MockKeyVaultConfigValidations());
+
             runtimeContextFactory.create(confg);
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations()).containsExactly(violation);
             verify(contextHolder).getContext();
         }
+
+
     }
 
     @Test
@@ -204,14 +217,19 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         when(confg.getFeatures()).thenReturn(featureToggles);
         when(confg.isRecoveryMode()).thenReturn(true);
 
-        RuntimeContext result = runtimeContextFactory.create(confg);
+        try (MockedStatic<RestClientFactory> restClientFactory = mockStatic(RestClientFactory.class)) {
+            restClientFactory.when(RestClientFactory::create)
+                .thenReturn(new MockRestClientFactory());
 
-        assertThat(result).isNotNull();
+            RuntimeContext result = runtimeContextFactory.create(confg);
 
-        assertThat(result.isRecoveryMode()).isTrue();
-        assertThat(result.isEnhancedPrivacy()).isTrue();
-        verify(contextHolder).getContext();
-        verify(contextHolder).setContext(any(RuntimeContext.class));
+            assertThat(result).isNotNull();
+
+            assertThat(result.isRecoveryMode()).isTrue();
+            assertThat(result.isEnhancedPrivacy()).isTrue();
+            verify(contextHolder).getContext();
+            verify(contextHolder).setContext(any(RuntimeContext.class));
+        }
     }
 
     @Test
