@@ -45,7 +45,6 @@
             <plugin>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>
-                <version>2.1.5</version>
                 <configuration>
                     <outputPath>${project.build.directory}/generated-resources/openapi</outputPath>
                     <outputFileName>openapi.q2t</outputFileName>

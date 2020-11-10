@@ -39,32 +39,36 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-maven-plugin</artifactId>
-                <version>2.1.5</version>
-                <configuration>
-                    <outputPath>${project.build.directory}/generated-resources/openapi</outputPath>
-                    <outputFormat>JSONANDYAML</outputFormat>
-                    <prettyPrint>true</prettyPrint>
-                    <openapiFilePath>${project.basedir}/src/main/resources/openapi-base.yaml</openapiFilePath>
-                    <modelConverterClasses>
-                        <modelConverterClass>com.quorum.tessera.openapi.FullyQualifiedNameResolver</modelConverterClass>
-                    </modelConverterClasses>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>resolve</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>generateOpenApiDoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.swagger.core.v3</groupId>
+                        <artifactId>swagger-maven-plugin</artifactId>
+                        <configuration>
+                            <outputPath>${project.build.directory}/generated-resources/openapi</outputPath>
+                            <outputFormat>JSONANDYAML</outputFormat>
+                            <prettyPrint>true</prettyPrint>
+                            <openapiFilePath>${project.basedir}/src/main/resources/openapi-base.yaml</openapiFilePath>
+                            <modelConverterClasses>
+                                <modelConverterClass>com.quorum.tessera.openapi.FullyQualifiedNameResolver</modelConverterClass>
+                            </modelConverterClasses>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>resolve</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 
 </project>
