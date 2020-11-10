@@ -12,7 +12,7 @@
     <dependencies>
         <dependency>
             <groupId>org.glassfish</groupId>
-            <artifactId>jakarta.el</artifactId>
+            <artifactId>javax.el</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -88,7 +88,6 @@ allprojects {
 
                 compile "io.swagger.core.v3:swagger-annotations:$swaggerVersion"
                 compile "io.swagger.core.v3:swagger-core:$swaggerVersion"
-                compile "io.swagger.core.v3:swagger-jaxrs2:$swaggerVersion"
 
                 compile "javax.transaction:javax.transaction-api:1.3"
                 compile "org.bouncycastle:bcpkix-jdk15on:1.61"

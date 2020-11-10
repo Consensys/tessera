@@ -97,22 +97,18 @@
             <scope>runtime</scope>
             <exclusions>
                 <exclusion>
+                    <groupId>org.glassfish.web</groupId>
+                    <artifactId>javax.el</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.el</groupId>
+                    <artifactId>javax.el-api</artifactId>
+                </exclusion>
+                <!-- aopalliance already packaged in spring-aop -->
+                <exclusion>
                     <groupId>org.glassfish.hk2.external</groupId>
                     <artifactId>aopalliance-repackaged</artifactId>
                 </exclusion>
-<!--                <exclusion>-->
-<!--                    <groupId>org.glassfish.web</groupId>-->
-<!--                    <artifactId>javax.el</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>javax.el</groupId>-->
-<!--                    <artifactId>javax.el-api</artifactId>-->
-<!--                </exclusion>-->
-<!--                &lt;!&ndash; aopalliance already packaged in spring-aop &ndash;&gt;-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.glassfish.hk2.external</groupId>-->
-<!--                    <artifactId>aopalliance-repackaged</artifactId>-->
-<!--                </exclusion>-->
             </exclusions>
         </dependency>
 
@@ -124,8 +120,8 @@
 
         <dependency>
             <groupId>org.glassfish.hk2.external</groupId>
-            <artifactId>jakarta.inject</artifactId>
-            <version>2.6.1</version>
+            <artifactId>javax.inject</artifactId>
+            <version>2.5.0-b42</version>
             <scope>runtime</scope>
         </dependency>
 

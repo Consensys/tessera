@@ -10,7 +10,6 @@ dependencies {
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile 'io.swagger.core.v3:swagger-annotations'
     compile 'io.swagger.core.v3:swagger-core'
-    compile 'io.swagger.core.v3:swagger-jaxrs2'
 
     compile "org.glassfish:javax.json"
     compile 'javax.servlet:javax.servlet-api'

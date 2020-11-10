@@ -1,6 +1,6 @@
 dependencies {
     compile project(':tessera-data')
-    compile 'io.swagger.core.v3:swagger-annotations:2.1.5'
+    compile 'io.swagger.core.v3:swagger-annotations'
     compile 'javax.validation:validation-api:2.0.1.Final'
     compile project(':enclave:enclave-api')
     compile project(':shared')

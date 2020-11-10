@@ -1,5 +1,5 @@
 plugins {
-    id 'io.swagger.core.v3.swagger-gradle-plugin' version '2.1.5'
+    id 'io.swagger.core.v3.swagger-gradle-plugin' version "$swaggerVersion"
 }
 
 dependencies {
@@ -7,8 +7,6 @@ dependencies {
     compile project(':tessera-jaxrs:sync-jaxrs')
     compile project(':tessera-jaxrs:transaction-jaxrs')
     compile project(':tessera-jaxrs:thirdparty-jaxrs')
-
-    compileOnly 'io.swagger.core.v3:swagger-core'
 }
 
 resolve {
