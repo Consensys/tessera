@@ -27,14 +27,14 @@ public class WhiteListTrustManagerTest {
 
     private WhiteListTrustManager trustManager;
 
-    Path knownHosts;
+    private Path knownHosts;
 
     @Mock
-    X509Certificate certificate;
+    private X509Certificate certificate;
 
     @Before
     public void setUp() throws IOException, CertificateException {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         when(certificate.getEncoded()).thenReturn("thumbprint".getBytes(UTF_8));
         X500Principal cn = new X500Principal("CN=localhost");
         when(certificate.getSubjectX500Principal()).thenReturn(cn);

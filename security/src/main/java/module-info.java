@@ -1,5 +1,5 @@
 module tessera.security.main {
-    requires java.base;
+    //requires java.base;
     requires java.xml.bind;
   //  requires cryptacular;
     requires org.slf4j;
@@ -11,7 +11,8 @@ module tessera.security.main {
     exports com.quorum.tessera.ssl.context;
 
     uses com.quorum.tessera.ssl.context.ClientSSLContextFactory;
+    uses com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 
     provides com.quorum.tessera.ssl.context.ClientSSLContextFactory with com.quorum.tessera.ssl.context.ClientSSLContextFactoryImpl;
-    provides com.quorum.tessera.ssl.context.SSLContextFactory with com.quorum.tessera.ssl.context.ServerSSLContextFactoryImpl;
+    provides com.quorum.tessera.ssl.context.ServerSSLContextFactory with com.quorum.tessera.ssl.context.ServerSSLContextFactoryImpl;
 }

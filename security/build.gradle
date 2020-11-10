@@ -19,7 +19,9 @@ test {
         addOpens = [
                 "java.base/sun.security.ssl" : "org.assertj.core",
                 "java.base/javax.net.ssl" : "org.assertj.core",
-                "tessera.security.main/com.quorum.tessera.ssl.context.model" : "openpojo"
+                "java.base/sun.security.x509" : "org.assertj.core",
+                "tessera.security.main/com.quorum.tessera.ssl.context.model" : "openpojo",
+                "tessera.security.main/com.quorum.tessera.ssl.trust" : "org.mockito"
         ]
     }
 }

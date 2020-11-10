@@ -14,14 +14,22 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ServerSSLContextFactoryImpl implements ServerSSLContextFactory {
 
     private static final String DEFAULT_KNOWN_CLIENT_FILEPATH = "knownClients";
 
-    private static final EnvironmentVariableProvider envVarProvider =
-            EnvironmentVariableProviderFactory.load().create();
+    private final EnvironmentVariableProvider environmentVariableProvider;
+
+    protected ServerSSLContextFactoryImpl(EnvironmentVariableProvider environmentVariableProvider) {
+        this.environmentVariableProvider = Objects.requireNonNull(environmentVariableProvider);
+    }
+
+    public ServerSSLContextFactoryImpl() {
+        this(EnvironmentVariableProviderFactory.load().create());
+    }
 
     @Override
     public SSLContext from(String address, SslConfig sslConfig) {
@@ -68,14 +76,17 @@ public class ServerSSLContextFactoryImpl implements ServerSSLContextFactory {
 
     // Return the prefixed env var value if set, else return the config value, else return the global env var value
     private char[] getPreferredPassword(char[] configPassword, String envVarPrefix, String envVar) {
-        char[] password = envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + envVar);
+        if(Objects.nonNull(envVarPrefix) && Objects.nonNull(envVar)) {
+            char[] password = environmentVariableProvider.getEnvAsCharArray(envVarPrefix.concat("_").concat(envVar));
+            if(password != null) {
+                return password;
+            }
+        }
 
-        if (password != null) {
-            return password;
-        } else if (configPassword != null) {
+        if(Objects.nonNull(configPassword)) {
             return configPassword;
         }
 
-        return envVarProvider.getEnvAsCharArray(envVar);
+        return environmentVariableProvider.getEnvAsCharArray(envVar);
     }
 }
