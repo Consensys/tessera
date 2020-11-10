@@ -48,7 +48,7 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Stream.concat(super.getClasses().stream(), Stream.of(ApiResource.class))
+        return Stream.concat(super.getClasses().stream(), Stream.of(ThirdPartyApiResource.class))
             .collect(toSet());
     }
 

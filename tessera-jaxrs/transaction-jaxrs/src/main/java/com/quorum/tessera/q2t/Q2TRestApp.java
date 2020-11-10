@@ -58,7 +58,7 @@ public class Q2TRestApp extends TesseraRestApplication {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Stream.concat(super.getClasses().stream(), Stream.of(ApiResource.class))
+        return Stream.concat(super.getClasses().stream(), Stream.of(Q2TApiResource.class))
             .collect(toSet());
     }
 

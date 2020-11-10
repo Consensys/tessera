@@ -95,7 +95,7 @@ public class P2PRestApp extends TesseraRestApplication {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Stream.concat(super.getClasses().stream(), Stream.of(ApiResource.class))
+        return Stream.concat(super.getClasses().stream(), Stream.of(P2PApiResource.class))
             .collect(toSet());
     }
 
