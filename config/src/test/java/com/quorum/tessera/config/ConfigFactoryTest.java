@@ -10,7 +10,9 @@ public class ConfigFactoryTest {
     public void create() {
         ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isNotNull().isExactlyInstanceOf(JaxbConfigFactory.class);
-
+        assertThat(configFactory.getConfig()).isNull();
     }
+
+
 
 }

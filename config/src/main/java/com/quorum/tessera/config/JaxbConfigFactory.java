@@ -42,6 +42,7 @@ class JaxbConfigFactory implements ConfigFactory {
         final Config config = JaxbUtil.unmarshal(new ByteArrayInputStream(originalData), Config.class);
         config.setEncryptor(encryptorConfig);
 
+        ConfigHolder.INSTANCE.setConfig(config);
         return config;
     }
 
