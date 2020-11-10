@@ -67,18 +67,22 @@ public class Main {
             final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
             com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
             Discovery.getInstance().onCreate();
-
             EncodedPayloadManager.create(config);
             BatchResendManager.create(config);
-
+            LOGGER.info("Creating txn manager");
             TransactionManagerFactory.create().create(config);
+            LOGGER.info("Created txn manager");
 
             //ApplicationContext springContext = new ClassPathXmlApplicationContext("tessera-spring.xml");
+            LOGGER.info("Creating ScheduledServiceFactory");
+
             ScheduledServiceFactory scheduledServiceFactory = ScheduledServiceFactory.fromConfig(config);
             scheduledServiceFactory.build();
+            LOGGER.info("Created ScheduledServiceFactory");
 
+            LOGGER.info("Creating Launcher");
             Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
-
+            LOGGER.info("Created Launcher");
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
                 System.err.println(

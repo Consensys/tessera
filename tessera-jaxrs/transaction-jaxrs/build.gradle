@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    compile project(":tessera-jaxrs:common-jaxrs")
+    implementation project(":tessera-jaxrs:common-jaxrs")
     implementation project(":tessera-jaxrs:jaxrs-client")
     implementation project(":config")
     implementation project(":shared")
@@ -19,6 +19,8 @@ dependencies {
 
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+
     implementation "io.swagger:swagger-annotations"
 
     compile "jakarta.servlet:jakarta.servlet-api"
@@ -31,7 +33,9 @@ dependencies {
     testRuntimeOnly "org.glassfish.jersey.media:jersey-media-json-processing"
     testRuntimeOnly "org.glassfish.jersey.media:jersey-media-moxy"
     testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2"
-    testRuntimeOnly "org.glassfish.jersey.ext:jersey-bean-validation"
+    testRuntimeOnly("org.glassfish.jersey.ext:jersey-bean-validation") {
+        exclude group: "jakarta.el", module: "jakarta.el-api"
+    }
     testImplementation project(':test-utils:mock-jaxrs')
     testImplementation "org.slf4j:jul-to-slf4j"
     testImplementation project(":enclave:enclave-api")
@@ -50,7 +54,7 @@ swagger {
         outputFormats = ["json"]
         //attachSwaggerArtifact = true
 
-        locations = ["com.quorum.tessera.q2t","com.quorum.tessera.api.common"]
+        locations = ["com.quorum.tessera.q2t"]
         info {
             title = "Tessera rest"
             version = project.properties["tessera.api.version"]
@@ -76,7 +80,7 @@ swagger {
         outputFormats = ["json"]
         //attachSwaggerArtifact = true
 
-        locations = ["com.quorum.tessera.q2t","com.quorum.tessera.api.common"]
+        locations = ["com.quorum.tessera.q2t"]
         info {
             title = "Tessera rest"
             version = project.properties["tessera.api.version"]
@@ -109,16 +113,17 @@ task loaddeps() {
 
 description = "transaction-jaxrs"
 
-generateSwaggerDocumentation.dependsOn(loaddeps)
-jar.dependsOn(generateSwaggerDocumentation)
 
+jar {
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "swagger.annotations"
-        ]
-        classpath = files()
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": version,
+                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+        )
     }
 }
+
+generateSwaggerDocumentation.dependsOn(loaddeps)
+jar.dependsOn(generateSwaggerDocumentation)

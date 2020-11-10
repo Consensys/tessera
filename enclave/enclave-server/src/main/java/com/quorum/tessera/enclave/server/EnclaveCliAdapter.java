@@ -1,6 +1,5 @@
 package com.quorum.tessera.enclave.server;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.util.Objects;
+import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
@@ -44,7 +44,7 @@ public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
     }
 
     public EnclaveCliAdapter() {
-        this(ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
+        this(ServiceLoader.load(KeyPasswordResolver.class).findFirst().orElse(new CliKeyPasswordResolver()));
     }
 
     @Override

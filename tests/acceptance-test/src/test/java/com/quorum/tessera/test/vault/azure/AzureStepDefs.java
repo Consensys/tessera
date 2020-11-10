@@ -6,7 +6,7 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.util.ElUtil;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import exec.ExecArgsBuilder;
 import exec.NodeExecManager;
 import org.slf4j.Logger;

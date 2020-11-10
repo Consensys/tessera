@@ -7,9 +7,9 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 /**
  * The EncodedPayloadManager handles requests for translating and validating an incoming request to de/encrypt to pass
@@ -39,7 +39,7 @@ public interface EncodedPayloadManager {
     ReceiveResponse decrypt(EncodedPayload payload, PublicKey maybeDefaultRecipient);
 
     static EncodedPayloadManager create(Config config) {
-        EncodedPayloadManager encodedPayloadManager = ServiceLoaderUtil.load(EncodedPayloadManager.class)
+        EncodedPayloadManager encodedPayloadManager = ServiceLoader.load(EncodedPayloadManager.class).findFirst()
                 .orElseGet(
                         () -> {
                             final Enclave enclave = EnclaveFactory.create().create(config);

@@ -8,6 +8,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -23,6 +24,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
+@Ignore
 public class EnclaveApplicationTest {
 
     private Enclave enclave;

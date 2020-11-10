@@ -9,13 +9,13 @@ dependencies {
 
 description = "encryption-jnacl"
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "jnacl",
-        ]
-        classpath = files()
-    }
-}
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "jnacl",
+//        ]
+//        classpath = files()
+//    }
+//}
 

@@ -13,12 +13,17 @@ def springVersion = "5.2.3.RELEASE"
 dependencies {
     implementation project(":config")
     implementation project(":key-vault:key-vault-api")
-    implementation "org.springframework.vault:spring-vault-core:2.1.5.RELEASE"
+
+    implementation("org.springframework.vault:spring-vault-core:2.1.5.RELEASE") {
+        exclude group: "org.springframework",module: "spring-core"
+    }
     implementation "com.squareup.okhttp3:okhttp:3.12.3"
 
     implementation "org.springframework:spring-orm:"+ springVersion
     testCompile "org.springframework:spring-test:"+ springVersion
-    implementation "org.springframework:spring-core:"+ springVersion
+    implementation("org.springframework:spring-core:"+ springVersion) {
+        exclude group: "org.springframework", module: "spring-jcl"
+    }
     implementation "org.springframework:spring-beans:"+ springVersion
     implementation "org.springframework:spring-context:"+ springVersion
     implementation "org.springframework:spring-orm:"+ springVersion

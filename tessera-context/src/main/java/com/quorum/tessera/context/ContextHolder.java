@@ -1,8 +1,7 @@
 package com.quorum.tessera.context;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
-
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 public interface ContextHolder {
 
@@ -11,7 +10,7 @@ public interface ContextHolder {
     void setContext(RuntimeContext runtimeContext);
 
     static ContextHolder getInstance() {
-        return ServiceLoaderUtil.load(ContextHolder.class)
+        return ServiceLoader.load(ContextHolder.class).findFirst()
             .orElse(DefaultContextHolder.INSTANCE);
     }
 

@@ -3,50 +3,63 @@ plugins {
 }
 
 dependencies {
-    testImplementation project(":tessera-core")
-    testImplementation project(":tessera-context")
-    testImplementation project(":security")
-    testImplementation project(":tessera-partyinfo")
-    testImplementation project(":tessera-dist")
+    implementation project(":tessera-core")
+    implementation project(":tessera-context")
+    implementation project(":security")
+    implementation project(":tessera-partyinfo")
+    implementation project(":tessera-dist")
 
-    testImplementation project(":enclave:enclave-jaxrs")
-    testImplementation project(":config-migration")
+    implementation project(":enclave:enclave-jaxrs")
+   // testImplementation project(":config-migration")
 
-    testImplementation project(":enclave:enclave-api")
-    testImplementation project(":encryption:encryption-api")
-    testImplementation project(":tessera-jaxrs:common-jaxrs")
-    testImplementation project(":tessera-jaxrs:jaxrs-client")
-    testImplementation project(":tessera-jaxrs:sync-jaxrs")
-    testImplementation project(":tessera-jaxrs:partyinfo-model")
-    testImplementation project(":server:jersey-server")
+    implementation project(":enclave:enclave-api")
 
-    testImplementation project(":shared")
-    testImplementation project(":config")
-    testImplementation project(":tests:test-util")
+    implementation project(":tessera-jaxrs:common-jaxrs")
+    implementation project(":tessera-jaxrs:jaxrs-client")
+    implementation project(":tessera-jaxrs:sync-jaxrs")
+    implementation project(":tessera-jaxrs:partyinfo-model")
+    implementation project(":server:jersey-server")
 
-    testImplementation project(":key-vault:aws-key-vault")
-    testImplementation project(":key-vault:azure-key-vault")
-    testImplementation project(":key-vault:hashicorp-key-vault")
+    implementation project(":shared")
+    implementation project(":config")
+    implementation project(":tests:test-util")
 
+//    implementation project(":key-vault:aws-key-vault")
+//    implementation project(":key-vault:azure-key-vault")
+//    implementation project(":key-vault:hashicorp-key-vault")
+
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
     testImplementation project(":ddls")
 
-    testImplementation "org.slf4j:slf4j-api"
+    implementation "org.slf4j:slf4j-api"
     testRuntimeOnly "ch.qos.logback:logback-classic"
     testRuntimeOnly "ch.qos.logback:logback-core"
     testRuntimeOnly "org.slf4j:jcl-over-slf4j"
     testRuntimeOnly "org.slf4j:jul-to-slf4j"
 
-    testImplementation "io.cucumber:cucumber-junit:4.0.1"
-    testImplementation "io.cucumber:cucumber-java8:4.0.1"
+    testImplementation "io.cucumber:cucumber-junit:6.8.2"
+    testImplementation "io.cucumber:cucumber-java8:6.8.2"
+
+
 
     testImplementation "org.xerial:sqlite-jdbc"
     testImplementation "org.hsqldb:hsqldb"
-    testImplementation "com.github.tomakehurst:wiremock-jre8:2.25.1"
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.25.1") {
+        exclude group: "commons-logging", module: "commons-logging"
+    }
     testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
     testImplementation "org.assertj:assertj-core"
     testImplementation "com.github.jnr:jnr-unixsocket"
     testRuntime "org.eclipse.persistence:org.eclipse.persistence.moxy"
+
+    implementation "org.glassfish:jakarta.json"
+
+    implementation project(":encryption:encryption-api")
+    implementation project(":encryption:encryption-jnacl")
+    implementation project(":encryption:encryption-ec")
+
 }
 
 sourceSets {
@@ -76,21 +89,21 @@ test {
     systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-"+ project.version +"/lib/"
 
     include(
-            "**/RecoverIT.class",
-            "**/RestSuiteHttpH2RemoteEnclave.class",
-            "**/RestSuiteHttpHSQL.class",
-            "**/RestSuiteUnixH2.class",
-            "**/RestSuiteHttpSqllite.class",
+//            "**/RecoverIT.class",
+//            "**/RestSuiteHttpH2RemoteEnclave.class",
+//            "**/RestSuiteHttpHSQL.class",
+//            "**/RestSuiteUnixH2.class",
+//            "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
-            "**/SendWithRemoteEnclaveReconnectIT.class",
-            "**/RestSuiteHttpqlite.class",
-            "**/CucumberWhitelistIT.class",
-            "**/ConfigMigrationIT.class",
+//            "**/SendWithRemoteEnclaveReconnectIT.class",
+//            "**/RestSuiteHttpqlite.class",
+//            "**/CucumberWhitelistIT.class",
+//            "**/ConfigMigrationIT.class",
+//            "**/P2pTestSuite.class",
+//            "**/CucumberFileKeyGenerationIT.class",
             "**/P2pTestSuite.class",
-            "**/CucumberFileKeyGenerationIT.class",
-            "**/P2pTestSuite.class",
-            "**/RunAwsIT.class",
-            "**/RunAzureIT.class"
+//            "**/RunAwsIT.class",
+//            "**/RunAzureIT.class"
     )
 
     if (project.hasProperty('excludeTests')) {
@@ -141,7 +154,6 @@ task unzipEnclave(type: Copy) {
     into outputDir
 }
 
-
 task unzipDdl(type:Copy) {
     def zipFile = file(project(":ddls").jar.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/resources/test/ddls")
@@ -170,5 +182,6 @@ task list(dependsOn: configurations.compileClasspath) {
 }
 
 
-test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave,unzipAwsKeyVault,unzipAzureKeyVault,unzipHashicorpKeyVault
+test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave
+//unzipAwsKeyVault,unzipAzureKeyVault,unzipHashicorpKeyVault
 

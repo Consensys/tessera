@@ -98,12 +98,24 @@ generateSwaggerDocumentation.dependsOn(loaddeps)
 jar.dependsOn(generateSwaggerDocumentation)
 
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "swagger.annotations"
-        ]
-        classpath = files()
+jar {
+
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": version,
+                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+        )
     }
+
 }
+
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "swagger.annotations"
+//        ]
+//        classpath = files()
+//    }
+//}

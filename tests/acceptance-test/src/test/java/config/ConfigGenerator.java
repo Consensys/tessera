@@ -5,31 +5,26 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.test.DBType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import suite.*;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import suite.EnclaveType;
-import suite.ExecutionContext;
-import suite.NodeAlias;
-import suite.NodeId;
-import suite.SocketType;
-
 public class ConfigGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigGenerator.class);
 
     public List<ConfigDescriptor> generateConfigs(ExecutionContext executionContext) {
-
+        Objects.requireNonNull(executionContext,"Execution context is required");
         Path path = calculatePath(executionContext);
         try {
             Files.createDirectories(path);
@@ -102,8 +97,9 @@ public class ConfigGenerator {
     }
 
     public static Path calculatePath(ExecutionContext executionContext) {
-        try {
-            URI baseUri = ConfigGenerator.class.getResource("/").toURI();
+        //try {
+
+            URI baseUri = Paths.get("build/").toAbsolutePath().toUri();
 
             return executionContext
                 .getPrefix()
@@ -113,9 +109,9 @@ public class ConfigGenerator {
                 .resolve(executionContext.getSocketType().name().toLowerCase())
                 .resolve(executionContext.getDbType().name().toLowerCase())
                 .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
-        } catch (URISyntaxException ex) {
-            throw new RuntimeException(ex);
-        }
+//        } catch (URISyntaxException ex) {
+//            throw new RuntimeException(ex);
+//        }
     }
 
     private static Map<Integer, SortedMap<String, String>> keyLookup(EncryptorType encryptorType) {

@@ -1,20 +1,14 @@
 package com.quorum.tessera.io;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
-
 import java.io.PrintStream;
+import java.util.ServiceLoader;
 
 public interface SystemAdapter {
 
-    SystemAdapter INSTANCE = ServiceLoaderUtil.load(SystemAdapter.class).orElse(new SystemAdapter() {
-    });
+    SystemAdapter INSTANCE = ServiceLoader.load(SystemAdapter.class).findFirst().get();
 
-    default PrintStream out() {
-        return System.out;
-    }
+    PrintStream out();
 
-    default PrintStream err() {
-        return System.err;
-    }
+    PrintStream err();
 
 }

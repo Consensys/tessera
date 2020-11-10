@@ -5,6 +5,8 @@ plugins {
 dependencies {
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+
     implementation "org.glassfish:jakarta.json"
     implementation "jakarta.validation:jakarta.validation-api"
     implementation project(':shared')
@@ -12,17 +14,19 @@ dependencies {
     implementation project(':encryption:encryption-api')
     implementation "org.apache.commons:commons-lang3"
     implementation "org.jasypt:jasypt"
-    runtimeOnly "org.glassfish:jakarta.el"
+    implementation "org.glassfish:jakarta.el"
     runtimeOnly project(':encryption:encryption-jnacl')
-    testImplementation project(':tests:test-util')
+
     testImplementation "org.hibernate:hibernate-validator"
 
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
-    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
+    runtimeOnly("org.eclipse.persistence:org.eclipse.persistence.moxy") {
+        exclude group: "jakarta.json", module: "jakarta,json-api"
+    }
     runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
 
     testImplementation "nl.jqno.equalsverifier:equalsverifier"
-    testImplementation "jakarta.el:jakarta.el-api"
+ //   testImplementation "jakarta.el:jakarta.el-api"
 
 }
 
@@ -40,16 +44,6 @@ jar {
 
 }
 
-compileJava {
-    //inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                '--module-path', classpath.asPath,
-                '--add-modules', 'jasypt',
-        ]
-        classpath = files()
-    }
-}
 
 
 

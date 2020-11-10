@@ -3,6 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation "org.mockito:mockito-core"
+    implementation "org.mockito:mockito-inline"
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+
 }

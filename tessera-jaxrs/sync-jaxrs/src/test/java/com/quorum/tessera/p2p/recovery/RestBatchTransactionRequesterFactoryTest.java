@@ -5,12 +5,14 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequesterFactory;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class RestBatchTransactionRequesterFactoryTest {
 
     @Test

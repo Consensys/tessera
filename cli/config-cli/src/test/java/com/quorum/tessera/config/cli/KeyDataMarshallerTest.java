@@ -11,12 +11,12 @@ public class KeyDataMarshallerTest {
     @Test
     public void create() {
         KeyDataMarshaller keyDataMarshaller = KeyDataMarshaller.create();
-        assertThat(keyDataMarshaller).isExactlyInstanceOf(MockKeyDataMarshaller.class);
+        assertThat(keyDataMarshaller).isExactlyInstanceOf(DefaultKeyDataMarshaller.class);
     }
 
     @Test
     public void defaultMarshal() {
-        KeyDataMarshaller k = new KeyDataMarshaller() {};
+        KeyDataMarshaller k = new DefaultKeyDataMarshaller();
 
         DirectKeyPair configKeyPair = new DirectKeyPair("PUBLIC", "PRIVATE");
         KeyData keyData = k.marshal(configKeyPair);

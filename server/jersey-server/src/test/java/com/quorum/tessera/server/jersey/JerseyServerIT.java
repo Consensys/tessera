@@ -10,7 +10,6 @@ import java.net.URI;
 import java.util.Arrays;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
@@ -28,7 +27,9 @@ public class JerseyServerIT {
 
     @Before
     public void onSetUp() throws Exception {
+
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+
 
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setCommunicationType(CommunicationType.REST);
@@ -40,8 +41,7 @@ public class JerseyServerIT {
 
         JaxbUtil.marshalWithNoValidation(serverConfig, System.out);
 
-        Application sample = new SampleApplication();
-        server = new JerseyServer(serverConfig, sample);
+        server = new JerseyServer(serverConfig, SampleApplication.class);
 
         server.start();
     }
@@ -65,6 +65,7 @@ public class JerseyServerIT {
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
+
     }
 
     @Test

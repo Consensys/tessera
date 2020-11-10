@@ -7,4 +7,14 @@ module tessera.enclave.enclave.api.main {
     requires org.slf4j;
 
     exports com.quorum.tessera.enclave;
+
+    uses com.quorum.tessera.enclave.EnclaveFactory;
+
+    uses com.quorum.tessera.enclave.PayloadEncoder;
+
+    uses com.quorum.tessera.enclave.EnclaveHolder;
+
+    uses com.quorum.tessera.enclave.EnclaveClientFactory;
+
+    opens com.quorum.tessera.enclave to org.eclipse.persistence.moxy;
 }

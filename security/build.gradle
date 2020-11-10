@@ -14,14 +14,20 @@ dependencies {
 
 description = "security"
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "cryptacular",
+test {
+    moduleOptions {
+        addOpens = [
+                "java.base/sun.security.ssl" : "org.assertj.core",
+                "java.base/javax.net.ssl" : "org.assertj.core",
+                "tessera.security.main/com.quorum.tessera.ssl.context.model" : "openpojo"
         ]
-        classpath = files()
     }
 }
 
-
+compileTestJava {
+    moduleOptions {
+        addReads = [
+                "sun.security.x509": "org.assertj.core"
+        ]
+    }
+}

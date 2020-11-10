@@ -8,7 +8,7 @@ import static com.quorum.tessera.test.rest.RawHeaderName.RECIPIENTS;
 import static com.quorum.tessera.test.rest.RawHeaderName.SENDER;
 
 import com.quorum.tessera.test.rest.RestUtils;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 
 import java.net.URI;
 import java.sql.PreparedStatement;

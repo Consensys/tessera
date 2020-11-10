@@ -12,6 +12,8 @@ import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+//import org.glassfish.hk2.api.JustInTimeInjectionResolver;
+//import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
@@ -36,7 +38,7 @@ public class JerseyServer implements TesseraServer {
 
     private final URI uri;
 
-    private final Application application;
+    private final Class<? extends Application> application;
 
     private final ScheduledExecutorService executor;
 
@@ -46,7 +48,7 @@ public class JerseyServer implements TesseraServer {
 
     private final AppType type;
 
-    public JerseyServer(final ServerConfig serverConfig, final Application application) {
+    public JerseyServer(final ServerConfig serverConfig, final Class<? extends Application> application) {
         LOGGER.debug("Constructing from {} and {}", serverConfig, application);
         this.uri = serverConfig.getServerUri();
         this.application = Objects.requireNonNull(application);
@@ -68,7 +70,7 @@ public class JerseyServer implements TesseraServer {
 
         // https://jersey.github.io/documentation/latest/appendix-properties.html
         final Map<String, Object> initParams = new HashMap<>();
-        initParams.put("jersey.config.server.application.name", application.getClass().getSimpleName());
+        initParams.put("jersey.config.server.application.name", application.getSimpleName());
         initParams.put("jersey.config.server.tracing.type", "ON_DEMAND");
         initParams.put("jersey.config.server.tracing.threshold", "SUMMARY");
         initParams.put("jersey.config.logging.verbosity", "PAYLOAD_ANY");
@@ -77,19 +79,31 @@ public class JerseyServer implements TesseraServer {
         initParams.put("jersey.config.server.monitoring.enabled", "true");
         initParams.put("jersey.config.server.monitoring.statistics.mbeans.enabled", "true");
 
-        final ResourceConfig config = ResourceConfig.forApplication(application);
 
-        config.addProperties(initParams).register(MetricsResource.class).register(LoggingFilter.class);
+        final ResourceConfig config = ResourceConfig.forApplicationClass(application);
+
+        config.addProperties(initParams)
+            .register(MetricsResource.class)
+            .register(LoggingFilter.class);
 
         if (serverConfig.getCrossDomainConfig() != null && !serverConfig.isUnixSocket()) {
             config.register(new CorsDomainResponseFilter(serverConfig.getCrossDomainConfig()));
         }
+
+//        config.register(new AbstractBinder() {
+//            @Override
+//            protected void configure() {
+//                bind(ServiceLoaderInjectionResolver.class)
+//                    .to(JustInTimeInjectionResolver.class);
+//            }
+//        });
 
         LOGGER.debug("Building Server from {}", serverConfig);
         this.server = ServerUtils.buildWebServer(serverConfig);
         LOGGER.debug("Built Server from {}", serverConfig);
 
         ServletContextHandler context = new ServletContextHandler(server, "/");
+
         ServletContainer servletContainer = new ServletContainer(config);
         ServletHolder jerseyServlet = new ServletHolder(servletContainer);
 

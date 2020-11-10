@@ -6,7 +6,7 @@ import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import com.quorum.tessera.test.rest.RestUtils;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import transaction.utils.Utils;
 
 import javax.json.Json;

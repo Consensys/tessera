@@ -7,8 +7,9 @@ import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.recovery.resend.*;
+
+import java.util.ServiceLoader;
 
 public interface BatchResendManager {
 
@@ -17,7 +18,7 @@ public interface BatchResendManager {
     void storeResendBatch(PushBatchRequest resendPushBatchRequest);
 
     static BatchResendManager create(Config config) {
-        return ServiceLoaderUtil.load(BatchResendManager.class)
+        return ServiceLoader.load(BatchResendManager.class).findFirst()
                 .orElseGet(
                         () -> {
                             Discovery discovery = Discovery.getInstance();

@@ -1,8 +1,7 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
-
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 public interface EnclaveHolder {
 
@@ -11,7 +10,7 @@ public interface EnclaveHolder {
     Enclave setEnclave(Enclave enclave);
 
     static EnclaveHolder getInstance() {
-        return ServiceLoaderUtil.load(EnclaveHolder.class)
+        return ServiceLoader.load(EnclaveHolder.class).findFirst()
             .orElse(DefaultEnclaveHolder.INSTANCE);
     }
 

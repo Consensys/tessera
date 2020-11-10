@@ -15,12 +15,12 @@ test {
     }
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "kalium",
-        ]
-        classpath = files()
-    }
-}
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "kalium",
+//        ]
+//        classpath = files()
+//    }
+//}

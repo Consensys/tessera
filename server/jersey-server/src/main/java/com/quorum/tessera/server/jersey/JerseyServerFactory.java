@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.Application;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** Creates Grizzly and Jersey implementations of the {@link TesseraServer} */
 public class JerseyServerFactory implements TesseraServerFactory<Object> {
@@ -18,7 +19,9 @@ public class JerseyServerFactory implements TesseraServerFactory<Object> {
 
     @Override
     public TesseraServer createServer(ServerConfig serverConfig, Set<Object> services) {
-        LOGGER.debug("Creating JAXRS application {}", serverConfig);
+        LOGGER.debug("Creating JAXRS application with {} services: {}", serverConfig,services.stream().map(Object::toString).collect(Collectors.joining(",")));
+
+
         Application application =
                 services.stream()
                         .filter(TesseraApp.class::isInstance)
@@ -31,7 +34,7 @@ public class JerseyServerFactory implements TesseraServerFactory<Object> {
 
         LOGGER.debug("Created JAXRS application {}", application);
 
-        return new JerseyServer(serverConfig, application);
+        return new JerseyServer(serverConfig, application.getClass());
     }
 
     @Override

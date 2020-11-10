@@ -4,6 +4,7 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PayloadPublisherFactoryTest {
 
+    @Ignore
     @Test
     public void createFactoryAndThenPublisher() {
 

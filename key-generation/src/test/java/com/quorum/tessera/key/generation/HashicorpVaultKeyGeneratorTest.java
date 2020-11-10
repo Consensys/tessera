@@ -25,7 +25,9 @@ public class HashicorpVaultKeyGeneratorTest {
     private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
 
     private Encryptor encryptor;
+
     private KeyVaultService keyVaultService;
+
     private HashicorpVaultKeyGenerator hashicorpVaultKeyGenerator;
 
     @Before

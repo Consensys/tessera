@@ -6,6 +6,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -68,6 +69,7 @@ public class RawTransactionResourceTest {
     }
 
 
+    @Ignore
     @Test
     public void defaultConstrcutor() {
         RawTransactionResource resource = new RawTransactionResource();

@@ -5,4 +5,10 @@ module tessera.key.vault.azure.key.vault.main {
     requires java.annotation;
     requires com.azure.identity;
     requires com.azure.security.keyvault.secrets;
+  //  requires lombok;
+ //   requires transitive org.mapstruct.processor;
+    provides com.quorum.tessera.key.vault.KeyVaultServiceFactory with
+        com.quorum.tessera.key.vault.azure.AzureKeyVaultServiceFactory;
+
+
 }

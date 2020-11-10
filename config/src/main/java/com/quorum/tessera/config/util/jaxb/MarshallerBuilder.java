@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.util.jaxb;
 
-import com.quorum.tessera.jaxb.JaxbCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
 
 import javax.xml.bind.JAXBContext;

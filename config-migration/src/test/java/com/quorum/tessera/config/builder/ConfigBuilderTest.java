@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.builder;
 
 import com.quorum.tessera.config.*;
-import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.migration.test.FixtureUtil;
@@ -49,14 +49,15 @@ public class ConfigBuilderTest {
                             }
                         });
 
-        final ConfigKeyPair keyData =
+        final FilesystemKeyPair keyData =
                 result.getKeys().getKeyData().stream()
                         .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
-                        .findFirst()
+                        .findFirst().map(FilesystemKeyPair.class::cast)
                         .get();
 
-        assertThat(keyData).isNotNull().extracting("privateKeyPath").containsExactly(Paths.get("private"));
-        assertThat(keyData).isNotNull().extracting("publicKeyPath").containsExactly(Paths.get("public"));
+
+        assertThat(keyData.getPrivateKeyPath()).isNotNull().isEqualTo(Paths.get("private"));
+        assertThat(keyData.getPublicKeyPath()).isNotNull().isEqualTo(Paths.get("public"));
 
         final ServerConfig serverConfig = result.getP2PServerConfig();
         assertThat(serverConfig).isNotNull();

@@ -1,9 +1,9 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
 
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 public interface TransactionManagerFactory {
 
@@ -12,7 +12,8 @@ public interface TransactionManagerFactory {
     Optional<TransactionManager> transactionManager();
 
     static TransactionManagerFactory create() {
-        return ServiceLoaderUtil.load(TransactionManagerFactory.class)
+        return ServiceLoader.load(TransactionManagerFactory.class)
+            .findFirst()
             .orElse(DefaultTransactionManagerFactory.INSTANCE);
     }
 

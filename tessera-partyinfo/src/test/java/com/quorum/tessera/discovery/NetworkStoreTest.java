@@ -13,7 +13,7 @@ public class NetworkStoreTest {
     @Before
     public void setUp() {
         networkStore = NetworkStore.getInstance();
-        assertThat(networkStore).isExactlyInstanceOf(NetworkStoreFactory.class);
+        assertThat(networkStore).isExactlyInstanceOf(DefaultNetworkStore.class);
         networkStore.getActiveNodes()
             .map(ActiveNode::getUri)
             .forEach(networkStore::remove);

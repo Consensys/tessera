@@ -1,13 +1,13 @@
 package com.quorum.tessera.context;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
+import java.util.ServiceLoader;
 
 public interface RuntimeContextFactory<T> {
 
     RuntimeContext create(T config);
 
     static RuntimeContextFactory newFactory() {
-        return ServiceLoaderUtil.load(RuntimeContextFactory.class)
+        return ServiceLoader.load(RuntimeContextFactory.class).findFirst()
                     .orElseGet(DefaultRuntimeContextFactory::new);
     }
 

@@ -29,7 +29,7 @@ import java.util.Set;
 @Api
 @GlobalFilter
 @ApplicationPath("/")
-public class P2PRestApp extends TesseraRestApplication {
+public class P2PRestApp extends TesseraRestApplication implements com.quorum.tessera.config.apps.TesseraApp {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(P2PRestApp.class);
 

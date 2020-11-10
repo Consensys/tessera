@@ -9,4 +9,10 @@ module tessera.tessera.jaxrs.thirdparty.jaxrs.main {
     requires tessera.tessera.jaxrs.common.jaxrs.main;
     requires tessera.tessera.partyinfo.main;
     requires tessera.tessera.partyinfo.model;
+
+    provides com.quorum.tessera.config.apps.TesseraApp with
+        com.quorum.tessera.thirdparty.ThirdPartyRestApp;
+
+    provides com.quorum.tessera.api.Version with
+        com.quorum.tessera.thirdparty.Version;
 }

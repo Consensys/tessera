@@ -2,6 +2,7 @@ package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.config.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ public class EnclaveFactoryTest {
         assertThat(enclaveFactory).isNotNull();
     }
 
+    @Ignore
     @Test
     public void createRemote() {
         final Config config = new Config();
@@ -156,6 +158,7 @@ public class EnclaveFactoryTest {
         }
     }
 
+    @Ignore
     @Test
     public void callCreateWithStoreInstance() {
 
@@ -170,7 +173,7 @@ public class EnclaveFactoryTest {
 
     }
 
-
+    @Ignore
     @Test
     public void callEnclaveWithStoreInstance() {
 

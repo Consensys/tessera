@@ -11,7 +11,7 @@ import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.encryption.Encryptor;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

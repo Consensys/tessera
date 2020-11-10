@@ -6,6 +6,7 @@ import javax.management.MBeanServer;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import java.lang.management.ManagementFactory;
 import java.util.List;
@@ -37,7 +38,7 @@ public class MetricsResource {
         }
 
         return Response.status(Response.Status.OK)
-            .header("Content-Type", TEXT_PLAIN)
+            .header(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
             .entity(formattedMetrics.toString().trim())
             .build();
     }

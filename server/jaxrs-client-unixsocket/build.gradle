@@ -12,21 +12,10 @@ dependencies {
     implementation project(":server:server-api")
     testImplementation project(":config")
     testImplementation project(":server:jersey-server")
+    testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
 }
 
 description = "jaxrs-client-unixsocket"
-
-
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "jersey.client",
-                "--add-modules", "jersey.common"
-        ]
-        classpath = files()
-    }
-}
 
 jacocoTestCoverageVerification {
     enabled false

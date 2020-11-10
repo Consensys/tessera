@@ -11,13 +11,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class EnclaveKeySynchroniserImpl implements EnclaveKeySynchroniser {
+class EnclaveKeySynchroniserImpl implements EnclaveKeySynchroniser {
 
     private final Enclave enclave;
 
     private final NetworkStore networkStore;
 
-    public EnclaveKeySynchroniserImpl(Enclave enclave, NetworkStore networkStore) {
+    EnclaveKeySynchroniserImpl(Enclave enclave, NetworkStore networkStore) {
         this.enclave = Objects.requireNonNull(enclave);
         this.networkStore = Objects.requireNonNull(networkStore);
     }

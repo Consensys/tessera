@@ -6,10 +6,12 @@ import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.EqualsAndHashCodeMatchRule;
 import com.openpojo.validation.test.impl.GetterTester;
 import nl.jqno.equalsverifier.EqualsVerifier;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 
+@Ignore
 public class PojoTest {
 
     @Test

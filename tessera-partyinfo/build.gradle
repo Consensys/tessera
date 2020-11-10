@@ -10,21 +10,30 @@ dependencies {
     implementation project(":config")
     implementation project(":enclave:enclave-api")
     implementation project(":tessera-context")
-
-    implementation "io.swagger:swagger-annotations"
     implementation project(":tessera-data")
     implementation "org.apache.commons:commons-lang3"
     implementation "org.slf4j:slf4j-api"
-    testCompileOnly "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "swagger.annotations",
-        ]
-        classpath = files()
-    }
-}
+//test {
+//        doFirst {
+//            jvmArgs = [
+//                    '--add-module','java.ws.rs',
+//            ]
+//           // classpath = files()
+//        }
+//
+//}
+
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "swagger.annotations",
+//        ]
+//        classpath = files()
+//    }
+//}

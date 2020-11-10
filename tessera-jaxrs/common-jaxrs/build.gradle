@@ -15,6 +15,7 @@ dependencies {
     implementation project(":encryption:encryption-api")
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+
     implementation "io.swagger:swagger-annotations"
     implementation "jakarta.servlet:jakarta.servlet-api"
     implementation "org.apache.commons:commons-lang3"
@@ -45,13 +46,13 @@ jar {
 
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "swagger.annotations"
-        ]
-        classpath = files()
-    }
-}
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//           //     "--add-modules", "swagger.annotations"
+//        ]
+//        classpath = files()
+//    }
+//}
 

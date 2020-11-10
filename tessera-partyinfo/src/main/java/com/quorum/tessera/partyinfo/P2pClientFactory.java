@@ -1,8 +1,9 @@
 package com.quorum.tessera.partyinfo;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+
+import java.util.ServiceLoader;
 
 @Deprecated
 // TODO: Remove the p2p clint and related factories.
@@ -13,8 +14,8 @@ public interface P2pClientFactory {
     CommunicationType communicationType();
 
     static P2pClientFactory newFactory(Config config) {
-        // TODO: return the stream and let the caller deal with it
-        return ServiceLoaderUtil.loadAll(P2pClientFactory.class)
+        return ServiceLoader.load(P2pClientFactory.class).stream()
+            .map(ServiceLoader.Provider::get)
                 .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
                 .findFirst()
                 .get();

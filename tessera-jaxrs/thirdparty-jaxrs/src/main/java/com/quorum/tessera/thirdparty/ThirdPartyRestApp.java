@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 /** The third party API */
 @Api
 @ApplicationPath("/")
-public class ThirdPartyRestApp extends TesseraRestApplication {
+public class ThirdPartyRestApp extends TesseraRestApplication implements com.quorum.tessera.config.apps.TesseraApp {
 
     private final Discovery discovery;
 

@@ -9,8 +9,11 @@ dependencies {
     implementation project(":tessera-context")
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
     implementation project(":server:jaxrs-client-unixsocket")
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+
 
     testImplementation "org.eclipse.jetty:jetty-unixsocket"
     testImplementation "org.glassfish.jersey.core:jersey-client"
     testImplementation "org.eclipse.jetty:jetty-client"
+
 }

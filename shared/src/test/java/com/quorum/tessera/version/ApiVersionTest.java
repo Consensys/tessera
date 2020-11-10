@@ -11,7 +11,7 @@ public class ApiVersionTest {
     @Test
     public void create() {
         List<String> result = ApiVersion.versions();
-        assertThat(result).containsExactly("0.1","1.0","v1","v2");
+        assertThat(result).containsExactly("v1","v2");
 
     }
 

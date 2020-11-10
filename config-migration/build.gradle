@@ -9,12 +9,12 @@ application {
 
 
 dependencies {
-    compile "org.glassfish:jakarta.json"
-    compile "info.picocli:picocli"
-    compile "com.moandjiezana.toml:toml4j"
-    compile project(":config")
-    compile project(":cli:cli-api")
-    compile project(":shared")
+    implementation "org.glassfish:jakarta.json"
+    implementation "info.picocli:picocli"
+    implementation "com.moandjiezana.toml:toml4j"
+    implementation project(":config")
+    implementation project(":cli:cli-api")
+    implementation project(":shared")
     implementation "org.hibernate:hibernate-validator"
     testImplementation project(":tests:test-util")
 }
@@ -22,14 +22,14 @@ dependencies {
 description = "config-migration"
 
 
-compileJava {
-    //inputs.property("moduleName", moduleName)
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "toml4j",
-        ]
-        classpath = files()
-    }
-}
+//compileJava {
+//    //inputs.property("moduleName", moduleName)
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "toml4j",
+//        ]
+//        classpath = files()
+//    }
+//}
 

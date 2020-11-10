@@ -1,8 +1,9 @@
 package com.quorum.tessera.transaction.publish;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+
+import java.util.ServiceLoader;
 
 public interface PayloadPublisherFactory {
 
@@ -13,7 +14,8 @@ public interface PayloadPublisherFactory {
     static PayloadPublisherFactory newFactory(Config config) {
         final CommunicationType commType = config.getP2PServerConfig().getCommunicationType();
 
-        return ServiceLoaderUtil.loadAll(PayloadPublisherFactory.class)
+        return ServiceLoader.load(PayloadPublisherFactory.class)
+            .stream().map(ServiceLoader.Provider::get)
                 .filter(f -> f.communicationType() == commType)
                 .findAny()
                 .orElseThrow(

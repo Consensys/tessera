@@ -1,7 +1,6 @@
 module tessera.tessera.partyinfo.main {
     requires org.apache.commons.lang3;
     requires org.slf4j;
-    requires swagger.annotations;
     requires tessera.config.main;
     requires tessera.enclave.enclave.api.main;
     requires tessera.encryption.encryption.api.main;
@@ -11,4 +10,25 @@ module tessera.tessera.partyinfo.main {
     exports com.quorum.tessera.discovery;
     exports com.quorum.tessera.partyinfo;
     exports com.quorum.tessera.partyinfo.node;
+
+    uses com.quorum.tessera.partyinfo.P2pClientFactory;
+    uses com.quorum.tessera.discovery.NetworkStore;
+    uses com.quorum.tessera.enclave.EnclaveFactory;
+
+    uses com.quorum.tessera.discovery.DiscoveryHelper;
+    uses com.quorum.tessera.discovery.Discovery;
+
+    provides com.quorum.tessera.discovery.Discovery with
+        com.quorum.tessera.discovery.DiscoveryFactory;
+
+    provides com.quorum.tessera.discovery.DiscoveryHelper
+        with com.quorum.tessera.discovery.DiscoveryHelperFactory;
+
+    provides com.quorum.tessera.discovery.EnclaveKeySynchroniser with
+        com.quorum.tessera.discovery.EnclaveKeySynchroniserFactory;
+
+    provides com.quorum.tessera.discovery.NetworkStore with
+        com.quorum.tessera.discovery.NetworkStoreFactory;
+
+
 }

@@ -1,6 +1,5 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorConfig;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 /** Creates {@link Enclave} instances, which may point to remote services or local, in-app instances. */
@@ -89,7 +89,7 @@ public interface EnclaveFactory {
 
     static EnclaveFactory create() {
         LoggerFactory.getLogger(EnclaveFactory.class).debug("Creating EnclaveFactory");
-        return ServiceLoaderUtil.load(EnclaveFactory.class).orElseGet(() -> new EnclaveFactory() {});
+        return ServiceLoader.load(EnclaveFactory.class).findFirst().orElseGet(() -> new EnclaveFactory() {});
     }
 
 }

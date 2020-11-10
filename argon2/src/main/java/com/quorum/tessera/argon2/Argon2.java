@@ -1,6 +1,7 @@
 package com.quorum.tessera.argon2;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
+
+import java.util.ServiceLoader;
 
 /** Provides hashing functions using the Argon2 class of algorithms. */
 public interface Argon2 {
@@ -26,6 +27,6 @@ public interface Argon2 {
 
     // TODO: move into factory and return the stream itself
     static Argon2 create() {
-        return ServiceLoaderUtil.loadAll(Argon2.class).findAny().get();
+        return ServiceLoader.load(Argon2.class).findFirst().get();
     }
 }

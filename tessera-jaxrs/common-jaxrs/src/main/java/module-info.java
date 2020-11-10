@@ -22,4 +22,11 @@ module tessera.tessera.jaxrs.common.jaxrs.main {
     exports com.quorum.tessera.api.filter;
     exports com.quorum.tessera.app;
     exports com.quorum.tessera.api.constraint;
+
+    opens com.quorum.tessera.api to org.eclipse.persistence.moxy,org.hibernate.validator,org.eclipse.persistence.core;
+
+    exports com.quorum.tessera.api.exception to hk2.locator;
+
+    uses com.quorum.tessera.api.Version;
+
 }

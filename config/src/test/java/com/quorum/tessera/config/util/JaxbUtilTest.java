@@ -1,35 +1,25 @@
 package com.quorum.tessera.config.util;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigException;
-import com.quorum.tessera.config.EncryptorConfig;
-import com.quorum.tessera.config.EncryptorType;
-import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
-import com.quorum.tessera.config.PrivateKeyType;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.StringReader;
-import java.util.Collections;
-import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.validation.ConstraintViolationException;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
 import javax.xml.transform.TransformerException;
-
-import org.junit.Test;
+import java.io.*;
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class JaxbUtilTest {
+
+
 
     @Test
     public void unmarshalLocked() {
@@ -263,5 +253,19 @@ public class JaxbUtilTest {
                             throw new TransformerException("");
                         });
         JaxbUtil.marshalMasked(config, outputStream);
+    }
+
+    @Test
+    public void unmarshalJaxbExceptionThrowsConfigException() {
+        InputStream inputStream = mock(InputStream.class, invocation -> {
+            throw new JAXBException("BANG");
+        });
+        try {
+            JaxbUtil.unmarshal(inputStream, KeyDataConfig.class);
+            failBecauseExceptionWasNotThrown(ConfigException.class);
+        } catch (ConfigException ex) {
+            assertThat(ex).hasMessageContaining("BANG");
+            assertThat(ex).hasCauseInstanceOf(JAXBException.class);
+        }
     }
 }

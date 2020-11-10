@@ -11,6 +11,6 @@ public class RuntimeContextFactoryTest extends ContextTestCase {
 
         RuntimeContextFactory runtimeContextFactory = RuntimeContextFactory.newFactory();
 
-        assertThat(runtimeContextFactory).isExactlyInstanceOf(MockRuntimeContextFactory.class);
+        assertThat(runtimeContextFactory).isExactlyInstanceOf(DefaultRuntimeContextFactory.class);
     }
 }

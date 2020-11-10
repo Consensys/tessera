@@ -2,7 +2,8 @@ package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.loader.ServiceLoaderUtil;
+
+import java.util.ServiceLoader;
 
 public interface RecoveryClientFactory {
 
@@ -12,7 +13,8 @@ public interface RecoveryClientFactory {
 
     static RecoveryClientFactory newFactory(Config config) {
         // TODO: return the stream and let the caller deal with it
-        return ServiceLoaderUtil.loadAll(RecoveryClientFactory.class)
+        return ServiceLoader.load(RecoveryClientFactory.class)
+            .stream().map(ServiceLoader.Provider::get)
                 .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
                 .findFirst()
                 .get();

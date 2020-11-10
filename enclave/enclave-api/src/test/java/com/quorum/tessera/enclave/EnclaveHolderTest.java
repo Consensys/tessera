@@ -1,5 +1,6 @@
 package com.quorum.tessera.enclave;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -7,6 +8,7 @@ import static org.mockito.Mockito.mock;
 
 public class EnclaveHolderTest {
 
+    @Ignore
     @Test
     public void getInstance() {
         assertThat(EnclaveHolder.getInstance())

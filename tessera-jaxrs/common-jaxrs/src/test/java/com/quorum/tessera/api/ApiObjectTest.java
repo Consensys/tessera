@@ -4,12 +4,14 @@ import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ApiObjectTest {
 
+    @Ignore
     @Test
     public void testAccessorsForApiObjects() {
         Validator validator = ValidatorBuilder.create()

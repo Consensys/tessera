@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class JaxbConfigFactory implements ConfigFactory {
+class JaxbConfigFactory implements ConfigFactory {
 
     private final KeyEncryptorFactory keyEncryptorFactory;
 
@@ -19,10 +19,6 @@ public class JaxbConfigFactory implements ConfigFactory {
 
     protected JaxbConfigFactory(KeyEncryptorFactory keyEncryptorFactory) {
         this.keyEncryptorFactory = keyEncryptorFactory;
-    }
-
-    public JaxbConfigFactory() {
-        this(KeyEncryptorFactory.newFactory());
     }
 
     @Override

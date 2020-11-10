@@ -15,7 +15,15 @@ import java.util.Objects;
 
 public class SslConfigValidator implements ConstraintValidator<ValidSsl, SslConfig> {
 
-    private EnvironmentVariableProvider envVarProvider = EnvironmentVariableProviderFactory.load().create();
+    private final EnvironmentVariableProvider envVarProvider;
+
+    public SslConfigValidator() {
+        this(EnvironmentVariableProviderFactory.load().create());
+    }
+
+    public SslConfigValidator(EnvironmentVariableProvider envVarProvider) {
+        this.envVarProvider = envVarProvider;
+    }
 
     @Override
     public boolean isValid(SslConfig sslConfig, ConstraintValidatorContext context) {

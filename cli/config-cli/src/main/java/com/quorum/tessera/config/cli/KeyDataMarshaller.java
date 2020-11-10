@@ -1,18 +1,17 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.util.KeyDataUtil;
+
+import java.util.ServiceLoader;
 
 public interface KeyDataMarshaller {
 
-    default KeyData marshal(ConfigKeyPair keyPair) {
-       return KeyDataUtil.marshal(keyPair);
-    }
+    KeyData marshal(ConfigKeyPair keyPair);
 
     static KeyDataMarshaller create() {
-        return ServiceLoaderUtil.load(KeyDataMarshaller.class).orElse(new KeyDataMarshaller() {});
+        return ServiceLoader.load(KeyDataMarshaller.class).findFirst()
+            .orElse(new DefaultKeyDataMarshaller() {});
     }
 
 }

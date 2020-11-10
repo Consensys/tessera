@@ -1,28 +1,38 @@
 package com.quorum.tessera.config.util;
 
+import org.jasypt.encryption.pbe.PBEStringCleanablePasswordEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
-import java.io.ByteArrayInputStream;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.*;
 
 public class EncryptedStringResolverTest {
 
-    private EncryptedStringResolver resolver;
+    private EncryptedStringResolver encryptedStringResolver;
 
-    @Rule public final EnvironmentVariables envVariables = new EnvironmentVariables();
+    private PBEStringCleanablePasswordEncryptor encryptor;
+
+    private ConfigSecretReader configSecretReader;
 
     @Before
-    public void init() {
+    public void beforeTest() {
 
-        final String filePath = getClass().getResource("/key.secret").getPath();
-        envVariables.set(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH, filePath);
-        resolver = new EncryptedStringResolver();
+        encryptor = new StandardPBEStringEncryptor();
+        configSecretReader = mock(ConfigSecretReader.class);
+
+        encryptedStringResolver = new EncryptedStringResolver(configSecretReader,encryptor);
+    }
+
+    @After
+    public void afterTest() {
+        verifyNoMoreInteractions(configSecretReader);
     }
 
     @Test
@@ -30,51 +40,64 @@ public class EncryptedStringResolverTest {
 
         final String expectedValue = "password";
 
-        assertThat(resolver.resolve("password")).isEqualTo(expectedValue);
+        when(configSecretReader.readSecretFromFile()).thenReturn(Optional.of(expectedValue.toCharArray()));
 
-        assertThat(resolver.resolve(null)).isNull();
+        assertThat(encryptedStringResolver.resolve("password")).isEqualTo(expectedValue);
+
+        assertThat(encryptedStringResolver.resolve(null)).isNull();
+
     }
 
     @Test
     public void testUnMarshall() {
 
-        String normalPassword = "password";
+        final String normalPassword = "password";
 
-        assertThat(resolver.resolve("password")).isEqualTo(normalPassword);
+        when(configSecretReader.readSecretFromFile()).thenReturn(Optional.of(normalPassword.toCharArray()));
 
-        assertThat(resolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
+        assertThat(encryptedStringResolver.resolve("password")).isEqualTo(normalPassword);
 
-        assertThat(resolver.resolve(null)).isNull();
+        when(configSecretReader.readSecretFromFile()).thenReturn(Optional.empty());
+        when(configSecretReader.readSecretFromConsole()).thenReturn("quorum".toCharArray());
+
+        assertThat(encryptedStringResolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
+
+        assertThat(encryptedStringResolver.resolve(null)).isNull();
+
+        verify(configSecretReader).readSecretFromFile();
+        verify(configSecretReader).readSecretFromConsole();
     }
 
     @Test
     public void testUnMarshallWithUserInputSecret() {
 
-        envVariables.clear(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH);
 
-        resolver = new EncryptedStringResolver();
+        when(configSecretReader.readSecretFromConsole())
+            .thenReturn("quorum".toCharArray());
 
-        ByteArrayInputStream in = new ByteArrayInputStream(("quorum" + System.lineSeparator() + "quorum").getBytes());
-        System.setIn(in);
+        assertThat(encryptedStringResolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
 
-        assertThat(resolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)")).isEqualTo("password");
-
-        System.setIn(System.in);
+        verify(configSecretReader).readSecretFromFile();
+        verify(configSecretReader).readSecretFromConsole();
     }
 
     @Test
     public void testUnMarshallWrongPassword() {
 
-        envVariables.clear(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH);
 
-        resolver = new EncryptedStringResolver();
-
-        ByteArrayInputStream in = new ByteArrayInputStream(("bogus" + System.lineSeparator() + "bogus").getBytes());
-        System.setIn(in);
+        when(configSecretReader.readSecretFromConsole())
+            .thenReturn("bogus".toCharArray());
 
         assertThatExceptionOfType(EncryptionOperationNotPossibleException.class)
-                .isThrownBy(() -> resolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)"));
+                .isThrownBy(() -> encryptedStringResolver.resolve("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)"));
 
-        System.setIn(System.in);
+        verify(configSecretReader).readSecretFromFile();
+        verify(configSecretReader).readSecretFromConsole();
+
+    }
+
+    @Test
+    public void defaultConstructor() {
+        assertThat(new EncryptedStringResolver()).isNotNull();
     }
 }

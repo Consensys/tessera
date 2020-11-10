@@ -20,13 +20,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
+public class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultRuntimeContextFactory.class);
 
     private final ContextHolder contextHolder;
 
-    DefaultRuntimeContextFactory() {
+    public DefaultRuntimeContextFactory() {
         this(ContextHolder.getInstance());
     }
 

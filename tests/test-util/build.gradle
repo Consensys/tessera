@@ -3,14 +3,14 @@ plugins {
 }
 
 dependencies {
-    compileOnly "jakarta.el:jakarta.el-api"
+    implementation "org.glassfish:jakarta.el"
 }
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-        ]
-        classpath = files()
-    }
-}
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//        ]
+//        classpath = files()
+//    }
+//}

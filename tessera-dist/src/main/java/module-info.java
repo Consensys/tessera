@@ -1,4 +1,7 @@
 module tessera.tessera.dist.main {
+
+    exports com.quorum.tessera.launcher;
+
     requires java.validation;
     requires org.apache.commons.lang3;
     requires org.slf4j;
@@ -14,6 +17,17 @@ module tessera.tessera.dist.main {
     requires tessera.shared.main;
     requires tessera.tessera.jaxrs.sync.jaxrs.main;
     requires tessera.tessera.recover.main;
-
     requires java.json;
+
+    requires tessera.server.jaxrs.client.unixsocket.main;
+
+//    requires tessera.encryption.encryption.jnacl.main;
+//    requires tessera.encryption.encryption.api.main;
+
+    uses com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
+    uses com.quorum.tessera.p2p.resend.TransactionRequesterFactory;
+    uses com.quorum.tessera.discovery.EnclaveKeySynchroniser;
+    uses com.quorum.tessera.config.apps.TesseraApp;
+    uses com.quorum.tessera.server.TesseraServerFactory;
+
 }

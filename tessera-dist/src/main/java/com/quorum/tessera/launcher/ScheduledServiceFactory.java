@@ -2,22 +2,29 @@ package com.quorum.tessera.launcher;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.IntervalPropertyHelper;
-import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.discovery.EnclaveKeySynchroniser;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoBroadcaster;
-import com.quorum.tessera.p2p.resend.*;
+import com.quorum.tessera.p2p.resend.ResendPartyStore;
+import com.quorum.tessera.p2p.resend.ResendPartyStoreImpl;
+import com.quorum.tessera.p2p.resend.SyncPoller;
+import com.quorum.tessera.p2p.resend.TransactionRequester;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.P2pClientFactory;
 import com.quorum.tessera.service.ServiceContainer;
 import com.quorum.tessera.threading.TesseraScheduledExecutor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.ScheduledExecutorService;
 
 public class ScheduledServiceFactory {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScheduledServiceFactory.class);
 
     private Config config;
 
@@ -43,34 +50,52 @@ public class ScheduledServiceFactory {
     public void build() {
 
         IntervalPropertyHelper intervalPropertyHelper = new IntervalPropertyHelper(config.getP2PServerConfig().getProperties());
-
-        Discovery partyInfoService = Discovery.getInstance();
-
-        P2pClient p2pClient = P2pClientFactory.newFactory(config).create(config);
+        LOGGER.info("Creating p2p client");
+        P2pClientFactory p2pClientFactory = P2pClientFactory.newFactory(config);
+        LOGGER.info("Created P2pClientFactory {}", p2pClientFactory);
+        P2pClient p2pClient = p2pClientFactory.create(config);
+        LOGGER.info("Created p2p client");
 
         if(enableSync) {
 
             ResendPartyStore resendPartyStore = new ResendPartyStoreImpl();
-            TransactionRequester transactionRequester = TransactionRequesterFactory.newFactory().createTransactionRequester(config);
+            TransactionRequester transactionRequester = com.quorum.tessera.p2p.resend.TransactionRequesterFactory.newFactory().createTransactionRequester(config);
             SyncPoller syncPoller = new SyncPoller(resendPartyStore, transactionRequester, p2pClient);
             ScheduledExecutorService scheduledExecutorService = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
             tesseraScheduledExecutors.add(new TesseraScheduledExecutor(scheduledExecutorService,syncPoller,intervalPropertyHelper.syncInterval(),5000L));
         }
 
-        EnclaveKeySynchroniser enclaveKeySynchroniser = EnclaveKeySynchroniser.getInstance();
+        LOGGER.info("Creating EnclaveKeySynchroniser");
+        final EnclaveKeySynchroniser enclaveKeySynchroniser = ServiceLoader.load(EnclaveKeySynchroniser.class).stream()
+            .map(ServiceLoader.Provider::get)
+            .findFirst().get();
 
-        tesseraScheduledExecutors.add(new TesseraScheduledExecutor(java.util.concurrent.Executors.newSingleThreadScheduledExecutor(),enclaveKeySynchroniser,intervalPropertyHelper.enclaveKeySyncInterval(),5000L));
+        LOGGER.info("Created EnclaveKeySynchroniser {}",enclaveKeySynchroniser);
+
+        tesseraScheduledExecutors.add(new TesseraScheduledExecutor(java.util.concurrent.Executors.newSingleThreadScheduledExecutor(), () -> enclaveKeySynchroniser.syncKeys(), intervalPropertyHelper.enclaveKeySyncInterval(), 5000L));
+
+        LOGGER.info("Creating PartyInfoBroadcaster");
 
         PartyInfoBroadcaster partyInfoPoller = new PartyInfoBroadcaster(p2pClient);
+        LOGGER.info("Created PartyInfoBroadcaster {}",partyInfoPoller);
+
 
         tesseraScheduledExecutors.add(new TesseraScheduledExecutor(java.util.concurrent.Executors.newSingleThreadScheduledExecutor(),partyInfoPoller,intervalPropertyHelper.partyInfoInterval(),5000L));
 
         tesseraScheduledExecutors.forEach(TesseraScheduledExecutor::start);
 
+        LOGGER.info("Creating Enclave");
 
         Enclave enclave = EnclaveFactory.create().create(config);
+        LOGGER.info("Created Enclave {}", enclave);
+
         serviceContainer = new ServiceContainer(enclave);
+        LOGGER.info("Starting Enclave");
+
         serviceContainer.start();
+
+        LOGGER.info("Started Enclave");
+
 
     }
 

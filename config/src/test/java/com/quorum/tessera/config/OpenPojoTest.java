@@ -1,6 +1,7 @@
 package com.quorum.tessera.config;
 
-import com.openpojo.reflection.PojoClassFilter;
+import com.openpojo.reflection.PojoClass;
+import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.GetterMustExistRule;
@@ -9,32 +10,39 @@ import com.openpojo.validation.test.impl.SetterTester;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
+import java.util.List;
+
 import static nl.jqno.equalsverifier.Warning.NONFINAL_FIELDS;
 import static nl.jqno.equalsverifier.Warning.STRICT_INHERITANCE;
 
 public class OpenPojoTest {
 
     @Test
-    public void executeOpenPojoValidations() {
-        final Validator pojoValidator =
-                ValidatorBuilder.create()
-                        .with(new GetterMustExistRule())
-                        .with(new GetterTester())
-                        .with(new SetterTester())
-                        .build();
+    public void testGettersAndSetters() {
+        final Validator pojoValidator = ValidatorBuilder.create()
+                                                .with(new GetterMustExistRule())
+                                                .with(new GetterTester())
+                                                .with(new SetterTester())
+                                                .build();
 
-        final PojoClassFilter[] filters =
-                new PojoClassFilter[] {
-                    pc -> !pc.getClazz().getName().contains(KeyVaultConfigTest.class.getSimpleName()),
-                    pc -> !pc.getClazz().isAssignableFrom(ObjectFactory.class),
-                    pc -> !pc.getClazz().getName().startsWith(JaxbConfigFactory.class.getName()),
-                    pc -> !pc.getClazz().isAssignableFrom(ConfigException.class),
-                    pc -> !pc.getClazz().getName().contains(ConfigItem.class.getName()),
-                    pc -> !pc.getClazz().getSimpleName().contains("Test"),
-                    pc -> !pc.isNestedClass()
-                };
+        List<Class> classes = List.of(
+                JdbcConfig.class,
+                SslConfig.class,
+                PrivateKeyData.class,
+                ServerConfig.class,
+                DefaultKeyVaultConfig.class,
+                Config.class,
+                Version.class,
+                DeprecatedServerConfig.class,
+                FeatureToggles.class,
+                InfluxConfig.class,
+                ArgonOptions.class,
+                Peer.class);
 
-        pojoValidator.validate("com.quorum.tessera.config", filters);
+        for(Class type : classes) {
+           PojoClass pojoClass = PojoClassFactory.getPojoClass(type);
+            pojoValidator.validate(pojoClass);
+        }
     }
 
     @Test

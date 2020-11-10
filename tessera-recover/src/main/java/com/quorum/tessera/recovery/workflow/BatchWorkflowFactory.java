@@ -3,8 +3,9 @@ package com.quorum.tessera.recovery.workflow;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.loader.ServiceLoaderUtil;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
+
+import java.util.ServiceLoader;
 
 public interface BatchWorkflowFactory {
 
@@ -16,7 +17,7 @@ public interface BatchWorkflowFactory {
             Discovery discovery,
             ResendBatchPublisher resendBatchPublisher,
             long transactionCount) {
-        return ServiceLoaderUtil.load(BatchWorkflowFactory.class)
+        return ServiceLoader.load(BatchWorkflowFactory.class).findFirst()
                 .orElse(
                         new BatchWorkflowFactoryImpl() {
                             {

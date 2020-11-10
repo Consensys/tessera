@@ -1,32 +1,44 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Mockito.*;
 
 public class JaxbConfigFactoryTest {
 
     private JaxbConfigFactory factory;
 
+    private KeyEncryptorFactory keyEncryptorFactory;
+
     @Before
-    public void init() {
-        this.factory = new JaxbConfigFactory();
+    public void beforeTest() {
+        keyEncryptorFactory = mock(KeyEncryptorFactory.class);
+        this.factory = new JaxbConfigFactory(keyEncryptorFactory);
+    }
+
+    @After
+    public void afterTest() {
+        verifyNoMoreInteractions(keyEncryptorFactory);
     }
 
     @Test
     public void createMinimal() {
 
+        final EncryptorConfig encryptorConfig = new EncryptorConfig() {{
+            setType(EncryptorType.NACL);
+        }};
+
         Config config = new Config();
-        config.setEncryptor(
-                new EncryptorConfig() {
-                    {
-                        setType(EncryptorType.NACL);
-                    }
-                });
+        config.setEncryptor(encryptorConfig);
 
         InputStream in =
                 Optional.of(config)
@@ -40,5 +52,7 @@ public class JaxbConfigFactoryTest {
         Config result = factory.create(in);
 
         assertThat(result).isNotNull();
+
+        verify(keyEncryptorFactory).create(any(EncryptorConfig.class));
     }
 }

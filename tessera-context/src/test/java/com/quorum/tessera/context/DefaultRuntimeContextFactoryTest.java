@@ -3,6 +3,7 @@ package com.quorum.tessera.context;
 import com.quorum.tessera.config.*;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.validation.ConstraintViolation;
@@ -14,6 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
+@Ignore
 public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
 
     private DefaultRuntimeContextFactory runtimeContextFactory;

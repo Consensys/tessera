@@ -10,5 +10,15 @@ module tessera.cli.config.cli.main {
     requires tessera.key.generation.main;
     requires tessera.shared.main;
 
+    uses com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
+    uses com.quorum.tessera.passwords.PasswordReaderFactory;
+    uses com.quorum.tessera.key.generation.KeyGeneratorFactory;
+    uses com.quorum.tessera.config.cli.KeyDataMarshaller;
+
+    opens com.quorum.tessera.config.cli to info.picocli;
+
     exports com.quorum.tessera.config.cli;
+
+    provides com.quorum.tessera.config.cli.KeyDataMarshaller with
+        com.quorum.tessera.config.cli.DefaultKeyDataMarshaller;
 }

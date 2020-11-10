@@ -5,7 +5,11 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -18,16 +22,24 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+@Singleton
 @Path("/")
 public class SampleResource {
-    
+
+    private final Ping ping;
+
+    @Inject
+    public SampleResource(@Named("myBean") Ping ping) {
+        this.ping = Objects.requireNonNull(ping);
+    }
+
     private Map<String,SamplePayload> store = new HashMap<>();
     
     @Path("ping")
     @GET
     public String ping() {
         System.out.println("PING");
-        return "HEllow";
+        return ping.ping();
     }
 
     @Produces(MediaType.APPLICATION_JSON)
@@ -38,7 +50,7 @@ public class SampleResource {
         SamplePayload payload = store.get(id);
         return Response.ok(payload, MediaType.APPLICATION_JSON).build();
     }
-    
+
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("create")
     @POST
@@ -50,7 +62,8 @@ public class SampleResource {
 
         URI location = uriInfo.getBaseUriBuilder().path("find").path(URLEncoder.encode(id, "UTF-8")).build();
         System.out.println("CREATE " + location);
-        return Response.status(Response.Status.CREATED).location(location).build();
+        return Response.status(Response.Status.CREATED)
+            .location(location).build();
                 
     }
     

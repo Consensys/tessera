@@ -7,4 +7,7 @@ module tessera.data.migration.main {
     requires tessera.cli.cli.api.main;
     requires tessera.config.main;
     requires tessera.shared.main;
+
+    provides com.quorum.tessera.cli.CliAdapter with
+        com.quorum.tessera.data.migration.CmdLineExecutor;
 }

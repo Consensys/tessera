@@ -1,7 +1,7 @@
 module tessera.security.main {
     requires java.base;
     requires java.xml.bind;
-    requires cryptacular;
+  //  requires cryptacular;
     requires org.slf4j;
     requires tessera.config.main;
     requires tessera.shared.main;
@@ -9,4 +9,9 @@ module tessera.security.main {
     requires org.bouncycastle.provider;
 
     exports com.quorum.tessera.ssl.context;
+
+    uses com.quorum.tessera.ssl.context.ClientSSLContextFactory;
+
+    provides com.quorum.tessera.ssl.context.ClientSSLContextFactory with com.quorum.tessera.ssl.context.ClientSSLContextFactoryImpl;
+    provides com.quorum.tessera.ssl.context.SSLContextFactory with com.quorum.tessera.ssl.context.ServerSSLContextFactoryImpl;
 }

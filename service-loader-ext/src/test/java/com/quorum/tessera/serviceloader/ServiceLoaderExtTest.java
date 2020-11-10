@@ -3,7 +3,7 @@ package com.quorum.tessera.serviceloader;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -33,8 +33,9 @@ public class ServiceLoaderExtTest {
 
     @Test
     public void iterator() {
-        assertThat(sampleServiceServiceLoader.iterator())
-            .hasSize(2);
+        List<SampleService> results = new ArrayList<>();
+        sampleServiceServiceLoader.iterator().forEachRemaining(results::add);
+        assertThat(results).isNotNull().hasSize(2);
     }
 
     @Test

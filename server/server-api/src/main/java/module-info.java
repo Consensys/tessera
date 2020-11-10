@@ -4,4 +4,6 @@ module tessera.server.server.api.main {
     requires tessera.shared.main;
 
     exports com.quorum.tessera.server;
+
+    uses com.quorum.tessera.server.TesseraServerFactory;
 }

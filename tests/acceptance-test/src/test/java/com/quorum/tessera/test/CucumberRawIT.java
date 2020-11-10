@@ -1,6 +1,6 @@
 package com.quorum.tessera.test;
 
-import cucumber.api.CucumberOptions;
+import io.cucumber.junit.CucumberOptions;
 
 @CucumberOptions(
     glue = "transaction.raw",

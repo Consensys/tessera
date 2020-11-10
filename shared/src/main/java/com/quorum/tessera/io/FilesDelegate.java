@@ -1,7 +1,5 @@
 package com.quorum.tessera.io;
 
-import com.quorum.tessera.loader.ServiceLoaderUtil;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -11,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -67,7 +66,7 @@ public interface FilesDelegate {
     }
 
     static FilesDelegate create() {
-        return ServiceLoaderUtil.load(FilesDelegate.class).orElse(new FilesDelegate() {});
+        return ServiceLoader.load(FilesDelegate.class).findFirst().orElse(new FilesDelegate() {});
     }
 
     default Path write(Path path, Iterable<? extends CharSequence> lines, OpenOption... options) {

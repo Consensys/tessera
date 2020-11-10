@@ -23,7 +23,7 @@ public class RecoveryClientFactoryTest {
 
         RecoveryClientFactory factory = RecoveryClientFactory.newFactory(config);
 
-        assertThat(factory).isExactlyInstanceOf(MockRecoveryClientFactory.class);
+        assertThat(factory).isExactlyInstanceOf(RestRecoveryClientFactory.class);
     }
 
     @Test(expected = NoSuchElementException.class)

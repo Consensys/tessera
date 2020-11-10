@@ -6,6 +6,7 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 
@@ -124,6 +125,7 @@ public class PartyInfoBroadcasterTest {
         verify(partyInfoParser).to(any(PartyInfo.class));
     }
 
+    @Ignore
     @Test
     public void constructWithMinimalArgs() {
         assertThat(new PartyInfoBroadcaster(p2pClient)).isNotNull();

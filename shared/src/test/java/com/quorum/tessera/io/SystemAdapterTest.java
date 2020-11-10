@@ -1,61 +1,54 @@
 package com.quorum.tessera.io;
 
-import java.io.PrintStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.SystemErrRule;
+import org.junit.contrib.java.lang.system.SystemOutRule;
 
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class SystemAdapterTest {
 
     private final SystemAdapter systemAdapter = SystemAdapter.INSTANCE;
 
-    private PrintStream outPrintStream;
+    @Rule
+    public final SystemOutRule systemOutRule = new SystemOutRule().enableLog();
 
-    private PrintStream errPrintStream;
+    @Rule
+    public final SystemErrRule systemErrRule = new SystemErrRule().enableLog();
+
 
     @Before
     public void onSetup() {
 
-        assertThat(systemAdapter).isInstanceOf(MockSystemAdapter.class);
+        assertThat(systemAdapter).isInstanceOf(DefaultSystemAdapter.class);
 
-        outPrintStream = mock(PrintStream.class);
-        errPrintStream = mock(PrintStream.class);
 
-        MockSystemAdapter.class.cast(systemAdapter).setErrPrintStream(errPrintStream);
 
-        MockSystemAdapter.class.cast(systemAdapter).setOutPrintStream(outPrintStream);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(outPrintStream, errPrintStream);
     }
 
     @Test
     public void outIsOut() {
-
         systemAdapter.out().print("Hellow");
-        assertThat(systemAdapter.out()).isSameAs(outPrintStream);
-        verify(outPrintStream).print("Hellow");
+        assertThat(systemOutRule.getLog()).isEqualTo("Hellow");
     }
 
     @Test
     public void errorIsErr() {
 
         systemAdapter.err().print("Hellow");
-        assertThat(systemAdapter.err()).isSameAs(errPrintStream);
-        verify(errPrintStream).print("Hellow");
+        assertThat(systemErrRule.getLog()).isEqualTo("Hellow");
     }
 
     @Test
     public void executeDefaultInstance() {
-        SystemAdapter instance = new SystemAdapter() {
-        };
+        SystemAdapter instance = SystemAdapter.INSTANCE;
 
         assertThat(instance.err()).isSameAs(System.err);
         assertThat(instance.out()).isSameAs(System.out);

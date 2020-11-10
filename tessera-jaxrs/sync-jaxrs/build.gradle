@@ -24,6 +24,8 @@ dependencies {
     implementation "jakarta.validation:jakarta.validation-api"
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+
     implementation "org.glassfish:jakarta.json"
 
     testCompile project(":test-utils:mock-jaxrs")
@@ -106,12 +108,25 @@ task loaddeps() {
 generateSwaggerDocumentation.dependsOn(loaddeps)
 jar.dependsOn(generateSwaggerDocumentation)
 
-compileJava {
-    doFirst {
-        options.compilerArgs = [
-                "--module-path", classpath.asPath,
-                "--add-modules", "swagger.annotations"
-        ]
-        classpath = files()
+
+jar {
+
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": version,
+                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+        )
     }
+
 }
+
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "swagger.annotations"
+//        ]
+//        classpath = files()
+//    }
+//}

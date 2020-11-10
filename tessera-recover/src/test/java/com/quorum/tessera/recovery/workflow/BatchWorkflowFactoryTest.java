@@ -11,6 +11,7 @@ import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import com.quorum.tessera.service.Service;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -32,6 +33,7 @@ public class BatchWorkflowFactoryTest {
         verifyNoMoreInteractions(enclave, payloadEncoder, discovery, resendBatchPublisher);
     }
 
+    @Ignore
     @Test
     public void loadMockBatchWorkflowFactory() {
 

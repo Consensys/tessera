@@ -23,7 +23,7 @@ public class ResendClientFactoryTest {
 
         ResendClientFactory factory = ResendClientFactory.newFactory(config);
 
-        assertThat(factory).isExactlyInstanceOf(MockResendClientFactory.class);
+        assertThat(factory).isExactlyInstanceOf(RestResendClientFactory.class);
     }
 
     @Test(expected = NoSuchElementException.class)

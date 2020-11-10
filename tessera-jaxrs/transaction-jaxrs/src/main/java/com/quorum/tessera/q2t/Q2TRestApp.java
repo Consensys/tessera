@@ -17,7 +17,7 @@ import java.util.Set;
  */
 @Api
 @ApplicationPath("/")
-public class Q2TRestApp extends TesseraRestApplication {
+public class Q2TRestApp extends TesseraRestApplication implements com.quorum.tessera.config.apps.TesseraApp {
 
     public Q2TRestApp() {
     }

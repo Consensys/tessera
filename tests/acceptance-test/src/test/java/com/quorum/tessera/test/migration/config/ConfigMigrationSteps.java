@@ -2,7 +2,7 @@ package com.quorum.tessera.test.migration.config;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 
 import java.io.*;
 import java.nio.file.Files;

@@ -6,6 +6,7 @@ import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.json.Json;
@@ -19,6 +20,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+@Ignore
 public class KeyResourceTest {
 
     private KeyResource keyResource;

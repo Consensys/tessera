@@ -7,6 +7,9 @@
         </encoder>
     </appender>
 
+
+    <logger name="org.jvnet.hk2" level="ALL" />
+    <logger name="com.quorum.tessera" level="ALL" />
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>

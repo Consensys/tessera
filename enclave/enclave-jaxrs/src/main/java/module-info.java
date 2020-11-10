@@ -14,4 +14,12 @@ module tessera.enclave.enclave.jaxrs.main {
     requires tessera.server.server.api.main;
     requires tessera.shared.main;
     requires tessera.tessera.jaxrs.jaxrs.client.main;
+
+    opens com.quorum.tessera.enclave.rest to org.eclipse.persistence.moxy,org.eclipse.persistence.core;
+    exports com.quorum.tessera.enclave.rest to org.eclipse.persistence.core;
+
+    provides com.quorum.tessera.enclave.EnclaveClientFactory 
+        with com.quorum.tessera.enclave.rest.RestfulEnclaveClientFactory;
 }
+
+

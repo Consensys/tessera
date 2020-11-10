@@ -3,6 +3,7 @@ package com.quorum.tessera.api.exception;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -38,6 +39,7 @@ public class NodeOfflineExceptionMapperTest {
             .isEqualTo("Connection error while communicating with http://ouchthatsgottasmart.com");
     }
 
+    @Ignore
     @Test
     public void defaultConstructor() {
         assertThat(new NodeOfflineExceptionMapper()).isNotNull();

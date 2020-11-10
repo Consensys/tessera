@@ -1,14 +1,6 @@
 package com.quorum.tessera.data;
 
 import com.quorum.tessera.config.Config;
-
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 import com.quorum.tessera.config.util.EncryptedStringResolver;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingEntityDAOImpl;
@@ -16,6 +8,13 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class EntityManagerDAOFactory {
 
@@ -54,6 +53,7 @@ public class EntityManagerDAOFactory {
         properties.put("eclipselink.logging.level", "FINE");
         properties.put("eclipselink.logging.parameters", "true");
         properties.put("eclipselink.logging.level.sql", "FINE");
+
         properties.put(
                 "javax.persistence.schema-generation.database.action",
                 config.getJdbcConfig().isAutoCreateTables() ? "create" : "none");
