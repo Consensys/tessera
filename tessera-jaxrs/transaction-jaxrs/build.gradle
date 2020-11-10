@@ -1,3 +1,7 @@
+plugins {
+    id 'io.swagger.core.v3.swagger-gradle-plugin' version '2.1.5'
+}
+
 dependencies {
     compile project(':tessera-jaxrs:common-jaxrs')
     compile project(':config')
@@ -33,5 +37,31 @@ dependencies {
     testRuntime "org.glassfish.jersey.ext:jersey-bean-validation"
 
 }
+
+def generatedResources = "${project.buildDir}/generated-resources/openapi"
+
+project.logger.lifecycle('sourceSets.main.compileClasspath')
+sourceSets.main.compileClasspath.each { project.logger.lifecycle("${it}") }
+
+resolve {
+    classpath = sourceSets.main.runtimeClasspath
+    outputDir = file(generatedResources)
+    outputFileName = 'openapi.q2t'
+    outputFormat = 'JSONANDYAML'
+    prettyPrint = 'TRUE'
+    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-q2t.yaml")
+    resourcePackages = [
+            'com.quorum.tessera.api.common',
+            'com.quorum.tessera.p2p',
+            'com.quorum.tessera.thirdparty',
+            'com.quorum.tessera.q2t'
+    ]
+    modelConverterClasses = ['com.quorum.tessera.openapi.FullyQualifiedNameResolver']
+//    filterClass = 'com.quorum.tessera.openapi.Q2TOperationsFilter'
+}
+
+sourceSets.main.output.dir(generatedResources)
+
+jar.dependsOn(resolve)
 
 description = 'transaction-jaxrs'
