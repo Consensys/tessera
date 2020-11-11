@@ -52,8 +52,8 @@ public class UpCheckResource {
                             mediaType = MediaType.TEXT_PLAIN,
                             schema = @Schema(type = "string"),
                             examples = {
-                                @ExampleObject(value = UPCHECK_RESPONSE_IS_UP),
-                                @ExampleObject(value = UPCHECK_RESPONSE_DB)
+                                @ExampleObject(name = UPCHECK_RESPONSE_IS_UP, value = UPCHECK_RESPONSE_IS_UP),
+                                @ExampleObject(name = UPCHECK_RESPONSE_DB, value = UPCHECK_RESPONSE_DB)
                             }))
     @GET
     @Produces(MediaType.TEXT_PLAIN)
