@@ -3,6 +3,7 @@ package com.quorum.tessera.data;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 
 /** A data store for transactions that need to be retrieved later */
@@ -73,4 +74,10 @@ public interface EncryptedTransactionDAO {
      * @throws RuntimeException if the callback fails
      */
     <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer);
+
+
+    static EncryptedTransactionDAO create() {
+        return ServiceLoader.load(EncryptedTransactionDAO.class).findFirst().get();
+    }
+
 }

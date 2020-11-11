@@ -1,44 +1,90 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.config.*;
-import org.junit.Ignore;
+import com.quorum.tessera.data.EncryptedRawTransactionDAO;
+import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
+import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
+import com.quorum.tessera.transaction.publish.PayloadPublisher;
+import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TransactionManagerFactoryTest {
 
-    @Ignore
     @Test
     public void create() {
 
-        TransactionManagerFactory result = TransactionManagerFactory.create();
-        assertThat(result).isNotNull();
+        try(
+            var mockedStaticPayloadPublisherFactory = mockStatic(PayloadPublisherFactory.class);
+            var mockedStaticBatchPayloadPublisherFactory = mockStatic(BatchPayloadPublisherFactory.class);
+            var mockedStaticEnclaveFactory = mockStatic(EnclaveFactory.class);
+            var mockedStaticEncryptedTransactionDAO = mockStatic(EncryptedTransactionDAO.class);
+            var mockedStaticEncryptedRawTransactionDAO = mockStatic(EncryptedRawTransactionDAO.class);
+            var mockedStaticPrivacyHelper = mockStatic(PrivacyHelper.class)
+            ) {
 
-        Config config = mock(Config.class);
-        ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
-        when(config.getP2PServerConfig()).thenReturn(serverConfig);
+            mockedStaticPrivacyHelper.when(PrivacyHelper::create).thenReturn(mock(PrivacyHelper.class));
 
-        JdbcConfig jdbcConfig = mock(JdbcConfig.class);
-        when(jdbcConfig.getUsername()).thenReturn("junit");
-        when(jdbcConfig.getPassword()).thenReturn("junit");
-        when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:junit");
-        when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+            EncryptedRawTransactionDAO encryptedRawTransactionDAO = mock(EncryptedRawTransactionDAO.class);
 
-        FeatureToggles features = mock(FeatureToggles.class);
-        when(features.isEnablePrivacyEnhancements()).thenReturn(false);
-        when(config.getFeatures()).thenReturn(features);
+            mockedStaticEncryptedRawTransactionDAO.when(EncryptedRawTransactionDAO::create)
+                .thenReturn(encryptedRawTransactionDAO);
 
-        TransactionManager transactionManager = result.create(config);
-        assertThat(transactionManager).isNotNull();
+            EncryptedTransactionDAO encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
 
-        assertThat(result.create(config)).isSameAs(transactionManager);
-        assertThat(result.transactionManager().get()).isSameAs(transactionManager);
+            mockedStaticEncryptedTransactionDAO.when(EncryptedTransactionDAO::create).thenReturn(encryptedTransactionDAO);
+
+            EnclaveFactory enclaveFactory = mock(EnclaveFactory.class);
+            when(enclaveFactory.enclave()).thenReturn(Optional.of(mock(Enclave.class)));
+            mockedStaticEnclaveFactory.when(EnclaveFactory::create).thenReturn(enclaveFactory);
 
 
+            //Payload publisher gubbins
+            PayloadPublisherFactory payloadPublisherFactory = mock(PayloadPublisherFactory.class);
+            when(payloadPublisherFactory.create(any(Config.class))).thenReturn(mock(PayloadPublisher.class));
+
+            mockedStaticPayloadPublisherFactory.when(() -> PayloadPublisherFactory.newFactory(any(Config.class)))
+                .thenReturn(payloadPublisherFactory);
+
+            //BatchPayloadPublisherFactory gubbins
+            BatchPayloadPublisherFactory batchPayloadPublisherFactory = mock(BatchPayloadPublisherFactory.class);
+            when(batchPayloadPublisherFactory.create(any(PayloadPublisher.class))).thenReturn(mock(BatchPayloadPublisher.class));
+
+            mockedStaticBatchPayloadPublisherFactory.when(BatchPayloadPublisherFactory::newFactory)
+                .thenReturn(batchPayloadPublisherFactory);
+
+            TransactionManagerFactory result = DefaultTransactionManagerFactory.INSTANCE;
+            assertThat(result).isNotNull();
+
+            Config config = mock(Config.class);
+            ServerConfig serverConfig = mock(ServerConfig.class);
+            when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
+            when(config.getP2PServerConfig()).thenReturn(serverConfig);
+
+            JdbcConfig jdbcConfig = mock(JdbcConfig.class);
+            when(jdbcConfig.getUsername()).thenReturn("junit");
+            when(jdbcConfig.getPassword()).thenReturn("junit");
+            when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:junit");
+            when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+
+            FeatureToggles features = mock(FeatureToggles.class);
+            when(features.isEnablePrivacyEnhancements()).thenReturn(false);
+            when(config.getFeatures()).thenReturn(features);
+
+            TransactionManager transactionManager = result.create(config);
+            assertThat(transactionManager).isNotNull();
+
+            assertThat(result.create(config)).isSameAs(transactionManager);
+            assertThat(result.transactionManager().get()).isSameAs(transactionManager);
+
+        }
     }
 
 }

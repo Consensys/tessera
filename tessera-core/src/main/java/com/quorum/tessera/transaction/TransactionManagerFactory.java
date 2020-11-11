@@ -13,8 +13,7 @@ public interface TransactionManagerFactory {
 
     static TransactionManagerFactory create() {
         return ServiceLoader.load(TransactionManagerFactory.class)
-            .findFirst()
-            .orElse(DefaultTransactionManagerFactory.INSTANCE);
+            .findFirst().get();
     }
 
 

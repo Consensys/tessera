@@ -2,6 +2,7 @@ package com.quorum.tessera.data.staging;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 /** A data store for transactions that need to be retrieved later */
 public interface StagingEntityDAO {
@@ -57,4 +58,9 @@ public interface StagingEntityDAO {
      * @return number of records that have been updated
      */
     int updateStageForBatch(int batchSize, long validationStage);
+
+    static StagingEntityDAO create() {
+        return ServiceLoader.load(StagingEntityDAO.class).findFirst().get();
+    }
+
 }

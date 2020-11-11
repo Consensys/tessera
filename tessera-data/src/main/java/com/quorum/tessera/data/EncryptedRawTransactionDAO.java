@@ -1,6 +1,7 @@
 package com.quorum.tessera.data;
 
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 /** A data store for transactions that need to be retrieved later */
 public interface EncryptedRawTransactionDAO {
@@ -28,4 +29,9 @@ public interface EncryptedRawTransactionDAO {
      * @throws javax.persistence.EntityNotFoundException if there hash doesn't exist
      */
     void delete(MessageHash hash);
+
+    static EncryptedRawTransactionDAO create() {
+        return ServiceLoader.load(EncryptedRawTransactionDAO.class).findFirst().get();
+    }
+
 }

@@ -3,6 +3,7 @@ package com.quorum.tessera.config;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class ConfigFactoryTest {
 
@@ -11,6 +12,15 @@ public class ConfigFactoryTest {
         ConfigFactory configFactory = ConfigFactory.create();
         assertThat(configFactory).isNotNull().isExactlyInstanceOf(JaxbConfigFactory.class);
         assertThat(configFactory.getConfig()).isNull();
+    }
+
+    @Test
+    public void store() {
+        Config config = mock(Config.class);
+        ConfigFactory configFactory = ConfigFactory.create();
+        configFactory.store(config);
+        assertThat(configFactory.getConfig()).isSameAs(config);
+
     }
 
 

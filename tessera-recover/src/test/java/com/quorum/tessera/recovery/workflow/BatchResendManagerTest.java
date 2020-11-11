@@ -169,7 +169,7 @@ public class BatchResendManagerTest {
 
         when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
-        BatchResendManager result = BatchResendManager.create(config);
+        BatchResendManager result = BatchResendManager.create();
 
         assertThat(result).isNotNull();
     }

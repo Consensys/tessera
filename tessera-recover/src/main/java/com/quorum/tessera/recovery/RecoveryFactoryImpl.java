@@ -1,7 +1,6 @@
 package com.quorum.tessera.recovery;
 
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -17,7 +16,7 @@ public class RecoveryFactoryImpl implements RecoveryFactory {
         BatchTransactionRequester transactionRequester =
                 BatchTransactionRequesterFactory.newFactory().createBatchTransactionRequester(config);
 
-        StagingEntityDAO stagingEntityDAO = EntityManagerDAOFactory.newFactory(config).createStagingEntityDAO();
+        StagingEntityDAO stagingEntityDAO = StagingEntityDAO.create();
 
         TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
 

@@ -1,0 +1,3 @@
+
+--add-opens
+    tessera.server.jersey.server.main/com.quorum.tessera.server.monitoring=org.mockito

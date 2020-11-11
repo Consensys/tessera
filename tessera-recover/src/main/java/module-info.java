@@ -23,5 +23,8 @@ module tessera.tessera.recover.main {
     provides com.quorum.tessera.recovery.RecoveryFactory with
         com.quorum.tessera.recovery.RecoveryFactoryImpl;
 
+    provides com.quorum.tessera.recovery.workflow.BatchResendManager with
+        com.quorum.tessera.recovery.workflow.BatchResendManagerProvider;
+
 
 }

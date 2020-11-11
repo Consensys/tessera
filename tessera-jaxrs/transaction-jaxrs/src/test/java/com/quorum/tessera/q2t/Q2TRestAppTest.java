@@ -1,23 +1,24 @@
 package com.quorum.tessera.q2t;
 
+
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
+import com.quorum.tessera.transaction.TransactionManager;
+import com.quorum.tessera.transaction.TransactionManagerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.Application;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
-@Ignore
 public class Q2TRestAppTest {
 
     private JerseyTest jersey;
@@ -25,14 +26,23 @@ public class Q2TRestAppTest {
     private Q2TRestApp q2TRestApp;
 
     @Before
-    public void setUp() throws Exception {
-
-        Config config = mock(Config.class);
-        EncodedPayloadManager.create(config);
+    public void setUpAndGetSingletons() throws Exception {
 
         q2TRestApp = new Q2TRestApp();
+        try (
+            var mockedStaticPayloadManager = mockStatic(EncodedPayloadManager.class);
+            var mockedSttaticTransactionManager = mockStatic(TransactionManagerFactory.class);
+        ) {
+            TransactionManagerFactory transactionManagerFactory = mock(TransactionManagerFactory.class);
+            when(transactionManagerFactory.transactionManager()).thenReturn(Optional.of(mock(TransactionManager.class)));
+            mockedSttaticTransactionManager.when(TransactionManagerFactory::create).thenReturn(transactionManagerFactory);
 
-        jersey =
+            EncodedPayloadManager encodedPayloadManager = mock(EncodedPayloadManager.class);
+            mockedStaticPayloadManager.when(EncodedPayloadManager::getInstance)
+                .thenReturn(Optional.of(encodedPayloadManager));
+
+
+            jersey =
                 new JerseyTest() {
                     @Override
                     protected Application configure() {
@@ -43,7 +53,12 @@ public class Q2TRestAppTest {
                     }
                 };
 
-        jersey.setUp();
+            jersey.setUp();
+
+            Set<Object> results = q2TRestApp.getSingletons();
+
+            assertThat(results).hasSize(3);
+        }
     }
 
     @After
@@ -51,13 +66,7 @@ public class Q2TRestAppTest {
         jersey.tearDown();
     }
 
-    @Test
-    public void getSingletons() {
 
-        Set<Object> results = q2TRestApp.getSingletons();
-
-        assertThat(results).hasSize(3);
-    }
 
     @Test
     public void appType() {

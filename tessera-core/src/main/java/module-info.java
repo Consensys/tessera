@@ -21,7 +21,21 @@ module tessera.tessera.core.main {
 
     uses com.quorum.tessera.transaction.EncodedPayloadManager;
 
+    uses com.quorum.tessera.transaction.resend.ResendManager;
+
+    uses com.quorum.tessera.transaction.PrivacyHelper;
+
     provides com.quorum.tessera.transaction.TransactionManagerFactory with
         com.quorum.tessera.transaction.TransactionManagerFactoryProvider;
+
+    provides com.quorum.tessera.transaction.EncodedPayloadManager with
+        com.quorum.tessera.transaction.EncodedPayloadManagerProvider;
+
+    provides com.quorum.tessera.transaction.PrivacyHelper with
+        com.quorum.tessera.transaction.PrivacyHelperProvider;
+
+    provides com.quorum.tessera.transaction.resend.ResendManager
+        with com.quorum.tessera.transaction.resend.ResendManagerProvider;
+
 
 }

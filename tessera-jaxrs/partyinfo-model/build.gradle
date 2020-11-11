@@ -6,5 +6,6 @@ dependencies {
     implementation project(":tessera-partyinfo")
     implementation project(":encryption:encryption-api")
 
+    testImplementation "org.mockito:mockito-inline"
 
 }

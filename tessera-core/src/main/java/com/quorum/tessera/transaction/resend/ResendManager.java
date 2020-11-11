@@ -2,6 +2,8 @@ package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 
+import java.util.ServiceLoader;
+
 /** Handles resend requests where the response has one of our own keys as the sender */
 public interface ResendManager {
 
@@ -15,4 +17,9 @@ public interface ResendManager {
      * @param transactionPayload the transaction to be stored
      */
     void acceptOwnMessage(EncodedPayload transactionPayload);
+
+    static ResendManager create() {
+        return ServiceLoader.load(ResendManager.class).findFirst().get();
+    }
+
 }

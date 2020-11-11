@@ -27,7 +27,7 @@ public class MetricsEnquirerTest {
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
 
         metricsEnquirer = new MetricsEnquirer(mBeanServer);
 

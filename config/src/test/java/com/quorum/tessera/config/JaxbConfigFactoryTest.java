@@ -28,6 +28,7 @@ public class JaxbConfigFactoryTest {
     @After
     public void afterTest() {
         verifyNoMoreInteractions(keyEncryptorFactory);
+        ConfigHolder.INSTANCE.setConfig(null);
     }
 
     @Test

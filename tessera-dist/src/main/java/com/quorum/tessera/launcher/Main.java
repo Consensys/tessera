@@ -6,6 +6,7 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
@@ -62,13 +63,25 @@ public class Main {
                 System.out.println(springProfileWarning);
                 config.setRecoveryMode(System.getenv("SPRING_PROFILES_ACTIVE").contains("enable-sync-poller"));
             }
+            // end spring profile stuff
+            LOGGER.debug("Storing config {}",config);
+            ConfigFactory.create().store(config);
+            LOGGER.debug("Stored config {}",config);
 
-            //Start end spring profile stuff
             final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
             com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
             Discovery.getInstance().onCreate();
-            EncodedPayloadManager.create(config);
-            BatchResendManager.create(config);
+
+            LOGGER.debug("Creating EncodedPayloadManager");
+            EncodedPayloadManager.create();
+            LOGGER.debug("Created EncodedPayloadManager");
+
+            LOGGER.debug("Creating BatchResendManager");
+
+            BatchResendManager.create();
+            LOGGER.debug("Created BatchResendManager");
+
+
             LOGGER.info("Creating txn manager");
             TransactionManagerFactory.create().create(config);
             LOGGER.info("Created txn manager");
