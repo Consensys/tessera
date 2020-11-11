@@ -1,131 +1,96 @@
 package com.quorum.tessera.discovery;
 
-import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 import java.net.URI;
+import java.util.Optional;
+import java.util.ServiceLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class DiscoveryTest {
 
-    private RuntimeContext runtimeContext;
+    private Discovery discovery;
+
+    private MockedStatic<DiscoveryHelper> mockedStaticDiscoveryHelper;
+
+    private DiscoveryHelper discoveryHelper;
 
     @Before
-    public void onSetUp() {
-        runtimeContext = mock(RuntimeContext.class);
-        MockDiscoveryHelper.reset();
+    public void beforeTest() {
+        discovery = new Discovery() {
+            @Override
+            public void onUpdate(NodeInfo nodeInfo) {
+            }
+
+            @Override
+            public void onDisconnect(URI nodeUri) {
+            }
+        };
+
+        discoveryHelper = mock(DiscoveryHelper.class);
+        mockedStaticDiscoveryHelper = mockStatic(DiscoveryHelper.class);
+        mockedStaticDiscoveryHelper.when(DiscoveryHelper::create).thenReturn(discoveryHelper);
     }
 
     @After
-    public void onTearDown() {
-        verifyNoMoreInteractions(runtimeContext);
-        MockDiscoveryHelper.reset();
-    }
-
-    @Test
-    public void getInstance() {
-        Discovery instance = Discovery.getInstance();
-        assertThat(instance).isExactlyInstanceOf(DiscoveryFactory.class);
-        verify(runtimeContext).isDisablePeerDiscovery();
+    public void afterTest() {
+        verifyNoMoreInteractions(discoveryHelper);
+        mockedStaticDiscoveryHelper.verifyNoMoreInteractions();
+        mockedStaticDiscoveryHelper.close();
     }
 
     @Test
     public void onCreate() {
-
-        Discovery discovery =
-                new Discovery() {
-                    @Override
-                    public void onUpdate(NodeInfo nodeInfo) {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public void onDisconnect(URI nodeUri) {
-                        throw new UnsupportedOperationException();
-                    }
-                };
-
-        MockDiscoveryHelper discoveryHelper = MockDiscoveryHelper.class.cast(DiscoveryHelper.getInstance());
         discovery.onCreate();
-        assertThat(discoveryHelper.getOnCreateInvocationCount()).isEqualTo(1);
-        discovery.onCreate();
-        assertThat(discoveryHelper.getOnCreateInvocationCount()).isEqualTo(2);
+        verify(discoveryHelper).onCreate();
+        mockedStaticDiscoveryHelper.verify(DiscoveryHelper::create);
     }
 
     @Test
     public void getCurrent() {
-
-        Discovery discovery =
-                new Discovery() {
-                    @Override
-                    public void onUpdate(NodeInfo nodeInfo) {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public void onDisconnect(URI nodeUri) {
-                        throw new UnsupportedOperationException();
-                    }
-                };
-
-        MockDiscoveryHelper discoveryHelper = MockDiscoveryHelper.class.cast(DiscoveryHelper.getInstance());
         discovery.getCurrent();
-        assertThat(discoveryHelper.getBuildCurrentInvocationCounter()).isEqualTo(1);
-        discovery.getCurrent();
-        assertThat(discoveryHelper.getBuildCurrentInvocationCounter()).isEqualTo(2);
+        verify(discoveryHelper).buildCurrent();
+        mockedStaticDiscoveryHelper.verify(DiscoveryHelper::create);
     }
 
     @Test
     public void getRemoteNodeInfo() {
-
-        Discovery discovery =
-                new Discovery() {
-                    @Override
-                    public void onUpdate(NodeInfo nodeInfo) {
-                        throw new UnsupportedOperationException();
-                    }
-
-                    @Override
-                    public void onDisconnect(URI nodeUri) {
-                        throw new UnsupportedOperationException();
-                    }
-                };
-
-        MockDiscoveryHelper discoveryHelper = MockDiscoveryHelper.class.cast(DiscoveryHelper.getInstance());
-        discovery.getRemoteNodeInfo(mock(PublicKey.class));
-        assertThat(discoveryHelper.getBuildRemoteInvocationCounter()).isEqualTo(1);
-        discovery.getRemoteNodeInfo(mock(PublicKey.class));
-        assertThat(discoveryHelper.getBuildRemoteInvocationCounter()).isEqualTo(2);
+        PublicKey publicKey = mock(PublicKey.class);
+        discovery.getRemoteNodeInfo(publicKey);
+        verify(discoveryHelper).buildRemoteNodeInfo(publicKey);
+        mockedStaticDiscoveryHelper.verify(DiscoveryHelper::create);
     }
 
     @Test
-    public void getAllNodeInfos() {
-
-        Discovery discovery =
-            new Discovery() {
-                @Override
-                public void onUpdate(NodeInfo nodeInfo) {
-                    throw new UnsupportedOperationException();
-                }
-
-                @Override
-                public void onDisconnect(URI nodeUri) {
-                    throw new UnsupportedOperationException();
-                }
-            };
-
-        MockDiscoveryHelper discoveryHelper = MockDiscoveryHelper.class.cast(DiscoveryHelper.getInstance());
+    public void getRemoteNodeInfos() {
         discovery.getRemoteNodeInfos();
-        assertThat(discoveryHelper.getBuildAllInvocationCounter()).isEqualTo(1);
-        discovery.getRemoteNodeInfos();
-        assertThat(discoveryHelper.getBuildAllInvocationCounter()).isEqualTo(2);
+        verify(discoveryHelper).buildRemoteNodeInfos();
+        mockedStaticDiscoveryHelper.verify(DiscoveryHelper::create);
     }
+
+    @Test
+    public void getInstance() {
+
+        try(var staticServiceLoader = mockStatic(ServiceLoader.class)) {
+            final ServiceLoader serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(mock(Discovery.class)));
+            staticServiceLoader.when(() -> ServiceLoader.load(Discovery.class))
+                .thenReturn(serviceLoader);
+
+            Discovery.getInstance();
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
+
+            staticServiceLoader.verify(() -> ServiceLoader.load(Discovery.class));
+            staticServiceLoader.verifyNoMoreInteractions();
+
+        }
+    }
+
 }

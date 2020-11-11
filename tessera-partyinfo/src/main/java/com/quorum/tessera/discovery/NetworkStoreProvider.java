@@ -1,6 +1,6 @@
 package com.quorum.tessera.discovery;
 
-public class NetworkStoreFactory {
+public class NetworkStoreProvider {
 
     public static NetworkStore provider() {
         return DefaultNetworkStore.INSTANCE;

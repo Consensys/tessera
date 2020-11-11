@@ -8,9 +8,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-public class DiscoveryFactory {
+public class DiscoveryProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryProvider.class);
 
     private static final AtomicReference<Discovery> HOLDER = new AtomicReference<>();
 

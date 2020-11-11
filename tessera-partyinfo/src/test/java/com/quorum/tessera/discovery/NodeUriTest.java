@@ -1,7 +1,6 @@
 package com.quorum.tessera.discovery;
 
 import nl.jqno.equalsverifier.EqualsVerifier;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URI;
@@ -35,13 +34,12 @@ public class NodeUriTest {
         assertThat(nodeUri.asURI()).isEqualTo(URI.create(stringValue.concat("/")));
     }
 
-    @Ignore
+
     @Test
     public void hashCodeAndEquals() {
         EqualsVerifier.forClass(NodeUri.class)
             .usingGetClass()
             .withNonnullFields("value")
             .verify();
-
     }
 }

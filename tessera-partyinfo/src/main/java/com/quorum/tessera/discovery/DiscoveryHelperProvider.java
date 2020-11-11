@@ -1,24 +1,21 @@
 package com.quorum.tessera.discovery;
 
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ServiceLoader;
+public class DiscoveryHelperProvider {
 
-public class DiscoveryHelperFactory {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryHelperFactory.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryHelperProvider.class);
 
     public static DiscoveryHelper provider() {
         LOGGER.info("Creating network store");
-        final NetworkStore networkStore = ServiceLoader.load(NetworkStore.class).findFirst().get();
+        final NetworkStore networkStore = NetworkStore.getInstance();
         LOGGER.info("Created network store");
 
         LOGGER.info("Creating enclave");
 
-        Enclave enclave = EnclaveFactory.create().enclave().get();
+        Enclave enclave = Enclave.create();
 
         LOGGER.info("Created enclave");
 

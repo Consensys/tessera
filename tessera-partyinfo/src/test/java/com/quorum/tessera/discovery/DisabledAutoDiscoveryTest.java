@@ -3,12 +3,10 @@ package com.quorum.tessera.discovery;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.AutoDiscoveryDisabledException;
-import com.quorum.tessera.partyinfo.MockContextHolder;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.URI;
@@ -23,7 +21,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@Ignore
+
 public class DisabledAutoDiscoveryTest {
 
     private DisabledAutoDiscovery discovery;
@@ -43,13 +41,12 @@ public class DisabledAutoDiscoveryTest {
 
         discovery = new DisabledAutoDiscovery(networkStore,knownPeers);
 
-        runtimeContext = RuntimeContext.getInstance();
+        runtimeContext = mock(RuntimeContext.class);
     }
 
     @After
     public void onTearDown() {
         verifyNoMoreInteractions(networkStore,runtimeContext);
-        MockContextHolder.reset();
     }
 
 

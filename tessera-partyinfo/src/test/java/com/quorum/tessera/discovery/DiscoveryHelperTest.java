@@ -4,13 +4,12 @@ import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.MockContextHolder;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 import java.net.URI;
 import java.util.List;
@@ -24,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@Ignore
+
 public class DiscoveryHelperTest {
 
     private Enclave enclave;
@@ -35,9 +34,14 @@ public class DiscoveryHelperTest {
 
     private DiscoveryHelper discoveryHelper;
 
+    private MockedStatic<RuntimeContext> mockedRuntimeContext;
+
     @Before
     public void beforeTest() {
         this.runtimeContext = mock(RuntimeContext.class);
+        mockedRuntimeContext = mockStatic(RuntimeContext.class);
+        mockedRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
+
         this.enclave = mock(Enclave.class);
         this.networkStore = mock(NetworkStore.class);
         this.discoveryHelper = new DiscoveryHelperImpl(networkStore, enclave);
@@ -46,8 +50,8 @@ public class DiscoveryHelperTest {
     @After
     public void afterTest() {
         verifyNoMoreInteractions(enclave, networkStore, runtimeContext);
-        MockContextHolder.reset();
-        MockDiscoveryHelper.reset();
+        mockedRuntimeContext.verifyNoMoreInteractions();
+        mockedRuntimeContext.close();
     }
 
     @Test
@@ -63,9 +67,10 @@ public class DiscoveryHelperTest {
         discoveryHelper.onCreate();
 
         verify(networkStore).store(any(ActiveNode.class));
-        //        verify(runtimeContext).getPeers();
         verify(runtimeContext).getP2pServerUri();
         verify(enclave).getPublicKeys();
+
+        mockedRuntimeContext.verify(RuntimeContext::getInstance);
     }
 
     @Test
@@ -93,6 +98,7 @@ public class DiscoveryHelperTest {
 
         verify(networkStore).getActiveNodes();
         verify(runtimeContext).getP2pServerUri();
+        mockedRuntimeContext.verify(RuntimeContext::getInstance);
     }
 
     @Test
@@ -114,6 +120,7 @@ public class DiscoveryHelperTest {
         assertThat(result.getUrl()).isEqualTo("http://somedomain.com/");
         verify(networkStore).getActiveNodes();
         assertThat(result.getRecipients()).isEmpty();
+        mockedRuntimeContext.verify(RuntimeContext::getInstance);
     }
 
     @Test
@@ -129,6 +136,7 @@ public class DiscoveryHelperTest {
         assertThat(result.getUrl()).isEqualTo("http://somedomain.com/");
         assertThat(result.getRecipients()).isEmpty();
         verify(networkStore).getActiveNodes();
+        mockedRuntimeContext.verify(RuntimeContext::getInstance);
     }
 
     @Test
@@ -213,6 +221,7 @@ public class DiscoveryHelperTest {
 
         verify(networkStore).getActiveNodes();
         verify(runtimeContext).getP2pServerUri();
+        mockedRuntimeContext.verify(RuntimeContext::getInstance);
     }
 
     @Test
@@ -250,5 +259,20 @@ public class DiscoveryHelperTest {
 
         verify(networkStore).getActiveNodes();
         verify(runtimeContext).getP2pServerUri();
+        mockedRuntimeContext.verify(RuntimeContext::getInstance);
+    }
+
+
+    @Test
+    public void create() {
+        try(var staticEnclave = mockStatic(Enclave.class)) {
+            Enclave enclave = mock(Enclave.class);
+            staticEnclave.when(Enclave::create).thenReturn(enclave);
+            DiscoveryHelper.create();
+
+            staticEnclave.verify(Enclave::create);
+            verifyNoInteractions(enclave);
+            staticEnclave.verifyNoMoreInteractions();
+        }
     }
 }

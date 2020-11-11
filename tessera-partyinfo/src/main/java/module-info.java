@@ -1,3 +1,7 @@
+import com.quorum.tessera.discovery.DiscoveryHelperProvider;
+import com.quorum.tessera.discovery.DiscoveryProvider;
+import com.quorum.tessera.discovery.NetworkStoreProvider;
+
 module tessera.tessera.partyinfo.main {
     requires org.apache.commons.lang3;
     requires org.slf4j;
@@ -19,16 +23,16 @@ module tessera.tessera.partyinfo.main {
     uses com.quorum.tessera.discovery.Discovery;
 
     provides com.quorum.tessera.discovery.Discovery with
-        com.quorum.tessera.discovery.DiscoveryFactory;
+        DiscoveryProvider;
 
     provides com.quorum.tessera.discovery.DiscoveryHelper
-        with com.quorum.tessera.discovery.DiscoveryHelperFactory;
+        with DiscoveryHelperProvider;
 
     provides com.quorum.tessera.discovery.EnclaveKeySynchroniser with
-        com.quorum.tessera.discovery.EnclaveKeySynchroniserFactory;
+        com.quorum.tessera.discovery.EnclaveKeySynchroniserProvider;
 
     provides com.quorum.tessera.discovery.NetworkStore with
-        com.quorum.tessera.discovery.NetworkStoreFactory;
+        NetworkStoreProvider;
 
 
 }
