@@ -9,7 +9,6 @@ import com.quorum.tessera.config.apps.TesseraApp;
 import javax.ws.rs.core.Application;
 import java.util.Set;
 
-// @Api
 public abstract class TesseraRestApplication extends Application implements TesseraApp {
 
     @Override
@@ -31,8 +30,6 @@ public abstract class TesseraRestApplication extends Application implements Tess
                 VersionResource.class,
                 BaseResource.class);
     }
-
-    // TODO(cjh) return full swagger doc by default in case specific ApiResource method for that server hasn't been added
 
     @Override
     public CommunicationType getCommunicationType() {

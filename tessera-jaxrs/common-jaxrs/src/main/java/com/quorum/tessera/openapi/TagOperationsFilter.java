@@ -10,10 +10,10 @@ import java.util.Optional;
 
 public abstract class TagOperationsFilter extends AbstractSpecFilter {
 
-    public abstract String getTagFilter();
+    public abstract String requiredTag();
 
     public Optional<Operation> filterOperation(Operation operation, ApiDescription api, Map<String, List<String>> params, Map<String, String> cookies, Map<String, List<String>> headers) {
-        if (operation.getTags().stream().noneMatch(getTagFilter()::equals)) {
+        if (operation.getTags().stream().noneMatch(requiredTag()::equals)) {
             return Optional.empty();
         }
         return Optional.of(operation);

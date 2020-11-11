@@ -15,7 +15,6 @@ import static org.mockito.Mockito.*;
 
 public class ThirdPartyOperationsFilterTest {
 
-
     private ThirdPartyOperationsFilter operationsFilter;
 
     private Operation operation;

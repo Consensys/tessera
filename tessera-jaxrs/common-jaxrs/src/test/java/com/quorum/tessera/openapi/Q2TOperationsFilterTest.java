@@ -15,7 +15,6 @@ import static org.mockito.Mockito.*;
 
 public class Q2TOperationsFilterTest {
 
-
     private Q2TOperationsFilter operationsFilter;
 
     private Operation operation;

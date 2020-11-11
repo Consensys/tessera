@@ -33,7 +33,7 @@ public class VersionResource {
     @ApiResponse(
             responseCode = "200",
             description = "Tessera distribution version",
-            content = @Content(schema = @Schema(type = "string"), examples = @ExampleObject(value = "0.11.0")))
+            content = @Content(schema = @Schema(type = "string"), examples = @ExampleObject(value = "20.10.1")))
     @GET
     @Path("version")
     @Produces(MediaType.TEXT_PLAIN)
@@ -45,7 +45,7 @@ public class VersionResource {
     @ApiResponse(
             responseCode = "200",
             description = "Tessera distribution version",
-            content = @Content(schema = @Schema(type = "string"), examples = @ExampleObject(value = "0.11.0")))
+            content = @Content(schema = @Schema(type = "string"), examples = @ExampleObject(value = "20.10.1")))
     @GET
     @Path("version/distribution")
     @Produces(MediaType.TEXT_PLAIN)

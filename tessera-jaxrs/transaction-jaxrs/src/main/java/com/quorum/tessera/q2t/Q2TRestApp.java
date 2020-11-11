@@ -20,7 +20,6 @@ import static java.util.stream.Collectors.toSet;
  * The main application that is submitted to the HTTP server Contains all the service classes created by the service
  * locator
  */
-// @Api
 @ApplicationPath("/")
 public class Q2TRestApp extends TesseraRestApplication {
 
