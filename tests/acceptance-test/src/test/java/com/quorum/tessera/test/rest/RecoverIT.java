@@ -247,7 +247,7 @@ public class RecoverIT {
                     partyInfoSyncLatch.countDown();
                 });
 
-        if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
+        if (!partyInfoSyncLatch.await(5, TimeUnit.MINUTES)) {
             fail("Unable to sync party info");
         }
         executorService.shutdown();

@@ -79,6 +79,13 @@ jobs:
         - run: |
            mvn install -Dsilent=true -DskipTests=true -Dmaven.javadoc.skip=true -Dchecksyle.skip=true -Dspotbugs.skip=true -Djacoco.skip=true -B
            mvn verify -pl tests/acceptance-test
+        - name: Archive production artifacts
+          if: failure()
+          uses: actions/upload-artifact@v2
+          with:
+            name: node-logs
+            path: |
+              /home/runner/work/tessera/tessera/tests/acceptance-test/target/node*.log
         - uses: homoluctus/slatify@v2.1.2
           if: failure()
           with:
