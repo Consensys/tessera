@@ -20,6 +20,7 @@ import suite.TestSuite;
     TransactionForwardingIT.class,
     CucumberRestIT.class,
     CucumberRawIT.class,
-    CustomPayloadEncryptionIT.class
+    CustomPayloadEncryptionIT.class,
+    OpenApiIT.class
 })
 public abstract class RestSuite {}

@@ -50,8 +50,8 @@ public abstract class AbstractApiResource {
         final Optional<String> mediaSubType = mediaType.map(MediaType::getSubtype);
 
         if (mediaSubType.isPresent()) {
-            final String resource = String.format("/%s.%s", getResourceName(), mediaSubType.get());
-            final URL url = getOpenApiDocumentUrl(resource);
+            final String resourceName = String.format("/%s.%s", getOpenApiDocName(), mediaSubType.get());
+            final URL url = getResourceUrl(resourceName);
 
             return Response.ok(url.openStream(), mediaType.get()).build();
         } else {
@@ -63,7 +63,9 @@ public abstract class AbstractApiResource {
         return Variant.mediaTypes(APPLICATION_JSON_TYPE, APPLICATION_YAML_TYPE).build();
     }
 
-    public abstract String getResourceName();
+    public URL getResourceUrl(String name) {
+        return getClass().getResource(name);
+    }
 
-    public abstract URL getOpenApiDocumentUrl(String name);
+    public abstract String getOpenApiDocName();
 }
