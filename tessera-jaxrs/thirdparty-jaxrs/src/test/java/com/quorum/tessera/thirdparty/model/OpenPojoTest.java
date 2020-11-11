@@ -1,5 +1,6 @@
 package com.quorum.tessera.thirdparty.model;
 
+import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.GetterMustExistRule;
@@ -20,6 +21,6 @@ public class OpenPojoTest {
             .with(new GetterTester())
             .build();
 
-        validator.validate(GetPublicKeysResponse.class.getPackage().getName());
+        validator.validate(PojoClassFactory.getPojoClasses(GetPublicKeysResponse.class.getPackage().getName()));
     }
 }
