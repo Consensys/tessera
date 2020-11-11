@@ -7,7 +7,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 
-enum DefaultDataSourceFactory implements DataSourceFactory {
+enum HikariDataSourceFactory implements DataSourceFactory {
     INSTANCE;
 
     private DataSource dataSource;
@@ -29,5 +29,9 @@ enum DefaultDataSourceFactory implements DataSourceFactory {
         dataSource = new HikariDataSource(hikariConfig);
 
         return dataSource;
+    }
+
+    protected void clear() {
+        dataSource = null;
     }
 }

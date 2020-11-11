@@ -3,7 +3,7 @@ package com.quorum.tessera.data;
 public class DataSourceFactoryProvider {
 
     public static DataSourceFactory provider() {
-        return DefaultDataSourceFactory.INSTANCE;
+        return HikariDataSourceFactory.INSTANCE;
     }
 
 }
