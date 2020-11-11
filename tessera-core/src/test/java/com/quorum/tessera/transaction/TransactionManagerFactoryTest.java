@@ -20,6 +20,11 @@ public class TransactionManagerFactoryTest {
 
     @Test
     public void create() {
+        assertThat(TransactionManagerFactory.create()).isNotNull();
+    }
+
+    @Test
+    public void createTransactionManager() {
 
         try(
             var mockedStaticPayloadPublisherFactory = mockStatic(PayloadPublisherFactory.class);
@@ -44,7 +49,6 @@ public class TransactionManagerFactoryTest {
             EnclaveFactory enclaveFactory = mock(EnclaveFactory.class);
             when(enclaveFactory.enclave()).thenReturn(Optional.of(mock(Enclave.class)));
             mockedStaticEnclaveFactory.when(EnclaveFactory::create).thenReturn(enclaveFactory);
-
 
             //Payload publisher gubbins
             PayloadPublisherFactory payloadPublisherFactory = mock(PayloadPublisherFactory.class);

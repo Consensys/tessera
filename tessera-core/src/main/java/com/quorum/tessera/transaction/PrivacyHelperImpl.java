@@ -19,13 +19,16 @@ public class PrivacyHelperImpl implements PrivacyHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrivacyHelperImpl.class);
 
-    private EncryptedTransactionDAO encryptedTransactionDAO;
+    private final EncryptedTransactionDAO encryptedTransactionDAO;
 
-    private boolean isEnhancedPrivacyEnabled;
+    private final boolean isEnhancedPrivacyEnabled;
 
-    public PrivacyHelperImpl(EncryptedTransactionDAO encryptedTransactionDAO, boolean isEnhancedPrivacyEnabled) {
-        this.encryptedTransactionDAO = encryptedTransactionDAO;
+    private final PayloadEncoder payloadEncoder;
+
+    public PrivacyHelperImpl(EncryptedTransactionDAO encryptedTransactionDAO, boolean isEnhancedPrivacyEnabled,PayloadEncoder payloadEncoder) {
+        this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
         this.isEnhancedPrivacyEnabled = isEnhancedPrivacyEnabled;
+        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     }
 
     @Override
@@ -53,7 +56,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
                         et ->
                                 AffectedTransaction.Builder.create()
                                         .withHash(et.getHash().getHashBytes())
-                                        .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
+                                        .withPayload(payloadEncoder.decode(et.getEncodedPayload()))
                                         .build())
                 .collect(Collectors.toList());
     }
@@ -83,7 +86,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
                         et ->
                                 AffectedTransaction.Builder.create()
                                         .withHash(et.getHash().getHashBytes())
-                                        .withPayload(PayloadEncoder.create().decode(et.getEncodedPayload()))
+                                        .withPayload(payloadEncoder.decode(et.getEncodedPayload()))
                                         .build())
                 .collect(Collectors.toList());
     }

@@ -45,6 +45,6 @@ public interface PayloadEncoder {
     EncodedPayload withRecipient(EncodedPayload input, PublicKey recipient);
 
     static PayloadEncoder create() {
-        return ServiceLoader.load(PayloadEncoder.class).findFirst().orElse(new PayloadEncoderImpl() {});
+        return ServiceLoader.load(PayloadEncoder.class).findFirst().get();
     }
 }

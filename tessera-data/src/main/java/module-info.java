@@ -34,4 +34,7 @@ open module tessera.tessera.data.main {
 
     provides com.quorum.tessera.data.DataSourceFactory with
         com.quorum.tessera.data.DataSourceFactoryProvider;
+
+    provides com.quorum.tessera.data.MessageHashFactory with
+        com.quorum.tessera.data.MessageHashFactoryImpl;
 }

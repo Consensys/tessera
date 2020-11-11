@@ -243,7 +243,7 @@ public class TransactionManagerImpl implements TransactionManager {
                                                         .orElseThrow(
                                                                 () -> {
                                                                     final MessageHash hash =
-                                                                            MessageHashFactory.create()
+                                                                            messageHashFactory
                                                                                     .createFromCipherText(
                                                                                             payload.getCipherText());
                                                                     return new RecipientKeyNotFoundException(

@@ -9,7 +9,6 @@ import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedExcep
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.*;
@@ -25,18 +24,37 @@ public class PrivacyHelperTest {
 
     private EncryptedTransactionDAO encryptedTransactionDAO;
 
+    private PayloadEncoder payloadEncoder;
+
     @Before
     public void setUp() {
         encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
-        privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, true);
+        payloadEncoder = mock(PayloadEncoder.class);
+        privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, true,payloadEncoder);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(encryptedTransactionDAO);
+        verifyNoMoreInteractions(encryptedTransactionDAO,payloadEncoder);
     }
 
-    @Ignore
+    @Test
+    public void create() {
+        try(var mockedServiceLoader = mockStatic(ServiceLoader.class)) {
+            PrivacyHelper privacyHelper = mock(PrivacyHelper.class);
+            ServiceLoader serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(privacyHelper));
+            mockedServiceLoader.when(() -> ServiceLoader.load(PrivacyHelper.class)).thenReturn(serviceLoader);
+            PrivacyHelper.create();
+            mockedServiceLoader.verify(() -> ServiceLoader.load(PrivacyHelper.class));
+            verify(serviceLoader).findFirst();
+
+            mockedServiceLoader.verifyNoMoreInteractions();
+            verifyNoMoreInteractions(serviceLoader);
+            verifyNoInteractions(privacyHelper);
+        }
+    }
+
     @Test
     public void findAffectedContractTransactionsFromSendRequestFound() {
 
@@ -46,9 +64,13 @@ public class PrivacyHelperTest {
         EncryptedTransaction et1 = mock(EncryptedTransaction.class);
         when(et1.getEncodedPayload()).thenReturn("payload1".getBytes());
         when(et1.getHash()).thenReturn(hash1);
+
         EncryptedTransaction et2 = mock(EncryptedTransaction.class);
         when(et2.getEncodedPayload()).thenReturn("payload2".getBytes());
         when(et2.getHash()).thenReturn(hash2);
+
+        when(payloadEncoder.decode(any(byte[].class)))
+            .thenReturn(mock(EncodedPayload.class));
 
         when(encryptedTransactionDAO.findByHashes(anyCollection())).thenReturn(List.of(et1, et2));
 
@@ -59,6 +81,8 @@ public class PrivacyHelperTest {
         assertThat(affectedTransactions.size()).isEqualTo(2);
 
         verify(encryptedTransactionDAO).findByHashes(any());
+        verify(payloadEncoder,times(2)).decode(any(byte[].class));
+
     }
 
     @Test
@@ -195,7 +219,6 @@ public class PrivacyHelperTest {
                 .withMessage("Recipients mismatched for Affected Txn " + hash.encodeToBase64());
     }
 
-    @Ignore
     @Test
     public void findAffectedContractTransactionsFromPayload() {
 
@@ -208,6 +231,9 @@ public class PrivacyHelperTest {
         when(et1.getEncodedPayload()).thenReturn("payload1".getBytes());
         when(et1.getHash()).thenReturn(new MessageHash("Hash1".getBytes()));
 
+        when(payloadEncoder.decode(any(byte[].class)))
+            .thenReturn(mock(EncodedPayload.class));
+
         when(payload.getAffectedContractTransactions()).thenReturn(affected);
         when(encryptedTransactionDAO.findByHashes(any())).thenReturn(singletonList(et1));
 
@@ -216,6 +242,8 @@ public class PrivacyHelperTest {
         assertThat(result).hasSize(1);
 
         verify(encryptedTransactionDAO).findByHashes(any());
+
+        verify(payloadEncoder).decode(any(byte[].class));
     }
 
     @Test
@@ -435,7 +463,7 @@ public class PrivacyHelperTest {
 
     @Test
     public void throwExceptionForSendRequestWhenPrivacyNotEnabled() {
-        final PrivacyHelper anotherHelper = new PrivacyHelperImpl(encryptedTransactionDAO, false);
+        final PrivacyHelper anotherHelper = new PrivacyHelperImpl(encryptedTransactionDAO, false,payloadEncoder);
 
         assertThatExceptionOfType(EnhancedPrivacyNotSupportedException.class)
                 .isThrownBy(
@@ -447,7 +475,7 @@ public class PrivacyHelperTest {
 
     @Test
     public void throwExceptionForPayloadWhenPrivacyNotEnabled() {
-        final PrivacyHelper anotherHelper = new PrivacyHelperImpl(encryptedTransactionDAO, false);
+        final PrivacyHelper anotherHelper = new PrivacyHelperImpl(encryptedTransactionDAO, false,payloadEncoder);
 
         EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);

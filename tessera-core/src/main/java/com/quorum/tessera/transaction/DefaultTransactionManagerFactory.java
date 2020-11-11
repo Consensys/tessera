@@ -28,6 +28,7 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
     public TransactionManager create(Config config) {
 
         if (Objects.nonNull(REF.get())) {
+            LOGGER.debug("Returning stored TransactionManager {}",REF.get());
             return REF.get();
         }
 

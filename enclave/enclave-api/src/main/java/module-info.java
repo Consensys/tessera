@@ -17,4 +17,7 @@ module tessera.enclave.enclave.api.main {
     uses com.quorum.tessera.enclave.EnclaveClientFactory;
 
     opens com.quorum.tessera.enclave to org.eclipse.persistence.moxy;
+
+    provides com.quorum.tessera.enclave.PayloadEncoder with
+        com.quorum.tessera.enclave.PayloadEncoderImpl;
 }

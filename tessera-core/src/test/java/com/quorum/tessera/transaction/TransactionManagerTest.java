@@ -57,7 +57,7 @@ public class TransactionManagerTest {
         encryptedRawTransactionDAO = mock(EncryptedRawTransactionDAO.class);
         payloadPublisher = mock(PayloadPublisher.class);
         this.resendManager = mock(ResendManager.class);
-        this.privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, true);
+        this.privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, true,payloadEncoder);
         batchPayloadPublisher = mock(BatchPayloadPublisher.class);
         transactionManager =
                 new TransactionManagerImpl(
@@ -886,7 +886,7 @@ public class TransactionManagerTest {
         verify(enclave).unencryptTransaction(payload, localKey);
     }
 
-    @Ignore
+@Ignore
     @Test
     public void resendAllWhereRequestedIsSenderAndRecipientDoesntExist() {
 
@@ -909,16 +909,18 @@ public class TransactionManagerTest {
                         .withType(ResendRequest.ResendRequestType.ALL)
                         .build();
 
-        final Throwable throwable = catchThrowable(() -> transactionManager.resend(resendRequest));
 
-        assertThat(throwable)
+            final Throwable throwable = catchThrowable(() -> transactionManager.resend(resendRequest));
+
+            assertThat(throwable)
                 .isInstanceOf(RecipientKeyNotFoundException.class)
                 .hasMessage("No key found as recipient of message Q0lQSEVSVEVYVA==");
 
-        verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
-        verify(encryptedTransactionDAO, times(1)).transactionCount();
-        verify(payloadEncoder).decode(encodedData);
-        verify(enclave).getPublicKeys();
+            verify(encryptedTransactionDAO).retrieveTransactions(anyInt(), anyInt());
+            verify(encryptedTransactionDAO, times(1)).transactionCount();
+            verify(payloadEncoder).decode(encodedData);
+            verify(enclave).getPublicKeys();
+
     }
 
     @Test

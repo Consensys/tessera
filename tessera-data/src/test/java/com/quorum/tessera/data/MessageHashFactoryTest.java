@@ -1,15 +1,14 @@
 package com.quorum.tessera.data;
 
-import com.quorum.tessera.data.MessageHashFactory;
-import com.quorum.tessera.data.MessageHash;
-import static org.assertj.core.api.Assertions.*;
 import org.junit.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class MessageHashFactoryTest {
 
     @Test
     public void createFromCiperText() {
-        MessageHashFactory messageHashFactory = new MessageHashFactory() {};
+        MessageHashFactory messageHashFactory = new MessageHashFactoryImpl();
         String cipherText = "cipherText";
         MessageHash messageHash = messageHashFactory.createFromCipherText(cipherText.getBytes());
 
@@ -18,6 +17,7 @@ public class MessageHashFactoryTest {
 
     @Test
     public void create() {
-        assertThat(MessageHashFactory.create()).isNotNull();
+        assertThat(MessageHashFactory.create()).isNotNull()
+            .isExactlyInstanceOf(MessageHashFactoryImpl.class);
     }
 }

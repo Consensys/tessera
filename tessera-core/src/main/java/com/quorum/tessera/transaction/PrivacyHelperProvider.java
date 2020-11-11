@@ -1,8 +1,8 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,11 +11,12 @@ public class PrivacyHelperProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(PrivacyHelperProvider.class);
 
     public static PrivacyHelper provider() {
+        RuntimeContext runtimeContext = RuntimeContext.getInstance();
         LOGGER.debug("Creating PrivacyHelper");
-        Config config = ConfigFactory.create().getConfig();
-        boolean privacyEnabled = config.getFeatures().isEnablePrivacyEnhancements();
+        boolean privacyEnabled = runtimeContext.isEnhancedPrivacy();
         EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
-        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO,privacyEnabled);
+        PayloadEncoder payloadEncoder = PayloadEncoder.create();
+        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO,privacyEnabled,payloadEncoder);
         LOGGER.debug("Created PrivacyHelper {}",privacyHelper);
         return privacyHelper;
     }
