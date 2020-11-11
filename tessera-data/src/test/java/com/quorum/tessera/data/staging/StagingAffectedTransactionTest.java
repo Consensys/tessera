@@ -2,6 +2,8 @@ package com.quorum.tessera.data.staging;
 
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StagingAffectedTransactionTest {
@@ -37,5 +39,10 @@ public class StagingAffectedTransactionTest {
         assertThat(affectedContractTransaction).isNotEqualTo(null);
         assertThat(affectedContractTransaction).isNotEqualTo(differentHash);
         assertThat(affectedContractTransaction).isNotEqualTo(differentSourceTx);
+
+
+        assertThat(affectedContractTransaction.equals(affectedContractTransaction)).isTrue();
+        assertThat(affectedContractTransaction.equals(null)).isFalse();
+        assertThat(affectedContractTransaction.equals(Map.of())).isFalse();
     }
 }

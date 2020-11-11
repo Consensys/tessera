@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
 public class StagingEntityDAOTest {
@@ -35,8 +36,10 @@ public class StagingEntityDAOTest {
         this.testConfig = testConfig;
     }
 
+
+
     @Before
-    public void init() throws Exception {
+    public void beforeTest() throws Exception {
 
         Map properties = new HashMap();
         properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
@@ -58,7 +61,7 @@ public class StagingEntityDAOTest {
     }
 
     @After
-    public void clear() throws Exception {
+    public void afterTest() throws Exception {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
         //    entityManager.createQuery("delete from StagingTransactionVersion").executeUpdate();
@@ -367,6 +370,22 @@ public class StagingEntityDAOTest {
         transactions.put("TXN5", stTransaction5);
         transactions.put("TXN7", stTransaction7);
         return transactions;
+    }
+
+    @Test
+    public void createStagingEntityDAOFromServiceLoader() {
+        try(var mockedServiceLoader = mockStatic(ServiceLoader.class)) {
+            ServiceLoader serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(mock(StagingEntityDAO.class)));
+            mockedServiceLoader.when(() -> ServiceLoader.load(StagingEntityDAO.class)).thenReturn(serviceLoader);
+
+            StagingEntityDAO.create();
+
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
+            mockedServiceLoader.verify(() -> ServiceLoader.load(StagingEntityDAO.class));
+            mockedServiceLoader.verifyNoMoreInteractions();
+        }
     }
 
     @Parameterized.Parameters(name = "DB {0}")

@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.Base64;
 import java.util.Collections;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -55,6 +56,10 @@ public class StagingTransactionTest {
         assertThat(txn).isNotEqualTo(null);
         assertThat(txn).isNotEqualTo(new StagingTransaction());
         assertThat(new StagingTransaction()).isNotEqualTo(new StagingTransaction());
+
+        assertThat(txn.equals(txn)).isTrue();
+        assertThat(txn.equals(null)).isFalse();
+        assertThat(txn.equals(Map.of())).isFalse();
     }
 
 
