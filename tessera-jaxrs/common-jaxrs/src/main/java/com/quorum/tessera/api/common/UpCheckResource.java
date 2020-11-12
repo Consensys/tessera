@@ -50,9 +50,9 @@ public class UpCheckResource {
         LOGGER.info("GET upcheck");
 
         if (!transactionManager.upcheck()) {
-            return Response.ok(new String(UPCHECK_RESPONSE_DB)).build();
+            return Response.ok(UPCHECK_RESPONSE_DB).build();
         }
 
-        return Response.ok(new String(UPCHECK_RESPONSE_IS_UP)).build();
+        return Response.ok(UPCHECK_RESPONSE_IS_UP).build();
     }
 }
