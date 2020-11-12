@@ -4,7 +4,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.IntervalPropertyHelper;
 import com.quorum.tessera.discovery.EnclaveKeySynchroniser;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoBroadcaster;
 import com.quorum.tessera.p2p.resend.ResendPartyStore;
 import com.quorum.tessera.p2p.resend.ResendPartyStoreImpl;
@@ -86,7 +85,7 @@ public class ScheduledServiceFactory {
 
         LOGGER.info("Creating Enclave");
 
-        Enclave enclave = EnclaveFactory.create().create(config);
+        Enclave enclave = Enclave.create();
         LOGGER.info("Created Enclave {}", enclave);
 
         serviceContainer = new ServiceContainer(enclave);

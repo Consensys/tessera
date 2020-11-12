@@ -409,6 +409,25 @@ public class EncryptedTransactionDAOTest {
         }
     }
 
+    @Test
+    public void create() {
+        try(var mockedServiceLoader = mockStatic(ServiceLoader.class)) {
+
+            ServiceLoader serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(mock(EncryptedTransactionDAO.class)));
+
+            mockedServiceLoader.when(() -> ServiceLoader.load(EncryptedTransactionDAO.class)).thenReturn(serviceLoader);
+
+            EncryptedTransactionDAO.create();
+
+            mockedServiceLoader.verify(() -> ServiceLoader.load(EncryptedTransactionDAO.class));
+            mockedServiceLoader.verifyNoMoreInteractions();
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
+
+        }
+    }
+
     @Parameterized.Parameters(name = "DB {0}")
     public static Collection<TestConfig> connectionDetails() {
         return List.of(TestConfig.values());

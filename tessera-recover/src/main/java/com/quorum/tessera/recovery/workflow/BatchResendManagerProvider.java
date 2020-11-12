@@ -6,7 +6,6 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisherFactory;
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ public class BatchResendManagerProvider {
         final Config config = ConfigFactory.create().getConfig();
 
         final Discovery discovery = Discovery.getInstance();
-        final Enclave enclave = EnclaveFactory.create().create(config);
+        final Enclave enclave = Enclave.create();
         LOGGER.debug("Creating EncryptedTransactionDAO");
         final EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
         LOGGER.debug("Created EncryptedTransactionDAO {}",encryptedTransactionDAO);

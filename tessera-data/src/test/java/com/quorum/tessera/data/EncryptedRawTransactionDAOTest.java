@@ -10,6 +10,8 @@ import javax.persistence.*;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(Parameterized.class)
 public class EncryptedRawTransactionDAOTest {
@@ -278,6 +280,24 @@ public class EncryptedRawTransactionDAOTest {
         assertThat(retrieved.getTimestamp()).isNotZero();
     }
 
+    @Test
+    public void create() {
+        try(var mockedServiceLoader = mockStatic(ServiceLoader.class)) {
+
+            ServiceLoader serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(mock(EncryptedRawTransactionDAO.class)));
+
+            mockedServiceLoader.when(() -> ServiceLoader.load(EncryptedRawTransactionDAO.class)).thenReturn(serviceLoader);
+
+            EncryptedRawTransactionDAO.create();
+
+            mockedServiceLoader.verify(() -> ServiceLoader.load(EncryptedRawTransactionDAO.class));
+            mockedServiceLoader.verifyNoMoreInteractions();
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
+
+        }
+    }
     @Parameterized.Parameters(name = "DB {0}")
     public static Collection<TestConfig> connectionDetails() {
 

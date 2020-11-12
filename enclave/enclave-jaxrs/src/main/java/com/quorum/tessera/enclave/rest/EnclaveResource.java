@@ -1,18 +1,22 @@
 package com.quorum.tessera.enclave.rest;
 
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
 
+import javax.json.Json;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.StreamingOutput;
-import java.util.*;
-import java.util.stream.Collectors;
-import javax.json.Json;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Path("/")
 public class EnclaveResource {
@@ -21,8 +25,9 @@ public class EnclaveResource {
 
     private final PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-    public EnclaveResource(Enclave enclave) {
-        this.enclave = Objects.requireNonNull(enclave);
+    public EnclaveResource() {
+        Config config = ConfigFactory.create().getConfig();
+        this.enclave = EnclaveFactory.createServer(config);
     }
 
     @GET

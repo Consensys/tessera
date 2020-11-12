@@ -32,8 +32,6 @@ public class AutoDiscoveryTest {
         verifyNoMoreInteractions(networkStore);
     }
 
-
-
     @Test
     public void onUpdateIgnoresKeysThatAreNotOwnedBySender() {
 
@@ -66,6 +64,7 @@ public class AutoDiscoveryTest {
         assertThat(result.getKeys()).containsExactly(key);
         assertThat(result.getSupportedVersions()).containsExactlyInAnyOrder("Two","Fifty");
         verify(networkStore).store(any(ActiveNode.class));
+
 
     }
 

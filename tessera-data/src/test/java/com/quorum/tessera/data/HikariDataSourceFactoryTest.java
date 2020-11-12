@@ -47,6 +47,10 @@ public class HikariDataSourceFactoryTest {
         assertThat(hikariDataSource.getUsername()).isEqualTo(username);
         assertThat(hikariDataSource.getPassword()).isEqualTo(password);
 
+        assertThat(dataSource)
+            .describedAs("Second call returns same instance")
+            .isSameAs(dataSourceFactory.create(jdbcConfig));
+
     }
 
 }

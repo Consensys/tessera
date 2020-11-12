@@ -1,0 +1,72 @@
+{
+    "type" : "config",
+    "useWhiteList" : false,
+    "disablePeerDiscovery" : false,
+    "bootstrapNode" : false,
+    "jdbc" : {
+        "username" : "scott",
+        "password" : "tiger",
+        "url" : "foo:bar",
+        "autoCreateTables" : false,
+        "fetchSize" : 0
+    },
+    "serverConfigs" : [ {
+        "enabled" : "true",
+        "app" : "ThirdParty",
+        "communicationType" : "REST",
+        "serverAddress" : "http://localhost:8090",
+        "properties" : {
+        }
+    }, {
+        "enabled" : "true",
+        "app" : "Q2T",
+        "communicationType" : "REST",
+        "serverAddress" : "unix:/tmp/test.ipc",
+        "properties" : {
+        }
+    }, {
+        "enabled" : "true",
+        "app" : "P2P",
+        "communicationType" : "REST",
+        "sslConfig" : {
+            "tls" : "OFF",
+            "generateKeyStoreIfNotExisted" : false,
+            "serverKeyStore" : "/Users/mark/Projects/tessera/enclave/enclave-api/./ssl/server1-keystore",
+            "serverKeyStorePassword" : "quorum",
+            "serverTrustStore" : "/Users/mark/Projects/tessera/enclave/enclave-api/./ssl/server-truststore",
+            "serverTrustStorePassword" : "quorum",
+            "serverTrustMode" : "CA",
+            "clientKeyStore" : "/Users/mark/Projects/tessera/enclave/enclave-api/./ssl/client1-keystore",
+            "clientKeyStorePassword" : "quorum",
+            "clientTrustStore" : "/Users/mark/Projects/tessera/enclave/enclave-api/./ssl/client-truststore",
+            "clientTrustStorePassword" : "quorum",
+            "clientTrustMode" : "CA",
+            "knownClientsFile" : "/Users/mark/Projects/tessera/enclave/enclave-api/./ssl/knownClients1",
+            "knownServersFile" : "/Users/mark/Projects/tessera/enclave/enclave-api/./ssl/knownServers1"
+        },
+        "serverAddress" : "http://localhost:8091",
+        "properties" : {
+        }
+    } ],
+    "peer" : [ {
+        "url" : "http://bogus1.com"
+    }, {
+        "url" : "http://bogus2.com"
+    } ],
+    "keys" : {
+        "passwords" : [ ],
+        "keyData" : {
+            "privateKey" : "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=",
+            "publicKey" : "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="
+        }
+    },
+    "alwaysSendTo" : [ ],
+    "unixSocketFile" : "/Users/mark/Projects/tessera/enclave/enclave-api/${unixSocketPath}",
+    "features" : {
+        "enableRemoteKeyValidation" : false,
+        "enablePrivacyEnhancements" : false
+    },
+    "encryptor" : {
+        "type" : "NACL"
+    }
+}

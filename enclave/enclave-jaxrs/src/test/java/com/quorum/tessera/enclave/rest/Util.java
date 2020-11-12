@@ -4,10 +4,9 @@ import com.quorum.tessera.enclave.Enclave;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-
-import javax.ws.rs.core.Application;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import javax.ws.rs.core.Application;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,7 +25,7 @@ public class Util {
                 enable(TestProperties.LOG_TRAFFIC);
                 enable(TestProperties.DUMP_ENTITY);
                 set(TestProperties.CONTAINER_PORT,new Util.PortUtil().nextPort());
-                EnclaveApplication application = new EnclaveApplication(new EnclaveResource(enclave));
+                EnclaveApplication application = new EnclaveApplication();
 
                 ResourceConfig config = ResourceConfig.forApplication(application);
                 config.packages("com.quorum.tessera.enclave.rest");

@@ -5,23 +5,21 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.service.Service;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
-
-import static com.quorum.tessera.enclave.rest.Fixtures.createSample;
-import com.quorum.tessera.service.Service;
-
 import java.util.*;
 
+import static com.quorum.tessera.enclave.rest.Fixtures.createSample;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
 @Ignore
@@ -174,12 +172,12 @@ public class EnclaveApplicationTest {
 
     @Test
     public void appType() {
-        assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getAppType()).isEqualTo(AppType.ENCLAVE);
+        assertThat(new EnclaveApplication().getAppType()).isEqualTo(AppType.ENCLAVE);
     }
 
     @Test
     public void getCommunicationType() {
-        assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getCommunicationType())
+        assertThat(new EnclaveApplication().getCommunicationType())
                 .isEqualTo(CommunicationType.REST);
     }
 }

@@ -19,16 +19,16 @@ module tessera.tessera.partyinfo.main {
     uses com.quorum.tessera.discovery.Discovery;
 
     provides com.quorum.tessera.discovery.Discovery with
-        com.quorum.tessera.discovery.DiscoveryFactory;
+        com.quorum.tessera.discovery.DiscoveryProvider;
 
     provides com.quorum.tessera.discovery.DiscoveryHelper
-        with com.quorum.tessera.discovery.DiscoveryHelperFactory;
+        with com.quorum.tessera.discovery.DiscoveryHelperProvider;
 
     provides com.quorum.tessera.discovery.EnclaveKeySynchroniser with
-        com.quorum.tessera.discovery.EnclaveKeySynchroniserFactory;
+        com.quorum.tessera.discovery.EnclaveKeySynchroniserProvider;
 
     provides com.quorum.tessera.discovery.NetworkStore with
-        com.quorum.tessera.discovery.NetworkStoreFactory;
+        com.quorum.tessera.discovery.NetworkStoreProvider;
 
 
 }

@@ -2,7 +2,6 @@ package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +17,7 @@ public class ResendManagerProvider {
 
         LOGGER.debug("Creating Enclave");
 
-        final Enclave enclave = EnclaveFactory.create().enclave().get();
+        final Enclave enclave = Enclave.create();
         LOGGER.debug("Created Enclave {}",enclave);
 
 

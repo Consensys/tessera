@@ -5,7 +5,7 @@ plugins {
 application {
     mainClassName = "com.quorum.tessera.enclave.rest.Main"
     applicationDefaultJvmArgs = ["-Dtessera.cli.type=ENCLAVE"]
-    startScripts.enabled = false
+    startScripts.enabled = true
 }
 
 dependencies {
@@ -60,3 +60,13 @@ dependencies {
     testImplementation "org.bouncycastle:bcprov-jdk15on"
 }
 
+distZip {
+    exclude("**/jakarta.activation-1.2.2.jar")
+    exclude("**/jakarta.inject-2.6.1.jar")
+    exclude("**/jffi-1.2.23.jar")
+}
+distTar {
+    exclude("**/jakarta.activation-1.2.2.jar")
+    exclude("**/jakarta.inject-2.6.1.jar")
+    exclude("**/jffi-1.2.23.jar")
+}

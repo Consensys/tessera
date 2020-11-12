@@ -1,16 +1,18 @@
 package com.quorum.tessera.p2p.resend;
 
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.discovery.DiscoveryFactory;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.partyinfo.P2pClient;
-import com.quorum.tessera.partyinfo.model.*;
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.PartyInfoBuilder;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.Set;
+
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -39,7 +41,7 @@ public class SyncPoller implements Runnable {
             Executors.newCachedThreadPool(),
             resendPartyStore,
             transactionRequester,
-            DiscoveryFactory.provider(),
+            Discovery.getInstance(),
             PartyInfoParser.create(),
             p2pClient);
     }

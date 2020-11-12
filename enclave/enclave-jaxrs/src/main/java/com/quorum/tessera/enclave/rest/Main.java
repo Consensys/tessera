@@ -4,9 +4,8 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.server.EnclaveCliAdapter;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
@@ -14,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.util.Collections;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 public class Main {
@@ -42,18 +41,14 @@ public class Main {
 
         final Config config = cliResult.getConfig().get();
 
-        final Enclave enclave = EnclaveFactory.createServer(config);
-
-        final EnclaveResource enclaveResource = new EnclaveResource(enclave);
-
-        final EnclaveApplication application = new EnclaveApplication(enclaveResource);
+        ConfigFactory.create().store(config);
 
         final ServerConfig serverConfig = config.getServerConfigs()
                                                 .stream()
                                                 .findFirst()
                                                 .get();
 
-        final TesseraServer server = restServerFactory.createServer(serverConfig, Collections.singleton(application));
+        final TesseraServer server = restServerFactory.createServer(serverConfig, Set.of(new EnclaveApplication()));
         server.start();
 
         CountDownLatch latch = new CountDownLatch(1);
