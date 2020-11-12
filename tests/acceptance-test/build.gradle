@@ -90,18 +90,16 @@ test {
 
     include(
             "**/RecoverIT.class",
-            "**/RestSuiteHttpH2RemoteEnclave.class",
+    //        "**/RestSuiteHttpH2RemoteEnclave.class",
 //            "**/RestSuiteHttpHSQL.class",
-            "**/RestSuiteUnixH2.class",
-            "**/RestSuiteHttpSqllite.class",
+          //  "**/RestSuiteUnixH2.class",
+       //     "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
-            "**/SendWithRemoteEnclaveReconnectIT.class",
-            "**/RestSuiteHttpqlite.class",
-//            "**/CucumberWhitelistIT.class",
-            "**/ConfigMigrationIT.class",
+         //   "**/SendWithRemoteEnclaveReconnectIT.class",
+        //    "**/CucumberWhitelistIT.class",
+    //        "**/ConfigMigrationIT.class",
             "**/P2pTestSuite.class",
 //            "**/CucumberFileKeyGenerationIT.class",
-            "**/P2pTestSuite.class",
 //            "**/RunAwsIT.class",
 //            "**/RunAzureIT.class"
     )

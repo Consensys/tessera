@@ -1,0 +1,2 @@
+--add-opens
+    tessera.tessera.recover.main/com.quorum.tessera.recovery=org.mockito

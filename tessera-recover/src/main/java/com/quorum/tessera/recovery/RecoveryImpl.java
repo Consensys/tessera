@@ -20,10 +20,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
-public class RecoveryImpl implements Recovery {
+class RecoveryImpl implements Recovery {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RecoveryImpl.class);
 
@@ -39,7 +40,7 @@ public class RecoveryImpl implements Recovery {
 
     private final PayloadEncoder payloadEncoder;
 
-    public RecoveryImpl(
+    RecoveryImpl(
             StagingEntityDAO stagingEntityDAO,
             Discovery discovery,
             BatchTransactionRequester transactionRequester,
@@ -148,5 +149,40 @@ public class RecoveryImpl implements Recovery {
             return RecoveryResult.PARTIAL_SUCCESS;
         }
         return RecoveryResult.SUCCESS;
+    }
+
+    @Override
+    public int recover() {
+
+        final long startTime = System.nanoTime();
+
+        LOGGER.debug("Requesting transactions from other nodes");
+        final RecoveryResult resendResult = request();
+
+        final long resendFinished = System.nanoTime();
+
+        LOGGER.debug("Perform staging of transactions");
+        final RecoveryResult stageResult = stage();
+
+        final long stagingFinished = System.nanoTime();
+
+        LOGGER.debug("Perform synchronisation of transactions");
+        final RecoveryResult syncResult = sync();
+
+        final long syncFinished = System.nanoTime();
+
+        LOGGER.info(
+            "Resend Stage: {} (duration = {} ms). Staging Stage: {} (duration = {} ms). Sync Stage: {} (duration = {} ms)",
+            resendResult,
+            (resendFinished - startTime) / 1000000,
+            stageResult,
+            (stagingFinished - resendFinished) / 1000000,
+            syncResult,
+            (syncFinished - stagingFinished) / 1000000);
+
+        final long endTime = System.nanoTime();
+        LOGGER.info("Recovery process took {} ms", (endTime - startTime) / 1000000);
+
+        return Stream.of(resendResult, stageResult, syncResult).map(RecoveryResult::getCode).reduce(Integer::max).get();
     }
 }

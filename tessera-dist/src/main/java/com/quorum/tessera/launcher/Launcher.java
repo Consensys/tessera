@@ -4,7 +4,7 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.apps.TesseraApp;
-import com.quorum.tessera.recovery.RecoveryFactory;
+import com.quorum.tessera.recovery.Recovery;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
 import org.slf4j.Logger;
@@ -108,7 +108,7 @@ public enum Launcher {
             LOGGER.info("Waiting for nodes to synchronise with peers");
             Thread.sleep(10000);
 
-            final int exitCode = RecoveryFactory.newFactory().create(config).recover();
+            final int exitCode = Recovery.create().recover();
 
             System.exit(exitCode);
         }

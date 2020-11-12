@@ -28,6 +28,7 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
     uses com.quorum.tessera.p2p.recovery.RecoveryClientFactory;
     uses com.quorum.tessera.p2p.resend.ResendClientFactory;
 
+
     opens com.quorum.tessera.p2p.resend to org.eclipse.persistence.moxy,org.hibernate.validator,org.eclipse.persistence.core;
 
     provides com.quorum.tessera.p2p.resend.TransactionRequesterFactory with com.quorum.tessera.p2p.resend.TransactionRequesterFactoryImpl;
@@ -41,14 +42,15 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
 
     provides com.quorum.tessera.partyinfo.P2pClientFactory with com.quorum.tessera.p2p.partyinfo.RestP2pClientFactory;
 
-    provides com.quorum.tessera.recovery.resend.BatchTransactionRequesterFactory with com.quorum.tessera.p2p.recovery.RestBatchTransactionRequesterFactory;
-
-    provides com.quorum.tessera.recovery.resend.ResendBatchPublisherFactory with com.quorum.tessera.p2p.recovery.RestResendBatchPublisherFactory;
 
 //    provides com.quorum.tessera.transaction.publish.PayloadPublisherFactory with
 //        com.quorum.tessera.q2t.RestPayloadPublisherFactory;
 
     provides com.quorum.tessera.api.Version with com.quorum.tessera.p2p.Version;
 
+    provides com.quorum.tessera.recovery.resend.BatchTransactionRequester with
+        com.quorum.tessera.p2p.recovery.BatchTransactionRequesterProvider;
 
+    provides com.quorum.tessera.recovery.resend.ResendBatchPublisher with
+        com.quorum.tessera.p2p.recovery.ResendBatchPublisherProvider;
 }

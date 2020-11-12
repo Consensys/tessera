@@ -15,6 +15,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -315,48 +317,65 @@ public class RecoveryTest extends RecoveryTestCase {
     @Test
     public void testRecoverSuccess() {
 
-        final Recovery recovery = spy(Recovery.class);
+        final Recovery spy = spy(recovery);
 
-        when(recovery.request()).thenReturn(RecoveryResult.SUCCESS);
-        when(recovery.stage()).thenReturn(RecoveryResult.SUCCESS);
-        when(recovery.sync()).thenReturn(RecoveryResult.SUCCESS);
+        doReturn(RecoveryResult.SUCCESS).when(spy).request();
+        doReturn(RecoveryResult.SUCCESS).when(spy).stage();
+        doReturn(RecoveryResult.SUCCESS).when(spy).sync();
 
-        assertThat(recovery.recover()).isEqualTo(0);
 
-        verify(recovery).request();
-        verify(recovery).stage();
-        verify(recovery).sync();
+        assertThat(spy.recover()).isEqualTo(0);
+
+        verify(spy).request();
+        verify(spy).stage();
+        verify(spy).sync();
     }
 
     @Test
     public void testRecoverPartialSuccess() {
 
-        final Recovery recovery = spy(Recovery.class);
+        final Recovery spy = spy(recovery);
 
-        when(recovery.request()).thenReturn(RecoveryResult.PARTIAL_SUCCESS);
-        when(recovery.stage()).thenReturn(RecoveryResult.PARTIAL_SUCCESS);
-        when(recovery.sync()).thenReturn(RecoveryResult.SUCCESS);
+        doReturn(RecoveryResult.PARTIAL_SUCCESS).when(spy).request();
+        doReturn(RecoveryResult.PARTIAL_SUCCESS).when(spy).stage();
+        doReturn(RecoveryResult.SUCCESS).when(spy).sync();
 
-        assertThat(recovery.recover()).isEqualTo(1);
+        assertThat(spy.recover()).isEqualTo(1);
 
-        verify(recovery).request();
-        verify(recovery).stage();
-        verify(recovery).sync();
+        verify(spy).request();
+        verify(spy).stage();
+        verify(spy).sync();
     }
 
     @Test
     public void testRecoverFailed() {
 
-        final Recovery recovery = spy(Recovery.class);
+        final Recovery spy = spy(recovery);
 
-        when(recovery.request()).thenReturn(RecoveryResult.FAILURE);
-        when(recovery.stage()).thenReturn(RecoveryResult.PARTIAL_SUCCESS);
-        when(recovery.sync()).thenReturn(RecoveryResult.SUCCESS);
+        doReturn(RecoveryResult.FAILURE).when(spy).request();
+        doReturn(RecoveryResult.PARTIAL_SUCCESS).when(spy).stage();
+        doReturn(RecoveryResult.SUCCESS).when(spy).sync();
 
-        assertThat(recovery.recover()).isEqualTo(2);
+        assertThat(spy.recover()).isEqualTo(2);
 
-        verify(recovery).request();
-        verify(recovery).stage();
-        verify(recovery).sync();
+        verify(spy).request();
+        verify(spy).stage();
+        verify(spy).sync();
+    }
+
+    @Test
+    public void create() {
+        Recovery expected = mock(Recovery.class);
+        Recovery result;
+        try(var staticServiceLoader = mockStatic(ServiceLoader.class)) {
+            ServiceLoader<Recovery> serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
+            staticServiceLoader.when(() -> ServiceLoader.load(Recovery.class)).thenReturn(serviceLoader);
+
+            result = Recovery.create();
+        }
+
+        assertThat(result).isNotNull().isSameAs(expected);
+
     }
 }

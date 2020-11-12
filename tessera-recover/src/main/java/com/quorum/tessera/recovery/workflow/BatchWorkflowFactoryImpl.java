@@ -6,38 +6,27 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 
 public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
 
-    private Enclave enclave;
+    private final Enclave enclave;
 
-    private PayloadEncoder payloadEncoder;
+    private final PayloadEncoder payloadEncoder;
 
-    private Discovery discovery;
+    private final Discovery discovery;
 
-    private ResendBatchPublisher resendBatchPublisher;
+    private final ResendBatchPublisher resendBatchPublisher;
 
-    private long transactionCount;
+    private final long transactionCount;
 
-    public void setEnclave(Enclave enclave) {
-        this.enclave = enclave;
-    }
-
-    public void setPayloadEncoder(PayloadEncoder payloadEncoder) {
-        this.payloadEncoder = payloadEncoder;
-    }
-
-    public void setDiscovery(Discovery discovery) {
-        this.discovery = discovery;
-    }
-
-    public void setResendBatchPublisher(ResendBatchPublisher resendBatchPublisher) {
-        this.resendBatchPublisher = resendBatchPublisher;
-    }
-
-    public void setTransactionCount(long transactionCount) {
+    public BatchWorkflowFactoryImpl(Enclave enclave, PayloadEncoder payloadEncoder, Discovery discovery, ResendBatchPublisher resendBatchPublisher, long transactionCount) {
+        this.enclave = Objects.requireNonNull(enclave);
+        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+        this.discovery = Objects.requireNonNull(discovery);
+        this.resendBatchPublisher = Objects.requireNonNull(resendBatchPublisher);
         this.transactionCount = transactionCount;
     }
 

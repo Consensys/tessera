@@ -87,7 +87,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
         final long batchCount = calculateBatchCount(maxResults, transactionCount);
 
         final BatchWorkflow batchWorkflow =
-                BatchWorkflowFactory.newFactory(
+                new BatchWorkflowFactoryImpl(
                                 enclave, payloadEncoder, discovery, resendBatchPublisher, transactionCount)
                         .create();
 

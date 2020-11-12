@@ -11,7 +11,6 @@ import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import com.quorum.tessera.service.Service;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -29,29 +28,24 @@ public class BatchWorkflowFactoryTest {
 
     @After
     public void onTearDown() {
-        MockBatchWorkflowFactory.reset();
         verifyNoMoreInteractions(enclave, payloadEncoder, discovery, resendBatchPublisher);
     }
 
-    @Ignore
     @Test
     public void loadMockBatchWorkflowFactory() {
 
         BatchWorkflowFactory batchWorkflowFactory =
-                BatchWorkflowFactory.newFactory(enclave, payloadEncoder, discovery, resendBatchPublisher, 99L);
+                new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher, 99L);
 
-        assertThat(batchWorkflowFactory).isExactlyInstanceOf(MockBatchWorkflowFactory.class);
+        assertThat(batchWorkflowFactory)
+            .isExactlyInstanceOf(BatchWorkflowFactoryImpl.class);
     }
 
     @Test
     public void createBatchWorkflowFactoryImplAndExecuteWorkflow() {
 
-        BatchWorkflowFactoryImpl batchWorkflowFactory = new BatchWorkflowFactoryImpl();
-        batchWorkflowFactory.setResendBatchPublisher(resendBatchPublisher);
-        batchWorkflowFactory.setPayloadEncoder(payloadEncoder);
-        batchWorkflowFactory.setEnclave(enclave);
-        batchWorkflowFactory.setDiscovery(discovery);
-        batchWorkflowFactory.setTransactionCount(1L);
+        BatchWorkflowFactoryImpl batchWorkflowFactory =
+            new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher, 1L);
 
         BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
 
@@ -97,12 +91,7 @@ public class BatchWorkflowFactoryTest {
     @Test
     public void workflowExecutedReturnFalse() {
 
-        BatchWorkflowFactoryImpl batchWorkflowFactory = new BatchWorkflowFactoryImpl();
-        batchWorkflowFactory.setResendBatchPublisher(resendBatchPublisher);
-        batchWorkflowFactory.setPayloadEncoder(payloadEncoder);
-        batchWorkflowFactory.setEnclave(enclave);
-        batchWorkflowFactory.setDiscovery(discovery);
-        batchWorkflowFactory.setTransactionCount(999L);
+        BatchWorkflowFactoryImpl batchWorkflowFactory = new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher, 999L);
 
         BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
 

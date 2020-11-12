@@ -14,17 +14,18 @@ module tessera.tessera.recover.main {
     exports com.quorum.tessera.recovery.resend;
     exports com.quorum.tessera.recovery.workflow;
 
-    uses com.quorum.tessera.recovery.RecoveryFactory;
-    uses com.quorum.tessera.recovery.resend.ResendBatchPublisherFactory;
+    uses com.quorum.tessera.recovery.Recovery;
     uses com.quorum.tessera.recovery.workflow.BatchResendManager;
     uses com.quorum.tessera.recovery.workflow.BatchWorkflowFactory;
-    uses com.quorum.tessera.recovery.resend.BatchTransactionRequesterFactory;
+    uses com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 
-    provides com.quorum.tessera.recovery.RecoveryFactory with
-        com.quorum.tessera.recovery.RecoveryFactoryImpl;
+    uses com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 
     provides com.quorum.tessera.recovery.workflow.BatchResendManager with
         com.quorum.tessera.recovery.workflow.BatchResendManagerProvider;
+
+    provides com.quorum.tessera.recovery.Recovery with
+        com.quorum.tessera.recovery.RecoveryProvider;
 
 
 }

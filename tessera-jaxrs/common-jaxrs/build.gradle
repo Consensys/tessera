@@ -45,14 +45,3 @@ jar {
     }
 
 }
-
-//compileJava {
-//    doFirst {
-//        options.compilerArgs = [
-//                "--module-path", classpath.asPath,
-//           //     "--add-modules", "swagger.annotations"
-//        ]
-//        classpath = files()
-//    }
-//}
-

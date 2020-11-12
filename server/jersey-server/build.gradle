@@ -10,7 +10,6 @@ dependencies {
     implementation project(":security")
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-
     implementation "org.glassfish.jersey.media:jersey-media-moxy"
     implementation "org.glassfish.jersey.core:jersey-server"
     implementation("org.glassfish.jersey.ext:jersey-bean-validation") {
@@ -36,17 +35,12 @@ dependencies {
 
     implementation "org.glassfish.hk2:hk2-metadata-generator:2.6.1"
 
-
     testImplementation "org.glassfish.hk2:hk2-metadata-generator:2.6.1"
-
-    // implementation "jakarta.el:jakarta.el-api"
-    //implementation "org.glassfish:jakarta.el"
 
     implementation "jakarta.annotation:jakarta.annotation-api"
 
     testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
 
-   // testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
 }
 
 description = "jersey-server"
@@ -54,25 +48,3 @@ description = "jersey-server"
 jacocoTestCoverageVerification {
     enabled false
 }
-
-
-
-//compileJava {
-//    //inputs.property("moduleName", moduleName)
-//    doFirst {
-//        options.compilerArgs = [
-//                '--module-path', classpath.asPath,
-//             //   '--add-modules', 'jul.to.slf4j',
-//             //   '--add-modules', 'jersey.server',
-//              //  '--add-modules', 'jersey.common',
-//             //   '--add-modules', 'jersey.container.servlet.core',
-//             //   '--add-modules','jersey.bean.validation',
-//              //  '--add-modules','jersey.hk2'
-//              //  '--add-modules','hk2.api'
-//
-//        ]
-//        classpath = files()
-//    }
-//}
-
-

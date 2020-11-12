@@ -1,5 +1,11 @@
 package com.quorum.tessera.recovery.resend;
 
+import com.quorum.tessera.config.CommunicationType;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
+
+import java.util.ServiceLoader;
+
 /**
  * Makes requests to other nodes to resend their transactions
  *
@@ -24,4 +30,18 @@ public interface BatchTransactionRequester {
      * @return
      */
     boolean requestAllTransactionsFromLegacyNode(String url);
+
+    CommunicationType communicationType();
+
+    static BatchTransactionRequester create() {
+        Config config = ConfigFactory.create().getConfig();
+        CommunicationType communicationType = config.getP2PServerConfig().getCommunicationType();
+        return ServiceLoader.load(BatchTransactionRequester.class).stream()
+            .map(ServiceLoader.Provider::get)
+            .filter(s -> s.communicationType() == communicationType)
+            .findFirst()
+            .get();
+
+    }
+
 }

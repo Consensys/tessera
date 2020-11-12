@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p.recovery;
 
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.resend.ResendRequest;
@@ -44,6 +45,11 @@ public class RestBatchTransactionRequester implements BatchTransactionRequester 
         return this.enclave.getPublicKeys().stream()
             .map(this::createLegacyRequest)
             .allMatch(req -> this.makeLegacyRequest(uri, req));
+    }
+
+    @Override
+    public CommunicationType communicationType() {
+        return CommunicationType.REST;
     }
 
     /**
