@@ -3,6 +3,7 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
@@ -48,6 +49,8 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
 
         PrivacyHelper privacyHelper = PrivacyHelper.create();
 
+        MessageHashFactory messageHashFactory = MessageHashFactory.create();
+
         TransactionManager transactionManager =
                 new TransactionManagerImpl(
                         encryptedTransactionDAO,
@@ -57,7 +60,8 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
                         payloadPublisher,
                         batchPayloadPublisher,
                         privacyHelper,
-                        100);
+                        100,
+                        messageHashFactory);
 
         LOGGER.debug("Created TransactionManager");
         REF.set(transactionManager);

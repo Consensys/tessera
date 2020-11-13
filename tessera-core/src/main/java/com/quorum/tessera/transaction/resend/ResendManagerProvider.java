@@ -1,6 +1,7 @@
 package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +21,9 @@ public class ResendManagerProvider {
         final Enclave enclave = Enclave.create();
         LOGGER.debug("Created Enclave {}",enclave);
 
+        MessageHashFactory messageHashFactory = MessageHashFactory.create();
 
-        return new ResendManagerImpl(encryptedTransactionDAO,enclave);
+        return new ResendManagerImpl(encryptedTransactionDAO,enclave,messageHashFactory);
     }
 
 }

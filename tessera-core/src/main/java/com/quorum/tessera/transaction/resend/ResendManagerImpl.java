@@ -9,10 +9,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ResendManagerImpl implements ResendManager {
 
@@ -22,16 +19,17 @@ public class ResendManagerImpl implements ResendManager {
 
     private final Enclave enclave;
 
-    private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
+    private final MessageHashFactory messageHashFactory;
 
-    public ResendManagerImpl(EncryptedTransactionDAO encryptedTransactionDAO, Enclave enclave) {
-        this(encryptedTransactionDAO, PayloadEncoder.create(), enclave);
+    public ResendManagerImpl(EncryptedTransactionDAO encryptedTransactionDAO, Enclave enclave,MessageHashFactory messageHashFactory) {
+        this(encryptedTransactionDAO, PayloadEncoder.create(), enclave,messageHashFactory);
     }
 
-    public ResendManagerImpl(final EncryptedTransactionDAO dao, final PayloadEncoder encoder, final Enclave enclave) {
-        this.encryptedTransactionDAO = dao;
-        this.payloadEncoder = encoder;
-        this.enclave = enclave;
+    public ResendManagerImpl(final EncryptedTransactionDAO dao, final PayloadEncoder encoder, final Enclave enclave,MessageHashFactory messageHashFactory) {
+        this.encryptedTransactionDAO = Objects.requireNonNull(dao);
+        this.payloadEncoder = Objects.requireNonNull(encoder);
+        this.enclave = Objects.requireNonNull(enclave);
+        this.messageHashFactory = Objects.requireNonNull(messageHashFactory);
     }
 
     // TODO: synchronize based on messagehash, so different message don't lock each other

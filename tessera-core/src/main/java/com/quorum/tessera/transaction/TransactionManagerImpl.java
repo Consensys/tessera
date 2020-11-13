@@ -46,7 +46,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final PrivacyHelper privacyHelper;
 
-    private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
+    private final MessageHashFactory messageHashFactory;
 
     private int resendFetchSize;
 
@@ -58,7 +58,7 @@ public class TransactionManagerImpl implements TransactionManager {
             PayloadPublisher payloadPublisher,
             BatchPayloadPublisher batchPayloadPublisher,
             PrivacyHelper privacyHelper,
-            int resendFetchSize) {
+            int resendFetchSize,MessageHashFactory messageHashFactory) {
         this(
                 Base64Codec.create(),
                 PayloadEncoder.create(),
@@ -69,7 +69,8 @@ public class TransactionManagerImpl implements TransactionManager {
                 encryptedRawTransactionDAO,
                 resendManager,
                 privacyHelper,
-                resendFetchSize);
+                resendFetchSize,
+                messageHashFactory);
     }
 
     /*
@@ -85,7 +86,8 @@ public class TransactionManagerImpl implements TransactionManager {
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
             PrivacyHelper privacyHelper,
-            int resendFetchSize) {
+            int resendFetchSize,
+            MessageHashFactory messageHashFactory) {
 
         this.base64Codec = Objects.requireNonNull(base64Decoder, "base64Codec is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
@@ -99,6 +101,7 @@ public class TransactionManagerImpl implements TransactionManager {
         this.resendManager = Objects.requireNonNull(resendManager, "resendManager is required");
         this.resendFetchSize = resendFetchSize;
         this.privacyHelper = Objects.requireNonNull(privacyHelper, "privacyHelper is required");
+        this.messageHashFactory = Objects.requireNonNull(messageHashFactory,"messageHashFactory is required");
     }
 
     @Override

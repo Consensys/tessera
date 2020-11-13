@@ -45,9 +45,6 @@ allprojects {
 
                 testImplementation "com.github.jknack:handlebars:4.2.0"
 
-
-                implementation "org.mockito:mockito-core:2.28.2" //required by mock jaxrs module
-
                 testImplementation "com.openpojo:openpojo:0.8.13"
 
                 testImplementation "com.github.stefanbirkner:system-rules:1.19.0"
