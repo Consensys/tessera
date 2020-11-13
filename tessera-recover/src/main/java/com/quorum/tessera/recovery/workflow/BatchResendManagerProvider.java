@@ -2,9 +2,6 @@ package com.quorum.tessera.recovery.workflow;
 
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
-import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +11,10 @@ public class BatchResendManagerProvider {
 
     public static BatchResendManager provider() {
 
-        final Discovery discovery = Discovery.getInstance();
-        final Enclave enclave = Enclave.create();
+        if(BatchResendManagerHolder.INSTANCE.getBatchResendManager().isPresent()) {
+            return BatchResendManagerHolder.INSTANCE.getBatchResendManager().get();
+        }
+
         LOGGER.debug("Creating EncryptedTransactionDAO");
         final EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
         LOGGER.debug("Created EncryptedTransactionDAO {}",encryptedTransactionDAO);
@@ -24,16 +23,13 @@ public class BatchResendManagerProvider {
         final StagingEntityDAO stagingEntityDAO = StagingEntityDAO.create();
         LOGGER.debug("Created StagingEntityDAO");
 
-        final ResendBatchPublisher resendBatchPublisher = ResendBatchPublisher.create();
         final int defaultMaxResults = 10000;
 
-        return BatchResendManagerHolder.getInstance().setBatchResendManager(new BatchResendManagerImpl(
-            enclave,
-            stagingEntityDAO,
-            encryptedTransactionDAO,
-            discovery,
-            resendBatchPublisher,
-            defaultMaxResults));
+        BatchWorkflowFactory batchWorkflowFactory = BatchWorkflowFactory.create();
+
+        BatchResendManager batchResendManager = new BatchResendManagerImpl(stagingEntityDAO,encryptedTransactionDAO,defaultMaxResults,batchWorkflowFactory);
+
+        return BatchResendManagerHolder.INSTANCE.setBatchResendManager(batchResendManager);
     }
 
 }

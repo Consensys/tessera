@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 
-public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
+ class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
 
     private final Enclave enclave;
 
@@ -20,18 +20,15 @@ public class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
 
     private final ResendBatchPublisher resendBatchPublisher;
 
-    private final long transactionCount;
-
-    public BatchWorkflowFactoryImpl(Enclave enclave, PayloadEncoder payloadEncoder, Discovery discovery, ResendBatchPublisher resendBatchPublisher, long transactionCount) {
+    BatchWorkflowFactoryImpl(Enclave enclave, PayloadEncoder payloadEncoder, Discovery discovery, ResendBatchPublisher resendBatchPublisher) {
         this.enclave = Objects.requireNonNull(enclave);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.discovery = Objects.requireNonNull(discovery);
         this.resendBatchPublisher = Objects.requireNonNull(resendBatchPublisher);
-        this.transactionCount = transactionCount;
     }
 
     @Override
-    public BatchWorkflow create() {
+    public BatchWorkflow create(long transactionCount) {
 
         ValidateEnclaveStatus validateEnclaveStatus = new ValidateEnclaveStatus(enclave);
         DecodePayloadHandler decodePayloadHandler = new DecodePayloadHandler(payloadEncoder);

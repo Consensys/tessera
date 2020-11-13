@@ -12,7 +12,7 @@ public class RecoveryProvider {
     public static Recovery provider() {
 
         StagingEntityDAO stagingEntityDAO = StagingEntityDAO.create();
-        Discovery discovery = Discovery.getInstance();
+        Discovery discovery = Discovery.create();
         BatchTransactionRequester batchTransactionRequester = BatchTransactionRequester.create();
 
         TransactionManager transactionManager = TransactionManagerFactory.create().transactionManager().get();
@@ -20,7 +20,5 @@ public class RecoveryProvider {
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
         return new RecoveryImpl(stagingEntityDAO,discovery,batchTransactionRequester,transactionManager,payloadEncoder);
-
-
     }
 }

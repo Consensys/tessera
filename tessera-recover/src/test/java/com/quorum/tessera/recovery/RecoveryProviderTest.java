@@ -33,7 +33,7 @@ public class RecoveryProviderTest {
             staticStagingEntityDAO.when(StagingEntityDAO::create)
                 .thenReturn(mock(StagingEntityDAO.class));
 
-            staticDiscovery.when(Discovery::getInstance)
+            staticDiscovery.when(Discovery::create)
                 .thenReturn(mock(Discovery.class));
 
             staticBatchTransactionRequester.when(BatchTransactionRequester::create)
@@ -54,7 +54,7 @@ public class RecoveryProviderTest {
             verify(transactionManagerFactory).transactionManager();
             verifyNoMoreInteractions(transactionManagerFactory);
 
-            staticDiscovery.verify(Discovery::getInstance);
+            staticDiscovery.verify(Discovery::create);
             staticDiscovery.verifyNoMoreInteractions();
             staticBatchTransactionRequester.verify(BatchTransactionRequester::create);
             staticBatchTransactionRequester.verifyNoMoreInteractions();

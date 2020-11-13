@@ -14,6 +14,8 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,7 +37,7 @@ public class BatchWorkflowFactoryTest {
     public void loadMockBatchWorkflowFactory() {
 
         BatchWorkflowFactory batchWorkflowFactory =
-                new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher, 99L);
+                new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher);
 
         assertThat(batchWorkflowFactory)
             .isExactlyInstanceOf(BatchWorkflowFactoryImpl.class);
@@ -45,9 +47,9 @@ public class BatchWorkflowFactoryTest {
     public void createBatchWorkflowFactoryImplAndExecuteWorkflow() {
 
         BatchWorkflowFactoryImpl batchWorkflowFactory =
-            new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher, 1L);
+            new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher);
 
-        BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
+        BatchWorkflow batchWorkflow = batchWorkflowFactory.create(1L);
 
         assertThat(batchWorkflow).isNotNull();
 
@@ -91,9 +93,9 @@ public class BatchWorkflowFactoryTest {
     @Test
     public void workflowExecutedReturnFalse() {
 
-        BatchWorkflowFactoryImpl batchWorkflowFactory = new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher, 999L);
+        BatchWorkflowFactoryImpl batchWorkflowFactory = new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher);
 
-        BatchWorkflow batchWorkflow = batchWorkflowFactory.create();
+        BatchWorkflow batchWorkflow = batchWorkflowFactory.create(999L);
 
         assertThat(batchWorkflow).isNotNull();
 
@@ -115,5 +117,28 @@ public class BatchWorkflowFactoryTest {
 
         verify(payloadEncoder).decode(payloadData);
         verify(enclave).status();
+    }
+
+    @Test
+    public void create() {
+        BatchWorkflowFactory expected = mock(BatchWorkflowFactory.class);
+        BatchWorkflowFactory result;
+        try(var staticServiceLoader = mockStatic(ServiceLoader.class)) {
+            ServiceLoader<BatchWorkflowFactory> serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
+            staticServiceLoader.when(() -> ServiceLoader.load(BatchWorkflowFactory.class))
+                .thenReturn(serviceLoader);
+
+            result = BatchWorkflowFactory.create();
+
+            staticServiceLoader.verify(() -> ServiceLoader.load(BatchWorkflowFactory.class));
+            staticServiceLoader.verifyNoMoreInteractions();
+
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
+        }
+
+        assertThat(result).isSameAs(expected);
+
     }
 }

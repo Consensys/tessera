@@ -17,9 +17,5 @@ public interface BatchResendManager {
 
     }
 
-    static BatchResendManager getInstance() {
-        return BatchResendManagerHolder.getInstance().getBatchResendManager().orElseThrow(() -> new IllegalStateException("BatchResendManager has not been initialised"));
-    }
-
 
 }
