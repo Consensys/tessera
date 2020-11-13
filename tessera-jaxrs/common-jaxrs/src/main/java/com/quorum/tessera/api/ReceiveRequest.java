@@ -21,7 +21,6 @@ public class ReceiveRequest {
     private String key;
 
     @Size(min = 1)
-    @NotNull
     @ApiModelProperty("Encoded recipient public key")
     private String to;
 
