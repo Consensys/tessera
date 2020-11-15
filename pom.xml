@@ -419,7 +419,8 @@
 
                                 <banVulnerable implementation="org.sonatype.ossindex.maven.enforcer.BanVulnerableDependencies">
                                     <excludeVulnerabilityIds>
-                                        33fe5e62-2998-4820-aebc-68e348539b22
+                                        <exclude>33fe5e62-2998-4820-aebc-68e348539b22</exclude>
+                                        <exclude>7ea56ad4-8a8b-4e51-8ed9-5aad83d8efb1</exclude>
                                     </excludeVulnerabilityIds>
                                 </banVulnerable>
 
