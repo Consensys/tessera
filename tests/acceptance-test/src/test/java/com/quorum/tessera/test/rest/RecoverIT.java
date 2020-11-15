@@ -85,9 +85,15 @@ public class RecoverIT {
 
         executors.values().forEach(ExecManager::start);
 
+        LOGGER.debug("nodes started");
+
         partyInfoSync();
 
+        LOGGER.debug("nodes synced");
+
         sendTransactions();
+
+        LOGGER.debug("transactions sent");
 
         Arrays.stream(NodeAlias.values())
                 .forEach(
@@ -99,6 +105,7 @@ public class RecoverIT {
                                 assertThat(count).describedAs(a + " should have 500 ").isEqualTo(500L);
                             }
                         });
+        LOGGER.debug("transactions checked");
     }
 
     @After
@@ -152,34 +159,47 @@ public class RecoverIT {
 
     private void recoverNode(NodeAlias nodeAlias) throws Exception {
 
+        LOGGER.debug("testing recovery of {}", nodeAlias);
+
         ExecManager execManager = executors.get(nodeAlias);
         execManager.stop();
         setupDatabase.drop(nodeAlias);
         setupDatabase.setUp(nodeAlias);
 
+        LOGGER.debug("stopped {} and dropped DB", nodeAlias);
+
         assertThat(doCount(nodeAlias)).isZero();
 
         RecoveryExecManager recoveryExecManager = new RecoveryExecManager(execManager.getConfigDescriptor());
 
+        LOGGER.debug("starting {} in recovery mode", nodeAlias);
+
         Process process = recoveryExecManager.start();
 
-        assertThat(true).isTrue();
-
         process.waitFor();
+
+        LOGGER.debug("{}'s recovery finished", nodeAlias);
 
         if (nodeAlias == NodeAlias.D) {
             assertThat(doCount(nodeAlias)).isEqualTo(100);
         } else {
             assertThat(doCount(nodeAlias)).isEqualTo(500);
         }
+        LOGGER.debug("{}'s transactions fully recovered", nodeAlias);
 
         recoveryExecManager.stop();
 
         NodeExecManager nodeExecManager = new NodeExecManager(execManager.getConfigDescriptor());
 
+        LOGGER.debug("starting {} in normal mode", nodeAlias);
+
         nodeExecManager.start();
 
+        LOGGER.debug("waiting for {} to sync with all parties", nodeAlias);
+
         partyInfoSync();
+
+        LOGGER.debug("{} is now synced with all parties", nodeAlias);
 
         executors.replace(nodeAlias, nodeExecManager);
     }
@@ -247,7 +267,7 @@ public class RecoverIT {
                     partyInfoSyncLatch.countDown();
                 });
 
-        if (!partyInfoSyncLatch.await(5, TimeUnit.MINUTES)) {
+        if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
             fail("Unable to sync party info");
         }
         executorService.shutdown();
