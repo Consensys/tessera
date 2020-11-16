@@ -5,7 +5,6 @@ import com.quorum.tessera.api.StoreRawRequest;
 import com.quorum.tessera.api.StoreRawResponse;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,8 +32,7 @@ public class RawTransactionResource {
     private final TransactionManager transactionManager;
 
     public RawTransactionResource() {
-        this(TransactionManagerFactory.create().transactionManager()
-            .orElseThrow(() -> new IllegalStateException("Transaction manager has not been initialsied.")));
+        this(TransactionManager.create());
     }
 
     public RawTransactionResource(final TransactionManager transactionManager) {

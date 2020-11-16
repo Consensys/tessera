@@ -46,7 +46,8 @@ public class IPWhitelistFilter implements ContainerRequestFilter {
         }
 
         final Set<String> whitelisted =
-                runtimeContext.getPeers().stream().map(URI::getHost).collect(Collectors.toSet());
+                runtimeContext.getPeers().stream()
+                    .map(URI::getHost).collect(Collectors.toSet());
 
         // If local host is whitelisted then ensure all the various forms are allowed, including the IPv6 localhost
         // as sent by curl

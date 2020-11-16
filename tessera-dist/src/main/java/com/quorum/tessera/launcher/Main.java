@@ -14,7 +14,7 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
+import com.quorum.tessera.transaction.TransactionManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,14 +82,11 @@ public class Main {
             BatchResendManager.create();
             LOGGER.debug("Created BatchResendManager");
 
-
             LOGGER.info("Creating txn manager");
-            TransactionManagerFactory.create().create(config);
+            TransactionManager.create();
             LOGGER.info("Created txn manager");
 
-            //ApplicationContext springContext = new ClassPathXmlApplicationContext("tessera-spring.xml");
             LOGGER.info("Creating ScheduledServiceFactory");
-
             ScheduledServiceFactory scheduledServiceFactory = ScheduledServiceFactory.fromConfig(config);
             scheduledServiceFactory.build();
             LOGGER.info("Created ScheduledServiceFactory");

@@ -15,7 +15,7 @@ module tessera.tessera.core.main {
 
     uses com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 
-    uses com.quorum.tessera.transaction.TransactionManagerFactory;
+    uses com.quorum.tessera.transaction.TransactionManager;
 
     uses com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 
@@ -25,8 +25,8 @@ module tessera.tessera.core.main {
 
     uses com.quorum.tessera.transaction.PrivacyHelper;
 
-    provides com.quorum.tessera.transaction.TransactionManagerFactory with
-        com.quorum.tessera.transaction.TransactionManagerFactoryProvider;
+    provides com.quorum.tessera.transaction.TransactionManager with
+        com.quorum.tessera.transaction.TransactionManagerProvider;
 
     provides com.quorum.tessera.transaction.EncodedPayloadManager with
         com.quorum.tessera.transaction.EncodedPayloadManagerProvider;
@@ -36,6 +36,8 @@ module tessera.tessera.core.main {
 
     provides com.quorum.tessera.transaction.resend.ResendManager
         with com.quorum.tessera.transaction.resend.ResendManagerProvider;
+
+
 
 
 }

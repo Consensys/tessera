@@ -4,10 +4,7 @@ import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -26,7 +23,7 @@ public class RecoveryProviderTest {
             var staticStagingEntityDAO = mockStatic(StagingEntityDAO.class);
             var staticDiscovery = mockStatic(Discovery.class);
             var staticBatchTransactionRequester = mockStatic(BatchTransactionRequester.class);
-            var staticTransactionManagerFactory = mockStatic(TransactionManagerFactory.class)
+            var staticTransactionManager = mockStatic(TransactionManager.class)
 
         ) {
 
@@ -39,10 +36,8 @@ public class RecoveryProviderTest {
             staticBatchTransactionRequester.when(BatchTransactionRequester::create)
                 .thenReturn(mock(BatchTransactionRequester.class));
 
-            TransactionManagerFactory transactionManagerFactory = mock(TransactionManagerFactory.class);
-            when(transactionManagerFactory.transactionManager()).thenReturn(Optional.of(mock(TransactionManager.class)));
-            staticTransactionManagerFactory.when(TransactionManagerFactory::create)
-                .thenReturn(transactionManagerFactory);
+            TransactionManager transactionManager = mock(TransactionManager.class);
+            staticTransactionManager.when(TransactionManager::create).thenReturn(transactionManager);
 
             Recovery recovery = RecoveryProvider.provider();
 
@@ -51,16 +46,15 @@ public class RecoveryProviderTest {
             staticStagingEntityDAO.verify(StagingEntityDAO::create);
             staticStagingEntityDAO.verifyNoMoreInteractions();
 
-            verify(transactionManagerFactory).transactionManager();
-            verifyNoMoreInteractions(transactionManagerFactory);
+            verifyNoMoreInteractions(transactionManager);
 
             staticDiscovery.verify(Discovery::create);
             staticDiscovery.verifyNoMoreInteractions();
             staticBatchTransactionRequester.verify(BatchTransactionRequester::create);
             staticBatchTransactionRequester.verifyNoMoreInteractions();
 
-            staticTransactionManagerFactory.verify(TransactionManagerFactory::create);
-            staticTransactionManagerFactory.verifyNoMoreInteractions();
+            staticTransactionManager.verify(TransactionManager::create);
+            staticTransactionManager.verifyNoMoreInteractions();
 
         }
 

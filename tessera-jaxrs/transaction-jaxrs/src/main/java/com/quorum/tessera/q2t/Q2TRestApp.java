@@ -5,7 +5,6 @@ import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
@@ -25,10 +24,7 @@ public class Q2TRestApp extends TesseraRestApplication implements com.quorum.tes
     @Override
     public Set<Object> getSingletons() {
 
-        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-        TransactionManager transactionManager = transactionManagerFactory.transactionManager().get();
-
-
+        TransactionManager transactionManager = TransactionManager.create();
         EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.getInstance().orElseThrow(() -> new IllegalStateException("EncodedPayloadManager has not been initialised"));
 
         TransactionResource transactionResource = new TransactionResource(transactionManager);

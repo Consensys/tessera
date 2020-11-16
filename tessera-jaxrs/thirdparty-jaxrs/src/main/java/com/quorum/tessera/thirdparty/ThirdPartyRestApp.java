@@ -5,7 +5,6 @@ import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
@@ -24,7 +23,7 @@ public class ThirdPartyRestApp extends TesseraRestApplication implements com.quo
 
     public ThirdPartyRestApp() {
         this.discovery = Discovery.create();
-        this.transactionManager = TransactionManagerFactory.create().transactionManager().get();
+        this.transactionManager = TransactionManager.create();
     }
 
     @Override

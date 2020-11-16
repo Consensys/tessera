@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.List;
+import java.util.ServiceLoader;
 
 public interface TransactionManager {
 
@@ -32,6 +33,11 @@ public interface TransactionManager {
      * @return
      */
     PublicKey defaultPublicKey();
+
+
+    static TransactionManager create() {
+        return ServiceLoader.load(TransactionManager.class).findFirst().get();
+    }
 
 
 }

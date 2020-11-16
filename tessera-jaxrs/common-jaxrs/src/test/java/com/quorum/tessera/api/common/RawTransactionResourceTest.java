@@ -78,7 +78,7 @@ public class RawTransactionResourceTest {
 
     @Test(expected = IllegalStateException.class)
     public void defaultConstructorNoTm() {
-        MockTransactionManagerFactory.setTransactionManager(null);
+
         new RawTransactionResource();
     }
 

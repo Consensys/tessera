@@ -13,7 +13,6 @@ import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
 import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +68,7 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
-        TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
-        TransactionManager transactionManager = transactionManagerFactory.transactionManager().get();
+        TransactionManager transactionManager = TransactionManager.create();
 
         BatchResendManager batchResendManager = BatchResendManager.create();
         PayloadEncoder payloadEncoder = PayloadEncoder.create();

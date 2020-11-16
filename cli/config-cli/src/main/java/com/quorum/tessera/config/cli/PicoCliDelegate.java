@@ -45,6 +45,15 @@ public class PicoCliDelegate {
     }
 
     public CliResult execute(String... args) throws Exception {
+        try {
+            return doExecute(args);
+        } catch (Throwable ex) {
+            ex.getCause().printStackTrace();
+            throw ex;
+        }
+    }
+
+    public CliResult doExecute(String... args) throws Exception {
         LOGGER.debug("Execute with args [{}]", String.join(",", args));
         final CommandLine commandLine = new CommandLine(TesseraCommand.class);
 
@@ -67,10 +76,12 @@ public class PicoCliDelegate {
         try {
             parseResult = commandLine.parseArgs(args);
         } catch (CommandLine.ParameterException ex) {
+            LOGGER.trace("",ex);
             try {
                 commandLine.getParameterExceptionHandler().handleParseException(ex, args);
                 throw new CliException(ex.getMessage());
             } catch (Exception e) {
+                LOGGER.trace("",e);
                 throw new CliException(ex.getMessage());
             }
         }

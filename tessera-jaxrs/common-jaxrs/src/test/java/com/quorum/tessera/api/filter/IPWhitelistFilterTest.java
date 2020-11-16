@@ -1,12 +1,11 @@
 package com.quorum.tessera.api.filter;
 
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.mock.MockRuntimeContextFactory;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -19,7 +18,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
-@Ignore
+
 public class IPWhitelistFilterTest {
 
     private ContainerRequestContext ctx;
@@ -28,10 +27,14 @@ public class IPWhitelistFilterTest {
 
     private RuntimeContext runtimeContext;
 
+    private MockedStatic<RuntimeContext> runtimeContextMockedStatic;
+
     @Before
     public void init() throws URISyntaxException {
+
         runtimeContext = mock(RuntimeContext.class);
-        MockRuntimeContextFactory.setMockContext(runtimeContext);
+        runtimeContextMockedStatic = mockStatic(RuntimeContext.class);
+        runtimeContextMockedStatic.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
         when(runtimeContext.getPeers()).thenReturn(singletonList(URI.create("http://whitelistedHost:8080")));
         when(runtimeContext.isUseWhiteList()).thenReturn(true);
@@ -46,16 +49,20 @@ public class IPWhitelistFilterTest {
 
     @After
     public void onTearDown() {
-        reset(runtimeContext);
-        MockRuntimeContextFactory.reset();
+        try {
+            verifyNoMoreInteractions(runtimeContext);
+        } finally {
+            runtimeContextMockedStatic.close();
+        }
     }
 
 
     @Test
     public void disabledFilterAllowsAllRequests() {
+
         when(runtimeContext.getPeers()).thenReturn(emptyList());
         when(runtimeContext.isUseWhiteList()).thenReturn(false);
-        this.filter = new IPWhitelistFilter();
+
         final HttpServletRequest request = mock(HttpServletRequest.class);
         doReturn("someotherhost").when(request).getRemoteAddr();
         doReturn("someotherhost").when(request).getRemoteHost();
@@ -63,8 +70,12 @@ public class IPWhitelistFilterTest {
         filter.setHttpServletRequest(request);
         filter.filter(ctx);
 
-        verifyZeroInteractions(request);
-        verifyZeroInteractions(ctx);
+        verifyNoInteractions(request);
+        verifyNoInteractions(ctx);
+
+        verify(runtimeContext).isUseWhiteList();
+
+
     }
 
     @Test
@@ -87,6 +98,8 @@ public class IPWhitelistFilterTest {
         verify(ctx).abortWith(captor.capture());
 
         assertThat(captor.getValue()).isEqualToComparingFieldByFieldRecursively(expectedResponse);
+        verify(runtimeContext).isUseWhiteList();
+        verify(runtimeContext).getPeers();
     }
 
     @Test
@@ -101,6 +114,9 @@ public class IPWhitelistFilterTest {
         verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
         verifyNoMoreInteractions(ctx);
+
+        verify(runtimeContext).isUseWhiteList();
+        verify(runtimeContext).getPeers();
     }
 
     @Test
@@ -126,6 +142,9 @@ public class IPWhitelistFilterTest {
         verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
         verifyNoMoreInteractions(ctx);
+
+        verify(runtimeContext).isUseWhiteList();
+        verify(runtimeContext).getPeers();
     }
 
     @Test
@@ -143,6 +162,9 @@ public class IPWhitelistFilterTest {
         verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
         verifyNoMoreInteractions(ctx);
+
+        verify(runtimeContext).isUseWhiteList();
+        verify(runtimeContext).getPeers();
     }
 
     @Test
@@ -160,5 +182,8 @@ public class IPWhitelistFilterTest {
         verify(request).getRemoteHost();
         verify(request).getRemoteAddr();
         verifyNoMoreInteractions(ctx);
+
+        verify(runtimeContext).isUseWhiteList();
+        verify(runtimeContext).getPeers();
     }
 }

@@ -4,7 +4,6 @@ package com.quorum.tessera.q2t;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -17,7 +16,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 public class Q2TRestAppTest {
 
@@ -31,11 +31,9 @@ public class Q2TRestAppTest {
         q2TRestApp = new Q2TRestApp();
         try (
             var mockedStaticPayloadManager = mockStatic(EncodedPayloadManager.class);
-            var mockedSttaticTransactionManager = mockStatic(TransactionManagerFactory.class);
+            var mockedStaticTransactionManager = mockStatic(TransactionManager.class);
         ) {
-            TransactionManagerFactory transactionManagerFactory = mock(TransactionManagerFactory.class);
-            when(transactionManagerFactory.transactionManager()).thenReturn(Optional.of(mock(TransactionManager.class)));
-            mockedSttaticTransactionManager.when(TransactionManagerFactory::create).thenReturn(transactionManagerFactory);
+            mockedStaticTransactionManager.when(TransactionManager::create).thenReturn(mock(TransactionManager.class));
 
             EncodedPayloadManager encodedPayloadManager = mock(EncodedPayloadManager.class);
             mockedStaticPayloadManager.when(EncodedPayloadManager::getInstance)

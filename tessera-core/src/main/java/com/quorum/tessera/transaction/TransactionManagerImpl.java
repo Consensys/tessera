@@ -58,7 +58,8 @@ public class TransactionManagerImpl implements TransactionManager {
             PayloadPublisher payloadPublisher,
             BatchPayloadPublisher batchPayloadPublisher,
             PrivacyHelper privacyHelper,
-            int resendFetchSize,MessageHashFactory messageHashFactory) {
+            int resendFetchSize,
+            MessageHashFactory messageHashFactory) {
         this(
                 Base64Codec.create(),
                 PayloadEncoder.create(),

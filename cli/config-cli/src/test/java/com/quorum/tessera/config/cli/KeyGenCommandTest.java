@@ -1,8 +1,11 @@
 package com.quorum.tessera.config.cli;
 
 
+import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
+import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
 import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
@@ -10,12 +13,14 @@ import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import picocli.CommandLine;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class KeyGenCommandTest {
@@ -83,6 +88,7 @@ public class KeyGenCommandTest {
 
         assertThat(result.isSuppressStartup()).isTrue();
         assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
 
         verify(keyDataMarshaller).marshal(configKeyPair);
         verify(keyGeneratorFactory).create(refEq(null), any(EncryptorConfig.class));
@@ -118,6 +124,7 @@ public class KeyGenCommandTest {
             assertThat(result).isNotNull();
             assertThat(result.isSuppressStartup()).isTrue();
             assertThat(result.getConfig()).isNotPresent();
+            assertThat(result.getStatus()).isEqualTo(0);
 
         }
 
@@ -166,6 +173,61 @@ public class KeyGenCommandTest {
         valueVariations.forEach(filename -> {
             verify(keyGenerator,times(optionVariations.size())).generate(filename, null, null);
         });
+    }
+
+
+    @Test
+    public void noConfigFromKeyGenFileUpdateOptions() throws Exception {
+        new CommandLine(keyGenCommand).parseArgs("--configout=bogus");
+        try {
+            keyGenCommand.call();
+            failBecauseExceptionWasNotThrown(CliException.class);
+        } catch(CliException ex) {
+            assertThat(ex).hasMessage("Missing required argument(s): --configfile=<config>");
+        }
+    }
+
+
+    @Ignore
+    @Test
+    public void onlyConfigWithKeysProvided() throws Exception {
+        //given
+        when(keyGeneratorFactory.create(eq(null),any(EncryptorConfig.class)))
+            .thenReturn(keyGenerator);
+
+        CommandLine commandLine = new CommandLine(keyGenCommand);
+
+        Config config = mock(Config.class);
+        KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+        when(config.getKeys()).thenReturn(keyConfiguration);
+
+        CommandLine.ITypeConverter<Config> configConverter = mock(CommandLine.ITypeConverter.class);
+        when(configConverter.convert("myconfig.file")).thenReturn(config);
+
+        //when
+        CommandLine.ParseResult parseResult = commandLine
+            .registerConverter(Config.class,configConverter)
+            .parseArgs("--configfile=myconfig.file");
+
+        assertThat(parseResult).isNotNull();
+        verify(configConverter).convert("myconfig.file");
+
+
+        //and when
+        CliResult result = keyGenCommand.call();
+
+        //then
+        assertThat(result).isNotNull();
+        assertThat(result.isSuppressStartup()).isTrue();
+        assertThat(result.getStatus()).isZero();
+        assertThat(result.getConfig()).isNotPresent();
+
+        verifyNoMoreInteractions(configConverter);
+        verify(keyGeneratorFactory).create(eq(null),any(EncryptorConfig.class));
+
+        verify(configFileUpdaterWriter)
+            .updateAndWriteToCLI(anyList(),null,config);
+
     }
 
 /*

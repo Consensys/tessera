@@ -5,7 +5,6 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
 
 public class RecoveryProvider {
 
@@ -15,7 +14,7 @@ public class RecoveryProvider {
         Discovery discovery = Discovery.create();
         BatchTransactionRequester batchTransactionRequester = BatchTransactionRequester.create();
 
-        TransactionManager transactionManager = TransactionManagerFactory.create().transactionManager().get();
+        TransactionManager transactionManager = TransactionManager.create();
 
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
