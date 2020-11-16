@@ -105,7 +105,7 @@ public class LegacyResendManagerTest {
 
         assertThat(throwable)
             .isInstanceOf(EnhancedPrivacyNotSupportedException.class)
-            .hasMessage("Cannot resend enhanced privy transaction in legacy resend");
+            .hasMessage("Cannot resend enhanced privacy transaction in legacy resend");
 
         verify(dao).retrieveByHash(txHash);
         verify(encoder).decode(any(byte[].class));

@@ -27,7 +27,7 @@ public interface LegacyResendManager {
                     final EncryptedTransactionDAO txDao = entityManagerDAOFactory.createEncryptedTransactionDAO();
                     final PayloadEncoder encoder = PayloadEncoder.create();
                     final PayloadPublisher publisher = PayloadPublisherFactory.newFactory(config).create(config);
-                    final int maxResults = 1000;
+                    final int maxResults = 100;
 
                     return new LegacyResendManagerImpl(enclave, txDao, maxResults, encoder, publisher, discovery);
                 }

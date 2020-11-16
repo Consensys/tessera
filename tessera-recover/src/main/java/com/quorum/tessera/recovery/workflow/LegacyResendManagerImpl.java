@@ -88,7 +88,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
         final EncodedPayload payload = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
 
         if (payload.getPrivacyMode() != PrivacyMode.STANDARD_PRIVATE) {
-            throw new EnhancedPrivacyNotSupportedException("Cannot resend enhanced privy transaction in legacy resend");
+            throw new EnhancedPrivacyNotSupportedException("Cannot resend enhanced privacy transaction in legacy resend");
         }
 
         if (!Objects.equals(payload.getSenderKey(), targetResendKey)) {
