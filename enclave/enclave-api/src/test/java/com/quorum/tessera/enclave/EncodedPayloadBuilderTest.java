@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.encryption.PublicKey;
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -92,10 +93,10 @@ public class EncodedPayloadBuilderTest {
             .isNotSameAs(sample)
             .isEqualTo(sample);
 
-//        EqualsVerifier.forClass(EncodedPayload.class)
-//            .withIgnoredFields("affectedContractTransactions")
-//            .usingGetClass()
-//            .verify();
+        EqualsVerifier.forClass(EncodedPayload.class)
+            .withIgnoredFields("affectedContractTransactions")
+            .usingGetClass()
+            .verify();
 
     }
 

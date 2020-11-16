@@ -830,4 +830,20 @@ public class EnclaveTest {
         verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
         verify(nacl).computeSharedKey(senderKey, privateKey);
     }
+
+    @Test
+    public void create() {
+
+        Enclave expectedEnclave = mock(Enclave.class);
+        Enclave result;
+        try(var mockStaticServiceLoader = mockStatic(ServiceLoader.class)) {
+            ServiceLoader<Enclave> serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(expectedEnclave));
+            mockStaticServiceLoader.when(() -> ServiceLoader.load(Enclave.class)).thenReturn(serviceLoader);
+
+            result = Enclave.create();
+        }
+
+        assertThat(result).isSameAs(expectedEnclave);
+    }
 }
