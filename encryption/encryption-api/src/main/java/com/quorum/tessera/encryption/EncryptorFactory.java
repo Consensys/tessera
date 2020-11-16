@@ -29,15 +29,16 @@ public interface EncryptorFactory {
      */
     static EncryptorFactory newFactory(String type) {
 
-        String message = ServiceLoader.load(EncryptorFactory.class).stream()
-            .map(Objects::toString)
-            .collect(Collectors.joining(","));
-
         return ServiceLoader.load(EncryptorFactory.class)
             .stream()
             .map(ServiceLoader.Provider::get)
                 .filter(f -> f.getType().equals(type))
                 .findAny()
-                .orElseThrow(() -> new EncryptorFactoryNotFoundException(type +" Found only "+ message));
+                .orElseThrow(() -> {
+                    String message = ServiceLoader.load(EncryptorFactory.class).stream()
+                        .map(Objects::toString)
+                        .collect(Collectors.joining(","));
+                    return new EncryptorFactoryNotFoundException(type +" Found only "+ message);
+                });
     }
 }

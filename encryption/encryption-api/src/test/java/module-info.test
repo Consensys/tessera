@@ -1,0 +1,2 @@
+--add-opens
+    tessera.encryption.encryption.api.main/com.quorum.tessera.encryption=nl.jqno.equalsverifier,openpojo
