@@ -5,6 +5,9 @@ on:
       - master
     paths:
       - 'tessera-jaxrs/**'
+  pull_request:
+    branches:
+      - '**'
 env:
   TESSERA_DIR: tessera
   DOC_DIR: gh-pages
