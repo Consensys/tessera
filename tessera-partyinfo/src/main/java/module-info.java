@@ -13,7 +13,7 @@ module tessera.tessera.partyinfo.main {
 
     uses com.quorum.tessera.partyinfo.P2pClientFactory;
     uses com.quorum.tessera.discovery.NetworkStore;
-    uses com.quorum.tessera.enclave.EnclaveFactory;
+    uses com.quorum.tessera.enclave.Enclave;
 
     uses com.quorum.tessera.discovery.DiscoveryHelper;
     uses com.quorum.tessera.discovery.Discovery;

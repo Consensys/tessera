@@ -2,13 +2,11 @@ package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import org.junit.Test;
 
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 public class ResendManagerProviderTest {
 
@@ -20,13 +18,12 @@ public class ResendManagerProviderTest {
     @Test
     public void provider() {
         try(var mockedEncryptedTransactionDAO = mockStatic(EncryptedTransactionDAO.class);
-            var mockedEnclaveFactory = mockStatic(EnclaveFactory.class)
+            var mockedEnclave = mockStatic(Enclave.class)
         ) {
 
-            EnclaveFactory enclaveFactory = mock(EnclaveFactory.class);
-            when(enclaveFactory.enclave()).thenReturn(Optional.of(mock(Enclave.class)));
+            Enclave enclave = mock(Enclave.class);
 
-            mockedEnclaveFactory.when(EnclaveFactory::create).thenReturn(enclaveFactory);
+            mockedEnclave.when(Enclave::create).thenReturn(enclave);
 
             mockedEncryptedTransactionDAO.when(EncryptedTransactionDAO::create)
                 .thenReturn(mock(EncryptedTransactionDAO.class));

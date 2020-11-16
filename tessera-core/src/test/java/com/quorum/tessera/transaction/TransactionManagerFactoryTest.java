@@ -4,14 +4,11 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import org.junit.Test;
-
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -29,7 +26,7 @@ public class TransactionManagerFactoryTest {
         try(
             var mockedStaticPayloadPublisherFactory = mockStatic(PayloadPublisherFactory.class);
             var mockedStaticBatchPayloadPublisherFactory = mockStatic(BatchPayloadPublisherFactory.class);
-            var mockedStaticEnclaveFactory = mockStatic(EnclaveFactory.class);
+            var mockedStaticEnclave = mockStatic(Enclave.class);
             var mockedStaticEncryptedTransactionDAO = mockStatic(EncryptedTransactionDAO.class);
             var mockedStaticEncryptedRawTransactionDAO = mockStatic(EncryptedRawTransactionDAO.class);
             var mockedStaticPrivacyHelper = mockStatic(PrivacyHelper.class)
@@ -46,9 +43,7 @@ public class TransactionManagerFactoryTest {
 
             mockedStaticEncryptedTransactionDAO.when(EncryptedTransactionDAO::create).thenReturn(encryptedTransactionDAO);
 
-            EnclaveFactory enclaveFactory = mock(EnclaveFactory.class);
-            when(enclaveFactory.enclave()).thenReturn(Optional.of(mock(Enclave.class)));
-            mockedStaticEnclaveFactory.when(EnclaveFactory::create).thenReturn(enclaveFactory);
+            mockedStaticEnclave.when(Enclave::create).thenReturn(mock(Enclave.class));
 
             //Payload publisher gubbins
             PayloadPublisherFactory payloadPublisherFactory = mock(PayloadPublisherFactory.class);

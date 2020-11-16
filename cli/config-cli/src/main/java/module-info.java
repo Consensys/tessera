@@ -21,4 +21,6 @@ module tessera.cli.config.cli.main {
 
     provides com.quorum.tessera.config.cli.KeyDataMarshaller with
         com.quorum.tessera.config.cli.DefaultKeyDataMarshaller;
+
+
 }

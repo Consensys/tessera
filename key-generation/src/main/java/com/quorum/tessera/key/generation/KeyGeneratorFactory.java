@@ -9,7 +9,7 @@ public interface KeyGeneratorFactory {
 
     KeyGenerator create(KeyVaultConfig keyVaultConfig, EncryptorConfig encryptorConfig);
 
-    static KeyGeneratorFactory newFactory() {
+    static KeyGeneratorFactory create() {
         return ServiceLoader.load(KeyGeneratorFactory.class)
             .findFirst().get();
     }

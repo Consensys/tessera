@@ -10,17 +10,20 @@ public class EnclaveProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveProvider.class);
 
     public static Enclave provider() {
-        EnclaveFactory enclaveFactory = EnclaveFactory.create();
-        LOGGER.debug("Created EnclaveFactory {}",enclaveFactory);
-        if(enclaveFactory.enclave().isPresent()) {
-            return enclaveFactory.enclave().get();
+        EnclaveHolder enclaveHolder = DefaultEnclaveHolder.INSTANCE;
+        if(enclaveHolder.getEnclave().isPresent()) {
+            return enclaveHolder.getEnclave().get();
         }
 
         Config config = ConfigFactory.create().getConfig();
 
+        EnclaveFactoryImpl enclaveFactory = new EnclaveFactoryImpl(config);
+
         LOGGER.debug("Found config {}",config);
 
-        return enclaveFactory.create(config);
+        Enclave enclave = enclaveFactory.createEnclave();
+
+        return enclaveHolder.setEnclave(enclave);
 
     }
 

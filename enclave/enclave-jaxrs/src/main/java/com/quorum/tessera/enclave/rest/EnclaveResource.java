@@ -1,7 +1,5 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
@@ -23,11 +21,11 @@ public class EnclaveResource {
 
     private final Enclave enclave;
 
-    private final PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    private final PayloadEncoder payloadEncoder;
 
     public EnclaveResource() {
-        Config config = ConfigFactory.create().getConfig();
-        this.enclave = EnclaveFactory.createServer(config);
+        this.enclave = Enclave.create();
+        this.payloadEncoder = PayloadEncoder.create();
     }
 
     @GET

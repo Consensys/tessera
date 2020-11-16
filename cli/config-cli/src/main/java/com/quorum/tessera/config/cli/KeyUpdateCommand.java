@@ -7,7 +7,6 @@ import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.io.SystemAdapter;
 import com.quorum.tessera.passwords.PasswordReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +125,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
 
         // write the key to file
         Files.write(keypath, JaxbUtil.marshalToString(updatedKey).getBytes(UTF_8));
-        SystemAdapter.INSTANCE.out().println("Private key at " + keypath.toString() + " updated.");
+        System.out.println("Private key at " + keypath.toString() + " updated.");
 
         return new CliResult(0, true, null);
     }

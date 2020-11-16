@@ -14,7 +14,7 @@ public class RestPayloadPublisherFactory implements PayloadPublisherFactory {
     @Override
     public PayloadPublisher create(Config config) {
 
-        Discovery partyInfoService = Discovery.getInstance();
+        Discovery partyInfoService = Discovery.create();
 
         ClientFactory clientFactory = new ClientFactory();
         Client client = clientFactory.buildFrom(config.getP2PServerConfig());

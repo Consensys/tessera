@@ -8,7 +8,6 @@ import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
@@ -43,8 +42,8 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
 
 
     public P2PRestApp() {
-        this.discovery = Discovery.getInstance();
-        this.enclave = EnclaveFactory.create().enclave().get();
+        this.discovery = Discovery.create();
+        this.enclave = Enclave.create();
         this.partyStore = PartyStore.getInstance();
     }
 
@@ -73,7 +72,7 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
         TransactionManagerFactory transactionManagerFactory = TransactionManagerFactory.create();
         TransactionManager transactionManager = transactionManagerFactory.transactionManager().get();
 
-        BatchResendManager batchResendManager = BatchResendManager.getInstance();
+        BatchResendManager batchResendManager = BatchResendManager.create();
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
         final TransactionResource transactionResource = new TransactionResource(transactionManager,batchResendManager,payloadEncoder);

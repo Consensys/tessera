@@ -23,12 +23,12 @@ public class TesseraCommand {
     @CommandLine.Option(
             names = {"--configfile", "-configfile"},
             description = "Path to node configuration file")
-    public Config config;
+    private Config config;
 
     @CommandLine.Option(
             names = {"--pidfile", "-pidfile"},
             description = "the path to write the PID to")
-    public Path pidFilePath;
+    private Path pidFilePath;
 
     @CommandLine.Option(
             names = {"-o", "--override"},
@@ -40,9 +40,11 @@ public class TesseraCommand {
             description = "Start Tessera in recovery mode")
     private boolean recover;
 
-    @CommandLine.Mixin public DebugOptions debugOptions;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
-    @CommandLine.Unmatched public List<String> unmatchedEntries;
+    @CommandLine.Unmatched
+    private List<String> unmatchedEntries;
 
     // TODO(cjh) dry run option to print effective config to terminal to allow review of CLI overrides
 }

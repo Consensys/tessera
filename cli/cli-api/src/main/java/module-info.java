@@ -11,6 +11,8 @@ module tessera.cli.cli.api.main {
     exports com.quorum.tessera.cli.keypassresolver;
     exports com.quorum.tessera.cli.parsers;
 
+    uses com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
+
     opens com.quorum.tessera.cli.parsers to info.picocli;
     opens com.quorum.tessera.cli to info.picocli;
 

@@ -83,7 +83,7 @@ public class DiscoveryTest {
             staticServiceLoader.when(() -> ServiceLoader.load(Discovery.class))
                 .thenReturn(serviceLoader);
 
-            Discovery.getInstance();
+            Discovery.create();
             verify(serviceLoader).findFirst();
             verifyNoMoreInteractions(serviceLoader);
 

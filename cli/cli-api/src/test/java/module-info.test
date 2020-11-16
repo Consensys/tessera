@@ -1,0 +1,3 @@
+--add-opens
+    tessera.cli.cli.api.main/com.quorum.tessera.cli.parsers=openpojo
+

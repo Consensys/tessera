@@ -4,8 +4,6 @@ import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
 import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
 import com.quorum.tessera.key.generation.KeyGenerator;
@@ -35,16 +33,19 @@ import java.util.stream.Collectors;
         subcommands = {CommandLine.HelpCommand.class})
 public class KeyGenCommand implements Callable<CliResult> {
 
-    private final KeyGeneratorFactory factory;
+    private final KeyGeneratorFactory keyGeneratorFactory;
 
     private final ConfigFileUpdaterWriter configFileUpdaterWriter;
 
     private final PasswordFileUpdaterWriter passwordFileUpdaterWriter;
 
-    private KeyDataMarshaller keyDataMarshaller = KeyDataMarshaller.create();
+    private final KeyDataMarshaller keyDataMarshaller;
 
     private final Validator validator =
-            Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
+            Validation.byDefaultProvider()
+                .configure()
+                .ignoreXmlConfiguration()
+                .buildValidatorFactory().getValidator();
 
     @CommandLine.Option(
             names = {"--keyout", "-filename"},
@@ -52,31 +53,35 @@ public class KeyGenCommand implements Callable<CliResult> {
             arity = "0..1",
             description =
                     "Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args determines number of key-pairs generated (default = ${DEFAULT-VALUE})")
-    public List<String> keyOut;
+    private List<String> keyOut;
 
     @CommandLine.Option(
             names = {"--argonconfig", "-keygenconfig"},
             description =
                     "File containing Argon2 encryption config used to secure the new private key when storing to the filesystem")
-    public ArgonOptions argonOptions;
+    private ArgonOptions argonOptions;
 
     @CommandLine.ArgGroup(heading = "Key Vault Options:%n", exclusive = false)
-    KeyVaultConfigOptions keyVaultConfigOptions;
+    private KeyVaultConfigOptions keyVaultConfigOptions;
 
     @CommandLine.ArgGroup(exclusive = false)
-    KeyGenFileUpdateOptions fileUpdateOptions;
+    private KeyGenFileUpdateOptions fileUpdateOptions;
 
-    @CommandLine.Mixin public EncryptorOptions encryptorOptions;
+    @CommandLine.Mixin
+    private EncryptorOptions encryptorOptions;
 
-    @CommandLine.Mixin public DebugOptions debugOptions;
+    @CommandLine.Mixin
+    private DebugOptions debugOptions;
 
     KeyGenCommand(
             KeyGeneratorFactory keyGeneratorFactory,
             ConfigFileUpdaterWriter configFileUpdaterWriter,
-            PasswordFileUpdaterWriter passwordFileUpdaterWriter) {
-        this.factory = keyGeneratorFactory;
-        this.configFileUpdaterWriter = configFileUpdaterWriter;
-        this.passwordFileUpdaterWriter = passwordFileUpdaterWriter;
+            PasswordFileUpdaterWriter passwordFileUpdaterWriter,
+            KeyDataMarshaller keyDataMarshaller) {
+        this.keyGeneratorFactory = Objects.requireNonNull(keyGeneratorFactory);
+        this.configFileUpdaterWriter = Objects.requireNonNull(configFileUpdaterWriter);
+        this.passwordFileUpdaterWriter = Objects.requireNonNull(passwordFileUpdaterWriter);
+        this.keyDataMarshaller = Objects.requireNonNull(keyDataMarshaller);
     }
 
     @Override
@@ -90,8 +95,7 @@ public class KeyGenCommand implements Callable<CliResult> {
         final KeyVaultOptions keyVaultOptions = this.keyVaultOptions().orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig().orElse(null);
 
-        KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
-        final KeyGenerator generator = factory.create(keyVaultConfig, encryptorConfig);
+        final KeyGenerator keyGenerator = keyGeneratorFactory.create(keyVaultConfig, encryptorConfig);
 
         final List<String> newKeyNames = new ArrayList<>();
 
@@ -103,7 +107,7 @@ public class KeyGenCommand implements Callable<CliResult> {
 
         final List<ConfigKeyPair> newConfigKeyPairs =
                 newKeyNames.stream()
-                        .map(name -> generator.generate(name, argonOptions, keyVaultOptions))
+                        .map(name -> keyGenerator.generate(name, argonOptions, keyVaultOptions))
                         .collect(Collectors.toList());
 
         final List<char[]> newPasswords =
@@ -113,7 +117,9 @@ public class KeyGenCommand implements Callable<CliResult> {
                         .collect(Collectors.toList());
 
         final List<KeyData> newKeyData =
-                newConfigKeyPairs.stream().map(pair -> keyDataMarshaller.marshal(pair)).collect(Collectors.toList());
+                newConfigKeyPairs.stream()
+                    .map(keyDataMarshaller::marshal)
+                    .collect(Collectors.toList());
 
         if (Objects.isNull(fileUpdateOptions)) {
             return new CliResult(0, true, null);
@@ -183,7 +189,7 @@ public class KeyGenCommand implements Callable<CliResult> {
                 Optional.ofNullable(fileUpdateOptions)
                         .map(KeyGenFileUpdateOptions::getConfig)
                         .map(Config::getKeys)
-                        .flatMap(c -> c.getKeyVaultConfig(keyVaultConfigOptions.vaultType));
+                        .flatMap(c -> c.getKeyVaultConfig(keyVaultConfigOptions.getVaultType()));
 
         if (fromConfigFile.isPresent()) {
             return Optional.of(fromConfigFile.get());

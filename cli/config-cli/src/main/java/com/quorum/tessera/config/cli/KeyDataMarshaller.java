@@ -10,8 +10,7 @@ public interface KeyDataMarshaller {
     KeyData marshal(ConfigKeyPair keyPair);
 
     static KeyDataMarshaller create() {
-        return ServiceLoader.load(KeyDataMarshaller.class).findFirst()
-            .orElse(new DefaultKeyDataMarshaller() {});
+        return ServiceLoader.load(KeyDataMarshaller.class).findFirst().get();
     }
 
 }

@@ -42,8 +42,8 @@ public class KeyPairConverter {
     }
 
     private KeyPair convert(ConfigKeyPair configKeyPair) {
-        String base64PublicKey;
-        String base64PrivateKey;
+        final String base64PublicKey;
+        final String base64PrivateKey;
 
         if (configKeyPair instanceof AzureVaultKeyPair) {
 

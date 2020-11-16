@@ -4,10 +4,9 @@ import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
-import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore
+
 public class ConfigurationMixinTest {
 
     @Test

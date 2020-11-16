@@ -34,21 +34,23 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
     @Override
     public void resolveKeyPasswords(final Config config) {
 
-        final KeyConfiguration input = config.getKeys();
-        if (input == null) {
+        final KeyConfiguration keyConfiguration = config.getKeys();
+        if (keyConfiguration == null) {
             // invalid config, but gets picked up by validation later
             return;
         }
 
         final List<char[]> allPasswords = new ArrayList<>();
-        if (input.getPasswords() != null) {
+        if (keyConfiguration.getPasswords() != null) {
             allPasswords.addAll(
-                input.getPasswords().stream().map(String::toCharArray).collect(Collectors.toList())
+                keyConfiguration.getPasswords().stream()
+                    .map(String::toCharArray)
+                    .collect(Collectors.toList())
             );
-        } else if (input.getPasswordFile() != null) {
+        } else if (keyConfiguration.getPasswordFile() != null) {
             try {
                 allPasswords.addAll(
-                    Files.readAllLines(input.getPasswordFile(), StandardCharsets.UTF_8)
+                    Files.readAllLines(keyConfiguration.getPasswordFile(), StandardCharsets.UTF_8)
                         .stream()
                         .map(String::toCharArray)
                         .collect(Collectors.toList())
@@ -60,9 +62,9 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
             }
         }
 
-        List<KeyData> keyPairs = input.getKeyData();
+        List<KeyData> keyPairs = keyConfiguration.getKeyData();
 
-        IntStream.range(0, input.getKeyData().size())
+        IntStream.range(0, keyConfiguration.getKeyData().size())
                 .forEachOrdered(
                         i -> {
                             if (i < allPasswords.size()) {
@@ -83,9 +85,9 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
 
         final KeyEncryptor keyEncryptor = KeyEncryptorFactory.newFactory().create(encryptorConfig);
 
-        IntStream.range(0, input.getKeyData().size())
+        IntStream.range(0, keyConfiguration.getKeyData().size())
                 .forEachOrdered(
-                        keyNumber -> getSingleKeyPassword(keyNumber, input.getKeyData().get(keyNumber), keyEncryptor));
+                        keyNumber -> getSingleKeyPassword(keyNumber, keyConfiguration.getKeyData().get(keyNumber), keyEncryptor));
     }
 
     // TODO: make private

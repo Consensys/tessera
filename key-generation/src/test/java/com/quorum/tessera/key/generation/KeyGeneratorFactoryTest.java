@@ -26,7 +26,7 @@ public class KeyGeneratorFactoryTest {
         when(encryptorConfig.getType()).thenReturn(EncryptorType.EC);
         when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
 
-        final KeyGenerator keyGenerator = KeyGeneratorFactory.newFactory().create(null, encryptorConfig);
+        final KeyGenerator keyGenerator = KeyGeneratorFactory.create().create(null, encryptorConfig);
         when(envProvider.getEnv(anyString())).thenReturn("env");
 
         assertThat(keyGenerator).isNotNull();
@@ -43,7 +43,7 @@ public class KeyGeneratorFactoryTest {
         when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
         when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
 
-        KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
+        KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.create();
 
         try(MockedStatic<KeyVaultServiceFactory> mockedKeyVaultServiceFactory = mockStatic(KeyVaultServiceFactory.class)) {
             mockedKeyVaultServiceFactory.when(() -> KeyVaultServiceFactory.getInstance(KeyVaultType.AWS))

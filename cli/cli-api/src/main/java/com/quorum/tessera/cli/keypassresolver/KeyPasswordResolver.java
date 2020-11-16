@@ -2,6 +2,8 @@ package com.quorum.tessera.cli.keypassresolver;
 
 import com.quorum.tessera.config.Config;
 
+import java.util.ServiceLoader;
+
 public interface KeyPasswordResolver {
 
     /**
@@ -15,5 +17,10 @@ public interface KeyPasswordResolver {
      *               well as some predefined passwords
      */
     void resolveKeyPasswords(Config config);
+
+    static KeyPasswordResolver create() {
+        return ServiceLoader.load(KeyPasswordResolver.class).findFirst().get();
+    }
+
 
 }

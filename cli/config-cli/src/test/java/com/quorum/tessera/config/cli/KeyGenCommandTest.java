@@ -1,38 +1,174 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.cli.CliException;
+
 import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.ConfigFileUpdaterWriter;
 import com.quorum.tessera.config.util.PasswordFileUpdaterWriter;
 import com.quorum.tessera.key.generation.KeyGenerator;
 import com.quorum.tessera.key.generation.KeyGeneratorFactory;
-import com.quorum.tessera.key.generation.KeyVaultOptions;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.MockitoAnnotations;
+import picocli.CommandLine;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-
-@Ignore
 public class KeyGenCommandTest {
 
+    private KeyGeneratorFactory keyGeneratorFactory;
+
+    private ConfigFileUpdaterWriter configFileUpdaterWriter;
+
+    private PasswordFileUpdaterWriter passwordFileUpdaterWriter;
+
+    private KeyDataMarshaller keyDataMarshaller;
+
+    private KeyGenCommand keyGenCommand;
+
+    private KeyGenerator keyGenerator;
+
+    @Before
+    public void beforeTest() {
+        keyGeneratorFactory = mock(KeyGeneratorFactory.class);
+        configFileUpdaterWriter = mock(ConfigFileUpdaterWriter.class);
+        passwordFileUpdaterWriter = mock(PasswordFileUpdaterWriter.class);
+        keyDataMarshaller = mock(KeyDataMarshaller.class);
+
+
+        keyGenCommand = new KeyGenCommand(
+            keyGeneratorFactory,
+            configFileUpdaterWriter,
+            passwordFileUpdaterWriter,
+            keyDataMarshaller);
+
+        keyGenerator = mock(KeyGenerator.class);
+    }
+
+    @After
+    public void afterTest() {
+        verifyNoMoreInteractions(keyGeneratorFactory);
+        verifyNoMoreInteractions(configFileUpdaterWriter);
+        verifyNoMoreInteractions(passwordFileUpdaterWriter);
+        verifyNoMoreInteractions(keyDataMarshaller);
+        verifyNoMoreInteractions(keyGenerator);
+    }
+
+
+    @Test
+    public void noArgsProvided() throws Exception {
+
+        CommandLine commandLine = new CommandLine(keyGenCommand);
+
+        CommandLine.ParseResult parseResult = commandLine.parseArgs();
+
+        assertThat(parseResult).isNotNull();
+        assertThat(parseResult.matchedArgs()).isEmpty();
+        assertThat(parseResult.unmatched()).isEmpty();
+
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+
+        when(keyGenerator.generate("", null, null))
+            .thenReturn(configKeyPair);
+
+        when(keyGeneratorFactory.create(refEq(null), any(EncryptorConfig.class)))
+            .thenReturn(keyGenerator);
+
+        CliResult result = keyGenCommand.call();
+        assertThat(result).isNotNull();
+
+        assertThat(result.isSuppressStartup()).isTrue();
+        assertThat(result.getConfig()).isNotPresent();
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+        verify(keyGeneratorFactory).create(refEq(null), any(EncryptorConfig.class));
+
+        verify(keyGenerator).generate("", null, null);
+
+    }
+
+
+    @Test
+    public void onlySingleOutputFileProvided() throws Exception {
+
+        List<String> optionVariations = List.of("--keyout", "-filename");
+
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+        when(keyGenerator.generate("myfile", null, null))
+            .thenReturn(configKeyPair);
+        when(keyGeneratorFactory.create(refEq(null), any(EncryptorConfig.class)))
+            .thenReturn(keyGenerator);
+
+        for (String option : optionVariations) {
+            String arg = option.concat("=myfile");
+
+            CommandLine commandLine = new CommandLine(keyGenCommand);
+            CommandLine.ParseResult parseResult = commandLine.parseArgs(arg);
+
+            assertThat(parseResult).isNotNull();
+            assertThat(parseResult.matchedArgs()).hasSize(1);
+            assertThat(parseResult.hasMatchedOption("--keyout"));
+            assertThat(parseResult.unmatched()).isEmpty();
+
+            CliResult result = keyGenCommand.call();
+            assertThat(result).isNotNull();
+            assertThat(result.isSuppressStartup()).isTrue();
+            assertThat(result.getConfig()).isNotPresent();
+
+        }
+
+        verify(keyDataMarshaller,times(optionVariations.size())).marshal(configKeyPair);
+        verify(keyGeneratorFactory,times(optionVariations.size())).create(refEq(null), any(EncryptorConfig.class));
+
+        verify(keyGenerator,times(optionVariations.size())).generate("myfile", null, null);
+    }
+
+    @Test
+    public void onlyMulipleOutputFilesProvided() throws Exception {
+
+        List<String> optionVariations = List.of("--keyout", "-filename");
+        List<String> valueVariations = List.of("myfile","myotherfile","yetanother");
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+
+        valueVariations.forEach(filename -> {
+            when(keyGenerator.generate(filename, null, null))
+                .thenReturn(configKeyPair);
+        });
+
+        when(keyGeneratorFactory.create(refEq(null), any(EncryptorConfig.class)))
+            .thenReturn(keyGenerator);
+
+        for (String option : optionVariations) {
+            String arg = option.concat("=").concat(String.join(",",valueVariations));
+
+            CommandLine commandLine = new CommandLine(keyGenCommand);
+            CommandLine.ParseResult parseResult = commandLine.parseArgs(arg);
+
+            assertThat(parseResult).isNotNull();
+            assertThat(parseResult.matchedArgs()).hasSize(1);
+            assertThat(parseResult.hasMatchedOption(option));
+            assertThat(parseResult.unmatched()).isEmpty();
+
+            CliResult result = keyGenCommand.call();
+            assertThat(result).isNotNull();
+            assertThat(result.isSuppressStartup()).isTrue();
+            assertThat(result.getConfig()).isNotPresent();
+
+        }
+
+        verify(keyDataMarshaller,times(optionVariations.size() * valueVariations.size())).marshal(configKeyPair);
+        verify(keyGeneratorFactory,times(optionVariations.size())).create(refEq(null), any(EncryptorConfig.class));
+
+        valueVariations.forEach(filename -> {
+            verify(keyGenerator,times(optionVariations.size())).generate(filename, null, null);
+        });
+    }
+
+/*
     private KeyGenCommand command;
 
     private KeyGeneratorFactory keyGeneratorFactory;
@@ -41,22 +177,27 @@ public class KeyGenCommandTest {
 
     private PasswordFileUpdaterWriter passwordFileUpdaterWriter;
 
+    private KeyDataMarshaller keyDataMarshaller;
+
     private final CliResult wantResult = new CliResult(0, true, null);
 
-    @Captor private ArgumentCaptor<ArrayList<char[]>> argCaptor;
+    @Captor
+    private ArgumentCaptor<ArrayList<char[]>> argCaptor;
 
     @Before
     public void onSetup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         keyGeneratorFactory = mock(KeyGeneratorFactory.class);
         configFileUpdaterWriter = mock(ConfigFileUpdaterWriter.class);
         passwordFileUpdaterWriter = mock(PasswordFileUpdaterWriter.class);
-        command = new KeyGenCommand(keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter);
+        keyDataMarshaller = mock(KeyDataMarshaller.class);
+
+        command = new KeyGenCommand(keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter,keyDataMarshaller);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter);
+        verifyNoMoreInteractions(keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter,keyDataMarshaller);
     }
 
     @Test
@@ -71,8 +212,12 @@ public class KeyGenCommandTest {
 
         command.encryptorOptions = encryptorOptions;
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate(anyString(), any(), any())).thenReturn(configKeyPair);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+        when(keyDataMarshaller.marshal(any(ConfigKeyPair.class))).thenReturn(mock(KeyData.class));
 
         CliResult result = command.call();
 
@@ -83,11 +228,18 @@ public class KeyGenCommandTest {
         verify(encryptorOptions).parseEncryptorConfig();
         verify(keyGenerator).generate(anyString(), any(), any());
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
+
     }
 
     @Test
     public void usesDefaultEncryptorIfNoneInConfigOrCLI() throws Exception {
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate("",null,null))
+            .thenReturn(configKeyPair);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -99,7 +251,10 @@ public class KeyGenCommandTest {
         assertThat(gotEncryptorConfig).isEqualToComparingFieldByField(EncryptorConfig.getDefault());
 
         assertThat(result).isEqualToComparingFieldByField(wantResult);
-        verify(keyGenerator).generate(anyString(), any(), any());
+        verify(keyGenerator).generate("",null,null);
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -121,23 +276,29 @@ public class KeyGenCommandTest {
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+        when(keyGenerator.generate("", null, null))
+            .thenReturn(configKeyPair);
+
         CliResult result = command.call();
 
         // verify the correct config is used
         verify(keyGeneratorFactory).create(null, encryptorConfig);
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
-        verify(keyGenerator).generate(anyString(), any(), any());
+        verify(keyGenerator).generate("", null, null);
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
 
         verify(configFileUpdaterWriter).updateAndWriteToCLI(any(), any(), any());
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
     public void noKeyEncryptionConfigUsesDefault() throws Exception {
-        final ArgonOptions defaultArgonOptions = null;
 
         final EncryptorConfig encryptorConfig = new EncryptorConfig();
         final Map<String, String> properties = new HashMap<>();
@@ -148,8 +309,10 @@ public class KeyGenCommandTest {
         when(encryptorOptions.parseEncryptorConfig()).thenReturn(encryptorConfig);
 
         command.encryptorOptions = encryptorOptions;
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate("",null,null)).thenReturn(configKeyPair);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -157,10 +320,12 @@ public class KeyGenCommandTest {
         // verify the correct config is used
         verify(keyGeneratorFactory).create(null, encryptorConfig);
         assertThat(result).isEqualToComparingFieldByField(wantResult);
-        verify(keyGenerator).generate(anyString(), eq(defaultArgonOptions), any());
+        verify(keyGenerator).generate("", null, null);
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -178,7 +343,9 @@ public class KeyGenCommandTest {
         command.encryptorOptions = encryptorOptions;
         command.argonOptions = argonOptions;
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate("",argonOptions,null)).thenReturn(configKeyPair);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -190,6 +357,9 @@ public class KeyGenCommandTest {
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -206,7 +376,10 @@ public class KeyGenCommandTest {
 
         command.encryptorOptions = encryptorOptions;
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate(defaultOutputPath,null,null)).thenReturn(configKeyPair);
+
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -214,10 +387,14 @@ public class KeyGenCommandTest {
         // verify the correct config is used
         verify(keyGeneratorFactory).create(null, encryptorConfig);
         assertThat(result).isEqualToComparingFieldByField(wantResult);
-        verify(keyGenerator).generate(eq(defaultOutputPath), any(), any());
+
+        verify(keyGenerator).generate(defaultOutputPath, null, null);
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -235,7 +412,10 @@ public class KeyGenCommandTest {
         command.encryptorOptions = encryptorOptions;
         command.keyOut = Arrays.asList(outputPath);
 
+
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate(outputPath,null,null)).thenReturn(configKeyPair);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -247,6 +427,9 @@ public class KeyGenCommandTest {
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -265,7 +448,12 @@ public class KeyGenCommandTest {
         command.encryptorOptions = encryptorOptions;
         command.keyOut = Arrays.asList(outputPath, otherOutputPath);
 
+        final ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate(outputPath,null,null)).thenReturn(configKeyPair);
+        when(keyGenerator.generate(otherOutputPath,null,null)).thenReturn(configKeyPair);
+
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -273,11 +461,17 @@ public class KeyGenCommandTest {
         // verify the correct config is used
         verify(keyGeneratorFactory).create(null, encryptorConfig);
         assertThat(result).isEqualToComparingFieldByField(wantResult);
+
         verify(keyGenerator).generate(eq(outputPath), any(), any());
         verify(keyGenerator).generate(eq(otherOutputPath), any(), any());
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+
+        verify(keyGenerator).generate(outputPath,null,null);
+
+        verify(keyDataMarshaller,times(2)).marshal(configKeyPair);
+
     }
 
     @Test
@@ -294,7 +488,10 @@ public class KeyGenCommandTest {
 
         command.encryptorOptions = encryptorOptions;
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate("",null,null)).thenReturn(configKeyPair);
+
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -302,10 +499,13 @@ public class KeyGenCommandTest {
         // verify the correct config is used
         verify(keyGeneratorFactory).create(null, encryptorConfig);
         assertThat(result).isEqualToComparingFieldByField(wantResult);
-        verify(keyGenerator).generate(anyString(), any(), eq(defaultKeyVaultOptions));
+        verify(keyGenerator).generate("",null,null);
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -330,8 +530,15 @@ public class KeyGenCommandTest {
         command.keyVaultConfigOptions = keyVaultConfigOptions;
         command.keyOut = Collections.singletonList("keyout");
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+
+        when(keyGenerator.generate(eq("keyout"),any(),refEq(keyVaultOptions)))
+            .thenReturn(configKeyPair);
+
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+
 
         CliResult result = command.call();
 
@@ -339,14 +546,18 @@ public class KeyGenCommandTest {
         KeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig("someurl", null, null, null);
         verify(keyGeneratorFactory).create(keyVaultConfig, encryptorConfig);
         assertThat(result).isEqualToComparingFieldByField(wantResult);
-        verify(keyGenerator).generate(anyString(), any(), refEq(keyVaultOptions));
+
+        verify(keyGenerator).generate(eq("keyout"),any(),refEq(keyVaultOptions));
 
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+        verify(keyDataMarshaller).marshal(any(ConfigKeyPair.class));
+
     }
 
     @Test
     public void validAzureKeyVaultConfig() throws Exception {
+
         final KeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig("someurl");
 
         final EncryptorOptions encryptorOptions = mock(EncryptorOptions.class);
@@ -359,7 +570,10 @@ public class KeyGenCommandTest {
         command.encryptorOptions = encryptorOptions;
         command.keyVaultConfigOptions = keyVaultConfigOptions;
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate("",null,null)).thenReturn(configKeyPair);
+
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -368,9 +582,11 @@ public class KeyGenCommandTest {
         verify(keyGeneratorFactory).create(refEq(keyVaultConfig), any(EncryptorConfig.class));
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
-        verify(keyGenerator).generate(anyString(), any(), any());
+        verify(keyGenerator).generate("",null,null);
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -424,7 +640,9 @@ public class KeyGenCommandTest {
         command.keyVaultConfigOptions = keyVaultConfigOptions;
         command.keyOut = Collections.singletonList("out");
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate("out",null,null)).thenReturn(configKeyPair);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -433,9 +651,11 @@ public class KeyGenCommandTest {
         verify(keyGeneratorFactory).create(refEq(keyVaultConfig), any(EncryptorConfig.class));
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
-        verify(keyGenerator).generate(anyString(), any(), any());
+        verify(keyGenerator).generate("out",null,null);
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -457,6 +677,8 @@ public class KeyGenCommandTest {
 
         command.encryptorOptions = encryptorOptions;
         command.keyVaultConfigOptions = keyVaultConfigOptions;
+
+
 
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
@@ -562,7 +784,9 @@ public class KeyGenCommandTest {
         command.encryptorOptions = encryptorOptions;
         command.keyVaultConfigOptions = keyVaultConfigOptions;
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate("",null,null)).thenReturn(configKeyPair);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -571,9 +795,12 @@ public class KeyGenCommandTest {
         verify(keyGeneratorFactory).create(refEq(keyVaultConfig), any(EncryptorConfig.class));
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
-        verify(keyGenerator).generate(anyString(), any(), any());
+        verify(keyGenerator).generate("",null,null);
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -590,7 +817,9 @@ public class KeyGenCommandTest {
         command.encryptorOptions = encryptorOptions;
         command.keyVaultConfigOptions = keyVaultConfigOptions;
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
         final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        when(keyGenerator.generate("",null,null)).thenReturn(configKeyPair);
         when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
 
         CliResult result = command.call();
@@ -599,9 +828,11 @@ public class KeyGenCommandTest {
         verify(keyGeneratorFactory).create(refEq(keyVaultConfig), any(EncryptorConfig.class));
         assertThat(result).isEqualToComparingFieldByField(wantResult);
 
-        verify(keyGenerator).generate(anyString(), any(), any());
+        verify(keyGenerator).generate("",null,null);
         verify(encryptorOptions).parseEncryptorConfig();
         verifyNoMoreInteractions(encryptorOptions, keyGenerator);
+        verify(keyDataMarshaller).marshal(configKeyPair);
+
     }
 
     @Test
@@ -674,6 +905,8 @@ public class KeyGenCommandTest {
 
         verify(configFileUpdaterWriter).updateAndWrite(any(), any(), eq(config), eq(configOut));
         verify(keyGeneratorFactory).create(any(), any());
+
+        verify(keyDataMarshaller).marshal(any(ConfigKeyPair.class));
     }
 
     @Test
@@ -699,6 +932,8 @@ public class KeyGenCommandTest {
         assertThat(argCaptor.getValue()).containsExactly("pwd".toCharArray());
         verify(configFileUpdaterWriter).updateAndWrite(any(), any(), eq(config), eq(configOut));
         verify(keyGeneratorFactory).create(any(), any());
+
+        verify(keyDataMarshaller).marshal(any(ConfigKeyPair.class));
     }
 
     @Test
@@ -738,6 +973,10 @@ public class KeyGenCommandTest {
         assertThat(arg.getProperty("url")).hasValue("should be used");
 
         verify(keyGeneratorFactory).create(any(), any());
+        verify(keyDataMarshaller).marshal(any(ConfigKeyPair.class));
+
+        verify(keyDataMarshaller).marshal(any(ConfigKeyPair.class));
+
     }
 
     @Test
@@ -777,5 +1016,10 @@ public class KeyGenCommandTest {
         assertThat(arg.getProperty("endpoint")).hasValue("http://awsforthenewkey");
 
         verify(keyGeneratorFactory).create(any(), any());
+
+        verify(keyDataMarshaller).marshal(any(ConfigKeyPair.class));
+
     }
+
+ */
 }

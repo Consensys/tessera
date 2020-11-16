@@ -3,7 +3,6 @@ package com.quorum.tessera.config.cli;
 import com.quorum.tessera.cli.CLIExceptionCapturer;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.ArgonOptions;
@@ -38,10 +37,10 @@ public class PicoCliDelegate {
     private final KeyPasswordResolver keyPasswordResolver;
 
     public PicoCliDelegate() {
-        this(ServiceLoader.load(KeyPasswordResolver.class).findFirst().orElse(new CliKeyPasswordResolver()));
+        this(KeyPasswordResolver.create());
     }
 
-    private PicoCliDelegate(final KeyPasswordResolver keyPasswordResolver) {
+    protected PicoCliDelegate(final KeyPasswordResolver keyPasswordResolver) {
         this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
     }
 

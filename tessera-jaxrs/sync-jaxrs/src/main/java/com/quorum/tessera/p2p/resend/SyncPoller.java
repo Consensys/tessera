@@ -41,7 +41,7 @@ public class SyncPoller implements Runnable {
             Executors.newCachedThreadPool(),
             resendPartyStore,
             transactionRequester,
-            Discovery.getInstance(),
+            Discovery.create(),
             PartyInfoParser.create(),
             p2pClient);
     }

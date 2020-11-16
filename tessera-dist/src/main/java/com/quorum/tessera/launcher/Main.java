@@ -11,6 +11,7 @@ import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
@@ -69,8 +70,8 @@ public class Main {
             LOGGER.debug("Stored config {}",config);
 
             final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
-            com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
-            Discovery.getInstance().onCreate();
+            Enclave.create();
+            Discovery.create().onCreate();
 
             LOGGER.debug("Creating EncodedPayloadManager");
             EncodedPayloadManager.create();

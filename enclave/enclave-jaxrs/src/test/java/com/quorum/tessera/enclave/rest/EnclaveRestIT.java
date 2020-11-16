@@ -4,8 +4,8 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.server.EnclaveCliAdapter;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
@@ -47,10 +47,10 @@ public class EnclaveRestIT {
         commandLine.execute("-configfile", url.getFile());
         CliResult cliResult = commandLine.getExecutionResult();
 
-        EnclaveFactory enclaveFactory = EnclaveFactory.create();
 
         Config config = cliResult.getConfig().get();
-        this.enclave = enclaveFactory.createLocal(config);
+        ConfigFactory.create().store(config);
+        this.enclave = Enclave.create();
 
         jersey = Util.create(enclave);
         jersey.setUp();

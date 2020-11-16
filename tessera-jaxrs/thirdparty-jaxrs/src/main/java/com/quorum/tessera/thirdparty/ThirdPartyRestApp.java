@@ -23,7 +23,7 @@ public class ThirdPartyRestApp extends TesseraRestApplication implements com.quo
     private final TransactionManager transactionManager;
 
     public ThirdPartyRestApp() {
-        this.discovery = Discovery.getInstance();
+        this.discovery = Discovery.create();
         this.transactionManager = TransactionManagerFactory.create().transactionManager().get();
     }
 

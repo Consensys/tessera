@@ -1,0 +1,4 @@
+--add-opens
+     tessera.cli.config.cli.main/com.quorum.tessera.config.cli=org.mockito
+--add-opens
+    tessera.key.generation.main/com.quorum.tessera.key.generation=org.mockito

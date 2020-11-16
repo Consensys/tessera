@@ -33,7 +33,7 @@ public interface Discovery {
         return discoveryHelper.buildRemoteNodeInfos();
     }
 
-    static Discovery getInstance() {
+    static Discovery create() {
         return ServiceLoader.load(Discovery.class).findFirst().get();
     }
 }
