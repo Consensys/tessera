@@ -6,6 +6,7 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.server.EnclaveCliAdapter;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
@@ -47,8 +48,8 @@ public class Main {
                                                 .stream()
                                                 .findFirst()
                                                 .get();
-
-        final TesseraServer server = restServerFactory.createServer(serverConfig, Set.of(new EnclaveApplication()));
+        Enclave enclave = Enclave.create();
+        final TesseraServer server = restServerFactory.createServer(serverConfig, Set.of(new EnclaveApplication(enclave)));
         server.start();
 
         CountDownLatch latch = new CountDownLatch(1);

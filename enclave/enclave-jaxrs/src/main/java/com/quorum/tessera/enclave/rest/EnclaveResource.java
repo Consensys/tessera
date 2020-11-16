@@ -23,8 +23,8 @@ public class EnclaveResource {
 
     private final PayloadEncoder payloadEncoder;
 
-    public EnclaveResource() {
-        this.enclave = Enclave.create();
+    public EnclaveResource(Enclave enclave) {
+        this.enclave = enclave;
         this.payloadEncoder = PayloadEncoder.create();
     }
 

@@ -2,46 +2,76 @@ package com.quorum.tessera.enclave.server;
 
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
-import com.quorum.tessera.cli.parsers.ConfigConverter;
+import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.config.Config;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemErrRule;
 import org.junit.contrib.java.lang.system.SystemOutRule;
+import org.mockito.MockedStatic;
 import picocli.CommandLine;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class EnclaveCliAdapterTest {
 
-    @Rule public SystemErrRule systemErrOutput = new SystemErrRule().enableLog();
+    @Rule
+    public SystemErrRule systemErrOutput = new SystemErrRule().enableLog();
 
-    @Rule public SystemOutRule systemOutOutput = new SystemOutRule().enableLog();
+    @Rule
+    public SystemOutRule systemOutOutput = new SystemOutRule().enableLog();
 
     private CommandLine commandLine;
 
+    private MockedStatic<KeyPasswordResolver> mockedStaticKeyPasswordResolver;
+
+    private KeyPasswordResolver keyPasswordResolver;
+
+    private CommandLine.ITypeConverter<Config> configConvertor;
+
+    private EnclaveCliAdapter enclaveCliAdapter;
+
     @Before
     public void onSetUp() {
+        keyPasswordResolver = mock(KeyPasswordResolver.class);
+
+        mockedStaticKeyPasswordResolver = mockStatic(KeyPasswordResolver.class);
+        mockedStaticKeyPasswordResolver.when(KeyPasswordResolver::create).thenReturn(keyPasswordResolver);
+
         System.setProperty(CliType.CLI_TYPE_KEY, CliType.ENCLAVE.name());
         this.systemErrOutput.clearLog();
 
-        commandLine = new CommandLine(new EnclaveCliAdapter());
+        configConvertor = mock(CommandLine.ITypeConverter.class);
+
+        enclaveCliAdapter = new EnclaveCliAdapter();
+
+        commandLine = new CommandLine(enclaveCliAdapter);
         commandLine
-            .registerConverter(Config.class, new ConfigConverter())
+            .registerConverter(Config.class, configConvertor)
             .setSeparator(" ")
             .setCaseInsensitiveEnumValuesAllowed(true);
     }
 
     @After
     public void onTearDown() {
-        System.clearProperty(CliType.CLI_TYPE_KEY);
+        try {
+
+            verifyNoMoreInteractions(configConvertor);
+            verifyNoMoreInteractions(keyPasswordResolver);
+            System.clearProperty(CliType.CLI_TYPE_KEY);
+            mockedStaticKeyPasswordResolver.verify(KeyPasswordResolver::create);
+            mockedStaticKeyPasswordResolver.verifyNoMoreInteractions();
+        } finally {
+            mockedStaticKeyPasswordResolver.close();
+        }
     }
 
     @Test
     public void getType() {
-        assertThat(new EnclaveCliAdapter().getType()).isEqualTo(CliType.ENCLAVE);
+        assertThat(enclaveCliAdapter.getType()).isEqualTo(CliType.ENCLAVE);
     }
 
     @Test
@@ -86,19 +116,33 @@ public class EnclaveCliAdapterTest {
                         "      -pidfile <pidFilePath> the path to write the PID to");
     }
 
-    @Ignore
     @Test
     public void configPassedToResolver() throws Exception {
-        final Path inputFile = Paths.get(getClass().getResource("/sample-config.json").toURI());
 
-        commandLine.execute("-configfile", inputFile.toString());
-        final CliResult result = commandLine.getExecutionResult();
+            final String configFile = "myconfig";
+            final Config config = mock(Config.class);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isSuppressStartup()).isFalse();
-        assertThat(result.getConfig()).isPresent();
+            when(configConvertor.convert(configFile)).thenReturn(config);
 
-        assertThat(MockKeyPasswordResolver.getSeen()).isNotNull();
+            mockedStaticKeyPasswordResolver.when(KeyPasswordResolver::create)
+                .thenReturn(keyPasswordResolver);
+
+            commandLine
+                .execute("-configfile", configFile);
+
+            final CliResult result = commandLine.getExecutionResult();
+
+            assertThat(result).isNotNull();
+            assertThat(result.getStatus()).isEqualTo(0);
+            assertThat(result.isSuppressStartup()).isFalse();
+            assertThat(result.getConfig()).containsSame(config);
+
+            verify(configConvertor).convert(configFile);
+
+            verify(keyPasswordResolver).resolveKeyPasswords(config);
+
+            mockedStaticKeyPasswordResolver.verify(KeyPasswordResolver::create);
+
+
     }
 }

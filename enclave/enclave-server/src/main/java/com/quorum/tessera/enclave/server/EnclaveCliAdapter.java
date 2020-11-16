@@ -3,7 +3,6 @@ package com.quorum.tessera.enclave.server;
 import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
-import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.ConfigurationMixin;
 import com.quorum.tessera.cli.parsers.PidFileMixin;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.util.Objects;
-import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
@@ -44,7 +42,7 @@ public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
     }
 
     public EnclaveCliAdapter() {
-        this(ServiceLoader.load(KeyPasswordResolver.class).findFirst().orElse(new CliKeyPasswordResolver()));
+        this(KeyPasswordResolver.create());
     }
 
     @Override

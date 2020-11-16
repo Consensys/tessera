@@ -9,7 +9,6 @@ import com.quorum.tessera.service.Service;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -22,7 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class EnclaveApplicationTest {
 
     private Enclave enclave;
@@ -172,12 +170,12 @@ public class EnclaveApplicationTest {
 
     @Test
     public void appType() {
-        assertThat(new EnclaveApplication().getAppType()).isEqualTo(AppType.ENCLAVE);
+        assertThat(new EnclaveApplication(enclave).getAppType()).isEqualTo(AppType.ENCLAVE);
     }
 
     @Test
     public void getCommunicationType() {
-        assertThat(new EnclaveApplication().getCommunicationType())
+        assertThat(new EnclaveApplication(enclave).getCommunicationType())
                 .isEqualTo(CommunicationType.REST);
     }
 }

@@ -24,16 +24,15 @@ public class Util {
                 
                 enable(TestProperties.LOG_TRAFFIC);
                 enable(TestProperties.DUMP_ENTITY);
-                set(TestProperties.CONTAINER_PORT,new Util.PortUtil().nextPort());
-                EnclaveApplication application = new EnclaveApplication();
+                set(TestProperties.CONTAINER_PORT,"0");
 
-                ResourceConfig config = ResourceConfig.forApplication(application);
-                config.packages("com.quorum.tessera.enclave.rest");
-                return config;
+                return ResourceConfig.forApplication(new EnclaveApplication(enclave));
+
             }
-
         };
     }
+
+
 
     static class PortUtil {
 
