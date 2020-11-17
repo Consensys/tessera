@@ -1,24 +1,18 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.encryption.Nonce;
-import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.data.EncryptedRawTransactionDAO;
-import com.quorum.tessera.data.EncryptedRawTransaction;
-import com.quorum.tessera.data.EncryptedTransaction;
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
+import com.quorum.tessera.data.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
-import com.quorum.tessera.transaction.publish.PayloadPublisher;
-import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Codec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -42,8 +36,6 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final BatchPayloadPublisher batchPayloadPublisher;
 
-    private final PayloadPublisher payloadPublisher;
-
     private final Enclave enclave;
 
     private final ResendManager resendManager;
@@ -52,56 +44,44 @@ public class TransactionManagerImpl implements TransactionManager {
 
     private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
 
-    private int resendFetchSize;
-
     public TransactionManagerImpl(
             EncryptedTransactionDAO encryptedTransactionDAO,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
-            PayloadPublisher payloadPublisher,
             BatchPayloadPublisher batchPayloadPublisher,
-            PrivacyHelper privacyHelper,
-            int resendFetchSize) {
+            PrivacyHelper privacyHelper) {
         this(
                 Base64Codec.create(),
                 PayloadEncoder.create(),
                 encryptedTransactionDAO,
-                payloadPublisher,
                 batchPayloadPublisher,
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,
-                privacyHelper,
-                resendFetchSize);
+                privacyHelper);
     }
 
-    /*
-    Only use for tests
-    */
+    // Only use for tests
     public TransactionManagerImpl(
             Base64Codec base64Decoder,
             PayloadEncoder payloadEncoder,
             EncryptedTransactionDAO encryptedTransactionDAO,
-            PayloadPublisher payloadPublisher,
             BatchPayloadPublisher batchPayloadPublisher,
             Enclave enclave,
             EncryptedRawTransactionDAO encryptedRawTransactionDAO,
             ResendManager resendManager,
-            PrivacyHelper privacyHelper,
-            int resendFetchSize) {
+            PrivacyHelper privacyHelper) {
 
         this.base64Codec = Objects.requireNonNull(base64Decoder, "base64Codec is required");
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
         this.encryptedTransactionDAO =
                 Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
-        this.payloadPublisher = Objects.requireNonNull(payloadPublisher, "payloadPublisher is required");
         this.batchPayloadPublisher = Objects.requireNonNull(batchPayloadPublisher, "batchPayloadPublisher is required");
         this.enclave = Objects.requireNonNull(enclave, "enclave is required");
         this.encryptedRawTransactionDAO =
                 Objects.requireNonNull(encryptedRawTransactionDAO, "encryptedRawTransactionDAO is required");
         this.resendManager = Objects.requireNonNull(resendManager, "resendManager is required");
-        this.resendFetchSize = resendFetchSize;
         this.privacyHelper = Objects.requireNonNull(privacyHelper, "privacyHelper is required");
     }
 
@@ -216,103 +196,6 @@ public class TransactionManagerImpl implements TransactionManager {
                 });
 
         return SendResponse.from(messageHash);
-    }
-
-    protected ResendResponse resendAll(PublicKey recipientPublicKey) {
-        int offset = 0;
-
-        while (offset < encryptedTransactionDAO.transactionCount()) {
-
-            encryptedTransactionDAO.retrieveTransactions(offset, resendFetchSize).stream()
-                    .map(EncryptedTransaction::getEncodedPayload)
-                    .map(payloadEncoder::decode)
-                    .filter(
-                            payload -> {
-                                final boolean isRecipient = payload.getRecipientKeys().contains(recipientPublicKey);
-                                final boolean isSender = Objects.equals(payload.getSenderKey(), recipientPublicKey);
-                                return isRecipient || isSender;
-                            })
-                    .forEach(
-                            payload -> {
-                                final EncodedPayload prunedPayload;
-
-                                if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
-                                    if (payload.getRecipientKeys().isEmpty()) {
-                                        // TODO Should we stop the whole resend just because we could not find a key
-                                        // for a tx? Log instead?
-                                        // a malicious party may be able to craft TXs that prevent others from
-                                        // performing resends
-                                        final PublicKey decryptedKey =
-                                                searchForRecipientKey(payload)
-                                                        .orElseThrow(
-                                                                () -> {
-                                                                    final MessageHash hash =
-                                                                            MessageHashFactory.create()
-                                                                                    .createFromCipherText(
-                                                                                            payload.getCipherText());
-                                                                    return new RecipientKeyNotFoundException(
-                                                                            "No key found as recipient of message "
-                                                                                    + hash);
-                                                                });
-
-                                        prunedPayload = payloadEncoder.withRecipient(payload, decryptedKey);
-                                    } else {
-                                        prunedPayload = payload;
-                                    }
-                                } else {
-                                    prunedPayload = payloadEncoder.forRecipient(payload, recipientPublicKey);
-                                }
-
-                                try {
-                                    if (!enclave.getPublicKeys().contains(recipientPublicKey)) {
-                                        payloadPublisher.publishPayload(prunedPayload, recipientPublicKey);
-                                    }
-                                } catch (PublishPayloadException ex) {
-                                    LOGGER.warn(
-                                            "Unable to publish payload to recipient {} during resend",
-                                            recipientPublicKey.encodeToBase64());
-                                }
-                            });
-
-            offset += resendFetchSize;
-        }
-
-        return ResendResponse.Builder.create().build();
-    }
-
-    protected ResendResponse resendIndividual(PublicKey recipientPublicKey, MessageHash messageHash) {
-
-        final EncryptedTransaction encryptedTransaction =
-                encryptedTransactionDAO
-                        .retrieveByHash(messageHash)
-                        .orElseThrow(
-                                () ->
-                                        new TransactionNotFoundException(
-                                                "Message with hash " + messageHash + " was not found"));
-
-        final EncodedPayload payload = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
-
-        final EncodedPayload returnValue;
-        if (Objects.equals(payload.getSenderKey(), recipientPublicKey)) {
-            final PublicKey decryptedKey = searchForRecipientKey(payload).orElseThrow(RuntimeException::new);
-            returnValue = EncodedPayload.Builder.from(payload).withRecipientKey(decryptedKey).build();
-        } else {
-            returnValue = payloadEncoder.forRecipient(payload, recipientPublicKey);
-        }
-        return ResendResponse.Builder.create().withPayload(returnValue).build();
-    }
-
-    @Override
-    public ResendResponse resend(ResendRequest request) {
-
-        final PublicKey recipientPublicKey = request.getRecipient();
-
-        if (request.getType() == ResendRequest.ResendRequestType.ALL) {
-            return resendAll(recipientPublicKey);
-        } else {
-            final MessageHash messageHash = request.getHash();
-            return resendIndividual(recipientPublicKey, messageHash);
-        }
     }
 
     @Override
