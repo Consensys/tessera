@@ -1759,5 +1759,32 @@ public class TransactionManagerTest {
         verify(enclave).defaultPublicKey();
     }
 
+    @Test
+    public void create() {
+        TransactionManager expected = mock(TransactionManager.class);
+        TransactionManager result;
+        try(var mockedStaticServiceLoader = mockStatic(ServiceLoader.class)) {
+
+            ServiceLoader<TransactionManager> serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
+
+            mockedStaticServiceLoader.when(() -> ServiceLoader.load(TransactionManager.class))
+                .thenReturn(serviceLoader);
+
+            result = TransactionManager.create();
+
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
+
+            mockedStaticServiceLoader.verify(() -> ServiceLoader.load(TransactionManager.class));
+            mockedStaticServiceLoader.verifyNoMoreInteractions();
+
+        }
+
+        assertThat(result).isSameAs(expected);
+
+    }
+
+
 
 }
