@@ -1,17 +1,17 @@
 package com.quorum.tessera.api;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlInlineBinaryData;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests
- * <p>
- * A response to a {@link StoreRawRequest} after the raw transaction has been saved
+ *
+ * <p>A response to a {@link StoreRawRequest} after the raw transaction has been saved
  */
-@ApiModel
 public class StoreRawResponse {
 
+    @Schema(type = "string", format = "base64", description = "hash of encrypted payload")
     @XmlInlineBinaryData
     private byte[] key;
 
@@ -19,8 +19,7 @@ public class StoreRawResponse {
         this.key = key;
     }
 
-    public StoreRawResponse() {
-    }
+    public StoreRawResponse() {}
 
     public byte[] getKey() {
         return key;

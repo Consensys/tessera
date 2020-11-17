@@ -1,5 +1,5 @@
 plugins {
-    id "com.benjaminsproule.swagger" version "1.0.7"
+    id 'io.swagger.core.v3.swagger-gradle-plugin' version "$swaggerVersion"
 }
 
 dependencies {
@@ -15,7 +15,7 @@ dependencies {
     compile project(':encryption:encryption-api')
     compile project(':tessera-jaxrs:jaxrs-client')
     implementation project(':tessera-jaxrs:partyinfo-model')
-    compile 'io.swagger:swagger-annotations'
+    compile 'io.swagger.core.v3:swagger-annotations'
 
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile project(':tessera-jaxrs:common-jaxrs')
@@ -33,72 +33,27 @@ dependencies {
     testImplementation project(':test-utils:mock-service-locator')
 }
 
+def generatedResources = "${project.buildDir}/generated-resources/openapi"
+
+resolve {
+    classpath = sourceSets.main.runtimeClasspath
+    outputDir = file(generatedResources)
+    outputFileName = 'openapi.p2p'
+    outputFormat = 'JSONANDYAML'
+    prettyPrint = 'TRUE'
+    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-p2p.yaml")
+    resourcePackages = [
+        'com.quorum.tessera.api.common',
+        'com.quorum.tessera.p2p',
+        'com.quorum.tessera.thirdparty',
+        'com.quorum.tessera.q2t'
+    ]
+    modelConverterClasses = ['com.quorum.tessera.openapi.FullyQualifiedNameResolver']
+    filterClass = 'com.quorum.tessera.openapi.P2POperationsFilter'
+}
+
+sourceSets.main.output.dir(generatedResources)
+
+jar.dependsOn(resolve)
+
 description = 'sync-jaxrs'
-
-swagger {
-
-    apiSource {
-        springmvc = false
-
-        schemes = ['http', 'https']
-        host = 'localhost:8080'
-        basePath = '/'
-        outputFormats = ['json']
-        //attachSwaggerArtifact = true
-
-        locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
-        info {
-            title = 'Peer to peer resources'
-            version = project.properties["tessera.api.version"]
-            license {
-                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
-                name = 'Apache 2.0'
-            }
-        }
-
-        swaggerDirectory = ''+ project.buildDir +'/resources/main'
-        swaggerFileName = 'p2p'
-    }
-
-    apiSource {
-        springmvc = false
-
-        schemes = ['http', 'https']
-        host = 'localhost:8080'
-        basePath = '/'
-        outputFormats = ['json']
-        //attachSwaggerArtifact = true
-
-        locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
-        info {
-            title = 'Peer to peer resources'
-            version = project.properties["tessera.api.version"]
-            license {
-                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
-                name = 'Apache 2.0'
-            }
-        }
-
-        swaggerDirectory = ''+ project.buildDir +'/resources/main'
-        templatePath =  ''+ rootProject.rootDir +'/tessera-jaxrs/src/main/swagger/strapdown.html.hbs'
-        outputPath = ''+ project.buildDir +'/resources/main/p2p.html'
-        swaggerFileName = 'p2p'
-    }
-}
-
-task loaddeps() {
-
-        def urls = []
-        project.configurations.compileClasspath.resolve().flatten().each {
-            urls += it.toURI().toURL()
-        }
-        urls.each {
-            buildscript.classLoader.addURL it
-        }
-
-
-}
-
-generateSwaggerDocumentation.dependsOn(loaddeps)
-jar.dependsOn(generateSwaggerDocumentation)
-

@@ -20,6 +20,7 @@
         <module>sync-jaxrs</module>
         <module>jaxrs-client</module>
         <module>partyinfo-model</module>
+        <module>generate-openapi</module>
     </modules>
 
 
@@ -71,7 +72,7 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>io.swagger</groupId>
+            <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
         </dependency>
         <dependency>
@@ -142,18 +143,7 @@
 
     </dependencies>
 
-
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>com.github.kongchen</groupId>
-                    <artifactId>swagger-maven-plugin</artifactId>
-                    <version>3.1.7</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -170,7 +160,7 @@
                             <outputDirectory>${project.build.outputDirectory}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.build.directory}/generated-resources/swagger</directory>
+                                    <directory>${project.build.directory}/generated-resources/openapi</directory>
                                     <filtering>false</filtering>
                                 </resource>
                             </resources>
@@ -185,10 +175,24 @@
                 <configuration>
                     <classpathDependencyExcludes>net.consensys.quorum.tessera:service-locator-spring</classpathDependencyExcludes>
                 </configuration>
-
             </plugin>
-
-
         </plugins>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>io.swagger.core.v3</groupId>
+                    <artifactId>swagger-maven-plugin</artifactId>
+                    <version>${swagger.version}</version>
+                    <dependencies>
+                        <dependency>
+                            <groupId>io.swagger.core.v3</groupId>
+                            <artifactId>swagger-core</artifactId>
+                            <version>${swagger.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 </project>

@@ -10,7 +10,12 @@ import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.util.Base64Codec;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +38,7 @@ import static javax.ws.rs.core.MediaType.*;
  * <p>- creating new transactions and distributing them - deleting transactions - fetching transactions - resending old
  * transactions
  */
-@Api
+@Tag(name = "peer-to-peer")
 @Path("/")
 public class TransactionResource {
 
@@ -57,17 +62,13 @@ public class TransactionResource {
         this.legacyResendManager = Objects.requireNonNull(legacyResendManager);
     }
 
-    @ApiOperation("Resend transactions for given key or message hash/recipient")
-    @ApiResponses({
-        @ApiResponse(code = 200, message = "Encoded payload when TYPE is INDIVIDUAL", response = String.class),
-        @ApiResponse(code = 500, message = "General error")
-    })
+    @Operation(summary = "/resend", operationId = "requestPayloadResend", description = "initiate resend of either an INDIVIDUAL transaction or ALL transactions involving a given public key")
+    @ApiResponse(responseCode = "200", description = "resent payload", content = @Content(array = @ArraySchema(schema = @Schema(description = "empty if request was for ALL; else the encoded INDIVIDUAL transaction", type = "string", format = "byte"))))
     @POST
     @Path("resend")
     @Consumes(APPLICATION_JSON)
     @Produces(TEXT_PLAIN)
-    public Response resend(
-            @ApiParam(name = "resendRequest", required = true) @Valid @NotNull final ResendRequest resendRequest) {
+    public Response resend(@Valid @NotNull final ResendRequest resendRequest) {
 
         LOGGER.debug("Received resend request");
 
@@ -101,18 +102,13 @@ public class TransactionResource {
         return builder.build();
     }
 
-    @ApiOperation("Resend transaction batches for given recipient key")
-    @ApiResponses({
-        @ApiResponse(code = 200, message = "The transaction total that has been pushed", response = String.class),
-        @ApiResponse(code = 500, message = "General error")
-    })
+    @Operation(summary = "/resendBatch", operationId = "requestPayloadBatchResend", description = "initiate resend of all transactions for a given public key in batches")
+    @ApiResponse(responseCode = "200", description = "count of total transactions being resent", content = @Content(schema = @Schema(implementation = com.quorum.tessera.p2p.recovery.ResendBatchResponse.class)))
     @POST
     @Path("resendBatch")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    public Response resendBatch(
-            @ApiParam(name = "resendBatchRequest", required = true) @Valid @NotNull
-                    final ResendBatchRequest resendBatchRequest) {
+    public Response resendBatch(@Valid @NotNull final ResendBatchRequest resendBatchRequest) {
 
         LOGGER.debug("Received resend request");
 
@@ -133,16 +129,14 @@ public class TransactionResource {
         return builder.build();
     }
 
-    @ApiOperation(value = "Transmit encrypted payload between P2PRestApp Nodes")
-    @ApiResponses({
-        @ApiResponse(code = 201, message = "Key created status"),
-        @ApiResponse(code = 500, message = "General error")
-    })
+    // path push is overloaded (RecoveryResource & TransactionResource); swagger cannot handle situations like this so this operation documents both
+    @Operation(summary = "/push", operationId = "pushPayload", description = "store encoded payload to the server's database")
+    @ApiResponse(responseCode = "201", description = "hash of encoded payload", content = @Content(mediaType = TEXT_PLAIN, schema = @Schema(description = "hash of encrypted payload", type = "string", format = "base64")))
+    @ApiResponse(responseCode = "403", description = "server is in recovery mode and encoded payload is not a Standard Private transaction")
     @POST
     @Path("push")
     @Consumes(APPLICATION_OCTET_STREAM)
-    public Response push(
-            @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload) {
+    public Response push(@Schema(description = "encoded payload") final byte[] payload) {
 
         LOGGER.debug("Received push request");
 

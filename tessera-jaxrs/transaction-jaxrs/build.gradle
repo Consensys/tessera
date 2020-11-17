@@ -1,5 +1,5 @@
 plugins {
-    id "com.benjaminsproule.swagger" version "1.0.7"
+    id 'io.swagger.core.v3.swagger-gradle-plugin' version "$swaggerVersion"
 }
 
 dependencies {
@@ -14,7 +14,7 @@ dependencies {
     implementation "org.hibernate:hibernate-validator:6.0.2.Final"
 
     compile 'javax.ws.rs:javax.ws.rs-api'
-    compile 'io.swagger:swagger-annotations'
+    compile 'io.swagger.core.v3:swagger-annotations'
 
     compile 'javax.servlet:javax.servlet-api'
     compile 'org.apache.commons:commons-lang3'
@@ -38,77 +38,30 @@ dependencies {
 
 }
 
+def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
+project.logger.lifecycle('sourceSets.main.compileClasspath')
+sourceSets.main.compileClasspath.each { project.logger.lifecycle("${it}") }
 
-swagger {
-
-    apiSource {
-        springmvc = false
-
-        schemes = ['http', 'https']
-        host = 'localhost:8080'
-        basePath = '/'
-        outputFormats = ['json']
-        //attachSwaggerArtifact = true
-
-        locations = ['com.quorum.tessera.q2t','com.quorum.tessera.api.common']
-        info {
-            title = 'Tessera rest'
-            version = project.properties["tessera.api.version"]
-            license {
-                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
-                name = 'Apache 2.0'
-            }
-        }
-
-        swaggerDirectory = ''+ project.buildDir +'/resources/main'
-        //templatePath = '../src/main/swagger/strapdown.html.hbs'
-       // outputPath = 'build/resources/main/swagger/swagger.html'
-        swaggerFileName = 'swagger'
-
-    }
-
-    apiSource {
-        springmvc = false
-
-        schemes = ['http', 'https']
-        host = 'localhost:8080'
-        basePath = '/'
-        outputFormats = ['json']
-        //attachSwaggerArtifact = true
-
-        locations = ['com.quorum.tessera.q2t','com.quorum.tessera.api.common']
-        info {
-            title = 'Tessera rest'
-            version = project.properties["tessera.api.version"]
-            license {
-                url = 'http://www.apache.org/licenses/LICENSE-2.0.html'
-                name = 'Apache 2.0'
-            }
-        }
-
-        swaggerDirectory = ''+ project.buildDir +'/resources/main'
-        templatePath =  ''+ rootProject.rootDir +'/tessera-jaxrs/src/main/swagger/strapdown.html.hbs'
-        outputPath = ''+ project.buildDir +'/resources/main/swagger.html'
-        swaggerFileName = 'swagger'
-
-    }
-
+resolve {
+    classpath = sourceSets.main.runtimeClasspath
+    outputDir = file(generatedResources)
+    outputFileName = 'openapi.q2t'
+    outputFormat = 'JSONANDYAML'
+    prettyPrint = 'TRUE'
+    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-q2t.yaml")
+    resourcePackages = [
+            'com.quorum.tessera.api.common',
+            'com.quorum.tessera.p2p',
+            'com.quorum.tessera.thirdparty',
+            'com.quorum.tessera.q2t'
+    ]
+    modelConverterClasses = ['com.quorum.tessera.openapi.FullyQualifiedNameResolver']
+    filterClass = 'com.quorum.tessera.openapi.Q2TOperationsFilter'
 }
 
-task loaddeps() {
+sourceSets.main.output.dir(generatedResources)
 
-    def urls = []
-    project.configurations.compileClasspath.resolve().flatten().each {
-        urls += it.toURI().toURL()
-    }
-    urls.each {
-        buildscript.classLoader.addURL it
-    }
-
-}
+jar.dependsOn(resolve)
 
 description = 'transaction-jaxrs'
-
-generateSwaggerDocumentation.dependsOn(loaddeps)
-jar.dependsOn(generateSwaggerDocumentation)

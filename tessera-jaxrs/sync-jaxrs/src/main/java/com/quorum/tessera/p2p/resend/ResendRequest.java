@@ -1,27 +1,26 @@
 package com.quorum.tessera.p2p.resend;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Model representation of a JSON body on incoming HTTP requests.
- * Used when a request is received to resend existing transactions. Contains:
+ * Model representation of a JSON body on incoming HTTP requests. Used when a request is received to resend existing
+ * transactions. Contains:
+ *
  * <ul>
- *     <li>the public key who is a recipient</li>
- *     <li>the resend type, whether to send a single transaction or all transactions for the given key</li>
- *     <li>the transaction hash to resend in the case the resend type is for an individual transaction</li>
+ *   <li>the public key who is a recipient
+ *   <li>the resend type, whether to send a single transaction or all transactions for the given key
+ *   <li>the transaction hash to resend in the case the resend type is for an individual transaction
  * </ul>
  */
-@ApiModel
 public class ResendRequest {
 
-    @ApiModelProperty("Resend type INDIVIDUAL or ALL, to resend a single or all transactions")
+    @Schema(required = true)
     private ResendRequestType type;
 
-    @ApiModelProperty("The recipient public key to resend transactions for")
+    @Schema(description = "resend transactions involving this public key", required = true, format = "base64")
     private String publicKey;
 
-    @ApiModelProperty("Base64 encoded transaction hash")
+    @Schema(description = "hash of encoded transaction (INDIVIDUAL only)", format = "base64")
     private String key;
 
     public ResendRequestType getType() {
@@ -47,5 +46,4 @@ public class ResendRequest {
     public void setKey(final String key) {
         this.key = key;
     }
-
 }

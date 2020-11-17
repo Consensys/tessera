@@ -2,10 +2,12 @@ package com.quorum.tessera.thirdparty;
 
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import com.quorum.tessera.thirdparty.model.GetPublicKeysResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -17,20 +19,21 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Set;
 
-@Api
+@Tag(name = "third-party")
 @Path("/keys")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class KeyResource {
 
-
     @GET
-    @ApiOperation(value = "Fetch local public keys managed by the enclave")
-    @ApiResponses({@ApiResponse(code = 200, message = "Managed public keys")})
+    @Operation(summary = "/keys", description = "get all public keys managed by the server's enclave")
+    @ApiResponse(
+            responseCode = "200",
+            description = "server's public keys",
+            content = @Content(schema = @Schema(implementation = GetPublicKeysResponse.class)))
     public Response getPublicKeys() {
 
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
-
 
         Set<PublicKey> publicKeys = runtimeContext.getPublicKeys();
 

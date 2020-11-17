@@ -1,7 +1,6 @@
 package com.quorum.tessera.p2p.recovery;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests. Used when a request is received to resend existing
@@ -12,13 +11,12 @@ import io.swagger.annotations.ApiModelProperty;
  *   <li>the batch size
  * </ul>
  */
-@ApiModel
 public class ResendBatchRequest {
 
-    @ApiModelProperty("The recipient public key to resend transactions for")
+    @Schema(description = "resend transactions involving this public key", format = "base64", required = true)
     private String publicKey;
 
-    @ApiModelProperty("batch size")
+    @Schema(description = "default value is used if not provided")
     private int batchSize;
 
     public String getPublicKey() {

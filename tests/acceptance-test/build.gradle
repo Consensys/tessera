@@ -38,6 +38,7 @@ dependencies {
     testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
     testCompile 'com.github.jnr:jnr-unixsocket:0.25'
     testCompile 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
+    testCompile 'org.yaml:snakeyaml:1.27'
 }
 
 sourceSets {

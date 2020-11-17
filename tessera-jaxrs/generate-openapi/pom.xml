@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>tessera-jaxrs</artifactId>
+        <groupId>net.consensys.quorum.tessera</groupId>
+        <version>20.10.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>generate-openapi</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>common-jaxrs</artifactId>
+            <version>20.10.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>sync-jaxrs</artifactId>
+            <version>20.10.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>thirdparty-jaxrs</artifactId>
+            <version>20.10.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.consensys.quorum.tessera</groupId>
+            <artifactId>transaction-jaxrs</artifactId>
+            <version>20.10.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <failIfNoTests>false</failIfNoTests>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>generateOpenApiDoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.swagger.core.v3</groupId>
+                        <artifactId>swagger-maven-plugin</artifactId>
+                        <configuration>
+                            <outputPath>${project.build.directory}/generated-resources/openapi</outputPath>
+                            <outputFormat>JSONANDYAML</outputFormat>
+                            <prettyPrint>true</prettyPrint>
+                            <openapiFilePath>${project.basedir}/src/main/resources/openapi-base.yaml</openapiFilePath>
+                            <modelConverterClasses>
+                                <modelConverterClass>com.quorum.tessera.openapi.FullyQualifiedNameResolver</modelConverterClass>
+                            </modelConverterClasses>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>resolve</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+
+</project>
