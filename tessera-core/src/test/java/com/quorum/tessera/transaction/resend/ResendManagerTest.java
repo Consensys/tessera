@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 import static java.util.Collections.*;
@@ -293,4 +294,29 @@ public class ResendManagerTest {
     public void constructWithMinimalArgs() {
         assertThat(new ResendManagerImpl(encryptedTransactionDAO, enclave,messageHashFactory)).isNotNull();
     }
+
+    @Test
+    public void create() {
+        ResendManager expected = mock(ResendManager.class);
+        ResendManager result;
+        try(var mockedStaticServiceLoader = mockStatic(ServiceLoader.class)) {
+
+            ServiceLoader<ResendManager> serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
+            mockedStaticServiceLoader.when(() -> ServiceLoader.load(ResendManager.class)).thenReturn(serviceLoader);
+
+            result = ResendManager.create();
+
+            mockedStaticServiceLoader.verify(() -> ServiceLoader.load(ResendManager.class));
+            mockedStaticServiceLoader.verifyNoMoreInteractions();
+
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
+
+        }
+
+        assertThat(result).isSameAs(expected);
+
+    }
+
 }
