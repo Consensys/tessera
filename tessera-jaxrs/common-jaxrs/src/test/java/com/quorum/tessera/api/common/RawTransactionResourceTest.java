@@ -6,7 +6,6 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -69,18 +68,23 @@ public class RawTransactionResourceTest {
     }
 
 
-    @Ignore
+
     @Test
     public void defaultConstrcutor() {
-        RawTransactionResource resource = new RawTransactionResource();
+        RawTransactionResource resource;
+        try(var mockedStaticTM = mockStatic(TransactionManager.class)) {
+            TransactionManager transactionManager = mock(TransactionManager.class);
+            mockedStaticTM.when(TransactionManager::create).thenReturn(transactionManager);
+            resource = new RawTransactionResource();
+            mockedStaticTM.verify(TransactionManager::create);
+            mockedStaticTM.verifyNoMoreInteractions();
+            verifyNoInteractions(transactionManager);
+
+        }
         assertThat(resource).isNotNull();
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void defaultConstructorNoTm() {
 
-        new RawTransactionResource();
-    }
 
 
 }
