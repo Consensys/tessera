@@ -9,7 +9,8 @@ dependencies {
     compile project(':shared')
     compile 'javax.ws.rs:javax.ws.rs-api'
     compile 'io.swagger.core.v3:swagger-annotations'
-    compile 'io.swagger.core.v3:swagger-core'
+    compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
+    testCompile "io.swagger.core.v3:swagger-core:$swaggerVersion"
 
     compile "org.glassfish:javax.json"
     compile 'javax.servlet:javax.servlet-api'
