@@ -16,6 +16,7 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
+import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
 import org.slf4j.Logger;
@@ -56,7 +57,6 @@ public class P2PRestApp extends TesseraRestApplication {
 
     @Override
     public Set<Object> getSingletons() {
-
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
         LOGGER.debug("Found configured peers {}", runtimeContext.getPeers());
 
@@ -79,11 +79,12 @@ public class P2PRestApp extends TesseraRestApplication {
         TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
         BatchResendManager batchResendManager = BatchResendManager.create(config);
         PayloadEncoder payloadEncoder = PayloadEncoder.create();
+        final LegacyResendManager legacyResendManager = LegacyResendManager.create(config);
 
         final TransactionResource transactionResource =
-                new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
+            new TransactionResource(transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
         final RecoveryResource recoveryResource =
-                new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
+            new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
         if (runtimeContext.isRecoveryMode()) {

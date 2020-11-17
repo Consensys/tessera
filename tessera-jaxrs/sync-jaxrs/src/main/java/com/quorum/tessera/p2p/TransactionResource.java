@@ -1,12 +1,13 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
-import com.quorum.tessera.p2p.resend.ResendRequest;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.recovery.resend.ResendBatchResponse;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
+import com.quorum.tessera.p2p.resend.ResendRequest;
+import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.util.Base64Codec;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +26,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
@@ -50,13 +50,16 @@ public class TransactionResource {
 
     private final PayloadEncoder payloadEncoder;
 
-    public TransactionResource(
-            TransactionManager transactionManager,
-            BatchResendManager batchResendManager,
-            PayloadEncoder payloadEncoder) {
+    private final LegacyResendManager legacyResendManager;
+
+    public TransactionResource(final TransactionManager transactionManager,
+                               final BatchResendManager batchResendManager,
+                               final PayloadEncoder payloadEncoder,
+                               final LegacyResendManager legacyResendManager) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
         this.batchResendManager = Objects.requireNonNull(batchResendManager);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+        this.legacyResendManager = Objects.requireNonNull(legacyResendManager);
     }
 
     @Operation(summary = "/resend", operationId = "requestPayloadResend", description = "initiate resend of either an INDIVIDUAL transaction or ALL transactions involving a given public key")
@@ -77,23 +80,24 @@ public class TransactionResource {
                         .get();
 
         MessageHash transactionHash =
-                Optional.ofNullable(resendRequest)
+                Optional.of(resendRequest)
                         .map(ResendRequest::getKey)
                         .map(Base64.getDecoder()::decode)
                         .map(MessageHash::new)
                         .orElse(null);
 
-        com.quorum.tessera.transaction.ResendRequest request =
-                com.quorum.tessera.transaction.ResendRequest.Builder.create()
+        com.quorum.tessera.recovery.resend.ResendRequest request =
+            com.quorum.tessera.recovery.resend.ResendRequest.Builder.create()
                         .withType(
-                                com.quorum.tessera.transaction.ResendRequest.ResendRequestType.valueOf(
+                            com.quorum.tessera.recovery.resend.ResendRequest.ResendRequestType.valueOf(
                                         resendRequest.getType().name()))
                         .withRecipient(recipient)
                         .withHash(transactionHash)
                         .build();
 
-        com.quorum.tessera.transaction.ResendResponse response = transactionManager.resend(request);
-        Response.ResponseBuilder builder = Response.status(Status.OK);
+        com.quorum.tessera.recovery.resend.ResendResponse response = legacyResendManager.resend(request);
+
+        Response.ResponseBuilder builder = Response.ok();
         Optional.ofNullable(response.getPayload()).map(payloadEncoder::encode).ifPresent(builder::entity);
         return builder.build();
     }
