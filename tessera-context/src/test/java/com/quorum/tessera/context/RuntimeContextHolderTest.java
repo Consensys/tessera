@@ -1,17 +1,25 @@
 package com.quorum.tessera.context;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 
-public class DefaultContextHolderTest extends ContextTestCase {
+public class RuntimeContextHolderTest {
 
-    private DefaultContextHolder contextHolder = DefaultContextHolder.INSTANCE;
+    @After
+    @Before
+    public void clearHolder() {
+        RuntimeContextHolder.INSTANCE.setContext(null);
+    }
 
     @Test
     public void setContextCanOnlyBeStoredOnce() {
 
+        RuntimeContextHolder contextHolder = RuntimeContextHolder.INSTANCE;
         RuntimeContext runtimeContext = mock(RuntimeContext.class);
         contextHolder.setContext(runtimeContext);
 
@@ -25,9 +33,6 @@ public class DefaultContextHolderTest extends ContextTestCase {
         }
     }
 
-    @Test
-    public void getContextIfNotPresent() {
-        assertThat(contextHolder.getContext()).isNotPresent();
-    }
+
 
 }

@@ -8,16 +8,15 @@ module tessera.tessera.context.main {
     requires tessera.shared.main;
 
     exports com.quorum.tessera.context;
-    uses com.quorum.tessera.context.ContextHolder;
+
     uses com.quorum.tessera.context.KeyVaultConfigValidations;
     uses com.quorum.tessera.context.RestClientFactory;
-    uses com.quorum.tessera.context.RuntimeContextFactory;
-
+    uses com.quorum.tessera.context.RuntimeContext;
     provides com.quorum.tessera.context.KeyVaultConfigValidations 
             with com.quorum.tessera.context.DefaultKeyVaultConfigValidations;
 
-    provides com.quorum.tessera.context.RuntimeContextFactory with
-        com.quorum.tessera.context.DefaultRuntimeContextFactory;
+    provides com.quorum.tessera.context.RuntimeContext with
+        com.quorum.tessera.context.RuntimeContextProvider;
     
 }
 

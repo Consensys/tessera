@@ -7,6 +7,8 @@ import com.quorum.tessera.encryption.PublicKey;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 class DefaultRuntimeContext implements RuntimeContext {
 
@@ -105,8 +107,12 @@ class DefaultRuntimeContext implements RuntimeContext {
     }
 
     @Override
+    public Set<PublicKey> getPublicKeys() {
+        return getKeys().stream().map(KeyPair::getPublicKey).collect(Collectors.toSet());
+    }
+    @Override
     public String toString() {
-        return "DefaultRuntimeContext{"
+        return "RuntimeContext{"
                 + "keys="
                 + keys
                 + ", keyEncryptor="

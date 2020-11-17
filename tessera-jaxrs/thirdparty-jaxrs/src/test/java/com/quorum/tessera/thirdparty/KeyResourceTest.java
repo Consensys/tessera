@@ -1,12 +1,9 @@
 package com.quorum.tessera.thirdparty;
 
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.json.Json;
@@ -20,7 +17,6 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class KeyResourceTest {
 
     private KeyResource keyResource;
@@ -29,8 +25,8 @@ public class KeyResourceTest {
 
     @Before
     public void onSetUp() {
-        Config config = mock(Config.class);
-        runtimeContext = RuntimeContextFactory.newFactory().create(config);
+        runtimeContext = mock(RuntimeContext.class);
+
         keyResource = new KeyResource();
 
     }
@@ -43,28 +39,35 @@ public class KeyResourceTest {
     @Test
     public void testGetPublicKeys() {
 
-        Base64.Decoder base64Decoder = Base64.getDecoder();
+        try(var mockedStaticRuntimeContext = mockStatic(RuntimeContext.class)) {
 
-        final String keyJsonString = "{\"keys\": [{\"key\": \"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
+            mockedStaticRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
-        String key = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
+            Base64.Decoder base64Decoder = Base64.getDecoder();
 
-        Set<PublicKey> publicKeys = new HashSet<>();
-        publicKeys.add(PublicKey.from(base64Decoder.decode(key)));
+            final String keyJsonString = "{\"keys\": [{\"key\": \"QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=\"}]}";
 
-        when(runtimeContext.getPublicKeys()).thenReturn(publicKeys);
+            String key = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
 
-        Response response = keyResource.getPublicKeys();
+            Set<PublicKey> publicKeys = new HashSet<>();
+            publicKeys.add(PublicKey.from(base64Decoder.decode(key)));
 
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(200);
+            when(runtimeContext.getPublicKeys()).thenReturn(publicKeys);
 
-        final String output = response.getEntity().toString();
-        final JsonReader expected = Json.createReader(new StringReader(keyJsonString));
-        final JsonReader actual = Json.createReader(new StringReader(output));
+            Response response = keyResource.getPublicKeys();
 
-        assertThat(expected.readObject()).isEqualTo(actual.readObject());
+            assertThat(response).isNotNull();
+            assertThat(response.getStatus()).isEqualTo(200);
 
-        verify(runtimeContext).getPublicKeys();
+            final String output = response.getEntity().toString();
+            final JsonReader expected = Json.createReader(new StringReader(keyJsonString));
+            final JsonReader actual = Json.createReader(new StringReader(output));
+
+            assertThat(expected.readObject()).isEqualTo(actual.readObject());
+
+            verify(runtimeContext).getPublicKeys();
+            mockedStaticRuntimeContext.verify(RuntimeContext::getInstance);
+            mockedStaticRuntimeContext.verifyNoMoreInteractions();
+        }
     }
 }

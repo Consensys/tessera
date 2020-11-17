@@ -9,7 +9,6 @@ import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
@@ -69,7 +68,7 @@ public class Main {
             ConfigFactory.create().store(config);
             LOGGER.debug("Stored config {}",config);
 
-            final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
+            final RuntimeContext runtimeContext = RuntimeContext.getInstance();
             Enclave.create();
             Discovery.create().onCreate();
 

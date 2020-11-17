@@ -7,8 +7,8 @@ import com.quorum.tessera.encryption.PublicKey;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public interface RuntimeContext {
 
@@ -34,11 +34,9 @@ public interface RuntimeContext {
 
     boolean isRecoveryMode();
 
-    default Set<PublicKey> getPublicKeys() {
-        return getKeys().stream().map(KeyPair::getPublicKey).collect(Collectors.toSet());
-    }
+    Set<PublicKey> getPublicKeys();
 
     static RuntimeContext getInstance() {
-        return ContextHolder.getInstance().getContext().get();
+        return ServiceLoader.load(RuntimeContext.class).findFirst().get();
     }
 }
