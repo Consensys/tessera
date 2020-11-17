@@ -11,6 +11,8 @@ import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +21,12 @@ import static org.mockito.Mockito.*;
 public class TransactionManagerProviderTest {
 
 
+    @Before
+    @After
+    public void clearHolder() {
+        TransactionManagerHolder.INSTANCE.store(null);
+        assertThat(TransactionManagerHolder.INSTANCE.getTransactionManager()).isNotPresent();
+    }
 
     @Test
     public void provider() {
@@ -72,6 +80,10 @@ public class TransactionManagerProviderTest {
 
             TransactionManager transactionManager = TransactionManagerProvider.provider();
             assertThat(transactionManager).isNotNull();
+
+            assertThat(TransactionManagerProvider.provider())
+                .describedAs("Second invocation should return same instance")
+                .isSameAs(transactionManager);
 
 
             mockedStaticEncryptedTransactionDAO.verify(EncryptedTransactionDAO::create);
