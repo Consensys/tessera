@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class TransactionManagerHolderTest {
+
     @Before
     @After
     public void clear() {
@@ -17,6 +18,7 @@ public class TransactionManagerHolderTest {
     @Test
     public void storeAndGet() {
         TransactionManagerHolder transactionManagerHolder = TransactionManagerHolder.INSTANCE;
+        assertThat(transactionManagerHolder.getTransactionManager()).isNotPresent();
         TransactionManager transactionManager = mock(TransactionManager.class);
         assertThat(transactionManagerHolder.store(transactionManager)).isSameAs(transactionManager);
         assertThat(transactionManagerHolder.getTransactionManager()).containsSame(transactionManager);
