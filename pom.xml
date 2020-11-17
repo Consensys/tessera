@@ -186,12 +186,6 @@
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.1.2</version>
                 </plugin>
-
-                <plugin>
-                    <groupId>io.swagger.core.v3</groupId>
-                    <artifactId>swagger-maven-plugin</artifactId>
-                    <version>${swagger.version}</version>
-                </plugin>
             </plugins>
 
         </pluginManagement>
@@ -1005,12 +999,6 @@
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>${swagger.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-core</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
 
