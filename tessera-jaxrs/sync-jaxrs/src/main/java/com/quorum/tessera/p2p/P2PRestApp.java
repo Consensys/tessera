@@ -18,6 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ApplicationPath;
+import java.net.URI;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -39,20 +42,33 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
 
     private final PartyStore partyStore;
 
+    private final TransactionManager transactionManager;
+
+    private final BatchResendManager batchResendManager;
+
+    private final PayloadEncoder payloadEncoder;
 
     public P2PRestApp() {
-        this.discovery = Discovery.create();
-        this.enclave = Enclave.create();
-        this.partyStore = PartyStore.getInstance();
+        this(Discovery.create(),Enclave.create(),PartyStore.getInstance(),TransactionManager.create(),BatchResendManager.create(),PayloadEncoder.create());
+    }
+
+    public P2PRestApp(Discovery discovery, Enclave enclave, PartyStore partyStore,TransactionManager transactionManager,BatchResendManager batchResendManager,PayloadEncoder payloadEncoder) {
+        this.discovery = Objects.requireNonNull(discovery);
+        this.enclave = Objects.requireNonNull(enclave);
+        this.partyStore = Objects.requireNonNull(partyStore);
+        this.transactionManager = Objects.requireNonNull(transactionManager);
+        this.batchResendManager = Objects.requireNonNull(batchResendManager);
+        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     }
 
     @Override
     public Set<Object> getSingletons() {
 
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
-        LOGGER.debug("Found configured peers {}", runtimeContext.getPeers());
+        List<URI> peers = runtimeContext.getPeers();
+        LOGGER.debug("Found configured peers {}", peers);
 
-        runtimeContext.getPeers().stream()
+        peers.stream()
                 .map(NodeUri::create)
                 .map(NodeUri::asURI)
                 .peek(u -> LOGGER.debug("Adding {} to party store", u))
@@ -68,17 +84,14 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
-        TransactionManager transactionManager = TransactionManager.create();
-
-        BatchResendManager batchResendManager = BatchResendManager.create();
-        PayloadEncoder payloadEncoder = PayloadEncoder.create();
-
-        final TransactionResource transactionResource = new TransactionResource(transactionManager,batchResendManager,payloadEncoder);
-        final RecoveryResource recoveryResource = new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
-
         if (runtimeContext.isRecoveryMode()) {
+            final RecoveryResource recoveryResource =
+                new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
             return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
         }
+
+        final TransactionResource transactionResource =
+            new TransactionResource(transactionManager,batchResendManager,payloadEncoder);
         return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource);
     }
 
