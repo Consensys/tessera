@@ -14,6 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
+import java.net.URI;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +40,8 @@ public class P2PRestAppTest {
 
     private BatchResendManager batchResendManager;
 
+    private URI peerUri = URI.create("junit");
+
     @Before
     public void setUp() throws Exception {
 
@@ -50,12 +54,14 @@ public class P2PRestAppTest {
         batchResendManager = mock(BatchResendManager.class);
         payloadEncoder = PayloadEncoder.create();
 
-
         p2PRestApp = new P2PRestApp(discovery,enclave,partyStore,transactionManager,batchResendManager,payloadEncoder);
 
         Client client = mock(Client.class);
         when(runtimeContext.getP2pClient()).thenReturn(client);
         when(runtimeContext.isRemoteKeyValidation()).thenReturn(true);
+
+        when(runtimeContext.getPeers())
+            .thenReturn(List.of(peerUri));
 
     }
 
@@ -93,6 +99,7 @@ public class P2PRestAppTest {
         verify(runtimeContext).getPeers();
         verify(runtimeContext).getP2pClient();
         verify(runtimeContext).isRemoteKeyValidation();
+        verify(partyStore).store(peerUri);
     }
 
     @Test
@@ -120,6 +127,7 @@ public class P2PRestAppTest {
         verify(runtimeContext).getPeers();
         verify(runtimeContext).getP2pClient();
         verify(runtimeContext).isRemoteKeyValidation();
+        verify(partyStore).store(peerUri);
     }
 
 
