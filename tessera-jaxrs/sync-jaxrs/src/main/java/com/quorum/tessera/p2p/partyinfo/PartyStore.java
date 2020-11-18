@@ -1,39 +1,60 @@
 package com.quorum.tessera.p2p.partyinfo;
 
+
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.NodeUri;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.ServiceLoader;
+import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.concurrent.ConcurrentSkipListSet;
 
-/*
- * Support legacy collation of all parties to be added to
- * party info responses so nodes learn of nodes.
- */
-public interface PartyStore {
+public enum PartyStore {
 
-    default void loadFromConfigIfEmpty() {
+    INSTANCE;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PartyStore.class);
+
+    private final SortedSet<URI> parties = new ConcurrentSkipListSet<>();
+
+    public Set<URI> getParties() {
+        LOGGER.debug("Fetching parties {}",Objects.toString(parties));
+
+        return Set.copyOf(parties);
+    }
+
+    public void loadFromConfigIfEmpty() {
         RuntimeContext runtimeContext = RuntimeContext.getInstance();
 
         final Set<URI> parties = getParties();
 
         if (parties.isEmpty()
-                || !runtimeContext.getPeers().stream()
-                        .map(NodeUri::create)
-                        .map(NodeUri::asURI)
-                        .anyMatch(parties::contains)) {
+            || !runtimeContext.getPeers().stream()
+            .map(NodeUri::create)
+            .map(NodeUri::asURI)
+            .anyMatch(parties::contains)) {
             runtimeContext.getPeers().forEach(this::store);
         }
     }
 
-    Set<URI> getParties();
+    public PartyStore store(URI party) {
+        NodeUri nodeUri = NodeUri.create(party);
+        LOGGER.debug("Store {}",nodeUri.asURI());
+        parties.add(nodeUri.asURI());
+        return this;
+    }
 
-    PartyStore store(URI party);
+    public PartyStore remove(URI party) {
+        NodeUri nodeUri = NodeUri.create(party);
+        LOGGER.debug("Remove {}",nodeUri.asURI());
+        parties.remove(nodeUri.asURI());
+        return this;
+    }
 
-    PartyStore remove(URI party);
-
-    static PartyStore getInstance() {
-        return ServiceLoader.load(PartyStore.class).findFirst().get();
+    public static PartyStore getInstance() {
+        return INSTANCE;
     }
 }

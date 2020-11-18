@@ -20,10 +20,6 @@ public class RestResendBatchPublisher implements ResendBatchPublisher {
 
     private final RecoveryClient resendClient;
 
-    public RestResendBatchPublisher(RecoveryClient resendClient) {
-        this(PayloadEncoder.create(), resendClient);
-    }
-
     public RestResendBatchPublisher(final PayloadEncoder payloadEncoder, final RecoveryClient resendClient) {
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.resendClient = Objects.requireNonNull(resendClient);

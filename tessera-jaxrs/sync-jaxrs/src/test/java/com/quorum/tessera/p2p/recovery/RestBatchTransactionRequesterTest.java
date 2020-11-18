@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p.recovery;
 
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.resend.ResendRequest;
@@ -9,7 +10,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.util.Base64;
 import java.util.Collections;
@@ -34,7 +34,7 @@ public class RestBatchTransactionRequesterTest {
     private BatchTransactionRequester transactionRequester;
 
     @Before
-    public void init() {
+    public void beforeTest() {
 
         this.enclave = mock(Enclave.class);
         this.recoveryClient = mock(RecoveryClient.class);
@@ -46,10 +46,11 @@ public class RestBatchTransactionRequesterTest {
         doReturn(true).when(recoveryClient).makeResendRequest(anyString(), any(ResendRequest.class));
 
         this.transactionRequester = new RestBatchTransactionRequester(enclave, recoveryClient, 100);
+        assertThat(transactionRequester.communicationType()).isEqualTo(CommunicationType.REST);
     }
 
     @After
-    public void after() {
+    public void afterTest() {
         verifyNoMoreInteractions(enclave, recoveryClient);
     }
 
@@ -118,7 +119,7 @@ public class RestBatchTransactionRequesterTest {
 
         assertThat(success).isTrue();
 
-        Mockito.verifyZeroInteractions(recoveryClient);
+        verifyNoInteractions(recoveryClient);
         verify(enclave).getPublicKeys();
     }
 

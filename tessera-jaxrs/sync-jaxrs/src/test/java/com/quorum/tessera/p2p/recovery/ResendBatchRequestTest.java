@@ -1,9 +1,11 @@
 package com.quorum.tessera.p2p.recovery;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Ignore
 public class ResendBatchRequestTest {
 
     @Test

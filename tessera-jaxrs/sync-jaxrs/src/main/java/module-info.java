@@ -24,7 +24,6 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
     exports com.quorum.tessera.p2p.partyinfo;
     exports com.quorum.tessera.p2p.recovery;
 
-    uses com.quorum.tessera.p2p.partyinfo.PartyStore;
     uses com.quorum.tessera.p2p.recovery.RecoveryClient;
     uses com.quorum.tessera.p2p.resend.ResendClient;
     uses com.quorum.tessera.p2p.resend.TransactionRequester;
@@ -33,8 +32,6 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
 
 
     provides com.quorum.tessera.config.apps.TesseraApp with com.quorum.tessera.p2p.P2PRestApp;
-
-    provides com.quorum.tessera.p2p.partyinfo.PartyStore with com.quorum.tessera.p2p.partyinfo.PartyStoreFactory;
 
     provides com.quorum.tessera.partyinfo.P2pClientFactory with com.quorum.tessera.p2p.partyinfo.RestP2pClientFactory;
 
