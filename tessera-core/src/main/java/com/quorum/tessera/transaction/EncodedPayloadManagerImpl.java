@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
+class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncodedPayloadManagerImpl.class);
 
@@ -22,7 +22,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
     private final MessageHashFactory messageHashFactory;
 
-    public EncodedPayloadManagerImpl(final Enclave enclave,
+    EncodedPayloadManagerImpl(final Enclave enclave,
                                      final PrivacyHelper privacyHelper,
                                      final MessageHashFactory mhFactory) {
         this.enclave = Objects.requireNonNull(enclave);

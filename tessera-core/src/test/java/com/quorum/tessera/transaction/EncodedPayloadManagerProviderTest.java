@@ -21,13 +21,13 @@ public class EncodedPayloadManagerProviderTest {
         ) {
 
             mockedPrivacyHelper.when(PrivacyHelper::create).thenReturn(mock(PrivacyHelper.class));
-
-
             mockedEnclaveFactory.when(Enclave::create).thenReturn(mock(Enclave.class));
-
 
             EncodedPayloadManager encodedPayloadManager = EncodedPayloadManagerProvider.provider();
             assertThat(encodedPayloadManager).isNotNull();
+            assertThat(encodedPayloadManager)
+                .describedAs("Subsequent invocations shoudl return teh same instance")
+                .isSameAs(EncodedPayloadManagerProvider.provider());
 
             mockedPrivacyHelper.verify(PrivacyHelper::create);
             mockedPrivacyHelper.verifyNoMoreInteractions();

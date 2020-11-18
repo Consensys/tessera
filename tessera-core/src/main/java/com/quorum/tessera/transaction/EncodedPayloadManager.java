@@ -3,7 +3,6 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 
-import java.util.Optional;
 import java.util.ServiceLoader;
 
 /**
@@ -34,16 +33,7 @@ public interface EncodedPayloadManager {
     ReceiveResponse decrypt(EncodedPayload payload, PublicKey maybeDefaultRecipient);
 
     static EncodedPayloadManager create() {
-
-        EncodedPayloadManager encodedPayloadManager = ServiceLoader.load(EncodedPayloadManager.class).findFirst().get();
-
-        EncodedPayloadManagerHolder.getInstance().storeInstance(encodedPayloadManager);
-
-        return encodedPayloadManager;
-    }
-
-    static Optional<EncodedPayloadManager> getInstance() {
-        return EncodedPayloadManagerHolder.getInstance().getEncodedPayloadManager();
+        return ServiceLoader.load(EncodedPayloadManager.class).findFirst().get();
     }
 
 }

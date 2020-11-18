@@ -18,14 +18,22 @@ import java.util.Set;
 @ApplicationPath("/")
 public class Q2TRestApp extends TesseraRestApplication implements com.quorum.tessera.config.apps.TesseraApp {
 
+    private TransactionManager transactionManager;
+
+    private EncodedPayloadManager encodedPayloadManager;
+
+    protected Q2TRestApp(TransactionManager transactionManager, EncodedPayloadManager encodedPayloadManager) {
+        this.transactionManager = transactionManager;
+        this.encodedPayloadManager = encodedPayloadManager;
+    }
+
     public Q2TRestApp() {
+        this.transactionManager = TransactionManager.create();
+        this.encodedPayloadManager = EncodedPayloadManager.create();
     }
 
     @Override
     public Set<Object> getSingletons() {
-
-        TransactionManager transactionManager = TransactionManager.create();
-        EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.getInstance().orElseThrow(() -> new IllegalStateException("EncodedPayloadManager has not been initialised"));
 
         TransactionResource transactionResource = new TransactionResource(transactionManager);
         RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);

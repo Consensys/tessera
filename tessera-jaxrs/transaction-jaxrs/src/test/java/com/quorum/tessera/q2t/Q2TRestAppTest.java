@@ -1,70 +1,58 @@
 package com.quorum.tessera.q2t;
 
 
+import com.quorum.tessera.api.common.RawTransactionResource;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.ws.rs.core.Application;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class Q2TRestAppTest {
 
-    private JerseyTest jersey;
+    private TransactionManager transactionManager;
+
+    private EncodedPayloadManager encodedPayloadManager;
 
     private Q2TRestApp q2TRestApp;
 
     @Before
-    public void setUpAndGetSingletons() throws Exception {
+    public void beforeTest() throws Exception {
+        transactionManager = mock(TransactionManager.class);
+        encodedPayloadManager = mock(EncodedPayloadManager.class);
 
-        q2TRestApp = new Q2TRestApp();
-        try (
-            var mockedStaticPayloadManager = mockStatic(EncodedPayloadManager.class);
-            var mockedStaticTransactionManager = mockStatic(TransactionManager.class);
-        ) {
-            mockedStaticTransactionManager.when(TransactionManager::create).thenReturn(mock(TransactionManager.class));
+        q2TRestApp = new Q2TRestApp(transactionManager,encodedPayloadManager);
 
-            EncodedPayloadManager encodedPayloadManager = mock(EncodedPayloadManager.class);
-            mockedStaticPayloadManager.when(EncodedPayloadManager::getInstance)
-                .thenReturn(Optional.of(encodedPayloadManager));
-
-
-            jersey =
-                new JerseyTest() {
-                    @Override
-                    protected Application configure() {
-                        enable(TestProperties.LOG_TRAFFIC);
-                        enable(TestProperties.DUMP_ENTITY);
-                        ResourceConfig jerseyconfig = ResourceConfig.forApplication(q2TRestApp);
-                        return jerseyconfig;
-                    }
-                };
-
-            jersey.setUp();
-
-            Set<Object> results = q2TRestApp.getSingletons();
-
-            assertThat(results).hasSize(3);
-        }
     }
 
     @After
     public void tearDown() throws Exception {
-        jersey.tearDown();
+        verifyNoMoreInteractions(transactionManager,encodedPayloadManager);
     }
 
+    @Test
+    public void getSingletons() {
 
+        Set<Object> results = q2TRestApp.getSingletons();
+        assertThat(results).hasSize(3);
+        List<Class> types = results.stream().map(Object::getClass).collect(Collectors.toList());
+        assertThat(types)
+            .containsExactlyInAnyOrder(
+                TransactionResource.class,
+                RawTransactionResource.class,
+                EncodedPayloadResource.class
+            );
+
+    }
 
     @Test
     public void appType() {

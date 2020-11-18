@@ -9,8 +9,6 @@ import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /** The third party API */
 @Api
@@ -22,8 +20,12 @@ public class ThirdPartyRestApp extends TesseraRestApplication implements com.quo
     private final TransactionManager transactionManager;
 
     public ThirdPartyRestApp() {
-        this.discovery = Discovery.create();
-        this.transactionManager = TransactionManager.create();
+        this(Discovery.create(),TransactionManager.create());
+    }
+
+    protected ThirdPartyRestApp(Discovery discovery, TransactionManager transactionManager) {
+        this.discovery = discovery;
+        this.transactionManager = transactionManager;
     }
 
     @Override
@@ -32,7 +34,7 @@ public class ThirdPartyRestApp extends TesseraRestApplication implements com.quo
         final PartyInfoResource partyInfoResource = new PartyInfoResource(discovery);
         final KeyResource keyResource = new KeyResource();
 
-        return Stream.of(rawTransactionResource, partyInfoResource, keyResource).collect(Collectors.toSet());
+        return Set.of(rawTransactionResource, partyInfoResource, keyResource);
     }
 
     @Override

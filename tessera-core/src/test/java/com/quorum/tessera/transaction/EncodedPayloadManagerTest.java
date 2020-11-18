@@ -1,33 +1,38 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.enclave.Enclave;
 import org.junit.Test;
 
+import java.util.Optional;
+import java.util.ServiceLoader;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.*;
 
 public class EncodedPayloadManagerTest {
 
     @Test
     public void create() {
-
+        EncodedPayloadManager expected = mock(EncodedPayloadManager.class);
+        EncodedPayloadManager encodedPayloadManager;
         try (
-            var privacyHelper = mockStatic(PrivacyHelper.class);
-            var staticEnclave = mockStatic(Enclave.class)) {
+            var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)) {
 
-            privacyHelper.when(PrivacyHelper::create).thenReturn(mock(PrivacyHelper.class));
+            ServiceLoader<EncodedPayloadManager> serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
+            serviceLoaderMockedStatic.when(() -> ServiceLoader.load(EncodedPayloadManager.class))
+                .thenReturn(serviceLoader);
 
-            staticEnclave.when(Enclave::create).thenReturn(mock(Enclave.class));
+            encodedPayloadManager = EncodedPayloadManager.create();
 
-            final EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create();
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
 
-            assertThat(encodedPayloadManager)
-                .isNotNull()
-                .isInstanceOf(EncodedPayloadManagerImpl.class)
-                .isSameAs(EncodedPayloadManager.getInstance().get());
-
-
+            serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(EncodedPayloadManager.class));
+            serviceLoaderMockedStatic.verifyNoMoreInteractions();
         }
+
+        assertThat(encodedPayloadManager)
+            .isNotNull()
+            .isSameAs(expected);
     }
 }
