@@ -27,7 +27,7 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
     uses com.quorum.tessera.p2p.partyinfo.PartyStore;
     uses com.quorum.tessera.p2p.recovery.RecoveryClient;
     uses com.quorum.tessera.p2p.resend.ResendClient;
-
+    uses com.quorum.tessera.p2p.resend.TransactionRequester;
 
     opens com.quorum.tessera.p2p.resend to org.eclipse.persistence.moxy,org.hibernate.validator,org.eclipse.persistence.core;
 

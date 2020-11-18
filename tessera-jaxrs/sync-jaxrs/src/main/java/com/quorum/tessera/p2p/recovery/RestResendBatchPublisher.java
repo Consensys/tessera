@@ -34,7 +34,9 @@ public class RestResendBatchPublisher implements ResendBatchPublisher {
 
         LOGGER.info("Publishing message to {}", targetUrl);
 
-        final List<byte[]> encodedPayloads = payloads.stream().map(payloadEncoder::encode).collect(Collectors.toList());
+        final List<byte[]> encodedPayloads = payloads.stream()
+            .map(payloadEncoder::encode)
+            .collect(Collectors.toList());
 
         final PushBatchRequest pushBatchRequest = new PushBatchRequest(encodedPayloads);
 

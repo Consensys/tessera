@@ -39,7 +39,7 @@ public class RestBatchTransactionRequesterTest {
         this.enclave = mock(Enclave.class);
         this.recoveryClient = mock(RecoveryClient.class);
 
-        doReturn(new ResendBatchResponse(100))
+        doReturn(new ResendBatchResponse(100L))
                 .when(recoveryClient)
                 .makeBatchResendRequest(anyString(), any(ResendBatchRequest.class));
 

@@ -19,7 +19,7 @@ public class ResendBatchRequest {
     private String publicKey;
 
     @ApiModelProperty("batch size")
-    private int batchSize;
+    private Integer batchSize;
 
     public String getPublicKey() {
         return publicKey;
@@ -29,11 +29,11 @@ public class ResendBatchRequest {
         this.publicKey = publicKey;
     }
 
-    public int getBatchSize() {
+    public Integer getBatchSize() {
         return batchSize;
     }
 
-    public void setBatchSize(int batchSize) {
+    public void setBatchSize(Integer batchSize) {
         this.batchSize = batchSize;
     }
 }

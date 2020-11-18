@@ -8,19 +8,19 @@ import io.swagger.annotations.ApiModelProperty;
 public class ResendBatchResponse {
 
     @ApiModelProperty("message count")
-    private long total;
+    private Long total;
 
     public ResendBatchResponse() {}
 
-    public ResendBatchResponse(long total) {
+    public ResendBatchResponse(Long total) {
         this.total = total;
     }
 
-    public long getTotal() {
+    public Long getTotal() {
         return total;
     }
 
-    public void setTotal(long total) {
+    public void setTotal(Long total) {
         this.total = total;
     }
 }
