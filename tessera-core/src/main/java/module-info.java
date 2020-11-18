@@ -17,7 +17,7 @@ module tessera.tessera.core.main {
 
     uses com.quorum.tessera.transaction.TransactionManager;
 
-    uses com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
+    uses com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 
     uses com.quorum.tessera.transaction.EncodedPayloadManager;
 

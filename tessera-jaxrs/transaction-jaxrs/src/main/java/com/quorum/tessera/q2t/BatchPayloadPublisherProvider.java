@@ -4,16 +4,19 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.threading.CancellableCountDownLatchFactory;
 import com.quorum.tessera.threading.ExecutorFactory;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
-import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 
-public class AsyncBatchPayloadPublisherFactory implements BatchPayloadPublisherFactory {
+public class BatchPayloadPublisherProvider {
 
-    @Override
-    public BatchPayloadPublisher create(PayloadPublisher publisher) {
+    public static BatchPayloadPublisher provider() {
         ExecutorFactory executorFactory = new ExecutorFactory();
         CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
         PayloadEncoder encoder = PayloadEncoder.create();
-        return new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, publisher, encoder);
+        PayloadPublisher payloadPublisher = PayloadPublisher.create();
+        return new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, payloadPublisher, encoder);
     }
+
 }
+
+
+

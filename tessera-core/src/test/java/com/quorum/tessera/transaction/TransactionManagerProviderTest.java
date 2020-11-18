@@ -7,7 +7,6 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
-import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import org.junit.After;
@@ -35,7 +34,7 @@ public class TransactionManagerProviderTest {
             var mockedStaticEnclave = mockStatic(Enclave.class);
             var mockedStaticEncryptedRawTransactionDAO = mockStatic(EncryptedRawTransactionDAO.class);
             var mockedStaticPayloadPublisher = mockStatic(PayloadPublisher.class);
-            var mockedStaticBatchPayloadPublisherFactory = mockStatic(BatchPayloadPublisherFactory.class);
+            var mockedStaticBatchPayloadPublisher= mockStatic(BatchPayloadPublisher.class);
             var mockedStaticPrivacyHelper = mockStatic(PrivacyHelper.class);
             var mockedStaticResendManager = mockStatic(ResendManager.class);
             var mockedStaticMessageHashFactory = mockStatic(MessageHashFactory.class)
@@ -51,10 +50,10 @@ public class TransactionManagerProviderTest {
             mockedStaticPayloadPublisher.when(PayloadPublisher::create)
                 .thenReturn(payloadPublisher);
 
-            BatchPayloadPublisherFactory batchPayloadPublisherFactory = mock(BatchPayloadPublisherFactory.class);
-            when(batchPayloadPublisherFactory.create(payloadPublisher)).thenReturn(mock(BatchPayloadPublisher.class));
-            mockedStaticBatchPayloadPublisherFactory.when(BatchPayloadPublisherFactory::newFactory)
-                .thenReturn(batchPayloadPublisherFactory);
+            BatchPayloadPublisher batchPayloadPublisher = mock(BatchPayloadPublisher.class);
+
+            mockedStaticBatchPayloadPublisher.when(BatchPayloadPublisher::create)
+                .thenReturn(batchPayloadPublisher);
 
             mockedStaticEncryptedRawTransactionDAO.when(EncryptedRawTransactionDAO::create)
                 .thenReturn(mock(EncryptedRawTransactionDAO.class));
@@ -93,8 +92,8 @@ public class TransactionManagerProviderTest {
             mockedStaticPayloadPublisher.verify(PayloadPublisher::create);
             mockedStaticPayloadPublisher.verifyNoMoreInteractions();
 
-            mockedStaticBatchPayloadPublisherFactory.verify(BatchPayloadPublisherFactory::newFactory);
-            mockedStaticBatchPayloadPublisherFactory.verifyNoMoreInteractions();
+            mockedStaticBatchPayloadPublisher.verify(BatchPayloadPublisher::create);
+            mockedStaticBatchPayloadPublisher.verifyNoMoreInteractions();
 
             mockedStaticPrivacyHelper.verify(PrivacyHelper::create);
             mockedStaticPrivacyHelper.verifyNoMoreInteractions();

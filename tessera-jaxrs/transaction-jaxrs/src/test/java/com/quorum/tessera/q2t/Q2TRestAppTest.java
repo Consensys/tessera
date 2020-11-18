@@ -14,8 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.*;
 
 public class Q2TRestAppTest {
 
@@ -57,5 +56,28 @@ public class Q2TRestAppTest {
     @Test
     public void appType() {
         assertThat(q2TRestApp.getAppType()).isEqualTo(AppType.Q2T);
+    }
+
+
+    @Test
+    public void defaultConstructor() {
+        try(
+            var transactionManagerMockedStatic = mockStatic(TransactionManager.class);
+            var encodedPayloadManagerMockedStatic = mockStatic(EncodedPayloadManager.class)
+            ) {
+            transactionManagerMockedStatic.when(TransactionManager::create)
+                .thenReturn(transactionManager);
+            encodedPayloadManagerMockedStatic.when(EncodedPayloadManager::create)
+                .thenReturn(encodedPayloadManager);
+
+            new Q2TRestApp();
+
+            transactionManagerMockedStatic.verify(TransactionManager::create);
+            transactionManagerMockedStatic.verifyNoMoreInteractions();
+
+            encodedPayloadManagerMockedStatic.verify(EncodedPayloadManager::create);
+            encodedPayloadManagerMockedStatic.verifyNoMoreInteractions();
+        }
+
     }
 }

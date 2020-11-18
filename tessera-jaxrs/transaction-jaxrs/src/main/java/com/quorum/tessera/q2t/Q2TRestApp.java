@@ -8,6 +8,7 @@ import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.annotations.Api;
 
 import javax.ws.rs.ApplicationPath;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -23,8 +24,8 @@ public class Q2TRestApp extends TesseraRestApplication implements com.quorum.tes
     private EncodedPayloadManager encodedPayloadManager;
 
     protected Q2TRestApp(TransactionManager transactionManager, EncodedPayloadManager encodedPayloadManager) {
-        this.transactionManager = transactionManager;
-        this.encodedPayloadManager = encodedPayloadManager;
+        this.transactionManager = Objects.requireNonNull(transactionManager);
+        this.encodedPayloadManager = Objects.requireNonNull(encodedPayloadManager);
     }
 
     public Q2TRestApp() {

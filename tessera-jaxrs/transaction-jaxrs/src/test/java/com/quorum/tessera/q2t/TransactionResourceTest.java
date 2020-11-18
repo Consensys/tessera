@@ -377,7 +377,7 @@ public class TransactionResourceTest {
 
         StreamingOutput streamingOutput = output -> output.write("signedTxData".getBytes());
 
-        Response result = transactionResource.sendSignedTransaction(null,"signedTxData".getBytes());
+        Response result = transactionResource.sendSignedTransaction("","signedTxData".getBytes());
 //                jersey.target("sendsignedtx")
 //                        .request()
 //                        .header("c11n-to", "")

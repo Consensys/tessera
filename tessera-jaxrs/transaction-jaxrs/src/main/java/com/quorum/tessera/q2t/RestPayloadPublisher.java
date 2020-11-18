@@ -33,10 +33,6 @@ public class RestPayloadPublisher implements PayloadPublisher {
 
     private final Discovery discovery;
 
-    public RestPayloadPublisher(Client restclient, Discovery discovery) {
-        this(restclient, PayloadEncoder.create(), discovery);
-    }
-
     public RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder, Discovery discovery) {
         this.restclient = Objects.requireNonNull(restclient);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
@@ -56,7 +52,6 @@ public class RestPayloadPublisher implements PayloadPublisher {
         }
 
         final String targetUrl = remoteNodeInfo.getUrl();
-
         LOGGER.info("Publishing message to {}", targetUrl);
 
         final byte[] encoded = payloadEncoder.encode(payload);

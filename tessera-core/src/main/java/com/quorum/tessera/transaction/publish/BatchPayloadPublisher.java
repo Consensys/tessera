@@ -4,6 +4,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.List;
+import java.util.ServiceLoader;
 
 public interface BatchPayloadPublisher {
 
@@ -15,5 +16,9 @@ public interface BatchPayloadPublisher {
      * @param recipientKeys list of public keys identifying the target nodes
      */
     void publishPayload(EncodedPayload payload, List<PublicKey> recipientKeys);
+
+    static BatchPayloadPublisher create() {
+        return ServiceLoader.load(BatchPayloadPublisher.class).findFirst().get();
+    }
 
 }
