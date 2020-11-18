@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p.resend;
 
+import com.quorum.tessera.config.CommunicationType;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -53,6 +54,8 @@ public class RestResendClientTest {
             when(invocationBuilder.post(outboundEntity)).thenReturn(response);
 
             RestResendClient restResendClient = new RestResendClient(client);
+            assertThat(restResendClient.communicationType()).isEqualTo(CommunicationType.REST);
+
             boolean outcome = restResendClient.makeResendRequest(targetUrl,resendRequest);
             if(expectedResponseStatus == Response.Status.OK) {
                 assertThat(outcome).isTrue();
