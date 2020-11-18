@@ -110,13 +110,14 @@ public class RestResendBatchPublisherTest {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Map.Entry<String, List<byte[]>>> fixtures() {
-        return Map.of("targetUrl",
+        return Map.of("singlePayloadUrl",
             List.of(
-                "singlePayloadUrl".getBytes(),
-                "anotherEncodedPayload".getBytes()
+                "somePayloadData".getBytes()
             ),
             "anotherMuliplePayloadUrl",
-                IntStream.range(0,100).mapToObj(i -> UUID.randomUUID().toString().getBytes()).collect(Collectors.toList())
+                IntStream.range(0,100)
+                    .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+                    .collect(Collectors.toList())
         ).entrySet();
     }
 
