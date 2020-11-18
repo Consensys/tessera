@@ -9,7 +9,6 @@ import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -207,9 +206,19 @@ public class SyncPollerTest {
         verify(partyInfoService, times(2)).getCurrent();
     }
 
-    @Ignore
+
     @Test
     public void constructWithMinimalArgs() {
-        assertThat(new SyncPoller(resendPartyStore, transactionRequester, p2pClient)).isNotNull();
+
+        try(var d = mockStatic(Discovery.class);
+            var p = mockStatic(PartyInfoParser.class)
+        ) {
+            d.when(Discovery::create).thenReturn(mock(Discovery.class));
+            p.when(PartyInfoParser::create).thenReturn(mock(PartyInfoParser.class));
+            assertThat(new SyncPoller(resendPartyStore, transactionRequester, p2pClient)).isNotNull();
+
+            d.verify(Discovery::create);
+            p.verify(PartyInfoParser::create);
+        }
     }
 }
