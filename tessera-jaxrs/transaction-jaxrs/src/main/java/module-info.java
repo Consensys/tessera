@@ -17,9 +17,6 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
 
     exports com.quorum.tessera.q2t;
 
-    provides com.quorum.tessera.transaction.publish.PayloadPublisherFactory
-        with com.quorum.tessera.q2t.RestPayloadPublisherFactory;
-
     provides com.quorum.tessera.config.apps.TesseraApp with
         com.quorum.tessera.q2t.Q2TRestApp;
 
@@ -27,4 +24,7 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
         com.quorum.tessera.q2t.AsyncBatchPayloadPublisherFactory;
 
     provides com.quorum.tessera.api.Version with com.quorum.tessera.q2t.Version;
+
+    provides com.quorum.tessera.transaction.publish.PayloadPublisher with
+        com.quorum.tessera.q2t.PayloadPublisherProvider;
 }

@@ -13,7 +13,7 @@ module tessera.tessera.core.main {
     exports com.quorum.tessera.transaction.exception;
     exports com.quorum.tessera.transaction.publish;
 
-    uses com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
+    uses com.quorum.tessera.transaction.publish.PayloadPublisher;
 
     uses com.quorum.tessera.transaction.TransactionManager;
 

@@ -1,5 +1,6 @@
 package com.quorum.tessera.q2t;
 
+import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -20,6 +21,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
+import java.util.Objects;
 
 public class RestPayloadPublisher implements PayloadPublisher {
 
@@ -36,9 +38,9 @@ public class RestPayloadPublisher implements PayloadPublisher {
     }
 
     public RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder, Discovery discovery) {
-        this.restclient = restclient;
-        this.payloadEncoder = payloadEncoder;
-        this.discovery = discovery;
+        this.restclient = Objects.requireNonNull(restclient);
+        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+        this.discovery = Objects.requireNonNull(discovery);
     }
 
     @Override
@@ -76,5 +78,10 @@ public class RestPayloadPublisher implements PayloadPublisher {
             LOGGER.debug("", ex);
             throw new NodeOfflineException(URI.create(targetUrl));
         }
+    }
+
+    @Override
+    public CommunicationType communicationType() {
+        return CommunicationType.REST;
     }
 }

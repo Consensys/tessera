@@ -1,7 +1,5 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHashFactory;
@@ -9,7 +7,6 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
-import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +29,9 @@ public class TransactionManagerProvider {
         final ResendManager resendManager = ResendManager.create();
         LOGGER.debug("Created ResendManager {}",resendManager);
 
-        Config config = ConfigFactory.create().getConfig();
+
         LOGGER.debug("Creating payload publisher");
-        PayloadPublisherFactory payloadPublisherFactory = PayloadPublisherFactory.newFactory(config);
-        final PayloadPublisher payloadPublisher = payloadPublisherFactory.create(config);
+        final PayloadPublisher payloadPublisher = PayloadPublisher.create();
         LOGGER.debug("Created payload publisher {}",payloadPublisher);
 
         LOGGER.debug("Creating batchPayloadPublisher");

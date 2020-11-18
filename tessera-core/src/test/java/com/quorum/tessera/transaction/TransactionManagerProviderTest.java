@@ -9,7 +9,6 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
-import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import org.junit.After;
 import org.junit.Before;
@@ -19,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TransactionManagerProviderTest {
-
 
     @Before
     @After
@@ -31,13 +29,12 @@ public class TransactionManagerProviderTest {
     @Test
     public void provider() {
 
-
         try(
             var mockedStaticConfigFactory = mockStatic(ConfigFactory.class);
             var mockedStaticEncryptedTransactionDAO = mockStatic(EncryptedTransactionDAO.class);
             var mockedStaticEnclave = mockStatic(Enclave.class);
             var mockedStaticEncryptedRawTransactionDAO = mockStatic(EncryptedRawTransactionDAO.class);
-            var mockedStaticPayloadPublisherFactory = mockStatic(PayloadPublisherFactory.class);
+            var mockedStaticPayloadPublisher = mockStatic(PayloadPublisher.class);
             var mockedStaticBatchPayloadPublisherFactory = mockStatic(BatchPayloadPublisherFactory.class);
             var mockedStaticPrivacyHelper = mockStatic(PrivacyHelper.class);
             var mockedStaticResendManager = mockStatic(ResendManager.class);
@@ -49,12 +46,10 @@ public class TransactionManagerProviderTest {
             when(configFactory.getConfig()).thenReturn(config);
             mockedStaticConfigFactory.when(ConfigFactory::create).thenReturn(configFactory);
 
-            PayloadPublisherFactory payloadPublisherFactory = mock(PayloadPublisherFactory.class);
             PayloadPublisher payloadPublisher = mock(PayloadPublisher.class);
-            when(payloadPublisherFactory.create(config)).thenReturn(payloadPublisher);
 
-            mockedStaticPayloadPublisherFactory.when(() -> PayloadPublisherFactory.newFactory(config))
-                .thenReturn(payloadPublisherFactory);
+            mockedStaticPayloadPublisher.when(PayloadPublisher::create)
+                .thenReturn(payloadPublisher);
 
             BatchPayloadPublisherFactory batchPayloadPublisherFactory = mock(BatchPayloadPublisherFactory.class);
             when(batchPayloadPublisherFactory.create(payloadPublisher)).thenReturn(mock(BatchPayloadPublisher.class));
@@ -95,8 +90,8 @@ public class TransactionManagerProviderTest {
             mockedStaticEncryptedRawTransactionDAO.verify(EncryptedRawTransactionDAO::create);
             mockedStaticEncryptedRawTransactionDAO.verifyNoMoreInteractions();
 
-            mockedStaticPayloadPublisherFactory.verify(() -> PayloadPublisherFactory.newFactory(config));
-            mockedStaticPayloadPublisherFactory.verifyNoMoreInteractions();
+            mockedStaticPayloadPublisher.verify(PayloadPublisher::create);
+            mockedStaticPayloadPublisher.verifyNoMoreInteractions();
 
             mockedStaticBatchPayloadPublisherFactory.verify(BatchPayloadPublisherFactory::newFactory);
             mockedStaticBatchPayloadPublisherFactory.verifyNoMoreInteractions();

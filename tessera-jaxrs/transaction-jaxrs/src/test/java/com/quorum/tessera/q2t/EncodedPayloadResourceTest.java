@@ -9,16 +9,11 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.ReceiveResponse;
 import com.quorum.tessera.transaction.TransactionManager;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.List;
@@ -30,46 +25,27 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class EncodedPayloadResourceTest {
-
-    private JerseyTest jersey;
 
     private TransactionManager transactionManager;
 
     private EncodedPayloadManager encodedPayloadManager;
 
-    @BeforeClass
-    public static void setUpLoggers() {
-        SLF4JBridgeHandler.removeHandlersForRootLogger();
-        SLF4JBridgeHandler.install();
-    }
+    private EncodedPayloadResource encodedPayloadResource;
 
     @Before
     public void onSetup() throws Exception {
         this.transactionManager = mock(TransactionManager.class);
         this.encodedPayloadManager = mock(EncodedPayloadManager.class);
 
-        final EncodedPayloadResource encodedPayloadResource
-            = new EncodedPayloadResource(encodedPayloadManager, transactionManager);
+        encodedPayloadResource = new EncodedPayloadResource(encodedPayloadManager, transactionManager);
 
-        this.jersey = new JerseyTest() {
-            @Override
-            protected Application configure() {
-                forceSet(TestProperties.CONTAINER_PORT, "0");
-                enable(TestProperties.LOG_TRAFFIC);
-                enable(TestProperties.DUMP_ENTITY);
-                return new ResourceConfig().register(encodedPayloadResource);
-            }
-        };
-        this.jersey.setUp();
     }
 
     @After
     public void onTearDown() throws Exception {
-        verifyNoMoreInteractions(transactionManager);
+        verifyNoMoreInteractions(transactionManager,encodedPayloadManager);
 
-        this.jersey.tearDown();
     }
 
     @Test
@@ -99,13 +75,13 @@ public class EncodedPayloadResourceTest {
         when(encodedPayloadManager.create(any(com.quorum.tessera.transaction.SendRequest.class)))
             .thenReturn(samplePayload);
 
-        final Response result = jersey.target("/encodedpayload/create")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+        final Response result = encodedPayloadResource.createEncodedPayload(sendRequest);
 
         assertThat(result.getStatus()).isEqualTo(200);
 
-        final PayloadEncryptResponse payloadEncryptResponse = result.readEntity(PayloadEncryptResponse.class);
+        final PayloadEncryptResponse payloadEncryptResponse = PayloadEncryptResponse.class.cast(result.getEntity());
+
         assertThat(PublicKey.from(payloadEncryptResponse.getSenderKey())).isEqualTo(sender);
         assertThat(payloadEncryptResponse.getCipherText()).isEqualTo("testPayload".getBytes());
         assertThat(payloadEncryptResponse.getCipherTextNonce()).isEqualTo("cipherTextNonce".getBytes());
@@ -134,21 +110,7 @@ public class EncodedPayloadResourceTest {
         assertThat(businessObject.getExecHash()).isEmpty();
     }
 
-    @Ignore
-    @Test
-    public void createPayloadNullPayload() {
-        final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
 
-        final SendRequest sendRequest = new SendRequest();
-        sendRequest.setFrom(base64Key);
-
-        final String sampleBadRequest = "{}";
-        final Response result = jersey.target("/encodedpayload/create")
-            .request()
-            .post(Entity.entity(sampleBadRequest, MediaType.APPLICATION_JSON));
-
-        assertThat(result.getStatus()).isEqualTo(400);
-    }
 
     @Test
     public void decryptPayload() {
@@ -174,14 +136,12 @@ public class EncodedPayloadResourceTest {
 
         when(encodedPayloadManager.decrypt(any(), eq(null))).thenReturn(response);
 
-        final Response result = jersey.target("/encodedpayload/decrypt")
-            .request()
-            .post(Entity.entity(request, MediaType.APPLICATION_JSON));
+        final Response result = encodedPayloadResource.receive(request);
 
         assertThat(result.getStatus()).isEqualTo(200);
 
         final com.quorum.tessera.api.ReceiveResponse payloadEncryptResponse
-            = result.readEntity(com.quorum.tessera.api.ReceiveResponse.class);
+            = com.quorum.tessera.api.ReceiveResponse.class.cast(result.getEntity());
         assertThat(payloadEncryptResponse.getPayload()).isEqualTo("decryptedData".getBytes());
         assertThat(payloadEncryptResponse.getPrivacyFlag()).isEqualTo(0);
         assertThat(payloadEncryptResponse.getAffectedContractTransactions())
