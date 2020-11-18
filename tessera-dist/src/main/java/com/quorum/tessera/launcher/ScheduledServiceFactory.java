@@ -58,7 +58,7 @@ public class ScheduledServiceFactory {
         if(enableSync) {
 
             ResendPartyStore resendPartyStore = new ResendPartyStoreImpl();
-            TransactionRequester transactionRequester = com.quorum.tessera.p2p.resend.TransactionRequesterFactory.newFactory().createTransactionRequester(config);
+            TransactionRequester transactionRequester = TransactionRequester.create();
             SyncPoller syncPoller = new SyncPoller(resendPartyStore, transactionRequester, p2pClient);
             ScheduledExecutorService scheduledExecutorService = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
             tesseraScheduledExecutors.add(new TesseraScheduledExecutor(scheduledExecutorService,syncPoller,intervalPropertyHelper.syncInterval(),5000L));
