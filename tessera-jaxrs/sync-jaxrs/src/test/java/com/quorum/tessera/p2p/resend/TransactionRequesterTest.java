@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.Collections;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -50,7 +52,7 @@ public class TransactionRequesterTest {
 
         assertThat(success).isTrue();
 
-        verifyZeroInteractions(resendClient);
+        verifyNoInteractions(resendClient);
         verify(enclave).getPublicKeys();
     }
 
@@ -85,5 +87,30 @@ public class TransactionRequesterTest {
 
         verify(resendClient).makeResendRequest(eq("fakeurl.com"), any(ResendRequest.class));
         verify(enclave).getPublicKeys();
+    }
+
+    @Test
+    public void create() {
+
+        TransactionRequester expected = mock(TransactionRequester.class);
+
+        TransactionRequester result;
+        try(var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)) {
+            ServiceLoader<TransactionRequester> serviceLoader = mock(ServiceLoader.class);
+            when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
+            serviceLoaderMockedStatic.when(() -> ServiceLoader.load(TransactionRequester.class))
+                .thenReturn(serviceLoader);
+
+            result = TransactionRequester.create();
+
+            verify(serviceLoader).findFirst();
+            verifyNoMoreInteractions(serviceLoader);
+
+
+            serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(TransactionRequester.class));
+            serviceLoaderMockedStatic.verifyNoMoreInteractions();
+
+        }
+        assertThat(result).isSameAs(expected);
     }
 }
