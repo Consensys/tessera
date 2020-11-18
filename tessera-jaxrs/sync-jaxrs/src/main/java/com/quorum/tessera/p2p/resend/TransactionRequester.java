@@ -1,5 +1,7 @@
 package com.quorum.tessera.p2p.resend;
 
+import java.util.ServiceLoader;
+
 /**
  * Makes requests to other nodes to resend their transactions
  *
@@ -16,4 +18,9 @@ public interface TransactionRequester {
      * @return whether all the resend requests for all keys was successful or not
      */
     boolean requestAllTransactionsFromNode(String url);
+
+    static TransactionRequester create() {
+        return ServiceLoader.load(TransactionRequester.class).findFirst().get();
+    }
+
 }

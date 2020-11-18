@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-public class TransactionRequesterImpl implements TransactionRequester {
+class TransactionRequesterImpl implements TransactionRequester {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionRequesterImpl.class);
 
@@ -15,7 +15,7 @@ public class TransactionRequesterImpl implements TransactionRequester {
 
     private final ResendClient client;
 
-    public TransactionRequesterImpl(final Enclave enclave, final ResendClient client) {
+    TransactionRequesterImpl(final Enclave enclave, final ResendClient client) {
         this.enclave = Objects.requireNonNull(enclave);
         this.client = Objects.requireNonNull(client);
     }

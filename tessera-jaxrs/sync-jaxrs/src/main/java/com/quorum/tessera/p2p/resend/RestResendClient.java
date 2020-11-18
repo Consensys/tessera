@@ -1,16 +1,19 @@
 package com.quorum.tessera.p2p.resend;
 
+import com.quorum.tessera.config.CommunicationType;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
 
-public class RestResendClient implements ResendClient {
+
+class RestResendClient implements ResendClient {
 
     private final Client client;
 
-    public RestResendClient(final Client client) {
+    RestResendClient(final Client client) {
         this.client = Objects.requireNonNull(client);
     }
 
@@ -24,5 +27,10 @@ public class RestResendClient implements ResendClient {
             .post(outboundEntity)) {
             return Response.Status.OK.getStatusCode() == response.getStatus();
         }
+    }
+
+    @Override
+    public CommunicationType communicationType() {
+        return CommunicationType.REST;
     }
 }

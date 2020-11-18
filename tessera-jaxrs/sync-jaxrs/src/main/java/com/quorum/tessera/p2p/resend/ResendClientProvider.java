@@ -1,7 +1,7 @@
 package com.quorum.tessera.p2p.resend;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.util.IntervalPropertyHelper;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
@@ -9,11 +9,12 @@ import com.quorum.tessera.ssl.context.SSLContextFactory;
 
 import javax.ws.rs.client.Client;
 
-public class RestResendClientFactory implements ResendClientFactory {
+public class ResendClientProvider {
 
-    public ResendClient create(final Config config) {
+    public static ResendClient provider() {
+        final Config config = ConfigFactory.create().getConfig();
         final String resendWaitTime =
-                new IntervalPropertyHelper(config.getP2PServerConfig().getProperties()).resendWaitTime();
+            new IntervalPropertyHelper(config.getP2PServerConfig().getProperties()).resendWaitTime();
 
         final SSLContextFactory clientSSLContextFactory = ClientSSLContextFactory.create();
 
@@ -24,8 +25,4 @@ public class RestResendClientFactory implements ResendClientFactory {
         return new RestResendClient(client);
     }
 
-    @Override
-    public CommunicationType communicationType() {
-        return CommunicationType.REST;
-    }
 }

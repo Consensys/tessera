@@ -25,26 +25,18 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
     exports com.quorum.tessera.p2p.recovery;
 
     uses com.quorum.tessera.p2p.partyinfo.PartyStore;
-    uses com.quorum.tessera.p2p.recovery.RecoveryClientFactory;
+    uses com.quorum.tessera.p2p.recovery.RecoveryClient;
     uses com.quorum.tessera.p2p.resend.ResendClientFactory;
 
 
     opens com.quorum.tessera.p2p.resend to org.eclipse.persistence.moxy,org.hibernate.validator,org.eclipse.persistence.core;
 
-    provides com.quorum.tessera.p2p.resend.TransactionRequesterFactory with com.quorum.tessera.p2p.resend.TransactionRequesterFactoryImpl;
-    provides com.quorum.tessera.p2p.resend.ResendClientFactory with com.quorum.tessera.p2p.resend.RestResendClientFactory;
 
     provides com.quorum.tessera.config.apps.TesseraApp with com.quorum.tessera.p2p.P2PRestApp;
 
     provides com.quorum.tessera.p2p.partyinfo.PartyStore with com.quorum.tessera.p2p.partyinfo.PartyStoreFactory;
 
-    provides com.quorum.tessera.p2p.recovery.RecoveryClientFactory with com.quorum.tessera.p2p.recovery.RestRecoveryClientFactory;
-
     provides com.quorum.tessera.partyinfo.P2pClientFactory with com.quorum.tessera.p2p.partyinfo.RestP2pClientFactory;
-
-
-//    provides com.quorum.tessera.transaction.publish.PayloadPublisherFactory with
-//        com.quorum.tessera.q2t.RestPayloadPublisherFactory;
 
     provides com.quorum.tessera.api.Version with com.quorum.tessera.p2p.Version;
 
@@ -53,4 +45,16 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
 
     provides com.quorum.tessera.recovery.resend.ResendBatchPublisher with
         com.quorum.tessera.p2p.recovery.ResendBatchPublisherProvider;
+
+    provides com.quorum.tessera.p2p.resend.ResendClient with
+            com.quorum.tessera.p2p.resend.ResendClientProvider;
+
+    provides com.quorum.tessera.p2p.recovery.RecoveryClient with
+         com.quorum.tessera.p2p.recovery.RecoveryClientProvider;
+
+    provides com.quorum.tessera.p2p.resend.TransactionRequester
+        with com.quorum.tessera.p2p.resend.TransactionRequesterProvider;
+
+
+
 }
