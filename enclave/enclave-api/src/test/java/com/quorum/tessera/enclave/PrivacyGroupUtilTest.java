@@ -10,16 +10,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PrivacyGroupUtilTest {
 
-    private PrivacyGroupUtil privacyGroupUtil = PrivacyGroupUtil.create();
+    private final PrivacyGroupUtil privacyGroupUtil = PrivacyGroupUtil.create();
 
-    private PublicKey recipient1 =
-            PublicKey.from(Base64.getDecoder().decode("arhIcNa+MuYXZabmzJD5B33F3dZgqb0hEbM3FZsylSg="));
-    private PublicKey recipient2 =
-            PublicKey.from(Base64.getDecoder().decode("B687sgdtqsem2qEXO8h8UqvW1Mb3yKo7id5hPFLwCmY="));
-    private PublicKey recipient3 =
+    private final PublicKey recipient1 =
+        PublicKey.from(Base64.getDecoder().decode("arhIcNa+MuYXZabmzJD5B33F3dZgqb0hEbM3FZsylSg="));
+    private final PublicKey recipient2 =
+        PublicKey.from(Base64.getDecoder().decode("B687sgdtqsem2qEXO8h8UqvW1Mb3yKo7id5hPFLwCmY="));
+    private final PublicKey recipient3 =
         PublicKey.from(Base64.getDecoder().decode("HEkOUBXbgGCQ5+WDFUAhucXm/n5zUrfGkgdJY/5lfCs="));
 
-    private byte[] seed = Base64.getDecoder().decode("Zm9v");
+    private final byte[] seed = Base64.getDecoder().decode("Zm9v");
 
     @Test
     public void testGenerateLegacyGroupId() {
