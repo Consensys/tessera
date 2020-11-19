@@ -3,6 +3,7 @@ package com.quorum.tessera.context;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 
 import javax.ws.rs.client.Client;
 import java.net.URI;
@@ -37,6 +38,6 @@ public interface RuntimeContext {
     Set<PublicKey> getPublicKeys();
 
     static RuntimeContext getInstance() {
-        return ServiceLoader.load(RuntimeContext.class).findFirst().get();
+        return ServiceLoaderUtil.loadSingle(ServiceLoader.load(RuntimeContext.class));
     }
 }

@@ -1,5 +1,7 @@
 package com.quorum.tessera.recovery;
 
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
+
 import java.util.ServiceLoader;
 
 public interface Recovery {
@@ -13,7 +15,7 @@ public interface Recovery {
     RecoveryResult sync();
 
     static Recovery create() {
-        return ServiceLoader.load(Recovery.class).findFirst().get();
+        return ServiceLoaderUtil.loadSingle(ServiceLoader.load(Recovery.class));
     }
 
 }

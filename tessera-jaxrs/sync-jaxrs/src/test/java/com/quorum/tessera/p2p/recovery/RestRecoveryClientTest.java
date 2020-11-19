@@ -1,7 +1,6 @@
 package com.quorum.tessera.p2p.recovery;
 
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.p2p.resend.ResendRequest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +54,6 @@ public class RestRecoveryClientTest {
             when(invocationBuilder.post(outboundEntity)).thenReturn(response);
 
             RestRecoveryClient restRecoveryClient = new RestRecoveryClient(client);
-            assertThat(restRecoveryClient.communicationType()).isEqualTo(CommunicationType.REST);
 
             boolean outcome = restRecoveryClient.makeResendRequest(targetUrl,resendRequest);
             if(expectedResponseStatus == Response.Status.OK) {
@@ -105,7 +103,6 @@ public class RestRecoveryClientTest {
             when(invocationBuilder.post(outboundEntity)).thenReturn(response);
 
             RestRecoveryClient restRecoveryClient = new RestRecoveryClient(client);
-            assertThat(restRecoveryClient.communicationType()).isEqualTo(CommunicationType.REST);
 
             boolean outcome = restRecoveryClient.pushBatch(targetUrl,pushBatchRequest);
             if(expectedResponseStatus == Response.Status.OK) {
@@ -156,7 +153,6 @@ public class RestRecoveryClientTest {
             when(invocationBuilder.post(outboundEntity)).thenReturn(response);
 
             RestRecoveryClient restRecoveryClient = new RestRecoveryClient(client);
-            assertThat(restRecoveryClient.communicationType()).isEqualTo(CommunicationType.REST);
 
             ResendBatchResponse outcome = restRecoveryClient.makeBatchResendRequest(targetUrl,pushBatchRequest);
             if(expectedResponseStatus == Response.Status.OK) {

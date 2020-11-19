@@ -1,12 +1,16 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.service.Service;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ServiceLoader;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.*;
 
 public class EnclaveClientTest {
 
@@ -21,7 +25,7 @@ public class EnclaveClientTest {
 
     @After
     public void onTearDown() {
-        verify(enclaveClient).validateEnclaveStatus();
+
         verifyNoMoreInteractions(enclaveClient);
     }
 
@@ -32,6 +36,8 @@ public class EnclaveClientTest {
         enclaveClient.validateEnclaveStatus();
 
         verify(enclaveClient).status();
+
+        verify(enclaveClient).validateEnclaveStatus();
     }
 
     @Test
@@ -43,6 +49,29 @@ public class EnclaveClientTest {
         assertThat(throwable).isInstanceOf(EnclaveNotAvailableException.class);
 
         verify(enclaveClient).status();
+
+        verify(enclaveClient).validateEnclaveStatus();
+    }
+
+    @Test
+    public void create() {
+        try (
+            var serviceLoaderUtilMockedStatic = mockStatic(ServiceLoaderUtil.class);
+            var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)
+        ) {
+
+            ServiceLoader<EnclaveClient> serviceLoader = mock(ServiceLoader.class);
+            serviceLoaderMockedStatic.when(() -> ServiceLoader.load(EnclaveClient.class)).thenReturn(serviceLoader);
+
+            EnclaveClient.create();
+
+            serviceLoaderUtilMockedStatic.verify(() -> ServiceLoaderUtil.loadSingle(serviceLoader));
+            serviceLoaderUtilMockedStatic.verifyNoMoreInteractions();
+
+            serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(EnclaveClient.class));
+            serviceLoaderMockedStatic.verifyNoMoreInteractions();
+            verifyNoInteractions(serviceLoader);
+        }
     }
 
 }

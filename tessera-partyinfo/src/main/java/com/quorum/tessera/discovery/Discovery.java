@@ -2,6 +2,7 @@ package com.quorum.tessera.discovery;
 
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 
 import java.net.URI;
 import java.util.ServiceLoader;
@@ -34,6 +35,6 @@ public interface Discovery {
     }
 
     static Discovery create() {
-        return ServiceLoader.load(Discovery.class).findFirst().get();
+        return ServiceLoaderUtil.loadSingle(ServiceLoader.load(Discovery.class));
     }
 }

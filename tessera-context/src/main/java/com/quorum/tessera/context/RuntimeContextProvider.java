@@ -25,9 +25,10 @@ public class RuntimeContextProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeContextProvider.class);
 
     public static RuntimeContext provider() {
-
+        LOGGER.debug("Providing RuntimeContext");
         RuntimeContextHolder contextHolder = RuntimeContextHolder.INSTANCE;
         if(contextHolder.getContext().isPresent()) {
+            LOGGER.debug("Found stored RuntimeContext instance");
             return contextHolder.getContext().get();
         }
 

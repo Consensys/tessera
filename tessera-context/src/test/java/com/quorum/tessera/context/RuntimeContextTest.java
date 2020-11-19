@@ -1,39 +1,33 @@
 package com.quorum.tessera.context;
 
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 import org.junit.Test;
 
-import java.util.Optional;
 import java.util.ServiceLoader;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class RuntimeContextTest {
 
     @Test
     public void create() {
-
-        RuntimeContext expected = mock(RuntimeContext.class);
-
-        RuntimeContext result;
-        try(var mockedStaticServiceLoader = mockStatic(ServiceLoader.class)) {
+        try(
+            var serviceLoaderUtilMockedStatic = mockStatic(ServiceLoaderUtil.class);
+            var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)
+            ) {
 
             ServiceLoader<RuntimeContext> serviceLoader = mock(ServiceLoader.class);
-            when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
+            serviceLoaderMockedStatic.when(() -> ServiceLoader.load(RuntimeContext.class)).thenReturn(serviceLoader);
 
-            mockedStaticServiceLoader.when(() -> ServiceLoader.load(RuntimeContext.class)).thenReturn(serviceLoader);
+            RuntimeContext.getInstance();
 
-            result = RuntimeContext.getInstance();
+            serviceLoaderUtilMockedStatic.verify(() -> ServiceLoaderUtil.loadSingle(serviceLoader));
+            serviceLoaderUtilMockedStatic.verifyNoMoreInteractions();
 
-            verify(serviceLoader).findFirst();
-            verifyNoMoreInteractions(serviceLoader);
-            mockedStaticServiceLoader.verify(() -> ServiceLoader.load(RuntimeContext.class));
-            mockedStaticServiceLoader.verifyNoMoreInteractions();
-
+            serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(RuntimeContext.class));
+            serviceLoaderMockedStatic.verifyNoMoreInteractions();
+            verifyNoInteractions(serviceLoader);
         }
-
-        assertThat(result).isSameAs(expected);
-
     }
 
 

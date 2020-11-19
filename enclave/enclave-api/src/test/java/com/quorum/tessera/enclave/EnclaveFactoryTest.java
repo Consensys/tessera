@@ -26,20 +26,20 @@ public class EnclaveFactoryTest {
 
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(AppType.ENCLAVE);
-        serverConfig.setCommunicationType(CommunicationType.REST);
         serverConfig.setServerAddress("http://bogus:9898");
 
         config.setServerConfigs(singletonList(serverConfig));
 
-        try (var staticEnclaveClientFactory = mockStatic(EnclaveClientFactory.class)) {
+        try (var staticEnclaveClientFactory = mockStatic(EnclaveClientFactory.class);
+            var enclaveClientMockedStatic = mockStatic(EnclaveClient.class)
+        ) {
 
             EnclaveClientFactory enclaveClientFactory = mock(EnclaveClientFactory.class);
 
             staticEnclaveClientFactory.when(EnclaveClientFactory::create).thenReturn(enclaveClientFactory);
 
-
             EnclaveClient enclaveClient = mock(EnclaveClient.class);
-            when(enclaveClientFactory.create(config)).thenReturn(enclaveClient);
+            enclaveClientMockedStatic.when(EnclaveClient::create).thenReturn(enclaveClient);
 
             EnclaveFactoryImpl enclaveFactory = new EnclaveFactoryImpl(config);
             Enclave result = enclaveFactory.createEnclave();

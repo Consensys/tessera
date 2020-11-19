@@ -11,12 +11,12 @@ module tessera.tessera.partyinfo.main {
     exports com.quorum.tessera.partyinfo;
     exports com.quorum.tessera.partyinfo.node;
 
-    uses com.quorum.tessera.partyinfo.P2pClientFactory;
     uses com.quorum.tessera.discovery.NetworkStore;
     uses com.quorum.tessera.enclave.Enclave;
 
     uses com.quorum.tessera.discovery.DiscoveryHelper;
     uses com.quorum.tessera.discovery.Discovery;
+    uses com.quorum.tessera.partyinfo.P2pClient;
 
     provides com.quorum.tessera.discovery.Discovery with
         com.quorum.tessera.discovery.DiscoveryProvider;

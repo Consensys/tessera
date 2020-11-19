@@ -1,7 +1,5 @@
 package com.quorum.tessera.p2p.resend;
 
-import com.quorum.tessera.config.CommunicationType;
-
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -29,8 +27,4 @@ class RestResendClient implements ResendClient {
         }
     }
 
-    @Override
-    public CommunicationType communicationType() {
-        return CommunicationType.REST;
-    }
 }

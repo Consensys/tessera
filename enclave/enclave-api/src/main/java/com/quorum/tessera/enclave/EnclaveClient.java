@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.service.Service;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 
 import java.util.ServiceLoader;
 
@@ -17,7 +18,7 @@ public interface EnclaveClient extends Enclave {
     }
 
     static EnclaveClient create() {
-        return ServiceLoader.load(EnclaveClient.class).findFirst().get();
+        return ServiceLoaderUtil.loadSingle(ServiceLoader.load(EnclaveClient.class));
     }
 
 }

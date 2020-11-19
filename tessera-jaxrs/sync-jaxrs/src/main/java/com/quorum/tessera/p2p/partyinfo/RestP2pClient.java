@@ -11,13 +11,13 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import java.util.Objects;
 
-public class RestP2pClient implements P2pClient {
+class RestP2pClient implements P2pClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestP2pClient.class);
 
     private final Client client;
 
-    public RestP2pClient(final Client client) {
+    RestP2pClient(final Client client) {
         this.client = Objects.requireNonNull(client);
     }
 
@@ -42,6 +42,8 @@ public class RestP2pClient implements P2pClient {
             return Objects.nonNull(response.readEntity(byte[].class));
         }
     }
+
+
 
 
 }

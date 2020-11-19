@@ -5,11 +5,21 @@ plugins {
 
 application {
     applicationName = "tessera"
+
   //  mainClassName "tessera.tessera.dist.main/com.quorum.tessera.launcher.Main"
     mainClass = "com.quorum.tessera.launcher.Main"
     mainModule = "tessera.tessera.dist.main"
-    applicationDefaultJvmArgs = ["-Dtessera.cli.type=CONFIG"]
+    applicationDefaultJvmArgs = [
+            "-Dtessera.cli.type=CONFIG",
+            "--add-opens", "java.base/java.util=ALL-UNNAMED",
+            "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+            "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED",
+            "--add-opens", "java.prefs/java.util.prefs=ALL-UNNAMED"
+            //--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.prefs/java.util.prefs=ALL-UNNAMED
+            //,"--add-opens","tessera.tessera.context.main/com.quorum.tessera.context=tessera.shared.main"
+    ]
     startScripts.enabled = true
+
 }
 
 

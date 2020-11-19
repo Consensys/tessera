@@ -1,4 +1,5 @@
 module tessera.tessera.context.main {
+
     requires java.validation;
     requires java.ws.rs;
     requires org.slf4j;
@@ -12,12 +13,13 @@ module tessera.tessera.context.main {
     uses com.quorum.tessera.context.KeyVaultConfigValidations;
     uses com.quorum.tessera.context.RestClientFactory;
     uses com.quorum.tessera.context.RuntimeContext;
+
     provides com.quorum.tessera.context.KeyVaultConfigValidations 
             with com.quorum.tessera.context.DefaultKeyVaultConfigValidations;
 
     provides com.quorum.tessera.context.RuntimeContext with
         com.quorum.tessera.context.RuntimeContextProvider;
-    
+
 }
 
 

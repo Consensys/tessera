@@ -8,6 +8,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import org.junit.After;
@@ -15,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.ServiceLoader;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -365,17 +365,22 @@ public class RecoveryTest extends RecoveryTestCase {
 
     @Test
     public void create() {
-        Recovery expected = mock(Recovery.class);
-        Recovery result;
-        try(var staticServiceLoader = mockStatic(ServiceLoader.class)) {
+        try (
+            var serviceLoaderUtilMockedStatic = mockStatic(ServiceLoaderUtil.class);
+            var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)
+        ) {
+
             ServiceLoader<Recovery> serviceLoader = mock(ServiceLoader.class);
-            when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
-            staticServiceLoader.when(() -> ServiceLoader.load(Recovery.class)).thenReturn(serviceLoader);
+            serviceLoaderMockedStatic.when(() -> ServiceLoader.load(Recovery.class)).thenReturn(serviceLoader);
 
-            result = Recovery.create();
+            Recovery.create();
+
+            serviceLoaderUtilMockedStatic.verify(() -> ServiceLoaderUtil.loadSingle(serviceLoader));
+            serviceLoaderUtilMockedStatic.verifyNoMoreInteractions();
+
+            serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(Recovery.class));
+            serviceLoaderMockedStatic.verifyNoMoreInteractions();
+            verifyNoInteractions(serviceLoader);
         }
-
-        assertThat(result).isNotNull().isSameAs(expected);
-
     }
 }

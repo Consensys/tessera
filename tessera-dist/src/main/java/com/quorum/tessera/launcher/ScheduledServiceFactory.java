@@ -10,7 +10,6 @@ import com.quorum.tessera.p2p.resend.ResendPartyStoreImpl;
 import com.quorum.tessera.p2p.resend.SyncPoller;
 import com.quorum.tessera.p2p.resend.TransactionRequester;
 import com.quorum.tessera.partyinfo.P2pClient;
-import com.quorum.tessera.partyinfo.P2pClientFactory;
 import com.quorum.tessera.service.ServiceContainer;
 import com.quorum.tessera.threading.TesseraScheduledExecutor;
 import org.slf4j.Logger;
@@ -50,10 +49,8 @@ public class ScheduledServiceFactory {
 
         IntervalPropertyHelper intervalPropertyHelper = new IntervalPropertyHelper(config.getP2PServerConfig().getProperties());
         LOGGER.info("Creating p2p client");
-        P2pClientFactory p2pClientFactory = P2pClientFactory.newFactory(config);
-        LOGGER.info("Created P2pClientFactory {}", p2pClientFactory);
-        P2pClient p2pClient = p2pClientFactory.create(config);
-        LOGGER.info("Created p2p client");
+        P2pClient p2pClient = P2pClient.create();
+        LOGGER.info("Created p2p client {}",p2pClient);
 
         if(enableSync) {
 

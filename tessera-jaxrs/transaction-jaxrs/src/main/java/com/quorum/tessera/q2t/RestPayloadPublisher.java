@@ -1,6 +1,5 @@
 package com.quorum.tessera.q2t;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -75,8 +74,4 @@ public class RestPayloadPublisher implements PayloadPublisher {
         }
     }
 
-    @Override
-    public CommunicationType communicationType() {
-        return CommunicationType.REST;
-    }
 }

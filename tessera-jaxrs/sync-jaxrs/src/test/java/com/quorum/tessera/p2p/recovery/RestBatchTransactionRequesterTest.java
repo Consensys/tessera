@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p.recovery;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.resend.ResendRequest;
@@ -46,7 +45,6 @@ public class RestBatchTransactionRequesterTest {
         doReturn(true).when(recoveryClient).makeResendRequest(anyString(), any(ResendRequest.class));
 
         this.transactionRequester = new RestBatchTransactionRequester(enclave, recoveryClient, 100);
-        assertThat(transactionRequester.communicationType()).isEqualTo(CommunicationType.REST);
     }
 
     @After
@@ -60,7 +58,7 @@ public class RestBatchTransactionRequesterTest {
 
         this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-        verifyZeroInteractions(recoveryClient);
+        verifyNoInteractions(recoveryClient);
         verify(enclave).getPublicKeys();
     }
 

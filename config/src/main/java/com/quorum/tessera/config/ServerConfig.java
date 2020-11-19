@@ -23,7 +23,7 @@ public class ServerConfig extends ConfigItem {
     @XmlElement(required = true)
     private AppType app;
 
-    @XmlElement private CommunicationType communicationType;
+    @XmlElement private CommunicationType communicationType = CommunicationType.REST;
 
     @Valid @XmlElement @ValidSsl private SslConfig sslConfig;
 

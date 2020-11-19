@@ -14,10 +14,12 @@ module tessera.shared.main {
     exports com.quorum.tessera.version;
     exports com.quorum.tessera.threading;
     exports com.quorum.tessera.shared;
+    exports com.quorum.tessera.serviceloader;
 
     uses com.quorum.tessera.io.FilesDelegate;
     uses com.quorum.tessera.version.ApiVersion;
     uses com.quorum.tessera.io.SystemAdapter;
+
 
     provides com.quorum.tessera.io.SystemAdapter with
         com.quorum.tessera.io.DefaultSystemAdapter;
@@ -27,5 +29,4 @@ module tessera.shared.main {
 
     provides com.quorum.tessera.version.ApiVersion
         with com.quorum.tessera.version.BaseVersion, com.quorum.tessera.version.EnhancedPrivacyVersion;
-
 }

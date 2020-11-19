@@ -1,8 +1,6 @@
 package com.quorum.tessera.p2p.resend;
 
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 
 import java.util.ServiceLoader;
 
@@ -14,16 +12,8 @@ public interface ResendClient {
 
     boolean makeResendRequest(String targetUrl, ResendRequest request);
 
-    CommunicationType communicationType();
-
     static ResendClient create() {
-        Config config = ConfigFactory.create().getConfig();
-        CommunicationType communicationType = config.getP2PServerConfig().getCommunicationType();
-
-        return ServiceLoader.load(ResendClient.class).stream()
-            .map(ServiceLoader.Provider::get)
-            .filter(c -> c.communicationType() == communicationType)
-            .findFirst().get();
+        return ServiceLoaderUtil.loadSingle(ServiceLoader.load(ResendClient.class));
 
     }
 }

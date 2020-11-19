@@ -1,6 +1,5 @@
 package com.quorum.tessera.q2t;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -50,7 +49,7 @@ public class RestPayloadPublisherTest {
         payloadEncoder = mock(PayloadEncoder.class);
         discovery = mock(Discovery.class);
         payloadPublisher = new RestPayloadPublisher(client, payloadEncoder, discovery);
-        assertThat(payloadPublisher.communicationType()).isEqualTo(CommunicationType.REST);
+
     }
 
     @After

@@ -68,18 +68,24 @@ public class Main {
             ConfigFactory.create().store(config);
             LOGGER.debug("Stored config {}",config);
 
+            LOGGER.debug("Creating RuntimeContext");
             final RuntimeContext runtimeContext = RuntimeContext.getInstance();
+            LOGGER.debug("Created RuntimeContext {}",runtimeContext);
+
+            LOGGER.debug("Creating enclave");
             final Enclave enclave = Enclave.create();
             LOGGER.debug("Created enclave {}",enclave);
 
-            Discovery.create().onCreate();
+            LOGGER.debug("Creating Discovery");
+            Discovery discovery = Discovery.create();
+            discovery.onCreate();
+            LOGGER.debug("Created Discovery {}",discovery);
 
             LOGGER.debug("Creating EncodedPayloadManager");
             EncodedPayloadManager.create();
             LOGGER.debug("Created EncodedPayloadManager");
 
             LOGGER.debug("Creating BatchResendManager");
-
             BatchResendManager.create();
             LOGGER.debug("Created BatchResendManager");
 
@@ -105,6 +111,7 @@ public class Main {
             }
             System.exit(1);
         } catch (final ConfigException ex) {
+            LOGGER.debug("",ex);
             final Throwable cause = ExceptionUtils.getRootCause(ex);
 
             if (JsonException.class.isInstance(cause)) {
@@ -114,9 +121,11 @@ public class Main {
             }
             System.exit(3);
         } catch (final CliException ex) {
+            LOGGER.debug("",ex);
             System.err.println("ERROR: CLI exception, cause is " + ex.getMessage());
             System.exit(4);
         } catch (final ServiceConfigurationError ex) {
+            LOGGER.debug("",ex);
             Optional<Throwable> e = Optional.of(ex);
 
             e.map(Throwable::getMessage).ifPresent(System.err::println);

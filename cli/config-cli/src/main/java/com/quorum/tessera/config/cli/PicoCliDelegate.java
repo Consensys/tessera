@@ -48,6 +48,7 @@ public class PicoCliDelegate {
         try {
             return doExecute(args);
         } catch (Throwable ex) {
+            LOGGER.debug("",ex);
             ex.getCause().printStackTrace();
             throw ex;
         }

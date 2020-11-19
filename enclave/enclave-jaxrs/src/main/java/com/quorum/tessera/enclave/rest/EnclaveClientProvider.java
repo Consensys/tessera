@@ -21,7 +21,6 @@ public class EnclaveClientProvider {
         LOGGER.debug("Creating RestfulEnclaveClient with {}",config);
         Optional<ServerConfig> enclaveServerConfig = config.getServerConfigs().stream()
             .filter(sc -> sc.getApp() == AppType.ENCLAVE)
-            .filter(sc -> sc.getCommunicationType() == CommunicationType.REST)
             .findAny();
 
         final ClientFactory clientFactory = new ClientFactory();

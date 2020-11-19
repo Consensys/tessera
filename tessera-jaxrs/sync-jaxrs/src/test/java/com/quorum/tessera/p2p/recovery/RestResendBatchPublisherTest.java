@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p.recovery;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
@@ -16,7 +15,8 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.Mockito.*;
 
 
@@ -51,7 +51,6 @@ public class RestResendBatchPublisherTest {
             .collect(Collectors.toList());
 
         RestResendBatchPublisher restRecoveryClient = new RestResendBatchPublisher(payloadEncoder, recoveryClient);
-        assertThat(restRecoveryClient.communicationType()).isEqualTo(CommunicationType.REST);
         restRecoveryClient.publishBatch(encodedPayloads, targetUrl);
 
         verify(recoveryClient).pushBatch(targetUrl,requestArgumentCaptor.getValue());
@@ -88,7 +87,6 @@ public class RestResendBatchPublisherTest {
             .collect(Collectors.toList());
 
         RestResendBatchPublisher restRecoveryClient = new RestResendBatchPublisher(payloadEncoder, recoveryClient);
-        assertThat(restRecoveryClient.communicationType()).isEqualTo(CommunicationType.REST);
         PublishPayloadException ex = catchThrowableOfType(() -> restRecoveryClient.publishBatch(encodedPayloads, targetUrl), PublishPayloadException.class);
 
         assertThat(ex).hasMessage(String.format("Unable to push payload batch to recipient %s",targetUrl));

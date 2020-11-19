@@ -2,6 +2,7 @@ package com.quorum.tessera.transaction.publish;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 
 import java.util.List;
 import java.util.ServiceLoader;
@@ -18,7 +19,7 @@ public interface BatchPayloadPublisher {
     void publishPayload(EncodedPayload payload, List<PublicKey> recipientKeys);
 
     static BatchPayloadPublisher create() {
-        return ServiceLoader.load(BatchPayloadPublisher.class).findFirst().get();
+        return ServiceLoaderUtil.loadSingle(ServiceLoader.load(BatchPayloadPublisher.class));
     }
 
 }

@@ -2,13 +2,13 @@ package com.quorum.tessera.discovery;
 
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 
 import java.net.URI;
-import java.util.Optional;
 import java.util.ServiceLoader;
 
 import static org.mockito.Mockito.*;
@@ -74,23 +74,25 @@ public class DiscoveryTest {
         mockedStaticDiscoveryHelper.verify(DiscoveryHelper::create);
     }
 
-    @Test
-    public void getInstance() {
 
-        try(var staticServiceLoader = mockStatic(ServiceLoader.class)) {
-            final ServiceLoader serviceLoader = mock(ServiceLoader.class);
-            when(serviceLoader.findFirst()).thenReturn(Optional.of(mock(Discovery.class)));
-            staticServiceLoader.when(() -> ServiceLoader.load(Discovery.class))
-                .thenReturn(serviceLoader);
+    @Test
+    public void create() {
+        try (
+            var serviceLoaderUtilMockedStatic = mockStatic(ServiceLoaderUtil.class);
+            var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)
+        ) {
+
+            ServiceLoader<Discovery> serviceLoader = mock(ServiceLoader.class);
+            serviceLoaderMockedStatic.when(() -> ServiceLoader.load(Discovery.class)).thenReturn(serviceLoader);
 
             Discovery.create();
-            verify(serviceLoader).findFirst();
-            verifyNoMoreInteractions(serviceLoader);
 
-            staticServiceLoader.verify(() -> ServiceLoader.load(Discovery.class));
-            staticServiceLoader.verifyNoMoreInteractions();
+            serviceLoaderUtilMockedStatic.verify(() -> ServiceLoaderUtil.loadSingle(serviceLoader));
+            serviceLoaderUtilMockedStatic.verifyNoMoreInteractions();
 
+            serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(Discovery.class));
+            serviceLoaderMockedStatic.verifyNoMoreInteractions();
+            verifyNoInteractions(serviceLoader);
         }
     }
-
 }

@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p.recovery;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
@@ -45,8 +44,4 @@ public class RestResendBatchPublisher implements ResendBatchPublisher {
         LOGGER.info("Published to {}", targetUrl);
     }
 
-    @Override
-    public CommunicationType communicationType() {
-        return CommunicationType.REST;
-    }
 }

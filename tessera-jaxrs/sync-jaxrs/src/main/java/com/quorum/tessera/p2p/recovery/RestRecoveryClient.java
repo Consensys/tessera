@@ -1,6 +1,5 @@
 package com.quorum.tessera.p2p.recovery;
 
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.p2p.resend.ResendRequest;
 
 import javax.ws.rs.client.Client;
@@ -56,8 +55,4 @@ public class RestRecoveryClient implements RecoveryClient {
         return null;
     }
 
-    @Override
-    public CommunicationType communicationType() {
-        return CommunicationType.REST;
-    }
 }

@@ -29,5 +29,8 @@ module tessera.tessera.dist.main {
     uses com.quorum.tessera.discovery.EnclaveKeySynchroniser;
     uses com.quorum.tessera.config.apps.TesseraApp;
     uses com.quorum.tessera.server.TesseraServerFactory;
+    uses com.quorum.tessera.context.RuntimeContext;
+    uses com.quorum.tessera.serviceloader.ServiceLoaderUtil;
+
 
 }
