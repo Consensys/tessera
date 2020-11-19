@@ -20,7 +20,7 @@ public class PrivacyGroupEntity implements Serializable {
     private byte[] id;
 
     @Lob
-    @Column(name = "LOOKUP_ID", nullable = false)
+    @Column(name = "LOOKUP_ID")
     private byte[] lookupId;
 
     @Lob
