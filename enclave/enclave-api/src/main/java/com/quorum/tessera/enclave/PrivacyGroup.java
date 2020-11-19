@@ -42,7 +42,7 @@ public interface PrivacyGroup {
 
         private List<PublicKey> members;
 
-        private byte[] seed;
+        private byte[] seed = new byte[0];
 
         private Type type;
 
