@@ -1,5 +1,6 @@
 package com.quorum.tessera.privacygroup;
 
+import com.quorum.tessera.data.privacygroup.PrivacyGroupDAO;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotFoundException;
@@ -15,9 +16,12 @@ public class PrivacyGroupManagerTest {
 
     private PrivacyGroupManager privacyGroupManager;
 
+    private PrivacyGroupDAO privacyGroupDAO;
+
     @Before
     public void setUp() {
-        privacyGroupManager = null;
+        privacyGroupDAO = mock(PrivacyGroupDAO.class);
+        privacyGroupManager = new PrivacyGroupManagerImpl(privacyGroupDAO);
     }
 
     @Test
