@@ -14,7 +14,11 @@ module tessera.enclave.enclave.api.main {
 
     uses com.quorum.tessera.enclave.EnclaveClientFactory;
 
+    uses com.quorum.tessera.enclave.EnclaveClient;
+
     uses com.quorum.tessera.enclave.Enclave;
+
+    uses com.quorum.tessera.enclave.EnclaveServer;
 
     opens com.quorum.tessera.enclave to org.eclipse.persistence.moxy;
 
@@ -24,5 +28,6 @@ module tessera.enclave.enclave.api.main {
     provides com.quorum.tessera.enclave.Enclave with
         com.quorum.tessera.enclave.EnclaveProvider;
 
-
+    provides com.quorum.tessera.enclave.EnclaveServer with
+        com.quorum.tessera.enclave.EnclaveServerProvider;
 }

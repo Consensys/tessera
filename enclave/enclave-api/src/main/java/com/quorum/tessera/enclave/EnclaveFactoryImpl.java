@@ -40,7 +40,7 @@ public class EnclaveFactoryImpl {
 
             if (enclaveServerConfig.isPresent()) {
                 LOGGER.info("Creating remoted enclave");
-                return EnclaveClientFactory.create().create(config);
+                return EnclaveClient.create();
             }
             return createServer(config);
         } catch (Throwable ex) {

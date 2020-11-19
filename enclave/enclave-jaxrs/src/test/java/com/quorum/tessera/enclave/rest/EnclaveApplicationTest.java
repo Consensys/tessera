@@ -178,4 +178,14 @@ public class EnclaveApplicationTest {
         assertThat(new EnclaveApplication(enclave).getCommunicationType())
                 .isEqualTo(CommunicationType.REST);
     }
+
+    @Test
+    public void defaultConstructor() {
+        try(var enclaveMockedStatic = mockStatic(EnclaveServer.class)) {
+            enclaveMockedStatic.when(EnclaveServer::create).thenReturn(mock(EnclaveServer.class));
+            new EnclaveApplication();
+            enclaveMockedStatic.verify(EnclaveServer::create);
+        }
+
+    }
 }

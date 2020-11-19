@@ -69,7 +69,9 @@ public class Main {
             LOGGER.debug("Stored config {}",config);
 
             final RuntimeContext runtimeContext = RuntimeContext.getInstance();
-            Enclave.create();
+            final Enclave enclave = Enclave.create();
+            LOGGER.debug("Created enclave {}",enclave);
+
             Discovery.create().onCreate();
 
             LOGGER.debug("Creating EncodedPayloadManager");
