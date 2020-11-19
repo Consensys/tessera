@@ -1,8 +1,5 @@
 package com.quorum.tessera.transaction.publish;
 
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 
@@ -19,15 +16,14 @@ public interface PayloadPublisher {
      */
     void publishPayload(EncodedPayload payload, PublicKey recipientKey);
 
-    CommunicationType communicationType();
-
     static PayloadPublisher create() {
-        Config config = ConfigFactory.create().getConfig();
-        CommunicationType communicationType = config.getP2PServerConfig().getCommunicationType();
-        return ServiceLoader.load(PayloadPublisher.class).stream()
+        return ServiceLoader.load(PayloadPublisher.class)
+            .stream()
+            .reduce((l,r) -> {
+                throw new IllegalStateException("Ambiguous ServiceLoader lookup found multiple PayloadPublisher instances.");
+            })
             .map(ServiceLoader.Provider::get)
-            .filter(p -> p.communicationType() == communicationType)
-            .findFirst().get();
+            .get();
 
     }
 
