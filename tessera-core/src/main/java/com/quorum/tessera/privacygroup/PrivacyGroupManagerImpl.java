@@ -5,6 +5,7 @@ import com.quorum.tessera.data.privacygroup.PrivacyGroupEntity;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyGroupUtil;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotFoundException;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
 
 import java.util.List;
@@ -98,9 +99,33 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
     @Override
     public PrivacyGroup retrievePrivacyGroup(PublicKey privacyGroupId) {
-        return null;
+
+        final byte[] id = privacyGroupId.getKeyBytes();
+
+        final PrivacyGroupEntity result =
+            privacyGroupDAO
+                .retrieve(id)
+                .orElseThrow(
+                    () ->
+                        new PrivacyGroupNotFoundException(
+                            "Privacy group " + privacyGroupId + " not found"));
+
+        final PrivacyGroup privacyGroup = privacyGroupUtil.decode(result.getData());
+
+        return privacyGroup;
     }
 
     @Override
-    public void storePrivacyGroup(byte[] encodedData) {}
+    public void storePrivacyGroup(byte[] encodedData) {
+
+        final PrivacyGroup privacyGroup = privacyGroupUtil.decode(encodedData);
+
+        final byte[] id = privacyGroup.getPrivacyGroupId().getKeyBytes();
+
+        final byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
+
+        final PrivacyGroupEntity entity = new PrivacyGroupEntity(id, lookupId, encodedData);
+
+        privacyGroupDAO.save(entity);
+    }
 }

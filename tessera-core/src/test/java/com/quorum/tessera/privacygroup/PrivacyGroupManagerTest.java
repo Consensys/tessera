@@ -13,9 +13,11 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -147,28 +149,61 @@ public class PrivacyGroupManagerTest {
     @Test
     public void testRetrievePrivacyGroup() {
 
-        PublicKey groupId = mock(PublicKey.class);
+        final PublicKey id = PublicKey.from("id".getBytes());
+        final PrivacyGroupEntity mockResult = mock(PrivacyGroupEntity.class);
+        final PrivacyGroup mockPrivacyGroup = mock(PrivacyGroup.class);
+        when(mockResult.getData()).thenReturn("data".getBytes());
 
-        final PrivacyGroup result = privacyGroupManager.retrievePrivacyGroup(groupId);
+        when(privacyGroupUtil.decode("data".getBytes())).thenReturn(mockPrivacyGroup);
+
+        when(privacyGroupDAO.retrieve("id".getBytes())).thenReturn(Optional.of(mockResult));
+
+        final PrivacyGroup result = privacyGroupManager.retrievePrivacyGroup(id);
 
         assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(mockPrivacyGroup);
+
+        verify(privacyGroupDAO).retrieve("id".getBytes());
     }
 
     @Test
     public void testRetrievePrivacyGroupNotFound() {
-        PublicKey groupId = mock(PublicKey.class);
+
+        final PublicKey groupId = PublicKey.from("id".getBytes());
+        when(privacyGroupDAO.retrieve("id".getBytes())).thenReturn(Optional.empty());
 
         try {
-            final PrivacyGroup result = privacyGroupManager.retrievePrivacyGroup(groupId);
+            privacyGroupManager.retrievePrivacyGroup(groupId);
+            failBecauseExceptionWasNotThrown(any());
         } catch (Exception ex) {
             assertThat(ex).isInstanceOf(PrivacyGroupNotFoundException.class);
         }
+
+        verify(privacyGroupDAO).retrieve("id".getBytes());
     }
 
     @Test
     public void testStorePrivacyGroup() {
-        final byte[] encoded = new byte[0];
+
+        final PrivacyGroup mockPrivacyGroup = mock(PrivacyGroup.class);
+        when(mockPrivacyGroup.getPrivacyGroupId()).thenReturn(PublicKey.from("id".getBytes()));
+        final byte[] encoded = "encoded".getBytes();
+        when(privacyGroupUtil.decode(encoded)).thenReturn(mockPrivacyGroup);
+        when(privacyGroupUtil.generateLookupId(anyList())).thenReturn("lookup".getBytes());
+
         privacyGroupManager.storePrivacyGroup(encoded);
+
+        ArgumentCaptor<PrivacyGroupEntity> argCaptor = ArgumentCaptor.forClass(PrivacyGroupEntity.class);
+
+        verify(privacyGroupDAO).save(argCaptor.capture());
+
+        final PrivacyGroupEntity saved = argCaptor.getValue();
+
+        assertThat(saved).isNotNull();
+        assertThat(saved.getId()).isEqualTo("id".getBytes());
+        assertThat(saved.getLookupId()).isEqualTo("lookup".getBytes());
+        assertThat(saved.getData()).isEqualTo("encoded".getBytes());
+
     }
 
     @Test
