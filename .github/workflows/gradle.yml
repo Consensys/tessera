@@ -19,7 +19,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build -x test -x dependencyCheckAnalyze
+      run: ./gradlew build -x dependencyCheckAnalyze --info
     - uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
@@ -69,22 +69,22 @@ jobs:
 #        java-version: 11
 #    - run: ./gradlew dependencyCheckAnalyze -x test
        
-  test: 
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-    - uses: actions/checkout@v2
-
-    - uses: actions/cache@v1
-      with:
-        path: ~/.gradle/caches
-        key: ${{ env.GRADLE_CACHE_KEY }}
-        restore-keys: |
-          ${{ env.GRADLE_CACHE_KEY }}
-    - uses: actions/setup-java@v1
-      with:
-       java-version: 11
-    - run: ./gradlew test -x dependencyCheckAnalyze -x generateSwaggerDocumentation --info
+#  test:
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    steps:
+#    - uses: actions/checkout@v2
+#
+#    - uses: actions/cache@v1
+#      with:
+#        path: ~/.gradle/caches
+#        key: ${{ env.GRADLE_CACHE_KEY }}
+#        restore-keys: |
+#          ${{ env.GRADLE_CACHE_KEY }}
+#    - uses: actions/setup-java@v1
+#      with:
+#       java-version: 11
+#    - run: ./gradlew test -x dependencyCheckAnalyze -x generateSwaggerDocumentation --info
 #  itest:
 #    runs-on: ubuntu-latest
 #    needs: [build]
