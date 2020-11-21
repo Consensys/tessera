@@ -11,10 +11,11 @@ application {
     mainModule = "tessera.tessera.dist.main"
     applicationDefaultJvmArgs = [
             "-Dtessera.cli.type=CONFIG",
-            "--add-opens", "java.base/java.util=ALL-UNNAMED",
-            "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-            "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED",
-            "--add-opens", "java.prefs/java.util.prefs=ALL-UNNAMED"
+            "-Djnr.ffi.asm.enabled=false"
+          //  "--add-opens", "java.base/java.util=ALL-UNNAMED",
+          //  "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+          //  "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED",
+           // "--add-opens", "java.prefs/java.util.prefs=ALL-UNNAMED"
             //--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.prefs/java.util.prefs=ALL-UNNAMED
             //,"--add-opens","tessera.tessera.context.main/com.quorum.tessera.context=tessera.shared.main"
     ]
@@ -72,13 +73,13 @@ distZip {
     exclude("**/jakarta.persistence-2.2.3.jar")
     exclude("**/jakarta.activation-1.2.2.jar")
     exclude("**/jakarta.inject-2.6.1.jar")
-    exclude("**/jffi-1.2.23.jar")
+    exclude("**/asm-*.jar")
 }
 distTar {
     exclude("**/jakarta.persistence-2.2.3.jar")
     exclude("**/jakarta.activation-1.2.2.jar")
     exclude("**/jakarta.inject-2.6.1.jar")
-    exclude("**/jffi-1.2.23.jar")
+    exclude("**/asm-*.jar")
 }
 
 dependencyCheck {
