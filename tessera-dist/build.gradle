@@ -5,19 +5,11 @@ plugins {
 
 application {
     applicationName = "tessera"
-
-  //  mainClassName "tessera.tessera.dist.main/com.quorum.tessera.launcher.Main"
     mainClass = "com.quorum.tessera.launcher.Main"
     mainModule = "tessera.tessera.dist.main"
     applicationDefaultJvmArgs = [
             "-Dtessera.cli.type=CONFIG",
             "-Djnr.ffi.asm.enabled=false"
-          //  "--add-opens", "java.base/java.util=ALL-UNNAMED",
-          //  "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-          //  "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED",
-           // "--add-opens", "java.prefs/java.util.prefs=ALL-UNNAMED"
-            //--add-opens java.base/java.lang.invoke=ALL-UNNAMED --add-opens java.prefs/java.util.prefs=ALL-UNNAMED
-            //,"--add-opens","tessera.tessera.context.main/com.quorum.tessera.context=tessera.shared.main"
     ]
     startScripts.enabled = true
 
@@ -67,6 +59,8 @@ dependencies {
 
     implementation "org.glassfish.jersey.core:jersey-common"
     implementation "org.glassfish.jersey.core:jersey-client"
+
+    compileOnly "com.github.jnr:jffi"
 }
 
 distZip {
