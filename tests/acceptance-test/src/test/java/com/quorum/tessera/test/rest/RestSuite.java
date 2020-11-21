@@ -1,5 +1,7 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.test.CucumberRawIT;
+import com.quorum.tessera.test.CucumberRestIT;
 import suite.TestSuite;
 
 @TestSuite.SuiteClasses({
@@ -14,10 +16,10 @@ import suite.TestSuite;
     ResendIndividualIT.class,
     SendIT.class,
     SendRawIT.class,
-//    P2PRestAppIT.class,
+    P2PRestAppIT.class,
     TransactionForwardingIT.class,
-    //CucumberRestIT.class,
-   // CucumberRawIT.class,
+    CucumberRestIT.class,
+    CucumberRawIT.class,
     CustomPayloadEncryptionIT.class
 })
 public abstract class RestSuite {

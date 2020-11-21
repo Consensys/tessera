@@ -7,7 +7,7 @@ import org.junit.runner.RunWith;
 @RunWith(Cucumber.class)
 @CucumberOptions(
     glue = "admin.cmd",
-    features = "classpath:features/admin.feature",
+    features = "build/resources/test/features/admin.feature",
     monochrome = true,
     plugin = {"progress"}
 )

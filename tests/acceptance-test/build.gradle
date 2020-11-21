@@ -42,8 +42,6 @@ dependencies {
     testImplementation "io.cucumber:cucumber-junit:6.8.2"
     testImplementation "io.cucumber:cucumber-java8:6.8.2"
 
-
-
     testImplementation "org.xerial:sqlite-jdbc"
     testImplementation "org.hsqldb:hsqldb"
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.25.1") {
@@ -62,19 +60,6 @@ dependencies {
 
 }
 
-sourceSets {
-        test {
-            java {
-                srcDir "src/test/java"
-            }
-            resources {
-                srcDir "src/test/resources"
-            }
-        }
-}
-
-
-
 test {
 
     systemProperty "application.jar","${buildDir}/unpacked/dist/tessera-"+ project.version +"/bin/tessera"
@@ -92,14 +77,14 @@ test {
             "**/RecoverIT.class",
             "**/RestSuiteHttpH2RemoteEnclave.class",
 //            "**/RestSuiteHttpHSQL.class",
-          //  "**/RestSuiteUnixH2.class",
+            "**/RestSuiteUnixH2.class",
        //     "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
-         //   "**/SendWithRemoteEnclaveReconnectIT.class",
-        //    "**/CucumberWhitelistIT.class",
+            "**/SendWithRemoteEnclaveReconnectIT.class",
+            "**/CucumberWhitelistIT.class",
     //        "**/ConfigMigrationIT.class",
             "**/P2pTestSuite.class",
-//            "**/CucumberFileKeyGenerationIT.class",
+            "**/CucumberFileKeyGenerationIT.class",
 //            "**/RunAwsIT.class",
 //            "**/RunAzureIT.class"
     )

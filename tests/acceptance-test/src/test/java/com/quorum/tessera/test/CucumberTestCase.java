@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-    features = {"classpath:features/transaction.feature"},
+    features = {"build/resources/test/features/transaction.feature"},
     monochrome = true,
     plugin = {"progress"}
 )
