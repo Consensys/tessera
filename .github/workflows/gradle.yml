@@ -53,21 +53,21 @@ jobs:
         path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
 
 
-  checkdependencies: 
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-    - uses: actions/checkout@v2
-    - uses: actions/cache@v1
-      with:
-        path: ~/.gradle/caches
-        key: ${{ env.GRADLE_CACHE_KEY }}
-        restore-keys: |
-          ${{ env.GRADLE_CACHE_KEY }}
-    - uses: actions/setup-java@v1
-      with:
-        java-version: 11
-    - run: ./gradlew dependencyCheckAnalyze -x test
+#  checkdependencies:
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    steps:
+#    - uses: actions/checkout@v2
+#    - uses: actions/cache@v1
+#      with:
+#        path: ~/.gradle/caches
+#        key: ${{ env.GRADLE_CACHE_KEY }}
+#        restore-keys: |
+#          ${{ env.GRADLE_CACHE_KEY }}
+#    - uses: actions/setup-java@v1
+#      with:
+#        java-version: 11
+#    - run: ./gradlew dependencyCheckAnalyze -x test
        
   test: 
     runs-on: ubuntu-latest
@@ -84,104 +84,104 @@ jobs:
     - uses: actions/setup-java@v1
       with:
        java-version: 11
-    - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test -x generateSwaggerDocumentation --info
-  itest: 
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-    - uses: actions/checkout@v2
+    - run: ./gradlew test -x dependencyCheckAnalyze -x generateSwaggerDocumentation --info
+#  itest:
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    steps:
+#    - uses: actions/checkout@v2
+#
+#    - uses: actions/cache@v1
+#      with:
+#        path: ~/.gradle/caches
+#        key: ${{ env.GRADLE_CACHE_KEY }}
+#        restore-keys: |
+#          ${{ env.GRADLE_CACHE_KEY }}
+#    - uses: actions/download-artifact@v2
+#      with:
+#        name: tessera-dists
+#        path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+#    - uses: actions/download-artifact@v2
+#      with:
+#        name: enclave-dists
+#        path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+#    - uses: actions/download-artifact@v2
+#      with:
+#        name: aws-key-vault-dist
+#        path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+#    - uses: actions/download-artifact@v2
+#      with:
+#        name: azure-key-vault-dist
+#        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+#    - uses: actions/download-artifact@v2
+#      with:
+#        name: hashicorp-key-vault-dist
+#        path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
+#    - uses: actions/setup-java@v1
+#      with:
+#       java-version: 11
+#    - name: Install Hashicorp Vault CLI & run tests
+#      run: |
+#        wget https://releases.hashicorp.com/vault/1.5.0/vault_1.5.0_linux_amd64.zip -O /tmp/vault_1.5.0_linux_amd64.zip
+#        mkdir -p vault/bin && pushd $_
+#        unzip /tmp/vault_1.5.0_linux_amd64.zip
+#        export PATH=$PATH:$PWD && popd
+#        ./gradlew :tests:acceptance-test:test -x generateSwaggerDocumentation -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class,**/SendWithRemoteEnclaveReconnectIT.class"
+#    - uses: actions/upload-artifact@v1
+#      if: failure()
+#      with:
+#       name: itest-junit-report
+#       path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+#    - uses: actions/upload-artifact@v1
+#      if: failure()
+#      with:
+#        name: itest-logs
+#        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs/
 
-    - uses: actions/cache@v1
-      with:
-        path: ~/.gradle/caches
-        key: ${{ env.GRADLE_CACHE_KEY }}
-        restore-keys: |
-          ${{ env.GRADLE_CACHE_KEY }}
-    - uses: actions/download-artifact@v2
-      with:
-        name: tessera-dists
-        path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
-    - uses: actions/download-artifact@v2
-      with:
-        name: enclave-dists
-        path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
-    - uses: actions/download-artifact@v2
-      with:
-        name: aws-key-vault-dist
-        path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
-    - uses: actions/download-artifact@v2
-      with:
-        name: azure-key-vault-dist
-        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-    - uses: actions/download-artifact@v2
-      with:
-        name: hashicorp-key-vault-dist
-        path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
-    - uses: actions/setup-java@v1
-      with:
-       java-version: 11
-    - name: Install Hashicorp Vault CLI & run tests
-      run: |
-        wget https://releases.hashicorp.com/vault/1.5.0/vault_1.5.0_linux_amd64.zip -O /tmp/vault_1.5.0_linux_amd64.zip
-        mkdir -p vault/bin && pushd $_
-        unzip /tmp/vault_1.5.0_linux_amd64.zip
-        export PATH=$PATH:$PWD && popd
-        ./gradlew :tests:acceptance-test:test -x generateSwaggerDocumentation -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class,**/SendWithRemoteEnclaveReconnectIT.class"
-    - uses: actions/upload-artifact@v1
-      if: failure()
-      with:
-       name: itest-junit-report
-       path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
-    - uses: actions/upload-artifact@v1
-      if: failure()
-      with:
-        name: itest-logs
-        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs/
 
-
-  remote_enclave_itest:
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - uses: actions/checkout@v2
-
-      - uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ env.GRADLE_CACHE_KEY }}
-          restore-keys: |
-            ${{ env.GRADLE_CACHE_KEY }}
-      - uses: actions/download-artifact@v2
-        with:
-          name: tessera-dists
-          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
-      - uses: actions/download-artifact@v2
-        with:
-          name: enclave-dists
-          path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
-      - uses: actions/download-artifact@v2
-        with:
-          name: aws-key-vault-dist
-          path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
-      - uses: actions/download-artifact@v2
-        with:
-          name: azure-key-vault-dist
-          path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-      - uses: actions/download-artifact@v2
-        with:
-          name: hashicorp-key-vault-dist
-          path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - run: ./gradlew :tests:acceptance-test:test -x generateSwaggerDocumentation --tests "*Remote*"
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: remote_enclave_itest-junit-report
-          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
-      - uses: actions/upload-artifact@v1
-        if: failure()
+#  remote_enclave_itest:
+#    runs-on: ubuntu-latest
+#    needs: [build]
+#    steps:
+#      - uses: actions/checkout@v2
+#
+#      - uses: actions/cache@v1
+#        with:
+#          path: ~/.gradle/caches
+#          key: ${{ env.GRADLE_CACHE_KEY }}
+#          restore-keys: |
+#            ${{ env.GRADLE_CACHE_KEY }}
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: tessera-dists
+#          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: enclave-dists
+#          path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: aws-key-vault-dist
+#          path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: azure-key-vault-dist
+#          path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+#      - uses: actions/download-artifact@v2
+#        with:
+#          name: hashicorp-key-vault-dist
+#          path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
+#      - uses: actions/setup-java@v1
+#        with:
+#          java-version: 11
+#      - run: ./gradlew :tests:acceptance-test:test -x generateSwaggerDocumentation --tests "*Remote*"
+#      - uses: actions/upload-artifact@v1
+#        if: failure()
+#        with:
+#          name: remote_enclave_itest-junit-report
+#          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+#      - uses: actions/upload-artifact@v1
+#        if: failure()
 
 #  recovery_itest:
 #    runs-on: ubuntu-latest

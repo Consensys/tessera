@@ -7,4 +7,6 @@ module tessera.server.jaxrs.client.unixsocket.main {
     requires org.eclipse.jetty.unixsocket;
     requires org.eclipse.jetty.util;
     requires org.slf4j;
+
+    exports com.quorum.tessera.jaxrs.unixsocket;
 }
