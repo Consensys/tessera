@@ -82,6 +82,11 @@ public class EntityManagerDAOFactory {
         return new EncryptedRawTransactionDAOImpl(entityManagerFactory);
     }
 
+    public PrivacyGroupDAO createPrivacyGroupDAO() {
+        LOGGER.debug("Create PrivacyGroupDAO");
+        return new PrivacyGroupDAOImpl(entityManagerFactory);
+    }
+
     public StagingEntityDAO createStagingEntityDAO() {
         LOGGER.debug("Create StagingEntityDAO");
         return new StagingEntityDAOImpl(stagingEntityManagerFactory);

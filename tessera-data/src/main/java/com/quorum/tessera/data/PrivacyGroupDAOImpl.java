@@ -1,6 +1,4 @@
-package com.quorum.tessera.data.privacygroup;
-
-import com.quorum.tessera.data.EntityManagerTemplate;
+package com.quorum.tessera.data;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceException;

@@ -1,4 +1,4 @@
-package com.quorum.tessera.data.privacygroup;
+package com.quorum.tessera.data;
 
 import javax.persistence.*;
 import java.io.Serializable;

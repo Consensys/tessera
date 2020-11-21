@@ -1,4 +1,4 @@
-package com.quorum.tessera.data.privacygroup;
+package com.quorum.tessera.data;
 
 import java.util.List;
 import java.util.Optional;
