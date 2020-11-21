@@ -1,6 +1,5 @@
 package com.quorum.tessera.launcher;
 
-import com.quorum.tessera.cli.CliDelegate;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
@@ -39,7 +38,6 @@ public class Main {
             LOGGER.debug("Execute PicoCliDelegate with args [{}]", String.join(",", args));
             final CliResult cliResult = picoCliDelegate.execute(args);
             LOGGER.debug("Executed PicoCliDelegate with args [{}].", String.join(",", args));
-            CliDelegate.instance().setConfig(cliResult.getConfig().orElse(null));
 
             if (cliResult.isSuppressStartup()) {
                 System.exit(0);
