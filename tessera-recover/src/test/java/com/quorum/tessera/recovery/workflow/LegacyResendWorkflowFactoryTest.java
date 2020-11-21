@@ -58,9 +58,11 @@ public class LegacyResendWorkflowFactoryTest {
         final byte[] encodedPayloadAsBytes = "to decode".getBytes();
         final PublicKey targetResendKey = PublicKey.from("target".getBytes());
         final PublicKey localRecipient = PublicKey.from("local-recipient".getBytes());
-        final EncodedPayload testPayload = EncodedPayload.Builder.create()
-            .withSenderKey(targetResendKey)
-            .build();
+        final EncodedPayload testPayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(targetResendKey)
+                        .withRecipientBox("testbox".getBytes())
+                        .build();
 
         when(payloadEncoder.decode(encodedPayloadAsBytes)).thenReturn(testPayload);
 
@@ -95,10 +97,11 @@ public class LegacyResendWorkflowFactoryTest {
     public void failureAtStepReturnsFalse() {
         final byte[] encodedPayloadAsBytes = "to decode".getBytes();
         final PublicKey targetResendKey = PublicKey.from("target".getBytes());
-        final EncodedPayload testPayload = EncodedPayload.Builder.create()
-            .withPrivacyMode(PrivacyMode.PARTY_PROTECTION) // causes a failure
-            .withSenderKey(targetResendKey)
-            .build();
+        final EncodedPayload testPayload =
+                EncodedPayload.Builder.create()
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION) // causes a failure
+                        .withSenderKey(targetResendKey)
+                        .build();
 
         when(payloadEncoder.decode(encodedPayloadAsBytes)).thenReturn(testPayload);
 

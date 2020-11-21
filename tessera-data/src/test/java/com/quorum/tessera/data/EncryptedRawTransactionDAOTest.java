@@ -8,8 +8,11 @@ import org.junit.runners.Parameterized;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -225,6 +228,36 @@ public class EncryptedRawTransactionDAOTest {
     public void deleteThrowsEntityNotFoundExceptionForNonExistentHash() {
         // delete the transaction
         encryptedRawTransactionDAO.delete(new MessageHash(UUID.randomUUID().toString().getBytes()));
+    }
+
+    @Test
+    public void fetchingAllTransactionsReturnsAll() {
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        final List<EncryptedRawTransaction> payloads =
+                IntStream.range(0, 50)
+                        .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+                        .map(MessageHash::new)
+                        .map(
+                                hash ->
+                                        new EncryptedRawTransaction(
+                                                hash,
+                                                "payload".getBytes(),
+                                                "key".getBytes(),
+                                                "nonce".getBytes(),
+                                                "sender".getBytes()))
+                        .peek(entityManager::persist)
+                        .collect(Collectors.toList());
+
+        entityManager.getTransaction().commit();
+
+        final List<EncryptedRawTransaction> retrievedList =
+                encryptedRawTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
+
+        assertThat(encryptedRawTransactionDAO.transactionCount()).isEqualTo(payloads.size());
+        assertThat(retrievedList).hasSameSizeAs(payloads);
+        assertThat(retrievedList).hasSameElementsAs(payloads);
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +19,8 @@ public interface ReceiveResponse {
 
     Set<MessageHash> getAffectedTransactions();
 
+    Set<PublicKey> getManagedParties();
+
     class Builder {
 
         private byte[] unencryptedTransactionData;
@@ -27,6 +30,8 @@ public interface ReceiveResponse {
         private byte[] execHash = new byte[0];
 
         private Set<MessageHash> affectedTransactions = Collections.emptySet();
+
+        private Set<PublicKey> managedParties = Collections.emptySet();
 
         private Builder() {}
 
@@ -51,6 +56,11 @@ public interface ReceiveResponse {
 
         public Builder withAffectedTransactions(Set<MessageHash> affectedTransactions) {
             this.affectedTransactions = affectedTransactions;
+            return this;
+        }
+
+        public Builder withManagedParties(Set<PublicKey> managedKeys) {
+            this.managedParties = managedKeys;
             return this;
         }
 
@@ -85,6 +95,11 @@ public interface ReceiveResponse {
                 @Override
                 public Set<MessageHash> getAffectedTransactions() {
                     return Set.copyOf(affectedTransactions);
+                }
+
+                @Override
+                public Set<PublicKey> getManagedParties() {
+                    return managedParties;
                 }
             };
         }

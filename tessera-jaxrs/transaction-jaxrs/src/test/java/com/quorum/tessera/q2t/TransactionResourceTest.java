@@ -9,7 +9,10 @@ import com.quorum.tessera.transaction.TransactionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +23,6 @@ import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import java.io.UnsupportedEncodingException;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -351,7 +353,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void sendSignedTransactionWithRecipients() throws UnsupportedEncodingException {
+    public void sendSignedTransactionWithRecipients() {
 
         byte[] txnData = "KEY".getBytes();
         com.quorum.tessera.transaction.SendResponse sendResponse =
@@ -390,7 +392,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void sendSignedTransactionEmptyRecipients() throws UnsupportedEncodingException {
+    public void sendSignedTransactionEmptyRecipients() {
 
         byte[] txnData = "KEY".getBytes();
         com.quorum.tessera.transaction.SendResponse sendResponse =
@@ -416,7 +418,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void sendSignedTransactionNullRecipients() throws UnsupportedEncodingException {
+    public void sendSignedTransactionNullRecipients() {
 
         byte[] txnData = "KEY".getBytes();
         com.quorum.tessera.transaction.SendResponse sendResponse =
@@ -440,7 +442,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void sendSignedTransaction() throws Exception {
+    public void sendSignedTransaction() {
 
         com.quorum.tessera.transaction.SendResponse sendResponse =
                 mock(com.quorum.tessera.transaction.SendResponse.class);
@@ -544,7 +546,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void sendRaw() throws UnsupportedEncodingException {
+    public void sendRaw() {
 
         byte[] txnData = "KEY".getBytes();
         com.quorum.tessera.transaction.SendResponse sendResponse =
@@ -571,7 +573,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void sendRawEmptyRecipients() throws UnsupportedEncodingException {
+    public void sendRawEmptyRecipients() {
 
         byte[] txnData = "KEY".getBytes();
         com.quorum.tessera.transaction.SendResponse sendResponse =
@@ -599,7 +601,7 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void sendRawNullRecipient() throws UnsupportedEncodingException {
+    public void sendRawNullRecipient() {
 
         byte[] txnData = "KEY".getBytes();
         com.quorum.tessera.transaction.SendResponse sendResponse =
@@ -621,22 +623,6 @@ public class TransactionResourceTest {
         assertThat(result.readEntity(String.class)).isEqualTo(Base64.getEncoder().encodeToString(txnData));
         verify(transactionManager).send(any(com.quorum.tessera.transaction.SendRequest.class));
         verify(transactionManager).defaultPublicKey();
-    }
-
-    @Test
-    public void deleteKey() {
-
-        String encodedTxnHash = Base64.getEncoder().encodeToString("KEY".getBytes());
-        List<MessageHash> results = new ArrayList<>();
-        doAnswer((iom) -> results.add(iom.getArgument(0))).when(transactionManager).delete(any(MessageHash.class));
-
-        Response response = jersey.target("transaction").path(encodedTxnHash).request().delete();
-
-        assertThat(results).hasSize(1).extracting(MessageHash::getHashBytes).containsExactly("KEY".getBytes());
-
-        assertThat(response.getStatus()).isEqualTo(204);
-
-        verify(transactionManager).delete(any(MessageHash.class));
     }
 
     @Test

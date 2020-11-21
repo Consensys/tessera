@@ -35,6 +35,14 @@ public class ReceiveResponse {
             format = "base64")
     private String execHash;
 
+    @ArraySchema(
+            arraySchema =
+                    @Schema(
+                            description =
+                                    "participant public keys of key pairs managed by the enclave of this Tessera instance"),
+            schema = @Schema(format = "base64"))
+    private String[] managedParties;
+
     public ReceiveResponse() {}
 
     public byte[] getPayload() {
@@ -67,5 +75,13 @@ public class ReceiveResponse {
 
     public void setExecHash(String execHash) {
         this.execHash = execHash;
+    }
+
+    public String[] getManagedParties() {
+        return managedParties;
+    }
+
+    public void setManagedParties(final String[] managedParties) {
+        this.managedParties = managedParties;
     }
 }

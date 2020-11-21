@@ -67,26 +67,26 @@ public class LegacyResendManagerTest {
 
         final MessageHash txHash = new MessageHash("sample-hash".getBytes());
         final PublicKey targetResendKey = PublicKey.from("target".getBytes());
-        final ResendRequest request = ResendRequest.Builder.create()
-            .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
-            .withHash(txHash)
-            .withRecipient(targetResendKey)
-            .build();
+        final ResendRequest request =
+                ResendRequest.Builder.create()
+                        .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
+                        .withHash(txHash)
+                        .withRecipient(targetResendKey)
+                        .build();
 
         final Throwable throwable = catchThrowable(() -> resendManager.resend(request));
 
         assertThat(throwable)
-            .isInstanceOf(TransactionNotFoundException.class)
-            .hasMessage("Message with hash c2FtcGxlLWhhc2g= was not found");
+                .isInstanceOf(TransactionNotFoundException.class)
+                .hasMessage("Message with hash c2FtcGxlLWhhc2g= was not found");
 
         verify(dao).retrieveByHash(txHash);
     }
 
     @Test
     public void individualNonStandardPrivateTxFails() {
-        final EncodedPayload nonSPPayload = EncodedPayload.Builder.create()
-            .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-            .build();
+        final EncodedPayload nonSPPayload =
+                EncodedPayload.Builder.create().withPrivacyMode(PrivacyMode.PARTY_PROTECTION).build();
         final EncryptedTransaction databaseTx = new EncryptedTransaction();
         databaseTx.setEncodedPayload(new byte[0]);
 
@@ -95,17 +95,18 @@ public class LegacyResendManagerTest {
 
         final MessageHash txHash = new MessageHash("sample-hash".getBytes());
         final PublicKey targetResendKey = PublicKey.from("target".getBytes());
-        final ResendRequest request = ResendRequest.Builder.create()
-            .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
-            .withHash(txHash)
-            .withRecipient(targetResendKey)
-            .build();
+        final ResendRequest request =
+                ResendRequest.Builder.create()
+                        .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
+                        .withHash(txHash)
+                        .withRecipient(targetResendKey)
+                        .build();
 
         final Throwable throwable = catchThrowable(() -> resendManager.resend(request));
 
         assertThat(throwable)
-            .isInstanceOf(EnhancedPrivacyNotSupportedException.class)
-            .hasMessage("Cannot resend enhanced privacy transaction in legacy resend");
+                .isInstanceOf(EnhancedPrivacyNotSupportedException.class)
+                .hasMessage("Cannot resend enhanced privacy transaction in legacy resend");
 
         verify(dao).retrieveByHash(txHash);
         verify(encoder).decode(any(byte[].class));
@@ -116,17 +117,17 @@ public class LegacyResendManagerTest {
         final MessageHash txHash = new MessageHash("sample-hash".getBytes());
         final PublicKey targetResendKey = PublicKey.from("target".getBytes());
 
-        final EncodedPayload nonSPPayload = EncodedPayload.Builder.create()
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .build();
+        final EncodedPayload nonSPPayload =
+                EncodedPayload.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
         final EncryptedTransaction databaseTx = new EncryptedTransaction();
         databaseTx.setEncodedPayload(new byte[0]);
 
-        final ResendRequest request = ResendRequest.Builder.create()
-            .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
-            .withHash(txHash)
-            .withRecipient(targetResendKey)
-            .build();
+        final ResendRequest request =
+                ResendRequest.Builder.create()
+                        .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
+                        .withHash(txHash)
+                        .withRecipient(targetResendKey)
+                        .build();
 
         when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
         when(encoder.decode(any(byte[].class))).thenReturn(nonSPPayload);
@@ -148,18 +149,21 @@ public class LegacyResendManagerTest {
         final PublicKey targetResendKey = PublicKey.from("target".getBytes());
         final PublicKey localRecipientKey = PublicKey.from("local-recipient".getBytes());
 
-        final EncodedPayload nonSPPayload = EncodedPayload.Builder.create()
-            .withSenderKey(targetResendKey)
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .build();
+        final EncodedPayload nonSPPayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(targetResendKey)
+                        .withRecipientBox("testBox".getBytes())
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
         final EncryptedTransaction databaseTx = new EncryptedTransaction();
         databaseTx.setEncodedPayload(new byte[0]);
 
-        final ResendRequest request = ResendRequest.Builder.create()
-            .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
-            .withHash(txHash)
-            .withRecipient(targetResendKey)
-            .build();
+        final ResendRequest request =
+                ResendRequest.Builder.create()
+                        .withType(ResendRequest.ResendRequestType.INDIVIDUAL)
+                        .withHash(txHash)
+                        .withRecipient(targetResendKey)
+                        .build();
 
         when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
         when(encoder.decode(any(byte[].class))).thenReturn(nonSPPayload);
@@ -168,8 +172,8 @@ public class LegacyResendManagerTest {
 
         final ResendResponse response = resendManager.resend(request);
 
-        final EncodedPayload expected = EncodedPayload.Builder.from(nonSPPayload)
-            .withRecipientKey(localRecipientKey).build();
+        final EncodedPayload expected =
+                EncodedPayload.Builder.from(nonSPPayload).withRecipientKey(localRecipientKey).build();
         assertThat(response).isNotNull();
         assertThat(response.getPayload()).isEqualToComparingFieldByFieldRecursively(expected);
 
@@ -182,13 +186,14 @@ public class LegacyResendManagerTest {
     @Test
     public void performResendAll() {
         final PublicKey targetResendKey = PublicKey.from("target".getBytes());
-        final ResendRequest request = ResendRequest.Builder.create()
-            .withType(ResendRequest.ResendRequestType.ALL)
-            .withRecipient(targetResendKey)
-            .build();
+        final ResendRequest request =
+                ResendRequest.Builder.create()
+                        .withType(ResendRequest.ResendRequestType.ALL)
+                        .withRecipient(targetResendKey)
+                        .build();
 
-        //Not bothered about going through the process, just make sure they are all loaded from the database
-        //We are not testing the workflow itself, only that the workflow gets the right amount of transactions
+        // Not bothered about going through the process, just make sure they are all loaded from the database
+        // We are not testing the workflow itself, only that the workflow gets the right amount of transactions
 
         when(dao.transactionCount()).thenReturn(2L);
         when(dao.retrieveTransactions(0, 1)).thenReturn(List.of(new EncryptedTransaction()));

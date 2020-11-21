@@ -4,13 +4,15 @@ import com.quorum.tessera.encryption.PublicKey;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class EncodedPayloadBuilderTest {
+
+    private final String sampleTxHash =
+            "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==";
 
     final PublicKey senderKey = PublicKey.from("SENDER_KEY".getBytes());
 
@@ -25,19 +27,12 @@ public class EncodedPayloadBuilderTest {
     final byte[] recipientBox = "recipientBox".getBytes();
 
     final Map<TxHash, byte[]> affectedContractTransactionsRaw =
-        new HashMap<>() {
-            {
-                put(
-                    new TxHash(
-                        "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-                    "transaction".getBytes());
-            }
-        };
+            Map.of(new TxHash(sampleTxHash), "transaction".getBytes());
 
     final byte[] execHash = "execHash".getBytes();
+
     @Test
     public void build() {
-
         final EncodedPayload sample =
                 EncodedPayload.Builder.create()
                         .withSenderKey(senderKey)
@@ -58,47 +53,51 @@ public class EncodedPayloadBuilderTest {
         assertThat(sample.getRecipientBoxes()).hasSize(1).containsExactlyInAnyOrder(RecipientBox.from(recipientBox));
         assertThat(sample.getRecipientKeys()).hasSize(1).containsExactlyInAnyOrder(recipientKey);
         assertThat(sample.getAffectedContractTransactions()).hasSize(1);
-        assertThat(sample.getAffectedContractTransactions().keySet())
-                .containsExactly(
-                        new TxHash(
-                                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="));
+        assertThat(sample.getAffectedContractTransactions().keySet()).containsExactly(new TxHash(sampleTxHash));
         assertThat(sample.getExecHash()).isEqualTo(execHash);
         assertThat(sample.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
 
         byte[] otherRecipientBox = "OTHETRBIX".getBytes();
         EncodedPayload fromSample = EncodedPayload.Builder.from(sample).withRecipientBox(otherRecipientBox).build();
 
-        assertThat(fromSample.getRecipientBoxes()).hasSize(2)
-            .containsExactly(RecipientBox.from(recipientBox),RecipientBox.from(otherRecipientBox));
+        assertThat(fromSample.getRecipientBoxes())
+                .containsExactly(RecipientBox.from(recipientBox), RecipientBox.from(otherRecipientBox));
+    }
 
+    @Test
+    public void withNewKeysReplacedOld() {
+        final EncodedPayload sample = EncodedPayload.Builder.create().withRecipientKey(recipientKey).build();
+
+        assertThat(sample.getRecipientKeys()).containsExactly(recipientKey);
+
+        final PublicKey replacementKey = PublicKey.from("replacement".getBytes());
+        final EncodedPayload updatedPayload =
+                EncodedPayload.Builder.from(sample).withNewRecipientKeys(List.of(replacementKey)).build();
+
+        assertThat(updatedPayload.getRecipientKeys()).containsExactly(replacementKey);
     }
 
     @Test
     public void from() {
         final EncodedPayload sample =
-            EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText(cipherText)
-                .withCipherTextNonce(cipherTextNonce)
-                .withRecipientBoxes(Arrays.asList(recipientBox))
-                .withRecipientNonce(recipientNonce)
-                .withRecipientKeys(Arrays.asList(recipientKey))
-                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-                .withExecHash(execHash)
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBoxes(List.of(recipientBox))
+                        .withRecipientNonce(recipientNonce)
+                        .withRecipientKeys(List.of(recipientKey))
+                        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash(execHash)
+                        .build();
 
         EncodedPayload result = EncodedPayload.Builder.from(sample).build();
 
-        assertThat(result)
-            .isNotSameAs(sample)
-            .isEqualTo(sample);
+        assertThat(result).isNotSameAs(sample).isEqualTo(sample);
 
         EqualsVerifier.forClass(EncodedPayload.class)
-            .withIgnoredFields("affectedContractTransactions")
-            .usingGetClass()
-            .verify();
-
+                .withIgnoredFields("affectedContractTransactions")
+                .usingGetClass()
+                .verify();
     }
-
-
 }
