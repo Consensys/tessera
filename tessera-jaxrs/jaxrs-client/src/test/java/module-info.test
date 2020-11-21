@@ -1,0 +1,2 @@
+--add-reads
+    tessera.tessera.jaxrs.jaxrs.client.main=org.mockito,jersey.client
