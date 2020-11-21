@@ -2,7 +2,7 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
     requires java.validation;
     requires java.ws.rs;
     requires org.slf4j;
-    requires swagger.annotations;
+    requires io.swagger.v3.oas.annotations;
     requires tessera.config.main;
     requires tessera.encryption.encryption.api.main;
     requires tessera.tessera.core.main;

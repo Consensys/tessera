@@ -1,5 +1,5 @@
 plugins {
-    id "com.benjaminsproule.swagger" version "1.0.8"
+    id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
     id "java-library"
 }
 
@@ -13,7 +13,7 @@ dependencies {
     implementation project(":encryption:encryption-api")
     implementation project(":tessera-jaxrs:jaxrs-client")
     implementation project(':tessera-jaxrs:partyinfo-model')
-    implementation "io.swagger:swagger-annotations"
+    implementation "io.swagger.core.v3:swagger-annotations"
     implementation project(":tessera-core")
     implementation project(":tessera-partyinfo")
     implementation project(":tessera-data")
@@ -35,82 +35,12 @@ dependencies {
     testCompile "org.glassfish.jersey.media:jersey-media-moxy"
     testCompile "org.glassfish.jersey.inject:jersey-hk2"
 
-
-}
-
-description = "sync-jaxrs"
-
-swagger {
-
-    apiSource {
-        springmvc = false
-
-        schemes = ["http", "https"]
-        host = "localhost:8080"
-        basePath = "/"
-        outputFormats = ["json"]
-        //attachSwaggerArtifact = true
-
-        locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
-        info {
-            title = "Peer to peer resources"
-            version = project.properties["tessera.api.version"]
-            license {
-                url = "http://www.apache.org/licenses/LICENSE-2.0.html"
-                name = "Apache 2.0"
-            }
-        }
-
-        swaggerDirectory = ""+ project.buildDir +"/resources/main"
-        swaggerFileName = "p2p"
-    }
-
-    apiSource {
-        springmvc = false
-
-        schemes = ["http", "https"]
-        host = "localhost:8080"
-        basePath = "/"
-        outputFormats = ["json"]
-        //attachSwaggerArtifact = true
-
-        locations = ['com.quorum.tessera.p2p.PartyInfoResource','com.quorum.tessera.p2p.TransactionResource']
-        info {
-            title = "Peer to peer resources"
-            version = project.version
-            license {
-                url = "http://www.apache.org/licenses/LICENSE-2.0.html"
-                name = "Apache 2.0"
-            }
-        }
-
-        swaggerDirectory = "${project.buildDir}/resources/main"
-        templatePath =  "${rootProject.rootDir}/tessera-jaxrs/src/main/swagger/strapdown.html.hbs"
-        outputPath = "${project.buildDir}/resources/main/p2p.html"
-        swaggerFileName = "p2p"
-    }
-}
-
-task loaddeps() {
-
-        def urls = []
-
-        project.configurations.compileClasspath.resolve().flatten().each {
-            urls += it.toURI().toURL()
-        }
-        urls.each {
-            buildscript.classLoader.addURL it
-        }
+    compileOnly project(':tessera-jaxrs:generate-openapi')
 
 
 }
-
-generateSwaggerDocumentation.dependsOn(loaddeps)
-jar.dependsOn(generateSwaggerDocumentation)
-
 
 jar {
-
     manifest {
         attributes(
                 "Implementation-Title": project.name,
@@ -118,15 +48,32 @@ jar {
                 "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
         )
     }
-
 }
 
-//compileJava {
-//    doFirst {
-//        options.compilerArgs = [
-//                "--module-path", classpath.asPath,
-//                "--add-modules", "swagger.annotations"
-//        ]
-//        classpath = files()
-//    }
-//}
+def generatedResources = "${project.buildDir}/generated-resources/openapi"
+
+resolve {
+    classpath = sourceSets.main.compileClasspath
+    outputDir = file(generatedResources)
+    outputFileName = "openapi.p2p"
+    outputFormat = "JSONANDYAML"
+    prettyPrint = "TRUE"
+    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-p2p.yaml")
+    resourcePackages = [
+            "com.quorum.tessera.api.common",
+            "com.quorum.tessera.p2p",
+            "com.quorum.tessera.thirdparty",
+            "com.quorum.tessera.q2t"
+    ]
+    modelConverterClasses = ["com.quorum.tessera.openapi.FullyQualifiedNameResolver"]
+    filterClass = "com.quorum.tessera.openapi.P2POperationsFilter"
+}
+
+sourceSets.main.output.dir(generatedResources)
+
+jar.dependsOn(resolve)
+
+description = "sync-jaxrs"
+
+
+

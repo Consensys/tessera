@@ -26,58 +26,58 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
     @Override
     public EncryptedTransaction save(final EncryptedTransaction entity) {
         return entityManagerTemplate.execute(
-            entityManager -> {
-                entityManager.persist(entity);
-                LOGGER.debug("Stored transaction {}", entity.getHash());
-                return entity;
-            });
+                entityManager -> {
+                    entityManager.persist(entity);
+                    LOGGER.debug("Stored transaction {}", entity.getHash());
+                    return entity;
+                });
     }
 
     @Override
     public EncryptedTransaction update(final EncryptedTransaction entity) {
         return entityManagerTemplate.execute(
-            entityManager -> {
-                entityManager.merge(entity);
-                LOGGER.debug("Updated transaction {}", entity.getHash());
-                return entity;
-            });
+                entityManager -> {
+                    entityManager.merge(entity);
+                    LOGGER.debug("Updated transaction {}", entity.getHash());
+                    return entity;
+                });
     }
 
     @Override
     public Optional<EncryptedTransaction> retrieveByHash(final MessageHash hash) {
         LOGGER.debug("Retrieving payload with hash {}", hash);
         return entityManagerTemplate.execute(
-            entityManager ->
-                entityManager
-                    .createNamedQuery("EncryptedTransaction.FindByHash", EncryptedTransaction.class)
-                    .setParameter("hash", hash.getHashBytes())
-                    .getResultStream()
-                    .findAny());
+                entityManager ->
+                        entityManager
+                                .createNamedQuery("EncryptedTransaction.FindByHash", EncryptedTransaction.class)
+                                .setParameter("hash", hash.getHashBytes())
+                                .getResultStream()
+                                .findAny());
     }
 
     @Override
     public List<EncryptedTransaction> retrieveTransactions(int offset, int maxResult) {
         LOGGER.debug("Fetching batch(offset:{},maxResult:{}) EncryptedTransaction database rows", offset, maxResult);
         return entityManagerTemplate.execute(
-            entityManager ->
-                entityManager
-                    .createNamedQuery("EncryptedTransaction.FindAll", EncryptedTransaction.class)
-                    .setFirstResult(offset)
-                    .setMaxResults(maxResult)
-                    .getResultList());
+                entityManager ->
+                        entityManager
+                                .createNamedQuery("EncryptedTransaction.FindAll", EncryptedTransaction.class)
+                                .setFirstResult(offset)
+                                .setMaxResults(maxResult)
+                                .getResultList());
     }
 
     @Override
     public long transactionCount() {
         return entityManagerTemplate.execute(
-            entityManager -> {
-                CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+                entityManager -> {
+                    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
 
-                CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
-                countQuery.select(criteriaBuilder.count(countQuery.from(EncryptedTransaction.class)));
+                    CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+                    countQuery.select(criteriaBuilder.count(countQuery.from(EncryptedTransaction.class)));
 
-                return entityManager.createQuery(countQuery).getSingleResult();
-            });
+                    return entityManager.createQuery(countQuery).getSingleResult();
+                });
     }
 
     @Override
@@ -86,36 +86,52 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
         LOGGER.info("Deleting transaction with hash {}", hash);
 
         entityManagerTemplate.execute(
-            entityManager -> {
-                final EncryptedTransaction message =
-                    entityManager
-                        .createNamedQuery("EncryptedTransaction.FindByHash", EncryptedTransaction.class)
-                        .setParameter("hash", hash.getHashBytes())
-                        .getResultStream()
-                        .findAny()
-                        .orElseThrow(EntityNotFoundException::new);
+                entityManager -> {
+                    final EncryptedTransaction message =
+                            entityManager
+                                    .createNamedQuery("EncryptedTransaction.FindByHash", EncryptedTransaction.class)
+                                    .setParameter("hash", hash.getHashBytes())
+                                    .getResultStream()
+                                    .findAny()
+                                    .orElseThrow(EntityNotFoundException::new);
 
-                entityManager.remove(message);
-                return message;
-            });
+                    entityManager.remove(message);
+                    return message;
+                });
     }
 
     @Override
     public <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer) {
 
         return entityManagerTemplate.execute(
-            entityManager -> {
-                entityManager.persist(transaction);
-                try {
-                    entityManager.flush();
-                    consumer.call();
-                    return transaction;
-                } catch (RuntimeException ex) {
-                    throw ex;
-                } catch (Exception e) {
-                    throw new PersistenceException(e);
-                }
-            });
+                entityManager -> {
+                    entityManager.persist(transaction);
+                    try {
+                        entityManager.flush();
+                        consumer.call();
+                        return transaction;
+                    } catch (RuntimeException ex) {
+                        throw ex;
+                    } catch (Exception e) {
+                        throw new PersistenceException(e);
+                    }
+                });
+    }
+
+    @Override
+    public boolean upcheck() {
+        // if query succeeds then DB is up and running (else get exception)
+        try {
+            return entityManagerTemplate.execute(
+                    entityManager -> {
+                        Object result =
+                                entityManager.createNamedQuery("EncryptedTransaction.Upcheck").getSingleResult();
+
+                        return true;
+                    });
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
@@ -125,15 +141,15 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
         }
 
         return entityManagerTemplate.execute(
-            entityManager -> {
-                CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-                CriteriaQuery<EncryptedTransaction> query = criteriaBuilder.createQuery(EncryptedTransaction.class);
+                entityManager -> {
+                    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+                    CriteriaQuery<EncryptedTransaction> query = criteriaBuilder.createQuery(EncryptedTransaction.class);
 
-                Root<EncryptedTransaction> root = query.from(EncryptedTransaction.class);
+                    Root<EncryptedTransaction> root = query.from(EncryptedTransaction.class);
 
-                return entityManager
-                    .createQuery(query.select(root).where(root.get("hash").in(messageHashes)))
-                    .getResultList();
-            });
+                    return entityManager
+                            .createQuery(query.select(root).where(root.get("hash").in(messageHashes)))
+                            .getResultList();
+                });
     }
 }

@@ -1,14 +1,15 @@
 package com.quorum.tessera.p2p.recovery;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 import javax.xml.bind.annotation.XmlMimeType;
 import java.util.List;
 
 /** Model representation of a list of encoded payloads */
-@ApiModel
 public class PushBatchRequest {
 
+    @ArraySchema(schema = @Schema(description = "list of encoded payloads", type = "string", format = "byte"))
     @XmlMimeType("base64Binary")
     private List<byte[]> encodedPayloads;
 

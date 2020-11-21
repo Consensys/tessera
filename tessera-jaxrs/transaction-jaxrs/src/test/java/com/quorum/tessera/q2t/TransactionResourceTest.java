@@ -339,7 +339,7 @@ public class TransactionResourceTest {
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
 
-        Response result = transactionResource.sendSignedTransaction(recipentKey,txnData);
+        Response result = transactionResource.sendSignedTransactionStandard(recipentKey,txnData);
 //                jersey.target("sendsignedtx")
 //                        .request()
 //                        .header("c11n-to", recipentKey)
@@ -377,7 +377,7 @@ public class TransactionResourceTest {
 
         StreamingOutput streamingOutput = output -> output.write("signedTxData".getBytes());
 
-        Response result = transactionResource.sendSignedTransaction("","signedTxData".getBytes());
+        Response result = transactionResource.sendSignedTransactionStandard("","signedTxData".getBytes());
 //                jersey.target("sendsignedtx")
 //                        .request()
 //                        .header("c11n-to", "")
@@ -401,7 +401,7 @@ public class TransactionResourceTest {
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
 
-        Response result = transactionResource.sendSignedTransaction(null,"signedTxData".getBytes());
+        Response result = transactionResource.sendSignedTransactionStandard(null,"signedTxData".getBytes());
 //                jersey.target("sendsignedtx")
 //                        .request()
 //                        .header("c11n-to", null)
@@ -432,7 +432,7 @@ public class TransactionResourceTest {
         sendSignedRequest.setHash("SOMEDATA".getBytes());
         sendSignedRequest.setTo("recipient1", "recipient2");
 
-        Response result = transactionResource.sendSignedTransaction(sendSignedRequest);
+        Response result = transactionResource.sendSignedTransactionEnhanced(sendSignedRequest);
 //                jersey.target("sendsignedtx")
 //                        .request()
 //                        .post(Entity.entity(sendSignedRequest, MediaType.APPLICATION_JSON_TYPE));
@@ -485,7 +485,7 @@ public class TransactionResourceTest {
         sendSignedRequest.setAffectedContractTransactions(base64AffectedHash1, base64AffectedHash2);
         sendSignedRequest.setExecHash("execHash");
 
-        Response result = transactionResource.sendSignedTransaction(sendSignedRequest);
+        Response result = transactionResource.sendSignedTransactionEnhanced(sendSignedRequest);
 //                jersey.target("sendsignedtx")
 //                        .request()
 //                        .post(Entity.entity(sendSignedRequest, MediaType.APPLICATION_JSON_TYPE));

@@ -12,8 +12,8 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
+import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import io.swagger.annotations.Api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +22,14 @@ import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * The main application that is submitted to the HTTP server Contains all the service classes created by the service
  * locator
  */
-@Api
 @GlobalFilter
 @ApplicationPath("/")
 public class P2PRestApp extends TesseraRestApplication implements com.quorum.tessera.config.apps.TesseraApp {
@@ -89,10 +91,17 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
                 new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
             return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
         }
+        final LegacyResendManager legacyResendManager = LegacyResendManager.create();
 
         final TransactionResource transactionResource =
-            new TransactionResource(transactionManager,batchResendManager,payloadEncoder);
+            new TransactionResource(transactionManager,batchResendManager,payloadEncoder,legacyResendManager);
         return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource);
+    }
+
+    @Override
+    public Set<Class<?>> getClasses() {
+        return Stream.concat(super.getClasses().stream(), Stream.of(P2PApiResource.class))
+            .collect(toSet());
     }
 
     @Override

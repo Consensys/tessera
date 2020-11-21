@@ -29,7 +29,7 @@ dependencies {
     testImplementation project(":eclipselink-utils")
 
     testImplementation "jakarta.validation:jakarta.validation-api"
-    implementation "org.hibernate:hibernate-validator"
+    implementation "org.hibernate.validator:hibernate-validator"
 
 }
 

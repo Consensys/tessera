@@ -471,6 +471,17 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     @Override
+    public boolean upcheck() {
+        if (!encryptedRawTransactionDAO.upcheck()) {
+            return false;
+        }
+        if (!encryptedTransactionDAO.upcheck()) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public boolean isSender(final MessageHash hash) {
         final EncodedPayload payload = this.fetchPayload(hash);
         return enclave.getPublicKeys().contains(payload.getSenderKey());

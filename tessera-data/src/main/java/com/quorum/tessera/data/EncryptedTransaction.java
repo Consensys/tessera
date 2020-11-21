@@ -16,7 +16,10 @@ import java.util.Objects;
             query = "SELECT et FROM EncryptedTransaction et WHERE et.hash.hashBytes = :hash"),
     @NamedQuery(
             name = "EncryptedTransaction.FindAll",
-            query = "select et from EncryptedTransaction et order by et.timestamp,et.hash")
+            query = "select et from EncryptedTransaction et order by et.timestamp,et.hash"),
+    @NamedQuery(
+            name = "EncryptedTransaction.Upcheck",
+            query = "select count(c) from EncryptedTransaction c")
 })
 @Entity
 @Table(name = "ENCRYPTED_TRANSACTION")

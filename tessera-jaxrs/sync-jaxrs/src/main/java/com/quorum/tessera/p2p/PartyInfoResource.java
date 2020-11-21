@@ -7,6 +7,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.p2p.model.GetPartyInfoResponse;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.partyinfo.model.NodeInfoUtil;
@@ -15,7 +16,14 @@ import com.quorum.tessera.partyinfo.model.PartyInfo;
 import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.shared.Constants;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +42,7 @@ import static java.util.Collections.*;
 import static java.util.Objects.requireNonNull;
 
 /** Defines endpoints for requesting node discovery (partyinfo) information */
-@Api
+@Tag(name = "peer-to-peer")
 @Path("/partyinfo")
 public class PartyInfoResource {
 
@@ -55,13 +63,13 @@ public class PartyInfoResource {
     private final PartyStore partyStore;
 
     public PartyInfoResource(
-        final Discovery discovery,
-        final PartyInfoParser partyInfoParser,
-        final Client restClient,
-        final Enclave enclave,
-        final PayloadEncoder payloadEncoder,
-        final boolean enableKeyValidation,
-        final PartyStore partyStore) {
+            final Discovery discovery,
+            final PartyInfoParser partyInfoParser,
+            final Client restClient,
+            final Enclave enclave,
+            final PayloadEncoder payloadEncoder,
+            final boolean enableKeyValidation,
+            final PartyStore partyStore) {
         this.discovery = requireNonNull(discovery, "discovery must not be null");
         this.partyInfoParser = requireNonNull(partyInfoParser, "partyInfoParser must not be null");
         this.restClient = requireNonNull(restClient);
@@ -72,44 +80,41 @@ public class PartyInfoResource {
     }
 
     public PartyInfoResource(
-        final Discovery discovery,
-        final PartyInfoParser partyInfoParser,
-        final Client restClient,
-        final Enclave enclave,
-        final boolean enableKeyValidation) {
+            final Discovery discovery,
+            final PartyInfoParser partyInfoParser,
+            final Client restClient,
+            final Enclave enclave,
+            final boolean enableKeyValidation) {
         this(
-            discovery,
-            partyInfoParser,
-            restClient,
-            enclave,
-            PayloadEncoder.create(),
-            enableKeyValidation,
-            PartyStore.getInstance());
+                discovery,
+                partyInfoParser,
+                restClient,
+                enclave,
+                PayloadEncoder.create(),
+                enableKeyValidation,
+                PartyStore.getInstance());
     }
 
     /**
      * Update the local partyinfo store with the encoded partyinfo included in the request.
      *
      * @param payload The encoded partyinfo information pushed by the caller
-     * @return an empty 200 OK Response if the local node is using remote key validation; a 200 OK Response
-     *     wrapping an encoded partyinfo that contains only the local node's URL if not using remote key validation;
-     *     a 500 Internal Server Error if remote key validation fails
+     * @return an empty 200 OK Response if the local node is using remote key validation; a 200 OK Response wrapping an
+     *     encoded partyinfo that contains only the local node's URL if not using remote key validation; a 500 Internal
+     *     Server Error if remote key validation fails
      */
+    @Operation(summary = "/partyinfo", operationId = "broadcastPartyInfo", description = "broadcast partyinfo information to server")
+    @ApiResponse(responseCode = "200",
+        description = "server successfully updated its party info",
+        content = @Content(array = @ArraySchema(schema = @Schema(description = "empty if server is using remote key validation, else is encoded partyinfo object containing only the server's URL", type = "string", format = "byte"))))
+    @ApiResponse(responseCode = "500", description = "Validation failed (if server is using remote key validation)")
     @POST
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    @ApiOperation(value = "Request public key/url of other nodes")
-    @ApiResponses({
-        @ApiResponse(
-            code = 200,
-            message =
-                "Empty response if node is using remote key validation, else an encoded partyinfo containing only the local node's URL",
-            response = byte[].class),
-        @ApiResponse(code = 500, message = "If node is using remote key validation, indicates validation failed")
-    })
     public Response partyInfo(
-        @ApiParam(required = true) final byte[] payload,
-        @HeaderParam(Constants.API_VERSION_HEADER) final List<String> headers) {
+        @RequestBody(required = true, description = "partyinfo object")
+        final byte[] payload,
+        @HeaderParam(Constants.API_VERSION_HEADER) @Parameter(description = "client's supported API versions", array = @ArraySchema(schema = @Schema(type = "string"))) final List<String> headers) {
 
         final PartyInfo partyInfo = partyInfoParser.from(payload);
         final Set<String> versions =
@@ -223,10 +228,10 @@ public class PartyInfoResource {
         return Response.ok().build();
     }
 
+    @Operation(summary = "/partyinfo", description = "fetch network/peer information")
+    @ApiResponse(responseCode = "200", description = "server's partyinfo data", content = @Content(schema = @Schema(implementation = GetPartyInfoResponse.class)))
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Fetch network/peer information")
-    @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network information", response = PartyInfo.class)})
     public Response getPartyInfo() {
 
         final NodeInfo current = this.discovery.getCurrent();
@@ -234,45 +239,40 @@ public class PartyInfoResource {
         final JsonArrayBuilder peersBuilder = Json.createArrayBuilder();
 
         partyStore.getParties().stream()
-            .map(party -> Json.createObjectBuilder().add("url", party.toString()).build())
-            .forEach(peersBuilder::add);
+                .map(party -> Json.createObjectBuilder().add("url", party.toString()).build())
+                .forEach(peersBuilder::add);
 
         final JsonArrayBuilder recipientBuilder = Json.createArrayBuilder();
         current.getRecipients().stream()
-            .map(
-                recipient ->
-                    Json.createObjectBuilder()
-                        .add("key", recipient.getKey().encodeToBase64())
-                        .add("url", recipient.getUrl())
-                        .build())
-            .forEach(recipientBuilder::add);
+                .map(
+                        recipient ->
+                                Json.createObjectBuilder()
+                                        .add("key", recipient.getKey().encodeToBase64())
+                                        .add("url", recipient.getUrl())
+                                        .build())
+                .forEach(recipientBuilder::add);
 
         final String output =
-            Json.createObjectBuilder()
-                .add("url", current.getUrl())
-                .add("peers", peersBuilder.build())
-                .add("keys", recipientBuilder.build())
-                .build()
-                .toString();
+                Json.createObjectBuilder()
+                        .add("url", current.getUrl())
+                        .add("peers", peersBuilder.build())
+                        .add("keys", recipientBuilder.build())
+                        .build()
+                        .toString();
 
         LOGGER.debug("Sending json {} from {}", output, current);
 
         return Response.status(Response.Status.OK).entity(output).build();
     }
 
+    @Operation(summary = "/partyinfo/validate", operationId = "validateParty", description = "decrypt a UUID payload (used to validate ownership of an asymmetric key pair)")
+    @ApiResponse(responseCode = "200", description = "successfully decrypted payload", content = @Content(schema = @Schema(description = "decrypted UUID", type = "string")))
+    @ApiResponse(responseCode = "400", description = "decrypted payload is not a valid UUID")
     @POST
     @Path("validate")
     @Consumes(MediaType.APPLICATION_OCTET_STREAM)
     @Produces(MediaType.TEXT_PLAIN)
-    @ApiOperation(value = "Processes the validation request data and returns the result.")
-    @ApiResponses({
-        @ApiResponse(
-            code = 200,
-            message = "Validation request data successfully processed and returned",
-            response = String.class),
-        @ApiResponse(code = 400, message = "Validation request data is not a valid UUID")
-    })
-    public Response validate(byte[] payloadData) {
+    public Response validate(@Schema(description = "encrypted UUID") byte[] payloadData) {
         final EncodedPayload payload = payloadEncoder.decode(payloadData);
 
         final PublicKey mykey = payload.getRecipientKeys().iterator().next();

@@ -1,0 +1,26 @@
+plugins {
+    id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
+    id "java-library"
+}
+
+dependencies {
+
+    implementation "io.swagger.core.v3:swagger-annotations"
+    compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
+    testCompile "io.swagger.core.v3:swagger-core:$swaggerVersion"
+
+}
+
+resolve {
+    classpath = sourceSets.main.runtimeClasspath
+    outputDir = file("${project.buildDir}/generated-resources/openapi")
+    outputFormat = 'JSONANDYAML'
+    prettyPrint = 'TRUE'
+    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base.yaml")
+    modelConverterClasses = ['com.quorum.tessera.openapi.FullyQualifiedNameResolver']
+}
+
+// exists to have a self-documenting task name when called from CI/CD
+task generateOpenApiDoc {
+    dependsOn resolve
+}

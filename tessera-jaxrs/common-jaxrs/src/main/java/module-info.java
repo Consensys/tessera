@@ -5,7 +5,7 @@ module tessera.tessera.jaxrs.common.jaxrs.main {
     requires java.xml.bind;
     requires org.apache.commons.lang3;
     requires org.slf4j;
-    requires swagger.annotations;
+    requires io.swagger.v3.oas.annotations;
     requires tessera.config.main;
     requires tessera.enclave.enclave.api.main;
     requires tessera.encryption.encryption.api.main;

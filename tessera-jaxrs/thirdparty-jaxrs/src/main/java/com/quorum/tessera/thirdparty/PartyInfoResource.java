@@ -2,10 +2,12 @@ package com.quorum.tessera.thirdparty;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import com.quorum.tessera.thirdparty.model.GetPublicKeysResponse;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -17,7 +19,7 @@ import javax.ws.rs.core.Response;
 
 import static java.util.Objects.requireNonNull;
 
-@Api
+@Tag(name = "third-party")
 @Path("/partyinfo")
 public class PartyInfoResource {
 
@@ -27,11 +29,11 @@ public class PartyInfoResource {
         this.discovery = requireNonNull(discovery, "discovery must not be null");
     }
 
+    @Operation(summary = "/partyinfo/keys", operationId = "getPartiesPublicKeys", description = "get public keys of all known nodes in the network, including the server's own keys")
+    @ApiResponse(responseCode = "200", description = "known nodes' public keys", content = @Content(schema = @Schema(implementation = GetPublicKeysResponse.class)))
     @GET
     @Path("/keys")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Fetch network/peer public keys")
-    @ApiResponses({@ApiResponse(code = 200, message = "Peer/Network public keys")})
     public Response getPartyInfoKeys() {
 
         final NodeInfo current = this.discovery.getCurrent();

@@ -21,6 +21,8 @@ module tessera.tessera.recover.main {
 
     uses com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 
+    uses com.quorum.tessera.recovery.workflow.LegacyResendManager;
+
     provides com.quorum.tessera.recovery.workflow.BatchResendManager with
         com.quorum.tessera.recovery.workflow.BatchResendManagerProvider;
 
@@ -29,6 +31,10 @@ module tessera.tessera.recover.main {
 
     provides com.quorum.tessera.recovery.workflow.BatchWorkflowFactory with
         com.quorum.tessera.recovery.workflow.BatchWorkflowFactoryProvider;
+
+    provides com.quorum.tessera.recovery.workflow.LegacyResendManager with
+        com.quorum.tessera.recovery.workflow.LegacyResendManagerProvider;
+
 
 
 }

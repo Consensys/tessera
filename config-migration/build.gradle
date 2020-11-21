@@ -15,7 +15,7 @@ dependencies {
     implementation project(":config")
     implementation project(":cli:cli-api")
     implementation project(":shared")
-    implementation "org.hibernate:hibernate-validator"
+    implementation "org.hibernate.validator:hibernate-validator"
     testImplementation project(":tests:test-util")
 }
 

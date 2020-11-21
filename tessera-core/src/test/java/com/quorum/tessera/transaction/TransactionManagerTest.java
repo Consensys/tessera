@@ -1760,6 +1760,41 @@ public class TransactionManagerTest {
     }
 
     @Test
+    public void upcheckReturnsTrue() {
+
+        when(encryptedTransactionDAO.upcheck()).thenReturn(true);
+        when(encryptedRawTransactionDAO.upcheck()).thenReturn(true);
+
+        assertThat(transactionManager.upcheck()).isTrue();
+
+        verify(encryptedRawTransactionDAO).upcheck();
+        verify(encryptedTransactionDAO).upcheck();
+    }
+
+    @Test
+    public void upcheckReturnsFalseIfEncryptedTransactionDBFail() {
+
+        when(encryptedTransactionDAO.upcheck()).thenReturn(false);
+        when(encryptedRawTransactionDAO.upcheck()).thenReturn(true);
+
+        assertThat(transactionManager.upcheck()).isFalse();
+
+        verify(encryptedRawTransactionDAO).upcheck();
+        verify(encryptedTransactionDAO).upcheck();
+    }
+
+    @Test
+    public void upcheckReturnsFalseIfEncryptedRawTransactionDBFail() {
+
+        when(encryptedTransactionDAO.upcheck()).thenReturn(true);
+        when(encryptedRawTransactionDAO.upcheck()).thenReturn(false);
+
+        assertThat(transactionManager.upcheck()).isFalse();
+
+        verify(encryptedRawTransactionDAO).upcheck();
+    }
+
+    @Test
     public void create() {
         TransactionManager expected = mock(TransactionManager.class);
         TransactionManager result;

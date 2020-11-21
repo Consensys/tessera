@@ -1,5 +1,5 @@
 plugins {
-    id "org.owasp.dependencycheck" version "5.3.2.1"
+    id "org.owasp.dependencycheck" version "6.0.3"
     id "jacoco"
     id "com.diffplug.gradle.spotless" version "3.25.0"
     id "com.github.ben-manes.versions" version "0.8"
@@ -8,11 +8,14 @@ plugins {
     id "org.kordamp.gradle.jdeps" version "0.11.0"
 }
 
-def jettyVersion = "9.4.25.v20191220"
-def eclipselinkVersion = "2.7.7"
-def jerseyVersion = "2.32"
-def slf4jVersion = "1.7.30"
-def logbackVersion = "1.2.3"
+ext {
+    jettyVersion = "9.4.34.v20201102"
+    eclipselinkVersion = "2.7.7"
+    swaggerVersion = "2.1.5"
+    jerseyVersion = "2.32"
+    slf4jVersion = "1.7.30"
+    logbackVersion = "1.2.3"
+}
 
 allprojects {
     group = "net.consensys.quorum.tessera"
@@ -35,9 +38,9 @@ allprojects {
                 implementation "org.slf4j:jul-to-slf4j:"+ slf4jVersion //required by jersey server
                 testImplementation "org.slf4j:jul-to-slf4j:"+ slf4jVersion //required by enclave jaxrs module
 
-                implementation "org.eclipse.persistence:org.eclipse.persistence.moxy:"+ eclipselinkVersion
-                implementation "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipselinkVersion
-                implementation "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipselinkVersion
+                implementation "org.eclipse.persistence:org.eclipse.persistence.moxy:$eclipselinkVersion"
+                implementation "org.eclipse.persistence:org.eclipse.persistence.jpa:$eclipselinkVersion"
+                implementation "org.eclipse.persistence:org.eclipse.persistence.extension:$eclipselinkVersion"
 
                 testImplementation "junit:junit:4.13"
                 testImplementation "org.assertj:assertj-core:3.18.0"
@@ -90,6 +93,9 @@ allprojects {
                 implementation "eu.neilalexander:jnacl:1.0.0"
 
                 implementation "io.swagger:swagger-annotations:1.5.4"
+
+                implementation "io.swagger.core.v3:swagger-annotations:$swaggerVersion"
+
                 implementation "org.bouncycastle:bcpkix-jdk15on:1.64"
                 implementation "org.bouncycastle:bcprov-jdk15on:1.64"
 
@@ -122,7 +128,7 @@ allprojects {
                 implementation "org.glassfish:jakarta.el:3.0.3"
 
                 implementation "jakarta.validation:jakarta.validation-api:2.0.2"
-                implementation "org.hibernate:hibernate-validator:6.1.5.Final"
+                implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
 
                 implementation "com.github.tomakehurst:wiremock:2.27.1"
             }

@@ -1,0 +1,10 @@
+info:
+  title: Tessera P2P API reference
+  version: latest
+tags:
+  - name: quorum-to-tessera
+    description: Operations for Quorum clients
+  - name: peer-to-peer
+    description: Operations for Tessera clients
+  - name: third-party
+    description: Operations for third party clients (for example external tools)

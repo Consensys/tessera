@@ -136,7 +136,7 @@ public class EncodedPayloadResourceTest {
 
         when(encodedPayloadManager.decrypt(any(), eq(null))).thenReturn(response);
 
-        final Response result = encodedPayloadResource.receive(request);
+        final Response result = encodedPayloadResource.decryptEncodedPayload(request);
 
         assertThat(result.getStatus()).isEqualTo(200);
 

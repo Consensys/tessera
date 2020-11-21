@@ -16,7 +16,8 @@ dependencies {
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
 
-    implementation "io.swagger:swagger-annotations"
+    implementation "io.swagger.core.v3:swagger-annotations"
+
     implementation "jakarta.servlet:jakarta.servlet-api"
     implementation "org.apache.commons:commons-lang3"
     implementation "jakarta.persistence:jakarta.persistence-api"
@@ -34,6 +35,8 @@ dependencies {
 
 }
 
+
+
 jar {
 
     manifest {
@@ -45,3 +48,4 @@ jar {
     }
 
 }
+

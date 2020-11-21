@@ -7,7 +7,10 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.p2p.recovery.PushBatchRequest;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Hidden;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +25,7 @@ import java.util.Objects;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 
-@Api
+@Tag(name = "peer-to-peer")
 @Path("/")
 public class RecoveryResource {
 
@@ -35,25 +38,20 @@ public class RecoveryResource {
     private final PayloadEncoder payloadEncoder;
 
     public RecoveryResource(
-        TransactionManager transactionManager,
-        BatchResendManager batchResendManager,
-        PayloadEncoder payloadEncoder) {
-            this.transactionManager = Objects.requireNonNull(transactionManager);
-            this.batchResendManager = Objects.requireNonNull(batchResendManager);
-            this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+            TransactionManager transactionManager,
+            BatchResendManager batchResendManager,
+            PayloadEncoder payloadEncoder) {
+        this.transactionManager = Objects.requireNonNull(transactionManager);
+        this.batchResendManager = Objects.requireNonNull(batchResendManager);
+        this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     }
 
-    @ApiOperation(value = "Transmit encrypted payload batches between P2PRestApp Nodes")
-    @ApiResponses({
-        @ApiResponse(code = 200, message = "when the batch is stored successfully"),
-        @ApiResponse(code = 500, message = "General error")
-    })
+    @Operation(summary = "/pushBatch", operationId = "pushPayloadBatch", description = "store batch of encoded payloads to the server's database (available only when the server is in recovery mode)")
+    @ApiResponse(responseCode = "200", description = "batch successfully stored")
     @POST
     @Path("pushBatch")
     @Consumes(APPLICATION_JSON)
-    public Response pushBatch(
-            @ApiParam(name = "pushBatchRequest", required = true, value = "The batch of transactions.") @Valid @NotNull
-                    final PushBatchRequest pushBatchRequest) {
+    public Response pushBatch(@Valid @NotNull final PushBatchRequest pushBatchRequest) {
 
         LOGGER.debug("Received push request");
 
@@ -66,30 +64,26 @@ public class RecoveryResource {
         return Response.status(Response.Status.OK).build();
     }
 
-        @ApiOperation(value = "Transmit encrypted payload between P2PRestApp Nodes")
-        @ApiResponses({
-            @ApiResponse(code = 201, message = "Key created status"),
-            @ApiResponse(code = 500, message = "General error")
-        })
-        @POST
-        @Path("push")
-        @Consumes(APPLICATION_OCTET_STREAM)
-        public Response push(
-                @ApiParam(name = "payload", required = true, value = "Key data to be stored.") final byte[] payload) {
+    // path /push with application/octet-stream is overloaded (RecoveryResource & TransactionResource); swagger annotations cannot handle situations like this so hide this operation and use TransactionResource::push to document both
+    @Hidden
+    @POST
+    @Path("push")
+    @Consumes(APPLICATION_OCTET_STREAM)
+    public Response push(final byte[] payload) {
 
-            LOGGER.debug("Received push request during recovery mode");
+        LOGGER.debug("Received push request during recovery mode");
 
-            final EncodedPayload encodedPayload = payloadEncoder.decode(payload);
+        final EncodedPayload encodedPayload = payloadEncoder.decode(payload);
 
-            if (encodedPayload.getPrivacyMode() != PrivacyMode.STANDARD_PRIVATE) {
-                return Response.status(Response.Status.FORBIDDEN)
+        if (encodedPayload.getPrivacyMode() != PrivacyMode.STANDARD_PRIVATE) {
+            return Response.status(Response.Status.FORBIDDEN)
                     .entity("Transactions with enhanced privacy are not accepted during recovery mode")
                     .build();
-            }
-
-            final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
-            LOGGER.debug("Push request generated hash {}", messageHash);
-
-            return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();
         }
+
+        final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
+        LOGGER.debug("Push request generated hash {}", messageHash);
+
+        return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();
+    }
 }

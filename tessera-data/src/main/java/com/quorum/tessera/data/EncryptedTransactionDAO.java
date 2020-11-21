@@ -76,6 +76,13 @@ public interface EncryptedTransactionDAO {
     <T> EncryptedTransaction save(EncryptedTransaction transaction, Callable<T> consumer);
 
 
+    /**
+     * Check whether data store is available
+     *
+     * @return true if data store is up and running ok, else false
+     */
+    boolean upcheck();
+
     static EncryptedTransactionDAO create() {
         return ServiceLoader.load(EncryptedTransactionDAO.class).findFirst().get();
     }

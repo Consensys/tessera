@@ -1,5 +1,5 @@
 plugins {
-    id "com.benjaminsproule.swagger" version "1.0.8"
+    id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
     id "java-library"
 }
 
@@ -15,15 +15,17 @@ dependencies {
     implementation project(":tessera-context")
     implementation project(":tessera-partyinfo")
     implementation "jakarta.persistence:jakarta.persistence-api"
-    implementation "org.hibernate:hibernate-validator"
+    implementation "org.hibernate.validator:hibernate-validator"
+    implementation "io.swagger.core.v3:swagger-annotations"
+    implementation "org.glassfish:jakarta.json"
 
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-    implementation "io.swagger:swagger-annotations"
+    implementation "io.swagger.core.v3:swagger-annotations"
 
-    compile "jakarta.servlet:jakarta.servlet-api"
+   // compile "jakarta.servlet:jakarta.servlet-api"
     implementation "org.apache.commons:commons-lang3"
 
     implementation "com.sun.mail:jakarta.mail"
@@ -36,83 +38,39 @@ dependencies {
     testRuntimeOnly("org.glassfish.jersey.ext:jersey-bean-validation") {
         exclude group: "jakarta.el", module: "jakarta.el-api"
     }
-    testImplementation project(':test-utils:mock-jaxrs')
-    testImplementation "org.slf4j:jul-to-slf4j"
+
+   // testImplementation "org.slf4j:jul-to-slf4j"
     testImplementation project(":enclave:enclave-api")
-}
 
-
-
-swagger {
-
-    apiSource {
-        springmvc = false
-
-        schemes = ["http", "https"]
-        host = "localhost:8080"
-        basePath = "/"
-        outputFormats = ["json"]
-        //attachSwaggerArtifact = true
-
-        locations = ["com.quorum.tessera.q2t"]
-        info {
-            title = "Tessera rest"
-            version = project.properties["tessera.api.version"]
-            license {
-                url = "http://www.apache.org/licenses/LICENSE-2.0.html"
-                name = "Apache 2.0"
-            }
-        }
-
-        swaggerDirectory = ""+ project.buildDir +"/resources/main"
-        //templatePath = "../src/main/swagger/strapdown.html.hbs"
-       // outputPath = "build/resources/main/swagger/swagger.html"
-        swaggerFileName = "swagger"
-
-    }
-
-    apiSource {
-        springmvc = false
-
-        schemes = ["http", "https"]
-        host = "localhost:8080"
-        basePath = "/"
-        outputFormats = ["json"]
-        //attachSwaggerArtifact = true
-
-        locations = ["com.quorum.tessera.q2t"]
-        info {
-            title = "Tessera rest"
-            version = project.properties["tessera.api.version"]
-            license {
-                url = "http://www.apache.org/licenses/LICENSE-2.0.html"
-                name = "Apache 2.0"
-            }
-        }
-
-        swaggerDirectory = "${project.buildDir}/resources/main"
-        templatePath =  "${rootProject.rootDir}/tessera-jaxrs/src/main/swagger/strapdown.html.hbs"
-        outputPath = "${project.buildDir}/resources/main/swagger.html"
-        swaggerFileName = "swagger"
-
-    }
+    compileOnly project(":tessera-jaxrs:generate-openapi")
 
 }
 
-task loaddeps() {
+def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
-    def urls = []
-    project.configurations.compileClasspath.resolve().flatten().each {
-        urls += it.toURI().toURL()
-    }
-    urls.each {
-        buildscript.classLoader.addURL it
-    }
+project.logger.lifecycle('sourceSets.main.compileClasspath')
+sourceSets.main.compileClasspath.each { project.logger.lifecycle("${it}") }
 
+resolve {
+    classpath = sourceSets.main.compileClasspath
+    outputDir = file(generatedResources)
+    outputFileName = "openapi.q2t"
+    outputFormat = "JSONANDYAML"
+    prettyPrint = "TRUE"
+    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-q2t.yaml")
+    resourcePackages = [
+            'com.quorum.tessera.api.common',
+            'com.quorum.tessera.p2p',
+            'com.quorum.tessera.thirdparty',
+            'com.quorum.tessera.q2t'
+    ]
+    modelConverterClasses = ["com.quorum.tessera.openapi.FullyQualifiedNameResolver"]
+    filterClass = "com.quorum.tessera.openapi.Q2TOperationsFilter"
 }
 
-description = "transaction-jaxrs"
+sourceSets.main.output.dir(generatedResources)
 
+jar.dependsOn(resolve)
 
 jar {
 
@@ -124,6 +82,3 @@ jar {
         )
     }
 }
-
-generateSwaggerDocumentation.dependsOn(loaddeps)
-jar.dependsOn(generateSwaggerDocumentation)

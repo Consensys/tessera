@@ -6,6 +6,7 @@ import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
 import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.recovery.resend.ResendBatchResponse;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
+import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.core.Response;
+
 import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,17 +30,22 @@ public class TransactionResourceTest {
 
     private PayloadEncoder payloadEncoder;
 
+    private LegacyResendManager legacyResendManager;
+
     @Before
     public void onSetup() {
         transactionManager = mock(TransactionManager.class);
         batchResendManager = mock(BatchResendManager.class);
-        this.payloadEncoder = mock(PayloadEncoder.class);
-        transactionResource = new TransactionResource(transactionManager, batchResendManager, payloadEncoder);
+        payloadEncoder = mock(PayloadEncoder.class);
+        legacyResendManager = mock(LegacyResendManager.class);
+
+        transactionResource
+            = new TransactionResource(transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
     }
 
     @After
     public void onTearDown() {
-        verifyNoMoreInteractions(transactionManager, batchResendManager, payloadEncoder);
+        verifyNoMoreInteractions(transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
     }
 
     @Test
@@ -62,11 +69,11 @@ public class TransactionResourceTest {
         resendRequest.setPublicKey(Base64.getEncoder().encodeToString("JUNIT".getBytes()));
 
         EncodedPayload payload = mock(EncodedPayload.class);
-        com.quorum.tessera.transaction.ResendResponse resendResponse =
-                mock(com.quorum.tessera.transaction.ResendResponse.class);
+        com.quorum.tessera.recovery.resend.ResendResponse resendResponse =
+                mock(com.quorum.tessera.recovery.resend.ResendResponse.class);
         when(resendResponse.getPayload()).thenReturn(payload);
 
-        when(transactionManager.resend(any(com.quorum.tessera.transaction.ResendRequest.class)))
+        when(legacyResendManager.resend(any(com.quorum.tessera.recovery.resend.ResendRequest.class)))
                 .thenReturn(resendResponse);
 
         when(payloadEncoder.encode(payload)).thenReturn("SUCCESS".getBytes());
@@ -75,9 +82,9 @@ public class TransactionResourceTest {
 
         assertThat(result.getStatus()).isEqualTo(200);
         assertThat(result.getEntity()).isEqualTo("SUCCESS".getBytes());
-        verify(transactionManager).resend(any(com.quorum.tessera.transaction.ResendRequest.class));
 
         verify(payloadEncoder).encode(payload);
+        verify(legacyResendManager).resend(any(com.quorum.tessera.recovery.resend.ResendRequest.class));
     }
 
     @Test

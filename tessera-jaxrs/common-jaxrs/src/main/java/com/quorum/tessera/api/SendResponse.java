@@ -1,26 +1,22 @@
 package com.quorum.tessera.api;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests
  *
- * A response to a {@link SendRequest} after the transaction has been
- * distributed and saved
+ * <p>A response to a {@link SendRequest} after the transaction has been distributed and saved
  */
-@ApiModel
 public class SendResponse {
 
-    @ApiModelProperty("Base64 encoded transaction hash")
+    @Schema(description = "encrypted payload hash", format = "base64")
     private String key;
 
     public SendResponse(final String key) {
         this.key = key;
     }
 
-    public SendResponse() {
-    }
+    public SendResponse() {}
 
     public String getKey() {
         return this.key;
@@ -29,5 +25,4 @@ public class SendResponse {
     public void setKey(final String key) {
         this.key = key;
     }
-
 }

@@ -17,7 +17,8 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
     requires org.apache.commons.lang3;
     requires tessera.tessera.partyinfo.model;
     requires tessera.tessera.recover.main;
-    requires swagger.annotations;
+
+    requires io.swagger.v3.oas.annotations;
 
     exports com.quorum.tessera.p2p;
     exports com.quorum.tessera.p2p.resend;
