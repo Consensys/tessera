@@ -9,7 +9,6 @@ module tessera.tests.acceptance.test.main {
     requires java.ws.rs;
     requires tessera.tessera.jaxrs.sync.jaxrs.main;
     requires tessera.tessera.jaxrs.jaxrs.client.main;
-    requires tessera.tests.test.util.main;
     requires tessera.enclave.enclave.api.main;
     requires tessera.tessera.jaxrs.common.jaxrs.main;
     requires tessera.tessera.partyinfo.model;

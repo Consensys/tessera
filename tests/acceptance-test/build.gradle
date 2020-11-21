@@ -10,7 +10,6 @@ dependencies {
     implementation project(":tessera-dist")
 
     implementation project(":enclave:enclave-jaxrs")
-   // testImplementation project(":config-migration")
 
     implementation project(":enclave:enclave-api")
 
@@ -22,7 +21,7 @@ dependencies {
 
     implementation project(":shared")
     implementation project(":config")
-    implementation project(":tests:test-util")
+ //   implementation project(":tests:test-util")
 
 //    implementation project(":key-vault:aws-key-vault")
 //    implementation project(":key-vault:azure-key-vault")
@@ -50,6 +49,9 @@ dependencies {
     testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
     testImplementation "org.assertj:assertj-core"
     testImplementation "com.github.jnr:jnr-unixsocket"
+    testImplementation "org.glassfish:jakarta.el"
+
+
     testRuntime "org.eclipse.persistence:org.eclipse.persistence.moxy"
 
     implementation "org.glassfish:jakarta.json"
@@ -82,11 +84,12 @@ test {
             "**/RestSuiteHttpH2.class",
             "**/SendWithRemoteEnclaveReconnectIT.class",
             "**/CucumberWhitelistIT.class",
-    //        "**/ConfigMigrationIT.class",
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
-//            "**/RunAwsIT.class",
-//            "**/RunAzureIT.class"
+     //       "**/RunAwsIT.class",
+    //        "**/RunAzureIT.class",
+    //        "**/RunHashicorpIT.class"
+
     )
 
     if (project.hasProperty('excludeTests')) {
@@ -119,7 +122,6 @@ task unzipHashicorpKeyVault(type: Copy) {
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
     into outputDir
-
 }
 
 task unzipTessera(type: Copy) {
@@ -127,7 +129,6 @@ task unzipTessera(type: Copy) {
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
     into outputDir
-
 }
 
 task unzipEnclave(type: Copy) {
@@ -166,5 +167,7 @@ task list(dependsOn: configurations.compileClasspath) {
 
 
 test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave
+        //unzipAzureKeyVault
+//unzipAwsKeyVault
 //unzipAwsKeyVault,unzipAzureKeyVault,unzipHashicorpKeyVault
 
