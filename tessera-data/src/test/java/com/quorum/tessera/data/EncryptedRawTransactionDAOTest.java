@@ -281,6 +281,28 @@ public class EncryptedRawTransactionDAOTest {
     }
 
     @Test
+    public void upcheckReturnsTrue() {
+        assertThat(encryptedRawTransactionDAO.upcheck());
+    }
+
+    @Test
+    public void upcheckFailDueToDB() {
+        EntityManagerFactory mockEntityManagerFactory = mock(EntityManagerFactory.class);
+        EntityManager mockEntityManager = mock(EntityManager.class);
+        EntityTransaction mockEntityTransaction = mock(EntityTransaction.class);
+        EntityManagerCallback mockEntityManagerCallback = mock(EntityManagerCallback.class);
+
+        when(mockEntityManagerFactory.createEntityManager()).thenReturn(mockEntityManager);
+        when(mockEntityManager.getTransaction()).thenReturn(mockEntityTransaction);
+        when(mockEntityManagerCallback.execute(mockEntityManager)).thenThrow(RuntimeException.class);
+
+        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+            new EncryptedRawTransactionDAOImpl(mockEntityManagerFactory);
+
+        assertThat(encryptedRawTransactionDAO.upcheck()).isFalse();
+    }
+
+    @Test
     public void create() {
         try(var mockedServiceLoader = mockStatic(ServiceLoader.class)) {
 
