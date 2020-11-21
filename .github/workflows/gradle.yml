@@ -19,7 +19,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build -x dependencyCheckAnalyze --info
+      run: ./gradlew build -x dependencyCheckAnalyze -x jacocoTestCoverageVerification --info
     - uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
