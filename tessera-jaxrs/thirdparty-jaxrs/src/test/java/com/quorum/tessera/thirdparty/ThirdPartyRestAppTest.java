@@ -1,6 +1,7 @@
 package com.quorum.tessera.thirdparty;
 
 import com.quorum.tessera.api.common.RawTransactionResource;
+import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -42,12 +43,17 @@ public class ThirdPartyRestAppTest {
 
         Set<Object> results = thirdParty.getSingletons();
 
-        assertThat(results).hasSize(3);
+        assertThat(results).hasSize(4);
         List<Class> types = results.stream().map(Object::getClass).collect(Collectors.toList());
         assertThat(types)
-            .containsExactlyInAnyOrder(RawTransactionResource.class,PartyInfoResource.class,KeyResource.class);
+            .containsExactlyInAnyOrder(RawTransactionResource.class,PartyInfoResource.class,KeyResource.class, UpCheckResource.class);
 
 
+    }
+
+    @Test
+    public void getClasses() {
+        assertThat(thirdParty.getClasses()).isNotEmpty();
     }
 
     @Test
