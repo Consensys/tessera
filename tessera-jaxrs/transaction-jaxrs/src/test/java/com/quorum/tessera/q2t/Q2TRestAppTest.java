@@ -30,7 +30,6 @@ public class Q2TRestAppTest {
         encodedPayloadManager = mock(EncodedPayloadManager.class);
 
         q2TRestApp = new Q2TRestApp(transactionManager,encodedPayloadManager);
-
     }
 
     @After
@@ -58,6 +57,10 @@ public class Q2TRestAppTest {
         assertThat(q2TRestApp.getAppType()).isEqualTo(AppType.Q2T);
     }
 
+    @Test
+    public void getClasses() {
+        assertThat(q2TRestApp.getClasses()).contains(Q2TApiResource.class);
+    }
 
     @Test
     public void defaultConstructor() {
