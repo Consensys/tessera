@@ -15,14 +15,12 @@ dependencies {
     implementation project(":encryption:encryption-api")
     implementation project(":enclave:enclave-api")
 
-    implementation "io.swagger:swagger-annotations"
     implementation "jakarta.transaction:jakarta.transaction-api"
     implementation "jakarta.annotation:jakarta.annotation-api"
 
     implementation "org.bouncycastle:bcpkix-jdk15on"
 
     testImplementation project(":cli:cli-api")
-
 
     testImplementation "jakarta.persistence:jakarta.persistence-api"
     testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
