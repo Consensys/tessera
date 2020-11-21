@@ -8,6 +8,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
+import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
@@ -40,6 +41,8 @@ public class P2PRestAppTest {
 
     private BatchResendManager batchResendManager;
 
+    private LegacyResendManager legacyResendManager;
+
     private URI peerUri = URI.create("junit");
 
     @Before
@@ -53,8 +56,9 @@ public class P2PRestAppTest {
         transactionManager = mock(TransactionManager.class);
         batchResendManager = mock(BatchResendManager.class);
         payloadEncoder = PayloadEncoder.create();
+        legacyResendManager = mock(LegacyResendManager.class);
 
-        p2PRestApp = new P2PRestApp(discovery,enclave,partyStore,transactionManager,batchResendManager,payloadEncoder);
+        p2PRestApp = new P2PRestApp(discovery,enclave,partyStore,transactionManager,batchResendManager,payloadEncoder,legacyResendManager);
 
         Client client = mock(Client.class);
         when(runtimeContext.getP2pClient()).thenReturn(client);
@@ -73,6 +77,7 @@ public class P2PRestAppTest {
         verifyNoMoreInteractions(partyStore);
         verifyNoMoreInteractions(transactionManager);
         verifyNoMoreInteractions(batchResendManager);
+        verifyNoMoreInteractions(legacyResendManager);
     }
 
     @Test
@@ -100,6 +105,7 @@ public class P2PRestAppTest {
         verify(runtimeContext).getP2pClient();
         verify(runtimeContext).isRemoteKeyValidation();
         verify(partyStore).store(peerUri);
+
     }
 
     @Test
@@ -140,39 +146,45 @@ public class P2PRestAppTest {
     @Test
     public void defaultConstructor() {
 
-        try(var e = mockStatic(Enclave.class);
-            var d = mockStatic(Discovery.class);
-            var p = mockStatic(PartyStore.class);
-            var t = mockStatic(TransactionManager.class);
-            var pe = mockStatic(PayloadEncoder.class);
-            var b = mockStatic(BatchResendManager.class)
+        try(var enclaveMockedStatic = mockStatic(Enclave.class);
+            var discoveryMockedStatic = mockStatic(Discovery.class);
+            var partyStoreMockedStatic = mockStatic(PartyStore.class);
+            var transactionManagerMockedStatic = mockStatic(TransactionManager.class);
+            var payloadEncoderMockedStatic = mockStatic(PayloadEncoder.class);
+            var batchResendManagerMockedStatic = mockStatic(BatchResendManager.class);
+            var legacyResendManagerMockedStatic = mockStatic(LegacyResendManager.class)
         ) {
-            e.when(Enclave::create).thenReturn(enclave);
-            d.when(Discovery::create).thenReturn(discovery);
-            p.when(PartyStore::getInstance).thenReturn(partyStore);
-            t.when(TransactionManager::create).thenReturn(transactionManager);
-            pe.when(PayloadEncoder::create).thenReturn(mock(PayloadEncoder.class));
-            b.when(BatchResendManager::create).thenReturn(batchResendManager);
+
+            legacyResendManagerMockedStatic.when(LegacyResendManager::create).thenReturn(legacyResendManager);
+            enclaveMockedStatic.when(Enclave::create).thenReturn(enclave);
+            discoveryMockedStatic.when(Discovery::create).thenReturn(discovery);
+            partyStoreMockedStatic.when(PartyStore::getInstance).thenReturn(partyStore);
+            transactionManagerMockedStatic.when(TransactionManager::create).thenReturn(transactionManager);
+            payloadEncoderMockedStatic.when(PayloadEncoder::create).thenReturn(mock(PayloadEncoder.class));
+            batchResendManagerMockedStatic.when(BatchResendManager::create).thenReturn(batchResendManager);
 
             new P2PRestApp();
 
-            e.verify(Enclave::create);
-            e.verifyNoMoreInteractions();
+            enclaveMockedStatic.verify(Enclave::create);
+            enclaveMockedStatic.verifyNoMoreInteractions();
 
-            d.verify(Discovery::create);
-            d.verifyNoMoreInteractions();
+            discoveryMockedStatic.verify(Discovery::create);
+            discoveryMockedStatic.verifyNoMoreInteractions();
 
-            p.verify(PartyStore::getInstance);
-            p.verifyNoMoreInteractions();
+            partyStoreMockedStatic.verify(PartyStore::getInstance);
+            partyStoreMockedStatic.verifyNoMoreInteractions();
 
-            t.verify(TransactionManager::create);
-            t.verifyNoMoreInteractions();
+            transactionManagerMockedStatic.verify(TransactionManager::create);
+            transactionManagerMockedStatic.verifyNoMoreInteractions();
 
-            pe.verify(PayloadEncoder::create);
-            pe.verifyNoMoreInteractions();
+            payloadEncoderMockedStatic.verify(PayloadEncoder::create);
+            payloadEncoderMockedStatic.verifyNoMoreInteractions();
 
-            b.verify(BatchResendManager::create);
-            b.verifyNoMoreInteractions();
+            batchResendManagerMockedStatic.verify(BatchResendManager::create);
+            batchResendManagerMockedStatic.verifyNoMoreInteractions();
+
+            legacyResendManagerMockedStatic.verify(LegacyResendManager::create);
+            legacyResendManagerMockedStatic.verifyNoMoreInteractions();
         }
 
     }

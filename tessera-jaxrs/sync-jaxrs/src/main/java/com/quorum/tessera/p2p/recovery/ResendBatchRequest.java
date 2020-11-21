@@ -17,7 +17,7 @@ public class ResendBatchRequest {
     private String publicKey;
 
     @Schema(description = "default value is used if not provided")
-    private int batchSize;
+    private Integer batchSize;
 
     public String getPublicKey() {
         return publicKey;

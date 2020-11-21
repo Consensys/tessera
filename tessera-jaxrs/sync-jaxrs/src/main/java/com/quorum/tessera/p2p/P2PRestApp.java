@@ -50,17 +50,26 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
 
     private final PayloadEncoder payloadEncoder;
 
+    private final LegacyResendManager legacyResendManager;
+
     public P2PRestApp() {
-        this(Discovery.create(),Enclave.create(),PartyStore.getInstance(),TransactionManager.create(),BatchResendManager.create(),PayloadEncoder.create());
+        this(Discovery.create(),Enclave.create(),PartyStore.getInstance(),TransactionManager.create(),BatchResendManager.create(),PayloadEncoder.create(),LegacyResendManager.create());
     }
 
-    public P2PRestApp(Discovery discovery, Enclave enclave, PartyStore partyStore,TransactionManager transactionManager,BatchResendManager batchResendManager,PayloadEncoder payloadEncoder) {
+    public P2PRestApp(Discovery discovery,
+                      Enclave enclave,
+                      PartyStore partyStore,
+                      TransactionManager transactionManager,
+                      BatchResendManager batchResendManager,
+                      PayloadEncoder payloadEncoder,
+                      LegacyResendManager legacyResendManager) {
         this.discovery = Objects.requireNonNull(discovery);
         this.enclave = Objects.requireNonNull(enclave);
         this.partyStore = Objects.requireNonNull(partyStore);
         this.transactionManager = Objects.requireNonNull(transactionManager);
         this.batchResendManager = Objects.requireNonNull(batchResendManager);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+        this.legacyResendManager = Objects.requireNonNull(legacyResendManager);
     }
 
     @Override
@@ -91,7 +100,6 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
                 new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
             return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
         }
-        final LegacyResendManager legacyResendManager = LegacyResendManager.create();
 
         final TransactionResource transactionResource =
             new TransactionResource(transactionManager,batchResendManager,payloadEncoder,legacyResendManager);
