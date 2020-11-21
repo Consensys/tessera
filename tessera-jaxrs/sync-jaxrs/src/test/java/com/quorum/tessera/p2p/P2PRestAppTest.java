@@ -144,6 +144,11 @@ public class P2PRestAppTest {
     }
 
     @Test
+    public void getClasses() {
+        assertThat(p2PRestApp.getClasses()).isNotEmpty();
+    }
+
+    @Test
     public void defaultConstructor() {
 
         try(var enclaveMockedStatic = mockStatic(Enclave.class);
