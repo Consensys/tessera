@@ -27,12 +27,12 @@ jobs:
         restore-keys: |
           ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/upload-artifact@v1
-      if: failure()
+      if: always()
       with:
        name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
     - uses: actions/upload-artifact@v1
-      if: failure()
+      if: always()
       with:
         name: itest-logs
         path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs/
