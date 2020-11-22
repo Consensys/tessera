@@ -17,7 +17,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build -x test -x dependencyCheckAnalyze -x jacocoTestCoverageVerification -x javadoc --info
+      run: ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc --info
     - uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
@@ -56,7 +56,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
        java-version: 11
-    - run: ./gradlew test -x dependencyCheckAnalyze -x javadoc --info
+    - run: ./gradlew test -x dependencyCheckAnalyze -x javadoc -x :tests:acceptance-test:test
 
   itest:
     runs-on: ubuntu-latest
@@ -99,7 +99,7 @@ jobs:
         mkdir -p vault/bin && pushd $_
         unzip /tmp/vault_1.5.0_linux_amd64.zip
         export PATH=$PATH:$PWD && popd
-        ./gradlew :tests:acceptance-test:test -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class,**/SendWithRemoteEnclaveReconnectIT.class"
+        ./gradlew :tests:acceptance-test:test -PexcludeTests="RecoverIT,RestSuiteHttpH2RemoteEnclave"
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
