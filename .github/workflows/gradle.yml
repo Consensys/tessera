@@ -79,7 +79,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
        java-version: 11
-    - run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerificion --info
+    - run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerification --info
 
   itest:
     runs-on: ubuntu-latest
