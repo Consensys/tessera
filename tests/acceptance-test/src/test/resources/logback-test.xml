@@ -11,7 +11,7 @@
 
     <logger name="com.quorum.tessera.test.rest" level="INFO"/>
 
-    <logger name="suite.RestPartyInfoChecker" level="DEBUG"/>
+    <logger name="suite.RestPartyInfoChecker" level="INFO"/>
 
     <logger name="suite.HttpServerStatusCheck" level="WARN" />
     <root level="INFO">

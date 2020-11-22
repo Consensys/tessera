@@ -1,5 +1,6 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
@@ -25,11 +26,11 @@ public class VersionIT {
     @Test
     public void getVersion() {
 
-        final List<URI> allUris =
-                partyHelper
-                        .getParties()
-                        .flatMap(p -> Stream.of(p.getQ2TUri(), p.getP2PUri()))
-                        .collect(Collectors.toList());
+        List<URI> allUris = partyHelper.getParties().map(Party::getConfig)
+            .flatMap(c -> c.getServerConfigs().stream())
+            .filter(serverConfig -> serverConfig.getApp() != AppType.ENCLAVE)
+            .map(ServerConfig::getServerUri)
+            .collect(Collectors.toList());
 
         allUris.forEach(
                 u -> {
@@ -44,6 +45,7 @@ public class VersionIT {
 
         List<URI> allUris = partyHelper.getParties().map(Party::getConfig)
             .flatMap(c -> c.getServerConfigs().stream())
+            .filter(serverConfig -> serverConfig.getApp() != AppType.ENCLAVE)
             .map(ServerConfig::getServerUri)
             .collect(Collectors.toList());
 

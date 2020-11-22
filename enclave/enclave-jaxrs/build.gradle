@@ -3,8 +3,12 @@ plugins {
 }
 
 application {
-    mainClassName = "com.quorum.tessera.enclave.rest.Main"
-    applicationDefaultJvmArgs = ["-Dtessera.cli.type=ENCLAVE"]
+    mainClass = "com.quorum.tessera.enclave.rest.Main"
+    mainModule = "tessera.enclave.enclave.jaxrs.main"
+    applicationDefaultJvmArgs = [
+            "-Dtessera.cli.type=ENCLAVE",
+            "-Djnr.ffi.asm.enabled=false"
+    ]
     startScripts.enabled = true
 }
 
@@ -63,10 +67,10 @@ dependencies {
 distZip {
     exclude("**/jakarta.activation-1.2.2.jar")
     exclude("**/jakarta.inject-2.6.1.jar")
-    exclude("**/jffi-1.2.23.jar")
+    exclude("**/asm-*.jar")
 }
 distTar {
     exclude("**/jakarta.activation-1.2.2.jar")
     exclude("**/jakarta.inject-2.6.1.jar")
-    exclude("**/jffi-1.2.23.jar")
+    exclude("**/asm-*.jar")
 }
