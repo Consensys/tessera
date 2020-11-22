@@ -1,4 +1,5 @@
 module tessera.tessera.jaxrs.transaction.jaxrs.main {
+
     requires java.validation;
     requires java.ws.rs;
     requires org.slf4j;
@@ -19,8 +20,6 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
 
     provides com.quorum.tessera.config.apps.TesseraApp with
         com.quorum.tessera.q2t.Q2TRestApp;
-
-    provides com.quorum.tessera.api.Version with com.quorum.tessera.q2t.Version;
 
     provides com.quorum.tessera.transaction.publish.PayloadPublisher with
         com.quorum.tessera.q2t.PayloadPublisherProvider;

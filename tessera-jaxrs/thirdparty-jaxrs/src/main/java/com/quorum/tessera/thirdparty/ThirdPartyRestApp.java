@@ -8,6 +8,7 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.transaction.TransactionManager;
 
 import javax.ws.rs.ApplicationPath;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -26,8 +27,8 @@ public class ThirdPartyRestApp extends TesseraRestApplication implements com.quo
     }
 
     protected ThirdPartyRestApp(Discovery discovery, TransactionManager transactionManager) {
-        this.discovery = discovery;
-        this.transactionManager = transactionManager;
+        this.discovery = Objects.requireNonNull(discovery);
+        this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
     @Override
@@ -36,7 +37,6 @@ public class ThirdPartyRestApp extends TesseraRestApplication implements com.quo
         final PartyInfoResource partyInfoResource = new PartyInfoResource(discovery);
         final KeyResource keyResource = new KeyResource();
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
-
         return Set.of(rawTransactionResource, partyInfoResource, keyResource,upCheckResource);
     }
 

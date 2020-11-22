@@ -8,6 +8,7 @@ dependencies {
     implementation project(":tessera-core")
     implementation project(":tessera-partyinfo")
     implementation project(":encryption:encryption-api")
+    implementation project(":shared")
     implementation project(":tessera-jaxrs:common-jaxrs")
     implementation project(':tessera-jaxrs:partyinfo-model')
     implementation project(":tessera-context")
@@ -62,8 +63,8 @@ jar {
     manifest {
         attributes(
                 "Implementation-Title": project.name,
-                "Implementation-Version": version,
-                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+                "Implementation-Version": "DD",
+                "Specification-Version": "FOOF"//String.valueOf(version).replaceAll("-SNAPSHOT","")
         )
     }
 

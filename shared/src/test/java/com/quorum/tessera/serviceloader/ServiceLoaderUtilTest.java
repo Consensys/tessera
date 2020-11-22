@@ -42,7 +42,7 @@ public class ServiceLoaderUtilTest {
 
         Throwable result = catchThrowable(() -> ServiceLoaderUtil.loadSingle(serviceLoader));
         assertThat(result)
-            .hasMessage("Ambiguous ServiceLoader lookup found multiple instances MyServiceImpl and MyServiceImpl.")
+            .hasMessage("Ambiguous ServiceLoader lookup found multiple instances com.quorum.tessera.serviceloader.MyServiceImpl and com.quorum.tessera.serviceloader.MyServiceImpl.")
             .isExactlyInstanceOf(IllegalStateException.class)
             .isNotNull();
 

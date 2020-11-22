@@ -75,6 +75,8 @@ test {
     systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-"+ project.version +"/lib/"
     systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-"+ project.version +"/lib/"
 
+    systemProperty "project.version", project.version
+
     include(
             "**/RecoverIT.class",
             "**/RestSuiteHttpH2RemoteEnclave.class",

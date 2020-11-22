@@ -103,7 +103,6 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
         }
 
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
-
         final TransactionResource transactionResource =
             new TransactionResource(transactionManager,batchResendManager,payloadEncoder,legacyResendManager);
         return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource,upCheckResource);

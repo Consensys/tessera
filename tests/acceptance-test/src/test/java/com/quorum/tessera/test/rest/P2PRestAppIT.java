@@ -1,6 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.api.Version;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.*;
@@ -82,7 +81,7 @@ public class P2PRestAppIT {
 
         assertThat(response).isNotNull();
         assertThat(response.readEntity(String.class))
-            .isEqualTo(Version.getVersion());
+            .isEqualTo(System.getProperty("project.version","FIXME"));
         assertThat(response.getStatus()).isEqualTo(200);
 
     }

@@ -27,6 +27,4 @@ module tessera.tessera.jaxrs.common.jaxrs.main {
 
     exports com.quorum.tessera.api.exception to hk2.locator;
 
-    uses com.quorum.tessera.api.Version;
-
 }

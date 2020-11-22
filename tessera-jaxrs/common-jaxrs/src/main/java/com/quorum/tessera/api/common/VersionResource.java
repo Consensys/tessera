@@ -26,7 +26,15 @@ import java.util.stream.Collectors;
 @Path("/")
 public class VersionResource {
 
-    private static final String VERSION = Version.getVersion();
+    private final Version version;
+
+    public VersionResource(Version version) {
+        this.version = version;
+    }
+
+    public VersionResource() {
+        this(new Version() {});
+    }
 
     @Deprecated
     @Operation(summary = "/version", description = "Tessera distribution version")
@@ -38,7 +46,7 @@ public class VersionResource {
     @Path("version")
     @Produces(MediaType.TEXT_PLAIN)
     public String getVersion() {
-        return VERSION;
+        return version.version();
     }
 
     @Operation(summary = "/version/distribution", description = "Tessera distribution version")
@@ -50,7 +58,7 @@ public class VersionResource {
     @Path("version/distribution")
     @Produces(MediaType.TEXT_PLAIN)
     public String getDistributionVersion() {
-        return VERSION;
+        return version.version();
     }
 
     @Operation(

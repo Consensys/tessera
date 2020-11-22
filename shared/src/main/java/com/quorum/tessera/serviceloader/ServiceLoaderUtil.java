@@ -9,7 +9,7 @@ public interface ServiceLoaderUtil {
            .stream()
            .reduce((l, r) -> {
                throw new IllegalStateException(String.format("Ambiguous ServiceLoader lookup found multiple instances %s and %s.",
-                   l.type().getSimpleName(),r.type().getSimpleName()));
+                   l.type().getName(),r.type().getName()));
            })
            .map(ServiceLoader.Provider::get)
            .get();

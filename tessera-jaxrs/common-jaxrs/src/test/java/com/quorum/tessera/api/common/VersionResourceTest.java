@@ -1,8 +1,8 @@
 package com.quorum.tessera.api.common;
 
-import com.quorum.tessera.api.MockVersion;
+import com.quorum.tessera.api.Version;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.json.Json;
@@ -10,30 +10,42 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public class VersionResourceTest {
 
     private VersionResource instance;
 
-    public VersionResourceTest() {}
+    private Version expectedVersion;
+
+    private static final String VERSION_VALUE = "MOCK";
 
     @Before
     public void onSetUp() {
-        instance = new VersionResource();
+        expectedVersion = mock(Version.class);
+        when(expectedVersion.version()).thenReturn(VERSION_VALUE);
+        instance = new VersionResource(expectedVersion);
     }
 
-    @Ignore
+    @After
+    public void afterTest() {
+        verifyNoMoreInteractions(expectedVersion);
+    }
+
     @Test
     public void getVersion() {
-        assertThat(instance.getVersion()).isEqualTo(MockVersion.VERSION);
+        assertThat(instance.getVersion())
+            .isEqualTo(VERSION_VALUE);
+        verify(expectedVersion).version();
     }
 
-    @Ignore
     @Test
     public void getDistributionVersion() {
-        assertThat(instance.getDistributionVersion()).isEqualTo(MockVersion.VERSION);
-    }
+        assertThat(instance.getDistributionVersion())
+            .isEqualTo(VERSION_VALUE);
 
+        verify(expectedVersion).version();
+    }
 
     @Test
     public void getVersions() {
