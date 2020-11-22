@@ -59,13 +59,11 @@ jar.dependsOn(resolve)
 
 
 jar {
-
     manifest {
         attributes(
                 "Implementation-Title": project.name,
-                "Implementation-Version": "DD",
-                "Specification-Version": "FOOF"//String.valueOf(version).replaceAll("-SNAPSHOT","")
+                "Implementation-Version": version,
+                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
         )
     }
-
 }
