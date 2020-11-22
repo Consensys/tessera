@@ -138,6 +138,9 @@ task unzipEnclave(type: Copy) {
     def zipFile = file(project(":enclave:enclave-jaxrs").distZip.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
+
+    exclude "**/jffi-*-native.jar"
+
     into outputDir
 }
 
