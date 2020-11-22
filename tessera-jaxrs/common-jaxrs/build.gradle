@@ -35,7 +35,9 @@ dependencies {
 
 }
 
-
+test {
+    systemProperty "project.version", project.version
+}
 
 jar {
 

@@ -54,4 +54,14 @@ public class VersionResourceTest {
                 .map(Json::createValue)
                 .collect(Collectors.toSet()));
     }
+
+    @Test
+    public void defaultConstructor() {
+        VersionResource versionResource = new VersionResource();
+        assertThat(versionResource).isNotNull();
+        assertThat(versionResource.getDistributionVersion())
+            .isEqualTo(System.getProperty("project.version"),"project.version not set");
+        assertThat(versionResource.getVersion())
+            .isEqualTo(System.getProperty("project.version"),"project.version not set");
+    }
 }
