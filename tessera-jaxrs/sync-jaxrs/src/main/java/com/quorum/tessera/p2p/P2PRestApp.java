@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p;
 
+import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.api.filter.GlobalFilter;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
@@ -101,9 +102,11 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
             return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
         }
 
+        final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+
         final TransactionResource transactionResource =
             new TransactionResource(transactionManager,batchResendManager,payloadEncoder,legacyResendManager);
-        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource);
+        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource,upCheckResource);
     }
 
     @Override
