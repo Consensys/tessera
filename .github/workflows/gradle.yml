@@ -56,7 +56,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
        java-version: 11
-    - run: ./gradlew test -x dependencyCheckAnalyze -x generateSwaggerDocumentation -x javadoc --info
+    - run: ./gradlew test -x dependencyCheckAnalyze -x javadoc --info
 
   itest:
     runs-on: ubuntu-latest
@@ -99,7 +99,7 @@ jobs:
         mkdir -p vault/bin && pushd $_
         unzip /tmp/vault_1.5.0_linux_amd64.zip
         export PATH=$PATH:$PWD && popd
-        ./gradlew :tests:acceptance-test:test -x generateSwaggerDocumentation -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class,**/SendWithRemoteEnclaveReconnectIT.class"
+        ./gradlew :tests:acceptance-test:test -PexcludeTests="**/RestSuiteHttpH2RemoteEnclave.class,**/SendWithRemoteEnclaveReconnectIT.class"
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
@@ -146,7 +146,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew :tests:acceptance-test:test -x generateSwaggerDocumentation --tests "*Remote*"
+      - run: ./gradlew :tests:acceptance-test:test --tests "*Remote*"
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
