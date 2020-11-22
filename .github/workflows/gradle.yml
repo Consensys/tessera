@@ -118,11 +118,11 @@ jobs:
        java-version: 11
     - name: Install Hashicorp Vault CLI & run tests
       run: |
-        wget https://releases.hashicorp.com/vault/1.5.0/vault_1.5.0_linux_amd64.zip -O /tmp/vault_1.5.0_linux_amd64.zip
-        mkdir -p vault/bin && pushd $_
-        unzip /tmp/vault_1.5.0_linux_amd64.zip
-        export PATH=$PATH:$PWD && popd
-        ./gradlew :tests:acceptance-test:test -PexcludeTests="RecoverIT,RestSuiteHttpH2RemoteEnclave"
+#        wget https://releases.hashicorp.com/vault/1.5.0/vault_1.5.0_linux_amd64.zip -O /tmp/vault_1.5.0_linux_amd64.zip
+#        mkdir -p vault/bin && pushd $_
+#        unzip /tmp/vault_1.5.0_linux_amd64.zip
+#        export PATH=$PATH:$PWD && popd
+        ./gradlew :tests:acceptance-test:test -PexcludeTests="RecoverIT,RestSuiteHttpH2RemoteEnclave" --info
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
