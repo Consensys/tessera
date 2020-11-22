@@ -29,9 +29,6 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
     uses com.quorum.tessera.p2p.resend.ResendClient;
     uses com.quorum.tessera.p2p.resend.TransactionRequester;
 
-    opens com.quorum.tessera.p2p.resend to org.eclipse.persistence.moxy,org.hibernate.validator,org.eclipse.persistence.core;
-
-
     provides com.quorum.tessera.config.apps.TesseraApp with com.quorum.tessera.p2p.P2PRestApp;
     
     provides com.quorum.tessera.recovery.resend.BatchTransactionRequester with
