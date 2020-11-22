@@ -19,7 +19,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build -x dependencyCheckAnalyze -x jacocoTestCoverageVerification --info
+      run: ./gradlew build -x dependencyCheckAnalyze -x jacocoTestCoverageVerification -x javadoc --info
     - uses: actions/cache@v1
       with:
         path: ~/.gradle/caches
@@ -27,30 +27,15 @@ jobs:
         restore-keys: |
           ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/upload-artifact@v1
-      if: success()
+      if: failure()
       with:
-        name: enclave-dists
-        path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+       name: itest-junit-report
+       path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
     - uses: actions/upload-artifact@v1
-      if: success()
+      if: failure()
       with:
-        name: tessera-dists
-        path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
-    - uses: actions/upload-artifact@v1
-      if: success()
-      with:
-        name: aws-key-vault-dist
-        path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
-    - uses: actions/upload-artifact@v1
-      if: success()
-      with:
-        name: azure-key-vault-dist
-        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-    - uses: actions/upload-artifact@v1
-      if: success()
-      with:
-        name: hashicorp-key-vault-dist
-        path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
+        name: itest-logs
+        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs/
 
 
 #  checkdependencies:

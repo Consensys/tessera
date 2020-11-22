@@ -79,7 +79,7 @@ test {
             "**/RecoverIT.class",
             "**/RestSuiteHttpH2RemoteEnclave.class",
 //            "**/RestSuiteHttpHSQL.class",
-            "**/RestSuiteUnixH2.class",
+   //         "**/RestSuiteUnixH2.class",
        //     "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
             "**/SendWithRemoteEnclaveReconnectIT.class",
@@ -128,6 +128,9 @@ task unzipTessera(type: Copy) {
     def zipFile = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
+
+    exclude "**/jffi-*-native.jar"
+
     into outputDir
 }
 
