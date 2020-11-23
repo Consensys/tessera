@@ -4,6 +4,7 @@
 
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 dependencies {
@@ -62,3 +63,24 @@ dependencies {
 group = 'net.consensys.quorum.tessera'
 version = '20.10.1-SNAPSHOT'
 description = 'multitenancy'
+
+shadowJar {
+    classifier = 'cli'
+    mergeServiceFiles()
+    manifest {
+        inheritFrom project.tasks.jar.manifest
+    }
+}
+
+
+jar {
+    manifest {
+        attributes 'Tessera-Version': version,
+                "Implementation-Version": version,
+                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
+                'Main-Class' : 'com.quorum.tessera.multitenancy.migration.Main'
+
+    }
+}
+
+build.dependsOn shadowJar

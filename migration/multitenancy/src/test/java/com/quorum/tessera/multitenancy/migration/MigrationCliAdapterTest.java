@@ -1,4 +1,4 @@
-package com.quorum.tessera.migration;
+package com.quorum.tessera.multitenancy.migration;
 
 import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;

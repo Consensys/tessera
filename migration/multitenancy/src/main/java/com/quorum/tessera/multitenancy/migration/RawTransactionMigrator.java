@@ -1,4 +1,4 @@
-package com.quorum.tessera.migration;
+package com.quorum.tessera.multitenancy.migration;
 
 import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
