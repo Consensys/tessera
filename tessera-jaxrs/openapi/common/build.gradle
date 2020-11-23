@@ -3,7 +3,6 @@ plugins {
 }
 
 dependencies {
-    implementation "io.swagger.core.v3:swagger-annotations"
     compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
     testCompile "io.swagger.core.v3:swagger-core:$swaggerVersion"
 }

@@ -7,6 +7,18 @@ dependencies {
     compileOnly project(":tessera-jaxrs:sync-jaxrs")
     compileOnly project(":tessera-jaxrs:transaction-jaxrs")
     compileOnly project(":tessera-jaxrs:thirdparty-jaxrs")
+    compileOnly project(":tessera-jaxrs:openapi:common")
+    compileOnly project(":tessera-core")
+    compileOnly project(":tessera-partyinfo")
+    compileOnly project(":enclave:enclave-api")
+    compileOnly project(":shared")
+    compileOnly project(":tessera-jaxrs:partyinfo-model")
+    compileOnly project(":encryption:encryption-api")
+    compileOnly project(":config")
+    compileOnly project(":tessera-recover")
+
+    compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
+    compileOnly "org.glassfish:jakarta.json"
 }
 
 resolve {
