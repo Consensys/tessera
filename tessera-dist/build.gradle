@@ -64,13 +64,13 @@ dependencies {
 
 distZip {
     exclude("**/jakarta.persistence-2.2.3.jar")
-    exclude("**/jakarta.activation-api-*.jar")
+    exclude("**/jakarta.activation-1.2.2.jar")
     exclude("**/jakarta.inject-2.6.1.jar")
     exclude("**/asm-*.jar")
 }
 distTar {
     exclude("**/jakarta.persistence-2.2.3.jar")
-    exclude("**/jakarta.activation-api-*.jar")
+    exclude("**/jakarta.activation-1.2.2.jar")
     exclude("**/jakarta.inject-2.6.1.jar")
     exclude("**/asm-*.jar")
 }
