@@ -18,9 +18,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
@@ -486,10 +483,8 @@ public class TransactionResource3Test {
 
         Response response = jersey.target("transaction").path(senderKey).path("isSender").request().get();
 
-        JsonObject expectedReponse = Json.createObjectBuilder().add("isSender", true).build();
-
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(JsonObject.class)).isEqualTo(expectedReponse);
+        assertThat(response.readEntity(Boolean.class)).isEqualTo(true);
         verify(transactionManager).isSender(any(MessageHash.class));
     }
 
@@ -504,11 +499,9 @@ public class TransactionResource3Test {
 
         when(transactionManager.getParticipants(any(MessageHash.class))).thenReturn(List.of(recipient));
 
-        final JsonArray expectedResponse = Json.createArrayBuilder().add("BASE64ENCODEKEY").build();
-
         Response response = jersey.target("transaction").path(dummyPtmHash).path("participants").request().get();
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(JsonArray.class)).isEqualTo(expectedResponse);
+        assertThat(response.readEntity(String.class)).isEqualTo("BASE64ENCODEKEY");
         verify(transactionManager).getParticipants(any(MessageHash.class));
     }
 

@@ -640,37 +640,6 @@ public class TransactionResourceTest {
     }
 
     @Test
-    public void isSenderDelegates() {
-
-        when(transactionManager.isSender(any(MessageHash.class))).thenReturn(true);
-
-        String senderKey = Base64.getEncoder().encodeToString("DUMMY_HASH".getBytes());
-
-        Response response = jersey.target("transaction").path(senderKey).path("isSender").request().get();
-
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(Boolean.class)).isEqualTo(true);
-        verify(transactionManager).isSender(any(MessageHash.class));
-    }
-
-    @Test
-    public void getParticipantsDelegates() {
-        byte[] data = "DUMMY_HASH".getBytes();
-
-        final String dummyPtmHash = Base64.getEncoder().encodeToString(data);
-
-        PublicKey recipient = mock(PublicKey.class);
-        when(recipient.encodeToBase64()).thenReturn("BASE64ENCODEKEY");
-
-        when(transactionManager.getParticipants(any(MessageHash.class))).thenReturn(List.of(recipient));
-
-        Response response = jersey.target("transaction").path(dummyPtmHash).path("participants").request().get();
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.readEntity(String.class)).isEqualTo("BASE64ENCODEKEY");
-        verify(transactionManager).getParticipants(any(MessageHash.class));
-    }
-
-    @Test
     public void validationSendPayloadCannotBeNullOrEmpty() {
 
         Collection<Entity> nullAndEmpty =

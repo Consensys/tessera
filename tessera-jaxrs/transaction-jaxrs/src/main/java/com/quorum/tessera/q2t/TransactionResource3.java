@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.json.Json;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -38,8 +37,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.quorum.tessera.version.MultiTenancyVersion.MIME_TYPE_JSON_2_1;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static javax.ws.rs.core.MediaType.*;
 
 /**
  * Provides endpoints for dealing with transactions, including:
@@ -336,7 +334,7 @@ public class TransactionResource3 {
             content = @Content(schema = @Schema(type = "boolean")))
     @GET
     @Path("/transaction/{hash}/isSender")
-    @Produces(MIME_TYPE_JSON_2_1)
+    @Produces(TEXT_PLAIN)
     public Response isSender(
             @Parameter(
                             description = "hash indicating encrypted payload to check sender for",
@@ -347,10 +345,7 @@ public class TransactionResource3 {
         final MessageHash transactionHash = new MessageHash(base64Decoder.decode(ptmHash));
 
         final boolean isSender = transactionManager.isSender(transactionHash);
-
-        final String response = Json.createObjectBuilder().add("isSender", isSender).build().toString();
-
-        return Response.ok(response).build();
+        return Response.ok(isSender).build();
     }
 
     @Operation(
@@ -368,7 +363,7 @@ public class TransactionResource3 {
                                             "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")))
     @GET
     @Path("/transaction/{hash}/participants")
-    @Produces(MIME_TYPE_JSON_2_1)
+    @Produces(TEXT_PLAIN)
     public Response getParticipants(
             @Parameter(
                             description = "hash indicating encrypted payload to get recipients for",
@@ -377,12 +372,12 @@ public class TransactionResource3 {
                     final String ptmHash) {
         LOGGER.debug("Received participants list API request for key {}", ptmHash);
 
-        MessageHash transactionHash = Optional.of(ptmHash).map(base64Decoder::decode).map(MessageHash::new).get();
+        MessageHash transactionHash = Optional.of(ptmHash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
 
-        final String[] participantList =
+        final String participantList =
                 transactionManager.getParticipants(transactionHash).stream()
                         .map(PublicKey::encodeToBase64)
-                        .toArray(String[]::new);
+                        .collect(Collectors.joining(","));
 
         return Response.ok(participantList).build();
     }
