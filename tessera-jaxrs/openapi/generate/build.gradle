@@ -1,18 +1,16 @@
 plugins {
     id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
-    id "java-library"
 }
 
 dependencies {
-
-    implementation "io.swagger.core.v3:swagger-annotations"
-    compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
-    testCompile "io.swagger.core.v3:swagger-core:$swaggerVersion"
-
+    compileOnly project(":tessera-jaxrs:common-jaxrs")
+    compileOnly project(":tessera-jaxrs:sync-jaxrs")
+    compileOnly project(":tessera-jaxrs:transaction-jaxrs")
+    compileOnly project(":tessera-jaxrs:thirdparty-jaxrs")
 }
 
 resolve {
-    classpath = sourceSets.main.runtimeClasspath
+    classpath = sourceSets.main.compileClasspath
     outputDir = file("${project.buildDir}/generated-resources/openapi")
     outputFormat = 'JSONANDYAML'
     prettyPrint = 'TRUE'

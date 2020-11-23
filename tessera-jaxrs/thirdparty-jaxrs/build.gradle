@@ -27,7 +27,7 @@ dependencies {
     testImplementation project(":tessera-data")
     testImplementation project(":enclave:enclave-api")
 
-    compileOnly project(':tessera-jaxrs:generate-openapi')
+    compileOnly project(':tessera-jaxrs:openapi:common')
 
 }
 

@@ -34,7 +34,7 @@ dependencies {
     testCompile "org.glassfish.jersey.media:jersey-media-moxy"
     testCompile "org.glassfish.jersey.inject:jersey-hk2"
 
-    compileOnly project(':tessera-jaxrs:generate-openapi')
+    compileOnly project(':tessera-jaxrs:openapi:common')
 
 
 }
