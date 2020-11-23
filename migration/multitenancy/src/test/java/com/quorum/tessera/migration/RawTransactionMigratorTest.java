@@ -7,7 +7,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.PersistenceException;
 import java.util.List;
 import java.util.Optional;
 
@@ -105,11 +104,11 @@ public class RawTransactionMigratorTest {
 
         when(secondaryDao.transactionCount()).thenReturn(2L);
         when(secondaryDao.retrieveTransactions(0, 100)).thenReturn(List.of(testTx, testTx2));
-        when(primaryDao.retrieveByHash(testTxHash)).thenThrow(PersistenceException.class);
+        when(primaryDao.retrieveByHash(testTxHash)).thenThrow(RuntimeException.class);
 
         final Throwable throwable = catchThrowable(migrator::migrate);
 
-        assertThat(throwable).isInstanceOf(PersistenceException.class);
+        assertThat(throwable).isInstanceOf(RuntimeException.class);
 
         verify(secondaryDao).transactionCount();
         verify(secondaryDao).retrieveTransactions(0, 100);
