@@ -204,6 +204,9 @@ subprojects {
 
             }
 
+            if(details.requested.group == "org.glassfish.hk2.external" && details.requested.name == "jakarta.inject") {
+                details.useTarget("jakarta.inject:jakarta.inject-api:1.0.1")
+            }
             if(details.requested.name == "javax.inject") {
                 details.useTarget("jakarta.inject:jakarta.inject-api:1.0.1")
             }
