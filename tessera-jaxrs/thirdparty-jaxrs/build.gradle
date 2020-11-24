@@ -27,7 +27,7 @@ dependencies {
     testImplementation project(":tessera-data")
     testImplementation project(":enclave:enclave-api")
 
-    compileOnly project(':tessera-jaxrs:generate-openapi')
+    compileOnly project(':tessera-jaxrs:openapi:common')
 
 }
 
@@ -37,7 +37,7 @@ description = "thirdparty-jaxrs"
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
 resolve {
-    classpath = sourceSets.main.compileClasspath
+    classpath = sourceSets.main.compileClasspath.plus(sourceSets.main.runtimeClasspath)
     outputDir = file(generatedResources)
     outputFileName = 'openapi.thirdparty'
     outputFormat = 'JSONANDYAML'

@@ -1,0 +1,8 @@
+plugins {
+    id "java-library"
+}
+
+dependencies {
+    compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
+    testCompile "io.swagger.core.v3:swagger-core:$swaggerVersion"
+}
