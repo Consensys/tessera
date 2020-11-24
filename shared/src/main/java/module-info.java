@@ -18,11 +18,6 @@ module tessera.shared.main {
 
     uses com.quorum.tessera.io.FilesDelegate;
     uses com.quorum.tessera.version.ApiVersion;
-    uses com.quorum.tessera.io.SystemAdapter;
-
-
-    provides com.quorum.tessera.io.SystemAdapter with
-        com.quorum.tessera.io.DefaultSystemAdapter;
 
     provides java.nio.file.spi.FileSystemProvider with
         com.quorum.tessera.nio.unix.UnixSocketFileSystemProvider;

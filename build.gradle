@@ -29,14 +29,14 @@ allprojects {
 
         dependencies {
             constraints {
-                implementation "org.slf4j:slf4j-api:"+ slf4jVersion
-                runtimeOnly "org.slf4j:jcl-over-slf4j:"+ slf4jVersion
-                runtimeOnly "org.slf4j:jul-to-slf4j:"+ slf4jVersion
-                runtimeOnly "ch.qos.logback:logback-classic:"+ logbackVersion
-                runtimeOnly "ch.qos.logback:logback-core:"+ logbackVersion
+                implementation "org.slf4j:slf4j-api:$slf4jVersion"
+                runtimeOnly "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+                runtimeOnly "org.slf4j:jul-to-slf4j:$slf4jVersion"
+                runtimeOnly "ch.qos.logback:logback-classic:$logbackVersion"
+                runtimeOnly "ch.qos.logback:logback-core:$logbackVersion"
 
-                implementation "org.slf4j:jul-to-slf4j:"+ slf4jVersion //required by jersey server
-                testImplementation "org.slf4j:jul-to-slf4j:"+ slf4jVersion //required by enclave jaxrs module
+                implementation "org.slf4j:jul-to-slf4j:$slf4jVersion" //required by jersey server
+                testImplementation "org.slf4j:jul-to-slf4j:$slf4jVersion" //required by enclave jaxrs module
 
                 implementation "org.eclipse.persistence:org.eclipse.persistence.moxy:$eclipselinkVersion"
                 implementation "org.eclipse.persistence:org.eclipse.persistence.jpa:$eclipselinkVersion"
@@ -71,23 +71,23 @@ allprojects {
                 implementation "org.jasypt:jasypt:1.9.3"
                 implementation "com.moandjiezana.toml:toml4j:0.7.2"
 
-                implementation "org.glassfish.jersey.inject:jersey-hk2:"+ jerseyVersion
-                implementation("org.glassfish.jersey.media:jersey-media-json-processing:"+ jerseyVersion)
-                implementation("org.glassfish.jersey.media:jersey-media-moxy:"+ jerseyVersion)
-                implementation "org.glassfish.jersey.test-framework:jersey-test-framework-core:"+ jerseyVersion
-                implementation "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:"+ jerseyVersion
-                implementation "org.glassfish.jersey.core:jersey-server:"+ jerseyVersion
-                implementation "org.glassfish.jersey.ext:jersey-bean-validation:"+ jerseyVersion
-                implementation "org.glassfish.jersey.containers:jersey-container-servlet-core:"+ jerseyVersion
-                implementation "org.glassfish.jersey.inject:jersey-hk2:"+ jerseyVersion
-                implementation "org.glassfish.jersey.core:jersey-common:"+ jerseyVersion
-                implementation "org.glassfish.jersey.core:jersey-client:"+ jerseyVersion
+                implementation "org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"
+                implementation("org.glassfish.jersey.media:jersey-media-json-processing:$jerseyVersion")
+                implementation("org.glassfish.jersey.media:jersey-media-moxy:$jerseyVersion")
+                implementation "org.glassfish.jersey.test-framework:jersey-test-framework-core:$jerseyVersion"
+                implementation "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:$jerseyVersion"
+                implementation "org.glassfish.jersey.core:jersey-server:$jerseyVersion"
+                implementation "org.glassfish.jersey.ext:jersey-bean-validation:$jerseyVersion"
+                implementation "org.glassfish.jersey.containers:jersey-container-servlet-core:$jerseyVersion"
+                implementation "org.glassfish.jersey.inject:jersey-hk2:$jerseyVersion"
+                implementation "org.glassfish.jersey.core:jersey-common:$jerseyVersion"
+                implementation "org.glassfish.jersey.core:jersey-client:$jerseyVersion"
 
-                implementation "org.eclipse.jetty:jetty-unixsocket:"+ jettyVersion
-                implementation "org.eclipse.jetty:jetty-client:"+ jettyVersion
-                implementation "org.eclipse.jetty:jetty-servlet:"+ jettyVersion
-                implementation "org.eclipse.jetty:jetty-unixsocket:"+ jettyVersion
-                implementation "org.eclipse.jetty:jetty-server:"+ jettyVersion
+                implementation "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
+                implementation "org.eclipse.jetty:jetty-client:$jettyVersion"
+                implementation "org.eclipse.jetty:jetty-servlet:$jettyVersion"
+                implementation "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
+                implementation "org.eclipse.jetty:jetty-server:$jettyVersion"
 
                 implementation "org.cryptacular:cryptacular:1.2.4"
                 implementation "eu.neilalexander:jnacl:1.0.0"
@@ -371,7 +371,6 @@ subprojects {
     }
 
     sourceCompatibility = "11"
-
 
     java {
         withJavadocJar()
