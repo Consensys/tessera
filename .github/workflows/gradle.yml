@@ -70,7 +70,7 @@ jobs:
       with:
        java-version: 11
     - name: Install Hashicorp Vault CLI & run tests
-    - run: |
+    run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test --info
         ./gradlew :tests:acceptance-test:test :tests:acceptance-test:test -PexcludeTests="RecoverIT,RestSuiteHttpH2RemoteEnclave" --stacktrace --info
 #        wget https://releases.hashicorp.com/vault/1.5.0/vault_1.5.0_linux_amd64.zip -O /tmp/vault_1.5.0_linux_amd64.zip
