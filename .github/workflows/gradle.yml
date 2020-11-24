@@ -44,67 +44,28 @@ jobs:
         name: hashicorp-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
 
-#  checkdependencies:
-#    runs-on: ubuntu-latest
-#    steps:
-#    - uses: actions/checkout@v2
-#    - uses: actions/setup-java@v1
-#      with:
-#        java-version: 11
-#    - run: ./gradlew dependencyCheckAnalyze -x test
+  checkdependencies:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - run: ./gradlew dependencyCheckAnalyze -x test
        
-#  test:
-#    runs-on: ubuntu-latest
-#    steps:
-#    - uses: actions/checkout@v2
-#    - uses: actions/setup-java@v1
-#      with:
-#       java-version: 11
-#    - run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerification --info
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-java@v1
+      with:
+       java-version: 11
+    - run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerification --info
 
   itest:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: tessera-dists
-#        path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: enclave-dists
-#        path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: aws-key-vault-dist
-#        path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: azure-key-vault-dist
-#        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: hashicorp-key-vault-dist
-#        path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/    - uses: actions/download-artifact@v2
-#      with:
-#        name: tessera-dists
-#        path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: enclave-dists
-#        path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: aws-key-vault-dist
-#        path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: azure-key-vault-dist
-#        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-#    - uses: actions/download-artifact@v2
-#      with:
-#        name: hashicorp-key-vault-dist
-#        path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
     - uses: actions/setup-java@v1
       with:
        java-version: 11
