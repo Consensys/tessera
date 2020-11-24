@@ -8,6 +8,7 @@ plugins {
     id "org.kordamp.gradle.jdeps" version "0.11.0"
 }
 
+
 ext {
     jettyVersion = "9.4.34.v20201102"
     eclipselinkVersion = "2.7.7"
@@ -19,17 +20,17 @@ ext {
 
 allprojects {
     group = "net.consensys.quorum.tessera"
-    plugins.withType(JavaPlugin).configureEach {
+    plugins.withType(JavaLibraryPlugin).configureEach {
         java {
             modularity.inferModulePath = true
         }
     }
 
-    plugins.withType(JavaPlugin).whenPluginAdded {
+    plugins.withType(JavaLibraryPlugin).whenPluginAdded {
 
         dependencies {
             constraints {
-                implementation "org.slf4j:slf4j-api:$slf4jVersion"
+                api "org.slf4j:slf4j-api:$slf4jVersion"
                 runtimeOnly "org.slf4j:jcl-over-slf4j:$slf4jVersion"
                 runtimeOnly "org.slf4j:jul-to-slf4j:$slf4jVersion"
                 runtimeOnly "ch.qos.logback:logback-classic:$logbackVersion"
@@ -43,6 +44,7 @@ allprojects {
                 implementation "org.eclipse.persistence:org.eclipse.persistence.extension:$eclipselinkVersion"
 
                 testImplementation "junit:junit:4.13"
+
                 testImplementation "org.assertj:assertj-core:3.18.0"
                 testImplementation "org.mockito:mockito-inline:3.4.4"
 
@@ -87,7 +89,10 @@ allprojects {
                 implementation "org.eclipse.jetty:jetty-client:$jettyVersion"
                 implementation "org.eclipse.jetty:jetty-servlet:$jettyVersion"
                 implementation "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
+
                 implementation "org.eclipse.jetty:jetty-server:$jettyVersion"
+                implementation "org.eclipse.jetty:jetty-http:$jettyVersion"
+                implementation "org.eclipse.jetty:jetty-util:$jettyVersion"
 
                 implementation "org.cryptacular:cryptacular:1.2.4"
                 implementation "eu.neilalexander:jnacl:1.0.0"
@@ -102,30 +107,34 @@ allprojects {
                 implementation "org.hsqldb:hsqldb:2.5.1"
                 implementation "org.xerial:sqlite-jdbc:3.23.1"
 
-                implementation "jakarta.ws.rs:jakarta.ws.rs-api:2.1.6"
-                implementation "jakarta.persistence:jakarta.persistence-api:2.2.3"
-                implementation "jakarta.inject:jakarta.inject-api:1.0.1"
-                implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
+                api "jakarta.ws.rs:jakarta.ws.rs-api:2.1.6"
+                api "jakarta.persistence:jakarta.persistence-api:2.2.3"
+                api "jakarta.inject:jakarta.inject-api:1.0.1"
+                api "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
 
-                implementation "jakarta.activation:jakarta.activation-api:1.2.2"
+                api "jakarta.activation:jakarta.activation-api:1.2.2"
                 implementation "com.sun.activation:jakarta.activation:1.2.2"
 
                 implementation "jakarta.annotation:jakarta.annotation-api:1.3.5"
-                implementation "jakarta.transaction:jakarta.transaction-api:1.3.3"
-                implementation "jakarta.servlet:jakarta.servlet-api:4.0.4"
-                implementation "com.sun.mail:jakarta.mail:1.6.5"
 
+                api "jakarta.transaction:jakarta.transaction-api:1.3.3"
+                api "jakarta.servlet:jakarta.servlet-api:4.0.4"
+
+                api "jakarta.mail:jakarta.mail-api:1.6.5"
+                implementation "com.sun.mail:jakarta.mail:1.6.5"
 
                 implementation "org.glassfish.jaxb:jaxb-runtime:2.3.3"
                 runtimeOnly "com.sun.istack:istack-commons-runtime:4.0.0-M3"
 
                 implementation "org.glassfish:jsonp-jaxrs:1.1.6"
+
+                //api "jakarta.json:jakarta.json-api:1.1.6"
                 implementation "org.glassfish:jakarta.json:1.1.6"
 
-              //  implementation "jakarta.el:jakarta.el-api:3.0.3"
+                api "jakarta.el:jakarta.el-api:3.0.3"
                 implementation "org.glassfish:jakarta.el:3.0.3"
 
-                implementation "jakarta.validation:jakarta.validation-api:2.0.2"
+                api "jakarta.validation:jakarta.validation-api:2.0.2"
                 implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
 
                 implementation "com.github.tomakehurst:wiremock:2.27.1"
@@ -138,7 +147,7 @@ allprojects {
 
 subprojects {
 
-    apply plugin: "java"
+    apply plugin: "java-library"
     apply plugin: "com.diffplug.gradle.spotless"
     apply plugin: "maven-publish"
     apply plugin: "jacoco"
@@ -155,82 +164,32 @@ subprojects {
 
     task allDeps(type: DependencyReportTask) {}
 
+
     configurations.all {
+
+        resolutionStrategy.capabilitiesResolution.all {
+            selectHighestVersion()
+        }
+
         resolutionStrategy.eachDependency {details ->
-            if(details.requested.group == "javax.servlet" && details.requested.name == "javax.servlet-api") {
-                details.useTarget("jakarta.servlet:jakarta.servlet-api:4.0.4")
-            }
-            if(details.requested.group == "javax.validation") {
-                details.useTarget("jakarta.validation:jakarta.validation-api:2.0.2")
-            }
 
-            if(details.requested.group == "javax.ws.rs") {
-                details.useTarget("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6")
-            }
-
-            if(details.requested.group == "com.sun.activation") {
-                details.useTarget("jakarta.activation:jakarta.activation-api:1.2.2")
-            }
-            if(details.requested.group == "javax.activation") {
-                details.useTarget("jakarta.activation:jakarta.activation-api:1.2.2")
-            }
-
-            if(details.requested.name == "jsr305") {
+            if(details.requested.name == "jsr305") {//annoying com.google.guava:guava dependency needed my checkstyle plugin
                 details.useTarget("jakarta.annotation:jakarta.annotation-api:1.3.5")
-            }
-
-            if(details.requested.group == "javax.annotation") {
-                details.useTarget("jakarta.annotation:jakarta.annotation-api:1.3.5")
-            }
-
-            if(details.requested.group == "jakarta.annotation") {
-                details.useTarget("jakarta.annotation:jakarta.annotation-api:1.3.5")
-            }
-
-            if(details.requested.name.startsWith("jakarta.el.api")) {
-                details.useTarget("org.glassfish:jakarta.el:3.0.3")
-            }
-
-            if(details.requested.name.startsWith("javax.el")) {
-
-                if(details.requested.group == "javax.el") {
-                   // details.useTarget("jakarta.el:jakarta.el-api:3.0.3")
-                    details.useTarget("org.glassfish:jakarta.el:3.0.3")
-                }
-                if(details.requested.group.startsWith("org.glassfish")) {
-                    details.useTarget("org.glassfish:jakarta.el:3.0.3")
-                   // details.useTarget("jakarta.el:jakarta.el-api:3.0.3")
-                }
-
-            }
-
-            if(details.requested.group == "org.glassfish.hk2.external" && details.requested.name == "jakarta.inject") {
-                details.useTarget("jakarta.inject:jakarta.inject-api:1.0.1")
-            }
-            if(details.requested.name == "javax.inject") {
-                details.useTarget("jakarta.inject:jakarta.inject-api:1.0.1")
-            }
-
-            if(details.requested.name == "javax.json") {
-                if(details.requested.group == "org.glassfish") {
-                    details.useTarget("org.glassfish:jakarta.json:1.1.6")
-                }
-                if(details.requested.group == "javax.json") {
-                    details.useTarget("org.glassfish:jakarta.json:1.1.6")
-                }
-            }
-
-            if(details.requested.group == "jakarta.json") {
+            } else if(details.requested.group == "jakarta.json") {//TODO: Review api + impl modules
                 details.useTarget("org.glassfish:jakarta.json:1.1.6")
+            } else if(details.requested.group == "javax.activation") {//TODO: Review api + impl modules
+                details.useTarget("com.sun.activation:jakarta.activation:1.2.2");
+            } else if(details.requested.group == "javax.servlet") {//TODO: stuborn transitive dep in swagger plugin
+                details.useTarget("jakarta.servlet:jakarta.servlet-api:4.0.4");
+            } else if(details.requested.group == "javax.ws.rs") {//TODO: stuborn transitive dep in swagger plugin
+                details.useTarget("jakarta.ws.rs:jakarta.ws.rs-api:2.1.6")
+            } else if(details.requested.group.startsWith("javax.")) {
+                def n = details.requested.name.replaceFirst("javax","jakarta")
+                def g =  details.requested.group.replaceFirst("javax","jakarta")
+                def  v = details.requested.version
+                details.useTarget(g + ":"+ n +":"+ v)
             }
 
-            if(details.requested.group == "javax.persistence") {
-                if(details.requested.name == "javax.persistence-api") {
-                    details.useTarget("jakarta.persistence:jakarta.persistence-api:2.2.3")
-                }
-            }
-
-            //com.github.jknack:handlebars:4.2.0
             if(details.requested.group == "com.github.jknack") {
                 if(details.requested.name == "handlebars") {
                     details.useTarget("com.github.jknack:handlebars:4.2.0")
@@ -240,16 +199,16 @@ subprojects {
                 }
             }
 
-            if(details.requested.group == "javax.mail") {
-                details.useTarget("com.sun.mail:jakarta.mail:1.6.5")
-            }
-
             if(details.requested.group == "commons.logging") {
-                details.useTarget("org.slf4j:jcl-over-slf4j:"+ slf4jVersion)
+                details.useTarget("org.slf4j:jcl-over-slf4j:$slf4jVersion")
             }
 
         }
+
+
     }
+
+
 
     dependencies {
 
@@ -349,8 +308,6 @@ subprojects {
         }
     }
 
-
-
     sourceSets {
         main {
             java {
@@ -436,7 +393,6 @@ subprojects {
                             name = "Nicolae Leonte"
                             email = "nicolae.leonte.go@gmail.com"
                         }
-
                     }
 
                     scm {
