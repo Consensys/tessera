@@ -1,7 +1,9 @@
 package com.quorum.tessera.privacygroup;
 
-import com.quorum.tessera.data.privacygroup.PrivacyGroupDAO;
-import com.quorum.tessera.data.privacygroup.PrivacyGroupEntity;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.data.PrivacyGroupDAO;
+import com.quorum.tessera.data.PrivacyGroupEntity;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyGroupUtil;
 import com.quorum.tessera.encryption.PublicKey;
@@ -9,6 +11,7 @@ import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotFoundException;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -206,9 +209,13 @@ public class PrivacyGroupManagerTest {
 
     }
 
-    @Test
-    public void construct() {
-        PrivacyGroupManager manager = new PrivacyGroupManagerImpl(privacyGroupDAO, publisher);
+    @Ignore
+    public void create() {
+        JdbcConfig jdbcConfig = new JdbcConfig("username", "password", "jdbc:h2:mem:test");
+        final Config config = mock(Config.class);
+        when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+
+        PrivacyGroupManager manager = PrivacyGroupManager.create(config);
         assertThat(manager).isNotNull();
     }
 }

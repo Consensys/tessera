@@ -2,9 +2,13 @@ package com.quorum.tessera.privacygroup;
 
 import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.data.EntityManagerDAOFactory;
+import com.quorum.tessera.data.PrivacyGroupDAO;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.exception.*;
+import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
+import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisherFactory;
 
 
 import java.util.List;
@@ -50,6 +54,15 @@ public interface PrivacyGroupManager {
     void storePrivacyGroup(byte[] encodedData);
 
     static PrivacyGroupManager create(final Config config) {
-        return ServiceLoaderUtil.load(PrivacyGroupManager.class).get();
+        return ServiceLoaderUtil.load(PrivacyGroupManager.class)
+            .orElseGet(
+                () -> {
+                    EntityManagerDAOFactory entityManagerDAOFactory =
+                        EntityManagerDAOFactory.newFactory(config);
+                    PrivacyGroupDAO privacyGroupDAO = entityManagerDAOFactory.createPrivacyGroupDAO();
+                    PrivacyGroupPublisher publisher =
+                        PrivacyGroupPublisherFactory.newFactory(config).create(config);
+                    return new PrivacyGroupManagerImpl(privacyGroupDAO, publisher);
+                });
     }
 }

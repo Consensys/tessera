@@ -1,7 +1,7 @@
 package com.quorum.tessera.privacygroup;
 
-import com.quorum.tessera.data.privacygroup.PrivacyGroupDAO;
-import com.quorum.tessera.data.privacygroup.PrivacyGroupEntity;
+import com.quorum.tessera.data.PrivacyGroupDAO;
+import com.quorum.tessera.data.PrivacyGroupEntity;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyGroupUtil;
 import com.quorum.tessera.encryption.PublicKey;
