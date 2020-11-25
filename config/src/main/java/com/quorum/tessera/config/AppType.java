@@ -11,8 +11,6 @@ public enum AppType {
 
     Q2T(CommunicationType.REST),
 
-    B2T,
-
     @XmlEnumValue("ThirdParty")
     THIRD_PARTY(CommunicationType.REST),
 
