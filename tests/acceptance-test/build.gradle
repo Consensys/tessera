@@ -24,7 +24,7 @@ dependencies {
  //   implementation project(":tests:test-util")
 
 //    implementation project(":key-vault:aws-key-vault")
-//    implementation project(":key-vault:azure-key-vault")
+    implementation project(":key-vault:azure-key-vault")
 //    implementation project(":key-vault:hashicorp-key-vault")
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
@@ -43,13 +43,16 @@ dependencies {
 
     testImplementation "org.xerial:sqlite-jdbc"
     testImplementation "org.hsqldb:hsqldb"
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.25.1") {
-        exclude group: "commons-logging", module: "commons-logging"
-    }
+
+    //testImplementation "com.google.guava:guava:29.0-jre"
+
     testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
     testImplementation "org.assertj:assertj-core"
     testImplementation "com.github.jnr:jnr-unixsocket"
     testImplementation "org.glassfish:jakarta.el"
+
+    testImplementation "org.bouncycastle:bcpkix-jdk15on"
+    testImplementation "org.bouncycastle:bcprov-jdk15on"
 
 
     testRuntime "org.eclipse.persistence:org.eclipse.persistence.moxy"
@@ -72,24 +75,25 @@ test {
     systemProperty "jdbc.dir","${buildDir}/ext"
 
     systemProperty "keyvault.aws.dist","${buildDir}/unpacked/dist/aws-key-vault-"+ project.version +"/lib/"
-    systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-"+ project.version +"/lib/"
+    systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-"+ project.version +"/bin/tessera"
     systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-"+ project.version +"/lib/"
 
     systemProperty "project.version", project.version
 
     include(
-            "**/RecoverIT.class",
-            "**/RestSuiteHttpH2RemoteEnclave.class",
+//            "**/RecoverIT.class",
+//            "**/RestSuiteHttpH2RemoteEnclave.class",
 //            "**/RestSuiteHttpHSQL.class",
    //         "**/RestSuiteUnixH2.class",
        //     "**/RestSuiteHttpSqllite.class",
-            "**/RestSuiteHttpH2.class",
-            "**/SendWithRemoteEnclaveReconnectIT.class",
-            "**/CucumberWhitelistIT.class",
-            "**/P2pTestSuite.class",
-            "**/CucumberFileKeyGenerationIT.class",
+  //          "**/RestSuiteHttpH2.class",
+//            "**/SendWithRemoteEnclaveReconnectIT.class",
+//            "**/CucumberWhitelistIT.class",
+//            "**/P2pTestSuite.class",
+//            "**/CucumberFileKeyGenerationIT.class",
      //       "**/RunAwsIT.class",
-    //        "**/RunAzureIT.class",
+              "**/RunAzureIT.class",
+         //   "**/MyTest.class"
     //        "**/RunHashicorpIT.class"
 
     )
@@ -108,6 +112,19 @@ task unzipAzureKeyVault(type: Copy) {
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
     into outputDir
+}
+
+task copyTesseraIntoAzureDist(type: Copy) {
+    def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+    project.logger.lifecycle(tesseraName)
+
+    def tesseraDir = file("${buildDir}/unpacked/dist/${tesseraName}")
+
+
+    def distname = file(project(":key-vault:azure-key-vault").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+
+    def outputDir = file("${buildDir}/unpacked/dist/${distname}")
+    from tesseraDir  into outputDir
 
 }
 
@@ -167,18 +184,20 @@ task copyJdbcJars(type:Copy) {
 }
 
 
-task list(dependsOn: configurations.compileClasspath) {
-    doLast {
-        println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
-    }
-}
+//task list(dependsOn: configurations.compileClasspath) {
+//    doLast {
+//        println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
+//    }
+//}
 
 
 compileJava {
     include("**/module-info.java")
 }
 
-test.dependsOn clean,copyJdbcJars,unzipDdl,unzipTessera,unzipEnclave
+copyTesseraIntoAzureDist.dependsOn unzipTessera,unzipAzureKeyVault
+
+test.dependsOn clean,copyJdbcJars,unzipDdl,unzipEnclave,copyTesseraIntoAzureDist
         //unzipAzureKeyVault
 //unzipAwsKeyVault
 //unzipAwsKeyVault,unzipAzureKeyVault,unzipHashicorpKeyVault

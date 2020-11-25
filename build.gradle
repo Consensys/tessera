@@ -137,7 +137,9 @@ allprojects {
                 api "jakarta.validation:jakarta.validation-api:2.0.2"
                 implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
 
-                implementation "com.github.tomakehurst:wiremock:2.27.1"
+                implementation "net.java.dev.jna:jna:5.4.0"
+
+
             }
         }
     }
@@ -190,14 +192,6 @@ subprojects {
                 details.useTarget(g + ":"+ n +":"+ v)
             }
 
-            if(details.requested.group == "com.github.jknack") {
-                if(details.requested.name == "handlebars") {
-                    details.useTarget("com.github.jknack:handlebars:4.2.0")
-                }
-                if(details.requested.name == "handlebars-helpers") {
-                    details.useTarget("com.github.jknack:handlebars:4.2.0")
-                }
-            }
 
             if(details.requested.group == "commons.logging") {
                 details.useTarget("org.slf4j:jcl-over-slf4j:$slf4jVersion")
@@ -443,7 +437,7 @@ subprojects {
     }
 
     test {
-        exclude "**/*IT.class"
+        //exclude "**/*IT.class"
     }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport

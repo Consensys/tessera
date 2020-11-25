@@ -15,4 +15,9 @@ module tessera.tests.acceptance.test.main {
     requires tessera.tessera.dist.main;
     requires tessera.shared.main;
 
+    requires jdk.httpserver;
+    requires java.net.http;
+
+
+
 }

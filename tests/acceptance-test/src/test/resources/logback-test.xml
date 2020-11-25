@@ -14,7 +14,12 @@
     <logger name="suite.RestPartyInfoChecker" level="INFO"/>
 
     <logger name="suite.HttpServerStatusCheck" level="WARN" />
-    <root level="INFO">
+
+    <logger name="io.netty" level="INFO" />
+
+    <logger name="com.sun.net.httpserver" level="ALL" />
+
+    <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>
 

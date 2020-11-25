@@ -2,3 +2,9 @@
     tessera.tests.acceptance.test.main/transaction.rest=io.cucumber.core,io.cucumber.java8
 --add-opens
     tessera.tests.acceptance.test.main/transaction.raw=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+    commons-logging/org.apache.commons.logging=junit
+
+--add-opens
+    tessera.tests.acceptance.test.main/com.quorum.tessera.test.vault.azure=io.cucumber.core,io.cucumber.java8
