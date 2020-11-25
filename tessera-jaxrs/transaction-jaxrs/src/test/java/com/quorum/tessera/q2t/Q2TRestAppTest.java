@@ -53,7 +53,7 @@ public class Q2TRestAppTest {
 
     @Test
     public void getSingletons() {
-        assertThat(q2TRestApp.getSingletons()).hasSize(4);
+        assertThat(q2TRestApp.getSingletons()).hasSize(5);
     }
 
     @Test
