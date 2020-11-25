@@ -21,6 +21,7 @@
         <module>jaxrs-client</module>
         <module>partyinfo-model</module>
         <module>generate-openapi</module>
+        <module>besu-jaxrs</module>
     </modules>
 
 

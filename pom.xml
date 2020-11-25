@@ -502,6 +502,7 @@
         <module>service-loader-ext</module>
         <module>tessera-recover</module>
         <module>eclipselink-utils</module>
+        <module>besu-jaxrs</module>
     </modules>
 
     <dependencyManagement>
