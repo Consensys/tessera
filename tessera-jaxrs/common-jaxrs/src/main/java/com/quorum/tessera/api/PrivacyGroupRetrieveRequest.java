@@ -1,4 +1,4 @@
-package net.consensys.tessera.b2t.model;
+package com.quorum.tessera.api;
 
 public class PrivacyGroupRetrieveRequest {
 

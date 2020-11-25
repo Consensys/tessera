@@ -1,13 +1,13 @@
-package net.consensys.tessera.b2t;
+package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.util.Base64Codec;
-import net.consensys.tessera.b2t.model.PrivacyGroupResponse;
-import net.consensys.tessera.b2t.model.PrivacyGroupRequest;
-import net.consensys.tessera.b2t.model.PrivacyGroupRetrieveRequest;
-import net.consensys.tessera.b2t.model.PrivacyGroupSearchRequest;
+import com.quorum.tessera.api.PrivacyGroupResponse;
+import com.quorum.tessera.api.PrivacyGroupRequest;
+import com.quorum.tessera.api.PrivacyGroupRetrieveRequest;
+import com.quorum.tessera.api.PrivacyGroupSearchRequest;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -20,6 +20,7 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,18 +51,10 @@ public class PrivacyGroupResource {
                         .collect(Collectors.toList());
 
         final byte[] randomSeed = Optional.ofNullable(request.getSeed()).map(base64Codec::decode)
-            .orElseGet(() -> {
-                final SecureRandom random = new SecureRandom();
-                byte[] generated = new byte[20];
-                random.nextBytes(generated);
-                return generated;
-        });
+            .orElseGet(generateRandomSeed);
 
-        final PrivacyGroup created = privacyGroupManager.createPrivacyGroup(
-            request.getName(),
-            request.getDescription(),
-            members,
-            randomSeed);
+        final PrivacyGroup created = privacyGroupManager
+            .createPrivacyGroup(request.getName(), request.getDescription(), members, randomSeed);
 
         return Response.status(Response.Status.CREATED).entity(toResponseObject(created)).build();
     }
@@ -107,5 +100,12 @@ public class PrivacyGroupResource {
                 privacyGroup.getType().name(),
                 privacyGroup.getMembers().stream().map(PublicKey::encodeToBase64).toArray(String[]::new));
     }
+
+    private Supplier<byte[]> generateRandomSeed = () -> {
+        final SecureRandom random = new SecureRandom();
+        byte[] generated = new byte[20];
+        random.nextBytes(generated);
+        return generated;
+    };
 
 }

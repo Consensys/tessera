@@ -1,13 +1,13 @@
-package net.consensys.tessera.b2t;
+package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.util.Base64Codec;
-import net.consensys.tessera.b2t.model.PrivacyGroupRequest;
-import net.consensys.tessera.b2t.model.PrivacyGroupResponse;
-import net.consensys.tessera.b2t.model.PrivacyGroupRetrieveRequest;
-import net.consensys.tessera.b2t.model.PrivacyGroupSearchRequest;
+import com.quorum.tessera.api.PrivacyGroupRequest;
+import com.quorum.tessera.api.PrivacyGroupResponse;
+import com.quorum.tessera.api.PrivacyGroupRetrieveRequest;
+import com.quorum.tessera.api.PrivacyGroupSearchRequest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
