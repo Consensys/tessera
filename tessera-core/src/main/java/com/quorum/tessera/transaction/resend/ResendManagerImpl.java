@@ -83,7 +83,7 @@ public class ResendManagerImpl implements ResendManager {
 
             if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
                 // lets compare it against another message received before
-                final byte[] oldDecrypted = enclave.unencryptTransaction(existing, payload.getSenderKey());
+                final byte[] oldDecrypted = enclave.unencryptTransaction(existing, existing.getSenderKey());
                 final boolean same =
                         Arrays.equals(newDecrypted, oldDecrypted)
                                 && Arrays.equals(payload.getCipherText(), existing.getCipherText());
