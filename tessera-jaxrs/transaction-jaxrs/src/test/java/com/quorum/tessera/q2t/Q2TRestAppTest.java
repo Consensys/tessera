@@ -21,27 +21,26 @@ public class Q2TRestAppTest {
 
     private JerseyTest jersey;
 
-    private MockServiceLocator serviceLocator;
-
     private Q2TRestApp q2TRestApp;
 
     @Before
     public void setUp() throws Exception {
         final Set<Object> services = Set.of(mock(Config.class));
 
-        serviceLocator = (MockServiceLocator) ServiceLocator.create();
+        final MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
         serviceLocator.setServices(services);
 
         q2TRestApp = new Q2TRestApp();
 
-        jersey = new JerseyTest() {
-            @Override
-            protected Application configure() {
-                enable(TestProperties.LOG_TRAFFIC);
-                enable(TestProperties.DUMP_ENTITY);
-                return ResourceConfig.forApplication(q2TRestApp);
-            }
-        };
+        jersey =
+                new JerseyTest() {
+                    @Override
+                    protected Application configure() {
+                        enable(TestProperties.LOG_TRAFFIC);
+                        enable(TestProperties.DUMP_ENTITY);
+                        return ResourceConfig.forApplication(q2TRestApp);
+                    }
+                };
 
         jersey.setUp();
     }
@@ -53,7 +52,7 @@ public class Q2TRestAppTest {
 
     @Test
     public void getSingletons() {
-        assertThat(q2TRestApp.getSingletons()).hasSize(4);
+        assertThat(q2TRestApp.getSingletons()).hasSize(5);
     }
 
     @Test

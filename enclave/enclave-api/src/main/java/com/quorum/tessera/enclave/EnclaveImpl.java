@@ -214,27 +214,75 @@ public class EnclaveImpl implements Enclave {
     }
 
     @Override
-    public byte[] unencryptTransaction(EncodedPayload payload, final PublicKey providedSenderKey) {
+    public byte[] unencryptTransaction(final EncodedPayload payload, final PublicKey publicToFindPrivateFor) {
+        PublicKey senderPublicKey = payload.getSenderKey();
+        final RecipientBox recipientBox;
 
-        final PublicKey senderPubKey;
+        // Case 1: PSV transaction, only one box but all recipients known, but our keys come first
+        // Case 2: we are a recipient, and only one single box is present, but no recipient key
+        // Case 3: we sent the transaction, so all the recipient keys + sender key is present
+        // Case 4: a transaction from a very old version of Tessera, where the sender key isn't in the recipient list
+        // Case 5: recipients for this node known, along with their boxes
 
-        final PublicKey recipientPubKey;
-
-        if (!this.getPublicKeys().contains(payload.getSenderKey())) {
-            // This is a payload originally sent to us by another node
-            senderPubKey = providedSenderKey;
-            recipientPubKey = payload.getSenderKey();
+        if (payload.getPrivacyMode() == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+            // Case 1
+            int index = payload.getRecipientKeys().indexOf(publicToFindPrivateFor);
+            if (index == -1) {
+                // this key was not listed as a recipient, exit early
+                throw new EnclaveException("recipient not found in listed keys");
+            }
+            recipientBox = payload.getRecipientBoxes().get(index);
+        } else if (payload.getRecipientKeys().isEmpty()) {
+            // Case 2
+            // we are just a standard recipient, so try the only box we have
+            // we don't know if it will work, but no other choice
+            recipientBox = payload.getRecipientBoxes().get(0);
+        } else if (payload.getRecipientKeys().contains(payload.getSenderKey())) {
+            // Case 3
+            // we are the sender, so any key (incl. the sender) privy should be in the recipient list
+            int index = payload.getRecipientKeys().indexOf(publicToFindPrivateFor);
+            if (index == -1) {
+                // this key was not listed as a recipient, exit early
+                throw new EnclaveException("recipient not found in listed keys");
+            }
+            recipientBox = payload.getRecipientBoxes().get(index);
         } else {
-            // This is a payload that originated from us
-            senderPubKey = payload.getSenderKey();
-            recipientPubKey = payload.getRecipientKeys().get(0);
+            // Cases 4 and 5
+            if (this.getPublicKeys().contains(payload.getSenderKey())) {
+                // Case 4
+
+                // all the keys available are the recipients
+
+                // Case 4.1, if the public key to find is the sender, then just pick the first box
+                // Case 4.2, otherwise, pick the key and the index
+
+                if (Objects.equals(payload.getSenderKey(), publicToFindPrivateFor)) {
+                    // Case 4.1
+                    // we are the sender, so choose some other key as the "sender"
+                    senderPublicKey = payload.getRecipientKeys().get(0);
+                    recipientBox = payload.getRecipientBoxes().get(0);
+                } else {
+                    // Case 4.2
+                    int index = payload.getRecipientKeys().indexOf(publicToFindPrivateFor);
+                    if (index == -1) {
+                        // this key was not listed as a recipient, exit early
+                        throw new EnclaveException("recipient not found in listed keys");
+                    }
+                    recipientBox = payload.getRecipientBoxes().get(index);
+                }
+            } else {
+                // Case 5
+                int index = payload.getRecipientKeys().indexOf(publicToFindPrivateFor);
+                if (index == -1) {
+                    // this key was not listed as a recipient, exit early
+                    throw new EnclaveException("recipient not found in listed keys");
+                }
+                recipientBox = payload.getRecipientBoxes().get(index);
+            }
         }
 
-        final PrivateKey senderPrivKey = keyManager.getPrivateKeyForPublicKey(senderPubKey);
-
-        final SharedKey sharedKey = encryptor.computeSharedKey(recipientPubKey, senderPrivKey);
-
-        final RecipientBox recipientBox = payload.getRecipientBoxes().iterator().next();
+        final PrivateKey privateKey = keyManager.getPrivateKeyForPublicKey(publicToFindPrivateFor);
+        final SharedKey sharedKey = encryptor.computeSharedKey(senderPublicKey, privateKey);
 
         final Nonce recipientNonce = payload.getRecipientNonce();
 

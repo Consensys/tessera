@@ -12,16 +12,24 @@ public class ApiObjectTest {
 
     @Test
     public void testAccessorsForApiObjects() {
-        Validator validator = ValidatorBuilder.create()
-            .with(new GetterTester()).with(new SetterTester()).build();
+        Validator validator = ValidatorBuilder.create().with(new GetterTester()).with(new SetterTester()).build();
 
-        validator.validate("com.quorum.tessera.api", pojoClass -> !pojoClass.getClazz().getName().contains(VersionTest.class.getName()));
+        validator.validate(
+                "com.quorum.tessera.api",
+                pojoClass -> !pojoClass.getClazz().getName().contains(VersionTest.class.getName()));
     }
 
     @Test
     public void nonEmptyConstructor() {
+        assertThat(new SendResponse("Data", new String[] {"arbitrary"}))
+                .isNotNull()
+                .extracting(SendResponse::getKey)
+                .isNotNull();
 
-        assertThat(new SendResponse("Data")).isNotNull().extracting(SendResponse::getKey).isNotNull();
+        assertThat(new SendResponse("Data", new String[] {"arbitrary"}))
+                .isNotNull()
+                .extracting(SendResponse::getManagedParties)
+                .isNotNull();
 
         assertThat(new StoreRawResponse("Data".getBytes()))
                 .isNotNull()

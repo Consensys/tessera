@@ -115,7 +115,9 @@ public class BatchResendManagerTest {
         when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
                 .thenReturn(singletonList(mock(EncryptedTransaction.class)));
 
-        final BatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
+        final EncodedPayload toPublish = mock(EncodedPayload.class);
+        final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
+        batchWorkflow.setSinglePayloadToPublish(toPublish);
 
         final ResendBatchResponse result = manager.resendBatch(request);
 
@@ -131,6 +133,7 @@ public class BatchResendManagerTest {
 
     @Test
     public void useMaxResultsWhenBatchSizeNotProvided() {
+        final EncodedPayload toPublish = mock(EncodedPayload.class);
 
         final ResendBatchRequest request = ResendBatchRequest.Builder.create().withPublicKey(KEY_STRING).build();
 
@@ -146,7 +149,8 @@ public class BatchResendManagerTest {
         when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
                 .thenReturn(singletonList(mock(EncryptedTransaction.class)));
 
-        final BatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
+        final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
+        batchWorkflow.setSinglePayloadToPublish(toPublish);
 
         final ResendBatchResponse result = manager.resendBatch(request);
 
@@ -178,7 +182,9 @@ public class BatchResendManagerTest {
         when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
                 .thenReturn(singletonList(mock(EncryptedTransaction.class)));
 
-        final BatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
+        final EncodedPayload toPublish = mock(EncodedPayload.class);
+        final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
+        batchWorkflow.setSinglePayloadToPublish(toPublish);
 
         final ResendBatchResponse result = manager.resendBatch(request);
 

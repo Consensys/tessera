@@ -224,6 +224,7 @@ subprojects {
                         'com.quorum.tessera.launcher.Launcher',
                         'com.quorum.tessera.launcher.Launcher.*',
                         'com.quorum.tessera.launcher.Main',
+                        'com.quorum.tessera.multitenancy.migration.Main',
                         'com.quorum.tessera.config.migration.Main',
                         'com.quorum.tessera.data.migration.Main',
                         'com.quorum.tessera.passwords.ConsolePasswordReader',

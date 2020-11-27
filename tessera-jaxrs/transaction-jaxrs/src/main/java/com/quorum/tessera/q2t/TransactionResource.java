@@ -56,8 +56,14 @@ public class TransactionResource {
         this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
-    @Operation(summary = "/send", operationId = "encryptStoreAndSendJson", description = "encrypts a payload, stores result in database, and publishes result to recipients")
-    @ApiResponse(responseCode = "201", description = "encrypted payload hash", content = @Content(schema = @Schema(implementation = SendResponse.class)))
+    @Operation(
+            summary = "/send",
+            operationId = "encryptStoreAndSendJson",
+            description = "encrypts a payload, stores result in database, and publishes result to recipients")
+    @ApiResponse(
+            responseCode = "201",
+            description = "encrypted payload hash",
+            content = @Content(schema = @Schema(implementation = SendResponse.class)))
     @POST
     @Path("send")
     @Consumes(APPLICATION_JSON)
@@ -116,7 +122,7 @@ public class TransactionResource {
                         .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
                         .map(MessageHash::getHashBytes)
                         .map(Base64.getEncoder()::encodeToString)
-                        .map(SendResponse::new)
+                        .map(messageHash -> new SendResponse(messageHash, null))
                         .get();
 
         final URI location =
@@ -125,16 +131,59 @@ public class TransactionResource {
         return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(sendResponse).build();
     }
 
-    @Operation(operationId = "sendStored", summary = "/sendsignedtx", description = "re-wraps a pre-stored & pre-encrypted payload, stores result in database, and publishes result to recipients", requestBody = @RequestBody(content = {@Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = SendSignedRequest.class)), @Content(mediaType = APPLICATION_OCTET_STREAM, array = @ArraySchema(schema = @Schema(description = "hash of pre-stored payload", type = "string", format = "base64")))}))
-    @ApiResponse(responseCode = "200", description = "hash of rewrapped payload (for application/octet-stream requests)", content = @Content(schema = @Schema(description = "hash of rewrapped payload", type = "string", format = "base64")))
-    @ApiResponse(responseCode = "201", description = "hash of rewrapped payload (for application/json requests)", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = SendResponse.class, description = "hash of rewrapped payload")))
+    @Operation(
+            operationId = "sendStored",
+            summary = "/sendsignedtx",
+            description =
+                    "re-wraps a pre-stored & pre-encrypted payload, stores result in database, and publishes result to recipients",
+            requestBody =
+                    @RequestBody(
+                            content = {
+                                @Content(
+                                        mediaType = APPLICATION_JSON,
+                                        schema = @Schema(implementation = SendSignedRequest.class)),
+                                @Content(
+                                        mediaType = APPLICATION_OCTET_STREAM,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(
+                                                                        description = "hash of pre-stored payload",
+                                                                        type = "string",
+                                                                        format = "base64")))
+                            }))
+    @ApiResponse(
+            responseCode = "200",
+            description = "hash of rewrapped payload (for application/octet-stream requests)",
+            content =
+                    @Content(
+                            schema =
+                                    @Schema(
+                                            description = "hash of rewrapped payload",
+                                            type = "string",
+                                            format = "base64")))
+    @ApiResponse(
+            responseCode = "201",
+            description = "hash of rewrapped payload (for application/json requests)",
+            content =
+                    @Content(
+                            mediaType = APPLICATION_JSON,
+                            schema =
+                                    @Schema(
+                                            implementation = SendResponse.class,
+                                            description = "hash of rewrapped payload")))
     @POST
     @Path("sendsignedtx")
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
     public Response sendSignedTransactionStandard(
-            @Parameter(description = "comma-separated list of recipient public keys (for application/octet-stream requests)", schema = @Schema(format = "base64")) @HeaderParam("c11n-to") final String recipientKeys,
-             @Valid @NotNull @Size(min = 1) final byte[] signedTransaction) {
+            @Parameter(
+                            description =
+                                    "comma-separated list of recipient public keys (for application/octet-stream requests)",
+                            schema = @Schema(format = "base64"))
+                    @HeaderParam("c11n-to")
+                    final String recipientKeys,
+            @Valid @NotNull @Size(min = 1) final byte[] signedTransaction) {
 
         final List<PublicKey> recipients =
                 Stream.ofNullable(recipientKeys)
@@ -170,15 +219,15 @@ public class TransactionResource {
         return Response.status(Status.OK).entity(encodedTransactionHash).location(location).build();
     }
 
-    // path /sendsignedtx is overloaded (application/octet-stream and application/json) annotations cannot handle situations like this so hide this operation and document both in the other methods
+    // path /sendsignedtx is overloaded (application/octet-stream and application/json) annotations cannot handle
+    // situations like this so hide this operation and document both in the other methods
     @Hidden
     @POST
     @Path("sendsignedtx")
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Response sendSignedTransactionEnhanced(
-            @NotNull @Valid @PrivacyValid
-                    final SendSignedRequest sendSignedRequest) {
+            @NotNull @Valid @PrivacyValid final SendSignedRequest sendSignedRequest) {
 
         final List<PublicKey> recipients =
                 Optional.ofNullable(sendSignedRequest.getTo())
@@ -231,15 +280,38 @@ public class TransactionResource {
         return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(sendResponse).build();
     }
 
-    @Operation(summary = "/sendraw", operationId = "encryptStoreAndSendOctetStream", description = "encrypts a payload, stores result in database, and publishes result to recipients")
-    @ApiResponse(responseCode = "200", description = "encrypted payload hash", content = @Content(schema = @Schema(type = "string", format = "base64", description = "encrypted payload hash")))
+    @Operation(
+            summary = "/sendraw",
+            operationId = "encryptStoreAndSendOctetStream",
+            description = "encrypts a payload, stores result in database, and publishes result to recipients")
+    @ApiResponse(
+            responseCode = "200",
+            description = "encrypted payload hash",
+            content =
+                    @Content(
+                            schema =
+                                    @Schema(
+                                            type = "string",
+                                            format = "base64",
+                                            description = "encrypted payload hash")))
     @POST
     @Path("sendraw")
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(TEXT_PLAIN)
     public Response sendRaw(
-            @HeaderParam("c11n-from") @Parameter(description = "public key identifying the server's key pair that will be used in the encryption; if not set, default used", schema = @Schema(format = "base64")) @Valid @ValidBase64 final String sender,
-            @HeaderParam("c11n-to") @Parameter(description = "comma-separated list of recipient public keys", schema = @Schema(format = "base64")) final String recipientKeys,
+            @HeaderParam("c11n-from")
+                    @Parameter(
+                            description =
+                                    "public key identifying the server's key pair that will be used in the encryption; if not set, default used",
+                            schema = @Schema(format = "base64"))
+                    @Valid
+                    @ValidBase64
+                    final String sender,
+            @HeaderParam("c11n-to")
+                    @Parameter(
+                            description = "comma-separated list of recipient public keys",
+                            schema = @Schema(format = "base64"))
+                    final String recipientKeys,
             @Schema(description = "data to be encrypted") @NotNull @Size(min = 1) @Valid final byte[] payload) {
 
         final PublicKey senderKey =
@@ -289,16 +361,37 @@ public class TransactionResource {
         return Response.status(Status.OK).entity(encodedTransactionHash).location(location).build();
     }
 
-    @Operation(summary = "/transaction/{hash}", operationId = "getDecryptedPayloadJsonUrl", description = "get payload from database, decrypt, and return")
-    @ApiResponse(responseCode = "200", description = "decrypted payload", content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
+    @Operation(
+            summary = "/transaction/{hash}",
+            operationId = "getDecryptedPayloadJsonUrl",
+            description = "get payload from database, decrypt, and return")
+    @ApiResponse(
+            responseCode = "200",
+            description = "decrypted payload",
+            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
     @GET
     @Path("/transaction/{hash}")
     @Produces(APPLICATION_JSON)
     public Response receive(
-            @Parameter(description = "hash indicating encrypted payload to retrieve from database", schema = @Schema(format = "base64")) @Valid @ValidBase64 @PathParam("hash") final String hash,
-            @Parameter(description = "(optional) public key of recipient of the encrypted payload; used in decryption; if not provided, decryption is attempted with all known recipient keys in turn", schema = @Schema(format = "base64")) @QueryParam("to") final String toStr,
-            @Parameter(description = "(optional) indicates whether the payload is raw; determines which database the payload is retrieved from; possible values\n* true - for pre-stored payloads in the \"raw\" database\n* false (default) - for already sent payloads in \"standard\" database")
-            @Valid @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE, regexp = "^(true|false)$") @QueryParam("isRaw")
+            @Parameter(
+                            description = "hash indicating encrypted payload to retrieve from database",
+                            schema = @Schema(format = "base64"))
+                    @Valid
+                    @ValidBase64
+                    @PathParam("hash")
+                    final String hash,
+            @Parameter(
+                            description =
+                                    "(optional) public key of recipient of the encrypted payload; used in decryption; if not provided, decryption is attempted with all known recipient keys in turn",
+                            schema = @Schema(format = "base64"))
+                    @QueryParam("to")
+                    final String toStr,
+            @Parameter(
+                            description =
+                                    "(optional) indicates whether the payload is raw; determines which database the payload is retrieved from; possible values\n* true - for pre-stored payloads in the \"raw\" database\n* false (default) - for already sent payloads in \"standard\" database")
+                    @Valid
+                    @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE, regexp = "^(true|false)$")
+                    @QueryParam("isRaw")
                     final String isRaw) {
 
         Base64.Decoder base64Decoder = Base64.getDecoder();
@@ -335,8 +428,14 @@ public class TransactionResource {
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
     }
 
-    @Operation(summary = "/receive", operationId = "getDecryptedPayloadJson", description = "get payload from database, decrypt, and return")
-    @ApiResponse(responseCode = "200", description = "decrypted payload", content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
+    @Operation(
+            summary = "/receive",
+            operationId = "getDecryptedPayloadJson",
+            description = "get payload from database, decrypt, and return")
+    @ApiResponse(
+            responseCode = "200",
+            description = "decrypted payload",
+            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
     @GET
     @Path("/receive")
     @Consumes(APPLICATION_JSON)
@@ -384,15 +483,38 @@ public class TransactionResource {
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
     }
 
-    @Operation(summary = "/receiveraw", operationId = "getDecryptedPayloadOctetStream", description = "get payload from database, decrypt, and return")
-    @ApiResponse(responseCode = "200", description = "decrypted ciphertext payload", content = @Content(array = @ArraySchema(schema = @Schema(type = "string", format = "byte", description = "decrypted ciphertext payload"))))
+    @Operation(
+            summary = "/receiveraw",
+            operationId = "getDecryptedPayloadOctetStream",
+            description = "get payload from database, decrypt, and return")
+    @ApiResponse(
+            responseCode = "200",
+            description = "decrypted ciphertext payload",
+            content =
+                    @Content(
+                            array =
+                                    @ArraySchema(
+                                            schema =
+                                                    @Schema(
+                                                            type = "string",
+                                                            format = "byte",
+                                                            description = "decrypted ciphertext payload"))))
     @GET
     @Path("receiveraw")
     @Consumes(APPLICATION_OCTET_STREAM)
     @Produces(APPLICATION_OCTET_STREAM)
     public Response receiveRaw(
-            @Schema(description = "hash indicating encrypted payload to retrieve from database", format = "base64") @ValidBase64 @NotNull @HeaderParam(value = "c11n-key") String hash,
-            @Schema(description = "(optional) public key of recipient of the encrypted payload; used in decryption; if not provided, decryption is attempted with all known recipient keys in turn", format = "base64") @ValidBase64 @HeaderParam(value = "c11n-to")
+            @Schema(description = "hash indicating encrypted payload to retrieve from database", format = "base64")
+                    @ValidBase64
+                    @NotNull
+                    @HeaderParam(value = "c11n-key")
+                    String hash,
+            @Schema(
+                            description =
+                                    "(optional) public key of recipient of the encrypted payload; used in decryption; if not provided, decryption is attempted with all known recipient keys in turn",
+                            format = "base64")
+                    @ValidBase64
+                    @HeaderParam(value = "c11n-to")
                     String recipientKey) {
 
         LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}", hash, recipientKey);
@@ -415,7 +537,11 @@ public class TransactionResource {
 
     @Deprecated
     @Operation(summary = "/delete", operationId = "deleteDeprecated", description = "delete payload from database")
-    @ApiResponse(responseCode = "200", description = "delete successful", content = @Content(schema = @Schema(type = "string"), examples = @ExampleObject(value = "Delete successful")))
+    @ApiResponse(
+            responseCode = "200",
+            description = "delete successful",
+            content =
+                    @Content(schema = @Schema(type = "string"), examples = @ExampleObject(value = "Delete successful")))
     @POST
     @Path("delete")
     @Consumes(APPLICATION_JSON)
@@ -434,56 +560,5 @@ public class TransactionResource {
         transactionManager.delete(messageHash);
 
         return Response.status(Response.Status.OK).entity("Delete successful").build();
-    }
-
-    @Operation(summary = "/transaction/{hash}", operationId = "delete", description = "delete payload from database")
-    @ApiResponse(responseCode = "204", description = "delete successful")
-    @DELETE
-    @Path("/transaction/{hash}")
-    public Response deleteKey(@Parameter(description = "hash indicating encrypted payload to delete from database", schema = @Schema(format = "base64")) @PathParam("hash") final String hash) {
-
-        LOGGER.debug("Received delete key request");
-
-        Base64.Decoder base64Decoder = Base64.getDecoder();
-        MessageHash messageHash = new MessageHash(base64Decoder.decode(hash));
-
-        transactionManager.delete(messageHash);
-
-        return Response.noContent().build();
-    }
-
-    @Operation(summary = "/transaction/{hash}/isSender", description = "check if the server was the sender of a transaction", operationId = "isSender")
-    @ApiResponse(responseCode = "200", description = "is server the sender", content = @Content(schema = @Schema(type = "boolean")))
-    @GET
-    @Path("/transaction/{hash}/isSender")
-    @Produces(TEXT_PLAIN)
-    public Response isSender(@Parameter(description = "hash indicating encrypted payload to check sender for", schema = @Schema(format = "base64")) @PathParam("hash") final String ptmHash) {
-
-        LOGGER.debug("Received isSender API request for key {}", ptmHash);
-
-        MessageHash transactionHash = Optional.of(ptmHash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
-
-        boolean isSender = transactionManager.isSender(transactionHash);
-
-        return Response.ok(isSender).build();
-    }
-
-    @Operation(summary = "/transaction/{hash}/participants", operationId = "getRecipients", description = "get list of recipient public keys for a transaction")
-    @ApiResponse(responseCode = "200", description = "comma-separated list of recipients", content = @Content(schema = @Schema(type = "string", description = "comma-separated list of recipients"), examples = @ExampleObject("ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")))
-    @GET
-    @Path("/transaction/{hash}/participants")
-    @Produces(TEXT_PLAIN)
-    public Response getParticipants(@Parameter(description = "hash indicating encrypted payload to get recipients for", schema = @Schema(format = "base64")) @PathParam("hash") final String ptmHash) {
-
-        LOGGER.debug("Received participants list API request for key {}", ptmHash);
-
-        MessageHash transactionHash = Optional.of(ptmHash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
-
-        final String participantList =
-                transactionManager.getParticipants(transactionHash).stream()
-                        .map(PublicKey::encodeToBase64)
-                        .collect(Collectors.joining(","));
-
-        return Response.ok(participantList).build();
     }
 }

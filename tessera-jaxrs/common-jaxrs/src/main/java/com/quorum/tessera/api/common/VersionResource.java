@@ -71,7 +71,13 @@ public class VersionResource {
     public JsonArray getVersions() {
         List<String> versions =
                 ApiVersion.versions().stream()
-                        .map(version -> version.substring(1)) // remove the "v" prefix
+                        .map(
+                                version -> {
+                                    if (version.startsWith("v")) {
+                                        return version.substring(1);
+                                    }
+                                    return version;
+                                }) // remove the "v" prefix
                         .map(Double::parseDouble)
                         .sorted()
                         .map(Objects::toString)

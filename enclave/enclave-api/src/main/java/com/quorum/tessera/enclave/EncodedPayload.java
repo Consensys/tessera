@@ -151,6 +151,11 @@ public class EncodedPayload {
             return this;
         }
 
+        public Builder withNewRecipientKeys(final List<PublicKey> recipientKeys) {
+            this.recipientKeys = recipientKeys;
+            return this;
+        }
+
         public Builder withCipherTextNonce(final Nonce cipherTextNonce) {
             this.cipherTextNonce = cipherTextNonce;
             return this;
@@ -222,7 +227,6 @@ public class EncodedPayload {
                     affectedTxns,
                     execHash);
         }
-
     }
 
     @Override

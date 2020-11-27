@@ -21,6 +21,10 @@ import suite.TestSuite;
     CucumberRestIT.class,
     CucumberRawIT.class,
     CustomPayloadEncryptionIT.class,
-    OpenApiIT.class
+    OpenApiIT.class,
+    ///
+    com.quorum.tessera.test.rest.multitenancy.SendIT.class,
+    com.quorum.tessera.test.rest.multitenancy.ReceiveIT.class,
+    com.quorum.tessera.test.rest.multitenancy.PrivacyIT.class
 })
 public abstract class RestSuite {}

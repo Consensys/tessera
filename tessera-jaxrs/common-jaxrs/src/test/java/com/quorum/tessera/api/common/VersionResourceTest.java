@@ -14,11 +14,9 @@ public class VersionResourceTest {
 
     private VersionResource instance;
 
-    public VersionResourceTest() {}
-
     @Before
     public void onSetUp() {
-        instance = new VersionResource();
+        this.instance = new VersionResource();
     }
 
     @Test
@@ -31,12 +29,10 @@ public class VersionResourceTest {
         assertThat(instance.getDistributionVersion()).isEqualTo(MockVersion.VERSION);
     }
 
-
     @Test
     public void getVersions() {
         assertThat(instance.getVersions())
-            .containsExactlyElementsOf(Stream.of("1.0", "2.0")
-                .map(Json::createValue)
-                .collect(Collectors.toSet()));
+                .containsExactlyElementsOf(
+                        Stream.of("1.0", "2.0", "2.1").map(Json::createValue).collect(Collectors.toSet()));
     }
 }

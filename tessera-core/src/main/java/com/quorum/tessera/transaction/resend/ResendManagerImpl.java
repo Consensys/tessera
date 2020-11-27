@@ -4,15 +4,10 @@ import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.data.MessageHashFactory;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ResendManagerImpl implements ResendManager {
 
@@ -37,7 +32,22 @@ public class ResendManagerImpl implements ResendManager {
     // TODO: synchronize based on messagehash, so different message don't lock each other
     public synchronized void acceptOwnMessage(final EncodedPayload payload) {
         // check the payload can be decrypted to ensure it isn't rubbish being sent to us
-        final byte[] newDecrypted = enclave.unencryptTransaction(payload, null);
+        final byte[] newDecrypted;
+        if (payload.getPrivacyMode() == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+            // if it is PSV, then the enclave would be expected our own box to be available,
+            // but it isn't (since we are rebuilding)
+            // since we only want to decrypt the tx and not worry about all the other pieces,
+            // treat it just like a standard private tx, and remove the other recipients
+            final EncodedPayload tempPayload =
+                    EncodedPayload.Builder.from(payload)
+                            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                            .withNewRecipientKeys(List.of(payload.getRecipientKeys().get(0)))
+                            .withRecipientBoxes(List.of(payload.getRecipientBoxes().get(0).getData()))
+                            .build();
+            newDecrypted = enclave.unencryptTransaction(tempPayload, payload.getSenderKey());
+        } else {
+            newDecrypted = enclave.unencryptTransaction(payload, payload.getSenderKey());
+        }
 
         final MessageHash transactionHash =
                 Optional.of(payload)
@@ -60,11 +70,20 @@ public class ResendManagerImpl implements ResendManager {
             final byte[] encodedPayload = tx.get().getEncodedPayload();
             final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
 
+            // check if the box already exists
+            // this is the easiest way to tell if a recipient has already been included
+            for (RecipientBox existingBox : existing.getRecipientBoxes()) {
+                if (Objects.equals(existingBox, payload.getRecipientBoxes().get(0))) {
+                    // recipient must already exist, so just act as though things went normally
+                    return;
+                }
+            }
+
             final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.from(existing);
 
             if (!existing.getRecipientKeys().contains(payload.getRecipientKeys().get(0))) {
                 // lets compare it against another message received before
-                final byte[] oldDecrypted = enclave.unencryptTransaction(existing, null);
+                final byte[] oldDecrypted = enclave.unencryptTransaction(existing, existing.getSenderKey());
                 final boolean same =
                         Arrays.equals(newDecrypted, oldDecrypted)
                                 && Arrays.equals(payload.getCipherText(), existing.getCipherText());

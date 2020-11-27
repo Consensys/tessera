@@ -331,6 +331,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>com/quorum/tessera/launcher/*</exclude>
+                                <exclude>com/quorum/tessera/multitenancy/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/data/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/config/migration/Main*</exclude>
                                 <exclude>com/quorum/tessera/passwords/ConsolePasswordReader*</exclude>
@@ -502,6 +503,7 @@
         <module>service-loader-ext</module>
         <module>tessera-recover</module>
         <module>eclipselink-utils</module>
+        <module>migration</module>
     </modules>
 
     <dependencyManagement>

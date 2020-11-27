@@ -47,18 +47,24 @@ public class Q2TRestApp extends TesseraRestApplication {
         EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create(config);
 
         TransactionResource transactionResource = new TransactionResource(transactionManager);
+        TransactionResource3 transactionResource3 = new TransactionResource3(transactionManager);
+
         RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
         EncodedPayloadResource encodedPayloadResource =
                 new EncodedPayloadResource(encodedPayloadManager, transactionManager);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
-        return Set.of(transactionResource, rawTransactionResource, encodedPayloadResource, upCheckResource);
+        return Set.of(
+                transactionResource,
+                rawTransactionResource,
+                encodedPayloadResource,
+                upCheckResource,
+                transactionResource3);
     }
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Stream.concat(super.getClasses().stream(), Stream.of(Q2TApiResource.class))
-            .collect(toSet());
+        return Stream.concat(super.getClasses().stream(), Stream.of(Q2TApiResource.class)).collect(toSet());
     }
 
     @Override
