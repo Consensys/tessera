@@ -53,6 +53,7 @@ public interface PrivacyGroupManager {
      */
     void storePrivacyGroup(byte[] encodedData);
 
+
     static PrivacyGroupManager create(final Config config) {
         return ServiceLoaderUtil.load(PrivacyGroupManager.class)
             .orElseGet(

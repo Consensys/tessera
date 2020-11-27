@@ -9,9 +9,6 @@ public interface PrivacyGroupPublisherFactory {
     PrivacyGroupPublisher create(Config config);
 
     static PrivacyGroupPublisherFactory newFactory(Config config) {
-        return ServiceLoaderUtil.loadAll(PrivacyGroupPublisherFactory.class)
-            .findAny()
-            .orElseThrow(
-                () -> new UnsupportedOperationException("Unable to create a PrivacyGroupPublisherFactory"));
+        return ServiceLoaderUtil.loadAll(PrivacyGroupPublisherFactory.class).findAny().get();
     }
 }

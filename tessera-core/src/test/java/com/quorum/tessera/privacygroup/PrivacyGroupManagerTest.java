@@ -209,7 +209,7 @@ public class PrivacyGroupManagerTest {
 
     }
 
-    @Ignore
+    @Test
     public void create() {
         JdbcConfig jdbcConfig = new JdbcConfig("username", "password", "jdbc:h2:mem:test");
         final Config config = mock(Config.class);
