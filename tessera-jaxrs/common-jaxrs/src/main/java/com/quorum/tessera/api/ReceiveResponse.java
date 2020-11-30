@@ -22,12 +22,8 @@ public class ReceiveResponse {
             allowableValues = {"0", "1", "3"})
     private int privacyFlag;
 
-    @ArraySchema(
-            arraySchema =
-                    @Schema(
-                            description =
-                                    "encoded payload hashes identifying all affected private contracts after tx simulation"),
-            schema = @Schema(format = "base64"))
+    @Schema(description =
+                "encoded payload hashes identifying all affected private contracts after tx simulation", format = "base64")
     private String[] affectedContractTransactions;
 
     @Schema(
@@ -35,12 +31,9 @@ public class ReceiveResponse {
             format = "base64")
     private String execHash;
 
-    @ArraySchema(
-            arraySchema =
-                    @Schema(
-                            description =
-                                    "participant public keys of key pairs managed by the enclave of this Tessera instance"),
-            schema = @Schema(format = "base64"))
+
+    @Schema(description = "participant public keys of key pairs managed by the enclave of this Tessera instance",
+            format = "base64")
     private String[] managedParties;
 
     public ReceiveResponse() {}
