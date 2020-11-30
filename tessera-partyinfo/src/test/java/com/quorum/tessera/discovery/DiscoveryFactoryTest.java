@@ -18,6 +18,7 @@ public class DiscoveryFactoryTest {
 
     @Before
     public void beforeTest() {
+        MockContextHolder.reset();
         runtimeContext = RuntimeContext.getInstance();
     }
 
