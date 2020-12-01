@@ -198,24 +198,24 @@ task copyJdbcJars {
 
 
     doLast {
-    def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
-    def sqliteJar = project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite")}
+        def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
+        def sqliteJar = project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite")}
 
-    def dirs = file("${buildDir}/unpacked/dist/").listFiles()
-    dirs.each {
+        def dirs = file("${buildDir}/unpacked/dist/").listFiles()
+        dirs.each {
 
-        def f = it
-        if (f.isDirectory()) {
-            def path = f.toPath().resolve("lib/")
-            copy {
-                from hsqldbJar
-                into path
+            def f = it
+            if (f.isDirectory()) {
+                def path = f.toPath().resolve("lib/")
+                copy {
+                    from hsqldbJar
+                    into path
 
-                from sqliteJar
-                into path
+                    from sqliteJar
+                    into path
+                }
             }
         }
-    }
     }
 
 }
@@ -242,3 +242,8 @@ copyTesseraIntoHashicorpDist.dependsOn unzipTessera,unzipHashicorpKeyVault
 copyJdbcJars.dependsOn copyTesseraIntoAwsDist,copyTesseraIntoAzureDist,copyTesseraIntoHashicorpDist
 
 test.dependsOn unzipDdl,unzipEnclave,copyJdbcJars
+
+
+dependencyCheck {
+    skip = true
+}
