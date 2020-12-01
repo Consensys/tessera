@@ -80,24 +80,24 @@ test {
 
     systemProperty "keyvault.aws.dist","${buildDir}/unpacked/dist/aws-key-vault-"+ project.version +"/bin/tessera"
     systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-"+ project.version +"/bin/tessera"
-    systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-"+ project.version +"/lib/"
+    systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-"+ project.version +"/bin/tessera"
 
     systemProperty "project.version", project.version
 
     include(
-            "**/RecoverIT.class",
-            "**/RestSuiteHttpH2RemoteEnclave.class",
-            "**/RestSuiteHttpHSQL.class",
-          //  "**/RestSuiteUnixH2.class",
-            "**/RestSuiteHttpSqllite.class",
-            "**/RestSuiteHttpH2.class",
-            "**/SendWithRemoteEnclaveReconnectIT.class",
-            "**/CucumberWhitelistIT.class",
-            "**/P2pTestSuite.class",
-            "**/CucumberFileKeyGenerationIT.class",
-            "**/AwsKeyVaultIT.class",
+//            "**/RecoverIT.class",
+//            "**/RestSuiteHttpH2RemoteEnclave.class",
+//            "**/RestSuiteHttpHSQL.class",
+//          //  "**/RestSuiteUnixH2.class",
+//            "**/RestSuiteHttpSqllite.class",
+//            "**/RestSuiteHttpH2.class",
+//            "**/SendWithRemoteEnclaveReconnectIT.class",
+//            "**/CucumberWhitelistIT.class",
+//            "**/P2pTestSuite.class",
+//            "**/CucumberFileKeyGenerationIT.class",
+//            "**/AwsKeyVaultIT.class",
             //"**/AzureKeyVaultIT.class",
-            "**/RunHashicorpIT.class"
+            "**/VaultTestSuite.class"
     )
 
     if (project.hasProperty('excludeTests')) {
