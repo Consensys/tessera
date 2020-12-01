@@ -30,7 +30,7 @@ public class AwsKeyVaultHttpHandler implements HttpHandler {
         String method = exchange.getRequestMethod();
         LOGGER.info("method {} ", method);
         exchange.getRequestHeaders().entrySet().stream().forEach(e -> {
-            LOGGER.info("{} = {}", e.getKey(), e.getValue());
+            LOGGER.debug("{} = {}", e.getKey(), e.getValue());
             //exchange.getRequestHeaders().add(e.getKey(),String.join(",",e.getValue()));
         });
 
@@ -45,7 +45,7 @@ public class AwsKeyVaultHttpHandler implements HttpHandler {
 
         JsonObject jsonObject = requestHandler.handle(exchange);
 
-        LOGGER.info("Body : {}", jsonObject);
+        LOGGER.debug("Body : {}", jsonObject);
 
         counter.incrementAndGet();
 
