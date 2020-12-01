@@ -36,6 +36,8 @@ dependencies {
     implementation "org.springframework:spring-orm:"+ springVersion
     implementation "org.springframework:spring-web:"+ springVersion
 
+    runtimeOnly "org.slf4j:jcl-over-slf4j"
+
 }
 distZip {
     exclude("**/jakarta.activation-1.2.2.jar")
