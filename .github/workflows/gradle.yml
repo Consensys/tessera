@@ -78,7 +78,7 @@ jobs:
        name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
 
-vaultTests:
+  vaultTests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
