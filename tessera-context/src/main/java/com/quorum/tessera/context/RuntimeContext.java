@@ -1,7 +1,6 @@
 package com.quorum.tessera.context;
 
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
 
@@ -13,7 +12,7 @@ import java.util.Set;
 
 public interface RuntimeContext {
 
-    List<KeyPair> getKeys();
+    Set<PublicKey> getKeys();
 
     KeyEncryptor getKeyEncryptor();
 

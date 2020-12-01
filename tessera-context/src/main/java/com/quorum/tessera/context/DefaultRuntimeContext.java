@@ -1,18 +1,16 @@
 package com.quorum.tessera.context;
 
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PublicKey;
 
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 class DefaultRuntimeContext implements RuntimeContext {
 
-    private final List<KeyPair> keys;
+    private final Set<PublicKey> keys;
 
     private final KeyEncryptor keyEncryptor;
 
@@ -35,7 +33,7 @@ class DefaultRuntimeContext implements RuntimeContext {
     private final boolean recoveryMode;
 
     protected DefaultRuntimeContext(
-            List<KeyPair> keys,
+            Set<PublicKey> keys,
             KeyEncryptor keyEncryptor,
             List<PublicKey> alwaysSendTo,
             List<URI> peers,
@@ -46,7 +44,7 @@ class DefaultRuntimeContext implements RuntimeContext {
             boolean disablePeerDiscovery,
             boolean useWhiteList,
             boolean recoveryMode) {
-        this.keys = List.copyOf(keys);
+        this.keys = keys;
         this.keyEncryptor = keyEncryptor;
         this.alwaysSendTo = List.copyOf(alwaysSendTo);
         this.peers = List.copyOf(peers);
@@ -59,8 +57,8 @@ class DefaultRuntimeContext implements RuntimeContext {
         this.recoveryMode = recoveryMode;
     }
 
-    public List<KeyPair> getKeys() {
-        return keys;
+    public Set<PublicKey> getKeys() {
+        return Set.copyOf(keys);
     }
 
     public KeyEncryptor getKeyEncryptor() {
@@ -108,7 +106,7 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     @Override
     public Set<PublicKey> getPublicKeys() {
-        return getKeys().stream().map(KeyPair::getPublicKey).collect(Collectors.toSet());
+        return Set.copyOf(getKeys());
     }
     @Override
     public String toString() {

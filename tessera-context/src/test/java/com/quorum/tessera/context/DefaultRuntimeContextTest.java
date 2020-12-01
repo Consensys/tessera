@@ -6,17 +6,16 @@ import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.GetterMustExistRule;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DefaultRuntimeContextTest {
 
@@ -36,7 +35,7 @@ public class DefaultRuntimeContextTest {
     public void testToString() {
 
         DefaultRuntimeContext instance = new DefaultRuntimeContext(
-            List.of(),
+            Set.of(),
             mock(KeyEncryptor.class),
             List.of(),
             List.of(),
@@ -55,11 +54,9 @@ public class DefaultRuntimeContextTest {
     @Test
     public void getPublicKeys() {
 
-        KeyPair keyPair = mock(KeyPair.class);
         PublicKey publicKey = mock(PublicKey.class);
-        when(keyPair.getPublicKey()).thenReturn(publicKey);
 
-        List<KeyPair> keys = List.of(keyPair);
+        Set<PublicKey> keys = Set.of(publicKey);
 
         DefaultRuntimeContext instance = new DefaultRuntimeContext(
             keys,

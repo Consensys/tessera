@@ -9,7 +9,13 @@ application {
     mainModule = "tessera.tessera.dist.main"
     applicationDefaultJvmArgs = [
             "-Dtessera.cli.type=CONFIG",
-            "-Djnr.ffi.asm.enabled=false"
+            "-Djnr.ffi.asm.enabled=false",
+
+ //           "--add-opens", "java.base/jdk.internal.misc=io.netty.common,ALL-UNNAMED",
+ //           "--add-exports", "java.base/jdk.internal.misc=io.netty.common,ALL-UNNAMED",
+            //            "--add-opens", "java.base/java.nio=io.netty.common,ALL-UNNAMED",
+            //            "-Dio.netty.tryReflectionSetAccessible=true",
+            //            "-Dreactor.netty.ioWorkerCount=128"
     ]
     startScripts.enabled = true
 

@@ -1,22 +1,19 @@
 package com.quorum.tessera.context;
 
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.client.Client;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class RuntimeContextBuilder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeContextBuilder.class);
 
-    private List<KeyPair> keys = new ArrayList<>();
+    private Set<PublicKey> keys = new HashSet<>();
 
     private KeyEncryptor keyEncryptor;
 
@@ -49,7 +46,7 @@ public class RuntimeContextBuilder {
         return this;
     }
 
-    public RuntimeContextBuilder withKeys(List<KeyPair> keys) {
+    public RuntimeContextBuilder withKeys(Set<PublicKey> keys) {
         this.keys.addAll(keys);
         return this;
     }

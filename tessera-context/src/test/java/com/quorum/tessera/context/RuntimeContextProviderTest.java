@@ -4,6 +4,7 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.KeyDataUtil;
+import com.quorum.tessera.enclave.Enclave;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +41,12 @@ public class RuntimeContextProviderTest {
         try(
             var mockedStaticConfigFactory = mockStatic(ConfigFactory.class);
             var mockStaticRestClientFactory = mockStatic(RestClientFactory.class);
-            var mockStaticKeyDataUtil = mockStatic(KeyDataUtil.class)
+            var mockStaticKeyDataUtil = mockStatic(KeyDataUtil.class);
+            var mockStaticEnclave = mockStatic(Enclave.class)
             ) {
+
+            Enclave enclave = mock(Enclave.class);
+            mockStaticEnclave.when(Enclave::create).thenReturn(enclave);
 
             ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
             when(configKeyPair.getPublicKey())
@@ -71,6 +76,13 @@ public class RuntimeContextProviderTest {
 
             mockStaticKeyDataUtil.verify(() -> KeyDataUtil.unmarshal(any(KeyData.class),any(KeyEncryptor.class)));
             mockStaticKeyDataUtil.verifyNoMoreInteractions();
+
+            mockStaticEnclave.verify(Enclave::create);
+            mockStaticEnclave.verifyNoMoreInteractions();
+
+            verify(enclave).getPublicKeys();
+            verifyNoMoreInteractions(enclave);
+
 
         }
     }

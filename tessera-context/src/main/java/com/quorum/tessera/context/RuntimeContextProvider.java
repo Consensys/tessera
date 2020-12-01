@@ -4,10 +4,8 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
-import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.KeyDataUtil;
-import com.quorum.tessera.enclave.KeyPairConverter;
-import com.quorum.tessera.encryption.KeyPair;
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,10 +60,8 @@ public class RuntimeContextProvider {
                 throw new ConstraintViolationException(violations);
             }
 
-            KeyPairConverter keyPairConverter = new KeyPairConverter(config, new EnvironmentVariableProvider());
-            List<KeyPair> pairs = new ArrayList<>(keyPairConverter.convert(configKeyPairs));
-
-            runtimeContextBuilder.withKeys(pairs);
+            final Enclave enclave = Enclave.create();
+            runtimeContextBuilder.withKeys(enclave.getPublicKeys());
         }
 
         List<ServerConfig> servers = config.getServerConfigs();

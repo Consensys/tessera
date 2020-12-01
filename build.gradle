@@ -137,7 +137,8 @@ allprojects {
                 api "jakarta.validation:jakarta.validation-api:2.0.2"
                 implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
 
-                implementation "net.java.dev.jna:jna:5.4.0"
+                implementation "net.java.dev.jna:jna:5.6.0"
+
 
 
             }
@@ -192,8 +193,11 @@ subprojects {
                 details.useTarget(g + ":"+ n +":"+ v)
             }
 
+            if(details.requested.group == "com.sun.mail" && details.requested.name == "javax.mail") {
+                details.useTarget("com.sun.mail:jakarta.mail:1.6.5")
+            }
 
-            if(details.requested.group == "commons.logging") {
+            if(details.requested.group == "commons-logging") {
                 details.useTarget("org.slf4j:jcl-over-slf4j:$slf4jVersion")
             }
 
@@ -437,7 +441,7 @@ subprojects {
     }
 
     test {
-        //exclude "**/*IT.class"
+        exclude "**/*IT.class"
     }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport

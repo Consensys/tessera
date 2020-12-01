@@ -25,6 +25,8 @@ public class NodeId {
         tokens.add(executionContext.getCommunicationType().name().toLowerCase());
         tokens.add(executionContext.getSocketType().name().toLowerCase());
         tokens.add(executionContext.getEnclaveType().name().toLowerCase());
+        tokens.add(executionContext.getDbType().name().toLowerCase());
+
         tokens.add(alias.name().toLowerCase());
 
         return String.join("-", tokens);

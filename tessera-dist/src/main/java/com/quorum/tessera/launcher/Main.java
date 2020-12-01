@@ -66,13 +66,13 @@ public class Main {
             ConfigFactory.create().store(config);
             LOGGER.debug("Stored config {}",config);
 
-            LOGGER.debug("Creating RuntimeContext");
-            final RuntimeContext runtimeContext = RuntimeContext.getInstance();
-            LOGGER.debug("Created RuntimeContext {}",runtimeContext);
-
             LOGGER.debug("Creating enclave");
             final Enclave enclave = Enclave.create();
             LOGGER.debug("Created enclave {}",enclave);
+
+            LOGGER.debug("Creating RuntimeContext");
+            final RuntimeContext runtimeContext = RuntimeContext.getInstance();
+            LOGGER.debug("Created RuntimeContext {}",runtimeContext);
 
             LOGGER.debug("Creating Discovery");
             Discovery discovery = Discovery.create();

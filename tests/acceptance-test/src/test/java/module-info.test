@@ -8,3 +8,8 @@
 
 --add-opens
     tessera.tests.acceptance.test.main/com.quorum.tessera.test.vault.azure=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+     tessera.tests.acceptance.test.main/com.quorum.tessera.test.vault.aws=io.cucumber.core,io.cucumber.java8
+
+
