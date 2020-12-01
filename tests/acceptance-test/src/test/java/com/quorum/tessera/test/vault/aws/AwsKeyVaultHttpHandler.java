@@ -28,7 +28,7 @@ public class AwsKeyVaultHttpHandler implements HttpHandler {
     public void handle(HttpExchange exchange) throws IOException {
 
         String method = exchange.getRequestMethod();
-        LOGGER.info("method {} ", method);
+        LOGGER.debug("method {} ", method);
         exchange.getRequestHeaders().entrySet().stream().forEach(e -> {
             LOGGER.debug("{} = {}", e.getKey(), e.getValue());
             //exchange.getRequestHeaders().add(e.getKey(),String.join(",",e.getValue()));

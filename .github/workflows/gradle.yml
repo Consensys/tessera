@@ -71,7 +71,7 @@ jobs:
        java-version: 11
     - run: | 
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="VaultTestSuite" --info
+        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT" --info
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
@@ -91,7 +91,7 @@ jobs:
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests VaultTestSuite --info
+          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RunHashicorpIT --tests AwsKeyVaultIT --info
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

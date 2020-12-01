@@ -71,6 +71,9 @@ dependencies {
 
 test {
 
+    excludes.clear()
+    
+
     systemProperty "application.jar","${buildDir}/unpacked/dist/tessera-"+ project.version +"/bin/tessera"
 
     systemProperty "enclave.jaxrs.server.jar","${buildDir}/unpacked/dist/enclave-jaxrs-"+ project.version +"/bin/enclave-jaxrs"
@@ -97,7 +100,7 @@ test {
             "**/CucumberFileKeyGenerationIT.class",
             "**/AwsKeyVaultIT.class",
             //"**/AzureKeyVaultIT.class",
-            "**/VaultTestSuite.class"
+            "**/RunHashicorpIT.class"
     )
 
     if (project.hasProperty('excludeTests')) {
