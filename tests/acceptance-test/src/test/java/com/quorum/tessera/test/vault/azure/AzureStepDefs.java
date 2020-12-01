@@ -6,7 +6,6 @@ import com.quorum.tessera.ssl.context.SSLContextBuilder;
 import com.quorum.tessera.test.util.ElUtil;
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpsConfigurator;
-import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 import config.PortUtil;
 import exec.ExecArgsBuilder;
@@ -19,7 +18,6 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLParameters;
 import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -159,7 +157,7 @@ public class AzureStepDefs implements En {
                 assertThat(response.statusCode()).isEqualTo(200);
                 assertThat(response.body()).isEqualTo("SALUTATIONS");
 
-                final HttpRequest request2 =  HttpRequest.newBuilder()
+                final HttpRequest request2 = HttpRequest.newBuilder()
                     .uri(URI.create(azureKeyVaultUrl +"/foo"))
                     .GET()
                     .build();
@@ -579,35 +577,5 @@ public class AzureStepDefs implements En {
         startUpLatch.await(30, TimeUnit.SECONDS);
     }
 
-    static class MySSLParameters extends HttpsParameters {
-
-        public MySSLParameters() {
-        }
-
-        @Override
-        public HttpsConfigurator getHttpsConfigurator() {
-            return null;
-        }
-
-        @Override
-        public InetSocketAddress getClientAddress() {
-            return null;
-        }
-
-        @Override
-        public void setSSLParameters(SSLParameters params) {
-
-        }
-
-        @Override
-        public boolean getWantClientAuth() {
-            return false;
-        }
-
-        @Override
-        public boolean getNeedClientAuth() {
-            return false;
-        }
-    }
 
 }

@@ -114,8 +114,7 @@ public class AzureKeyVaultIT {
 
                 return new Success(httpPrincipal);
             }
-        })
-        ;
+        });
         httpsServer.start();
 
         final HttpClient httpClient = HttpClient.newBuilder()
