@@ -430,7 +430,7 @@ public class HashicorpStepDefs implements En {
                 String formattedArgs =
                     String.format(cliArgs, tempTesseraConfig.toString(), pid.toAbsolutePath().toString());
 
-                Path startScript = Optional.of("keyvault.azure.dist")
+                Path startScript = Optional.of("keyvault.hashicorp.dist")
                     .map(System::getProperty)
                     .map(Paths::get).get();
 
@@ -464,7 +464,7 @@ public class HashicorpStepDefs implements En {
 
 
 
-                Path startScript = Optional.of("keyvault.azure.dist")
+                Path startScript = Optional.of("keyvault.hashicorp.dist")
                     .map(System::getProperty)
                     .map(Paths::get).get();
                 final Path distDirectory = Optional.of("keyvault.hashicorp.dist")
