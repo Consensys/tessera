@@ -85,12 +85,6 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - uses: actions/cache@v1
-        with:
-          path: ~/.m2/repository
-          key: ${{env.MAVEN_REPO_CACHE_KEY}}
-          restore-keys: |
-            ${{env.MAVEN_REPO_CACHE_KEY}}
       - run: |
           wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
           mkdir -p vault/bin && pushd $_
