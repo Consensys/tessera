@@ -423,7 +423,6 @@ public class HashicorpStepDefs implements En {
         When(
             "^Tessera is started with the following CLI args and (token|approle) environment variables*$",
             (String authMethod, String cliArgs) -> {
-                final String jarfile = System.getProperty("application.jar");
 
                 final URL logbackConfigFile = NodeExecManager.class.getResource("/logback-node.xml");
                 Path pid = Paths.get(System.getProperty("java.io.tmpdir"), "pidA.pid");
@@ -431,12 +430,17 @@ public class HashicorpStepDefs implements En {
                 String formattedArgs =
                     String.format(cliArgs, tempTesseraConfig.toString(), pid.toAbsolutePath().toString());
 
+                Path startScript = Optional.of("keyvault.azure.dist")
+                    .map(System::getProperty)
+                    .map(Paths::get).get();
+
+
                 final Path distDirectory = Optional.of("keyvault.hashicorp.dist")
                     .map(System::getProperty)
                     .map(Paths::get).get().resolve("*");
 
                 final List<String> args = new ExecArgsBuilder()
-                    .withStartScriptOrExecutableJarFile(Paths.get(jarfile))
+                    .withStartScriptOrExecutableJarFile(startScript)
                     .withClassPathItem(distDirectory)
                     .withArg("--debug")
                     .build();
@@ -454,17 +458,21 @@ public class HashicorpStepDefs implements En {
         When(
             "^Tessera keygen is run with the following CLI args and (token|approle) environment variables*$",
             (String authMethod, String cliArgs) -> {
-                final String jarfile = System.getProperty("application.jar");
-                final URL logbackConfigFile = NodeExecManager.class.getResource("/logback-node.xml");
+                final URL logbackConfigFile = getClass().getResource("/logback-node.xml");
 
                 String formattedArgs = String.format(cliArgs, getClientTlsKeystore(), getClientTlsTruststore());
 
+
+
+                Path startScript = Optional.of("keyvault.azure.dist")
+                    .map(System::getProperty)
+                    .map(Paths::get).get();
                 final Path distDirectory = Optional.of("keyvault.hashicorp.dist")
                     .map(System::getProperty)
                     .map(Paths::get).get().resolve("*");
 
                 final List<String> args = new ExecArgsBuilder()
-                    .withStartScriptOrExecutableJarFile(Paths.get(jarfile))
+                    .withStartScriptOrExecutableJarFile(startScript)
                     .withClassPathItem(distDirectory)
                     .withArg("--debug")
                     .build();
