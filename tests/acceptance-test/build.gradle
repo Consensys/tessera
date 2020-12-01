@@ -87,9 +87,9 @@ test {
     include(
             "**/RecoverIT.class",
             "**/RestSuiteHttpH2RemoteEnclave.class",
-           // "**/RestSuiteHttpHSQL.class",
+            "**/RestSuiteHttpHSQL.class",
           //  "**/RestSuiteUnixH2.class",
-           // "**/RestSuiteHttpSqllite.class",
+            "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
             "**/SendWithRemoteEnclaveReconnectIT.class",
             "**/CucumberWhitelistIT.class",
@@ -108,16 +108,10 @@ test {
     }
 
 }
-def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
-def sqliteJar = project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite")}
 
-task unzipAzureKeyVault(type: Copy) {
-    def zipFile = file(project(":key-vault:azure-key-vault").distZip.outputs.files.getFiles()[0])
-    def outputDir = file("${buildDir}/unpacked/dist")
-    from zipTree(zipFile)
-    into outputDir
 
-}
+
+
 
 task copyTesseraIntoAzureDist(type: Copy) {
     def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
@@ -135,7 +129,8 @@ task copyTesseraIntoAwsDist(type: Copy) {
     def tesseraDir = file("${buildDir}/unpacked/dist/${tesseraName}")
     def distname = file(project(":key-vault:aws-key-vault").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
     def outputDir = file("${buildDir}/unpacked/dist/${distname}")
-    from tesseraDir  into outputDir
+    from tesseraDir into outputDir
+
 }
 
 task copyTesseraIntoHashicorpDist(type: Copy) {
@@ -145,6 +140,15 @@ task copyTesseraIntoHashicorpDist(type: Copy) {
     def outputDir = file("${buildDir}/unpacked/dist/${distname}")
 
     from tesseraDir into outputDir
+
+}
+
+task unzipAzureKeyVault(type: Copy) {
+    def zipFile = file(project(":key-vault:azure-key-vault").distZip.outputs.files.getFiles()[0])
+    def outputDir = file("${buildDir}/unpacked/dist")
+    from zipTree(zipFile)
+    into outputDir
+
 }
 
 task unzipAwsKeyVault(type: Copy) {
@@ -189,23 +193,29 @@ task unzipDdl(type:Copy) {
     into outputDir
 }
 
+
 task copyJdbcJars {
+
+
+    doLast {
+    def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
+    def sqliteJar = project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite")}
 
     def dirs = file("${buildDir}/unpacked/dist/").listFiles()
     dirs.each {
-        def f = it
-        if(f.isDirectory()) {
 
-            def path = f.toPath().resolve("lib");
+        def f = it
+        if (f.isDirectory()) {
+            def path = f.toPath().resolve("lib/")
             copy {
                 from hsqldbJar
                 into path
-            }
-            copy {
+
                 from sqliteJar
                 into path
             }
         }
+    }
     }
 
 }
@@ -231,4 +241,4 @@ copyTesseraIntoHashicorpDist.dependsOn unzipTessera,unzipHashicorpKeyVault
 
 copyJdbcJars.dependsOn copyTesseraIntoAwsDist,copyTesseraIntoAzureDist,copyTesseraIntoHashicorpDist
 
-test.dependsOn unzipDdl,unzipEnclave,copyTesseraIntoAzureDist,copyJdbcJars
+test.dependsOn unzipDdl,unzipEnclave,copyJdbcJars
