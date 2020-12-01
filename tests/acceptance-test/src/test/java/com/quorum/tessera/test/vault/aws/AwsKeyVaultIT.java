@@ -80,7 +80,7 @@ public class AwsKeyVaultIT {
 
     @Before
     public void beforeTest() throws Exception {
-        pid = Paths.get(System.getProperty("java.io.tmpdir"), String.format("%s.pid", UUID.randomUUID().toString()));
+        pid = Paths.get(System.getProperty("java.io.tmpdir"), String.format("%s.pid", UUID.randomUUID().toString().replaceAll("-","")));
 
         logbackConfigFile = getClass().getResource("/logback-node.xml");
 
