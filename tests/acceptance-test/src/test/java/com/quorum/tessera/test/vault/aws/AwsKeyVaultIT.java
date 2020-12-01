@@ -1,6 +1,7 @@
 package com.quorum.tessera.test.vault.aws;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.ssl.context.SSLContextBuilder;
 import com.quorum.tessera.test.util.ElUtil;
@@ -11,7 +12,6 @@ import com.sun.net.httpserver.HttpsServer;
 import config.PortUtil;
 import exec.ExecArgsBuilder;
 import exec.ExecUtils;
-import exec.NodeExecManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +36,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,9 +80,9 @@ public class AwsKeyVaultIT {
 
     @Before
     public void beforeTest() throws Exception {
-        pid = Paths.get(System.getProperty("java.io.tmpdir"), "pidA.pid");
+        pid = Paths.get(System.getProperty("java.io.tmpdir"), String.format("%s.pid", UUID.randomUUID().toString()));
 
-        logbackConfigFile = NodeExecManager.class.getResource("/logback-node.xml");
+        logbackConfigFile = getClass().getResource("/logback-node.xml");
 
         keystore = getClass().getResource("/certificates/server-localhost-with-san.jks");
         truststore = Paths.get(getClass().getResource("/certificates/truststore.jks").toURI());
@@ -175,7 +176,7 @@ public class AwsKeyVaultIT {
         processBuilder.environment().putAll(env());
         processBuilder.redirectErrorStream(true);
         Process process = processBuilder.start();
-        executorService.submit(new StreamConsumer(process.getInputStream()));
+        executorService.submit(new StreamConsumer(process.getInputStream(),LOGGER::info));
 
         executorService.submit(() -> {
             int exitCode = process.waitFor();
@@ -187,8 +188,13 @@ public class AwsKeyVaultIT {
 
 
         final Config config = JaxbUtil.unmarshal(Files.newInputStream(tempTesseraConfig), Config.class);
-        final URI bindingUrl =
-            UriBuilder.fromUri(config.getP2PServerConfig().getBindingUri()).path("upcheck").build();
+        final URI bindingUrl = Optional.of(config)
+                                .map(Config::getP2PServerConfig)
+                                .map(ServerConfig::getBindingUri)
+                                .map(UriBuilder::fromUri)
+                                .map(u -> u.path("upcheck"))
+                                .map(UriBuilder::build)
+                                .get();
 
         HttpClient httpClient = HttpClient.newHttpClient();
         final HttpRequest request = HttpRequest.newBuilder()
@@ -232,7 +238,6 @@ public class AwsKeyVaultIT {
 
         List<String> nodesToGenerateKeysFor = List.of("nodeA","nodeB","nodeC");
 
-
         final List<String> args = new ExecArgsBuilder()
             .withStartScriptOrJarFile(startScript)
             .withClassPathItem(distDirectory)
@@ -244,17 +249,20 @@ public class AwsKeyVaultIT {
 
         ProcessBuilder processBuilder = new ProcessBuilder(args);
         processBuilder.environment().putAll(env());
-        processBuilder.redirectErrorStream(true);
+        processBuilder.redirectErrorStream(false);
         Process process = processBuilder.start();
-        executorService.submit(new StreamConsumer(process.getInputStream()));
+        executorService.submit(new StreamConsumer(process.getInputStream(),LOGGER::info));
+        executorService.submit(new StreamConsumer(process.getErrorStream(),LOGGER::error));
 
         process.waitFor();
         assertThat(process.exitValue()).isZero();
 
-        assertThat(httpHandler.getRequests()).hasSize(1);
-        assertThat(httpHandler.getRequests().get("secretsmanager.CreateSecret")).hasSize(6);
+        final String apiTarget = "secretsmanager.CreateSecret";
 
-        List<JsonObject> requests = httpHandler.getRequests().get("secretsmanager.CreateSecret");
+        assertThat(httpHandler.getRequests()).containsOnlyKeys(apiTarget);
+        assertThat(httpHandler.getRequests().get(apiTarget)).hasSize(6);
+
+        List<JsonObject> requests = httpHandler.getRequests().get(apiTarget);
         List<String> expectedNames = nodesToGenerateKeysFor.stream()
             .flatMap(n -> Stream.of(n.concat("Pub"),n.concat("Key"))).collect(Collectors.toList());
 
