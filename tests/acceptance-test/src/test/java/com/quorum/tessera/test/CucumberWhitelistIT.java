@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-    features = "classpath:features/whitelist.feature",
+    features = "build/resources/test/features/whitelist.feature",
     glue = "transaction.whitelist",
     tags = "@rest",
     plugin = {"progress"}
