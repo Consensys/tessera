@@ -1,9 +1,14 @@
 package exec;
 
-import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import suite.EnclaveType;
+import suite.ExecutionContext;
+import suite.ServerStatusCheck;
+import suite.ServerStatusCheckExecutor;
 
 import java.net.URL;
 import java.nio.file.Files;
@@ -14,13 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import suite.EnclaveType;
-import suite.ExecutionContext;
-import suite.ServerStatusCheck;
-import suite.ServerStatusCheckExecutor;
 
 public class NodeExecManager implements ExecManager {
 
@@ -46,23 +44,17 @@ public class NodeExecManager implements ExecManager {
     @Override
     public Process doStart() throws Exception {
 
-        Path nodeServerJar =
+        Path startScript =
             Paths.get(
-                System.getProperty(
-                    "application.jar", "../../tessera-app/target/tessrea-app-0.10-SNAPSHOT-app.jar"));
+                System.getProperty("application.jar"));
 
         ExecutionContext executionContext = ExecutionContext.currentContext();
 
         ExecArgsBuilder argsBuilder =
             new ExecArgsBuilder()
-                .withJvmArg("-Ddebug=true")
-                .withJvmArg("-Dnode.number=" + nodeId)
-                .withStartScriptOrJarFile(nodeServerJar)
-                .withMainClass(Main.class)
+                .withStartScriptOrJarFile(startScript)
                 .withPidFile(pid)
-                .withConfigFile(configDescriptor.getPath())
-                .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
-                .withClassPathItem(nodeServerJar);
+                .withConfigFile(configDescriptor.getPath());
         // .withArg("-jdbc.autoCreateTables", "true");
 
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
@@ -88,22 +80,18 @@ public class NodeExecManager implements ExecManager {
 
         LOGGER.info("Exec : {}", String.join(" ", args));
 
-        String javaOpts =
-            "-Dnode.number="
-                .concat(nodeId)
-                .concat(" ")
-                .concat("-Dlogback.configurationFile=")
-                .concat(logbackConfigFile.toString());
 
-        LOGGER.info("EXT DIR : {}", System.getProperty("jdbc.dir"));
+        List<String> javaOptions = List.of("-Dnode.number=".concat(nodeId),"-Dlogback.configurationFile="+ logbackConfigFile.toString());
+
+
         if (System.getProperties().containsKey("jdbc.dir")) {
             //  javaOpts += " -Djava.ext.dirs=" + System.getProperty("jdbc.dir");
         }
 
         Map<String, String> env = new HashMap<>();
-        env.put("JAVA_OPTS", javaOpts);
+        env.put("JAVA_OPTS", String.join(" ",javaOptions));
 
-        LOGGER.debug("Set env JAVA_OPTS {}", javaOpts);
+        LOGGER.debug("Set env JAVA_OPTS {}", javaOptions);
 
         final Process process = ExecUtils.start(args, executorService, env);
 

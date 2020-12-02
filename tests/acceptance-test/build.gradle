@@ -72,14 +72,12 @@ dependencies {
 test {
 
     excludes.clear()
-    
 
     systemProperty "application.jar","${buildDir}/unpacked/dist/tessera-"+ project.version +"/bin/tessera"
 
     systemProperty "enclave.jaxrs.server.jar","${buildDir}/unpacked/dist/enclave-jaxrs-"+ project.version +"/bin/enclave-jaxrs"
     systemProperty "jdbc.hsql.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
     systemProperty "jdbc.sqlite.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
-    systemProperty "jdbc.dir","${buildDir}/ext"
 
     systemProperty "keyvault.aws.dist","${buildDir}/unpacked/dist/aws-key-vault-"+ project.version +"/bin/tessera"
     systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-"+ project.version +"/bin/tessera"

@@ -1,6 +1,5 @@
 package exec;
 
-import com.quorum.tessera.launcher.Main;
 import config.ConfigDescriptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +9,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -42,25 +41,27 @@ public class RecoveryExecManager implements ExecManager {
 
         Path nodeServerJar =
             Paths.get(
-                System.getProperty(
-                    "application.jar", "../../tessera-app/target/tessrea-app-0.10-SNAPSHOT-app.jar"));
+                System.getProperty("application.jar"));
+
 
         ExecutionContext executionContext = ExecutionContext.currentContext();
 
         ExecArgsBuilder argsBuilder =
             new ExecArgsBuilder()
                 .withArg("--recover")
-                .withJvmArg("-Dnode.number=" + nodeId.concat("-").concat("recover"))
                 .withStartScriptOrJarFile(nodeServerJar)
-                .withMainClass(Main.class)
                 .withPidFile(pid)
-                .withConfigFile(configDescriptor.getPath())
-                .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
-                .withClassPathItem(nodeServerJar);
+                .withConfigFile(configDescriptor.getPath());
 
         List<String> args = argsBuilder.build();
 
-        Map<String, String> env = Collections.EMPTY_MAP;
+        List<String> jvmArgs = List.of(
+            "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+            "-Dnode.number=" + nodeId.concat("-").concat("recover")
+        );
+
+        Map<String, String> env = new HashMap<>();
+        env.put("JAVA_OPTS",String.join(" ",jvmArgs));
         final Process process = ExecUtils.start(args, executorService, env);
 
         return process;

@@ -28,14 +28,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import static org.assertj.core.api.Assertions.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class RecoverIT {
 
@@ -94,9 +99,9 @@ public class RecoverIT {
                         a -> {
                             long count = doCount(a);
                             if (a == NodeAlias.D) {
-                                assertThat(count).describedAs(a + " should have 100 ").isEqualTo(100L);
+                                assertThat(count).describedAs("%s should have 100 ",a).isEqualTo(100L);
                             } else {
-                                assertThat(count).describedAs(a + " should have 500 ").isEqualTo(500L);
+                                assertThat(count).describedAs("%s should have 500 ",a).isEqualTo(500L);
                             }
                         });
     }
@@ -163,15 +168,23 @@ public class RecoverIT {
 
         Process process = recoveryExecManager.start();
 
-        assertThat(true).isTrue();
+        int exitCode = process.waitFor();
 
-        process.waitFor();
+        assertThat(exitCode)
+            .describedAs("Exit code should be zero")
+            .isZero();
 
         if (nodeAlias == NodeAlias.D) {
-            assertThat(doCount(nodeAlias)).isEqualTo(100);
+            assertThat(doCount(nodeAlias))
+                .describedAs("Node %s is expected to have 100 ENCRYPTED_TRANSACTION rows",nodeAlias.name())
+                .isEqualTo(100);
         } else {
-            assertThat(doCount(nodeAlias)).isEqualTo(500);
+            assertThat(doCount(nodeAlias))
+                .describedAs("Node %s is expected to have 500 ENCRYPTED_TRANSACTION rows",nodeAlias.name())
+                .isEqualTo(500);
         }
+
+        recoveryExecManager.stop();
 
         recoveryExecManager.stop();
 

@@ -5,7 +5,7 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.ssl.context.SSLContextBuilder;
 import com.quorum.tessera.test.util.ElUtil;
-import com.quorum.tessera.test.vault.StreamConsumer;
+import exec.StreamConsumer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;

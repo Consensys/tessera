@@ -3,14 +3,11 @@ package exec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Stream;
 
 public class ExecUtils {
 
@@ -28,39 +25,8 @@ public class ExecUtils {
         processBuilder.redirectErrorStream(false);
         Process process = processBuilder.start();
 
-        executorService.submit(
-            () -> {
-                try (BufferedReader reader =
-                         Stream.of(process.getErrorStream())
-                             .map(InputStreamReader::new)
-                             .map(BufferedReader::new)
-                             .findAny()
-                             .get()) {
-
-                    String line = null;
-                    while ((line = reader.readLine()) != null) {
-                        LOGGER.error("Exec error data : {}", line);
-                    }
-                }
-                return null;
-            });
-
-        executorService.submit(
-            () -> {
-                try (BufferedReader reader =
-                         Stream.of(process.getInputStream())
-                             .map(InputStreamReader::new)
-                             .map(BufferedReader::new)
-                             .findAny()
-                             .get()) {
-
-                    String line = null;
-                    while ((line = reader.readLine()) != null) {
-                        LOGGER.debug("Exec line data : {}", line);
-                    }
-                }
-                return null;
-            });
+        executorService.submit(new StreamConsumer(process.getErrorStream(),line -> LOGGER.error("Exec error data : {}", line)));
+        executorService.submit(new StreamConsumer(process.getInputStream(),line -> LOGGER.debug("Exec line data : {}", line)));
 
         executorService.submit(
             () -> {
