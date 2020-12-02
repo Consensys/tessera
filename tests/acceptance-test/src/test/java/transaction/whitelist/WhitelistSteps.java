@@ -1,17 +1,13 @@
 package transaction.whitelist;
 
-import com.quorum.tessera.launcher.Main;
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.EncryptorConfig;
-import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.test.DBType;
 import config.ConfigBuilder;
-import io.cucumber.java8.En;
 import exec.ExecArgsBuilder;
 import exec.ExecUtils;
+import io.cucumber.java8.En;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import suite.*;
@@ -26,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,8 +34,6 @@ public class WhitelistSteps implements En {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(WhitelistSteps.class);
 
-    private static String jarPath =
-        System.getProperty("application.jar", "../../tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");
 
     private final URL logbackConfigFile = WhitelistSteps.class.getResource("/logback-node.xml");
 
@@ -95,10 +90,17 @@ public class WhitelistSteps implements En {
                         throw new UncheckedIOException(ex);
                     }
 
+                    final String appPath = System.getProperty("application.jar");
+
+                    if (Objects.equals("", appPath)) {
+                        throw new IllegalStateException("No application.jar system property defined");
+                    }
+
+                    final Path startScript = Paths.get(appPath);
                     List<String> cmd =
                         new ExecArgsBuilder()
                             .withMainClass(Main.class)
-                            .withClassPathItem(Paths.get(jarPath))
+                            .withClassPathItem(startScript)
                             .withConfigFile(configFile)
                             .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
                             .withJvmArg("-Dnode.number=whitelist")
