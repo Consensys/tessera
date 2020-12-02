@@ -3,6 +3,11 @@ package exec;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import config.ConfigDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import suite.ExecutionContext;
+import suite.ServerStatusCheck;
+import suite.ServerStatusCheckExecutor;
 
 import java.io.OutputStream;
 import java.net.URL;
@@ -14,13 +19,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import suite.ExecutionContext;
-import suite.ServerStatusCheck;
-import suite.ServerStatusCheckExecutor;
 
 public class EnclaveExecManager implements ExecManager {
 
@@ -100,14 +98,9 @@ public class EnclaveExecManager implements ExecManager {
 
     @Override
     public void doStop() throws Exception {
-
-        String p = Files.lines(pid).findFirst().orElse(null);
-        if (p == null) {
-            return;
-        }
-        LOGGER.info("Stopping Enclave : {}, Pid: {}", nodeId, p);
+        LOGGER.info("Stopping Enclave : {}, Pid: {}", nodeId, pid);
         try {
-            ExecUtils.kill(p);
+            ExecUtils.kill(pid);
         } finally {
             executorService.shutdown();
         }

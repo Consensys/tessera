@@ -171,15 +171,7 @@ public class WhitelistSteps implements En {
             Then(
                 "the node is stopped",
                 () -> {
-                    Files.lines(pid)
-                        .findAny()
-                        .ifPresent(
-                            p -> {
-                                try {
-                                    ExecUtils.kill(p);
-                                } catch (IOException | InterruptedException ex) {
-                                }
-                            });
+                    ExecUtils.kill(pid);
                 });
 
         } catch (Exception ex) {

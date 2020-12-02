@@ -139,13 +139,7 @@ public class AzureKeyVaultIT {
 
     @After
     public void afterTest() throws Exception {
-        Files.lines(pid).findFirst().ifPresent(p -> {
-                try {
-                    ExecUtils.kill(p);
-                } catch (InterruptedException | IOException e) {
-                }
-            }
-        );
+        ExecUtils.kill(pid);
 
         executorService.shutdown();
         httpsServer.stop(0);

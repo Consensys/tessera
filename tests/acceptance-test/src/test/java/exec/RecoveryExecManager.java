@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import suite.ExecutionContext;
 
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -69,13 +68,9 @@ public class RecoveryExecManager implements ExecManager {
 
     @Override
     public void doStop() throws Exception {
-        String p = Files.lines(pid).findFirst().orElse(null);
-        if (p == null) {
-            return;
-        }
-        LOGGER.info("Stopping Node: {}, Pid: {}", nodeId, p);
+        LOGGER.info("Stopping Node: {}, Pid: {}", nodeId, pid);
         try {
-            ExecUtils.kill(p);
+            ExecUtils.kill(pid);
         } finally {
             executorService.shutdown();
         }

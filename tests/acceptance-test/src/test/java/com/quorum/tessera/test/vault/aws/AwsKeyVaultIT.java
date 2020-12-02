@@ -5,13 +5,13 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.ssl.context.SSLContextBuilder;
 import com.quorum.tessera.test.util.ElUtil;
-import exec.StreamConsumer;
 import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 import config.PortUtil;
 import exec.ExecArgsBuilder;
 import exec.ExecUtils;
+import exec.StreamConsumer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,7 +23,6 @@ import javax.json.JsonObject;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -135,30 +134,12 @@ public class AwsKeyVaultIT {
         assertThat(response.statusCode()).isEqualTo(200);
         assertThat(response.body()).contains("SALUTATIONS");
 
-
         assertThat(httpHandler.getCounter()).isZero();
-
     }
 
     @After
     public void afterTest() throws Exception {
-
-        Stream.of(pid)
-            .filter(Files::exists)
-            .flatMap(p -> {
-                try {
-                    return Files.lines(p);
-                } catch (IOException e) {
-                   throw new UncheckedIOException(e);
-                }
-            })
-            .findFirst().ifPresent(p -> {
-                try {
-                    ExecUtils.kill(p);
-                } catch (InterruptedException | IOException e) {
-                }
-            }
-        );
+        ExecUtils.kill(pid);
 
         executorService.shutdown();
         httpsServer.stop(0);

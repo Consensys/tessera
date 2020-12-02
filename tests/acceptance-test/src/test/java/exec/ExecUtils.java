@@ -4,10 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Stream;
 
 public class ExecUtils {
 
@@ -41,14 +44,31 @@ public class ExecUtils {
         return process;
     }
 
+    public static void kill(Path pidFile) {
+        Stream.of(pidFile)
+            .filter(Files::exists)
+            .flatMap(p -> {
+                try {
+                    return Files.lines(p);
+                } catch (IOException e) {
+                    LOGGER.debug(null,e);
+                    throw new UncheckedIOException(e);
+                }
+            }).findFirst().ifPresent(ExecUtils::kill);
+    }
 
+    public static void kill(String pid) {
 
-    public static void kill(String pid) throws IOException, InterruptedException {
-
-        List<String> args = Arrays.asList("kill", pid);
+        List<String> args = List.of("kill", pid);
         ProcessBuilder processBuilder = new ProcessBuilder(args);
-        Process process = processBuilder.start();
+        try {
+            Process process = processBuilder.start();
+            int exitCode = process.waitFor();
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        } catch (InterruptedException ex) {
+            LOGGER.warn("",ex);
+        }
 
-        int exitCode = process.waitFor();
     }
 }
