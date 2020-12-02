@@ -186,8 +186,6 @@ public class RecoverIT {
 
         recoveryExecManager.stop();
 
-        recoveryExecManager.stop();
-
         NodeExecManager nodeExecManager = new NodeExecManager(execManager.getConfigDescriptor());
 
         nodeExecManager.start();
