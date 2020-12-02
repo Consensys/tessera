@@ -17,9 +17,9 @@
 
     <logger name="io.netty" level="INFO" />
 
-    <logger name="com.sun.net.httpserver" level="ALL" />
+    <logger name="com.sun.net.httpserver" level="INFO" />
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>
 

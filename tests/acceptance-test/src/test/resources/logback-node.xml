@@ -24,21 +24,21 @@
 
     <logger name="com.quorum.tessera.nacl" level="INFO" />
     <logger name="com.quorum.tessera.encryption" level="INFO" />
-    <logger name="com.quorum.tessera.discovery" level="DEBUG" />
-    <logger name="com.quorum.tessera.p2p" level="DEBUG" />
-    <logger name="com.quorum.tessera.p2p.SyncPoller" level="DEBUG" />
-    <logger name="com.quorum.tessera.p2p.PartyInfoBroadcaster" level="DEBUG" />
-    <logger name="com.quorum.tessera.p2p.P2PRestApp" level="DEBUG" />
+<!--    <logger name="com.quorum.tessera.discovery" level="DEBUG" />-->
+<!--    <logger name="com.quorum.tessera.p2p" level="DEBUG" />-->
+<!--    <logger name="com.quorum.tessera.p2p.SyncPoller" level="DEBUG" />-->
+<!--    <logger name="com.quorum.tessera.p2p.PartyInfoBroadcaster" level="DEBUG" />-->
+<!--    <logger name="com.quorum.tessera.p2p.P2PRestApp" level="DEBUG" />-->
 
-    <logger name="com.quorum.tessera.server.jaxrs" level="DEBUG" />
+<!--    <logger name="com.quorum.tessera.server.jaxrs" level="DEBUG" />-->
 
     <logger name="io.netty.util.internal" level="INFO" />
-    <logger name="com.quorum.tessera.launcher" level="ALL" />
-    <logger name="reactor.netty.http.client" level="ALL" />
+<!--    <logger name="com.quorum.tessera.launcher" level="ALL" />-->
+<!--    <logger name="reactor.netty.http.client" level="ALL" />-->
 
-    <logger name="com.azure" level="ALL" />
+    <logger name="com.azure" level="INFO" />
 
-    <root level="DEBUG">
+    <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
 
