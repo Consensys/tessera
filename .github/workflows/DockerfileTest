@@ -1,0 +1,9 @@
+# Create docker image with only distribution jar
+
+FROM adoptopenjdk/openjdk11:alpine
+
+ARG TAR_FILE
+
+RUN tar -xvzf ${TAR_FILE} /home/runner/work/tessera/dist
+
+ENTRYPOINT ["/home/runner/work/tessera/dist/bin/tessera"]
