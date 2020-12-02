@@ -23,6 +23,7 @@ import javax.json.JsonObject;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.core.UriBuilder;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -142,7 +143,16 @@ public class AwsKeyVaultIT {
     @After
     public void afterTest() throws Exception {
 
-        Files.lines(pid).findFirst().ifPresent(p -> {
+        Stream.of(pid)
+            .filter(Files::exists)
+            .flatMap(p -> {
+                try {
+                    return Files.lines(p);
+                } catch (IOException e) {
+                   throw new UncheckedIOException(e);
+                }
+            })
+            .findFirst().ifPresent(p -> {
                 try {
                     ExecUtils.kill(p);
                 } catch (InterruptedException | IOException e) {
