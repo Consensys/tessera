@@ -1,7 +1,7 @@
 plugins {
     id "org.owasp.dependencycheck" version "6.0.3"
     id "jacoco"
-   // id "com.diffplug.gradle.spotless" version "5.8.2"
+    id "com.diffplug.gradle.spotless" version "3.25.0"
     id "com.github.ben-manes.versions" version "0.8"
     id "checkstyle"
     id "org.javamodularity.moduleplugin" version "1.7.0"
@@ -151,7 +151,7 @@ allprojects {
 subprojects {
 
     apply plugin: "java-library"
-   // apply plugin: "com.diffplug.gradle.spotless"
+    apply plugin: "com.diffplug.gradle.spotless"
     apply plugin: "maven-publish"
     apply plugin: "jacoco"
     apply plugin: "checkstyle"
@@ -246,22 +246,22 @@ subprojects {
         toolVersion = "0.8.5"
     }
 
-//    spotless {
-//
-//        lineEndings = "unix"
-//
-//        java {
-//            target fileTree("**/*.java")
-//            // indentWithSpaces(4)
-//            removeUnusedImports()
-//            // googleJavaFormat().aosp()
-//        }
-//        groovyGradle {
-//            target "*.gradle"
-//            indentWithSpaces(4)
-//            paddedCell()
-//        }
-//    }
+    spotless {
+
+        lineEndings = "unix"
+
+        java {
+            target fileTree("**/*.java")
+            // indentWithSpaces(4)
+            removeUnusedImports()
+            // googleJavaFormat().aosp()
+        }
+        groovyGradle {
+            target "*.gradle"
+            indentWithSpaces(4)
+            paddedCell()
+        }
+    }
     jacocoTestReport {
         reports {
             xml.enabled false
@@ -445,8 +445,7 @@ subprojects {
     }
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
-    check.dependsOn checkstyleMain, checkstyleTest, jacocoTestCoverageVerification
-    //spotlessCheck
+    check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification
 
 }
 
