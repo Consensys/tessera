@@ -2,7 +2,6 @@ package transaction.whitelist;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.test.DBType;
 import config.ConfigBuilder;
 import exec.ExecArgsBuilder;
@@ -99,8 +98,7 @@ public class WhitelistSteps implements En {
                     final Path startScript = Paths.get(appPath);
                     List<String> cmd =
                         new ExecArgsBuilder()
-                            .withMainClass(Main.class)
-                            .withClassPathItem(startScript)
+                            .withStartScriptOrJarFile(startScript)
                             .withConfigFile(configFile)
                             .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
                             .withJvmArg("-Dnode.number=whitelist")
