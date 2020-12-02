@@ -4,6 +4,6 @@ FROM adoptopenjdk/openjdk11:alpine
 
 ARG TAR_FILE
 
-RUN export=tarfile=${TAR_FILE} | tar -xvzf $tarfile /home/runner/work/tessera/dist
+RUN export=tarfile=${TAR_FILE} && tar -xvzf $tarfile /home/runner/work/tessera/dist
 
 ENTRYPOINT ["/home/runner/work/tessera/dist/bin/tessera"]
