@@ -12,9 +12,11 @@ import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -57,14 +59,8 @@ public class EncodedPayloadResource {
         this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
-    @Operation(
-            summary = "/encodedpayload/create",
-            operationId = "encrypt",
-            description = "encrypt a payload and return the result; does not store to the database or push to peers")
-    @ApiResponse(
-            responseCode = "200",
-            description = "encrypted payload",
-            content = @Content(schema = @Schema(implementation = PayloadEncryptResponse.class)))
+    // hide this operation from swagger generation; the /encodedpayload/create operation is overloaded and must be documented in a single place
+    @Hidden
     @POST
     @Path("create")
     @Consumes(APPLICATION_JSON)
@@ -131,15 +127,8 @@ public class EncodedPayloadResource {
         return Response.ok(response).type(APPLICATION_JSON).build();
     }
 
-    @Operation(
-            summary = "encodedpayload/decrypt",
-            operationId = "decrypt",
-            description =
-                    "decrypt an encrypted payload and return the result; does not store to the database or push to peers")
-    @ApiResponse(
-            responseCode = "200",
-            description = "decrypted payload",
-            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
+    // hide this operation from swagger generation; the /encodedpayload/decrypt operation is overloaded and must be documented in a single place
+    @Hidden
     @POST
     @Path("decrypt")
     @Consumes(APPLICATION_JSON)
@@ -186,16 +175,25 @@ public class EncodedPayloadResource {
         return Response.ok(receiveResponse).type(APPLICATION_JSON).build();
     }
 
+    // path /encodedpayload/create is overloaded (application/json and application/vnd.tessera-2.1+json); swagger annotations cannot handle situations like this so this operation documents both
     @POST
     @Path("create")
     @Operation(
             summary = "/encodedpayload/create",
             operationId = "encrypt",
-            description = "encrypt a payload and return the result; does not store to the database or push to peers")
+            description = "encrypt a payload and return the result; does not store to the database or push to peers",
+            requestBody = @RequestBody(
+                content = {
+                    @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = SendRequest.class)),
+                    @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = SendRequest.class))
+                }
+            ))
     @ApiResponse(
             responseCode = "200",
             description = "encrypted payload",
-            content = @Content(schema = @Schema(implementation = PayloadEncryptResponse.class)))
+            content = {
+                @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PayloadEncryptResponse.class)),
+                @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = PayloadEncryptResponse.class))})
     @Consumes(MIME_TYPE_JSON_2_1)
     @Produces(MIME_TYPE_JSON_2_1)
     public Response createEncodedPayload21(@NotNull @Valid final SendRequest sendRequest) {
@@ -260,17 +258,26 @@ public class EncodedPayloadResource {
         return Response.ok(response).type(MIME_TYPE_JSON_2_1).build();
     }
 
+    // path /encodedpayload/decrypt is overloaded (application/json and application/vnd.tessera-2.1+json); swagger annotations cannot handle situations like this so this operation documents both
     @POST
     @Path("decrypt")
     @Operation(
-            summary = "encodedpayload/decrypt",
+            summary = "/encodedpayload/decrypt",
             operationId = "decrypt",
             description =
-                    "decrypt an encrypted payload and return the result; does not store to the database or push to peers")
+                    "decrypt an encrypted payload and return the result; does not store to the database or push to peers",
+            requestBody = @RequestBody(
+                content = {
+                    @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PayloadDecryptRequest.class)),
+                    @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = PayloadDecryptRequest.class))
+                }
+            ))
     @ApiResponse(
             responseCode = "200",
             description = "decrypted payload",
-            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
+            content = {
+                @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ReceiveResponse.class)),
+                @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = ReceiveResponse.class))})
     @Consumes(MIME_TYPE_JSON_2_1)
     @Produces(MIME_TYPE_JSON_2_1)
     public Response receive21(@Valid @NotNull final PayloadDecryptRequest request) {
