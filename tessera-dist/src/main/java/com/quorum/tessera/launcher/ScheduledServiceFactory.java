@@ -6,7 +6,6 @@ import com.quorum.tessera.discovery.EnclaveKeySynchroniser;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoBroadcaster;
 import com.quorum.tessera.p2p.resend.ResendPartyStore;
-import com.quorum.tessera.p2p.resend.ResendPartyStoreImpl;
 import com.quorum.tessera.p2p.resend.SyncPoller;
 import com.quorum.tessera.p2p.resend.TransactionRequester;
 import com.quorum.tessera.partyinfo.P2pClient;
@@ -54,7 +53,7 @@ public class ScheduledServiceFactory {
 
         if(enableSync) {
 
-            ResendPartyStore resendPartyStore = new ResendPartyStoreImpl();
+            ResendPartyStore resendPartyStore = ResendPartyStore.create();
             TransactionRequester transactionRequester = TransactionRequester.create();
             SyncPoller syncPoller = new SyncPoller(resendPartyStore, transactionRequester, p2pClient);
             ScheduledExecutorService scheduledExecutorService = java.util.concurrent.Executors.newSingleThreadScheduledExecutor();
