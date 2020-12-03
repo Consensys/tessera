@@ -222,13 +222,14 @@ jobs:
           java-version: 11
       - run: |
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
+          mkdir -p /home/runner/work/tessera/dist
+          tar xvzf `echo tessera-dist/build/distributions/tessera-*.tar` -C /home/runner/work/tessera/dist
       - uses: docker/build-push-action@v1
         with:
           repository: quorumengineering/tessera
           tags: latest
           push: false
           dockerfile: .github/workflows/DockerfileTest
-          build_args: TAR_FILE=${{ env.DIST_TAR }}
       - run:
           docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="basic || basic-istanbul || networks/typical::istanbul" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
       - uses: actions/upload-artifact@v1

@@ -2,7 +2,4 @@
 
 FROM adoptopenjdk/openjdk11:alpine
 
-ARG TAR_FILE
-
-RUN tar xvzf ${TAR_FILE} -C /home/runner/work/tessera/dist
 ENTRYPOINT ["/home/runner/work/tessera/dist/bin/tessera"]
