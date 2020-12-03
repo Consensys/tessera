@@ -2,4 +2,4 @@
 
 FROM adoptopenjdk/openjdk11:alpine
 
-ENTRYPOINT ["/home/runner/work/tessera/dist/tessera/bin/tessera"]
+ENTRYPOINT ["/tessera/tessera-dist/build/distributions/tessera/bin/tessera"]

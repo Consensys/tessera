@@ -223,8 +223,7 @@ jobs:
       - run: |
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           cp tessera-dist/build/distributions/tessera-*.tar tessera-dist/build/distributions/tessera.tar
-          mkdir -p /home/runner/work/tessera/dist
-          tar xvf tessera-dist/build/distributions/tessera.tar -C /home/runner/work/tessera/dist
+          tar xvf tessera-dist/build/distributions/tessera.tar
       - uses: docker/build-push-action@v1
         with:
           repository: quorumengineering/tessera
