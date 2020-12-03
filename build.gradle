@@ -10,7 +10,7 @@ plugins {
 
 
 ext {
-    jettyVersion = "9.4.34.v20201102"
+    jettyVersion = "9.4.35.v20201120"
     eclipselinkVersion = "2.7.7"
     swaggerVersion = "2.1.5"
     jerseyVersion = "2.32"

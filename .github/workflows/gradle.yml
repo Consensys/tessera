@@ -5,7 +5,7 @@ on: [push, pull_request]
 
 env:     
   GRADLE_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
-
+  DIST_TAR=tessera-dist/build/distributions/tessera-*.tar
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -228,7 +228,7 @@ jobs:
           tags: latest
           push: false
           dockerfile: .github/workflows/DockerfileTest
-          build_args: TAR_FILE=tessera-dist/build/distributions/tessera-*.tar
+          build_args: TAR_FILE=$DIST_TAR
       - run:
           docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="basic || basic-istanbul || networks/typical::istanbul" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
       - uses: actions/upload-artifact@v1
