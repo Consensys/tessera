@@ -97,7 +97,7 @@ test {
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
             "**/AwsKeyVaultIT.class",
-            //"**/AzureKeyVaultIT.class",
+            "**/AzureKeyVaultIT.class",
             "**/RunHashicorpIT.class"
     )
 
