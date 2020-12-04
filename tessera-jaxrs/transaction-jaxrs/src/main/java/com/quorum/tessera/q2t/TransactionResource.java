@@ -14,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
@@ -56,14 +55,9 @@ public class TransactionResource {
         this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
-    @Operation(
-            summary = "/send",
-            operationId = "encryptStoreAndSendJson",
-            description = "encrypts a payload, stores result in database, and publishes result to recipients")
-    @ApiResponse(
-            responseCode = "201",
-            description = "encrypted payload hash",
-            content = @Content(schema = @Schema(implementation = SendResponse.class)))
+    // hide this operation from swagger generation; the /send operation is overloaded and must be documented in a single
+    // place
+    @Hidden
     @POST
     @Path("send")
     @Consumes(APPLICATION_JSON)
@@ -131,47 +125,9 @@ public class TransactionResource {
         return Response.status(Status.CREATED).type(APPLICATION_JSON).location(location).entity(sendResponse).build();
     }
 
-    @Operation(
-            operationId = "sendStored",
-            summary = "/sendsignedtx",
-            description =
-                    "re-wraps a pre-stored & pre-encrypted payload, stores result in database, and publishes result to recipients",
-            requestBody =
-                    @RequestBody(
-                            content = {
-                                @Content(
-                                        mediaType = APPLICATION_JSON,
-                                        schema = @Schema(implementation = SendSignedRequest.class)),
-                                @Content(
-                                        mediaType = APPLICATION_OCTET_STREAM,
-                                        array =
-                                                @ArraySchema(
-                                                        schema =
-                                                                @Schema(
-                                                                        description = "hash of pre-stored payload",
-                                                                        type = "string",
-                                                                        format = "base64")))
-                            }))
-    @ApiResponse(
-            responseCode = "200",
-            description = "hash of rewrapped payload (for application/octet-stream requests)",
-            content =
-                    @Content(
-                            schema =
-                                    @Schema(
-                                            description = "hash of rewrapped payload",
-                                            type = "string",
-                                            format = "base64")))
-    @ApiResponse(
-            responseCode = "201",
-            description = "hash of rewrapped payload (for application/json requests)",
-            content =
-                    @Content(
-                            mediaType = APPLICATION_JSON,
-                            schema =
-                                    @Schema(
-                                            implementation = SendResponse.class,
-                                            description = "hash of rewrapped payload")))
+    // hide this operation from swagger generation; the /sendsignedtx operation is overloaded and must be documented in
+    // a single place
+    @Hidden
     @POST
     @Path("sendsignedtx")
     @Consumes(APPLICATION_OCTET_STREAM)
@@ -219,8 +175,8 @@ public class TransactionResource {
         return Response.status(Status.OK).entity(encodedTransactionHash).location(location).build();
     }
 
-    // path /sendsignedtx is overloaded (application/octet-stream and application/json) annotations cannot handle
-    // situations like this so hide this operation and document both in the other methods
+    // hide this operation from swagger generation; the /sendsignedtx operation is overloaded and must be documented in
+    // a single place
     @Hidden
     @POST
     @Path("sendsignedtx")
@@ -361,14 +317,9 @@ public class TransactionResource {
         return Response.status(Status.OK).entity(encodedTransactionHash).location(location).build();
     }
 
-    @Operation(
-            summary = "/transaction/{hash}",
-            operationId = "getDecryptedPayloadJsonUrl",
-            description = "get payload from database, decrypt, and return")
-    @ApiResponse(
-            responseCode = "200",
-            description = "decrypted payload",
-            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
+    // hide this operation from swagger generation; the /transaction/{hash} operation is overloaded and must be
+    // documented in a single place
+    @Hidden
     @GET
     @Path("/transaction/{hash}")
     @Produces(APPLICATION_JSON)
