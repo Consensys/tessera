@@ -39,7 +39,7 @@ public class ConfigMigrationSteps implements En {
                                                     new IllegalStateException(
                                                             "Unable to find config-migration-app.jar system property"));
 
-                    outputFile = Paths.get("target", UUID.randomUUID().toString());
+                    outputFile = Paths.get("/tmp", UUID.randomUUID().toString());
 
                     assertThat(Files.exists(outputFile)).isFalse();
 
