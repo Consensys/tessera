@@ -146,7 +146,7 @@ public class TransactionResource3 {
                         .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
                         .map(MessageHash::getHashBytes)
                         .map(base64Encoder::encodeToString)
-                        .map(messageHash -> new SendResponse(messageHash, managedParties))
+                        .map(messageHash -> new SendResponse(messageHash, managedParties, sender.encodeToBase64()))
                         .get();
 
         final URI location =

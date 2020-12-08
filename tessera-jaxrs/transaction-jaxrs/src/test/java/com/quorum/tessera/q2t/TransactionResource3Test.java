@@ -76,6 +76,7 @@ public class TransactionResource3Test {
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withUnencryptedTransactionData("Result".getBytes())
                         .withManagedParties(Set.of(senderPublicKey))
+                        .withSender(senderPublicKey)
                         .build();
         when(transactionManager.receive(any())).thenReturn(receiveResponse);
 
@@ -89,6 +90,7 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
         assertThat(resultResponse.getPayload()).isEqualTo("Result".getBytes());
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(senderPublicKey.encodeToBase64());
+        assertThat(resultResponse.getSender()).isEqualTo(senderPublicKey.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
@@ -104,6 +106,7 @@ public class TransactionResource3Test {
                         .withUnencryptedTransactionData("Success".getBytes())
                         .withExecHash("execHash".getBytes())
                         .withManagedParties(Set.of(senderPublicKey))
+                        .withSender(senderPublicKey)
                         .build();
 
         when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(response);
@@ -122,16 +125,19 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getAffectedContractTransactions()).isNullOrEmpty();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(senderPublicKey.encodeToBase64());
+        assertThat(resultResponse.getSender()).isEqualTo(senderPublicKey.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
 
     @Test
     public void receive() {
+        PublicKey sender = PublicKey.from("sender".getBytes());
 
         ReceiveResponse response = mock(ReceiveResponse.class);
         when(response.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(response.getUnencryptedTransactionData()).thenReturn("Success".getBytes());
+        when(response.sender()).thenReturn(sender);
 
         when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(response);
 
@@ -149,6 +155,7 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getExecHash()).isNull();
         assertThat(resultResponse.getAffectedContractTransactions()).isNull();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
+        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
