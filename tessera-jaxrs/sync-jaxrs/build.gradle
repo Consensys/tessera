@@ -27,6 +27,7 @@ dependencies {
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
     implementation "org.glassfish:jakarta.json"
+    api "jakarta.inject:jakarta.inject-api"
 
     testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
     testCompile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
@@ -43,8 +44,8 @@ jar {
     manifest {
         attributes(
                 "Implementation-Title": project.name,
-                "Implementation-Version": version,
-                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+                "Implementation-Version": project.version,
+                "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
         )
     }
 }

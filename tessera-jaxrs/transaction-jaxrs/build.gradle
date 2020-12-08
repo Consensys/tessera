@@ -19,6 +19,7 @@ dependencies {
     implementation "io.swagger.core.v3:swagger-annotations"
     implementation "org.glassfish:jakarta.json"
 
+    api "jakarta.inject:jakarta.inject-api"
 
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
@@ -74,8 +75,8 @@ jar {
     manifest {
         attributes(
                 "Implementation-Title": project.name,
-                "Implementation-Version": version,
-                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+                "Implementation-Version": project.version,
+                "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
         )
     }
 }

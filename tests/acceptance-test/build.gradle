@@ -86,19 +86,18 @@ test {
     systemProperty "project.version", project.version
 
     include(
-            "**/RecoverIT.class",
+        //    "**/RecoverIT.class",
             "**/RestSuiteHttpH2RemoteEnclave.class",
-            "**/RestSuiteHttpHSQL.class",
+         //   "**/RestSuiteHttpHSQL.class",
             "**/RestSuiteUnixH2.class",
-            "**/RestSuiteHttpSqllite.class",
+        //    "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
             "**/SendWithRemoteEnclaveReconnectIT.class",
-            "**/CucumberWhitelistIT.class",
+         //   "**/CucumberWhitelistIT.class",
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
             "**/AwsKeyVaultIT.class",
-            "**/AzureKeyVaultIT.class",
-            "**/RunHashicorpIT.class"
+         //   "**/RunHashicorpIT.class"
     )
 
     if (project.hasProperty('excludeTests')) {

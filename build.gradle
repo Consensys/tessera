@@ -8,7 +8,6 @@ plugins {
     id "org.kordamp.gradle.jdeps" version "0.11.0"
 }
 
-
 ext {
     jettyVersion = "9.4.35.v20201120"
     eclipselinkVersion = "2.7.7"
@@ -25,6 +24,8 @@ allprojects {
             modularity.inferModulePath = true
         }
     }
+
+    project.version = rootProject.file("version.txt").text.trim()
 
     plugins.withType(JavaLibraryPlugin).whenPluginAdded {
 
@@ -169,6 +170,11 @@ subprojects {
 
 
     configurations.all {
+
+//        exclude group: 'javax.servlet'
+//        exclude group: 'javax.ws.rs'
+//        exclude group: "javax.activation"
+
 
         resolutionStrategy.capabilitiesResolution.all {
             selectHighestVersion()
@@ -407,7 +413,7 @@ subprojects {
                             // change URLs to point to your repos, e.g. http://my.org/repo
                             def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2" //"$buildDir/repos/releases"
                             def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots" //"$buildDir/repos/snapshots"
-                            url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+                            url = project.version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
 
 
                             credentials {

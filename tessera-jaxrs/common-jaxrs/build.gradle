@@ -32,7 +32,7 @@ dependencies {
     testImplementation "com.sun.mail:jakarta.mail"
     testImplementation "org.bouncycastle:bcprov-jdk15on"
     testImplementation project(":server:jersey-server")
-
+    api "jakarta.inject:jakarta.inject-api"
 }
 
 test {
@@ -44,8 +44,8 @@ jar {
     manifest {
         attributes(
                 "Implementation-Title": project.name,
-                "Implementation-Version": version,
-                "Specification-Version": String.valueOf(version).replaceAll("-SNAPSHOT","")
+                "Implementation-Version": project.version,
+                "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
         )
     }
 
