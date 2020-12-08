@@ -12,11 +12,15 @@ public interface SendResponse {
 
     Set<PublicKey> getManagedParties();
 
+    PublicKey getSender();
+
     class Builder {
 
         private MessageHash messageHash;
 
         private Set<PublicKey> managedParties;
+
+        private PublicKey sender;
 
         private Builder() {}
 
@@ -34,6 +38,11 @@ public interface SendResponse {
             return this;
         }
 
+        public Builder withSender(final PublicKey sender) {
+            this.sender = sender;
+            return this;
+        }
+
         public SendResponse build() {
             Objects.requireNonNull(messageHash, "Transaction hash is required");
 
@@ -47,6 +56,11 @@ public interface SendResponse {
                 @Override
                 public Set<PublicKey> getManagedParties() {
                     return managedParties;
+                }
+
+                @Override
+                public PublicKey getSender() {
+                    return sender;
                 }
             };
         }

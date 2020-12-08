@@ -267,6 +267,7 @@ public class TransactionResource3 {
         final SendResponse responseEntity = new SendResponse();
         responseEntity.setKey(encodedTransactionHash);
         responseEntity.setManagedParties(managedParties);
+        responseEntity.setSender(response.getSender().encodeToBase64());
 
         LOGGER.debug("Encoded key: {}", encodedTransactionHash);
 
