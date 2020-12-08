@@ -12,8 +12,8 @@ import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-//import org.glassfish.hk2.api.JustInTimeInjectionResolver;
-//import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.hk2.api.JustInTimeInjectionResolver;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
@@ -90,13 +90,13 @@ public class JerseyServer implements TesseraServer {
             config.register(new CorsDomainResponseFilter(serverConfig.getCrossDomainConfig()));
         }
 
-//        config.register(new AbstractBinder() {
-//            @Override
-//            protected void configure() {
-//                bind(ServiceLoaderInjectionResolver.class)
-//                    .to(JustInTimeInjectionResolver.class);
-//            }
-//        });
+        config.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(ServiceLoaderInjectionResolver.class)
+                    .to(JustInTimeInjectionResolver.class);
+            }
+        });
 
         LOGGER.debug("Building Server from {}", serverConfig);
         this.server = ServerUtils.buildWebServer(serverConfig);

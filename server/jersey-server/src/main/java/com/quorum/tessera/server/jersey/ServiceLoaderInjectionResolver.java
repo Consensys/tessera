@@ -1,7 +1,10 @@
 package com.quorum.tessera.server.jersey;
 
-import org.glassfish.hk2.api.*;
-import org.glassfish.hk2.utilities.DescriptorImpl;
+import org.glassfish.hk2.api.DescriptorVisibility;
+import org.glassfish.hk2.api.Injectee;
+import org.glassfish.hk2.api.JustInTimeInjectionResolver;
+import org.glassfish.hk2.api.ServiceLocator;
+import org.glassfish.hk2.internal.ConstantActiveDescriptor;
 import org.glassfish.hk2.utilities.ServiceLocatorUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +13,7 @@ import javax.inject.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Singleton
 public class ServiceLoaderInjectionResolver implements JustInTimeInjectionResolver {
@@ -26,55 +30,42 @@ public class ServiceLoaderInjectionResolver implements JustInTimeInjectionResolv
     @Override
     public boolean justInTimeResolution(Injectee injectee) {
         LOGGER.debug("Injectee: {}", injectee);
+        Type requiredType = injectee.getRequiredType();
+        Class<?> type = (Class<?>) requiredType;
 
-        final Type type = injectee.getRequiredType();
-        final Class<?> typeClass = (Class<?>) type;
+        if (type.isInterface()) {
+            getClass().getModule().addUses(type);
+            ServiceLoader serviceLoader = ServiceLoader.load(type);
+            Object service = serviceLoader.findFirst().get();
+            LOGGER.debug("Found {} for injection", service);
 
-        if(typeClass.isInterface()) {
+            Class impl = service.getClass();
 
-            final ServiceLoader<?> serviceLoader = ServiceLoader.load(typeClass);
-            serviceLoader.stream()
-                .map(p -> p.type())
-                .forEach(t -> {
+            Set qualifiers = Arrays.stream(impl.getAnnotations())
+                .map(Annotation::annotationType)
+                .filter(a -> a.isAnnotationPresent(Qualifier.class))
+                .collect(Collectors.toSet());
 
-                    final DescriptorImpl descriptor = new DescriptorImpl();
-                    descriptor.setImplementation(t.getName());
-                    descriptor.addAdvertisedContract(t.getName());
+            String name = Optional.of(type)
+                .filter(c -> c.isAnnotationPresent(Named.class))
+                .map(c -> c.getAnnotation(Named.class))
+                .map(Named::value)
+                .orElse(type.getName());
 
-                    Arrays.stream(t.getInterfaces())
-                        .map(Class::getName)
-                        .forEach(descriptor::addAdvertisedContract);
+            //TODO: We should be able to support directly
+            Class<? extends Annotation> scope = Singleton.class;
 
-                    Arrays.stream(t.getAnnotations())
-                        .map(Annotation::annotationType)
-                        .filter(a -> a.isAnnotationPresent(Scope.class))
-                        .map(Class::getName)
-                        .findFirst()
-                        .ifPresent(descriptor::setScope);
+            ConstantActiveDescriptor constantActiveDescriptor =
+                new ConstantActiveDescriptor(service, Set.of(type), scope, name, qualifiers,
+                    DescriptorVisibility.LOCAL, false, false, null, Map.of(), 1);
 
-                    Arrays.stream(t.getAnnotations())
-                        .map(Annotation::annotationType)
-                        .filter(a -> a.isAnnotationPresent(Qualifier.class))
-                        .map(Class::getName)
-                        .forEach(descriptor::addQualifier);
+            ServiceLocatorUtilities.addOneDescriptor(serviceLocator, constantActiveDescriptor);
+            LOGGER.info("Created Descriptor {} for injection", constantActiveDescriptor);
 
-                    Optional.of(t)
-                        .filter(c -> c.isAnnotationPresent(Named.class))
-                        .map(c -> c.getAnnotation(Named.class))
-                        .map(Named::value)
-                        .ifPresent(descriptor::setName);
-
-
-                    ActiveDescriptor outome = ServiceLocatorUtilities.addOneDescriptor(serviceLocator, descriptor);
-                    LOGGER.debug("descriptor: {}", Objects.toString(outome));
-
-                });
-                ServiceLocatorUtilities.dumpAllDescriptors(serviceLocator);
             return true;
         }
-        return false;
 
-        //resolver.justInTimeResolution(injectee);
+        return false;
     }
 
 

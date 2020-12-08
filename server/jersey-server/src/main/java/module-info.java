@@ -12,16 +12,16 @@ module tessera.server.jersey.server.main {
     requires tessera.server.server.api.main;
     requires java.servlet;
     requires tessera.shared.main;
-   // requires hk2.api;
+    requires hk2.api;
     requires jakarta.inject;
-    //requires jersey.server;
-   // requires jersey.common;
-   // requires jersey.container.servlet.core;
-    //requires jul.to.slf4j;
-    //requires hk2.utils;
+    requires jersey.server;
+    requires jersey.common;
+    requires jersey.container.servlet.core;
+    requires jul.to.slf4j;
+    requires hk2.utils;
     requires java.annotation;
-   // requires jersey.bean.validation;
-   // requires jersey.hk2;
+    requires jersey.bean.validation;
+    requires jersey.hk2;
 
     requires java.net.http;
 
