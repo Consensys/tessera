@@ -372,6 +372,7 @@ public class TransactionManagerImpl implements TransactionManager {
                     .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                     .withUnencryptedTransactionData(response)
                     .withManagedParties(Set.of(senderKey))
+                    .withSender(senderKey)
                     .build();
         }
 
@@ -427,6 +428,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 .withAffectedTransactions(txns)
                 .withExecHash(payload.getExecHash())
                 .withManagedParties(managedParties)
+                .withSender(payload.getSenderKey())
                 .build();
     }
 

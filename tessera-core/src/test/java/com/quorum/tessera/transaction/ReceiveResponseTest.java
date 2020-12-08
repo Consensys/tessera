@@ -1,6 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,6 +15,7 @@ public class ReceiveResponseTest {
                 ReceiveResponse.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withUnencryptedTransactionData(someData)
+                        .withSender(PublicKey.from("sender".getBytes()))
                         .build();
 
         assertThat(result.getUnencryptedTransactionData()).containsExactly(someData);
@@ -26,17 +28,33 @@ public class ReceiveResponseTest {
         ReceiveResponse.Builder.create()
                 .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
                 .withUnencryptedTransactionData(someData)
+                .withSender(PublicKey.from("sender".getBytes()))
                 .build();
     }
 
     @Test(expected = NullPointerException.class)
     public void privacyModeIsRequired() {
         byte[] someData = "SomeData".getBytes();
-        ReceiveResponse.Builder.create().withUnencryptedTransactionData(someData).build();
+        ReceiveResponse.Builder.create()
+                .withUnencryptedTransactionData(someData)
+                .withSender(PublicKey.from("sender".getBytes()))
+                .build();
     }
 
     @Test(expected = NullPointerException.class)
     public void unencryptedTransactionDataIsRequired() {
-        ReceiveResponse.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
+        ReceiveResponse.Builder.create()
+                .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                .withSender(PublicKey.from("sender".getBytes()))
+                .build();
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void senderIsRequired() {
+        byte[] someData = "SomeData".getBytes();
+        ReceiveResponse.Builder.create()
+                .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                .withUnencryptedTransactionData(someData)
+                .build();
     }
 }

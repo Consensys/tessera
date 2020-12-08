@@ -61,15 +61,22 @@ public class TransactionResource3 {
         this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
-    // path /send is overloaded (application/json and application/vnd.tessera-2.1+json); swagger annotations cannot handle situations like this so this operation documents both
+    // path /send is overloaded (application/json and application/vnd.tessera-2.1+json); swagger annotations cannot
+    // handle situations like this so this operation documents both
     @Operation(
             summary = "/send",
             operationId = "encryptStoreAndSendJson",
             description = "encrypts a payload, stores result in database, and publishes result to recipients",
-            requestBody = @RequestBody(content = {
-                @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = SendRequest.class)),
-                @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = SendRequest.class))
-            }))
+            requestBody =
+                    @RequestBody(
+                            content = {
+                                @Content(
+                                        mediaType = APPLICATION_JSON,
+                                        schema = @Schema(implementation = SendRequest.class)),
+                                @Content(
+                                        mediaType = MIME_TYPE_JSON_2_1,
+                                        schema = @Schema(implementation = SendRequest.class))
+                            }))
     @ApiResponse(
             responseCode = "201",
             description = "encrypted payload hash",
@@ -148,35 +155,59 @@ public class TransactionResource3 {
         return Response.created(location).entity(sendResponse).build();
     }
 
-    // path /sendsignedtx is overloaded (application/octet-stream, application/json and application/vnd.tessera-2.1+json); swagger annotations cannot handle situations like this so this operation documents both
+    // path /sendsignedtx is overloaded (application/octet-stream, application/json and
+    // application/vnd.tessera-2.1+json); swagger annotations cannot handle situations like this so this operation
+    // documents both
     @Operation(
-        operationId = "sendStored",
-        summary = "/sendsignedtx",
-        description =
-            "re-wraps a pre-stored & pre-encrypted payload, stores result in database, and publishes result to recipients",
-        requestBody =
-        @RequestBody(
+            operationId = "sendStored",
+            summary = "/sendsignedtx",
+            description =
+                    "re-wraps a pre-stored & pre-encrypted payload, stores result in database, and publishes result to recipients",
+            requestBody =
+                    @RequestBody(
+                            content = {
+                                @Content(
+                                        mediaType = APPLICATION_JSON,
+                                        schema = @Schema(implementation = SendSignedRequest.class)),
+                                @Content(
+                                        mediaType = MIME_TYPE_JSON_2_1,
+                                        schema = @Schema(implementation = SendSignedRequest.class)),
+                                @Content(
+                                        mediaType = APPLICATION_OCTET_STREAM,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(
+                                                                        description = "hash of pre-stored payload",
+                                                                        type = "string",
+                                                                        format = "base64")))
+                            }))
+    @ApiResponse(
+            responseCode = "200",
+            description = "hash of rewrapped payload (for application/octet-stream requests)",
+            content =
+                    @Content(
+                            mediaType = APPLICATION_OCTET_STREAM,
+                            schema =
+                                    @Schema(
+                                            description = "hash of rewrapped payload",
+                                            type = "string",
+                                            format = "base64")))
+    @ApiResponse(
+            responseCode = "201",
+            description = "hash of rewrapped payload",
             content = {
-                @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = SendSignedRequest.class)),
-                @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = SendSignedRequest.class)),
                 @Content(
-                    mediaType = APPLICATION_OCTET_STREAM,
-                    array =
-                    @ArraySchema(
-                        schema = @Schema(description = "hash of pre-stored payload", type = "string", format = "base64")))
-            }))
-    @ApiResponse(
-        responseCode = "200",
-        description = "hash of rewrapped payload (for application/octet-stream requests)",
-        content =
-        @Content(mediaType = APPLICATION_OCTET_STREAM, schema = @Schema(description = "hash of rewrapped payload", type = "string", format = "base64")))
-    @ApiResponse(
-        responseCode = "201",
-        description = "hash of rewrapped payload",
-        content = {
-            @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = SendResponse.class, description = "hash of rewrapped payload")),
-            @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = SendResponse.class, description = "hash of rewrapped payload"))
-        })
+                        mediaType = APPLICATION_JSON,
+                        schema =
+                                @Schema(
+                                        implementation = SendResponse.class,
+                                        description = "hash of rewrapped payload")),
+                @Content(
+                        mediaType = MIME_TYPE_JSON_2_1,
+                        schema =
+                                @Schema(implementation = SendResponse.class, description = "hash of rewrapped payload"))
+            })
     @POST
     @Path("sendsignedtx")
     @Consumes(MIME_TYPE_JSON_2_1)
@@ -242,19 +273,19 @@ public class TransactionResource3 {
         return Response.created(location).entity(responseEntity).build();
     }
 
-    // path /transaction/{hash} is overloaded (application/json and application/vnd.tessera-2.1+json); swagger annotations cannot handle situations like this so this operation documents both
+    // path /transaction/{hash} is overloaded (application/json and application/vnd.tessera-2.1+json); swagger
+    // annotations cannot handle situations like this so this operation documents both
     @Operation(
-        summary = "/transaction/{hash}",
-        operationId = "getDecryptedPayloadJsonUrl",
-        description = "get payload from database, decrypt, and return"
-    )
+            summary = "/transaction/{hash}",
+            operationId = "getDecryptedPayloadJsonUrl",
+            description = "get payload from database, decrypt, and return")
     @ApiResponse(
-        responseCode = "200",
-        description = "decrypted payload",
-        content = {
-            @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ReceiveResponse.class)),
-            @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = ReceiveResponse.class))
-        })
+            responseCode = "200",
+            description = "decrypted payload",
+            content = {
+                @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ReceiveResponse.class)),
+                @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = ReceiveResponse.class))
+            })
     @GET
     @Path("/transaction/{hash}")
     @Produces(MIME_TYPE_JSON_2_1)
@@ -299,6 +330,7 @@ public class TransactionResource3 {
         com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(request);
 
         final ReceiveResponse receiveResponse = new ReceiveResponse();
+        receiveResponse.setSender(response.sender().encodeToBase64());
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
         receiveResponse.setAffectedContractTransactions(
                 response.getAffectedTransactions().stream()
