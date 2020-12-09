@@ -312,6 +312,7 @@ public class TransactionResource3Test {
     @Test
     public void sendSignedTransactionEmptyRecipients() {
 
+        final PublicKey sender = PublicKey.from("sender".getBytes());
         com.quorum.tessera.transaction.SendResponse sendResponse =
                 mock(com.quorum.tessera.transaction.SendResponse.class);
 
@@ -321,6 +322,7 @@ public class TransactionResource3Test {
         when(transactionHash.getHashBytes()).thenReturn(transactionHashData);
 
         when(sendResponse.getTransactionHash()).thenReturn(transactionHash);
+        when(sendResponse.getSender()).thenReturn(sender);
 
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
@@ -340,6 +342,7 @@ public class TransactionResource3Test {
         SendResponse resultResponse = result.readEntity(SendResponse.class);
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
+        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
@@ -373,6 +376,7 @@ public class TransactionResource3Test {
 
         when(sendResponse.getTransactionHash()).thenReturn(transactionHash);
         when(sendResponse.getManagedParties()).thenReturn(Set.of(sender));
+        when(sendResponse.getSender()).thenReturn(sender);
 
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
@@ -392,6 +396,7 @@ public class TransactionResource3Test {
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(sender.encodeToBase64());
+        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
@@ -412,6 +417,9 @@ public class TransactionResource3Test {
 
     @Test
     public void sendSignedTransactionWithPrivacy() {
+        final PublicKey sender =
+                PublicKey.from(Base64.getDecoder().decode("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc="));
+
         com.quorum.tessera.transaction.SendResponse sendResponse =
                 mock(com.quorum.tessera.transaction.SendResponse.class);
 
@@ -421,6 +429,7 @@ public class TransactionResource3Test {
         when(transactionHash.getHashBytes()).thenReturn(transactionHashData);
 
         when(sendResponse.getTransactionHash()).thenReturn(transactionHash);
+        when(sendResponse.getSender()).thenReturn(sender);
 
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
@@ -445,6 +454,7 @@ public class TransactionResource3Test {
         SendResponse resultResponse = result.readEntity(SendResponse.class);
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
+        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
