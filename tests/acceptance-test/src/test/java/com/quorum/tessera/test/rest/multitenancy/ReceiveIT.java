@@ -88,6 +88,7 @@ public class ReceiveIT {
 
         assertThat(result.getPayload()).isEqualTo(transactionData);
         assertThat(result.getManagedParties()).containsExactly(partyOne.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(partyOne.getPublicKey());
     }
 
     @Test
@@ -109,6 +110,7 @@ public class ReceiveIT {
 
         assertThat(result.getPayload()).isEqualTo(transactionData);
         assertThat(result.getManagedParties()).containsExactly(partyTwo.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(partyOne.getPublicKey());
     }
 
     @Test
@@ -131,6 +133,7 @@ public class ReceiveIT {
 
         assertThat(result.getPayload()).isEqualTo(transactionData);
         assertThat(result.getManagedParties()).containsExactly(partyOne.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(partyOne.getPublicKey());
     }
 
     @Test
