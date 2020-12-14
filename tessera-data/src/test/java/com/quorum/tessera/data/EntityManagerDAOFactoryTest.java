@@ -3,10 +3,14 @@ package com.quorum.tessera.data;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,6 +37,24 @@ public class EntityManagerDAOFactoryTest {
     }
 
     @Test
+    public void jasyptPasswordShouldBeDecrypted() {
+        Config config = mock(Config.class);
+        JdbcConfig jdbcConfig = mock(JdbcConfig.class);
+        when(jdbcConfig.getUsername()).thenReturn("junit");
+        when(jdbcConfig.getPassword()).thenReturn("ENC(KLa6pRQpxI8Ez3Bo6D3cI6y13YYdntu7)");
+        when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:junit");
+        when(jdbcConfig.isAutoCreateTables()).thenReturn(createTables);
+        when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+
+        assertThatExceptionOfType(EncryptionOperationNotPossibleException.class)
+                .isThrownBy(() -> {
+                    ByteArrayInputStream in = new ByteArrayInputStream(("bogus" + System.lineSeparator() + "bogus").getBytes());
+                    System.setIn(in);
+                    entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
+                });
+    }
+
+    @Test
     public void createEncryptedRawTransactionDAO() {
         EncryptedRawTransactionDAO encryptedRawTransactionDAO =
                 entityManagerDAOFactory.createEncryptedRawTransactionDAO();
@@ -43,13 +65,11 @@ public class EntityManagerDAOFactoryTest {
     public void createEncryptedTransactionDAO() {
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         assertThat(encryptedTransactionDAO).isNotNull();
-
     }
 
     @Test
     public void createStagingEntityDAO() {
         StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
         assertThat(stagingEntityDAO).isNotNull();
-
     }
 }

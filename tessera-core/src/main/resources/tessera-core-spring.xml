@@ -21,6 +21,4 @@
 
     <bean id="config" factory-bean="cliDelegate" factory-method="getConfig"/>
 
-    <bean id="resolver" class="com.quorum.tessera.config.util.EncryptedStringResolver"/>
-
 </beans>
