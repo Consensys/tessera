@@ -15,7 +15,7 @@ public class SendResponse {
     @Schema(description = "participant public keys managed by the enclave of this Tessera node", format = "base64")
     private String[] managedParties;
 
-    @Schema(description = "encrypted payload hash", format = "base64")
+    @Schema(description = "public key of the transaction sender", format = "base64")
     private String sender;
 
     public SendResponse(final String key, final String[] managedParties, final String sender) {
