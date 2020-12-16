@@ -4,5 +4,5 @@
 
 dependencies {
     testImplementation project(':tessera-dist:tessera-app')
-    testImplementation 'org.codehaus.groovy:groovy-all:2.4.16'
+    testImplementation 'org.codehaus.groovy:groovy-all:2.4.21'
 }
