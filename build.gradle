@@ -163,7 +163,7 @@ subprojects {
         configFile project.getRootProject().file('checkstyle.xml')
         configProperties.put('checkstyle.suppressions.file',project.getRootProject().file('checkstyle-suppressions.xml'))
         dependencies{
-            checkstyle "com.puppycrawl.tools:checkstyle:8.30"
+            checkstyle "com.puppycrawl.tools:checkstyle:8.38"
             checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
         }
     }
