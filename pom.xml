@@ -52,7 +52,7 @@
         <owasp.plugin.version>5.0.0-M2</owasp.plugin.version>
         <bouncycastle.version>1.61</bouncycastle.version>
         <logback.version>1.2.3</logback.version>
-        <jackson.version>2.10.4</jackson.version>
+        <jackson.version>2.11.0</jackson.version>
         <project.scm.id>github</project.scm.id>
         <asm.version>7.0</asm.version>
         <jasypt.version>1.9.3</jasypt.version>
