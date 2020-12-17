@@ -4,7 +4,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>net.consensys.quorum.tessera</groupId>
-        <version>20.10.1-SNAPSHOT</version>
+        <version>20.10.1</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -32,7 +32,7 @@
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-app</artifactId>
                 <classifier>${tesssra.app.classifer}</classifier>
-                <version>20.10.1-SNAPSHOT</version>
+                <version>20.10.1</version>
                 <scope>test</scope>
             </dependency>
 
@@ -40,7 +40,7 @@
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-simple</artifactId>
                 <classifier>${tesssra.app.classifer}</classifier>
-                <version>20.10.1-SNAPSHOT</version>
+                <version>20.10.1</version>
                 <scope>test</scope>
             </dependency>
 
@@ -49,7 +49,7 @@
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
                 <classifier>${enclave.server.classifer}</classifier>
-                <version>20.10.1-SNAPSHOT</version>
+                <version>20.10.1</version>
                 <scope>test</scope>
             </dependency>
 
