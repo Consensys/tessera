@@ -180,6 +180,7 @@ public class EncodedPayloadResourceTest {
                         .withAffectedTransactions(
                                 Set.of(new MessageHash("tx1val".getBytes()), new MessageHash("tx2val".getBytes())))
                         .withExecHash("execHash".getBytes())
+                        .withSender(PublicKey.from(request.getSenderKey()))
                         .build();
 
         when(encodedPayloadManager.decrypt(any(), eq(null))).thenReturn(response);
@@ -326,6 +327,7 @@ public class EncodedPayloadResourceTest {
                         .withAffectedTransactions(
                                 Set.of(new MessageHash("tx1val".getBytes()), new MessageHash("tx2val".getBytes())))
                         .withExecHash("execHash".getBytes())
+                        .withSender(PublicKey.from(request.getSenderKey()))
                         .build();
 
         when(encodedPayloadManager.decrypt(any(), eq(null))).thenReturn(response);

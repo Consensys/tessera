@@ -148,6 +148,7 @@ public class TransactionManagerImpl implements TransactionManager {
         return SendResponse.Builder.create()
                 .withMessageHash(transactionHash)
                 .withManagedParties(managedParties)
+                .withSender(payload.getSenderKey())
                 .build();
     }
 
@@ -209,7 +210,11 @@ public class TransactionManagerImpl implements TransactionManager {
         final Set<PublicKey> managedParties =
                 recipientListNoDuplicate.stream().filter(managedPublicKeys::contains).collect(Collectors.toSet());
 
-        return SendResponse.Builder.create().withMessageHash(messageHash).withManagedParties(managedParties).build();
+        return SendResponse.Builder.create()
+                .withMessageHash(messageHash)
+                .withManagedParties(managedParties)
+                .withSender(PublicKey.from(encryptedRawTransaction.getSender()))
+                .build();
     }
 
     @Override
@@ -372,6 +377,7 @@ public class TransactionManagerImpl implements TransactionManager {
                     .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                     .withUnencryptedTransactionData(response)
                     .withManagedParties(Set.of(senderKey))
+                    .withSender(senderKey)
                     .build();
         }
 
@@ -427,6 +433,7 @@ public class TransactionManagerImpl implements TransactionManager {
                 .withAffectedTransactions(txns)
                 .withExecHash(payload.getExecHash())
                 .withManagedParties(managedParties)
+                .withSender(payload.getSenderKey())
                 .build();
     }
 

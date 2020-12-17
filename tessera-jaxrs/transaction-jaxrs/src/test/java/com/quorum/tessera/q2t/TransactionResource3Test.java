@@ -76,6 +76,7 @@ public class TransactionResource3Test {
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withUnencryptedTransactionData("Result".getBytes())
                         .withManagedParties(Set.of(senderPublicKey))
+                        .withSender(senderPublicKey)
                         .build();
         when(transactionManager.receive(any())).thenReturn(receiveResponse);
 
@@ -89,6 +90,7 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
         assertThat(resultResponse.getPayload()).isEqualTo("Result".getBytes());
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(senderPublicKey.encodeToBase64());
+        assertThat(resultResponse.getSender()).isEqualTo(senderPublicKey.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
@@ -104,6 +106,7 @@ public class TransactionResource3Test {
                         .withUnencryptedTransactionData("Success".getBytes())
                         .withExecHash("execHash".getBytes())
                         .withManagedParties(Set.of(senderPublicKey))
+                        .withSender(senderPublicKey)
                         .build();
 
         when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(response);
@@ -122,16 +125,19 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getAffectedContractTransactions()).isNullOrEmpty();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(senderPublicKey.encodeToBase64());
+        assertThat(resultResponse.getSender()).isEqualTo(senderPublicKey.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
 
     @Test
     public void receive() {
+        PublicKey sender = PublicKey.from("sender".getBytes());
 
         ReceiveResponse response = mock(ReceiveResponse.class);
         when(response.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(response.getUnencryptedTransactionData()).thenReturn("Success".getBytes());
+        when(response.sender()).thenReturn(sender);
 
         when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(response);
 
@@ -149,6 +155,7 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getExecHash()).isNull();
         assertThat(resultResponse.getAffectedContractTransactions()).isNull();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
+        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
@@ -305,6 +312,7 @@ public class TransactionResource3Test {
     @Test
     public void sendSignedTransactionEmptyRecipients() {
 
+        final PublicKey sender = PublicKey.from("sender".getBytes());
         com.quorum.tessera.transaction.SendResponse sendResponse =
                 mock(com.quorum.tessera.transaction.SendResponse.class);
 
@@ -314,6 +322,7 @@ public class TransactionResource3Test {
         when(transactionHash.getHashBytes()).thenReturn(transactionHashData);
 
         when(sendResponse.getTransactionHash()).thenReturn(transactionHash);
+        when(sendResponse.getSender()).thenReturn(sender);
 
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
@@ -333,6 +342,7 @@ public class TransactionResource3Test {
         SendResponse resultResponse = result.readEntity(SendResponse.class);
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
+        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
@@ -366,6 +376,7 @@ public class TransactionResource3Test {
 
         when(sendResponse.getTransactionHash()).thenReturn(transactionHash);
         when(sendResponse.getManagedParties()).thenReturn(Set.of(sender));
+        when(sendResponse.getSender()).thenReturn(sender);
 
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
@@ -385,6 +396,7 @@ public class TransactionResource3Test {
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(sender.encodeToBase64());
+        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
@@ -405,6 +417,9 @@ public class TransactionResource3Test {
 
     @Test
     public void sendSignedTransactionWithPrivacy() {
+        final PublicKey sender =
+                PublicKey.from(Base64.getDecoder().decode("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc="));
+
         com.quorum.tessera.transaction.SendResponse sendResponse =
                 mock(com.quorum.tessera.transaction.SendResponse.class);
 
@@ -414,6 +429,7 @@ public class TransactionResource3Test {
         when(transactionHash.getHashBytes()).thenReturn(transactionHashData);
 
         when(sendResponse.getTransactionHash()).thenReturn(transactionHash);
+        when(sendResponse.getSender()).thenReturn(sender);
 
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
@@ -438,6 +454,7 @@ public class TransactionResource3Test {
         SendResponse resultResponse = result.readEntity(SendResponse.class);
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
+        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 

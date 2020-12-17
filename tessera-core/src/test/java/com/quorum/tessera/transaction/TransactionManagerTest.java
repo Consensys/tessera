@@ -838,6 +838,7 @@ public class TransactionManagerTest {
 
     @Test
     public void receive() {
+        PublicKey sender = PublicKey.from("sender".getBytes());
         byte[] randomData = Base64.getEncoder().encode("odd-data".getBytes());
         MessageHash messageHash = new MessageHash(randomData);
 
@@ -852,6 +853,7 @@ public class TransactionManagerTest {
         EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getExecHash()).thenReturn("execHash".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        when(payload.getSenderKey()).thenReturn(sender);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
@@ -867,7 +869,7 @@ public class TransactionManagerTest {
         ReceiveResponse receiveResponse = transactionManager.receive(receiveRequest);
 
         assertThat(receiveResponse).isNotNull();
-
+        assertThat(receiveResponse.sender()).isEqualTo(sender);
         assertThat(receiveResponse.getUnencryptedTransactionData()).isEqualTo(expectedOutcome);
 
         verify(payloadEncoder).decode(any(byte[].class));
@@ -878,6 +880,7 @@ public class TransactionManagerTest {
 
     @Test
     public void receiveWithRecipientsPresent() {
+        final PublicKey sender = PublicKey.from("sender".getBytes());
         final PublicKey recipient1 = PublicKey.from("recipient1".getBytes());
         final PublicKey recipient2 = PublicKey.from("recipient2".getBytes());
 
@@ -896,6 +899,7 @@ public class TransactionManagerTest {
         when(payload.getExecHash()).thenReturn("execHash".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(payload.getRecipientKeys()).thenReturn(List.of(recipient1, recipient2));
+        when(payload.getSenderKey()).thenReturn(sender);
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
@@ -911,6 +915,7 @@ public class TransactionManagerTest {
         assertThat(receiveResponse).isNotNull();
         assertThat(receiveResponse.getUnencryptedTransactionData()).isEqualTo(expectedOutcome);
         assertThat(receiveResponse.getManagedParties()).containsExactlyInAnyOrder(recipient1, recipient2);
+        assertThat(receiveResponse.sender()).isEqualTo(sender);
 
         verify(payloadEncoder).decode(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
@@ -920,6 +925,7 @@ public class TransactionManagerTest {
 
     @Test
     public void receiveWithNoRecipientsPresent() {
+        final PublicKey sender = PublicKey.from("sender".getBytes());
         final PublicKey recipient1 = PublicKey.from("recipient1".getBytes());
 
         byte[] randomData = Base64.getEncoder().encode("odd-data".getBytes());
@@ -934,6 +940,7 @@ public class TransactionManagerTest {
         EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, randomData);
 
         EncodedPayload payload = mock(EncodedPayload.class);
+        when(payload.getSenderKey()).thenReturn(sender);
         when(payload.getExecHash()).thenReturn("execHash".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(payload.getRecipientBoxes()).thenReturn(List.of(RecipientBox.from("box1".getBytes())));
@@ -952,6 +959,7 @@ public class TransactionManagerTest {
         assertThat(receiveResponse).isNotNull();
         assertThat(receiveResponse.getUnencryptedTransactionData()).isEqualTo(expectedOutcome);
         assertThat(receiveResponse.getManagedParties()).containsExactly(recipient1);
+        assertThat(receiveResponse.sender()).isEqualTo(sender);
 
         verify(payloadEncoder).decode(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
@@ -1007,7 +1015,7 @@ public class TransactionManagerTest {
 
     @Test
     public void receiveWithAffectedContractTransactions() {
-
+        PublicKey sender = PublicKey.from("sender".getBytes());
         byte[] keyData = Base64.getEncoder().encode("KEY".getBytes());
         PublicKey recipient = PublicKey.from("recipient".getBytes());
         MessageHash messageHash = new MessageHash(keyData);
@@ -1026,6 +1034,7 @@ public class TransactionManagerTest {
         when(payload.getExecHash()).thenReturn("execHash".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
         when(payload.getAffectedContractTransactions()).thenReturn(affectedTxs);
+        when(payload.getSenderKey()).thenReturn(sender);
 
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
@@ -1046,6 +1055,7 @@ public class TransactionManagerTest {
         assertThat(receiveResponse.getUnencryptedTransactionData()).isEqualTo(expectedOutcome);
         assertThat(receiveResponse.getExecHash()).isEqualTo("execHash".getBytes());
         assertThat(receiveResponse.getAffectedTransactions()).hasSize(1);
+        assertThat(receiveResponse.sender()).isEqualTo(sender);
 
         verify(payloadEncoder).decode(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
