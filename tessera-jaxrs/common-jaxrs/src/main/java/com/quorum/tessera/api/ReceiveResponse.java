@@ -21,8 +21,9 @@ public class ReceiveResponse {
             allowableValues = {"0", "1", "3"})
     private int privacyFlag;
 
-    @Schema(description =
-                "encoded payload hashes identifying all affected private contracts after tx simulation", format = "base64")
+    @Schema(
+            description = "encoded payload hashes identifying all affected private contracts after tx simulation",
+            format = "base64")
     private String[] affectedContractTransactions;
 
     @Schema(
@@ -30,10 +31,13 @@ public class ReceiveResponse {
             format = "base64")
     private String execHash;
 
-
-    @Schema(description = "participant public keys of key pairs managed by the enclave of this Tessera instance",
+    @Schema(
+            description = "participant public keys of key pairs managed by the enclave of this Tessera instance",
             format = "base64")
     private String[] managedParties;
+
+    @Schema(description = "public key of the transaction sender", format = "base64")
+    private String sender;
 
     public ReceiveResponse() {}
 
@@ -75,5 +79,13 @@ public class ReceiveResponse {
 
     public void setManagedParties(final String[] managedParties) {
         this.managedParties = managedParties;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(final String sender) {
+        this.sender = sender;
     }
 }

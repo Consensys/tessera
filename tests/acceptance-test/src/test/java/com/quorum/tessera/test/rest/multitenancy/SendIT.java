@@ -66,6 +66,7 @@ public class SendIT {
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
         assertThat(result.getManagedParties()).containsExactlyInAnyOrder(firstParty.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(firstParty.getPublicKey());
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -123,6 +124,7 @@ public class SendIT {
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
         assertThat(result.getManagedParties()).containsExactlyInAnyOrder(sendingParty.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(sendingParty.getPublicKey());
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
         URI location = response.getLocation();
@@ -133,6 +135,7 @@ public class SendIT {
             ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
             assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
             assertThat(result.getManagedParties()).containsExactlyInAnyOrder(sendingParty.getPublicKey());
+            assertThat(result.getSender()).isEqualTo(sendingParty.getPublicKey());
         }
         {
             String encodedId = URLEncoder.encode(result.getKey(), StandardCharsets.UTF_8.toString());
@@ -148,6 +151,7 @@ public class SendIT {
                                 ReceiveResponse receiveResponse = r.readEntity(ReceiveResponse.class);
                                 assertThat(receiveResponse.getManagedParties())
                                         .containsExactlyInAnyOrder(recipientPublicKeys);
+                                assertThat(receiveResponse.getSender()).isEqualTo(sendingParty.getPublicKey());
                             });
         }
     }
@@ -185,16 +189,18 @@ public class SendIT {
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
         assertThat(result.getManagedParties()).containsExactlyInAnyOrder(recipientPublicKeys);
+        assertThat(result.getSender()).isEqualTo(recipientPublicKeys[0]);
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
         URI location = response.getLocation();
 
         {
-            final Response checkPersistedTxnResponse = client.target(location).request().get();
+            final Response checkPersistedTxnResponse =
+                    client.target(location).request().accept(MIME_TYPE_JSON_2_1).get();
             assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
             ReceiveResponse receiveResponse = checkPersistedTxnResponse.readEntity(ReceiveResponse.class);
             assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
-            assertThat(result.getManagedParties()).containsExactlyInAnyOrder(recipientPublicKeys);
+            assertThat(receiveResponse.getManagedParties()).containsExactlyInAnyOrder(recipientPublicKeys);
         }
         {
             String encodedId = URLEncoder.encode(result.getKey(), StandardCharsets.UTF_8.toString());
@@ -210,6 +216,7 @@ public class SendIT {
                                 ReceiveResponse receiveResponse = r.readEntity(ReceiveResponse.class);
                                 assertThat(receiveResponse.getManagedParties())
                                         .containsExactlyInAnyOrder(recipientPublicKeys);
+                                assertThat(receiveResponse.getSender()).isEqualTo(recipientPublicKeys[0]);
                             });
         }
     }
@@ -242,6 +249,7 @@ public class SendIT {
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
         assertThat(result.getManagedParties()).containsExactlyInAnyOrder(sendingParty.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(sendingParty.getPublicKey());
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -282,6 +290,7 @@ public class SendIT {
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
         assertThat(result.getManagedParties()).containsExactlyInAnyOrder(recipient.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(recipient.getPublicKey());
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -316,6 +325,7 @@ public class SendIT {
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
         assertThat(result.getManagedParties()).containsExactlyInAnyOrder(sendingParty.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(sendingParty.getPublicKey());
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(201);
@@ -444,6 +454,7 @@ public class SendIT {
         final SendResponse result = response.readEntity(SendResponse.class);
         assertThat(result.getKey()).isNotNull().isNotBlank();
         assertThat(result.getManagedParties()).containsExactlyInAnyOrder(sender.getPublicKey());
+        assertThat(result.getSender()).isEqualTo(sender.getPublicKey());
 
         // Party one received by always send to
         utils.findTransaction(result.getKey(), sender, recipient, partyHelper.findByAlias("A"))

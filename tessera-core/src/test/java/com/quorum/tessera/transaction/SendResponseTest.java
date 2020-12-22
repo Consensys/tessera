@@ -19,11 +19,13 @@ public class SendResponseTest {
                 SendResponse.Builder.create()
                         .withMessageHash(transactionHash)
                         .withManagedParties(arbitraryManagedKeys)
+                        .withSender(PublicKey.from("sender".getBytes()))
                         .build();
 
         assertThat(response).isNotNull();
         assertThat(response.getTransactionHash()).isSameAs(transactionHash);
         assertThat(response.getManagedParties()).isSameAs(arbitraryManagedKeys);
+        assertThat(response.getSender()).isEqualTo(PublicKey.from("sender".getBytes()));
     }
 
     @Test(expected = NullPointerException.class)

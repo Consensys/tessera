@@ -15,9 +15,13 @@ public class SendResponse {
     @Schema(description = "participant public keys managed by the enclave of this Tessera node", format = "base64")
     private String[] managedParties;
 
-    public SendResponse(final String key, final String[] managedParties) {
+    @Schema(description = "public key of the transaction sender", format = "base64")
+    private String sender;
+
+    public SendResponse(final String key, final String[] managedParties, final String sender) {
         this.key = key;
         this.managedParties = managedParties;
+        this.sender = sender;
     }
 
     public SendResponse() {}
@@ -36,5 +40,13 @@ public class SendResponse {
 
     public void setManagedParties(final String[] managedParties) {
         this.managedParties = managedParties;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public void setSender(String sender) {
+        this.sender = sender;
     }
 }
