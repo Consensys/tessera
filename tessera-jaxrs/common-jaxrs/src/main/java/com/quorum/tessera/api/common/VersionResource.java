@@ -55,7 +55,7 @@ public class VersionResource {
 
     @Operation(
             summary = "/version/api",
-            operationId = "getApiVersions",
+            operationId = "getVersions",
             description = "list currently available API versions")
     @ApiResponse(
             responseCode = "200",
