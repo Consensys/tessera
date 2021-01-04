@@ -23,7 +23,8 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         this(privacyGroupDAO, publisher, PrivacyGroupUtil.create());
     }
 
-    PrivacyGroupManagerImpl(PrivacyGroupDAO privacyGroupDAO, PrivacyGroupPublisher publisher, PrivacyGroupUtil privacyGroupUtil) {
+    PrivacyGroupManagerImpl(
+            PrivacyGroupDAO privacyGroupDAO, PrivacyGroupPublisher publisher, PrivacyGroupUtil privacyGroupUtil) {
         this.privacyGroupDAO = privacyGroupDAO;
         this.publisher = publisher;
         this.privacyGroupUtil = privacyGroupUtil;
@@ -62,22 +63,26 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     @Override
     public PrivacyGroup createLegacyPrivacyGroup(List<PublicKey> members) {
 
-        String name = "legacy";
-        String description = "Privacy groups to support the creation of groups by privateFor and privateFrom";
+        final String name = "legacy";
+        final String description = "Privacy groups to support the creation of groups by privateFor and privateFrom";
 
         final byte[] privacyGroupId = privacyGroupUtil.generatePrivacyGroupId(members, null);
 
-        final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
-
         final PrivacyGroup created =
-            PrivacyGroup.Builder.create()
-                .withPrivacyGroupId(PublicKey.from(privacyGroupId))
-                .withName(name)
-                .withDescription(description)
-                .withMembers(members)
-                .withType(PrivacyGroup.Type.LEGACY)
-                .withState(PrivacyGroup.State.ACTIVE)
-                .build();
+                PrivacyGroup.Builder.create()
+                        .withPrivacyGroupId(PublicKey.from(privacyGroupId))
+                        .withName(name)
+                        .withDescription(description)
+                        .withMembers(members)
+                        .withType(PrivacyGroup.Type.LEGACY)
+                        .withState(PrivacyGroup.State.ACTIVE)
+                        .build();
+
+        if (privacyGroupDAO.retrieve(privacyGroupId).isPresent()) {
+            return created;
+        }
+
+        final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
 
         final byte[] encodedData = privacyGroupUtil.encode(created);
 
@@ -92,9 +97,9 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
 
         return privacyGroupDAO.findByLookupId(lookupId).stream()
-            .map(PrivacyGroupEntity::getData)
-            .map(privacyGroupUtil::decode)
-            .collect(Collectors.toUnmodifiableList());
+                .map(PrivacyGroupEntity::getData)
+                .map(privacyGroupUtil::decode)
+                .collect(Collectors.toUnmodifiableList());
     }
 
     @Override
@@ -103,12 +108,12 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         final byte[] id = privacyGroupId.getKeyBytes();
 
         final PrivacyGroupEntity result =
-            privacyGroupDAO
-                .retrieve(id)
-                .orElseThrow(
-                    () ->
-                        new PrivacyGroupNotFoundException(
-                            "Privacy group " + privacyGroupId + " not found"));
+                privacyGroupDAO
+                        .retrieve(id)
+                        .orElseThrow(
+                                () ->
+                                        new PrivacyGroupNotFoundException(
+                                                "Privacy group " + privacyGroupId + " not found"));
 
         final PrivacyGroup privacyGroup = privacyGroupUtil.decode(result.getData());
 
@@ -128,4 +133,9 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         privacyGroupDAO.save(entity);
     }
+
+    //    @Override
+    //    public PublicKey deletePrivacyGroup(PublicKey privacyGroupId, PublicKey from) {
+    //        return null;
+    //    }
 }

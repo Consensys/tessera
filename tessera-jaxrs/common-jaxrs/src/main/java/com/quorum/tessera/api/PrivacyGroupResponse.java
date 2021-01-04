@@ -6,18 +6,17 @@ public class PrivacyGroupResponse {
     private String name;
     private String description;
     private String type;
-    private String[] addresses;
+    private String[] members;
 
-    public PrivacyGroupResponse(String privacyGroupId, String name, String description, String type, String[] addresses) {
+    public PrivacyGroupResponse(String privacyGroupId, String name, String description, String type, String[] members) {
         this.privacyGroupId = privacyGroupId;
         this.name = name;
         this.description = description;
         this.type = type;
-        this.addresses = addresses;
+        this.members = members;
     }
 
-    public PrivacyGroupResponse() {
-    }
+    public PrivacyGroupResponse() {}
 
     public String getPrivacyGroupId() {
         return privacyGroupId;
@@ -51,11 +50,11 @@ public class PrivacyGroupResponse {
         this.type = type;
     }
 
-    public String[] getAddresses() {
-        return addresses;
+    public String[] getMembers() {
+        return members;
     }
 
-    public void setAddresses(String[] addresses) {
-        this.addresses = addresses;
+    public void setMembers(String[] members) {
+        this.members = members;
     }
 }

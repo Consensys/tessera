@@ -8,6 +8,7 @@ import com.quorum.tessera.api.PrivacyGroupResponse;
 import com.quorum.tessera.api.PrivacyGroupRequest;
 import com.quorum.tessera.api.PrivacyGroupRetrieveRequest;
 import com.quorum.tessera.api.PrivacyGroupSearchRequest;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -26,6 +27,7 @@ import java.util.stream.Stream;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+@Tag(name = "quorum-to-tessera")
 @Path("/")
 public class PrivacyGroupResource {
 
@@ -50,13 +52,14 @@ public class PrivacyGroupResource {
                         .map(PublicKey::from)
                         .collect(Collectors.toList());
 
-        final byte[] randomSeed = Optional.ofNullable(request.getSeed()).map(base64Codec::decode)
-            .orElseGet(generateRandomSeed);
+        final byte[] randomSeed =
+                Optional.ofNullable(request.getSeed()).map(base64Codec::decode).orElseGet(generateRandomSeed);
 
-        final PrivacyGroup created = privacyGroupManager
-            .createPrivacyGroup(request.getName(), request.getDescription(), members, randomSeed);
+        final PrivacyGroup created =
+                privacyGroupManager.createPrivacyGroup(
+                        request.getName(), request.getDescription(), members, randomSeed);
 
-        return Response.status(Response.Status.CREATED).entity(toResponseObject(created)).build();
+        return Response.status(Response.Status.OK).entity(toResponseObject(created)).build();
     }
 
     @POST
@@ -101,11 +104,11 @@ public class PrivacyGroupResource {
                 privacyGroup.getMembers().stream().map(PublicKey::encodeToBase64).toArray(String[]::new));
     }
 
-    private Supplier<byte[]> generateRandomSeed = () -> {
-        final SecureRandom random = new SecureRandom();
-        byte[] generated = new byte[20];
-        random.nextBytes(generated);
-        return generated;
-    };
-
+    private Supplier<byte[]> generateRandomSeed =
+            () -> {
+                final SecureRandom random = new SecureRandom();
+                byte[] generated = new byte[20];
+                random.nextBytes(generated);
+                return generated;
+            };
 }

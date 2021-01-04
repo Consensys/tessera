@@ -1,7 +1,5 @@
 package com.quorum.tessera.p2p;
 
-import com.quorum.tessera.enclave.PrivacyGroup;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -16,7 +14,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -40,15 +37,15 @@ public class PrivacyGroupResourceTest {
         PrivacyGroupResource resource = new PrivacyGroupResource(privacyGroupManager);
 
         jersey =
-            new JerseyTest() {
-                @Override
-                protected Application configure() {
-                    forceSet(TestProperties.CONTAINER_PORT, "0");
-                    enable(TestProperties.LOG_TRAFFIC);
-                    enable(TestProperties.DUMP_ENTITY);
-                    return new ResourceConfig().register(resource);
-                }
-            };
+                new JerseyTest() {
+                    @Override
+                    protected Application configure() {
+                        forceSet(TestProperties.CONTAINER_PORT, "0");
+                        enable(TestProperties.LOG_TRAFFIC);
+                        enable(TestProperties.DUMP_ENTITY);
+                        return new ResourceConfig().register(resource);
+                    }
+                };
 
         jersey.setUp();
     }
@@ -63,14 +60,14 @@ public class PrivacyGroupResourceTest {
     public void testStorePrivacyGroup() {
         doNothing().when(privacyGroupManager).storePrivacyGroup("encoded".getBytes());
 
-        final Response response = jersey.target("pushPrivacyGroup")
-            .request()
-            .post(Entity.entity("encoded".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
+        final Response response =
+                jersey.target("pushPrivacyGroup")
+                        .request()
+                        .post(Entity.entity("encoded".getBytes(), MediaType.APPLICATION_OCTET_STREAM));
 
         assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(201);
+        assertThat(response.getStatus()).isEqualTo(200);
 
         verify(privacyGroupManager).storePrivacyGroup("encoded".getBytes());
-
     }
 }

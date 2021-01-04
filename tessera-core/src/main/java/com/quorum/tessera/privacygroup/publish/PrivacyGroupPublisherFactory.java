@@ -1,7 +1,6 @@
 package com.quorum.tessera.privacygroup.publish;
 
 import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 
 public interface PrivacyGroupPublisherFactory {

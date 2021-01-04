@@ -1,7 +1,5 @@
 package com.quorum.tessera.api;
 
-import java.util.Optional;
-
 public class PrivacyGroupRequest {
 
     private String[] addresses;
