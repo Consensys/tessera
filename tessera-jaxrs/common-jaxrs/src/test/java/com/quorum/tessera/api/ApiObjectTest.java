@@ -21,8 +21,20 @@ public class ApiObjectTest {
 
     @Test
     public void nonEmptyConstructor() {
+        assertThat(new SendResponse("Data", new String[] {"arbitrary"}, "senderKey"))
+                .isNotNull()
+                .extracting(SendResponse::getKey)
+                .isNotNull();
 
-        assertThat(new SendResponse("Data")).isNotNull().extracting(SendResponse::getKey).isNotNull();
+        assertThat(new SendResponse("Data", new String[] {"arbitrary"}, "senderKey"))
+                .isNotNull()
+                .extracting(SendResponse::getManagedParties)
+                .isNotNull();
+
+        assertThat(new SendResponse("Data", new String[] {"arbitrary"}, "senderKey"))
+                .isNotNull()
+                .extracting(SendResponse::getSender)
+                .containsExactly("senderKey");
 
         assertThat(new StoreRawResponse("Data".getBytes()))
                 .isNotNull()

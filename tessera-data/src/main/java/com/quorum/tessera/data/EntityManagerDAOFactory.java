@@ -25,6 +25,8 @@ public class EntityManagerDAOFactory {
 
     private final EntityManagerFactory stagingEntityManagerFactory;
 
+    private static final EncryptedStringResolver encryptedStringResolver = new EncryptedStringResolver();
+
     private EntityManagerDAOFactory(
             EntityManagerFactory entityManagerFactory, EntityManagerFactory stagingEntityManagerFactory) {
         this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);
@@ -33,11 +35,10 @@ public class EntityManagerDAOFactory {
 
     public static EntityManagerDAOFactory newFactory(Config config) {
         LOGGER.debug("New EntityManagerDAOFactory from {}", config);
-        final String username = config.getJdbcConfig().getUsername();
-        final String password = config.getJdbcConfig().getPassword();
 
-        final EncryptedStringResolver resolver = new EncryptedStringResolver();
-        final String url = resolver.resolve(config.getJdbcConfig().getUrl());
+        final String url = config.getJdbcConfig().getUrl();
+        final String username = config.getJdbcConfig().getUsername();
+        final String password = encryptedStringResolver.resolve(config.getJdbcConfig().getPassword());
 
         final HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(url);

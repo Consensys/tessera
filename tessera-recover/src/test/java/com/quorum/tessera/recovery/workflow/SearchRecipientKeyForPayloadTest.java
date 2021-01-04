@@ -5,7 +5,6 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveNotAvailableException;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
@@ -13,12 +12,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
 public class SearchRecipientKeyForPayloadTest {
@@ -30,6 +29,7 @@ public class SearchRecipientKeyForPayloadTest {
     @Before
     public void onSetUp() {
         enclave = mock(Enclave.class);
+
         searchRecipientKeyForPayload = new SearchRecipientKeyForPayload(enclave);
     }
 
@@ -39,99 +39,95 @@ public class SearchRecipientKeyForPayloadTest {
     }
 
     @Test
+    public void payloadsAlreadyFormatted() {
+        final EncodedPayload payloadForRecipient1 =
+                EncodedPayload.Builder.create().withRecipientKey(PublicKey.from("recipient1".getBytes())).build();
+        final EncodedPayload payloadForRecipient2 =
+                EncodedPayload.Builder.create().withRecipientKey(PublicKey.from("recipient2".getBytes())).build();
+        final Set<EncodedPayload> preformattedPayloads = Set.of(payloadForRecipient1, payloadForRecipient2);
+
+        final BatchWorkflowContext workflowContext = new BatchWorkflowContext();
+        workflowContext.setPayloadsToPublish(preformattedPayloads);
+
+        searchRecipientKeyForPayload.execute(workflowContext);
+
+        assertThat(workflowContext.getPayloadsToPublish()).isEqualTo(preformattedPayloads);
+    }
+
+    @Test
     public void execute() {
+        final BatchWorkflowContext workflowEvent = new BatchWorkflowContext();
 
-        BatchWorkflowContext encryptedTransactionEvent = new BatchWorkflowContext();
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
+        final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+        encryptedTransaction.setHash(new MessageHash("sampleHash".getBytes()));
+        workflowEvent.setEncryptedTransaction(encryptedTransaction);
 
-        PublicKey publicKey = mock(PublicKey.class);
+        final EncodedPayload encodedPayloadForRecipient1 =
+                EncodedPayload.Builder.create().withRecipientBox("sample-box-1".getBytes()).build();
+        final EncodedPayload encodedPayloadForRecipient2 =
+                EncodedPayload.Builder.create().withRecipientBox("sample-box-2".getBytes()).build();
+        workflowEvent.setPayloadsToPublish(Set.of(encodedPayloadForRecipient1, encodedPayloadForRecipient2));
 
-        encryptedTransactionEvent.setEncodedPayload(encodedPayload);
+        final PublicKey recipient1 = PublicKey.from("sample-public-key-1".getBytes());
+        final PublicKey recipient2 = PublicKey.from("sample-public-key-2".getBytes());
 
-        when(encodedPayload.getRecipientKeys()).thenReturn(Collections.EMPTY_LIST);
-        when(enclave.getPublicKeys()).thenReturn(Set.of(publicKey));
+        // Using this LinkedHashSet instead of Set.of(...) to provide a defined iteration order.
+        final LinkedHashSet<PublicKey> enclaveKeys = new LinkedHashSet<>();
+        enclaveKeys.add(recipient1);
+        enclaveKeys.add(recipient2);
 
-        when(enclave.unencryptTransaction(encodedPayload, publicKey)).thenReturn("OUTCOME".getBytes());
+        when(enclave.getPublicKeys()).thenReturn(enclaveKeys);
+        when(enclave.unencryptTransaction(encodedPayloadForRecipient1, recipient1)).thenReturn(new byte[0]);
+        when(enclave.unencryptTransaction(encodedPayloadForRecipient2, recipient2)).thenReturn(new byte[0]);
+        when(enclave.unencryptTransaction(encodedPayloadForRecipient2, recipient1)).thenThrow(EncryptorException.class);
 
-        searchRecipientKeyForPayload.execute(encryptedTransactionEvent);
+        searchRecipientKeyForPayload.execute(workflowEvent);
 
-        assertThat(encryptedTransactionEvent.getEncodedPayload()).isExactlyInstanceOf(EncodedPayload.class);
+        final Set<EncodedPayload> updatedPayloads = workflowEvent.getPayloadsToPublish();
+        assertThat(updatedPayloads)
+                .containsExactlyInAnyOrder(
+                        EncodedPayload.Builder.from(encodedPayloadForRecipient1).withRecipientKey(recipient1).build(),
+                        EncodedPayload.Builder.from(encodedPayloadForRecipient2).withRecipientKey(recipient2).build());
 
-        assertThat(encryptedTransactionEvent.getEncodedPayload().getRecipientKeys()).containsExactly(publicKey);
+        verify(enclave).unencryptTransaction(encodedPayloadForRecipient1, recipient1);
+        verify(enclave).unencryptTransaction(encodedPayloadForRecipient2, recipient1);
+        verify(enclave).unencryptTransaction(encodedPayloadForRecipient2, recipient2);
+        verify(enclave, times(2)).getPublicKeys();
 
-        assertThat(encryptedTransactionEvent.getRecipient()).isNull();
-        assertThat(encryptedTransactionEvent.getEncryptedTransaction()).isNull();
-
-        verify(enclave).unencryptTransaction(encodedPayload, publicKey);
-        verify(enclave).getPublicKeys();
+        verifyNoMoreInteractions(enclave);
     }
 
     @Test
     public void executeHandleEnclaveExceptions() {
-
-        List<Class<? extends Exception>> handledExceptionTypes =
+        final List<Class<? extends Exception>> handledExceptionTypes =
                 List.of(EnclaveNotAvailableException.class, IndexOutOfBoundsException.class, EncryptorException.class);
 
         handledExceptionTypes.forEach(
                 t -> {
-                    BatchWorkflowContext encryptedTransactionEvent = new BatchWorkflowContext();
+                    final BatchWorkflowContext workflowEvent = new BatchWorkflowContext();
 
-                    EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
-                    when(encryptedTransaction.getHash()).thenReturn(mock(MessageHash.class));
+                    final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+                    encryptedTransaction.setHash(new MessageHash("sampleHash".getBytes()));
+                    workflowEvent.setEncryptedTransaction(encryptedTransaction);
 
-                    encryptedTransactionEvent.setEncryptedTransaction(encryptedTransaction);
+                    final EncodedPayload encodedPayload = EncodedPayload.Builder.create().build();
+                    workflowEvent.setPayloadsToPublish(Set.of(encodedPayload));
 
-                    EncodedPayload encodedPayload = mock(EncodedPayload.class);
-
-                    PublicKey publicKey = mock(PublicKey.class);
-
-                    encryptedTransactionEvent.setEncodedPayload(encodedPayload);
-
-                    when(encodedPayload.getRecipientKeys()).thenReturn(Collections.EMPTY_LIST);
+                    final PublicKey publicKey = PublicKey.from("sample-public-key".getBytes());
                     when(enclave.getPublicKeys()).thenReturn(Set.of(publicKey));
-
                     when(enclave.unencryptTransaction(encodedPayload, publicKey)).thenThrow(t);
 
-                    try {
-                        searchRecipientKeyForPayload.execute(encryptedTransactionEvent);
-                        failBecauseExceptionWasNotThrown(RecipientKeyNotFoundException.class);
-                    } catch (RecipientKeyNotFoundException ex) {
+                    final Throwable throwable =
+                            catchThrowable(() -> searchRecipientKeyForPayload.execute(workflowEvent));
+                    assertThat(throwable)
+                            .isInstanceOf(RecipientKeyNotFoundException.class)
+                            .hasMessage("No key found as recipient of message c2FtcGxlSGFzaA==");
 
-                        assertThat(encryptedTransactionEvent.getEncodedPayload()).isSameAs(encodedPayload);
+                    verify(enclave).unencryptTransaction(encodedPayload, publicKey);
+                    verify(enclave).getPublicKeys();
 
-                        assertThat(encryptedTransactionEvent.getRecipientKey()).isNull();
-                        assertThat(encryptedTransactionEvent.getRecipient()).isNull();
-                        assertThat(encryptedTransactionEvent.getEncryptedTransaction()).isSameAs(encryptedTransaction);
-
-                        verify(enclave).unencryptTransaction(encodedPayload, publicKey);
-                        verify(enclave).getPublicKeys();
-
-                        verifyNoMoreInteractions(enclave);
-                        reset(enclave);
-                    }
+                    verifyNoMoreInteractions(enclave);
+                    reset(enclave);
                 });
-    }
-
-    @Test
-    public void executePayloadContainsKey() {
-
-        BatchWorkflowContext encryptedTransactionEvent = new BatchWorkflowContext();
-        EncodedPayload encodedPayload = mock(EncodedPayload.class);
-        PublicKey publicKey = mock(PublicKey.class);
-
-        encryptedTransactionEvent.setEncodedPayload(encodedPayload);
-
-        when(encodedPayload.getRecipientKeys()).thenReturn(List.of(publicKey));
-
-        searchRecipientKeyForPayload.execute(encryptedTransactionEvent);
-
-        assertThat(encryptedTransactionEvent.getEncodedPayload()).isSameAs(encodedPayload);
-
-        assertThat(encryptedTransactionEvent.getEncodedPayload().getRecipientKeys()).containsExactly(publicKey);
-
-        assertThat(encryptedTransactionEvent.getRecipientKey()).isNull();
-        assertThat(encryptedTransactionEvent.getRecipient()).isNull();
-        assertThat(encryptedTransactionEvent.getEncryptedTransaction()).isNull();
     }
 }

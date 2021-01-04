@@ -1,9 +1,11 @@
 package com.quorum.tessera.recovery.workflow;
 
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
@@ -18,14 +20,14 @@ public class MockBatchWorkflowFactory implements BatchWorkflowFactory {
 
     static ResendBatchPublisher resendBatchPublisher;
 
-    private static final ThreadLocal<BatchWorkflow> WORKFLOW = ThreadLocal.withInitial(() -> new SimpleBatchWorkflow());
+    private static final ThreadLocal<SimpleBatchWorkflow> WORKFLOW = ThreadLocal.withInitial(SimpleBatchWorkflow::new);
 
     @Override
     public BatchWorkflow create() {
         return WORKFLOW.get();
     }
 
-    static BatchWorkflow getWorkflow() {
+    static SimpleBatchWorkflow getWorkflow() {
         return WORKFLOW.get();
     }
 
@@ -36,14 +38,22 @@ public class MockBatchWorkflowFactory implements BatchWorkflowFactory {
 
     public static class SimpleBatchWorkflow implements BatchWorkflow {
 
+        private EncodedPayload singlePayloadToPublish;
+
         BatchWorkflowAction findRecipientFromPartyInfo =
                 context -> {
                     context.setRecipient(mock(Recipient.class));
                     return true;
                 };
+        BatchWorkflowAction setPayloadsToPublish =
+                context -> {
+                    context.setPayloadsToPublish(Set.of(singlePayloadToPublish));
+                    return true;
+                };
         EncodedPayloadPublisher encodedPayloadPublisher = new EncodedPayloadPublisher(resendBatchPublisher);
 
-        List<BatchWorkflowAction> handlers = List.of(findRecipientFromPartyInfo, encodedPayloadPublisher);
+        List<BatchWorkflowAction> handlers =
+                List.of(findRecipientFromPartyInfo, setPayloadsToPublish, encodedPayloadPublisher);
 
         private final AtomicLong filteredMessageCount = new AtomicLong(transactionCount);
 
@@ -67,6 +77,10 @@ public class MockBatchWorkflowFactory implements BatchWorkflowFactory {
         @Override
         public long getPublishedMessageCount() {
             return encodedPayloadPublisher.getPublishedCount();
+        }
+
+        public void setSinglePayloadToPublish(EncodedPayload singlePayloadToPublish) {
+            this.singlePayloadToPublish = singlePayloadToPublish;
         }
     }
 

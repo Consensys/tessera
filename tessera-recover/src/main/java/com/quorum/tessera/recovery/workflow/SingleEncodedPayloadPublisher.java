@@ -22,13 +22,18 @@ public class SingleEncodedPayloadPublisher implements BatchWorkflowAction {
     public boolean execute(final BatchWorkflowContext event) {
         final PublicKey recipientKey = event.getRecipientKey();
 
-        try {
-            payloadPublisher.publishPayload(event.getEncodedPayload(), recipientKey);
-        } catch (final PublishPayloadException ex) {
-            LOGGER.warn("Unable to publish payload to recipient {} during resend", recipientKey.encodeToBase64());
-            return false;
-        }
-
-        return true;
+        return event.getPayloadsToPublish().stream()
+                .allMatch(
+                        payload -> {
+                            try {
+                                payloadPublisher.publishPayload(payload, recipientKey);
+                                return true;
+                            } catch (final PublishPayloadException ex) {
+                                LOGGER.warn(
+                                        "Unable to publish payload to recipient {} during resend",
+                                        recipientKey.encodeToBase64());
+                                return false;
+                            }
+                        });
     }
 }

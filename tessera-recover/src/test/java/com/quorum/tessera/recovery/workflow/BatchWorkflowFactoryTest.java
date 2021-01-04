@@ -56,6 +56,7 @@ public class BatchWorkflowFactoryTest {
         assertThat(batchWorkflow).isNotNull();
 
         BatchWorkflowContext batchWorkflowContext = new BatchWorkflowContext();
+        batchWorkflowContext.setBatchSize(1);
         PublicKey recipientKey = mock(PublicKey.class);
         batchWorkflowContext.setRecipientKey(recipientKey);
         PublicKey ownedKey = mock(PublicKey.class);

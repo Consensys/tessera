@@ -5,6 +5,8 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.Recipient;
 
+import java.util.Set;
+
 public class BatchWorkflowContext {
 
     private long expectedTotal;
@@ -18,6 +20,8 @@ public class BatchWorkflowContext {
     private EncryptedTransaction encryptedTransaction;
 
     private EncodedPayload encodedPayload;
+
+    private Set<EncodedPayload> payloadsToPublish;
 
     public EncryptedTransaction getEncryptedTransaction() {
         return encryptedTransaction;
@@ -66,5 +70,13 @@ public class BatchWorkflowContext {
 
     public void setExpectedTotal(long expectedTotal) {
         this.expectedTotal = expectedTotal;
+    }
+
+    public Set<EncodedPayload> getPayloadsToPublish() {
+        return payloadsToPublish;
+    }
+
+    public void setPayloadsToPublish(Set<EncodedPayload> payloadsToPublish) {
+        this.payloadsToPublish = payloadsToPublish;
     }
 }

@@ -8,7 +8,7 @@ plugins {
 }
 
 ext {
-    jettyVersion = "9.4.33.v20201020"
+    jettyVersion = "9.4.35.v20201120"
     springVersion = "5.2.9.RELEASE"
     eclipseLinkVersion = "2.7.7"
     swaggerVersion = "2.1.5"
@@ -117,7 +117,7 @@ allprojects {
 
                 compile "org.glassfish:jsonp-jaxrs:1.1.6"
 
-                implementation 'com.fasterxml.jackson.core:jackson-databind:2.10.4'
+                implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
                 implementation 'com.squareup.retrofit2:adapter-rxjava:2.5.0'
             }
         }
@@ -163,7 +163,7 @@ subprojects {
         configFile project.getRootProject().file('checkstyle.xml')
         configProperties.put('checkstyle.suppressions.file',project.getRootProject().file('checkstyle-suppressions.xml'))
         dependencies{
-            checkstyle "com.puppycrawl.tools:checkstyle:8.30"
+            checkstyle "com.puppycrawl.tools:checkstyle:8.38"
             checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
         }
     }
@@ -224,6 +224,7 @@ subprojects {
                         'com.quorum.tessera.launcher.Launcher',
                         'com.quorum.tessera.launcher.Launcher.*',
                         'com.quorum.tessera.launcher.Main',
+                        'com.quorum.tessera.multitenancy.migration.Main',
                         'com.quorum.tessera.config.migration.Main',
                         'com.quorum.tessera.data.migration.Main',
                         'com.quorum.tessera.passwords.ConsolePasswordReader',
