@@ -43,13 +43,17 @@ public class EntityManagerDAOFactoryTest {
     public void createEncryptedTransactionDAO() {
         EncryptedTransactionDAO encryptedTransactionDAO = entityManagerDAOFactory.createEncryptedTransactionDAO();
         assertThat(encryptedTransactionDAO).isNotNull();
-
     }
 
     @Test
     public void createStagingEntityDAO() {
         StagingEntityDAO stagingEntityDAO = entityManagerDAOFactory.createStagingEntityDAO();
         assertThat(stagingEntityDAO).isNotNull();
+    }
 
+    @Test
+    public void createPrivacyGroupDAO() {
+        PrivacyGroupDAO privacyGroupDAO = entityManagerDAOFactory.createPrivacyGroupDAO();
+        assertThat(privacyGroupDAO).isNotNull();
     }
 }
