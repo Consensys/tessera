@@ -1,23 +1,23 @@
 package com.quorum.tessera.enclave;
 
+import com.quorum.tessera.enclave.encoder.LegacyEncodedPayload;
+import com.quorum.tessera.enclave.encoder.LegacyPayloadEncoder;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Test;
 
-import java.nio.ByteBuffer;
 import java.util.*;
 
 import static java.util.Collections.*;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class PayloadEncoderTest {
 
-    private PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    private final PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-    private LegacyPayloadEncoder legacyPayloadEncoder = new LegacyPayloadEncoder();
+    private final LegacyPayloadEncoder legacyPayloadEncoder = new LegacyPayloadEncoder();
 
     // This tests a payload that has no data for the recipient list
     // NOT the case where the list is present but empty
@@ -772,7 +772,6 @@ public class PayloadEncoderTest {
                         .withRecipientKeys(emptyList())
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withAffectedContractTransactions(emptyMap())
-                        .withExecHash(null)
                         .build();
 
         final byte[] encodedResult = payloadEncoder.encode(originalPayload);
@@ -1171,7 +1170,6 @@ public class PayloadEncoderTest {
                         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
                         .withAffectedContractTransactions(
                                 singletonMap(new TxHash("test".getBytes()), "test".getBytes()))
-                        .withExecHash(null)
                         .build();
 
         final byte[] encodedResult = payloadEncoder.encode(originalPayload);
@@ -2079,148 +2077,4 @@ public class PayloadEncoderTest {
         assertThat(payload.getRecipientKeys()).containsExactly(PublicKey.from("someKey".getBytes()));
     }
 
-    /**
-     * Do NOT change as this is a copy of the legacy payload encoder. The tests will use these logic to ensure the
-     * legacy encoder is still able to understand new encoded payload and vice versa
-     */
-    private class LegacyPayloadEncoder implements BinaryEncoder {
-
-        byte[] encode(final LegacyEncodedPayload payload) {
-
-            final byte[] senderKey = encodeField(payload.getSenderKey().getKeyBytes());
-            final byte[] cipherText = encodeField(payload.getCipherText());
-            final byte[] nonce = encodeField(payload.getCipherTextNonce().getNonceBytes());
-            final byte[] recipientNonce = encodeField(payload.getRecipientNonce().getNonceBytes());
-            final byte[] recipients = encodeArray(payload.getRecipientBoxes());
-            final byte[] recipientBytes =
-                    encodeArray(payload.getRecipientKeys().stream().map(PublicKey::getKeyBytes).collect(toList()));
-
-            return ByteBuffer.allocate(
-                            senderKey.length
-                                    + cipherText.length
-                                    + nonce.length
-                                    + recipients.length
-                                    + recipientNonce.length
-                                    + recipientBytes.length)
-                    .put(senderKey)
-                    .put(cipherText)
-                    .put(nonce)
-                    .put(recipients)
-                    .put(recipientNonce)
-                    .put(recipientBytes)
-                    .array();
-        }
-
-        LegacyEncodedPayload decode(final byte[] input) {
-            final ByteBuffer buffer = ByteBuffer.wrap(input);
-
-            final long senderSize = buffer.getLong();
-            final byte[] senderKey = new byte[Math.toIntExact(senderSize)];
-            buffer.get(senderKey);
-
-            final long cipherTextSize = buffer.getLong();
-            final byte[] cipherText = new byte[Math.toIntExact(cipherTextSize)];
-            buffer.get(cipherText);
-
-            final long nonceSize = buffer.getLong();
-            final byte[] nonce = new byte[Math.toIntExact(nonceSize)];
-            buffer.get(nonce);
-
-            final long numberOfRecipients = buffer.getLong();
-            final List<byte[]> recipientBoxes = new ArrayList<>();
-            for (long i = 0; i < numberOfRecipients; i++) {
-                final long boxSize = buffer.getLong();
-                final byte[] box = new byte[Math.toIntExact(boxSize)];
-                buffer.get(box);
-                recipientBoxes.add(box);
-            }
-
-            final long recipientNonceSize = buffer.getLong();
-            final byte[] recipientNonce = new byte[Math.toIntExact(recipientNonceSize)];
-            buffer.get(recipientNonce);
-
-            // this means there are no recipients in the payload (which we receive when we are a participant)
-            if (!buffer.hasRemaining()) {
-                return new LegacyEncodedPayload(
-                        PublicKey.from(senderKey),
-                        cipherText,
-                        new Nonce(nonce),
-                        recipientBoxes,
-                        new Nonce(recipientNonce),
-                        emptyList());
-            }
-
-            final long recipientLength = buffer.getLong();
-
-            final List<byte[]> recipientKeys = new ArrayList<>();
-            for (long i = 0; i < recipientLength; i++) {
-                final long boxSize = buffer.getLong();
-                final byte[] box = new byte[Math.toIntExact(boxSize)];
-                buffer.get(box);
-                recipientKeys.add(box);
-            }
-
-            return new LegacyEncodedPayload(
-                    PublicKey.from(senderKey),
-                    cipherText,
-                    new Nonce(nonce),
-                    recipientBoxes,
-                    new Nonce(recipientNonce),
-                    recipientKeys.stream().map(PublicKey::from).collect(toList()));
-        }
-    }
-
-    private class LegacyEncodedPayload {
-
-        private final PublicKey senderKey;
-
-        private final byte[] cipherText;
-
-        private final Nonce cipherTextNonce;
-
-        private final List<byte[]> recipientBoxes;
-
-        private final Nonce recipientNonce;
-
-        private final List<PublicKey> recipientKeys;
-
-        LegacyEncodedPayload(
-                final PublicKey senderKey,
-                final byte[] cipherText,
-                final Nonce cipherTextNonce,
-                final List<byte[]> recipientBoxes,
-                final Nonce recipientNonce,
-                final List<PublicKey> recipientKeys) {
-            this.senderKey = senderKey;
-            this.cipherText = cipherText;
-            this.cipherTextNonce = cipherTextNonce;
-            this.recipientNonce = recipientNonce;
-            this.recipientBoxes = recipientBoxes;
-            this.recipientKeys = recipientKeys;
-        }
-
-        public PublicKey getSenderKey() {
-            return senderKey;
-        }
-
-        public byte[] getCipherText() {
-            return cipherText;
-        }
-
-        public Nonce getCipherTextNonce() {
-            return cipherTextNonce;
-        }
-
-        public List<byte[]> getRecipientBoxes() {
-            return recipientBoxes;
-        }
-
-        public Nonce getRecipientNonce() {
-            return recipientNonce;
-        }
-
-        public List<PublicKey> getRecipientKeys() {
-            return recipientKeys;
-        }
-    }
 }
