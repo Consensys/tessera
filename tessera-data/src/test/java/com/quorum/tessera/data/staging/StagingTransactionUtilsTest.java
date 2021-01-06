@@ -34,7 +34,6 @@ public class StagingTransactionUtilsTest {
                         .withRecipientKeys(Arrays.asList(recipient1))
                         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
                         .withAffectedContractTransactions(singletonMap(affectedHash, "somesecurityHash".getBytes()))
-                        .withExecHash("execHash".getBytes())
                         .build();
 
         final String messageHash =

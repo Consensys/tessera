@@ -162,6 +162,7 @@ public class ResendManagerTest {
                 EncodedPayload.Builder.create()
                         .withSenderKey(senderKey)
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withCipherText("CIPHERTEXT".getBytes())
                         .withRecipientBoxes(singletonList(recipientBox2))
                         .withRecipientKeys(List.of(recipientKey2, senderKey))

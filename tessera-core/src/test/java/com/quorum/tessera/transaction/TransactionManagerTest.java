@@ -576,7 +576,6 @@ public class TransactionManagerTest {
         when(payload.getRecipientKeys()).thenReturn(singletonList(PublicKey.from("recipient".getBytes())));
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
         when(payload.getAffectedContractTransactions()).thenReturn(affectedTx);
-        when(payload.getExecHash()).thenReturn("execHash".getBytes());
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
 
@@ -629,6 +628,7 @@ public class TransactionManagerTest {
                 EncodedPayload.Builder.create()
                         .withCipherText("ct1".getBytes())
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .build();
         when(payloadEncoder.decode(any())).thenReturn(existingPayload);
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
@@ -638,6 +638,7 @@ public class TransactionManagerTest {
                 EncodedPayload.Builder.create()
                         .withCipherText("ct1".getBytes())
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withRecipientKey(PublicKey.from("recipient1".getBytes()))
                         .withRecipientBox("recipient_box1".getBytes())
                         .build();
@@ -678,6 +679,7 @@ public class TransactionManagerTest {
                         .withCipherText("ct1".getBytes())
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
                         .withAffectedContractTransactions(Map.of(TxHash.from(new byte[0]), new byte[0]))
+                        .withExecHash("execHash".getBytes())
                         .withRecipientKeys(List.of(recipient1, recipient2))
                         .build();
         when(payloadEncoder.decode(any())).thenReturn(existingPayload);
@@ -689,6 +691,7 @@ public class TransactionManagerTest {
                         .withCipherText("ct1".getBytes())
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
                         .withAffectedContractTransactions(Map.of(TxHash.from(new byte[0]), new byte[0]))
+                        .withExecHash("execHash".getBytes())
                         .withRecipientKeys(List.of(recipient1, recipient2))
                         .withRecipientBox("recipient_box1".getBytes())
                         .build();
@@ -941,7 +944,6 @@ public class TransactionManagerTest {
 
         EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getSenderKey()).thenReturn(sender);
-        when(payload.getExecHash()).thenReturn("execHash".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(payload.getRecipientBoxes()).thenReturn(List.of(RecipientBox.from("box1".getBytes())));
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);

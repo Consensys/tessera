@@ -41,6 +41,7 @@ public class ResendManagerImpl implements ResendManager {
             final EncodedPayload tempPayload =
                     EncodedPayload.Builder.from(payload)
                             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                            .withExecHash(new byte[0])
                             .withNewRecipientKeys(List.of(payload.getRecipientKeys().get(0)))
                             .withRecipientBoxes(List.of(payload.getRecipientBoxes().get(0).getData()))
                             .build();
