@@ -65,6 +65,8 @@ public class Config extends ConfigItem {
 
     @XmlTransient private boolean recoveryMode;
 
+    @XmlElement private boolean isBesu;
+
     @Deprecated
     public Config(
             final JdbcConfig jdbcConfig,
@@ -220,5 +222,13 @@ public class Config extends ConfigItem {
 
     public void setRecoveryMode(boolean recoveryMode) {
         this.recoveryMode = recoveryMode;
+    }
+
+    public boolean isBesu() {
+        return isBesu;
+    }
+
+    public void setBesu(boolean isBesu) {
+        this.isBesu = isBesu;
     }
 }
