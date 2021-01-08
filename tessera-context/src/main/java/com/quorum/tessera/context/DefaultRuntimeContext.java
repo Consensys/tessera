@@ -32,6 +32,8 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     private final boolean recoveryMode;
 
+    private final boolean isBesu;
+
     protected DefaultRuntimeContext(
             List<KeyPair> keys,
             KeyEncryptor keyEncryptor,
@@ -43,7 +45,8 @@ class DefaultRuntimeContext implements RuntimeContext {
             URI p2pServerUri,
             boolean disablePeerDiscovery,
             boolean useWhiteList,
-            boolean recoveryMode) {
+            boolean recoveryMode,
+            boolean isBesu) {
         this.keys = List.copyOf(keys);
         this.keyEncryptor = keyEncryptor;
         this.alwaysSendTo = List.copyOf(alwaysSendTo);
@@ -55,6 +58,7 @@ class DefaultRuntimeContext implements RuntimeContext {
         this.disablePeerDiscovery = disablePeerDiscovery;
         this.useWhiteList = useWhiteList;
         this.recoveryMode = recoveryMode;
+        this.isBesu = isBesu;
     }
 
     public List<KeyPair> getKeys() {
@@ -100,8 +104,14 @@ class DefaultRuntimeContext implements RuntimeContext {
         return useWhiteList;
     }
 
+    @Override
     public boolean isRecoveryMode() {
         return recoveryMode;
+    }
+
+    @Override
+    public boolean isBesu() {
+        return isBesu;
     }
 
     @Override
@@ -129,6 +139,8 @@ class DefaultRuntimeContext implements RuntimeContext {
                 + useWhiteList
                 + ", recoveryMode="
                 + recoveryMode
+                + ", isBesu="
+                + isBesu
                 + '}';
     }
 }

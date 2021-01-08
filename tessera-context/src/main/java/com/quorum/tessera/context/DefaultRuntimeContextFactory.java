@@ -110,6 +110,7 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
                         .withAlwaysSendTo(alwaysSendTo)
                         .withUseWhiteList(config.isUseWhiteList())
                         .withRecoveryMode(config.isRecoveryMode())
+                        .isBesu(config.isBesu())
                         .build();
 
         contextHolder.setContext(context);

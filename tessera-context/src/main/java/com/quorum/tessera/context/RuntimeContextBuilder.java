@@ -38,6 +38,8 @@ public class RuntimeContextBuilder {
 
     private boolean recoveryMode;
 
+    private boolean isBesu;
+
     private RuntimeContextBuilder() {}
 
     public static RuntimeContextBuilder create() {
@@ -99,6 +101,11 @@ public class RuntimeContextBuilder {
         return this;
     }
 
+    public RuntimeContextBuilder isBesu(boolean isBesu) {
+        this.isBesu = isBesu;
+        return this;
+    }
+
     public RuntimeContext build() {
 
         LOGGER.debug("Building {}", this);
@@ -119,7 +126,8 @@ public class RuntimeContextBuilder {
                         p2pServerUri,
                         disablePeerDiscovery,
                         useWhiteList,
-                        recoveryMode);
+                        recoveryMode,
+                        isBesu);
         LOGGER.debug("Built {}", this);
         return instance;
     }

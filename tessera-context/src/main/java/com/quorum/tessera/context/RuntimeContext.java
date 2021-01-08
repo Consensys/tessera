@@ -34,6 +34,8 @@ public interface RuntimeContext {
 
     boolean isRecoveryMode();
 
+    boolean isBesu();
+
     default Set<PublicKey> getPublicKeys() {
         return getKeys().stream().map(KeyPair::getPublicKey).collect(Collectors.toSet());
     }
