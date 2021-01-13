@@ -2,36 +2,55 @@ package com.quorum.tessera.privacygroup;
 
 import com.quorum.tessera.data.PrivacyGroupDAO;
 import com.quorum.tessera.data.PrivacyGroupEntity;
+import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyGroupUtil;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotFoundException;
-import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
+import com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher;
+import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
+    private final Enclave enclave;
+
     private final PrivacyGroupDAO privacyGroupDAO;
 
-    private final PrivacyGroupPublisher publisher;
+    private final BatchPrivacyGroupPublisher publisher;
 
     private final PrivacyGroupUtil privacyGroupUtil;
 
-    public PrivacyGroupManagerImpl(PrivacyGroupDAO privacyGroupDAO, PrivacyGroupPublisher publisher) {
-        this(privacyGroupDAO, publisher, PrivacyGroupUtil.create());
+    public PrivacyGroupManagerImpl(
+            Enclave enclave, PrivacyGroupDAO privacyGroupDAO, BatchPrivacyGroupPublisher publisher) {
+        this(enclave, privacyGroupDAO, publisher, PrivacyGroupUtil.create());
     }
 
     PrivacyGroupManagerImpl(
-            PrivacyGroupDAO privacyGroupDAO, PrivacyGroupPublisher publisher, PrivacyGroupUtil privacyGroupUtil) {
+            Enclave enclave,
+            PrivacyGroupDAO privacyGroupDAO,
+            BatchPrivacyGroupPublisher publisher,
+            PrivacyGroupUtil privacyGroupUtil) {
+        this.enclave = enclave;
         this.privacyGroupDAO = privacyGroupDAO;
         this.publisher = publisher;
         this.privacyGroupUtil = privacyGroupUtil;
     }
 
     @Override
-    public PrivacyGroup createPrivacyGroup(String name, String description, List<PublicKey> members, byte[] seed) {
+    public PrivacyGroup createPrivacyGroup(
+            String name, String description, PublicKey from, List<PublicKey> members, byte[] seed) {
+
+        final Set<PublicKey> localKeys = enclave.getPublicKeys();
+
+        if (!members.contains(from)) {
+            throw new PrivacyViolationException("The list of members in a privacy group should include self");
+        }
 
         final byte[] privacyGroupId = privacyGroupUtil.generatePrivacyGroupId(members, seed);
 
@@ -47,13 +66,15 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
                         .build();
 
         final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
-
         final byte[] encodedData = privacyGroupUtil.encode(created);
+
+        final List<PublicKey> forwardingMembers =
+                members.stream().filter(Predicate.not(localKeys::contains)).collect(Collectors.toList());
 
         privacyGroupDAO.save(
                 new PrivacyGroupEntity(privacyGroupId, lookupId, encodedData),
                 () -> {
-                    publisher.publishPrivacyGroup(encodedData, members);
+                    publisher.publishPrivacyGroup(encodedData, forwardingMembers);
                     return null;
                 });
 
@@ -61,7 +82,11 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     }
 
     @Override
-    public PrivacyGroup createLegacyPrivacyGroup(List<PublicKey> members) {
+    public PrivacyGroup createLegacyPrivacyGroup(PublicKey from, List<PublicKey> recipients) {
+
+        final List<PublicKey> members = new ArrayList<>();
+        members.add(from);
+        members.addAll(recipients);
 
         final String name = "legacy";
         final String description = "Privacy groups to support the creation of groups by privateFor and privateFrom";
@@ -83,7 +108,6 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         }
 
         final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
-
         final byte[] encodedData = privacyGroupUtil.encode(created);
 
         privacyGroupDAO.save(new PrivacyGroupEntity(privacyGroupId, lookupId, encodedData));
@@ -99,6 +123,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         return privacyGroupDAO.findByLookupId(lookupId).stream()
                 .map(PrivacyGroupEntity::getData)
                 .map(privacyGroupUtil::decode)
+                .filter(pg -> pg.getState() == PrivacyGroup.State.ACTIVE)
                 .collect(Collectors.toUnmodifiableList());
     }
 
@@ -107,17 +132,12 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         final byte[] id = privacyGroupId.getKeyBytes();
 
-        final PrivacyGroupEntity result =
-                privacyGroupDAO
-                        .retrieve(id)
-                        .orElseThrow(
-                                () ->
-                                        new PrivacyGroupNotFoundException(
-                                                "Privacy group " + privacyGroupId + " not found"));
-
-        final PrivacyGroup privacyGroup = privacyGroupUtil.decode(result.getData());
-
-        return privacyGroup;
+        return privacyGroupDAO
+                .retrieve(id)
+                .map(PrivacyGroupEntity::getData)
+                .map(privacyGroupUtil::decode)
+                .filter(pg -> pg.getState() == PrivacyGroup.State.ACTIVE)
+                .orElseThrow(() -> new PrivacyGroupNotFoundException("Privacy group " + privacyGroupId + " not found"));
     }
 
     @Override
@@ -131,11 +151,57 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         final PrivacyGroupEntity entity = new PrivacyGroupEntity(id, lookupId, encodedData);
 
+        if (privacyGroup.getState() == PrivacyGroup.State.DELETED) {
+            privacyGroupDAO.update(entity);
+            return;
+        }
+
         privacyGroupDAO.save(entity);
     }
 
-    //    @Override
-    //    public PublicKey deletePrivacyGroup(PublicKey privacyGroupId, PublicKey from) {
-    //        return null;
-    //    }
+    @Override
+    public PrivacyGroup deletePrivacyGroup(PublicKey from, PublicKey privacyGroupId) {
+
+        PrivacyGroupEntity entity =
+                privacyGroupDAO
+                        .retrieve(privacyGroupId.getKeyBytes())
+                        .orElseThrow(
+                                () ->
+                                        new PrivacyGroupNotFoundException(
+                                                "Privacy group " + privacyGroupId + " not found"));
+
+        final PrivacyGroup data = privacyGroupUtil.decode(entity.getData());
+
+        if (data.getState() == PrivacyGroup.State.DELETED) {
+            throw new PrivacyGroupNotFoundException("Privacy group " + privacyGroupId + " not found");
+        }
+
+        if (!data.getMembers().contains(from)) {
+            throw new PrivacyViolationException("Sender of request does not belong to this privacy group");
+        }
+
+        final PrivacyGroup updated =
+                PrivacyGroup.Builder.create().from(data).withState(PrivacyGroup.State.DELETED).build();
+
+        final byte[] updatedData = privacyGroupUtil.encode(updated);
+        entity.setData(updatedData);
+
+        final Set<PublicKey> localKeys = enclave.getPublicKeys();
+        final List<PublicKey> forwardingMembers =
+                updated.getMembers().stream().filter(Predicate.not(localKeys::contains)).collect(Collectors.toList());
+
+        privacyGroupDAO.update(
+                entity,
+                () -> {
+                    publisher.publishPrivacyGroup(updatedData, forwardingMembers);
+                    return null;
+                });
+
+        return updated;
+    }
+
+    @Override
+    public PublicKey defaultPublicKey() {
+        return enclave.defaultPublicKey();
+    }
 }
