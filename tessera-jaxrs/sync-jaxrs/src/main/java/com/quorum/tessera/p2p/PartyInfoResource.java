@@ -171,7 +171,7 @@ public class PartyInfoResource {
                                         dataToEncrypt.getBytes(),
                                         localPublicKey,
                                         Arrays.asList(r.getKey()),
-                                        PrivacyMetaData.Builder.create().buildStandardPrivate());
+                                        PrivacyMetadata.Builder.forStandardPrivate().build());
 
                         final byte[] encodedPayloadBytes = payloadEncoder.encode(encodedPayload);
 

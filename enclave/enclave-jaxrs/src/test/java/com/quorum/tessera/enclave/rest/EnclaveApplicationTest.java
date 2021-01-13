@@ -101,8 +101,8 @@ public class EnclaveApplicationTest {
         when(affectedTransaction.getPayload()).thenReturn(acoth);
         when(affectedTransaction.getHash()).thenReturn(txHash);
 
-        PrivacyMetaData privacyMetaData =
-                PrivacyMetaData.Builder.create()
+        PrivacyMetadata privacyMetaData =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withAffectedTransactions(List.of(affectedTransaction))
                         .build();
@@ -126,7 +126,7 @@ public class EnclaveApplicationTest {
 
         assertThat(results.get(0)).isEqualTo(message);
 
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(PrivacyMetaData.class));
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(PrivacyMetadata.class));
     }
 
     @Test

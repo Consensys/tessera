@@ -82,8 +82,8 @@ public class EnclaveResource {
         final List<AffectedTransaction> affectedTransactions =
                 convertToAffectedTransactions(payload.getAffectedContractTransactions());
 
-        final PrivacyMetaData.Builder privacyMetaDataBuilder =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata.Builder privacyMetaDataBuilder =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(payload.getPrivacyMode())
                         .withAffectedTransactions(affectedTransactions)
                         .withExecHash(payload.getExecHash());
@@ -120,8 +120,8 @@ public class EnclaveResource {
         final List<AffectedTransaction> affectedTransactions =
                 convertToAffectedTransactions(enclaveRawPayload.getAffectedContractTransactions());
 
-        final PrivacyMetaData.Builder privacyMetaDataBuilder =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata.Builder privacyMetaDataBuilder =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(enclaveRawPayload.getPrivacyMode())
                         .withAffectedTransactions(affectedTransactions)
                         .withExecHash(enclaveRawPayload.getExecHash());

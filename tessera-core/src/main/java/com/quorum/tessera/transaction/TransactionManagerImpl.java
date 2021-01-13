@@ -18,12 +18,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Delegate/Mediator object to normalise calls/interactions between Enclave and Base64Decoder
- *
- * @see {Base64Decoder}
- * @see {Enclave}
- */
+import static java.util.function.Predicate.not;
+
 public class TransactionManagerImpl implements TransactionManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
@@ -95,8 +91,7 @@ public class TransactionManagerImpl implements TransactionManager {
     public SendResponse send(SendRequest sendRequest) {
 
         final PublicKey senderPublicKey = sendRequest.getSender();
-        final List<PublicKey> recipientList = new ArrayList<>();
-        recipientList.addAll(sendRequest.getRecipients());
+        final List<PublicKey> recipientList = new ArrayList<>(sendRequest.getRecipients());
         recipientList.add(senderPublicKey);
         recipientList.addAll(enclave.getForwardingKeys());
 
@@ -114,15 +109,15 @@ public class TransactionManagerImpl implements TransactionManager {
 
         privacyHelper.validateSendRequest(privacyMode, recipientList, affectedContractTransactions);
 
-        final PrivacyMetaData.Builder privacyMetaDataBuilder =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata.Builder metadataBuilder =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(privacyMode)
                         .withAffectedTransactions(affectedContractTransactions)
                         .withExecHash(execHash);
-        sendRequest.getPrivacyGroupId().ifPresent(privacyMetaDataBuilder::withPrivacyGroupId);
+        sendRequest.getPrivacyGroupId().ifPresent(metadataBuilder::withPrivacyGroupId);
 
         final EncodedPayload payload =
-                enclave.encryptPayload(raw, senderPublicKey, recipientListNoDuplicate, privacyMetaDataBuilder.build());
+                enclave.encryptPayload(raw, senderPublicKey, recipientListNoDuplicate, metadataBuilder.build());
 
         final MessageHash transactionHash =
                 Optional.of(payload)
@@ -134,10 +129,14 @@ public class TransactionManagerImpl implements TransactionManager {
         byte[] payloadData = this.payloadEncoder.encode(payload);
         final EncryptedTransaction newTransaction = new EncryptedTransaction(transactionHash, payloadData);
 
-        final List<PublicKey> recipientListRemotesOnly =
-                recipientListNoDuplicate.stream()
-                        .filter(k -> !enclave.getPublicKeys().contains(k))
-                        .collect(Collectors.toList());
+        final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
+        final Set<PublicKey> managedParties =
+            Stream.concat(Stream.of(senderPublicKey), recipientListNoDuplicate.stream())
+                .filter(managedPublicKeys::contains)
+                .collect(Collectors.toSet());
+
+        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
+            .filter(not(managedPublicKeys::contains)).collect(Collectors.toList());
 
         this.encryptedTransactionDAO.save(
                 newTransaction,
@@ -145,12 +144,6 @@ public class TransactionManagerImpl implements TransactionManager {
                     batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
                     return null;
                 });
-
-        final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
-        final Set<PublicKey> managedParties =
-                Stream.concat(Stream.of(senderPublicKey), recipientListNoDuplicate.stream())
-                        .filter(managedPublicKeys::contains)
-                        .collect(Collectors.toSet());
 
         return SendResponse.Builder.create()
                 .withMessageHash(transactionHash)
@@ -190,8 +183,8 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final List<PublicKey> recipientListNoDuplicate = recipientList.stream().distinct().collect(Collectors.toList());
 
-        final PrivacyMetaData.Builder privacyMetaDataBuilder =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata.Builder privacyMetaDataBuilder =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(privacyMode)
                         .withAffectedTransactions(affectedContractTransactions)
                         .withExecHash(execHash);
@@ -206,10 +199,12 @@ public class TransactionManagerImpl implements TransactionManager {
         final EncryptedTransaction newTransaction =
                 new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
 
-        final List<PublicKey> recipientListRemotesOnly =
-                recipientListNoDuplicate.stream()
-                        .filter(k -> !enclave.getPublicKeys().contains(k))
-                        .collect(Collectors.toList());
+        final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
+        final Set<PublicKey> managedParties =
+            recipientListNoDuplicate.stream().filter(managedPublicKeys::contains).collect(Collectors.toSet());
+
+        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
+            .filter(not(managedPublicKeys::contains)).collect(Collectors.toList());
 
         this.encryptedTransactionDAO.save(
                 newTransaction,
@@ -217,10 +212,6 @@ public class TransactionManagerImpl implements TransactionManager {
                     batchPayloadPublisher.publishPayload(payload, recipientListRemotesOnly);
                     return null;
                 });
-
-        final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
-        final Set<PublicKey> managedParties =
-                recipientListNoDuplicate.stream().filter(managedPublicKeys::contains).collect(Collectors.toSet());
 
         return SendResponse.Builder.create()
                 .withMessageHash(messageHash)
@@ -265,8 +256,7 @@ public class TransactionManagerImpl implements TransactionManager {
             return transactionHash;
         }
 
-        // This is a tran
-        // saction with a different node as the sender
+        // This is a transaction with a different node as the sender
         final Optional<EncryptedTransaction> tx = this.encryptedTransactionDAO.retrieveByHash(transactionHash);
         if (tx.isEmpty()) {
             // This is the first time we have seen the payload, so just save it to the database as is
@@ -418,7 +408,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         byte[] unencryptedTransactionData = enclave.unencryptTransaction(payload, recipientKey);
 
-        Set<MessageHash> txns =
+        Set<MessageHash> affectedTransactions =
                 payload.getAffectedContractTransactions().keySet().stream()
                         .map(TxHash::getBytes)
                         .map(MessageHash::new)
@@ -446,7 +436,7 @@ public class TransactionManagerImpl implements TransactionManager {
         return responseBuilder
                 .withUnencryptedTransactionData(unencryptedTransactionData)
                 .withPrivacyMode(payload.getPrivacyMode())
-                .withAffectedTransactions(txns)
+                .withAffectedTransactions(affectedTransactions)
                 .withExecHash(payload.getExecHash())
                 .withManagedParties(managedParties)
                 .withSender(payload.getSenderKey())
@@ -485,13 +475,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     @Override
     public boolean upcheck() {
-        if (!encryptedRawTransactionDAO.upcheck()) {
-            return false;
-        }
-        if (!encryptedTransactionDAO.upcheck()) {
-            return false;
-        }
-        return true;
+        return encryptedRawTransactionDAO.upcheck() && encryptedTransactionDAO.upcheck();
     }
 
     @Override

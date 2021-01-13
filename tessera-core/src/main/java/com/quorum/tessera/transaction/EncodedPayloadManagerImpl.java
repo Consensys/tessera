@@ -53,8 +53,8 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
         privacyHelper.validateSendRequest(privacyMode, recipientListNoDuplicate, affectedContractTransactions);
         LOGGER.debug("Successful validation against affected contracts");
 
-        final PrivacyMetaData.Builder metaDataBuilder =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata.Builder metaDataBuilder =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(privacyMode)
                         .withAffectedTransactions(affectedContractTransactions)
                         .withExecHash(request.getExecHash());
@@ -83,7 +83,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
         final byte[] decryptedTransactionData = enclave.unencryptTransaction(payload, recipientKey);
 
-        final Set<MessageHash> txns =
+        final Set<MessageHash> affectedTransaction =
                 payload.getAffectedContractTransactions().keySet().stream()
                         .map(TxHash::getBytes)
                         .map(MessageHash::new)
@@ -93,7 +93,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
                 ReceiveResponse.Builder.create()
                         .withUnencryptedTransactionData(decryptedTransactionData)
                         .withPrivacyMode(payload.getPrivacyMode())
-                        .withAffectedTransactions(txns)
+                        .withAffectedTransactions(affectedTransaction)
                         .withExecHash(payload.getExecHash())
                         .withSender(payload.getSenderKey());
 

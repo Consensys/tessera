@@ -101,7 +101,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             final byte[] message,
             final PublicKey senderPublicKey,
             final List<PublicKey> recipientPublicKeys,
-            final PrivacyMetaData privacyMetaData) {
+            final PrivacyMetadata privacyMetaData) {
 
         return ClientCallback.execute(
                 () -> {
@@ -133,7 +133,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
     public EncodedPayload encryptPayload(
             final RawTransaction rawTransaction,
             final List<PublicKey> recipientPublicKeys,
-            final PrivacyMetaData privacyMetaData) {
+            final PrivacyMetadata privacyMetaData) {
 
         return ClientCallback.execute(
                 () -> {

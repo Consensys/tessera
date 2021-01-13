@@ -111,7 +111,7 @@ public class TransactionManagerTest {
         verify(payloadEncoder).encode(encodedPayload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(3)).getPublicKeys();
+        verify(enclave).getPublicKeys();
     }
 
     @Test
@@ -155,7 +155,7 @@ public class TransactionManagerTest {
         verify(payloadEncoder).encode(encodedPayload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(3)).getPublicKeys();
+        verify(enclave).getPublicKeys();
         verify(batchPayloadPublisher).publishPayload(any(), anyList());
     }
 
@@ -189,7 +189,7 @@ public class TransactionManagerTest {
         verify(payloadEncoder).encode(encodedPayload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(3)).getPublicKeys();
+        verify(enclave).getPublicKeys();
     }
 
     @Test
@@ -227,16 +227,16 @@ public class TransactionManagerTest {
         assertThat(result.getTransactionHash()).isEqualTo(new MessageHash("HASH".getBytes()));
         assertThat(result.getManagedParties()).containsExactly(receiver);
 
-        ArgumentCaptor<PrivacyMetaData> data = ArgumentCaptor.forClass(PrivacyMetaData.class);
+        ArgumentCaptor<PrivacyMetadata> data = ArgumentCaptor.forClass(PrivacyMetadata.class);
 
         verify(enclave).encryptPayload(any(RawTransaction.class), any(), data.capture());
         verify(payloadEncoder).encode(payload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(3)).getPublicKeys();
+        verify(enclave).getPublicKeys();
 
-        final PrivacyMetaData passingData = data.getValue();
+        final PrivacyMetadata passingData = data.getValue();
         assertThat(passingData.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
         assertThat(passingData.getPrivacyGroupId()).isNotPresent();
     }
@@ -288,17 +288,17 @@ public class TransactionManagerTest {
         assertThat(result.getTransactionHash()).isEqualTo(new MessageHash("HASH".getBytes()));
         assertThat(result.getManagedParties()).isEmpty();
 
-        ArgumentCaptor<PrivacyMetaData> data = ArgumentCaptor.forClass(PrivacyMetaData.class);
+        ArgumentCaptor<PrivacyMetadata> data = ArgumentCaptor.forClass(PrivacyMetadata.class);
 
         verify(enclave).encryptPayload(any(RawTransaction.class), any(), data.capture());
         verify(payloadEncoder).encode(payload);
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(3)).getPublicKeys();
+        verify(enclave).getPublicKeys();
         verify(batchPayloadPublisher).publishPayload(any(), anyList());
 
-        final PrivacyMetaData passingData = data.getValue();
+        final PrivacyMetadata passingData = data.getValue();
         assertThat(passingData.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
         assertThat(passingData.getAffectedContractTransactions()).isEmpty();
         assertThat(passingData.getExecHash()).isEqualTo("execHash".getBytes());
@@ -342,7 +342,7 @@ public class TransactionManagerTest {
         verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
         verify(encryptedRawTransactionDAO).retrieveByHash(any(MessageHash.class));
         verify(enclave).getForwardingKeys();
-        verify(enclave, times(3)).getPublicKeys();
+        verify(enclave).getPublicKeys();
     }
 
     @Test
