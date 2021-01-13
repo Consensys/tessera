@@ -46,8 +46,9 @@ public class Q2TRestApp extends TesseraRestApplication {
 
         TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
         EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create(config);
+        final PrivacyGroupManager privacyGroupManager = PrivacyGroupManager.create(config);
 
-        TransactionResource transactionResource = new TransactionResource(transactionManager);
+        TransactionResource transactionResource = new TransactionResource(transactionManager, privacyGroupManager);
         TransactionResource3 transactionResource3 = new TransactionResource3(transactionManager);
 
         RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
@@ -55,16 +56,21 @@ public class Q2TRestApp extends TesseraRestApplication {
                 new EncodedPayloadResource(encodedPayloadManager, transactionManager);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
-        final PrivacyGroupManager privacyGroupManager = PrivacyGroupManager.create(config);
         final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 
+        if (config.isBesu()) {
+            final BesuTransactionResource besuResource =
+                    new BesuTransactionResource(transactionManager, privacyGroupManager);
+            return Set.of(besuResource, privacyGroupResource, upCheckResource);
+        }
+
         return Set.of(
-            transactionResource,
-            rawTransactionResource,
-            encodedPayloadResource,
-            privacyGroupResource,
-            upCheckResource,
-            transactionResource3);
+                transactionResource,
+                rawTransactionResource,
+                encodedPayloadResource,
+                privacyGroupResource,
+                upCheckResource,
+                transactionResource3);
     }
 
     @Override

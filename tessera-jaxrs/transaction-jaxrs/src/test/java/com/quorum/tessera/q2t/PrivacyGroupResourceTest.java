@@ -1,13 +1,10 @@
 package com.quorum.tessera.q2t;
 
+import com.quorum.tessera.api.*;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.util.Base64Codec;
-import com.quorum.tessera.api.PrivacyGroupRequest;
-import com.quorum.tessera.api.PrivacyGroupResponse;
-import com.quorum.tessera.api.PrivacyGroupRetrieveRequest;
-import com.quorum.tessera.api.PrivacyGroupSearchRequest;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -88,7 +85,8 @@ public class PrivacyGroupResourceTest {
         request.setName("name");
         request.setDescription("description");
 
-        when(privacyGroupManager.createPrivacyGroup(any(), any(), anyList(), any(byte[].class))).thenReturn(mockResult);
+        when(privacyGroupManager.createPrivacyGroup(any(), any(), any(), anyList(), any(byte[].class)))
+                .thenReturn(mockResult);
 
         final Response response =
                 jersey.target("createPrivacyGroup").request().post(Entity.entity(request, MediaType.APPLICATION_JSON));
@@ -102,14 +100,20 @@ public class PrivacyGroupResourceTest {
 
         ArgumentCaptor<String> strArgCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<List<PublicKey>> memberCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<PublicKey> fromArgCaptor = ArgumentCaptor.forClass(PublicKey.class);
 
         verify(privacyGroupManager)
                 .createPrivacyGroup(
-                        strArgCaptor.capture(), strArgCaptor.capture(), memberCaptor.capture(), any(byte[].class));
+                        strArgCaptor.capture(),
+                        strArgCaptor.capture(),
+                        fromArgCaptor.capture(),
+                        memberCaptor.capture(),
+                        any(byte[].class));
 
         assertThat(strArgCaptor.getAllValues()).containsExactly("name", "description");
         assertThat(memberCaptor.getValue())
                 .containsExactly(PublicKey.from("member1".getBytes()), PublicKey.from("member2".getBytes()));
+        assertThat(fromArgCaptor.getValue().encodeToBase64()).isEqualTo(member1);
     }
 
     @Test
@@ -162,5 +166,30 @@ public class PrivacyGroupResourceTest {
         assertThat(res.getType()).isEqualTo(mockResult.getType().name());
 
         verify(privacyGroupManager).retrievePrivacyGroup(PublicKey.from("id".getBytes()));
+    }
+
+    @Test
+    public void testDeletePrivacyGroup() {
+
+        PrivacyGroupDeleteRequest req = new PrivacyGroupDeleteRequest();
+        req.setPrivacyGroupId("aWQ=");
+        req.setFrom(PublicKey.from("member1".getBytes()).encodeToBase64());
+
+        when(privacyGroupManager.deletePrivacyGroup(
+                        PublicKey.from("member1".getBytes()), mockResult.getPrivacyGroupId()))
+                .thenReturn(mockResult);
+
+        final Response response =
+                jersey.target("deletePrivacyGroup").request().post(Entity.entity(req, MediaType.APPLICATION_JSON));
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        final String out = response.readEntity(String.class);
+
+        assertThat(out).isEqualTo("\"aWQ=\"");
+
+        verify(privacyGroupManager)
+                .deletePrivacyGroup(PublicKey.from("member1".getBytes()), mockResult.getPrivacyGroupId());
     }
 }

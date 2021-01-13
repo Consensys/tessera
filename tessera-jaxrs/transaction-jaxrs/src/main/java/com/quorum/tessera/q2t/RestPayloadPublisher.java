@@ -5,12 +5,14 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotSupportedException;
 import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.version.EnhancedPrivacyVersion;
+import com.quorum.tessera.version.PrivacyGroupVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +52,13 @@ public class RestPayloadPublisher implements PayloadPublisher {
                 && !remoteNodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)) {
             throw new EnhancedPrivacyNotSupportedException(
                     "Transactions with enhanced privacy is not currently supported on recipient "
+                            + recipientKey.encodeToBase64());
+        }
+
+        if (payload.getPrivacyGroupId().isPresent()
+                && !remoteNodeInfo.supportedApiVersions().contains(PrivacyGroupVersion.API_VERSION_3)) {
+            throw new PrivacyGroupNotSupportedException(
+                    "Transactions with privacy group is not currently supported on recipient "
                             + recipientKey.encodeToBase64());
         }
 

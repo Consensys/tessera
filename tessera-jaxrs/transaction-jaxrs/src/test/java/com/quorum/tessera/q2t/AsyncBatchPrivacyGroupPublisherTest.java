@@ -1,8 +1,6 @@
 package com.quorum.tessera.q2t;
 
-import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.privacygroup.exception.PrivacyGroupPublishException;
 import com.quorum.tessera.threading.CancellableCountDownLatch;
 import com.quorum.tessera.threading.CancellableCountDownLatchFactory;
@@ -11,7 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -21,7 +18,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-public class AsyncRestPrivacyGroupPublisherTest {
+public class AsyncBatchPrivacyGroupPublisherTest {
 
     private ExecutorFactory mockExecutorFactory;
 
@@ -33,11 +30,10 @@ public class AsyncRestPrivacyGroupPublisherTest {
 
     private RestPrivacyGroupPublisher mockPublisher;
 
-    private Discovery mockDiscovery;
+    final PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
+    final PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
 
-    private List<PublicKey> recipients;
-
-    private AsyncRestPrivacyGroupPublisher publisher;
+    private AsyncBatchPrivacyGroupPublisher publisher;
 
     @Before
     public void onSetup() {
@@ -51,21 +47,14 @@ public class AsyncRestPrivacyGroupPublisherTest {
         mockCountDownLatchFactory = mock(CancellableCountDownLatchFactory.class);
         when(mockCountDownLatchFactory.create(anyInt())).thenReturn(mockCountDownLatch);
 
-        mockDiscovery = mock(Discovery.class);
-        final NodeInfo own = mock(NodeInfo.class);
-        final PublicKey recipient = PublicKey.from("RECIPIENT".getBytes());
-        final PublicKey otherRecipient = PublicKey.from("OTHERRECIPIENT".getBytes());
-        recipients = List.of(recipient, otherRecipient);
-        when(own.getUrl()).thenReturn("http://own.com/");
-        when(own.getRecipientsAsMap())
-                .thenReturn(Map.of(recipient, "http://url1.com/", otherRecipient, "http://url2.com/"));
-        when(mockDiscovery.getCurrent()).thenReturn(own);
+        //        when(own.getUrl()).thenReturn("http://own.com/");
+        //        when(own.getRecipientsAsMap())
+        //                .thenReturn(Map.of(recipient, "http://url1.com/", otherRecipient, "http://url2.com/"));
+        //        when(mockDiscovery.getCurrent()).thenReturn(own);
 
         mockPublisher = mock(RestPrivacyGroupPublisher.class);
 
-        publisher =
-                new AsyncRestPrivacyGroupPublisher(
-                        mockExecutorFactory, mockCountDownLatchFactory, mockDiscovery, mockPublisher);
+        publisher = new AsyncBatchPrivacyGroupPublisher(mockExecutorFactory, mockCountDownLatchFactory, mockPublisher);
     }
 
     @Test
@@ -84,7 +73,7 @@ public class AsyncRestPrivacyGroupPublisherTest {
 
         final byte[] data = new byte[5];
 
-        publisher.publishPrivacyGroup(data, recipients);
+        publisher.publishPrivacyGroup(data, List.of(recipient, otherRecipient));
 
         verify(mockCountDownLatchFactory).create(2);
         verify(mockExecutorFactory).createCachedThreadPool();
@@ -99,7 +88,8 @@ public class AsyncRestPrivacyGroupPublisherTest {
 
         doThrow(cause).when(mockCountDownLatch).await();
 
-        Throwable ex = catchThrowable(() -> publisher.publishPrivacyGroup(new byte[5], recipients));
+        Throwable ex =
+                catchThrowable(() -> publisher.publishPrivacyGroup(new byte[5], List.of(recipient, otherRecipient)));
         assertThat(ex).isExactlyInstanceOf(PrivacyGroupPublishException.class);
         assertThat(ex).hasMessage("some exception");
 
@@ -115,9 +105,8 @@ public class AsyncRestPrivacyGroupPublisherTest {
         final Executor realExecutor = Executors.newSingleThreadExecutor();
         when(mockExecutorFactory.createCachedThreadPool()).thenReturn(realExecutor);
 
-        final AsyncRestPrivacyGroupPublisher publisher =
-                new AsyncRestPrivacyGroupPublisher(
-                        mockExecutorFactory, mockCountDownLatchFactory, mockDiscovery, mockPublisher);
+        final AsyncBatchPrivacyGroupPublisher publisher =
+                new AsyncBatchPrivacyGroupPublisher(mockExecutorFactory, mockCountDownLatchFactory, mockPublisher);
 
         doAnswer(
                         invocation -> {
@@ -130,10 +119,10 @@ public class AsyncRestPrivacyGroupPublisherTest {
 
         final byte[] data = new byte[5];
 
-        publisher.publishPrivacyGroup(data, recipients);
+        publisher.publishPrivacyGroup(data, List.of(recipient, otherRecipient));
 
-        verify(mockPublisher).publish(eq(data), eq("http://url1.com/"));
-        verify(mockPublisher).publish(eq(data), eq("http://url2.com/"));
+        verify(mockPublisher).publishPrivacyGroup(eq(data), eq(recipient));
+        verify(mockPublisher).publishPrivacyGroup(eq(data), eq(otherRecipient));
 
         verify(mockExecutorFactory, times(2)).createCachedThreadPool();
         verify(mockCountDownLatchFactory).create(2);
@@ -148,13 +137,14 @@ public class AsyncRestPrivacyGroupPublisherTest {
         final Executor realExecutor = Executors.newSingleThreadExecutor();
         when(mockExecutorFactory.createCachedThreadPool()).thenReturn(realExecutor);
 
-        final AsyncRestPrivacyGroupPublisher publisher =
-                new AsyncRestPrivacyGroupPublisher(
-                        mockExecutorFactory, mockCountDownLatchFactory, mockDiscovery, mockPublisher);
+        final AsyncBatchPrivacyGroupPublisher publisher =
+                new AsyncBatchPrivacyGroupPublisher(mockExecutorFactory, mockCountDownLatchFactory, mockPublisher);
 
         final byte[] data = new byte[5];
 
-        doThrow(new PrivacyGroupPublishException("OUCH")).when(mockPublisher).publish(eq(data), eq("http://url2.com/"));
+        doThrow(new PrivacyGroupPublishException("OUCH"))
+                .when(mockPublisher)
+                .publishPrivacyGroup(eq(data), eq(otherRecipient));
 
         doAnswer(
                         invocation -> {
@@ -165,7 +155,7 @@ public class AsyncRestPrivacyGroupPublisherTest {
                 .when(mockCountDownLatch)
                 .await();
 
-        publisher.publishPrivacyGroup(data, recipients);
+        publisher.publishPrivacyGroup(data, List.of(recipient, otherRecipient));
 
         verify(mockCountDownLatch).cancelWithException(any());
     }

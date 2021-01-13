@@ -1,15 +1,13 @@
 package com.quorum.tessera.q2t;
 
+import com.quorum.tessera.api.*;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.util.Base64Codec;
-import com.quorum.tessera.api.PrivacyGroupResponse;
-import com.quorum.tessera.api.PrivacyGroupRequest;
-import com.quorum.tessera.api.PrivacyGroupRetrieveRequest;
-import com.quorum.tessera.api.PrivacyGroupSearchRequest;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import javax.json.Json;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -31,13 +29,12 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 @Path("/")
 public class PrivacyGroupResource {
 
-    private PrivacyGroupManager privacyGroupManager;
+    private final PrivacyGroupManager privacyGroupManager;
 
-    private Base64Codec base64Codec;
+    private final Base64Codec base64Codec = Base64Codec.create();
 
     public PrivacyGroupResource(PrivacyGroupManager privacyGroupManager) {
         this.privacyGroupManager = privacyGroupManager;
-        this.base64Codec = Base64Codec.create();
     }
 
     @POST
@@ -45,6 +42,12 @@ public class PrivacyGroupResource {
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
     public Response createPrivacyGroup(@NotNull final PrivacyGroupRequest request) {
+
+        final PublicKey from =
+                Optional.ofNullable(request.getFrom())
+                        .map(base64Codec::decode)
+                        .map(PublicKey::from)
+                        .orElseGet(privacyGroupManager::defaultPublicKey);
 
         final List<PublicKey> members =
                 Arrays.stream(request.getAddresses())
@@ -57,7 +60,7 @@ public class PrivacyGroupResource {
 
         final PrivacyGroup created =
                 privacyGroupManager.createPrivacyGroup(
-                        request.getName(), request.getDescription(), members, randomSeed);
+                        request.getName(), request.getDescription(), from, members, randomSeed);
 
         return Response.status(Response.Status.OK).entity(toResponseObject(created)).build();
     }
@@ -95,6 +98,33 @@ public class PrivacyGroupResource {
         return Response.ok().entity(toResponseObject(privacyGroup)).build();
     }
 
+    @POST
+    @Path("deletePrivacyGroup")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response deletePrivacyGroup(@NotNull final PrivacyGroupDeleteRequest request) {
+
+        final PublicKey from =
+                Optional.ofNullable(request.getFrom())
+                        .map(base64Codec::decode)
+                        .map(PublicKey::from)
+                        .orElseGet(privacyGroupManager::defaultPublicKey);
+
+        final PublicKey privacyGroupId = PublicKey.from(base64Codec.decode(request.getPrivacyGroupId()));
+
+        final PrivacyGroup privacyGroup = privacyGroupManager.deletePrivacyGroup(from, privacyGroupId);
+
+        // Have to output in this format to match what is expected from Besu
+        final String output =
+                Json.createArrayBuilder()
+                        .add(privacyGroup.getPrivacyGroupId().encodeToBase64())
+                        .build()
+                        .getJsonString(0)
+                        .toString();
+
+        return Response.ok().entity(output).build();
+    }
+
     PrivacyGroupResponse toResponseObject(final PrivacyGroup privacyGroup) {
         return new PrivacyGroupResponse(
                 privacyGroup.getPrivacyGroupId().encodeToBase64(),
@@ -104,7 +134,7 @@ public class PrivacyGroupResource {
                 privacyGroup.getMembers().stream().map(PublicKey::encodeToBase64).toArray(String[]::new));
     }
 
-    private Supplier<byte[]> generateRandomSeed =
+    private final Supplier<byte[]> generateRandomSeed =
             () -> {
                 final SecureRandom random = new SecureRandom();
                 byte[] generated = new byte[20];

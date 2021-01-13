@@ -7,13 +7,15 @@ import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import java.util.List;
 
 public class MockPrivacyGroupManager implements PrivacyGroupManager {
+
     @Override
-    public PrivacyGroup createPrivacyGroup(String name, String description, List<PublicKey> members, byte[] seed) {
+    public PrivacyGroup createPrivacyGroup(
+            String name, String description, PublicKey from, List<PublicKey> members, byte[] seed) {
         return null;
     }
 
     @Override
-    public PrivacyGroup createLegacyPrivacyGroup(List<PublicKey> members) {
+    public PrivacyGroup createLegacyPrivacyGroup(PublicKey from, List<PublicKey> members) {
         return null;
     }
 
@@ -28,7 +30,15 @@ public class MockPrivacyGroupManager implements PrivacyGroupManager {
     }
 
     @Override
-    public void storePrivacyGroup(byte[] encodedData) {
+    public void storePrivacyGroup(byte[] encodedData) {}
 
+    @Override
+    public PrivacyGroup deletePrivacyGroup(PublicKey from, PublicKey privacyGroupId) {
+        return null;
+    }
+
+    @Override
+    public PublicKey defaultPublicKey() {
+        return null;
     }
 }

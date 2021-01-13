@@ -1,7 +1,13 @@
 package com.quorum.tessera.q2t;
 
+import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.privacygroup.exception.PrivacyGroupPublishException;
+import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
+import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotSupportedException;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
+import com.quorum.tessera.version.PrivacyGroupVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,17 +18,33 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.URI;
 
-public class RestPrivacyGroupPublisher {
+public class RestPrivacyGroupPublisher implements PrivacyGroupPublisher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RestPrivacyGroupPublisher.class);
 
+    private final Discovery discovery;
+
     private final Client restClient;
 
-    RestPrivacyGroupPublisher(Client restClient) {
+    RestPrivacyGroupPublisher(Discovery discovery, Client restClient) {
+        this.discovery = discovery;
         this.restClient = restClient;
     }
 
-    void publish(byte[] data, String targetUrl) {
+    @Override
+    public void publishPrivacyGroup(byte[] data, PublicKey recipientKey) {
+
+        final NodeInfo remoteNodeInfo = discovery.getRemoteNodeInfo(recipientKey);
+
+        if (!remoteNodeInfo.supportedApiVersions().contains(PrivacyGroupVersion.API_VERSION_3)) {
+            throw new PrivacyGroupNotSupportedException(
+                    "Transactions with privacy group is not currently supported on recipient "
+                            + recipientKey.encodeToBase64());
+        }
+
+        final String targetUrl = remoteNodeInfo.getUrl();
+
+        LOGGER.info("Publishing privacy group to {}", targetUrl);
 
         try (Response response =
                 restClient

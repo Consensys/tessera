@@ -14,11 +14,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RestPrivacyGroupPublisherFactoryTest {
 
-    private AsyncRestPrivacyGroupPublisherFactory factory;
+    private RestPrivacyGroupPublisherFactory factory;
 
     @Before
     public void onSetUp() {
-        factory = new AsyncRestPrivacyGroupPublisherFactory();
+        factory = new RestPrivacyGroupPublisherFactory();
     }
 
     @Test
@@ -31,7 +31,7 @@ public class RestPrivacyGroupPublisherFactoryTest {
         serverConfig.setServerAddress("http://someaddeess");
         config.setServerConfigs(Arrays.asList(serverConfig));
 
-        PrivacyGroupPublisher publisher = factory.create(config);
-        assertThat(publisher).isExactlyInstanceOf(AsyncRestPrivacyGroupPublisher.class);
+        PrivacyGroupPublisher privacyGroupPublisher = factory.create(config);
+        assertThat(privacyGroupPublisher).isExactlyInstanceOf(RestPrivacyGroupPublisher.class);
     }
 }

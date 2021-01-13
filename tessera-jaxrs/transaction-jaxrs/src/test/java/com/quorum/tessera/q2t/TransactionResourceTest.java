@@ -4,7 +4,7 @@ import com.quorum.tessera.api.*;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.transaction.ReceiveResponse;
+import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
@@ -38,6 +38,8 @@ public class TransactionResourceTest {
 
     private TransactionManager transactionManager;
 
+    private PrivacyGroupManager privacyGroupManager;
+
     @BeforeClass
     public static void setUpLoggers() {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -48,7 +50,9 @@ public class TransactionResourceTest {
     public void onSetup() throws Exception {
 
         transactionManager = mock(TransactionManager.class);
-        TransactionResource transactionResource = new TransactionResource(transactionManager);
+        privacyGroupManager = mock(PrivacyGroupManager.class);
+
+        TransactionResource transactionResource = new TransactionResource(transactionManager, privacyGroupManager);
 
         jersey =
                 new JerseyTest() {
@@ -68,66 +72,6 @@ public class TransactionResourceTest {
     public void onTearDown() throws Exception {
         verifyNoMoreInteractions(transactionManager);
         jersey.tearDown();
-    }
-
-    @Test
-    public void receive() {
-        String key = Base64.getEncoder().encodeToString("KEY".getBytes());
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(key);
-
-        String recipient = Base64.getEncoder().encodeToString("Bobby Sixkiller".getBytes());
-
-        receiveRequest.setTo(recipient);
-
-        ReceiveResponse receiveResponse = mock(ReceiveResponse.class);
-
-        when(receiveResponse.getAffectedTransactions()).thenReturn(Set.of());
-        when(receiveResponse.getUnencryptedTransactionData()).thenReturn("Result".getBytes());
-        when(receiveResponse.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
-
-        when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class)))
-                .thenReturn(receiveResponse);
-
-        TransactionResource resource = new TransactionResource(transactionManager);
-
-        final Response result = resource.receive(receiveRequest);
-
-        assertThat(result.getStatus()).isEqualTo(200);
-
-        com.quorum.tessera.api.ReceiveResponse resultResponse =
-                (com.quorum.tessera.api.ReceiveResponse) result.getEntity();
-
-        assertThat(resultResponse.getExecHash()).isNull();
-        assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
-
-        verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
-    }
-
-    @Test
-    public void receiveWithRecipient() {
-        String key = Base64.getEncoder().encodeToString("KEY".getBytes());
-        ReceiveRequest receiveRequest = new ReceiveRequest();
-        receiveRequest.setKey(key);
-        receiveRequest.setTo(Base64.getEncoder().encodeToString("Reno Raynes".getBytes()));
-
-        ReceiveResponse receiveResponse = mock(ReceiveResponse.class);
-        when(receiveResponse.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
-        when(transactionManager.receive(any())).thenReturn(receiveResponse);
-        when(receiveResponse.getUnencryptedTransactionData()).thenReturn("Result".getBytes());
-
-        TransactionResource resource = new TransactionResource(transactionManager);
-        final Response result = resource.receive(receiveRequest);
-
-        assertThat(result.getStatus()).isEqualTo(200);
-
-        com.quorum.tessera.api.ReceiveResponse resultResponse =
-                (com.quorum.tessera.api.ReceiveResponse) result.getEntity();
-
-        assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
-        assertThat(resultResponse.getExecHash()).isNull();
-
-        verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
 
     @Test
@@ -652,21 +596,20 @@ public class TransactionResourceTest {
 
         pathToEntityMapping.entrySet().stream()
                 .forEach(
-                        e -> {
-                            e.getValue()
-                                    .forEach(
-                                            entity -> {
-                                                Response response =
-                                                        jersey.target(e.getKey())
-                                                                .request()
-                                                                .post(
-                                                                        Entity.entity(
-                                                                                null,
-                                                                                MediaType
-                                                                                        .APPLICATION_OCTET_STREAM_TYPE));
-                                                assertThat(response.getStatus()).isEqualTo(400);
-                                            });
-                        });
+                        e ->
+                                e.getValue()
+                                        .forEach(
+                                                entity -> {
+                                                    Response response =
+                                                            jersey.target(e.getKey())
+                                                                    .request()
+                                                                    .post(
+                                                                            Entity.entity(
+                                                                                    null,
+                                                                                    MediaType
+                                                                                            .APPLICATION_OCTET_STREAM_TYPE));
+                                                    assertThat(response.getStatus()).isEqualTo(400);
+                                                }));
     }
 
     @Test
