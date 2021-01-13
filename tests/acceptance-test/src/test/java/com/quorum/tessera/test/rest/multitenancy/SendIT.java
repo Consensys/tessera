@@ -151,7 +151,7 @@ public class SendIT {
                                 ReceiveResponse receiveResponse = r.readEntity(ReceiveResponse.class);
                                 assertThat(receiveResponse.getManagedParties())
                                         .containsExactlyInAnyOrder(recipientPublicKeys);
-                                assertThat(receiveResponse.getSender()).isEqualTo(sendingParty.getPublicKey());
+                                assertThat(receiveResponse.getSenderKey()).isEqualTo(sendingParty.getPublicKey());
                             });
         }
     }
@@ -216,7 +216,7 @@ public class SendIT {
                                 ReceiveResponse receiveResponse = r.readEntity(ReceiveResponse.class);
                                 assertThat(receiveResponse.getManagedParties())
                                         .containsExactlyInAnyOrder(recipientPublicKeys);
-                                assertThat(receiveResponse.getSender()).isEqualTo(recipientPublicKeys[0]);
+                                assertThat(receiveResponse.getSenderKey()).isEqualTo(recipientPublicKeys[0]);
                             });
         }
     }
