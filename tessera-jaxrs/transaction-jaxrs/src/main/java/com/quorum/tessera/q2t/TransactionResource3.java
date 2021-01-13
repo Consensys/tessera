@@ -331,7 +331,7 @@ public class TransactionResource3 {
         com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(request);
 
         final ReceiveResponse receiveResponse = new ReceiveResponse();
-        receiveResponse.setSender(response.sender().encodeToBase64());
+        receiveResponse.setSenderKey(response.sender().encodeToBase64());
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
         receiveResponse.setAffectedContractTransactions(
                 response.getAffectedTransactions().stream()
