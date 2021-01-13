@@ -14,6 +14,7 @@ import com.quorum.tessera.transaction.TransactionManager;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -72,6 +73,13 @@ public class TransactionResourceBesuTest {
         jersey.setUp();
     }
 
+    @After
+    public void onTearDown() throws Exception {
+        verifyNoMoreInteractions(transactionManager);
+        verifyNoMoreInteractions(privacyGroupManager);
+        jersey.tearDown();
+    }
+
     @Test
     public void send() {
 
@@ -119,6 +127,7 @@ public class TransactionResourceBesuTest {
 
         verify(transactionManager).send(argumentCaptor.capture());
         verify(transactionManager).defaultPublicKey();
+        verify(privacyGroupManager).createLegacyPrivacyGroup(eq(sender), eq(List.of(PublicKey.from(recipientKeyBytes))));
 
         com.quorum.tessera.transaction.SendRequest businessObject = argumentCaptor.getValue();
 
@@ -133,6 +142,70 @@ public class TransactionResourceBesuTest {
         assertThat(businessObject.getExecHash()).isEmpty();
 
         assertThat(businessObject.getPrivacyGroupId()).isPresent().get().isEqualTo(PublicKey.from("group".getBytes()));
+    }
+
+    @Test
+    public void sendToPrivacyGroup() {
+
+        final Base64.Encoder base64Encoder = Base64.getEncoder();
+
+        final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
+
+        final SendRequest sendRequest = new SendRequest();
+        sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+        sendRequest.setPrivacyGroupId(base64Key);
+
+        final PublicKey sender = mock(PublicKey.class);
+        when(transactionManager.defaultPublicKey()).thenReturn(sender);
+
+        final com.quorum.tessera.transaction.SendResponse sendResponse =
+            mock(com.quorum.tessera.transaction.SendResponse.class);
+
+        final MessageHash messageHash = mock(MessageHash.class);
+
+        final byte[] txnData = "TxnData".getBytes();
+        when(messageHash.getHashBytes()).thenReturn(txnData);
+
+        when(sendResponse.getTransactionHash()).thenReturn(messageHash);
+
+        when(transactionManager.send(any(com.quorum.tessera.transaction.SendRequest.class))).thenReturn(sendResponse);
+
+        PrivacyGroup retrieved = mock(PrivacyGroup.class);
+        PublicKey groupId = PublicKey.from(Base64.getDecoder().decode(base64Key));
+        PublicKey member = PublicKey.from("member".getBytes());
+        when(retrieved.getPrivacyGroupId()).thenReturn(groupId);
+        when(retrieved.getMembers()).thenReturn(List.of(member));
+        when(privacyGroupManager.retrievePrivacyGroup(groupId)).thenReturn(retrieved);
+
+        final Response result =
+            jersey.target("send").request().post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+
+        assertThat(result.getStatus()).isEqualTo(200);
+
+        assertThat(result.getLocation().getPath()).isEqualTo("/transaction/" + base64Encoder.encodeToString(txnData));
+        SendResponse resultSendResponse = result.readEntity(SendResponse.class);
+        assertThat(resultSendResponse.getKey()).isEqualTo(Base64.getEncoder().encodeToString(txnData));
+
+        ArgumentCaptor<com.quorum.tessera.transaction.SendRequest> argumentCaptor =
+            ArgumentCaptor.forClass(com.quorum.tessera.transaction.SendRequest.class);
+
+        verify(transactionManager).send(argumentCaptor.capture());
+        verify(transactionManager).defaultPublicKey();
+        verify(privacyGroupManager).retrievePrivacyGroup(groupId);
+
+        com.quorum.tessera.transaction.SendRequest businessObject = argumentCaptor.getValue();
+
+        assertThat(businessObject).isNotNull();
+        assertThat(businessObject.getPayload()).isEqualTo(sendRequest.getPayload());
+        assertThat(businessObject.getSender()).isEqualTo(sender);
+        assertThat(businessObject.getRecipients()).hasSize(1);
+        assertThat(businessObject.getRecipients().get(0)).isEqualTo(member);
+
+        assertThat(businessObject.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
+        assertThat(businessObject.getAffectedContractTransactions()).isEmpty();
+        assertThat(businessObject.getExecHash()).isEmpty();
+
+        assertThat(businessObject.getPrivacyGroupId()).isPresent().get().isEqualTo(groupId);
     }
 
     @Test
