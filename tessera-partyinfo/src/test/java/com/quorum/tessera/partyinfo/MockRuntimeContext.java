@@ -86,6 +86,11 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
         return false;
     }
 
+    @Override
+    public boolean isBesu() {
+        return false;
+    }
+
     public MockRuntimeContext setKeys(List<KeyPair> keys) {
         this.keys = keys;
         return this;
