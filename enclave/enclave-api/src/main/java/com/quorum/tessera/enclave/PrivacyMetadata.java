@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public interface PrivacyMetaData {
+public interface PrivacyMetadata {
 
     PrivacyMode getPrivacyMode();
 
@@ -51,7 +51,7 @@ public interface PrivacyMetaData {
             return this;
         }
 
-        public PrivacyMetaData build() {
+        public PrivacyMetadata build() {
 
             Objects.requireNonNull(privacyMode, "privacyMode is required");
 
@@ -59,7 +59,7 @@ public interface PrivacyMetaData {
                 throw new RuntimeException("ExecutionHash data is invalid");
             }
 
-            return new PrivacyMetaData() {
+            return new PrivacyMetadata() {
                 @Override
                 public PrivacyMode getPrivacyMode() {
                     return privacyMode;
@@ -82,8 +82,8 @@ public interface PrivacyMetaData {
             };
         }
 
-        public PrivacyMetaData buildStandardPrivate() {
-            return this.withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
+        public static Builder forStandardPrivate() {
+            return create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE);
         }
     }
 }

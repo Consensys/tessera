@@ -70,27 +70,25 @@ public class PrivacyGroupTest {
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutId() {
-        PrivacyGroup privacyGroup = PrivacyGroup.Builder.create().build();
+        PrivacyGroup.Builder.create().build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutMembers() {
-        PrivacyGroup privacyGroup = PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PublicKey.class)).build();
+        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PublicKey.class)).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutState() {
-        PrivacyGroup privacyGroup =
-                PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PublicKey.class)).withMembers(List.of()).build();
+        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PublicKey.class)).withMembers(List.of()).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutType() {
-        PrivacyGroup privacyGroup =
-                PrivacyGroup.Builder.create()
-                        .withPrivacyGroupId(mock(PublicKey.class))
-                        .withMembers(List.of())
-                        .withState(PrivacyGroup.State.ACTIVE)
-                        .build();
+        PrivacyGroup.Builder.create()
+                .withPrivacyGroupId(mock(PublicKey.class))
+                .withMembers(List.of())
+                .withState(PrivacyGroup.State.ACTIVE)
+                .build();
     }
 }

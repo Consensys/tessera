@@ -564,8 +564,8 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        final PrivacyMetaData metaData =
-                PrivacyMetaData.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
 
         EncodedPayload result =
                 enclave.encryptPayload(message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
@@ -637,8 +637,8 @@ public class EnclaveTest {
 
         List<AffectedTransaction> affectedContractTransactions = List.of(affectedTransaction);
 
-        final PrivacyMetaData metaData =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withAffectedTransactions(affectedContractTransactions)
                         .build();
@@ -693,8 +693,8 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        final PrivacyMetaData metaData =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withPrivacyGroupId(PublicKey.from("GROUP".getBytes()))
                         .build();
@@ -756,8 +756,8 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        final PrivacyMetaData metaData =
-                PrivacyMetaData.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
 
         EncodedPayload result = enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
 
@@ -814,8 +814,8 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        final PrivacyMetaData metaData =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
                         .build();

@@ -8,11 +8,11 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class PrivacyMetaDataTest {
+public class PrivacyMetadataTest {
 
     @Test
     public void forStandardPrivate() {
-        final PrivacyMetaData metaData = PrivacyMetaData.Builder.create().buildStandardPrivate();
+        final PrivacyMetadata metaData = PrivacyMetadata.Builder.forStandardPrivate().build();
 
         assertThat(metaData).isNotNull();
         assertThat(metaData.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
@@ -21,8 +21,8 @@ public class PrivacyMetaDataTest {
 
     @Test
     public void forStandardPrivateWithGroupId() {
-        final PrivacyMetaData metaData =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
                         .build();
@@ -35,7 +35,7 @@ public class PrivacyMetaDataTest {
 
     @Test(expected = RuntimeException.class)
     public void forPartyProtectionInvalid() {
-        PrivacyMetaData.Builder.create()
+        PrivacyMetadata.Builder.create()
                 .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
                 .withExecHash("hash".getBytes())
                 .build();
@@ -43,7 +43,7 @@ public class PrivacyMetaDataTest {
 
     @Test(expected = RuntimeException.class)
     public void forPsvInvalid() {
-        PrivacyMetaData.Builder.create()
+        PrivacyMetadata.Builder.create()
                 .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
                 .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
                 .withExecHash(null)
@@ -55,8 +55,8 @@ public class PrivacyMetaDataTest {
 
         final AffectedTransaction affected = mock(AffectedTransaction.class);
 
-        final PrivacyMetaData metaData =
-                PrivacyMetaData.Builder.create()
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
                         .withAffectedTransactions(List.of(affected))
                         .withExecHash("execHash".getBytes())
