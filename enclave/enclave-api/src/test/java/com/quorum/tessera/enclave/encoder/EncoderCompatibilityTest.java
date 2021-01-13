@@ -5,6 +5,7 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,6 +20,18 @@ public class EncoderCompatibilityTest {
     private final V2PayloadEncoder v2Encoder = new V2PayloadEncoder();
 
     private final PayloadEncoder v3Encoder = new PayloadEncoderImpl();
+
+    @Test
+    public void test() {
+        String base64 =
+                "AAAAAAAAACAFQt5HwnJRaGK64IxT8csDRDmnORhP5wcgjdkoF7LcGgAAAAAAAAATTb9YJCMFHIPnjgOuf8kt2wQqYwAAAAAAAAAYs5vt/PiGQuNtk8T1mcgmqlBGOjoxvDabAAAAAAAAAAIAAAAAAAAAMPofTMvARcZ9sj+YTQjJ0ZVJboAWU/mQc/mWb+/A4UUcx/2QU8V5+BqJDTdZ0BkDFAAAAAAAAAAww5Ht0Fw6akO6sHuM6sosDQrV4RE6Co+9HL4uEgmEUs7s2qHtq2NwtPNSKarpH/sZAAAAAAAAABhrgQ71zS29K4OsrEeTiz0sYEyMSFD82XUAAAAAAAAAAgAAAAAAAAAgBULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3BoAAAAAAAAAIEH3gwMrPTDw7NlxxMbXPOIyhh8WYP2o+dg04dL7QN13AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAIPKMPIbszi5wrhf9FjbCF9F3G90JGHrpaZ0BxVWTw6zu";
+
+        byte[] encoded = Base64.getDecoder().decode(base64);
+
+        EncodedPayload payload = v3Encoder.decode(encoded);
+
+        System.out.println("Test");
+    }
 
     @Test
     public void legacyToV2() {
@@ -86,16 +99,16 @@ public class EncoderCompatibilityTest {
     public void v2toV3NonPsv() {
 
         final V2EncodedPayload v2Payload =
-            V2EncodedPayload.Builder.create()
-                .withSenderKey(PublicKey.from("SENDER".getBytes()))
-                .withCipherText("CIPHER_TEXT".getBytes())
-                .withCipherTextNonce(new Nonce("NONCE".getBytes()))
-                .withRecipientBoxes(singletonList("recipientBox".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
-                .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-                .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
-                .build();
+                V2EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from("SENDER".getBytes()))
+                        .withCipherText("CIPHER_TEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+                        .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
+                        .build();
 
         final byte[] encoded = v2Encoder.encode(v2Payload);
 
@@ -108,9 +121,10 @@ public class EncoderCompatibilityTest {
         assertThat(encodedPayload.getRecipientNonce()).isEqualTo(v2Payload.getRecipientNonce());
         assertThat(encodedPayload.getRecipientKeys()).isEqualTo(v2Payload.getRecipientKeys());
 
-        //Enhanced privacy values
+        // Enhanced privacy values
         assertThat(encodedPayload.getPrivacyMode()).isEqualTo(v2Payload.getPrivacyMode());
-        assertThat(encodedPayload.getAffectedContractTransactions()).isEqualTo(v2Payload.getAffectedContractTransactions());
+        assertThat(encodedPayload.getAffectedContractTransactions())
+                .isEqualTo(v2Payload.getAffectedContractTransactions());
         assertThat(encodedPayload.getExecHash()).isNullOrEmpty();
 
         assertThat(encodedPayload.getPrivacyGroupId()).isEmpty();
@@ -120,17 +134,17 @@ public class EncoderCompatibilityTest {
     public void v2toV3Psv() {
 
         final V2EncodedPayload v2Payload =
-            V2EncodedPayload.Builder.create()
-                .withSenderKey(PublicKey.from("SENDER".getBytes()))
-                .withCipherText("CIPHER_TEXT".getBytes())
-                .withCipherTextNonce(new Nonce("NONCE".getBytes()))
-                .withRecipientBoxes(singletonList("recipientBox".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
-                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-                .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
-                .withExecHash("execHash".getBytes())
-                .build();
+                V2EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from("SENDER".getBytes()))
+                        .withCipherText("CIPHER_TEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+                        .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+                        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
+                        .withExecHash("execHash".getBytes())
+                        .build();
 
         final byte[] encoded = v2Encoder.encode(v2Payload);
 
@@ -143,9 +157,10 @@ public class EncoderCompatibilityTest {
         assertThat(encodedPayload.getRecipientNonce()).isEqualTo(v2Payload.getRecipientNonce());
         assertThat(encodedPayload.getRecipientKeys()).isEqualTo(v2Payload.getRecipientKeys());
 
-        //Enhanced privacy values
+        // Enhanced privacy values
         assertThat(encodedPayload.getPrivacyMode()).isEqualTo(v2Payload.getPrivacyMode());
-        assertThat(encodedPayload.getAffectedContractTransactions()).isEqualTo(v2Payload.getAffectedContractTransactions());
+        assertThat(encodedPayload.getAffectedContractTransactions())
+                .isEqualTo(v2Payload.getAffectedContractTransactions());
         assertThat(encodedPayload.getExecHash()).isEqualTo(v2Payload.getExecHash());
 
         assertThat(encodedPayload.getPrivacyGroupId()).isEmpty();
@@ -156,17 +171,17 @@ public class EncoderCompatibilityTest {
 
         // Payload to a v2 node should not have privacyGroupId
         final EncodedPayload payload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(PublicKey.from("SENDER".getBytes()))
-                .withCipherText("CIPHER_TEXT".getBytes())
-                .withCipherTextNonce(new Nonce("NONCE".getBytes()))
-                .withRecipientBoxes(singletonList("recipientBox".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
-                .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-                .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
-//                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from("SENDER".getBytes()))
+                        .withCipherText("CIPHER_TEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+                        .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
+                        //                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
 
@@ -179,11 +194,10 @@ public class EncoderCompatibilityTest {
         assertThat(v2Payload.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
         assertThat(v2Payload.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
 
-        //Enhanced privacy values
+        // Enhanced privacy values
         assertThat(v2Payload.getPrivacyMode()).isEqualTo(payload.getPrivacyMode());
         assertThat(v2Payload.getAffectedContractTransactions()).isEqualTo(payload.getAffectedContractTransactions());
         assertThat(v2Payload.getExecHash()).isNullOrEmpty();
-
     }
 
     @Test
@@ -191,18 +205,18 @@ public class EncoderCompatibilityTest {
 
         // Payload to a v2 node should not have privacyGroupId
         final EncodedPayload payload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(PublicKey.from("SENDER".getBytes()))
-                .withCipherText("CIPHER_TEXT".getBytes())
-                .withCipherTextNonce(new Nonce("NONCE".getBytes()))
-                .withRecipientBoxes(singletonList("recipientBox".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
-                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-                .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
-                .withExecHash("EXEC_HASH".getBytes())
-//                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from("SENDER".getBytes()))
+                        .withCipherText("CIPHER_TEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+                        .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+                        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
+                        .withExecHash("EXEC_HASH".getBytes())
+                        //                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
 
@@ -215,7 +229,7 @@ public class EncoderCompatibilityTest {
         assertThat(v2Payload.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
         assertThat(v2Payload.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
 
-        //Enhanced privacy values
+        // Enhanced privacy values
         assertThat(v2Payload.getPrivacyMode()).isEqualTo(payload.getPrivacyMode());
         assertThat(v2Payload.getAffectedContractTransactions()).isEqualTo(payload.getAffectedContractTransactions());
         assertThat(v2Payload.getExecHash()).isEqualTo(payload.getExecHash());
@@ -225,20 +239,20 @@ public class EncoderCompatibilityTest {
     public void legacyToV3() {
 
         final LegacyEncodedPayload legacyPayload =
-            new LegacyEncodedPayload(
-                PublicKey.from("SENDER".getBytes()),
-                "cipherText".getBytes(),
-                new Nonce("cipherTextNonce".getBytes()),
-                List.of("box".getBytes()),
-                new Nonce("recipientNonce".getBytes()),
-                List.of(PublicKey.from("RECIPIENT".getBytes())));
+                new LegacyEncodedPayload(
+                        PublicKey.from("SENDER".getBytes()),
+                        "cipherText".getBytes(),
+                        new Nonce("cipherTextNonce".getBytes()),
+                        List.of("box".getBytes()),
+                        new Nonce("recipientNonce".getBytes()),
+                        List.of(PublicKey.from("RECIPIENT".getBytes())));
 
         final byte[] encoded = legacyEncoder.encode(legacyPayload);
 
         final EncodedPayload payload = v3Encoder.decode(encoded);
 
         final List<RecipientBox> boxes =
-            legacyPayload.getRecipientBoxes().stream().map(RecipientBox::from).collect(Collectors.toList());
+                legacyPayload.getRecipientBoxes().stream().map(RecipientBox::from).collect(Collectors.toList());
 
         assertThat(payload.getSenderKey()).isEqualTo(legacyPayload.getSenderKey());
         assertThat(payload.getCipherText()).isEqualTo(legacyPayload.getCipherText());
@@ -253,30 +267,29 @@ public class EncoderCompatibilityTest {
         assertThat(payload.getExecHash()).isNullOrEmpty();
 
         assertThat(payload.getPrivacyGroupId()).isEmpty();
-
     }
 
     @Test
     public void v3ToLegacy() {
 
         final EncodedPayload payload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(PublicKey.from("SENDER".getBytes()))
-                .withCipherText("CIPHER_TEXT".getBytes())
-                .withCipherTextNonce(new Nonce("NONCE".getBytes()))
-                .withRecipientBoxes(singletonList("recipientBox".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
-                .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-                .withAffectedContractTransactions(emptyMap())
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from("SENDER".getBytes()))
+                        .withCipherText("CIPHER_TEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+                        .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedContractTransactions(emptyMap())
+                        .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
 
         final LegacyEncodedPayload legacy = legacyEncoder.decode(encoded);
 
         final List<RecipientBox> boxes =
-            legacy.getRecipientBoxes().stream().map(RecipientBox::from).collect(Collectors.toList());
+                legacy.getRecipientBoxes().stream().map(RecipientBox::from).collect(Collectors.toList());
 
         assertThat(legacy.getSenderKey()).isEqualTo(payload.getSenderKey());
         assertThat(legacy.getCipherText()).isEqualTo(payload.getCipherText());
@@ -290,17 +303,17 @@ public class EncoderCompatibilityTest {
     public void encodeDecodeV3StandardPrivate() {
 
         final EncodedPayload payload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(PublicKey.from("SENDER".getBytes()))
-                .withCipherText("CIPHER_TEXT".getBytes())
-                .withCipherTextNonce(new Nonce("NONCE".getBytes()))
-                .withRecipientBoxes(singletonList("recipientBox".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
-                .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-                .withAffectedContractTransactions(emptyMap())
-                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from("SENDER".getBytes()))
+                        .withCipherText("CIPHER_TEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+                        .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedContractTransactions(emptyMap())
+                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
 
@@ -324,18 +337,22 @@ public class EncoderCompatibilityTest {
     public void encodeDecodeV3PartyProtection() {
 
         final EncodedPayload payload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(PublicKey.from("SENDER".getBytes()))
-                .withCipherText("CIPHER_TEXT".getBytes())
-                .withCipherTextNonce(new Nonce("NONCE".getBytes()))
-                .withRecipientBoxes(singletonList("recipientBox".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
-                .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-                .withAffectedContractTransactions(
-                    Map.of(TxHash.from("hash1".getBytes()), "1".getBytes(), TxHash.from("hash2".getBytes()), "2".getBytes()))
-                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from("SENDER".getBytes()))
+                        .withCipherText("CIPHER_TEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+                        .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedContractTransactions(
+                                Map.of(
+                                        TxHash.from("hash1".getBytes()),
+                                        "1".getBytes(),
+                                        TxHash.from("hash2".getBytes()),
+                                        "2".getBytes()))
+                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
 
@@ -359,19 +376,23 @@ public class EncoderCompatibilityTest {
     public void encodeDecodeV3PrivateStateValidation() {
 
         final EncodedPayload payload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(PublicKey.from("SENDER".getBytes()))
-                .withCipherText("CIPHER_TEXT".getBytes())
-                .withCipherTextNonce(new Nonce("NONCE".getBytes()))
-                .withRecipientBoxes(singletonList("recipientBox".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
-                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-                .withAffectedContractTransactions(
-                    Map.of(TxHash.from("hash1".getBytes()), "1".getBytes(), TxHash.from("hash2".getBytes()), "2".getBytes()))
-                .withExecHash("EXEC_HASH".getBytes())
-                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
-                .build();
+                EncodedPayload.Builder.create()
+                        .withSenderKey(PublicKey.from("SENDER".getBytes()))
+                        .withCipherText("CIPHER_TEXT".getBytes())
+                        .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+                        .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                        .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+                        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withAffectedContractTransactions(
+                                Map.of(
+                                        TxHash.from("hash1".getBytes()),
+                                        "1".getBytes(),
+                                        TxHash.from("hash2".getBytes()),
+                                        "2".getBytes()))
+                        .withExecHash("EXEC_HASH".getBytes())
+                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
 
