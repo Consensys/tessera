@@ -41,19 +41,16 @@ public interface Enclave extends Service {
      *
      * @param message the message to be encrypted
      * @param senderPublicKey the public key which this enclave manages
-     * @param recipientPublicKeys the recipients to encrypt this message for
-     * @param privacyMode the privacy flag of the transaction
-     * @param affectedContractTransactions the map of tx hash to encoded payloads
-     * @param execHash execution hash for psv transactions
+     * @param recipientPublicKeys the recipients to encrypt this message for // * @param privacyMode the privacy flag of
+     *     the transaction // * @param affectedContractTransactions the map of tx hash to encoded payloads // * @param
+     *     execHash execution hash for psv transactions
      * @return the encrypted information, represented by an {@link EncodedPayload}
      */
     EncodedPayload encryptPayload(
             byte[] message,
             PublicKey senderPublicKey,
             List<PublicKey> recipientPublicKeys,
-            PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions,
-            byte[] execHash);
+            PrivacyMetaData privacyMetaData);
 
     /**
      * Decrypts a {@link RawTransaction} so that it can be re-encrypted into a {@link EncodedPayload} with the given
@@ -64,11 +61,7 @@ public interface Enclave extends Service {
      * @return the encrypted information, represented by an {@link EncodedPayload}
      */
     EncodedPayload encryptPayload(
-            RawTransaction rawTransaction,
-            List<PublicKey> recipientPublicKeys,
-            PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions,
-            byte[] execHash);
+            RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys, PrivacyMetaData privacyMetaData);
 
     /**
      * Filters the affectedContractTransaction hashes by removing those that do not pass the security hash validation

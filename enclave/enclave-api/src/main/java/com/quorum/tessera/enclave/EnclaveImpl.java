@@ -38,9 +38,7 @@ public class EnclaveImpl implements Enclave {
             final byte[] message,
             final PublicKey senderPublicKey,
             final List<PublicKey> recipientPublicKeys,
-            final PrivacyMode privacyMode,
-            final List<AffectedTransaction> affectedContractTransactions,
-            final byte[] execHash) {
+            final PrivacyMetaData privacyMetaData) {
 
         final MasterKey masterKey = encryptor.createMasterKey();
         final Nonce nonce = encryptor.randomNonce();
@@ -53,22 +51,26 @@ public class EnclaveImpl implements Enclave {
 
         final Map<TxHash, byte[]> affectedContractTransactionHashes =
                 buildAffectedContractTransactionHashes(
-                        affectedContractTransactions.stream()
+                        privacyMetaData.getAffectedContractTransactions().stream()
                                 .collect(
                                         Collectors.toUnmodifiableMap(
                                                 AffectedTransaction::getHash, AffectedTransaction::getPayload)),
                         cipherText);
 
-        return EncodedPayload.Builder.create()
+        final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
+
+        privacyMetaData.getPrivacyGroupId().ifPresent(payloadBuilder::withPrivacyGroupId);
+
+        return payloadBuilder
                 .withSenderKey(senderPublicKey)
                 .withCipherText(cipherText)
                 .withCipherTextNonce(nonce)
                 .withRecipientBoxes(encryptedMasterKeys)
                 .withRecipientNonce(recipientNonce)
                 .withRecipientKeys(recipientPublicKeys)
-                .withPrivacyMode(privacyMode)
+                .withPrivacyMode(privacyMetaData.getPrivacyMode())
                 .withAffectedContractTransactions(affectedContractTransactionHashes)
-                .withExecHash(execHash)
+                .withExecHash(privacyMetaData.getExecHash())
                 .build();
     }
 
@@ -122,9 +124,7 @@ public class EnclaveImpl implements Enclave {
     public EncodedPayload encryptPayload(
             final RawTransaction rawTransaction,
             final List<PublicKey> recipientPublicKeys,
-            final PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions,
-            final byte[] execHash) {
+            final PrivacyMetaData privacyMetaData) {
 
         final MasterKey masterKey =
                 this.getMasterKey(
@@ -138,22 +138,26 @@ public class EnclaveImpl implements Enclave {
 
         final Map<TxHash, byte[]> affectedContractTransactionHashes =
                 buildAffectedContractTransactionHashes(
-                        affectedContractTransactions.stream()
+                        privacyMetaData.getAffectedContractTransactions().stream()
                                 .collect(
                                         Collectors.toMap(
                                                 AffectedTransaction::getHash, AffectedTransaction::getPayload)),
                         rawTransaction.getEncryptedPayload());
 
-        return EncodedPayload.Builder.create()
+        final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
+
+        privacyMetaData.getPrivacyGroupId().ifPresent(payloadBuilder::withPrivacyGroupId);
+
+        return payloadBuilder
                 .withSenderKey(rawTransaction.getFrom())
                 .withCipherText(rawTransaction.getEncryptedPayload())
                 .withCipherTextNonce(rawTransaction.getNonce())
                 .withRecipientBoxes(encryptedMasterKeys)
                 .withRecipientNonce(recipientNonce)
                 .withRecipientKeys(recipientPublicKeys)
-                .withPrivacyMode(privacyMode)
+                .withPrivacyMode(privacyMetaData.getPrivacyMode())
                 .withAffectedContractTransactions(affectedContractTransactionHashes)
-                .withExecHash(execHash)
+                .withExecHash(privacyMetaData.getExecHash())
                 .build();
     }
 
