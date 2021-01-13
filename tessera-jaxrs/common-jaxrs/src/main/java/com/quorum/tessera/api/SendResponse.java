@@ -16,12 +16,12 @@ public class SendResponse {
     private String[] managedParties;
 
     @Schema(description = "public key of the transaction sender", format = "base64")
-    private String sender;
+    private String senderKey;
 
-    public SendResponse(final String key, final String[] managedParties, final String sender) {
+    public SendResponse(final String key, final String[] managedParties, final String senderKey) {
         this.key = key;
         this.managedParties = managedParties;
-        this.sender = sender;
+        this.senderKey = senderKey;
     }
 
     public SendResponse() {}
@@ -42,11 +42,11 @@ public class SendResponse {
         this.managedParties = managedParties;
     }
 
-    public String getSender() {
-        return sender;
+    public String getSenderKey() {
+        return senderKey;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    public void setSenderKey(String senderKey) {
+        this.senderKey = senderKey;
     }
 }
