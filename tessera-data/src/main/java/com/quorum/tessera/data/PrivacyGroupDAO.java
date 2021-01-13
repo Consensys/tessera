@@ -26,6 +26,24 @@ public interface PrivacyGroupDAO {
     <T> PrivacyGroupEntity save(PrivacyGroupEntity entity, Callable<T> consumer);
 
     /**
+     * Update an existing privacy group entity to the database.
+     *
+     * @param entity The entity to be merged
+     * @return Merged entity
+     */
+    PrivacyGroupEntity update(PrivacyGroupEntity entity);
+
+    /**
+     * Update an existing privacy group entity to database with a callback
+     *
+     * @param entity The entity to be merged
+     * @param consumer Action that needs to be executed together
+     * @return The entity that was merged
+     * @throws RuntimeException if the callback fails
+     */
+    <T> PrivacyGroupEntity update(PrivacyGroupEntity entity, Callable<T> consumer);
+
+    /**
      * Retrieve privacy group entity from database based on its privacy group id
      *
      * @param id The privacy group id

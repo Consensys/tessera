@@ -1,6 +1,5 @@
 package com.quorum.tessera.data;
 
-import com.quorum.tessera.data.*;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -120,6 +119,23 @@ public class PrivacyGroupDAOTest {
     }
 
     @Test
+    public void saveAndUpdate() {
+        PrivacyGroupEntity entity = new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+        privacyGroupDAO.save(entity);
+
+        entity.setData("newData".getBytes());
+
+        privacyGroupDAO.update(entity);
+
+        Optional<PrivacyGroupEntity> retrieved = privacyGroupDAO.retrieve("id".getBytes());
+
+        assertThat(retrieved).isPresent();
+        assertThat(retrieved.get().getId()).isEqualTo("id".getBytes());
+        assertThat(retrieved.get().getLookupId()).isEqualTo("lookup".getBytes());
+        assertThat(retrieved.get().getData()).isEqualTo("newData".getBytes());
+    }
+
+    @Test
     public void saveAndFindByLookupId() {
         final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findByLookupId("lookup".getBytes());
         assertThat(shouldBeEmpty).isEmpty();
@@ -184,6 +200,66 @@ public class PrivacyGroupDAOTest {
 
         try {
             privacyGroupDAO.save(entity, callback);
+            failBecauseExceptionWasNotThrown(RuntimeException.class);
+        } catch (RuntimeException ex) {
+            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
+        }
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+        assertThat(result).isNull();
+
+        verify(callback).call();
+    }
+
+    @Test
+    public void updatePrivacyGroupWithCallback() throws Exception {
+        final PrivacyGroupEntity entity =
+                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+        Callable<Void> callback = mock(Callable.class);
+
+        privacyGroupDAO.update(entity, callback);
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+        assertThat(result).isNotNull();
+
+        verify(callback).call();
+    }
+
+    @Test
+    public void updatePrivacyGroupWithCallbackException() throws Exception {
+        final PrivacyGroupEntity entity =
+                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+        Callable<Void> callback = mock(Callable.class);
+        when(callback.call()).thenThrow(new Exception("OUCH"));
+
+        try {
+            privacyGroupDAO.update(entity, callback);
+            failBecauseExceptionWasNotThrown(PersistenceException.class);
+        } catch (PersistenceException ex) {
+            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
+        }
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+        assertThat(result).isNull();
+
+        verify(callback).call();
+    }
+
+    @Test
+    public void updatePrivacyGroupWithRuntimeException() throws Exception {
+        final PrivacyGroupEntity entity =
+                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+        Callable<Void> callback = mock(Callable.class);
+        when(callback.call()).thenThrow(new RuntimeException("OUCH"));
+
+        try {
+            privacyGroupDAO.update(entity, callback);
             failBecauseExceptionWasNotThrown(RuntimeException.class);
         } catch (RuntimeException ex) {
             assertThat(ex).isNotNull().hasMessageContaining("OUCH");

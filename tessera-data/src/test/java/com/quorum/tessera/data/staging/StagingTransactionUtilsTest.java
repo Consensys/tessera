@@ -1,6 +1,5 @@
 package com.quorum.tessera.data.staging;
 
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
@@ -37,11 +36,7 @@ public class StagingTransactionUtilsTest {
                         .build();
 
         final String messageHash =
-                Base64.getEncoder()
-                        .encodeToString(
-                                MessageHashFactory.create()
-                                        .createFromCipherText(encodedPayload.getCipherText())
-                                        .getHashBytes());
+                Base64.getEncoder().encodeToString(new PayloadDigest.Default().digest(encodedPayload.getCipherText()));
 
         final byte[] raw = encoder.encode(encodedPayload);
 

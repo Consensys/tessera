@@ -25,14 +25,40 @@ public class PrivacyGroupDAOImpl implements PrivacyGroupDAO {
     }
 
     @Override
-    public <T> PrivacyGroupEntity save(PrivacyGroupEntity privacyGroup, Callable<T> consumer) {
+    public <T> PrivacyGroupEntity save(PrivacyGroupEntity entity, Callable<T> consumer) {
         return entityManagerTemplate.execute(
                 entityManager -> {
-                    entityManager.persist(privacyGroup);
+                    entityManager.persist(entity);
                     try {
                         entityManager.flush();
                         consumer.call();
-                        return privacyGroup;
+                        return entity;
+                    } catch (RuntimeException ex) {
+                        throw ex;
+                    } catch (Exception e) {
+                        throw new PersistenceException(e);
+                    }
+                });
+    }
+
+    @Override
+    public PrivacyGroupEntity update(PrivacyGroupEntity entity) {
+        return entityManagerTemplate.execute(
+                entityManager -> {
+                    entityManager.merge(entity);
+                    return entity;
+                });
+    }
+
+    @Override
+    public <T> PrivacyGroupEntity update(PrivacyGroupEntity entity, Callable<T> consumer) {
+        return entityManagerTemplate.execute(
+                entityManager -> {
+                    entityManager.merge(entity);
+                    try {
+                        entityManager.flush();
+                        consumer.call();
+                        return entity;
                     } catch (RuntimeException ex) {
                         throw ex;
                     } catch (Exception e) {
