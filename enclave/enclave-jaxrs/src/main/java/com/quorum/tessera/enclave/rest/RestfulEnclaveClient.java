@@ -98,12 +98,10 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     @Override
     public EncodedPayload encryptPayload(
-            byte[] message,
-            PublicKey senderPublicKey,
-            List<PublicKey> recipientPublicKeys,
-            PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions,
-            byte[] execHash) {
+            final byte[] message,
+            final PublicKey senderPublicKey,
+            final List<PublicKey> recipientPublicKeys,
+            final PrivacyMetaData privacyMetaData) {
 
         return ClientCallback.execute(
                 () -> {
@@ -111,13 +109,15 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     enclavePayload.setData(message);
                     enclavePayload.setSenderKey(senderPublicKey.getKeyBytes());
                     enclavePayload.setRecipientPublicKeys(
-                            recipientPublicKeys.stream()
-                                .map(PublicKey::getKeyBytes)
-                                .collect(Collectors.toList()));
-                    enclavePayload.setPrivacyMode(privacyMode);
+                            recipientPublicKeys.stream().map(PublicKey::getKeyBytes).collect(Collectors.toList()));
+                    enclavePayload.setPrivacyMode(privacyMetaData.getPrivacyMode());
                     enclavePayload.setAffectedContractTransactions(
-                            convertAffectedContractTransactions(affectedContractTransactions));
-                    enclavePayload.setExecHash(execHash);
+                            convertAffectedContractTransactions(privacyMetaData.getAffectedContractTransactions()));
+                    enclavePayload.setExecHash(privacyMetaData.getExecHash());
+                    privacyMetaData
+                            .getPrivacyGroupId()
+                            .map(PublicKey::getKeyBytes)
+                            .ifPresent(enclavePayload::setPrivacyGroupId);
 
                     Response response = client.target(uri).path("encrypt").request().post(Entity.json(enclavePayload));
 
@@ -131,11 +131,9 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     @Override
     public EncodedPayload encryptPayload(
-            RawTransaction rawTransaction,
-            List<PublicKey> recipientPublicKeys,
-            PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions,
-            byte[] execHash) {
+            final RawTransaction rawTransaction,
+            final List<PublicKey> recipientPublicKeys,
+            final PrivacyMetaData privacyMetaData) {
 
         return ClientCallback.execute(
                 () -> {
@@ -147,11 +145,16 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     enclaveRawPayload.setEncryptedPayload(rawTransaction.getEncryptedPayload());
                     enclaveRawPayload.setEncryptedKey(rawTransaction.getEncryptedKey());
 
-                    enclaveRawPayload.setPrivacyMode(privacyMode);
-                    enclaveRawPayload.setExecHash(execHash);
+                    enclaveRawPayload.setPrivacyMode(privacyMetaData.getPrivacyMode());
+                    enclaveRawPayload.setExecHash(privacyMetaData.getExecHash());
 
                     enclaveRawPayload.setAffectedContractTransactions(
-                            convertAffectedContractTransactions(affectedContractTransactions));
+                            convertAffectedContractTransactions(privacyMetaData.getAffectedContractTransactions()));
+
+                    privacyMetaData
+                            .getPrivacyGroupId()
+                            .map(PublicKey::getKeyBytes)
+                            .ifPresent(enclaveRawPayload::setPrivacyGroupId);
 
                     Response response =
                             client.target(uri)
@@ -318,11 +321,14 @@ public class RestfulEnclaveClient implements EnclaveClient {
         }
     }
 
-    private List<KeyValuePair> convertAffectedContractTransactions(List<AffectedTransaction> affectedContractTransactions) {
-        return affectedContractTransactions.stream().map(
-            affectedTransaction ->
-                new KeyValuePair(affectedTransaction.getHash().getBytes(),
-                    this.payloadEncoder.encode(affectedTransaction.getPayload())))
-            .collect(Collectors.toList());
+    private List<KeyValuePair> convertAffectedContractTransactions(
+            List<AffectedTransaction> affectedContractTransactions) {
+        return affectedContractTransactions.stream()
+                .map(
+                        affectedTransaction ->
+                                new KeyValuePair(
+                                        affectedTransaction.getHash().getBytes(),
+                                        this.payloadEncoder.encode(affectedTransaction.getPayload())))
+                .collect(Collectors.toList());
     }
 }

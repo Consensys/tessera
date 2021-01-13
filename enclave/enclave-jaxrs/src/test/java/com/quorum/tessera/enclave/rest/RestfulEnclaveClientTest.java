@@ -9,6 +9,7 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.*;
 import java.util.concurrent.Callable;
@@ -17,8 +18,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -106,39 +106,86 @@ public class RestfulEnclaveClientTest {
                                 .withPayload(encodedPayload)
                                 .build());
 
-        when(enclave.encryptPayload(
-                        eq(message),
-                        eq(senderPublicKey),
-                        eq(recipientPublicKeys),
-                        any(),
-                        eq(affectedTransactions),
-                        any()))
+        when(enclave.encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any()))
                 .thenReturn(encodedPayload);
 
+        final PrivacyMetaData privacyMetaData =
+                PrivacyMetaData.Builder.create()
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedTransactions(affectedTransactions)
+                        .build();
+
         EncodedPayload result =
-                enclaveClient.encryptPayload(
-                        message,
-                        senderPublicKey,
-                        recipientPublicKeys,
-                        PrivacyMode.PARTY_PROTECTION,
-                        affectedTransactions,
-                        new byte[0]);
+                enclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys, privacyMetaData);
 
         assertThat(result).isNotNull();
 
         byte[] encodedResult = PayloadEncoder.create().encode(result);
         byte[] encodedEncodedPayload = PayloadEncoder.create().encode(encodedPayload);
 
+        assertThat(result.getPrivacyGroupId()).isNotPresent();
+
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
         verify(enclave)
-                .encryptPayload(
-                        eq(message),
-                        eq(senderPublicKey),
-                        eq(recipientPublicKeys),
-                        any(),
-                        eq(affectedTransactions),
-                        any());
+                .encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(PrivacyMetaData.class));
+    }
+
+    @Test
+    public void encryptPayloadWithPrivacyGroupId() {
+
+        byte[] message = "HELLOW".getBytes();
+
+        PublicKey senderPublicKey = PublicKey.from("PublicKey".getBytes());
+        List<PublicKey> recipientPublicKeys = Arrays.asList(PublicKey.from("RecipientPublicKey".getBytes()));
+
+        final EncodedPayload payloadWithGroupId =
+                EncodedPayload.Builder.from(Fixtures.createSample())
+                        .withPrivacyGroupId(PublicKey.from("group".getBytes()))
+                        .build();
+
+        List<AffectedTransaction> affectedTransactions =
+                List.of(
+                        AffectedTransaction.Builder.create()
+                                .withHash("hash".getBytes())
+                                .withPayload(payloadWithGroupId)
+                                .build());
+
+        final PrivacyMetaData privacyMetaData =
+                PrivacyMetaData.Builder.create()
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedTransactions(affectedTransactions)
+                        .withPrivacyGroupId(PublicKey.from("group".getBytes()))
+                        .build();
+
+        when(enclave.encryptPayload(
+                        eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(PrivacyMetaData.class)))
+                .thenReturn(payloadWithGroupId);
+
+        EncodedPayload result =
+                enclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys, privacyMetaData);
+
+        assertThat(result).isNotNull();
+
+        byte[] encodedResult = PayloadEncoder.create().encode(result);
+        byte[] encodedEncodedPayload = PayloadEncoder.create().encode(payloadWithGroupId);
+
+        assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
+
+        ArgumentCaptor<PrivacyMetaData> argumentCaptor = ArgumentCaptor.forClass(PrivacyMetaData.class);
+
+        verify(enclave)
+                .encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), argumentCaptor.capture());
+
+        final PrivacyMetaData passingThroughPrivacyData = argumentCaptor.getValue();
+        assertThat(passingThroughPrivacyData.getPrivacyGroupId())
+                .isPresent()
+                .get()
+                .isEqualTo(PublicKey.from("group".getBytes()));
+        assertThat(passingThroughPrivacyData.getPrivacyMode()).isEqualTo(privacyMetaData.getPrivacyMode());
+        assertThat(passingThroughPrivacyData.getAffectedContractTransactions())
+                .isEqualTo(privacyMetaData.getAffectedContractTransactions());
+        assertThat(passingThroughPrivacyData.getExecHash()).isEqualTo(privacyMetaData.getExecHash());
     }
 
     @Test
@@ -165,16 +212,15 @@ public class RestfulEnclaveClientTest {
                                 .withPayload(encodedPayload)
                                 .build());
 
-        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any(), eq(affectedTransactions), any()))
-                .thenReturn(encodedPayload);
+        final PrivacyMetaData privacyMetaData =
+                PrivacyMetaData.Builder.create()
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedTransactions(affectedTransactions)
+                        .build();
 
-        EncodedPayload result =
-                enclaveClient.encryptPayload(
-                        rawTransaction,
-                        recipientPublicKeys,
-                        PrivacyMode.PARTY_PROTECTION,
-                        affectedTransactions,
-                        new byte[0]);
+        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any())).thenReturn(encodedPayload);
+
+        EncodedPayload result = enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys, privacyMetaData);
 
         assertThat(result).isNotNull();
 
@@ -183,7 +229,68 @@ public class RestfulEnclaveClientTest {
 
         assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
-        verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class), any(), anyList(), any());
+        verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class), any());
+    }
+
+    @Test
+    public void encryptPayloadRawWithPrivacyGroupId() {
+
+        byte[] message = "HELLOW".getBytes();
+
+        byte[] encryptedKey = "encryptedKey".getBytes();
+
+        Nonce nonce = new Nonce("Nonce".getBytes());
+
+        PublicKey senderPublicKey = PublicKey.from("SenderPublicKey".getBytes());
+
+        List<PublicKey> recipientPublicKeys = Arrays.asList(PublicKey.from("RecipientPublicKey".getBytes()));
+
+        RawTransaction rawTransaction = new RawTransaction(message, encryptedKey, nonce, senderPublicKey);
+
+        EncodedPayload encodedPayloadWithGroupId =
+                EncodedPayload.Builder.from(Fixtures.createSample())
+                        .withPrivacyGroupId(PublicKey.from("group".getBytes()))
+                        .build();
+
+        List<AffectedTransaction> affectedTransactions =
+                List.of(
+                        AffectedTransaction.Builder.create()
+                                .withHash("hash".getBytes())
+                                .withPayload(encodedPayloadWithGroupId)
+                                .build());
+
+        final PrivacyMetaData privacyMetaData =
+                PrivacyMetaData.Builder.create()
+                        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+                        .withAffectedTransactions(affectedTransactions)
+                        .withPrivacyGroupId(PublicKey.from("group".getBytes()))
+                        .build();
+
+        when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any()))
+                .thenReturn(encodedPayloadWithGroupId);
+
+        EncodedPayload result = enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys, privacyMetaData);
+
+        assertThat(result).isNotNull();
+
+        byte[] encodedResult = PayloadEncoder.create().encode(result);
+        byte[] encodedEncodedPayload = PayloadEncoder.create().encode(encodedPayloadWithGroupId);
+
+        assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
+
+        ArgumentCaptor<PrivacyMetaData> argumentCaptor = ArgumentCaptor.forClass(PrivacyMetaData.class);
+
+        verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class), argumentCaptor.capture());
+
+        final PrivacyMetaData passingThroughPrivacyData = argumentCaptor.getValue();
+        assertThat(passingThroughPrivacyData.getPrivacyGroupId())
+                .isPresent()
+                .get()
+                .isEqualTo(PublicKey.from("group".getBytes()));
+        assertThat(passingThroughPrivacyData.getPrivacyMode()).isEqualTo(privacyMetaData.getPrivacyMode());
+        assertThat(passingThroughPrivacyData.getAffectedContractTransactions())
+                .isEqualTo(privacyMetaData.getAffectedContractTransactions());
+        assertThat(passingThroughPrivacyData.getExecHash()).isEqualTo(privacyMetaData.getExecHash());
     }
 
     @Test
