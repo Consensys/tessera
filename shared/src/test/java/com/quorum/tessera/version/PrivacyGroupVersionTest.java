@@ -10,6 +10,6 @@ public class PrivacyGroupVersionTest {
 
     @Test
     public void getVersion() {
-        assertThat(version.getVersion()).isEqualTo("3");
+        assertThat(version.getVersion()).isEqualTo("3.0");
     }
 }
