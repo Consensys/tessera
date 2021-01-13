@@ -36,7 +36,7 @@ public class ReceiveResponse {
     private String[] managedParties;
 
     @Schema(description = "public key of the transaction sender", format = "base64")
-    private String sender;
+    private String senderKey;
 
     @Schema(description = "privacy group id of the transaction", format = "base64")
     private String privacyGroupId;
@@ -83,12 +83,12 @@ public class ReceiveResponse {
         this.managedParties = managedParties;
     }
 
-    public String getSender() {
-        return sender;
+    public String getSenderKey() {
+        return senderKey;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    public void setSenderKey(String senderKey) {
+        this.senderKey = senderKey;
     }
 
     public String getPrivacyGroupId() {

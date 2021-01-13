@@ -33,7 +33,7 @@ public class ApiObjectTest {
 
         assertThat(new SendResponse("Data", new String[] {"arbitrary"}, "senderKey"))
                 .isNotNull()
-                .extracting(SendResponse::getSender)
+                .extracting(SendResponse::getSenderKey)
                 .containsExactly("senderKey");
 
         assertThat(new StoreRawResponse("Data".getBytes()))

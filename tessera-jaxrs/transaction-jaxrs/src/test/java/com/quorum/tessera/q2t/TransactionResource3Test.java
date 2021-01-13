@@ -90,7 +90,7 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getPrivacyFlag()).isEqualTo(PrivacyMode.STANDARD_PRIVATE.getPrivacyFlag());
         assertThat(resultResponse.getPayload()).isEqualTo("Result".getBytes());
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(senderPublicKey.encodeToBase64());
-        assertThat(resultResponse.getSender()).isEqualTo(senderPublicKey.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(senderPublicKey.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
@@ -125,7 +125,7 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getAffectedContractTransactions()).isNullOrEmpty();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(senderPublicKey.encodeToBase64());
-        assertThat(resultResponse.getSender()).isEqualTo(senderPublicKey.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(senderPublicKey.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
@@ -155,7 +155,7 @@ public class TransactionResource3Test {
         assertThat(resultResponse.getExecHash()).isNull();
         assertThat(resultResponse.getAffectedContractTransactions()).isNull();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
-        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(sender.encodeToBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
@@ -342,7 +342,7 @@ public class TransactionResource3Test {
         SendResponse resultResponse = result.readEntity(SendResponse.class);
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
-        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
@@ -396,7 +396,7 @@ public class TransactionResource3Test {
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(sender.encodeToBase64());
-        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
@@ -454,7 +454,7 @@ public class TransactionResource3Test {
         SendResponse resultResponse = result.readEntity(SendResponse.class);
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
-        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
