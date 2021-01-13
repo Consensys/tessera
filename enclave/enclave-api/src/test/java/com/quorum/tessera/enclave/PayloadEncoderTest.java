@@ -312,7 +312,8 @@ public class PayloadEncoderTest {
         assertThat(payload.getRecipientKeys()).isEmpty();
         assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
         assertThat(payload.getAffectedContractTransactions()).hasSize(1);
-        assertThat(payload.getAffectedContractTransactions().values().iterator().next().getData()).containsExactly("test".getBytes());
+        assertThat(payload.getAffectedContractTransactions().values().iterator().next().getData())
+                .containsExactly("test".getBytes());
         assertThat(payload.getExecHash()).isNullOrEmpty();
     }
 
@@ -570,7 +571,8 @@ public class PayloadEncoderTest {
         assertThat(payload.getRecipientKeys()).isEmpty();
         assertThat(payload.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
         assertThat(payload.getAffectedContractTransactions()).hasSize(1);
-        assertThat(payload.getAffectedContractTransactions().values().iterator().next().getData()).containsExactly("test".getBytes());
+        assertThat(payload.getAffectedContractTransactions().values().iterator().next().getData())
+                .containsExactly("test".getBytes());
         assertThat(payload.getExecHash()).isEqualTo(execHash);
     }
 
@@ -1010,7 +1012,8 @@ public class PayloadEncoderTest {
         assertThat(decodedPayload.getRecipientKeys()).isEqualTo(originalPayload.getRecipientKeys());
         assertThat(decodedPayload.getPrivacyMode()).isEqualTo(originalPayload.getPrivacyMode());
 
-        assertThat(decodedPayload.getAffectedContractTransactions().get(new TxHash("test".getBytes())).getData()).isEqualTo("test".getBytes());
+        assertThat(decodedPayload.getAffectedContractTransactions().get(new TxHash("test".getBytes())).getData())
+                .isEqualTo("test".getBytes());
         assertThat(decodedPayload.getExecHash()).isNullOrEmpty();
     }
 
@@ -1528,8 +1531,10 @@ public class PayloadEncoderTest {
         assertThat(result.getRecipientNonce()).isEqualTo(control.getRecipientNonce());
         assertThat(result.getCipherTextNonce()).isEqualTo(control.getCipherTextNonce());
         assertThat(result.getRecipientKeys()).hasSize(1).containsExactly(recipientKey);
-        //assertThat(result.getRecipientBoxes()).isNotEqualTo(control.getRecipientBoxes());
+        // assertThat(result.getRecipientBoxes()).isNotEqualTo(control.getRecipientBoxes());
         assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
+
+        assertThat(result.getPrivacyGroupId()).isNotPresent();
     }
 
     @Test
@@ -1582,6 +1587,8 @@ public class PayloadEncoderTest {
         recipientBoxes.add("box".getBytes());
         recipientBoxes.add("anotherBox".getBytes());
 
+        final PublicKey groupId = PublicKey.from("group".getBytes());
+
         final EncodedPayload originalPayload =
                 EncodedPayload.Builder.create()
                         .withSenderKey(PublicKey.from(sender))
@@ -1594,6 +1601,7 @@ public class PayloadEncoderTest {
                         .withAffectedContractTransactions(
                                 singletonMap(new TxHash("test".getBytes()), "test".getBytes()))
                         .withExecHash("execHash".getBytes())
+                        .withPrivacyGroupId(groupId)
                         .build();
 
         final EncodedPayload payload1 = payloadEncoder.forRecipient(originalPayload, recipient1);
@@ -1606,6 +1614,7 @@ public class PayloadEncoderTest {
         assertThat(payload1.getRecipientKeys()).hasSize(2).containsExactly(recipient1, recipient2);
         assertThat(payload1.getRecipientBoxes()).isNotEqualTo(originalPayload.getRecipientBoxes());
         assertThat(payload1.getRecipientBoxes()).hasSize(1).containsExactly(RecipientBox.from("box".getBytes()));
+        assertThat(payload1.getPrivacyGroupId()).isPresent().get().isEqualTo(groupId);
 
         final EncodedPayload payload2 = payloadEncoder.forRecipient(originalPayload, recipient2);
 
@@ -1617,6 +1626,7 @@ public class PayloadEncoderTest {
         assertThat(payload2.getRecipientKeys()).hasSize(2).containsExactly(recipient2, recipient1);
         assertThat(payload2.getRecipientBoxes()).isNotEqualTo(originalPayload.getRecipientBoxes());
         assertThat(payload2.getRecipientBoxes()).hasSize(1).containsExactly(RecipientBox.from("anotherBox".getBytes()));
+        assertThat(payload1.getPrivacyGroupId()).isPresent().get().isEqualTo(groupId);
     }
 
     @Test(expected = InvalidRecipientException.class)
@@ -2076,5 +2086,4 @@ public class PayloadEncoderTest {
 
         assertThat(payload.getRecipientKeys()).containsExactly(PublicKey.from("someKey".getBytes()));
     }
-
 }

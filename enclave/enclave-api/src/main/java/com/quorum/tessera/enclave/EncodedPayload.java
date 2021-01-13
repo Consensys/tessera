@@ -106,25 +106,23 @@ public class EncodedPayload {
                     encodedPayload.getAffectedContractTransactions().entrySet().stream()
                             .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getData()));
 
-            final Builder builder = create();
+            final Builder builder =
+                    create().withSenderKey(encodedPayload.getSenderKey())
+                            .withRecipientNonce(encodedPayload.getRecipientNonce())
+                            .withRecipientKeys(encodedPayload.getRecipientKeys())
+                            .withRecipientBoxes(
+                                    encodedPayload.getRecipientBoxes().stream()
+                                            .map(RecipientBox::getData)
+                                            .collect(Collectors.toList()))
+                            .withCipherText(encodedPayload.getCipherText())
+                            .withCipherTextNonce(encodedPayload.getCipherTextNonce())
+                            .withPrivacyMode(encodedPayload.getPrivacyMode())
+                            .withAffectedContractTransactions(affectedContractTransactionMap)
+                            .withExecHash(encodedPayload.getExecHash());
 
-            if (encodedPayload.getPrivacyGroupId().isPresent()) {
-                builder.withPrivacyGroupId(encodedPayload.getPrivacyGroupId().get());
-            }
+            encodedPayload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
 
-            return builder.withPrivacyMode(encodedPayload.getPrivacyMode())
-                    .withSenderKey(encodedPayload.getSenderKey())
-                    .withRecipientNonce(encodedPayload.getRecipientNonce())
-                    .withRecipientKeys(encodedPayload.getRecipientKeys())
-                    .withRecipientBoxes(
-                            encodedPayload.getRecipientBoxes().stream()
-                                    .map(RecipientBox::getData)
-                                    .collect(Collectors.toList()))
-                    .withPrivacyMode(encodedPayload.getPrivacyMode())
-                    .withExecHash(encodedPayload.getExecHash())
-                    .withCipherText(encodedPayload.getCipherText())
-                    .withCipherTextNonce(encodedPayload.getCipherTextNonce())
-                    .withAffectedContractTransactions(affectedContractTransactionMap);
+            return builder;
         }
 
         private PublicKey senderKey;
@@ -234,7 +232,7 @@ public class EncodedPayload {
                     affectedContractTransactions.entrySet().stream()
                             .collect(
                                     Collectors.toUnmodifiableMap(
-                                        Map.Entry::getKey, e -> SecurityHash.from(e.getValue())));
+                                            Map.Entry::getKey, e -> SecurityHash.from(e.getValue())));
 
             List<RecipientBox> recipientBoxes =
                     this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
