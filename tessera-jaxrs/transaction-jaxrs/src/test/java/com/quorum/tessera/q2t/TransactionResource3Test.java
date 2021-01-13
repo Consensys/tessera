@@ -342,7 +342,7 @@ public class TransactionResource3Test {
         SendResponse resultResponse = result.readEntity(SendResponse.class);
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
-        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
@@ -396,7 +396,7 @@ public class TransactionResource3Test {
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
         assertThat(resultResponse.getManagedParties()).containsExactlyInAnyOrder(sender.encodeToBase64());
-        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
@@ -454,7 +454,7 @@ public class TransactionResource3Test {
         SendResponse resultResponse = result.readEntity(SendResponse.class);
 
         assertThat(resultResponse.getKey()).isEqualTo(base64EncodedTransactionHAshData);
-        assertThat(resultResponse.getSender()).isEqualTo(sender.encodeToBase64());
+        assertThat(resultResponse.getSenderKey()).isEqualTo(sender.encodeToBase64());
 
         assertThat(result.getLocation()).hasPath("/transaction/".concat(base64EncodedTransactionHAshData));
 
