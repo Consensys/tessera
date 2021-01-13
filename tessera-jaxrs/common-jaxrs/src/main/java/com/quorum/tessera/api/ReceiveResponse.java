@@ -2,6 +2,7 @@ package com.quorum.tessera.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlMimeType;
 
 /**
@@ -38,6 +39,9 @@ public class ReceiveResponse {
 
     @Schema(description = "public key of the transaction sender", format = "base64")
     private String sender;
+
+    @Schema(description = "privacy group id of the transaction", format = "base64")
+    private String privacyGroupId;
 
     public ReceiveResponse() {}
 
@@ -85,7 +89,15 @@ public class ReceiveResponse {
         return sender;
     }
 
-    public void setSender(final String sender) {
+    public void setSender(String sender) {
         this.sender = sender;
+    }
+
+    public String getPrivacyGroupId() {
+        return privacyGroupId;
+    }
+
+    public void setPrivacyGroupId(String privacyGroupId) {
+        this.privacyGroupId = privacyGroupId;
     }
 }
