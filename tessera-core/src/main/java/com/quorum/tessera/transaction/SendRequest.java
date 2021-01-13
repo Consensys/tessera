@@ -20,6 +20,8 @@ public interface SendRequest {
 
     Set<MessageHash> getAffectedContractTransactions();
 
+    Optional<PublicKey> getPrivacyGroupId();
+
     class Builder {
 
         private PublicKey from;
@@ -33,6 +35,8 @@ public interface SendRequest {
         private byte[] execHash;
 
         private Set<MessageHash> affectedContractTransactions;
+
+        private PublicKey privacyGroupId;
 
         public static Builder create() {
             return new Builder() {};
@@ -65,6 +69,11 @@ public interface SendRequest {
 
         public Builder withPrivacyMode(PrivacyMode privacyMode) {
             this.privacyMode = privacyMode;
+            return this;
+        }
+
+        public Builder withPrivacyGroupId(PublicKey privacyGroupId) {
+            this.privacyGroupId = privacyGroupId;
             return this;
         }
 
@@ -113,6 +122,11 @@ public interface SendRequest {
                 @Override
                 public Set<MessageHash> getAffectedContractTransactions() {
                     return Set.copyOf(affectedContractTransactions);
+                }
+
+                @Override
+                public Optional<PublicKey> getPrivacyGroupId() {
+                    return Optional.ofNullable(privacyGroupId);
                 }
             };
         }

@@ -18,6 +18,7 @@ public class SendRequestTest {
     public void buildWithEverything() {
         byte[] payload = "Payload".getBytes();
         PublicKey sender = mock(PublicKey.class);
+        PublicKey groupId = mock(PublicKey.class);
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
         MessageHash affectedTransaction = mock(MessageHash.class);
         final byte[] execHash = "ExecHash".getBytes();
@@ -29,6 +30,7 @@ public class SendRequestTest {
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
                         .withExecHash(execHash)
                         .withAffectedContractTransactions(Set.of(affectedTransaction))
+                        .withPrivacyGroupId(groupId)
                         .build();
 
         assertThat(sendRequest).isNotNull();
@@ -38,6 +40,8 @@ public class SendRequestTest {
         assertThat(sendRequest.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
         assertThat(sendRequest.getExecHash()).containsExactly(execHash);
         assertThat(sendRequest.getAffectedContractTransactions()).containsExactly(affectedTransaction);
+
+        assertThat(sendRequest.getPrivacyGroupId()).isPresent().get().isSameAs(groupId);
     }
 
     @Test(expected = NullPointerException.class)

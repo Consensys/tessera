@@ -21,6 +21,8 @@ public class SendSignedRequestTest {
 
         MessageHash affectedTransaction = mock(MessageHash.class);
 
+        PublicKey groupId = mock(PublicKey.class);
+
         SendSignedRequest request =
                 SendSignedRequest.Builder.create()
                         .withSender(mock(PublicKey.class))
@@ -29,6 +31,7 @@ public class SendSignedRequestTest {
                         .withRecipients(recipients)
                         .withAffectedContractTransactions(Set.of(affectedTransaction))
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withPrivacyGroupId(groupId)
                         .build();
 
         assertThat(request).isNotNull();
@@ -37,6 +40,8 @@ public class SendSignedRequestTest {
         assertThat(request.getExecHash()).containsExactly("Exehash".getBytes());
         assertThat(request.getRecipients()).hasSize(1).containsAll(recipients);
         assertThat(request.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+
+        assertThat(request.getPrivacyGroupId()).isPresent().get().isSameAs(groupId);
     }
 
     @Test
@@ -58,6 +63,7 @@ public class SendSignedRequestTest {
         assertThat(request.getExecHash()).isEmpty();
         assertThat(request.getRecipients()).hasSize(1).containsAll(recipients);
         assertThat(request.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
+        assertThat(request.getPrivacyGroupId()).isNotPresent();
     }
 
     @Test(expected = NullPointerException.class)
