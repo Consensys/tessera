@@ -12,6 +12,7 @@ import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.resend.ResendManagerImpl;
+import com.quorum.tessera.enclave.PayloadDigest;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -38,7 +39,8 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
         EncryptedRawTransactionDAO encryptedRawTransactionDAO =
                 entityManagerDAOFactory.createEncryptedRawTransactionDAO();
 
-        ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave);
+        PayloadDigest payloadDigest = PayloadDigest.create(config);
+        ResendManager resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave, payloadDigest);
         boolean privacyEnabled = config.getFeatures().isEnablePrivacyEnhancements();
         PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled);
 
@@ -49,7 +51,8 @@ enum DefaultTransactionManagerFactory implements TransactionManagerFactory {
                         encryptedRawTransactionDAO,
                         resendManager,
                         batchPayloadPublisher,
-                        privacyHelper);
+                        privacyHelper,
+                        payloadDigest);
 
         REF.set(transactionManager);
         return transactionManager;

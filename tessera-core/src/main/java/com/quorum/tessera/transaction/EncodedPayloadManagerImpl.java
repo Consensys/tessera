@@ -1,7 +1,6 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
@@ -20,13 +19,13 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
     private final PrivacyHelper privacyHelper;
 
-    private final MessageHashFactory messageHashFactory;
+    private final PayloadDigest payloadDigest;
 
     public EncodedPayloadManagerImpl(
-            final Enclave enclave, final PrivacyHelper privacyHelper, final MessageHashFactory mhFactory) {
+            final Enclave enclave, final PrivacyHelper privacyHelper, final PayloadDigest payloadDigest) {
         this.enclave = Objects.requireNonNull(enclave);
         this.privacyHelper = Objects.requireNonNull(privacyHelper);
-        this.messageHashFactory = Objects.requireNonNull(mhFactory);
+        this.payloadDigest = Objects.requireNonNull(payloadDigest);
     }
 
     @Override
@@ -54,18 +53,20 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
         privacyHelper.validateSendRequest(privacyMode, recipientListNoDuplicate, affectedContractTransactions);
         LOGGER.debug("Successful validation against affected contracts");
 
+        final PrivacyMetaData.Builder metaDataBuilder =
+                PrivacyMetaData.Builder.create()
+                        .withPrivacyMode(privacyMode)
+                        .withAffectedTransactions(affectedContractTransactions)
+                        .withExecHash(request.getExecHash());
+        request.getPrivacyGroupId().ifPresent(metaDataBuilder::withPrivacyGroupId);
+
         return enclave.encryptPayload(
-                request.getPayload(),
-                senderPublicKey,
-                recipientListNoDuplicate,
-                privacyMode,
-                affectedContractTransactions,
-                request.getExecHash());
+                request.getPayload(), senderPublicKey, recipientListNoDuplicate, metaDataBuilder.build());
     }
 
     @Override
     public ReceiveResponse decrypt(final EncodedPayload payload, final PublicKey maybeDefaultRecipient) {
-        final MessageHash customPayloadHash = messageHashFactory.createFromCipherText(payload.getCipherText());
+        final MessageHash customPayloadHash = new MessageHash(payloadDigest.digest(payload.getCipherText()));
         LOGGER.debug("Decrypt request for custom message with hash {}", customPayloadHash);
 
         final PublicKey recipientKey =
@@ -88,18 +89,21 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
                         .map(MessageHash::new)
                         .collect(Collectors.toSet());
 
-        return ReceiveResponse.Builder.create()
-                .withUnencryptedTransactionData(decryptedTransactionData)
-                .withPrivacyMode(payload.getPrivacyMode())
-                .withAffectedTransactions(txns)
-                .withExecHash(payload.getExecHash())
-                .withSender(payload.getSenderKey())
-                .build();
+        ReceiveResponse.Builder builder =
+                ReceiveResponse.Builder.create()
+                        .withUnencryptedTransactionData(decryptedTransactionData)
+                        .withPrivacyMode(payload.getPrivacyMode())
+                        .withAffectedTransactions(txns)
+                        .withExecHash(payload.getExecHash())
+                        .withSender(payload.getSenderKey());
+
+        payload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
+
+        return builder.build();
     }
 
     private Optional<PublicKey> searchForRecipientKey(final EncodedPayload payload) {
-        final MessageHash customPayloadHash = messageHashFactory.createFromCipherText(payload.getCipherText());
-
+        final MessageHash customPayloadHash = new MessageHash(payloadDigest.digest(payload.getCipherText()));
         for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
             try {
                 LOGGER.debug(
