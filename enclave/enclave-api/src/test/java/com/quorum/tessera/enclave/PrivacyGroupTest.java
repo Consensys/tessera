@@ -17,15 +17,16 @@ public class PrivacyGroupTest {
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
         byte[] seed = "seed".getBytes();
 
-        PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
-            .withPrivacyGroupId(privacyGroupId)
-            .withName("name")
-            .withDescription("description")
-            .withMembers(recipients)
-            .withSeed(seed)
-            .withState(PrivacyGroup.State.ACTIVE)
-            .withType(PrivacyGroup.Type.PANTHEON)
-            .build();
+        PrivacyGroup privacyGroup =
+                PrivacyGroup.Builder.create()
+                        .withPrivacyGroupId(privacyGroupId)
+                        .withName("name")
+                        .withDescription("description")
+                        .withMembers(recipients)
+                        .withSeed(seed)
+                        .withState(PrivacyGroup.State.ACTIVE)
+                        .withType(PrivacyGroup.Type.PANTHEON)
+                        .build();
 
         assertThat(privacyGroup).isNotNull();
         assertThat(privacyGroup.getPrivacyGroupId()).isSameAs(privacyGroupId);
@@ -37,6 +38,36 @@ public class PrivacyGroupTest {
         assertThat(privacyGroup.getType()).isEqualTo(PrivacyGroup.Type.PANTHEON);
     }
 
+    @Test
+    public void buildFrom() {
+        final PublicKey privacyGroupId = mock(PublicKey.class);
+        final List<PublicKey> recipients = List.of(mock(PublicKey.class));
+        byte[] seed = "seed".getBytes();
+
+        final PrivacyGroup privacyGroup =
+                PrivacyGroup.Builder.create()
+                        .withPrivacyGroupId(privacyGroupId)
+                        .withName("name")
+                        .withDescription("description")
+                        .withMembers(recipients)
+                        .withSeed(seed)
+                        .withState(PrivacyGroup.State.ACTIVE)
+                        .withType(PrivacyGroup.Type.PANTHEON)
+                        .build();
+
+        final PrivacyGroup anotherPrivacyGroup =
+                PrivacyGroup.Builder.create().from(privacyGroup).withState(PrivacyGroup.State.DELETED).build();
+
+        assertThat(anotherPrivacyGroup).isNotNull();
+        assertThat(anotherPrivacyGroup.getPrivacyGroupId()).isSameAs(privacyGroupId);
+        assertThat(anotherPrivacyGroup.getName()).isEqualTo("name");
+        assertThat(anotherPrivacyGroup.getDescription()).isEqualTo("description");
+        assertThat(anotherPrivacyGroup.getMembers()).containsAll(recipients);
+        assertThat(anotherPrivacyGroup.getSeed()).isEqualTo("seed".getBytes());
+        assertThat(anotherPrivacyGroup.getState()).isEqualTo(PrivacyGroup.State.DELETED);
+        assertThat(anotherPrivacyGroup.getType()).isEqualTo(PrivacyGroup.Type.PANTHEON);
+    }
+
     @Test(expected = NullPointerException.class)
     public void buildWithoutId() {
         PrivacyGroup privacyGroup = PrivacyGroup.Builder.create().build();
@@ -44,25 +75,22 @@ public class PrivacyGroupTest {
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutMembers() {
-        PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
-            .withPrivacyGroupId(mock(PublicKey.class))
-            .build();
+        PrivacyGroup privacyGroup = PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PublicKey.class)).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutState() {
-        PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
-            .withPrivacyGroupId(mock(PublicKey.class))
-            .withMembers(List.of())
-            .build();
+        PrivacyGroup privacyGroup =
+                PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PublicKey.class)).withMembers(List.of()).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutType() {
-        PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
-            .withPrivacyGroupId(mock(PublicKey.class))
-            .withMembers(List.of())
-            .withState(PrivacyGroup.State.ACTIVE)
-            .build();
+        PrivacyGroup privacyGroup =
+                PrivacyGroup.Builder.create()
+                        .withPrivacyGroupId(mock(PublicKey.class))
+                        .withMembers(List.of())
+                        .withState(PrivacyGroup.State.ACTIVE)
+                        .build();
     }
 }

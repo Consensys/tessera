@@ -87,6 +87,17 @@ public interface PrivacyGroup {
             return this;
         }
 
+        public Builder from(final PrivacyGroup privacyGroup) {
+            this.privacyGroupId = privacyGroup.getPrivacyGroupId();
+            this.name = privacyGroup.getName();
+            this.description = privacyGroup.getDescription();
+            this.members = privacyGroup.getMembers();
+            this.seed = privacyGroup.getSeed();
+            this.type = privacyGroup.getType();
+            this.state = privacyGroup.getState();
+            return this;
+        }
+
         public PrivacyGroup build() {
 
             Objects.requireNonNull(privacyGroupId);
