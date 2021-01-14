@@ -131,12 +131,12 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
         final Set<PublicKey> managedParties =
-            Stream.concat(Stream.of(senderPublicKey), recipientListNoDuplicate.stream())
-                .filter(managedPublicKeys::contains)
-                .collect(Collectors.toSet());
+                Stream.concat(Stream.of(senderPublicKey), recipientListNoDuplicate.stream())
+                        .filter(managedPublicKeys::contains)
+                        .collect(Collectors.toSet());
 
-        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
-            .filter(not(managedPublicKeys::contains)).collect(Collectors.toList());
+        final List<PublicKey> recipientListRemotesOnly =
+                recipientListNoDuplicate.stream().filter(not(managedPublicKeys::contains)).collect(Collectors.toList());
 
         this.encryptedTransactionDAO.save(
                 newTransaction,
@@ -155,8 +155,7 @@ public class TransactionManagerImpl implements TransactionManager {
     @Override
     public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
 
-        final List<PublicKey> recipientList = new ArrayList<>();
-        recipientList.addAll(sendRequest.getRecipients());
+        final List<PublicKey> recipientList = new ArrayList<>(sendRequest.getRecipients());
         recipientList.addAll(enclave.getForwardingKeys());
 
         final MessageHash messageHash = new MessageHash(sendRequest.getSignedData());
@@ -201,10 +200,10 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
         final Set<PublicKey> managedParties =
-            recipientListNoDuplicate.stream().filter(managedPublicKeys::contains).collect(Collectors.toSet());
+                recipientListNoDuplicate.stream().filter(managedPublicKeys::contains).collect(Collectors.toSet());
 
-        final List<PublicKey> recipientListRemotesOnly = recipientListNoDuplicate.stream()
-            .filter(not(managedPublicKeys::contains)).collect(Collectors.toList());
+        final List<PublicKey> recipientListRemotesOnly =
+                recipientListNoDuplicate.stream().filter(not(managedPublicKeys::contains)).collect(Collectors.toList());
 
         this.encryptedTransactionDAO.save(
                 newTransaction,
