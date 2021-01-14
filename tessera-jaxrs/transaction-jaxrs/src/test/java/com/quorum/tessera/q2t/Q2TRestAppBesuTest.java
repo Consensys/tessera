@@ -55,7 +55,7 @@ public class Q2TRestAppBesuTest {
 
     @Test
     public void getSingletons() {
-        assertThat(q2TRestApp.getSingletons()).hasSize(3);
+        assertThat(q2TRestApp.getSingletons()).hasSize(4);
     }
 
     @Test

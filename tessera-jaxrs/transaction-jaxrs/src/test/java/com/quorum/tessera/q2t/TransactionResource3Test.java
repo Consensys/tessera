@@ -6,6 +6,7 @@ import com.quorum.tessera.api.SendSignedRequest;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.ReceiveResponse;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -33,6 +34,8 @@ public class TransactionResource3Test {
 
     private TransactionManager transactionManager;
 
+    private PrivacyGroupManager privacyGroupManager;
+
     @BeforeClass
     public static void setUpLoggers() {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -42,8 +45,10 @@ public class TransactionResource3Test {
     @Before
     public void onSetup() throws Exception {
         this.transactionManager = mock(TransactionManager.class);
+        this.privacyGroupManager = mock(PrivacyGroupManager.class);
 
-        final TransactionResource3 transactionResource = new TransactionResource3(transactionManager);
+        final TransactionResource3 transactionResource =
+                new TransactionResource3(transactionManager, privacyGroupManager);
 
         jersey =
                 new JerseyTest() {
@@ -61,7 +66,7 @@ public class TransactionResource3Test {
 
     @After
     public void onTearDown() throws Exception {
-        verifyNoMoreInteractions(transactionManager);
+        verifyNoMoreInteractions(transactionManager, privacyGroupManager);
         jersey.tearDown();
     }
 
@@ -534,20 +539,19 @@ public class TransactionResource3Test {
 
         pathToEntityMapping.entrySet().stream()
                 .forEach(
-                        e -> {
-                            e.getValue()
-                                    .forEach(
-                                            entity -> {
-                                                Response response =
-                                                        jersey.target(e.getKey())
-                                                                .request()
-                                                                .post(
-                                                                        Entity.entity(
-                                                                                null,
-                                                                                "application/vnd.tessera-2.1+json"));
-                                                assertThat(response.getStatus()).isEqualTo(400);
-                                            });
-                        });
+                        e ->
+                                e.getValue()
+                                        .forEach(
+                                                entity -> {
+                                                    Response response =
+                                                            jersey.target(e.getKey())
+                                                                    .request()
+                                                                    .post(
+                                                                            Entity.entity(
+                                                                                    null,
+                                                                                    "application/vnd.tessera-2.1+json"));
+                                                    assertThat(response.getStatus()).isEqualTo(400);
+                                                }));
     }
 
     @Test
