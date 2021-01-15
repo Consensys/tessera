@@ -53,6 +53,7 @@ public class PicoCliDelegate {
         final CLIExceptionCapturer mapper = new CLIExceptionCapturer();
 
         commandLine.addSubcommand(new CommandLine(CommandLine.HelpCommand.class));
+        commandLine.addSubcommand(new CommandLine(VersionCommand.class));
         commandLine.addSubcommand(new CommandLine(KeyGenCommand.class, new KeyGenCommandFactory()));
         commandLine.addSubcommand(new CommandLine(KeyUpdateCommand.class, new KeyUpdateCommandFactory()));
 
@@ -99,11 +100,17 @@ public class PicoCliDelegate {
 
         // there is a subcommand
 
-        // print help as no args provided
+        // print help if no args provided and not version subcmd
         if (args.length == 1) {
-            final CommandLine.ParseResult subcommand = parseResult.subcommand();
-            subcommand.asCommandLineList().get(0).execute("help");
-            return new CliResult(0, true, null);
+            final CommandLine.ParseResult subcmdParseResult = parseResult.subcommand();
+            final CommandLine subcmd = subcmdParseResult.asCommandLineList().get(0);
+            if ("version".equals(subcmd.getCommandName())) {
+                subcmd.printVersionHelp(System.out);
+                return new CliResult(0, true, null);
+            } else {
+                subcmd.execute("help");
+                return new CliResult(0, true, null);
+            }
         }
 
         commandLine.execute(args);
