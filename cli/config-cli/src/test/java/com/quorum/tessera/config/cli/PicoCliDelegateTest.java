@@ -14,7 +14,10 @@ import com.quorum.tessera.test.util.ElUtil;
 import org.assertj.core.util.Strings;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.SystemErrRule;
+import org.junit.contrib.java.lang.system.SystemOutRule;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,9 +47,16 @@ public class PicoCliDelegateTest {
 
     private PicoCliDelegate cliDelegate;
 
+    @Rule
+    public SystemErrRule systemErrOutput = new SystemErrRule().enableLog();
+
+    @Rule public SystemOutRule systemOutOutput = new SystemOutRule().enableLog();
+
     @Before
     public void setUp() {
         cliDelegate = new PicoCliDelegate();
+        this.systemErrOutput.clearLog();
+        this.systemOutOutput.clearLog();
     }
 
     @Test
@@ -54,21 +64,34 @@ public class PicoCliDelegateTest {
 
         final CliResult result = cliDelegate.execute("help");
 
+        final String sysout = systemOutOutput.getLog();
+        final String syserr = systemErrOutput.getLog();
+
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.isSuppressStartup()).isTrue();
+
+        assertThat(syserr).isEmpty();
+        assertThat(sysout).isNotEmpty();
+        assertThat(sysout).contains("Usage: tessera [OPTIONS] [COMMAND]", "Description:", "Options:", "Commands:");
     }
 
     @Test
-    public void noArgsPrintsHelp() throws Exception {
+    public void noArgsPrintsHelp() {
 
-        final CliResult result = cliDelegate.execute();
+        final Throwable ex = catchThrowable(() -> cliDelegate.execute());
 
-        assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isNotPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isSuppressStartup()).isTrue();
+        final String syserr = systemErrOutput.getLog();
+
+        assertThat(ex).isExactlyInstanceOf(NoTesseraConfigfileOptionException.class);
+
+        assertThat(syserr).isNotEmpty();
+        assertThat(syserr).contains(
+            "Usage: tessera [OPTIONS] [COMMAND]",
+            "Description:",
+            "Options:",
+            "Commands:");
     }
 
     @Test
@@ -543,66 +566,15 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void withValidConfigAndJdbcOveride() throws Exception {
-
-        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true");
-
-        assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
-
-        assertThat(result.isSuppressStartup()).isFalse();
-
-        Config config = result.getConfig().get();
-        assertThat(config.getJdbcConfig()).isNotNull();
-        assertThat(config.getJdbcConfig().isAutoCreateTables()).isTrue();
-    }
-
-    @Test
-    public void withValidConfigAndUnmatchableDynamicOption() throws Exception {
+    public void doNotAllowUnmatchableOptions() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
         CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus");
 
         assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
-
-        assertThat(result.isSuppressStartup()).isFalse();
-    }
-
-    @Test
-    public void withValidConfigAndUnmatchableDynamicOptionWithValue() throws Exception {
-
-        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus", "bogus value");
-
-        assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
-
-        assertThat(result.isSuppressStartup()).isFalse();
-    }
-
-    @Test
-    public void withValidConfigAndJdbcOverides() throws Exception {
-
-        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result =
-                cliDelegate.execute(
-                        "-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
-
-        assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
-
-        assertThat(result.isSuppressStartup()).isFalse();
-
-        Config config = result.getConfig().get();
-        assertThat(config.getJdbcConfig()).isNotNull();
-        assertThat(config.getJdbcConfig().isAutoCreateTables()).isTrue();
-        assertThat(config.getJdbcConfig().getUrl()).isEqualTo("someurl");
+        assertThat(result.isSuppressStartup()).isTrue();
     }
 
     @Test

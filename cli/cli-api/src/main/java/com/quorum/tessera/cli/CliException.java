@@ -6,4 +6,8 @@ public class CliException extends RuntimeException {
         super(message);
     }
 
+    public CliException(Throwable cause) {
+        super(cause);
+    }
+
 }

@@ -1,13 +1,10 @@
 package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.reflect.ReflectException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -20,7 +17,10 @@ import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
