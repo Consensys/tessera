@@ -41,47 +41,47 @@ public class Main {
 
             cliResult.getConfig().ifPresent(c -> LOGGER.trace("Config {}", JaxbUtil.marshalToStringNoValidation(c)));
 
-//            if (cliResult.isSuppressStartup()) {
-//                System.exit(0);
-//            }
-//
-//            if (cliResult.getStatus() != 0) {
-//                System.exit(cliResult.getStatus());
-//            }
-//
-//            final Config config =
-//                    cliResult
-//                            .getConfig()
-//                            .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
-//
-//            //Start legacy spring profile stuff
-//            final String springProfileWarning = "Warn: Spring profiles will not be supported in future. To start in recover mode use 'tessera recover'";
-//            if(System.getProperties().containsKey("spring.profiles.active")) {
-//                System.out.println(springProfileWarning);
-//                config.setRecoveryMode(System.getProperty("spring.profiles.active").contains("enable-sync-poller"));
-//            } else if(System.getenv().containsKey("SPRING_PROFILES_ACTIVE")) {
-//                System.out.println(springProfileWarning);
-//                config.setRecoveryMode(System.getenv("SPRING_PROFILES_ACTIVE").contains("enable-sync-poller"));
-//            }
-//
-//            //Start end spring profile stuff
-//
-//            final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
-//
-//            com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
-//            Discovery.getInstance().onCreate();
-//
-//            LOGGER.debug("Creating service locator");
-//            ServiceLocator serviceLocator = ServiceLocator.create();
-//            LOGGER.debug("Created service locator {}", serviceLocator);
-//
-//            Set<Object> services = serviceLocator.getServices();
-//
-//            LOGGER.debug("Created {} services", services.size());
-//
-//            services.forEach(o -> LOGGER.debug("Service : {}", o));
-//
-//            Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
+            if (cliResult.isSuppressStartup()) {
+                System.exit(0);
+            }
+
+            if (cliResult.getStatus() != 0) {
+                System.exit(cliResult.getStatus());
+            }
+
+            final Config config =
+                    cliResult
+                            .getConfig()
+                            .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
+
+            //Start legacy spring profile stuff
+            final String springProfileWarning = "Warn: Spring profiles will not be supported in future. To start in recover mode use 'tessera recover'";
+            if(System.getProperties().containsKey("spring.profiles.active")) {
+                System.out.println(springProfileWarning);
+                config.setRecoveryMode(System.getProperty("spring.profiles.active").contains("enable-sync-poller"));
+            } else if(System.getenv().containsKey("SPRING_PROFILES_ACTIVE")) {
+                System.out.println(springProfileWarning);
+                config.setRecoveryMode(System.getenv("SPRING_PROFILES_ACTIVE").contains("enable-sync-poller"));
+            }
+
+            //Start end spring profile stuff
+
+            final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
+
+            com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
+            Discovery.getInstance().onCreate();
+
+            LOGGER.debug("Creating service locator");
+            ServiceLocator serviceLocator = ServiceLocator.create();
+            LOGGER.debug("Created service locator {}", serviceLocator);
+
+            Set<Object> services = serviceLocator.getServices();
+
+            LOGGER.debug("Created {} services", services.size());
+
+            services.forEach(o -> LOGGER.debug("Service : {}", o));
+
+            Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
 
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {

@@ -166,7 +166,7 @@ public class ExecArgsBuilder {
                         .withJvmArg("-Dsomething=something")
                         .withClassPathItem(Paths.get("/some.jar"))
                         .withClassPathItem(Paths.get("/someother.jar"))
-                        .withArg("-jdbc.autoCreateTables", "true")
+                        .withArg("-o", "jdbc.autoCreateTables=true")
                         .build();
 
         System.out.println(String.join(" ", argz));

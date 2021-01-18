@@ -29,13 +29,12 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 @CommandLine.Command(
         name = "tessera",
-        headerHeading = "Usage:%n%n",
-        header = "Tessera private transaction manager for Quorum",
-        synopsisHeading = "%n",
-        descriptionHeading = "%nDescription:%n%n",
-        description = "Start a Tessera node.  Other commands exist to manage Tessera encryption keys",
-        parameterListHeading = "%nParameters:%n",
-        optionListHeading = "%nOptions:%n",
+        header = "Tessera - Privacy Manager for Quorum%n",
+        descriptionHeading = "%nDescription:%n",
+        description = "Start a Tessera node.  Subcommands exist to manage Tessera encryption keys%n",
+        parameterListHeading = "Parameters:%n",
+        commandListHeading = "%nCommands:%n",
+        optionListHeading = "Options:%n",
         abbreviateSynopsis = true)
 public class TesseraCommand implements Callable<CliResult> {
 
@@ -62,13 +61,13 @@ public class TesseraCommand implements Callable<CliResult> {
 
     @CommandLine.Option(
             names = {"--pidfile", "-pidfile"},
-            description = "the path to write the PID to")
+            description = "Create a file at the specified path containing the process' ID (PID)")
     public Path pidFilePath;
 
     @CommandLine.Option(
             names = {"-o", "--override"},
-            paramLabel = "KEY=VALUE")
-    private Map<String, String> overrides = new LinkedHashMap<>();
+        description = "Override a value in the configuration. Can be used multiple times.")
+    private final Map<String, String> overrides = new LinkedHashMap<>();
 
     @CommandLine.Option(
             names = {"-r", "--recover"},
@@ -76,8 +75,6 @@ public class TesseraCommand implements Callable<CliResult> {
     private boolean recover;
 
     @CommandLine.Mixin public DebugOptions debugOptions;
-
-    @CommandLine.Unmatched public List<String> unmatchedEntries;
 
     // TODO(cjh) dry run option to print effective config to terminal to allow review of CLI overrides
 
@@ -97,29 +94,6 @@ public class TesseraCommand implements Callable<CliResult> {
         if (recover) {
             config.setRecoveryMode(true);
         }
-
-//            if (Objects.nonNull(parseResult.unmatched())) {
-//                List<String> unmatched = new ArrayList<>(parseResult.unmatched());
-//
-//                for (int i = 0; i < unmatched.size(); i++) {
-//                    String line = unmatched.get(i);
-//                    if (line.startsWith("-")) {
-//                        final String name = line.replaceFirst("-{1,2}", "");
-//                        final int nextIndex = i + 1;
-//                        if (nextIndex > (unmatched.size() - 1)) {
-//                            break;
-//                        }
-//                        i = nextIndex;
-//                        final String value = unmatched.get(nextIndex);
-//                        try {
-//                            OverrideUtil.setValue(config, name, value);
-//                        } catch (ReflectException ex) {
-//                            // Ignore error
-//                            LOGGER.debug("", ex);
-//                        }
-//                    }
-//                }
-//            }
 
         final Set<ConstraintViolation<Config>> violations = validator.validate(config);
         if (!violations.isEmpty()) {
