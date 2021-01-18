@@ -838,13 +838,6 @@
             </dependency>
 
             <dependency>
-                <groupId>org.apache.tuweni</groupId>
-                <artifactId>tuweni-crypto</artifactId>
-                <version>${tuweni.version}</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-test</artifactId>
                 <version>${spring.version}</version>

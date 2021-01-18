@@ -1,8 +1,9 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.config.Config;
-import org.apache.tuweni.crypto.Hash;
 import org.junit.Test;
+
+import java.util.Base64;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -26,13 +27,13 @@ public class PayloadDigestTest {
         String cipherText = "cipherText";
         byte[] result = digest.digest(cipherText.getBytes());
 
-        //This is what Orion uses
-        byte[] expected = Hash.sha2_512_256(cipherText.getBytes());
+        // What Orion will have generated
+        final String expectedB64 = "7AagSZbaNRe/IJzrUKTp8Hl60wncQL1DHvDJCVQ+YIk=";
 
         assertThat(result).isNotNull();
         assertThat(result).hasSize(32);
-        assertThat(result).isEqualTo(expected);
-
+        String resultInBase64 = Base64.getEncoder().encodeToString(result);
+        assertThat(resultInBase64).isEqualTo(expectedB64);
     }
 
     @Test
