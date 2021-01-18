@@ -33,8 +33,8 @@ public class PicoCliDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegate.class);
 
-    private final Validator validator =
-            Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
+//    private final Validator validator =
+//            Validation.byDefaultProvider().configure().ignoreXmlConfiguration().buildValidatorFactory().getValidator();
 
     private final KeyPasswordResolver keyPasswordResolver;
 
@@ -66,142 +66,65 @@ public class PicoCliDelegate {
                 .setParameterExceptionHandler(mapper)
                 .setStopAtUnmatched(false);
 
-        final CommandLine.ParseResult parseResult;
-        try {
-            parseResult = commandLine.parseArgs(args);
-        } catch (CommandLine.ParameterException ex) {
-            try {
-                commandLine.getParameterExceptionHandler().handleParseException(ex, args);
-                throw new CliException(ex.getMessage());
-            } catch (Exception e) {
-                throw new CliException(ex.getMessage());
-            }
-        }
+//        final CommandLine.ParseResult parseResult;
+//        try {
+//            parseResult = commandLine.parseArgs(args);
+//        } catch (CommandLine.ParameterException ex) {
+//            try {
+//                commandLine.getParameterExceptionHandler().handleParseException(ex, args);
+//                throw new CliException(ex.getMessage());
+//            } catch (Exception e) {
+//                throw new CliException(ex.getMessage());
+//            }
+//        }
+//
+//        if (CommandLine.printHelpIfRequested(parseResult)) {
+//            return new CliResult(0, true, null);
+//        }
+//
+//        if (!parseResult.hasSubcommand()) {
+//            // the node is being started
+//            final Config config;
+//            try {
+//                config = getConfigFromCLI(parseResult);
+//            } catch (NoTesseraCmdArgsException e) {
+//                commandLine.execute("help");
+//                return new CliResult(0, true, null);
+//            } catch (NoTesseraConfigfileOptionException e) {
+//                throw new CliException("Missing required option '--configfile <config>'");
+//            }
+//            LOGGER.debug("Executed with args [{}]", String.join(",", args));
+//            LOGGER.trace("Config {}", JaxbUtil.marshalToString(config));
+//            return new CliResult(0, false, config);
+//        }
+//
+//        // there is a subcommand
+//
+//        // print help if no args provided and not version subcmd
+//        if (args.length == 1) {
+//            final CommandLine.ParseResult subcmdParseResult = parseResult.subcommand();
+//            final CommandLine subcmd = subcmdParseResult.asCommandLineList().get(0);
+//            if ("version".equals(subcmd.getCommandName())) {
+//                subcmd.printVersionHelp(System.out);
+//                return new CliResult(0, true, null);
+//            } else {
+//                subcmd.execute("help");
+//                return new CliResult(0, true, null);
+//            }
+//        }
 
-        if (CommandLine.printHelpIfRequested(parseResult)) {
-            return new CliResult(0, true, null);
-        }
-
-        if (!parseResult.hasSubcommand()) {
-            // the node is being started
-            final Config config;
-            try {
-                config = getConfigFromCLI(parseResult);
-            } catch (NoTesseraCmdArgsException e) {
-                commandLine.execute("help");
-                return new CliResult(0, true, null);
-            } catch (NoTesseraConfigfileOptionException e) {
-                throw new CliException("Missing required option '--configfile <config>'");
-            }
-            LOGGER.debug("Executed with args [{}]", String.join(",", args));
-            LOGGER.trace("Config {}", JaxbUtil.marshalToString(config));
-            return new CliResult(0, false, config);
-        }
-
-        // there is a subcommand
-
-        // print help if no args provided and not version subcmd
-        if (args.length == 1) {
-            final CommandLine.ParseResult subcmdParseResult = parseResult.subcommand();
-            final CommandLine subcmd = subcmdParseResult.asCommandLineList().get(0);
-            if ("version".equals(subcmd.getCommandName())) {
-                subcmd.printVersionHelp(System.out);
-                return new CliResult(0, true, null);
-            } else {
-                subcmd.execute("help");
-                return new CliResult(0, true, null);
-            }
-        }
-
-        commandLine.execute(args);
+        commandLine..execute(args);
 
         // if an exception occurred, throw it to to the upper levels where it gets handled
         if (mapper.getThrown() != null) {
-            throw mapper.getThrown();
-        }
-        return new CliResult(0, true, null);
-    }
-
-    private Config getConfigFromCLI(CommandLine.ParseResult parseResult) throws Exception {
-        List<CommandLine.Model.ArgSpec> parsedArgs = parseResult.matchedArgs();
-
-        if (parsedArgs.isEmpty()) {
-            throw new NoTesseraCmdArgsException();
-        }
-
-        final Config config;
-
-        // start with any config read from the file
-        if (parseResult.hasMatchedOption("configfile")) {
-            config = parseResult.matchedOption("configfile").getValue();
-        } else {
-            throw new NoTesseraConfigfileOptionException();
-        }
-
-        if (parseResult.hasMatchedOption("override")) {
-            Map<String, String> overrides = parseResult.matchedOption("override").getValue();
-
-            for (String target : overrides.keySet()) {
-                String value = overrides.get(target);
-
-                // apply CLI overrides
-                LOGGER.debug("Setting : {} with value(s) {}", target, value);
-                OverrideUtil.setValue(config, target, value);
-                LOGGER.debug("Set : {} with value(s) {}", target, value);
+            try {
+                throw mapper.getThrown();
+            } catch(NoTesseraConfigfileOptionException e) {
+                commandLine.execute("help");
+                throw new CliException("Missing required option '--configfile <config>'");
             }
         }
-
-        if (parseResult.hasMatchedOption("recover")) {
-            config.setRecoveryMode(true);
-        }
-
-        if (Objects.nonNull(parseResult.unmatched())) {
-            List<String> unmatched = new ArrayList<>(parseResult.unmatched());
-
-            for (int i = 0; i < unmatched.size(); i++) {
-                String line = unmatched.get(i);
-                if (line.startsWith("-")) {
-                    final String name = line.replaceFirst("-{1,2}", "");
-                    final int nextIndex = i + 1;
-                    if (nextIndex > (unmatched.size() - 1)) {
-                        break;
-                    }
-                    i = nextIndex;
-                    final String value = unmatched.get(nextIndex);
-                    try {
-                        OverrideUtil.setValue(config, name, value);
-                    } catch (ReflectException ex) {
-                        // Ignore error
-                        LOGGER.debug("", ex);
-                    }
-                }
-            }
-        }
-
-        final Set<ConstraintViolation<Config>> violations = validator.validate(config);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-        keyPasswordResolver.resolveKeyPasswords(config);
-
-        if (parseResult.hasMatchedOption("pidfile")) {
-            createPidFile(parseResult.matchedOption("pidfile").getValue());
-        }
-
-        return config;
-    }
-
-    private void createPidFile(Path pidFilePath) throws Exception {
-        if (Files.exists(pidFilePath)) {
-            LOGGER.info("File already exists {}", pidFilePath);
-        } else {
-            LOGGER.info("Created pid file {}", pidFilePath);
-        }
-
-        final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-
-        try (OutputStream stream = Files.newOutputStream(pidFilePath, CREATE, TRUNCATE_EXISTING)) {
-            stream.write(pid.getBytes(UTF_8));
-        }
+        return (CliResult) Optional.ofNullable(commandLine.getExecutionResult())
+            .orElse(new CliResult(0, true, null));
     }
 }
