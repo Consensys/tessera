@@ -13,7 +13,7 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
 
     byte[] BYTES = Bytes.fromHexString("5375ba871e5c3d0f1d055b5da0ac02ea035bed38").toArrayUnsafe();
 
-    default byte[] generatePrivacyGroupId(final List<PublicKey> addresses, final byte[] seed) {
+    default byte[] generateId(final List<PublicKey> addresses, final byte[] seed) {
 
         final List<byte[]> sortedKeys =
                 addresses.stream()
@@ -30,8 +30,12 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
         return new Keccak.Digest256().digest(rlpEncoded);
     }
 
+    default byte[] generateId(final List<PublicKey> addresses) {
+        return generateId(addresses, null);
+    }
+
     default byte[] generateLookupId(final List<PublicKey> addresses) {
-        return generatePrivacyGroupId(addresses, BYTES);
+        return generateId(addresses, BYTES);
     }
 
     default byte[] encode(final PrivacyGroup privacyGroup) {
@@ -92,7 +96,12 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
         final byte[] state = new byte[Math.toIntExact(stateSize)];
         buffer.get(state);
 
-        byte[] groupId = generatePrivacyGroupId(memberKeys, seed);
+        final byte[] groupId;
+        if (seedSize == 0) {
+            groupId = generateId(memberKeys);
+        } else {
+            groupId = generateId(memberKeys, seed);
+        }
 
         return PrivacyGroup.Builder.create()
                 .withPrivacyGroupId(PublicKey.from(groupId))

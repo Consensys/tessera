@@ -24,7 +24,7 @@ public class PrivacyGroupUtilTest {
     @Test
     public void testGenerateLegacyGroupId() {
 
-        final byte[] id = privacyGroupUtil.generatePrivacyGroupId(List.of(recipient1, recipient2), null);
+        final byte[] id = privacyGroupUtil.generateId(List.of(recipient1, recipient2));
 
         final String base64Id = PublicKey.from(id).encodeToBase64();
 
@@ -36,7 +36,7 @@ public class PrivacyGroupUtilTest {
 
         final List<PublicKey> members = List.of(recipient1, recipient2, recipient3);
 
-        final byte[] id = privacyGroupUtil.generatePrivacyGroupId(members, seed);
+        final byte[] id = privacyGroupUtil.generateId(members, seed);
 
         final String base64Id = PublicKey.from(id).encodeToBase64();
 
@@ -88,7 +88,7 @@ public class PrivacyGroupUtilTest {
     @Test
     public void testEncodeDecodePartialData() {
 
-        final PublicKey groupId = PublicKey.from(privacyGroupUtil.generatePrivacyGroupId(List.of(),new byte[0]));
+        final PublicKey groupId = PublicKey.from(privacyGroupUtil.generateId(List.of()));
 
         final PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
             .withPrivacyGroupId(groupId)
