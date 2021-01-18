@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.quorum.tessera.version.MultiTenancyVersion.MIME_TYPE_JSON_2_1;
+import static com.quorum.tessera.version.PrivacyGroupVersion.MIME_TYPE_JSON_3;
 import static javax.ws.rs.core.MediaType.*;
 
 /**
@@ -92,8 +93,8 @@ public class TransactionResource3 {
             })
     @POST
     @Path("send")
-    @Consumes(MIME_TYPE_JSON_2_1)
-    @Produces(MIME_TYPE_JSON_2_1)
+    @Consumes({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
+    @Produces({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
     public Response send(@NotNull @Valid @PrivacyValid final SendRequest sendRequest) {
 
         final PublicKey sender =
