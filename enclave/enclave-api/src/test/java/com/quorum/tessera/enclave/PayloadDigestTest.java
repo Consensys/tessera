@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.config.Config;
+import org.apache.tuweni.crypto.Hash;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +26,13 @@ public class PayloadDigestTest {
         String cipherText = "cipherText";
         byte[] result = digest.digest(cipherText.getBytes());
 
+        //This is what Orion uses
+        byte[] expected = Hash.sha2_512_256(cipherText.getBytes());
+
         assertThat(result).isNotNull();
         assertThat(result).hasSize(32);
+        assertThat(result).isEqualTo(expected);
+
     }
 
     @Test
