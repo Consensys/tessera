@@ -151,7 +151,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         final PrivacyGroupEntity entity = new PrivacyGroupEntity(id, lookupId, encodedData);
 
-        if (privacyGroup.getState() == PrivacyGroup.State.DELETED) {
+        if (privacyGroupDAO.retrieve(id).isPresent()) {
             privacyGroupDAO.update(entity);
             return;
         }

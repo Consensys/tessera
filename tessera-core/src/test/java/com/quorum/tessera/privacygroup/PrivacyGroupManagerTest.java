@@ -276,12 +276,14 @@ public class PrivacyGroupManagerTest {
         final byte[] encoded = "encoded".getBytes();
         when(privacyGroupUtil.decode(encoded)).thenReturn(mockPrivacyGroup);
         when(privacyGroupUtil.generateLookupId(anyList())).thenReturn("lookup".getBytes());
+        when(privacyGroupDAO.retrieve("id".getBytes())).thenReturn(Optional.empty());
 
         privacyGroupManager.storePrivacyGroup(encoded);
 
         ArgumentCaptor<PrivacyGroupEntity> argCaptor = ArgumentCaptor.forClass(PrivacyGroupEntity.class);
 
         verify(privacyGroupDAO).save(argCaptor.capture());
+        verify(privacyGroupDAO).retrieve("id".getBytes());
 
         final PrivacyGroupEntity saved = argCaptor.getValue();
 
@@ -300,11 +302,13 @@ public class PrivacyGroupManagerTest {
         final byte[] encoded = "encoded".getBytes();
         when(privacyGroupUtil.decode(encoded)).thenReturn(mockPrivacyGroup);
         when(privacyGroupUtil.generateLookupId(anyList())).thenReturn("lookup".getBytes());
+        when(privacyGroupDAO.retrieve("id".getBytes())).thenReturn(Optional.of(mock(PrivacyGroupEntity.class)));
 
         privacyGroupManager.storePrivacyGroup(encoded);
 
         ArgumentCaptor<PrivacyGroupEntity> argCaptor = ArgumentCaptor.forClass(PrivacyGroupEntity.class);
 
+        verify(privacyGroupDAO).retrieve("id".getBytes());
         verify(privacyGroupDAO).update(argCaptor.capture());
 
         final PrivacyGroupEntity saved = argCaptor.getValue();
