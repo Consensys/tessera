@@ -1,6 +1,6 @@
 package com.quorum.tessera.key.vault.azure;
 
-import com.azure.identity.EnvironmentCredentialBuilder;
+import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyVaultConfig;
@@ -27,7 +27,7 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
             .orElseThrow(() -> new ConfigException(new RuntimeException("No Azure Key Vault url provided")));
 
         final AzureSecretClientDelegate client = new AzureSecretClientDelegate(
-            new AzureSecretClientFactory(url, new EnvironmentCredentialBuilder().build()).create()
+            new AzureSecretClientFactory(url, new DefaultAzureCredentialBuilder().build()).create()
         );
 
         return new AzureKeyVaultService(client);
