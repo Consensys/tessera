@@ -32,7 +32,7 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     private final boolean recoveryMode;
 
-    private final boolean isBesu;
+    private final boolean orionMode;
 
     protected DefaultRuntimeContext(
             List<KeyPair> keys,
@@ -46,7 +46,7 @@ class DefaultRuntimeContext implements RuntimeContext {
             boolean disablePeerDiscovery,
             boolean useWhiteList,
             boolean recoveryMode,
-            boolean isBesu) {
+            boolean orionMode) {
         this.keys = List.copyOf(keys);
         this.keyEncryptor = keyEncryptor;
         this.alwaysSendTo = List.copyOf(alwaysSendTo);
@@ -58,7 +58,7 @@ class DefaultRuntimeContext implements RuntimeContext {
         this.disablePeerDiscovery = disablePeerDiscovery;
         this.useWhiteList = useWhiteList;
         this.recoveryMode = recoveryMode;
-        this.isBesu = isBesu;
+        this.orionMode = orionMode;
     }
 
     public List<KeyPair> getKeys() {
@@ -110,8 +110,8 @@ class DefaultRuntimeContext implements RuntimeContext {
     }
 
     @Override
-    public boolean isBesu() {
-        return isBesu;
+    public boolean isOrionMode() {
+        return orionMode;
     }
 
     @Override
@@ -139,8 +139,8 @@ class DefaultRuntimeContext implements RuntimeContext {
                 + useWhiteList
                 + ", recoveryMode="
                 + recoveryMode
-                + ", isBesu="
-                + isBesu
+                + ", orionMode="
+                + orionMode
                 + '}';
     }
 }

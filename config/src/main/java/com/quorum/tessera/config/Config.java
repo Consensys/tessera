@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.adapters.ClientModeAdapter;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.*;
 
@@ -65,7 +66,9 @@ public class Config extends ConfigItem {
 
     @XmlTransient private boolean recoveryMode;
 
-    @XmlElement private boolean isBesu;
+    @XmlElement(name = "mode")
+    @XmlJavaTypeAdapter(ClientModeAdapter.class)
+    private ClientMode clientMode = ClientMode.TESSERA;
 
     @Deprecated
     public Config(
@@ -224,11 +227,11 @@ public class Config extends ConfigItem {
         this.recoveryMode = recoveryMode;
     }
 
-    public boolean isBesu() {
-        return isBesu;
+    public ClientMode getClientMode() {
+        return clientMode;
     }
 
-    public void setBesu(boolean isBesu) {
-        this.isBesu = isBesu;
+    public void setClientMode(ClientMode clientMode) {
+        this.clientMode = clientMode;
     }
 }

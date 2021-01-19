@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.ServiceLoaderUtil;
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.Config;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
 import org.bouncycastle.jcajce.provider.digest.SHA512;
@@ -29,7 +30,7 @@ public interface PayloadDigest {
         return ServiceLoaderUtil.load(PayloadDigest.class)
                 .orElseGet(
                         () -> {
-                            if (config.isBesu()) return new SHA512256();
+                            if (config.getClientMode() == ClientMode.ORION) return new SHA512256();
                             return new Default();
                         });
     }

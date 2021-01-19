@@ -253,7 +253,7 @@ public class ConfigBuilder {
 
         config.setFeatures(featureToggles);
 
-        config.setBesu(executionContext.isOrionCompatibleMode());
+        config.setClientMode(executionContext.getClientMode());
 
         return config;
     }

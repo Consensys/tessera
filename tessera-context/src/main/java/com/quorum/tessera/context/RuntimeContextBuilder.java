@@ -38,7 +38,7 @@ public class RuntimeContextBuilder {
 
     private boolean recoveryMode;
 
-    private boolean isBesu;
+    private boolean orionMode;
 
     private RuntimeContextBuilder() {}
 
@@ -101,8 +101,8 @@ public class RuntimeContextBuilder {
         return this;
     }
 
-    public RuntimeContextBuilder isBesu(boolean isBesu) {
-        this.isBesu = isBesu;
+    public RuntimeContextBuilder withOrionMode(boolean orionMode) {
+        this.orionMode = orionMode;
         return this;
     }
 
@@ -127,7 +127,7 @@ public class RuntimeContextBuilder {
                         disablePeerDiscovery,
                         useWhiteList,
                         recoveryMode,
-                        isBesu);
+                        orionMode);
         LOGGER.debug("Built {}", this);
         return instance;
     }

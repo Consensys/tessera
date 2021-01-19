@@ -110,7 +110,7 @@ class DefaultRuntimeContextFactory implements RuntimeContextFactory<Config> {
                         .withAlwaysSendTo(alwaysSendTo)
                         .withUseWhiteList(config.isUseWhiteList())
                         .withRecoveryMode(config.isRecoveryMode())
-                        .isBesu(config.isBesu())
+                        .withOrionMode(config.getClientMode() == ClientMode.ORION)
                         .build();
 
         contextHolder.setContext(context);

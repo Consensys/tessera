@@ -39,7 +39,7 @@ public class RuntimeContextTest extends ContextTestCase {
 
         assertThat(runtimeContext.isDisablePeerDiscovery()).isFalse();
 
-        assertThat(runtimeContext.isBesu()).isFalse();
+        assertThat(runtimeContext.isOrionMode()).isFalse();
 
         assertThat(runtimeContext.toString()).isNotEmpty();
     }
