@@ -36,7 +36,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
-public class TransactionResourceBesuTest {
+public class BesuTransactionResourceTest {
 
     private JerseyTest jersey;
 
