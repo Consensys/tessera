@@ -5,6 +5,6 @@ dependencies {
     compile project(':shared')
     compile project(':key-vault:key-vault-api')
     compile 'org.bouncycastle:bcpkix-jdk15on'
-    compile group: 'org.apache.tuweni', name: 'tuweni-rlp', version: '1.1.0', ext: 'pom'
-    compile group: 'org.apache.tuweni', name: 'tuweni-bytes', version: '1.1.0', ext: 'pom'
+    compile 'org.apache.tuweni:tuweni-rlp'
+    compile 'org.apache.tuweni:tuweni-bytes'
 }
