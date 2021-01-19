@@ -61,8 +61,7 @@ public class PrivacyGroupManagerTest {
     @Test
     public void testCreatePrivacyGroup() {
 
-        when(privacyGroupUtil.generatePrivacyGroupId(anyList(), any(byte[].class)))
-                .thenReturn("generatedId".getBytes());
+        when(privacyGroupUtil.generateId(anyList(), any(byte[].class))).thenReturn("generatedId".getBytes());
         when(privacyGroupUtil.generateLookupId(anyList())).thenReturn("lookup".getBytes());
         when(privacyGroupUtil.encode(any())).thenReturn("encoded".getBytes());
 
@@ -113,8 +112,7 @@ public class PrivacyGroupManagerTest {
     @Test
     public void testCreateFromKeyNotValid() {
 
-        when(privacyGroupUtil.generatePrivacyGroupId(anyList(), any(byte[].class)))
-                .thenReturn("generatedId".getBytes());
+        when(privacyGroupUtil.generateId(anyList(), any(byte[].class))).thenReturn("generatedId".getBytes());
         when(privacyGroupUtil.generateLookupId(anyList())).thenReturn("lookup".getBytes());
         when(privacyGroupUtil.encode(any())).thenReturn("encoded".getBytes());
 
@@ -131,7 +129,7 @@ public class PrivacyGroupManagerTest {
     public void testCreateLegacyPrivacyGroup() {
 
         final List<PublicKey> members = List.of(mock(PublicKey.class), mock(PublicKey.class));
-        when(privacyGroupUtil.generatePrivacyGroupId(anyList(), any())).thenReturn("generatedId".getBytes());
+        when(privacyGroupUtil.generateId(anyList())).thenReturn("generatedId".getBytes());
         when(privacyGroupUtil.generateLookupId(anyList())).thenReturn("lookup".getBytes());
         when(privacyGroupUtil.encode(any())).thenReturn("encoded".getBytes());
         when(privacyGroupDAO.retrieve("generatedId".getBytes())).thenReturn(Optional.empty());
@@ -164,7 +162,7 @@ public class PrivacyGroupManagerTest {
     public void testLegacyPrivacyGroupExisted() {
 
         final List<PublicKey> members = List.of(localKey, mock(PublicKey.class), mock(PublicKey.class));
-        when(privacyGroupUtil.generatePrivacyGroupId(anyList(), any())).thenReturn("generatedId".getBytes());
+        when(privacyGroupUtil.generateId(anyList())).thenReturn("generatedId".getBytes());
 
         when(privacyGroupDAO.retrieve("generatedId".getBytes()))
                 .thenReturn(Optional.of(mock(PrivacyGroupEntity.class)));
@@ -336,6 +334,7 @@ public class PrivacyGroupManagerTest {
 
         when(privacyGroupUtil.decode("data".getBytes())).thenReturn(mockPG);
         when(privacyGroupUtil.encode(any())).thenReturn("deletedData".getBytes());
+        when(privacyGroupUtil.generateLookupId(any())).thenReturn("lookup".getBytes());
 
         doAnswer(
                         invocation -> {
@@ -351,7 +350,7 @@ public class PrivacyGroupManagerTest {
         assertThat(result.getState()).isEqualTo(PrivacyGroup.State.DELETED);
 
         verify(privacyGroupDAO).retrieve("id".getBytes());
-        verify(privacyGroupDAO).update(eq(retrievedEt), any());
+        verify(privacyGroupDAO).update(any(), any());
 
         // Verify payload being distributed has the correct values
         ArgumentCaptor<byte[]> payloadCaptor = ArgumentCaptor.forClass(byte[].class);

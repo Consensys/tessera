@@ -91,17 +91,15 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
         final long typeSize = buffer.getLong();
         final byte[] type = new byte[Math.toIntExact(typeSize)];
         buffer.get(type);
+        final PrivacyGroup.Type pgType = PrivacyGroup.Type.valueOf(new String(type));
 
         final long stateSize = buffer.getLong();
         final byte[] state = new byte[Math.toIntExact(stateSize)];
         buffer.get(state);
 
         final byte[] groupId;
-        if (seedSize == 0) {
-            groupId = generateId(memberKeys);
-        } else {
-            groupId = generateId(memberKeys, seed);
-        }
+        if (pgType == PrivacyGroup.Type.LEGACY) groupId = generateId(memberKeys);
+        else groupId = generateId(memberKeys, seed);
 
         return PrivacyGroup.Builder.create()
                 .withPrivacyGroupId(PublicKey.from(groupId))

@@ -52,7 +52,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
             throw new PrivacyViolationException("The list of members in a privacy group should include self");
         }
 
-        final byte[] privacyGroupId = privacyGroupUtil.generatePrivacyGroupId(members, seed);
+        final byte[] privacyGroupId = privacyGroupUtil.generateId(members, seed);
 
         final PrivacyGroup created =
                 PrivacyGroup.Builder.create()
@@ -91,7 +91,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         final String name = "legacy";
         final String description = "Privacy groups to support the creation of groups by privateFor and privateFrom";
 
-        final byte[] privacyGroupId = privacyGroupUtil.generatePrivacyGroupId(members, null);
+        final byte[] privacyGroupId = privacyGroupUtil.generateId(members);
 
         final PrivacyGroup created =
                 PrivacyGroup.Builder.create()
@@ -146,7 +146,6 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         final PrivacyGroup privacyGroup = privacyGroupUtil.decode(encodedData);
 
         final byte[] id = privacyGroup.getPrivacyGroupId().getKeyBytes();
-
         final byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
 
         final PrivacyGroupEntity entity = new PrivacyGroupEntity(id, lookupId, encodedData);
@@ -162,36 +161,26 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     @Override
     public PrivacyGroup deletePrivacyGroup(PublicKey from, PublicKey privacyGroupId) {
 
-        PrivacyGroupEntity entity =
-                privacyGroupDAO
-                        .retrieve(privacyGroupId.getKeyBytes())
-                        .orElseThrow(
-                                () ->
-                                        new PrivacyGroupNotFoundException(
-                                                "Privacy group " + privacyGroupId + " not found"));
+        final PrivacyGroup retrieved = retrievePrivacyGroup(privacyGroupId);
 
-        final PrivacyGroup data = privacyGroupUtil.decode(entity.getData());
-
-        if (data.getState() == PrivacyGroup.State.DELETED) {
-            throw new PrivacyGroupNotFoundException("Privacy group " + privacyGroupId + " not found");
-        }
-
-        if (!data.getMembers().contains(from)) {
+        if (!retrieved.getMembers().contains(from)) {
             throw new PrivacyViolationException("Sender of request does not belong to this privacy group");
         }
 
         final PrivacyGroup updated =
-                PrivacyGroup.Builder.create().from(data).withState(PrivacyGroup.State.DELETED).build();
+                PrivacyGroup.Builder.create().from(retrieved).withState(PrivacyGroup.State.DELETED).build();
 
         final byte[] updatedData = privacyGroupUtil.encode(updated);
-        entity.setData(updatedData);
+        final byte[] lookupId = privacyGroupUtil.generateLookupId(updated.getMembers());
+        final PrivacyGroupEntity updatedEt =
+                new PrivacyGroupEntity(updated.getPrivacyGroupId().getKeyBytes(), lookupId, updatedData);
 
         final Set<PublicKey> localKeys = enclave.getPublicKeys();
         final List<PublicKey> forwardingMembers =
                 updated.getMembers().stream().filter(Predicate.not(localKeys::contains)).collect(Collectors.toList());
 
         privacyGroupDAO.update(
-                entity,
+                updatedEt,
                 () -> {
                     publisher.publishPrivacyGroup(updatedData, forwardingMembers);
                     return null;
