@@ -15,6 +15,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>multitenancy</module>
+        <module>orion-to-tessera</module>
     </modules>
 
 

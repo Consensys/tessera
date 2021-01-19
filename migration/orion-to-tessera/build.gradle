@@ -1,0 +1,168 @@
+plugins {
+    id "java-library"
+    id "application"
+    id "org.javamodularity.moduleplugin" version "1.7.0"
+}
+
+group "net.consensys.quorum.tessera"
+version "1.0-SNAPSHOT"
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    applicationName = "migrate"
+    mainClass = "net.consensys.tessera.migration.Main"
+    mainModule = "orion.to.tessera"
+    applicationDefaultJvmArgs = []
+    startScripts.enabled = true
+}
+task allDeps(type: DependencyReportTask) {}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+    maven { url "https://hyperledger-org.bintray.com/besu-repo" }
+    maven { url "https://consensys.bintray.com/pegasys-repo" }
+    maven { url "https://repo.spring.io/libs-release" }
+    maven { url "https://dl.bintray.com/open-telemetry/maven" }
+}
+
+configurations.all {
+    exclude group: "javax.json"
+    exclude group: "javax.annotation"
+    exclude group: "javax.xml.bind"
+    exclude group: "javax.activation"
+    exclude group: "org.glassfish.jaxb"
+}
+
+
+dependencies {
+
+    api "org.slf4j:slf4j-api:1.7.30"
+    runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
+    runtimeOnly "ch.qos.logback:logback-core:1.2.3"
+    implementation "org.glassfish:jakarta.el:3.0.3"
+
+    implementation "com.moandjiezana.toml:toml4j:0.7.2"
+    api "jakarta.validation:jakarta.validation-api:2.0.2"
+    implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
+
+
+
+    implementation "org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.7"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
+    implementation "info.picocli:picocli:4.0.4"
+    implementation "org.glassfish.jaxb:jaxb-runtime:2.3.3"
+    implementation "org.apache.commons:commons-lang3:3.7"
+
+    api "jakarta.validation:jakarta.validation-api:2.0.2"
+    implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
+
+    testImplementation "junit:junit:4.13"
+
+    testImplementation "org.assertj:assertj-core:3.18.0"
+    testImplementation "org.mockito:mockito-inline:3.4.4"
+
+    implementation "info.picocli:picocli:4.0.4"
+
+    testImplementation "junit:junit:4.13"
+
+    testImplementation "org.assertj:assertj-core:3.18.0"
+    testImplementation "org.mockito:mockito-inline:3.4.4"
+
+
+    implementation("net.consensys.quorum.tessera:config") {
+        transitive = false
+    }
+    implementation("net.consensys.quorum.tessera:shared") {
+        transitive = false
+    }
+
+    implementation("net.consensys.quorum.tessera:tessera-data") {
+        transitive = false
+    }
+    implementation("net.consensys.quorum.tessera:enclave-api") {
+        transitive = false
+    }
+
+
+    implementation("net.consensys.quorum.tessera:encryption-api") {
+        transitive = false
+    }
+    implementation("net.consensys.quorum.tessera:encryption-jnacl")
+
+    implementation("net.consensys.quorum.tessera:argon2")
+
+    implementation("net.consensys.quorum.tessera:key-generation")
+
+    implementation "org.bouncycastle:bcpkix-jdk15on:1.64"
+    implementation "org.bouncycastle:bcprov-jdk15on:1.64"
+
+    implementation "com.lmax:disruptor:3.4.2"
+
+
+    testImplementation "org.bouncycastle:bcpkix-jdk15on:1.64"
+    testImplementation "org.bouncycastle:bcprov-jdk15on:1.64"
+
+    implementation("net.consensys:orion:20.10.0") {
+        transitive = false
+    }
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.12.0"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.0"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.0"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.12.0"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr353:2.12.0"
+
+//    implementation("org.iq80.leveldb:leveldb-api:0.12")  {
+//        transitive = false
+//    }
+
+    implementation("org.iq80.leveldb:leveldb:0.12") {
+        transitive = false
+    }
+
+    implementation "org.glassfish:jakarta.json:1.1.6"
+
+    implementation "org.fusesource.leveldbjni:leveldbjni-all:1.8"
+    implementation "org.apache.tuweni:tuweni-bytes:1.1.0"
+    implementation "org.apache.tuweni:tuweni-crypto:1.1.0"
+    implementation "org.apache.tuweni:tuweni-config:1.1.0"
+
+    api "jakarta.validation:jakarta.validation-api:2.0.2"
+    implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
+
+    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.7"
+    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.extension:2.7.7"
+    api "jakarta.persistence:jakarta.persistence-api:2.2.3"
+
+    runtimeOnly group: 'org.apache.logging.log4j', name: 'log4j-slf4j18-impl', version: '2.14.0'
+
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
+
+
+    runtimeOnly("org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.7") {
+        exclude group: "jakarta.json", module: "jakarta,json-api"
+    }
+    runtimeOnly "org.glassfish.jaxb:jaxb-runtime:2.3.3"
+
+    testImplementation "com.h2database:h2:1.4.200"
+
+    implementation "com.zaxxer:HikariCP:3.2.0"
+
+}
+
+test {
+    systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
+    systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
+
+    forkEvery = 1;
+    workingDir = "build/resources/test"
+}
+
+//modularity.disableEffectiveArgumentsAdjustment()
