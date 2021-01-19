@@ -78,6 +78,10 @@ public class Main {
 
             services.forEach(o -> LOGGER.debug("Service : {}", o));
 
+            if (runtimeContext.isOrionMode()) {
+                LOGGER.info("Starting Tessera in Orion compatible mode");
+            }
+
             Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
 
         } catch (final ConstraintViolationException ex) {
