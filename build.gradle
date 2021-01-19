@@ -42,7 +42,7 @@ allprojects {
                 compile "de.mkammerer:argon2-jvm:2.5"
                 compile "javax.validation:validation-api:2.0.1.Final"
                 compile "javax.ws.rs:javax.ws.rs-api:2.1"
-                compile "info.picocli:picocli:4.0.4"
+                compile "info.picocli:picocli:4.6.1"
                 compile "org.apache.commons:commons-lang3:3.7"
                 compile "commons-cli:commons-cli:1.4"
                 compile "org.glassfish:javax.json:1.1.2"

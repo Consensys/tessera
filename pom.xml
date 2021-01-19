@@ -56,7 +56,7 @@
         <project.scm.id>github</project.scm.id>
         <asm.version>7.0</asm.version>
         <jasypt.version>1.9.3</jasypt.version>
-        <picocli.version>4.0.4</picocli.version>
+        <picocli.version>4.6.1</picocli.version>
         <awssdk.version>2.10.25</awssdk.version>
         <swagger.version>2.1.5</swagger.version>
     </properties>
