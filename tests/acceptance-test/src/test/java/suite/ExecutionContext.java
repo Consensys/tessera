@@ -38,6 +38,8 @@ public class ExecutionContext {
 
     private EncryptorType encryptorType;
 
+    private boolean orionCompatibleMode;
+
     private ExecutionContext(
             DBType dbType,
             CommunicationType communicationType,
@@ -47,7 +49,8 @@ public class ExecutionContext {
             String prefix,
             CommunicationType p2pCommunicationType,
             boolean p2pSsl,
-            EncryptorType encryptorType) {
+            EncryptorType encryptorType,
+            boolean orionCompatibleMode) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -57,6 +60,7 @@ public class ExecutionContext {
         this.p2pCommunicationType = p2pCommunicationType;
         this.p2pSsl = p2pSsl;
         this.encryptorType = encryptorType;
+        this.orionCompatibleMode = orionCompatibleMode;
     }
 
     public DBType getDbType() {
@@ -99,6 +103,10 @@ public class ExecutionContext {
         return encryptorType;
     }
 
+    public boolean isOrionCompatibleMode() {
+        return orionCompatibleMode;
+    }
+
     public static class Builder {
 
         private DBType dbType;
@@ -116,6 +124,8 @@ public class ExecutionContext {
         private boolean p2pSsl = false;
 
         private EncryptorType encryptorType;
+
+        private boolean orionCompatibleMode;
 
         private Builder() {}
 
@@ -170,6 +180,11 @@ public class ExecutionContext {
             return this;
         }
 
+        public Builder with(boolean orionCompatibleMode) {
+            this.orionCompatibleMode = orionCompatibleMode;
+            return this;
+        }
+
         public ExecutionContext build() {
             Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
                     .forEach(Objects::requireNonNull);
@@ -186,7 +201,8 @@ public class ExecutionContext {
                             prefix,
                             p2pCommunicationType,
                             p2pSsl,
-                            encryptorType);
+                            encryptorType,
+                            orionCompatibleMode);
 
             return executionContext;
         }
@@ -213,10 +229,11 @@ public class ExecutionContext {
 
             List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
             configs.stream()
-                .map(ConfigDescriptor::getConfig)
-                .forEach(c -> {
-                    LOGGER.debug("Generated config {}",JaxbUtil.marshalToStringNoValidation(c));
-                });
+                    .map(ConfigDescriptor::getConfig)
+                    .forEach(
+                            c -> {
+                                LOGGER.debug("Generated config {}", JaxbUtil.marshalToStringNoValidation(c));
+                            });
             // FIXME: YUk
             executionContext.configs = configs;
 

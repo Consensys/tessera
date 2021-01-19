@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PrivacyGroupUtil {
+public class PrivacyGroupTestUtil {
 
     private final Client client = ClientBuilder.newClient();
 

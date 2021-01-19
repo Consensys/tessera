@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import java.io.StringReader;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,12 +24,12 @@ public class PrivacyGroupIT {
 
     private final PartyHelper partyHelper = PartyHelper.create();
 
-    private final PrivacyGroupUtil privacyGroupUtil = new PrivacyGroupUtil();
+    private final PrivacyGroupTestUtil privacyGroupTestUtil = new PrivacyGroupTestUtil();
 
     @Test
     public void testCreate() {
 
-        final String output = privacyGroupUtil.create("A", "B");
+        final String output = privacyGroupTestUtil.create("A", "B");
         final JsonObject jsonObj = Json.createReader(new StringReader(output)).readObject();
 
         assertThat(jsonObj.getString("privacyGroupId").length()).isEqualTo(44);
@@ -49,11 +50,11 @@ public class PrivacyGroupIT {
     @Test
     public void testRetrieve() {
 
-        final String output = privacyGroupUtil.create("C", "D");
+        final String output = privacyGroupTestUtil.create("C", "D");
         final JsonObject jsonObj = Json.createReader(new StringReader(output)).readObject();
         final String privacyGroupId = jsonObj.getString("privacyGroupId");
 
-        final String nodeCResult = privacyGroupUtil.retrieve("C", privacyGroupId);
+        final String nodeCResult = privacyGroupTestUtil.retrieve("C", privacyGroupId);
         final JsonObject nodeCJson = Json.createReader(new StringReader(nodeCResult)).readObject();
 
         assertThat(nodeCJson.getString("privacyGroupId")).isEqualTo(privacyGroupId);
@@ -69,13 +70,13 @@ public class PrivacyGroupIT {
                 .containsExactlyInAnyOrder(
                         partyHelper.findByAlias("C").getPublicKey(), partyHelper.findByAlias("D").getPublicKey());
 
-        final String nodeDResult = privacyGroupUtil.retrieve("D", privacyGroupId);
+        final String nodeDResult = privacyGroupTestUtil.retrieve("D", privacyGroupId);
         final JsonObject nodeDJson = Json.createReader(new StringReader(nodeDResult)).readObject();
         assertThat(nodeDJson).isEqualTo(nodeCJson);
 
         // Retrieve will fail on node A as it's not a member
         try {
-            privacyGroupUtil.retrieve("A", privacyGroupId);
+            privacyGroupTestUtil.retrieve("A", privacyGroupId);
             failBecauseExceptionWasNotThrown(AssertionError.class);
         } catch (AssertionError err) {
             assertThat(err).hasMessageContaining("404");
@@ -84,26 +85,26 @@ public class PrivacyGroupIT {
 
     @Test
     public void testFind() {
-        String pg1 = privacyGroupUtil.create("A", "B", "D");
+        String pg1 = privacyGroupTestUtil.create("A", "B", "D");
         final JsonObject output1 = Json.createReader(new StringReader(pg1)).readObject();
-        String pg2 = privacyGroupUtil.create("D", "B", "A");
+        String pg2 = privacyGroupTestUtil.create("D", "B", "A");
         final JsonObject output2 = Json.createReader(new StringReader(pg2)).readObject();
 
-        String resultA = privacyGroupUtil.find("A", "A", "B", "D");
+        String resultA = privacyGroupTestUtil.find("A", "A", "B", "D");
         final JsonArray nodeAJson = Json.createReader(new StringReader(resultA)).readArray();
         assertThat(nodeAJson.size()).isEqualTo(2);
         assertThat(nodeAJson.getValuesAs(JsonObject.class)).containsExactlyInAnyOrder(output1, output2);
 
-        String resultB = privacyGroupUtil.find("B", "A", "B", "D");
+        String resultB = privacyGroupTestUtil.find("B", "A", "B", "D");
         final JsonArray nodeBJson = Json.createReader(new StringReader(resultB)).readArray();
         assertThat(nodeBJson.size()).isEqualTo(2);
         assertThat(nodeBJson.getValuesAs(JsonObject.class)).containsExactlyInAnyOrder(output1, output2);
 
-        String resultC = privacyGroupUtil.find("C", "A", "B", "D");
+        String resultC = privacyGroupTestUtil.find("C", "A", "B", "D");
         final JsonArray nodeCJson = Json.createReader(new StringReader(resultC)).readArray();
         assertThat(nodeCJson.size()).isEqualTo(0);
 
-        String resultD = privacyGroupUtil.find("D", "A", "B", "D");
+        String resultD = privacyGroupTestUtil.find("D", "A", "B", "D");
         final JsonArray nodeDJson = Json.createReader(new StringReader(resultD)).readArray();
         assertThat(nodeDJson.size()).isEqualTo(2);
         assertThat(nodeDJson.getValuesAs(JsonObject.class)).containsExactlyInAnyOrder(output1, output2);
@@ -111,15 +112,15 @@ public class PrivacyGroupIT {
 
     @Test
     public void testDelete() {
-        final String output = privacyGroupUtil.create("C", "A", "B", "D");
+        final String output = privacyGroupTestUtil.create("C", "A", "B", "D");
         final JsonObject jsonObj = Json.createReader(new StringReader(output)).readObject();
         final String privacyGroupId = jsonObj.getString("privacyGroupId");
         final Party sender = partyHelper.findByAlias("C");
 
-        privacyGroupUtil.retrieve("A", privacyGroupId);
-        privacyGroupUtil.retrieve("B", privacyGroupId);
-        privacyGroupUtil.retrieve("C", privacyGroupId);
-        privacyGroupUtil.retrieve("D", privacyGroupId);
+        privacyGroupTestUtil.retrieve("A", privacyGroupId);
+        privacyGroupTestUtil.retrieve("B", privacyGroupId);
+        privacyGroupTestUtil.retrieve("C", privacyGroupId);
+        privacyGroupTestUtil.retrieve("D", privacyGroupId);
 
         JsonObject json =
                 Json.createObjectBuilder()
@@ -135,9 +136,9 @@ public class PrivacyGroupIT {
 
         assertThat(response.getStatus()).isEqualTo(200);
 
-        assertThatThrownBy(() -> privacyGroupUtil.retrieve("A", privacyGroupId)).isInstanceOf(AssertionError.class);
-        assertThatThrownBy(() -> privacyGroupUtil.retrieve("B", privacyGroupId)).isInstanceOf(AssertionError.class);
-        assertThatThrownBy(() -> privacyGroupUtil.retrieve("C", privacyGroupId)).isInstanceOf(AssertionError.class);
-        assertThatThrownBy(() -> privacyGroupUtil.retrieve("D", privacyGroupId)).isInstanceOf(AssertionError.class);
+        assertThatThrownBy(() -> privacyGroupTestUtil.retrieve("A", privacyGroupId)).isInstanceOf(AssertionError.class);
+        assertThatThrownBy(() -> privacyGroupTestUtil.retrieve("B", privacyGroupId)).isInstanceOf(AssertionError.class);
+        assertThatThrownBy(() -> privacyGroupTestUtil.retrieve("C", privacyGroupId)).isInstanceOf(AssertionError.class);
+        assertThatThrownBy(() -> privacyGroupTestUtil.retrieve("D", privacyGroupId)).isInstanceOf(AssertionError.class);
     }
 }

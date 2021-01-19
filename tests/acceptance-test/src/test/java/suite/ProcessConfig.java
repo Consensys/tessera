@@ -32,4 +32,6 @@ public @interface ProcessConfig {
     boolean p2pSsl() default false;
 
     EncryptorType encryptorType();
+
+    boolean orionCompatibleMode() default false;
 }

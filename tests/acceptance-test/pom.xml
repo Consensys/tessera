@@ -212,6 +212,7 @@
                         <include>RestSuiteHttpHSQL</include>
                         <include>RestSuiteHttpSqllite</include>
                         <include>RestSuiteUnixH2</include>
+                        <include>RestSuiteBesu</include>
                         <include>CucumberWhitelistIT</include>
                         <include>ConfigMigrationIT</include>
                         <include>P2pTestSuite</include>
