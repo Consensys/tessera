@@ -49,7 +49,6 @@ public class KeyGenCommand implements Callable<CliResult> {
     @CommandLine.Option(
             names = {"--keyout", "-filename"},
             split = ",",
-            required = true,
             description =
                     "Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args determines number of key-pairs generated (default = ${DEFAULT-VALUE})")
     public List<String> keyOut;

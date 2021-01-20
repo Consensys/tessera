@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
+import java.util.List;
 import java.util.Optional;
 
 public class PicoCliDelegate {
@@ -33,18 +34,20 @@ public class PicoCliDelegate {
                 .setExecutionExceptionHandler(exceptionCapturer)
                 .setParameterExceptionHandler(exceptionCapturer);
 
-//        CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
-//        final boolean argsContainsHelp = Arrays.asList(args).contains("help");
-//        if (parseResult.matchedArgs().size() == 0 && !argsContainsHelp) {
-//            CommandLine.ParseResult pr = parseResult;
-//
-//            while (pr.hasSubcommand()) {
-//                pr = pr.subcommand();
-//            }
-//            pr.asCommandLineList().get(0).usage(commandLine.getOut());
-//        } else {
-            commandLine.execute(args);
-//        }
+        try  {
+            // parse the args so that we can print usage help if no cmd args were provided
+            final CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
+            final List<CommandLine> l = parseResult.asCommandLineList();
+            final CommandLine lastCmd = l.get(l.size() - 1);
+
+            if (lastCmd.getParseResult().matchedArgs().size() == 0 && !"help".equals(lastCmd.getCommandName()) && !"version".equals(lastCmd.getCommandName())) {
+                lastCmd.usage(lastCmd.getOut());
+            } else {
+                commandLine.execute(args);
+            }
+        } catch (CommandLine.ParameterException ex) {
+            exceptionCapturer.handleParseException(ex, args);
+        }
 
         // if an exception occurred, throw it to to the upper levels where it gets handled
         if (exceptionCapturer.getThrown() != null) {
