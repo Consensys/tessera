@@ -59,8 +59,7 @@ public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
 
     @Override
     public CliResult execute(String... args) throws Exception {
-        // set the PID if it exists
-        this.pidFileMixin.call();
+        this.pidFileMixin.createPidFile();
 
         // to make it this far, the configuration has to be set and valid
         final Config config = configurationMixin.getConfig();

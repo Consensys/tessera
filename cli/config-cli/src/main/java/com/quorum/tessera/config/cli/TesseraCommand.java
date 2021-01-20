@@ -4,6 +4,7 @@ import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
 import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
+import com.quorum.tessera.cli.parsers.PidFileMixin;
 import com.quorum.tessera.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,19 +14,11 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import java.io.OutputStream;
-import java.lang.management.ManagementFactory;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Callable;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 
 @CommandLine.Command(
         name = "tessera",
@@ -59,10 +52,8 @@ public class TesseraCommand implements Callable<CliResult> {
             description = "Path to node configuration file")
     public Config config;
 
-    @CommandLine.Option(
-            names = {"--pidfile", "-pidfile"},
-            description = "Create a file at the specified path containing the process' ID (PID)")
-    public Path pidFilePath;
+    @CommandLine.Mixin
+    private final PidFileMixin pidFileMixin = new PidFileMixin();
 
     @CommandLine.Option(
             names = {"-o", "--override"},
@@ -101,20 +92,7 @@ public class TesseraCommand implements Callable<CliResult> {
         }
         keyPasswordResolver.resolveKeyPasswords(config);
 
-        if (Objects.nonNull(pidFilePath)) {
-            // TODO(cjh) duplication with PidFileMixin.class
-            if (Files.exists(pidFilePath)) {
-                LOGGER.info("File already exists {}", pidFilePath);
-            } else {
-                LOGGER.info("Created pid file {}", pidFilePath);
-            }
-
-            final String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
-
-            try (OutputStream stream = Files.newOutputStream(pidFilePath, CREATE, TRUNCATE_EXISTING)) {
-                stream.write(pid.getBytes(UTF_8));
-            }
-        }
+        pidFileMixin.createPidFile();
 
         return new CliResult(0, false, config);
     }

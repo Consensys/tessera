@@ -14,7 +14,6 @@ import java.util.concurrent.Callable;
     subcommands = {CommandLine.HelpCommand.class})
 public class VersionCommand implements Callable<CliResult> {
 
-    // The versionProvider param of @Command is an alternative way of doing this but we aren't here as we don't want --version and -V options enabled
     @Override
     public CliResult call() {
         System.out.println(Version.getVersion());
