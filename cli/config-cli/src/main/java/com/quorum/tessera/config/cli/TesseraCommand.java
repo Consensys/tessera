@@ -90,6 +90,7 @@ public class TesseraCommand implements Callable<CliResult> {
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }
+
         keyPasswordResolver.resolveKeyPasswords(config);
 
         pidFileMixin.createPidFile();
