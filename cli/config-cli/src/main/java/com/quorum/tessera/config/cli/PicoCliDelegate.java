@@ -40,6 +40,7 @@ public class PicoCliDelegate {
             final List<CommandLine> l = parseResult.asCommandLineList();
             final CommandLine lastCmd = l.get(l.size() - 1);
 
+            // print help if no args were provided
             if (lastCmd.getParseResult().matchedArgs().size() == 0 && !"help".equals(lastCmd.getCommandName()) && !"version".equals(lastCmd.getCommandName())) {
                 lastCmd.usage(lastCmd.getOut());
             } else {

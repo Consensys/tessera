@@ -8,9 +8,9 @@ import java.util.concurrent.Callable;
 
 @CommandLine.Command(
     name = "version",
-    headerHeading = "Usage:%n%n",
     header = "Print version information and exit",
     commandListHeading = "%nCommands:%n",
+    abbreviateSynopsis = true,
     subcommands = {CommandLine.HelpCommand.class})
 public class VersionCommand implements Callable<CliResult> {
 

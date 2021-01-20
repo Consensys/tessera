@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @CommandLine.Command(
         name = "keygen",
         aliases = {"-keygen"},
-        headerHeading = "Usage:%n%n",
-        synopsisHeading = "%n",
-        descriptionHeading = "%nDescription:%n%n",
-        parameterListHeading = "%nParameters:%n",
-        optionListHeading = "%nOptions:%n",
         header = "Generate Tessera encryption keys",
+        descriptionHeading = "%nDescription: ",
+        description = "Generate one or more new key pairs and store in files or a supported key vault.  The key properties can be configured using the encryptor options.",
+        parameterListHeading = "Parameters:%n",
+        commandListHeading = "%nCommands:%n",
+        optionListHeading = "%nOptions:%n",
         abbreviateSynopsis = true,
         subcommands = {CommandLine.HelpCommand.class})
 public class KeyGenCommand implements Callable<CliResult> {
@@ -62,7 +62,7 @@ public class KeyGenCommand implements Callable<CliResult> {
     @CommandLine.ArgGroup(heading = "Key Vault Options:%n", exclusive = false)
     KeyVaultConfigOptions keyVaultConfigOptions;
 
-    @CommandLine.ArgGroup(exclusive = false)
+    @CommandLine.ArgGroup(heading = "File Update Options:%n", exclusive = false)
     KeyGenFileUpdateOptions fileUpdateOptions;
 
     @CommandLine.Mixin public EncryptorOptions encryptorOptions;

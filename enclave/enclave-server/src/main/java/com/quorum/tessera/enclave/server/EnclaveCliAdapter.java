@@ -17,15 +17,15 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
-        headerHeading = "Usage:%n%n",
-        synopsisHeading = "%n",
-        descriptionHeading = "%nDescription:%n%n",
-        parameterListHeading = "%nParameters:%n",
-        optionListHeading = "%nOptions:%n",
-        header = "Run a standalone enclave to perform encryption/decryption operations",
+        name = "enclave",
+        header = "Run a standalone enclave to perform encryption/decryption operations for Tessera",
+        descriptionHeading = "%nDescription: ",
         description = "Run a standalone enclave, which will perform encryption/decryption operations " +
             "for a transaction manager. This means that the transaction manager does not perform any of the " +
-            "operations inside its own process, shielding the user from potential attacks.")
+            "operations inside its own process, shielding the user from potential attacks.",
+        optionListHeading = "%nOptions:%n",
+        abbreviateSynopsis = true
+)
 public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveCliAdapter.class);

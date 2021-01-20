@@ -30,7 +30,7 @@ import static java.nio.file.StandardOpenOption.TRUNCATE_EXISTING;
 @CommandLine.Command(
         name = "tessera",
         header = "Tessera - Privacy Manager for Quorum%n",
-        descriptionHeading = "%nDescription:%n",
+        descriptionHeading = "%nDescription: ",
         description = "Start a Tessera node.  Subcommands exist to manage Tessera encryption keys%n",
         parameterListHeading = "Parameters:%n",
         commandListHeading = "%nCommands:%n",

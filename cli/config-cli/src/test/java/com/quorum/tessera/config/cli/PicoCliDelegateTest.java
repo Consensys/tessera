@@ -10,10 +10,8 @@ import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.key.generation.KeyGenerator;
-import com.quorum.tessera.test.util.ElUtil;
 import org.assertj.core.util.Strings;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.SystemErrRule;
@@ -60,8 +58,25 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void help() throws Exception {
+    public void version() throws Exception {
+        final CliResult result = cliDelegate.execute("version");
 
+        final String sysout = systemOutOutput.getLog();
+        final String syserr = systemErrOutput.getLog();
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        assertThat(syserr).isEmpty();
+        assertThat(sysout).isNotEmpty();
+
+        assertThat(sysout).contains("20.10.2");
+    }
+
+    @Test
+    public void help() throws Exception {
         final CliResult result = cliDelegate.execute("help");
 
         final String sysout = systemOutOutput.getLog();
@@ -78,31 +93,89 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void noArgsPrintsHelp() {
+    public void noArgsPrintsHelp() throws Exception {
+        final CliResult result = cliDelegate.execute();
 
-        final Throwable ex = catchThrowable(() -> cliDelegate.execute());
-
+        final String sysout = systemOutOutput.getLog();
         final String syserr = systemErrOutput.getLog();
-
-        assertThat(ex).isExactlyInstanceOf(NoTesseraConfigfileOptionException.class);
-
-        assertThat(syserr).isNotEmpty();
-        assertThat(syserr).contains(
-            "Usage: tessera [OPTIONS] [COMMAND]",
-            "Description:",
-            "Options:",
-            "Commands:");
-    }
-
-    @Test
-    public void subcommandWithNoArgsPrintsHelp() throws Exception {
-
-        final CliResult result = cliDelegate.execute("keygen");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isNotPresent();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.isSuppressStartup()).isTrue();
+
+        assertThat(syserr).isEmpty();
+        assertThat(sysout).isNotEmpty();
+        assertThat(sysout).contains("Usage: tessera [OPTIONS] [COMMAND]", "Description:", "Options:", "Commands:");
+    }
+
+    @Test
+    public void keygenHelp() throws Exception {
+        final CliResult result = cliDelegate.execute("keygen", "help");
+
+        final String sysout = systemOutOutput.getLog();
+        final String syserr = systemErrOutput.getLog();
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        assertThat(syserr).isEmpty();
+        assertThat(sysout).isNotEmpty();
+        assertThat(sysout).contains("Usage: tessera keygen [OPTIONS] [COMMAND]", "Description:", "Options:", "Commands:");
+    }
+
+    @Test
+    public void keygenNoArgsPrintsHelp() throws Exception {
+        final CliResult result = cliDelegate.execute("keygen");
+
+        final String sysout = systemOutOutput.getLog();
+        final String syserr = systemErrOutput.getLog();
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        assertThat(syserr).isEmpty();
+        assertThat(sysout).isNotEmpty();
+        assertThat(sysout).contains("Usage: tessera keygen [OPTIONS] [COMMAND]", "Description:", "Options:", "Commands:");
+    }
+
+    @Test
+    public void keyupdateHelp() throws Exception {
+        final CliResult result = cliDelegate.execute("keyupdate", "help");
+
+        final String sysout = systemOutOutput.getLog();
+        final String syserr = systemErrOutput.getLog();
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isNotPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isTrue();
+
+        assertThat(syserr).isEmpty();
+        assertThat(sysout).isNotEmpty();
+        assertThat(sysout).contains("Usage: tessera keyupdate [OPTIONS] [COMMAND]", "Description:", "Options:", "Commands:");
+    }
+
+    @Test
+    public void keyupdateNoArgsErrorsAndPrintsHelp() {
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("keyupdate"));
+
+        final String syserr = systemErrOutput.getLog();
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("Missing required option: '--keys.keyData.privateKeyPath <privateKeyPath>'");
+
+        assertThat(syserr).isNotEmpty();
+        assertThat(syserr).contains(
+            "Usage: tessera keyupdate [OPTIONS] [COMMAND]",
+            "Description:",
+            "Options:",
+            "Commands:"
+        );
     }
 
     @Test
@@ -159,9 +232,12 @@ public class PicoCliDelegateTest {
         assertThat(result.isSuppressStartup()).isFalse();
     }
 
-    @Test(expected = CliException.class)
+    @Test
     public void processArgsMissing() throws Exception {
-        cliDelegate.execute("-configfile");
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("Missing required parameter for option '--configfile' (<config>)");
     }
 
     @Test
@@ -214,7 +290,7 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void output() throws Exception {
+    public void keygenUpdateConfig() throws Exception {
         MockKeyGeneratorFactory.reset();
 
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
@@ -278,7 +354,7 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void outputConfigAndPasswordFiles() throws Exception {
+    public void keygenUpdateConfigAndPasswordFile() throws Exception {
         MockKeyGeneratorFactory.reset();
 
         final KeyGenerator keyGenerator = MockKeyGeneratorFactory.getMockKeyGenerator();
@@ -395,7 +471,7 @@ public class PicoCliDelegateTest {
     }
 
     @Test
-    public void dynOption() throws Exception {
+    public void configOverride() throws Exception {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
@@ -407,35 +483,13 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
     }
 
-    @Ignore
     @Test
-    public void withInvalidPath() throws Exception {
-        // unixSocketPath
-        Map<String, Object> params = new HashMap<>();
-        params.put("publicKeyPath", "BOGUS.bogus");
-        params.put("privateKeyPath", "BOGUS.bogus");
-
-        Path configFile =
-                ElUtil.createTempFileFromTemplate(getClass().getResource("/sample-config-invalidpath.json"), params);
-
-        try {
-            cliDelegate.execute("-configfile", configFile.toString());
-            failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
-        } catch (ConstraintViolationException ex) {
-            assertThat(ex.getConstraintViolations())
-                    .hasSize(2)
-                    .extracting("messageTemplate")
-                    .containsExactly("File does not exist", "File does not exist");
-        }
-    }
-
-    @Test
-    public void withEmptyConfigOverrideAll() throws Exception {
+    public void emptyConfigFileOverride() throws Exception {
 
         Path unixSocketFile = Files.createTempFile("unixSocketFile", ".ipc");
         unixSocketFile.toFile().deleteOnExit();
 
-        Path configFile = Files.createTempFile("withEmptyConfigOverrideAll", ".json");
+        Path configFile = Files.createTempFile("emptyconfig", ".json");
         configFile.toFile().deleteOnExit();
         Files.write(configFile, "{}".getBytes());
         try {
@@ -567,14 +621,11 @@ public class PicoCliDelegateTest {
 
     @Test
     public void doNotAllowUnmatchableOptions() throws Exception {
-
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-bogus");
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-bogus"));
 
-        assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isNotPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isSuppressStartup()).isTrue();
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("Unknown option: '-bogus'");
     }
 
     @Test
