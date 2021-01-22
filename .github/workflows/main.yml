@@ -142,7 +142,7 @@ jobs:
           repository: quorumengineering/tessera
           tags: latest
           push: false
-          dockerfile: .github/workflows/DockerfileTest
+          dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: JAR_FILE=tessera-dist/tessera-app/target/*-app.jar
       - run:
           docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
