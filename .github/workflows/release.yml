@@ -4,6 +4,13 @@ on:
   repository_dispatch:
     types: [release]
 
+env:
+  SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+  SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+  GPG_EXECUTABLE: ${{ secrets.GPG_EXECUTABLE }}
+  GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
+
 jobs:
   release:
     runs-on: [ubuntu-latest]
@@ -23,7 +30,9 @@ jobs:
           mvn --settings .maven.xml release:prepare -DskipTests -Darguments="-DskipTests"
       - name: Release Perform
         run: |
-          mvn --settings .maven.xml -DskipTests -Darguments="-DskipTests -Dmaven.deploy.skip=true -Dgpg.skip=true" -DworkingDirectory=release-checkout release:perform
+          echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
+          echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
+          mvn --settings .maven.xml -DskipTests -Darguments="-DskipTests" -DworkingDirectory=release-checkout release:perform
       - name: Save tessera-app.jar
         uses: actions/upload-artifact@v2
         with:

@@ -10,16 +10,16 @@
     <name>tessera</name>
     <packaging>pom</packaging>
 
-    <url>https://github.com/chris-j-h/tessera</url>
+    <url>https://github.com/ConsenSys/tessera</url>
     <issueManagement>
         <system>github</system>
-        <url>https://github.com/chris-j-h/tessera/issues</url>
+        <url>https://github.com/ConsenSys/tessera/issues</url>
     </issueManagement>
 
     <scm>
-        <url>https://github.com/chris-j-h/tessera</url>
-        <connection>scm:git:https://github.com/chris-j-h/tessera.git</connection>
-        <developerConnection>scm:git:https://github.com/chris-j-h/tessera.git</developerConnection>
+        <url>https://github.com/ConsenSys/tessera</url>
+        <connection>scm:git:https://github.com/ConsenSys/tessera.git</connection>
+        <developerConnection>scm:git:https://github.com/ConsenSys/tessera.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -28,7 +28,7 @@
     </description>
 
     <ciManagement>
-        <url>https://github.com/ConsenSys/chris-j-h/actions</url>
+        <url>https://github.com/ConsenSys/tessera/actions</url>
     </ciManagement>
 
     <licenses>
@@ -1595,17 +1595,17 @@
                         </configuration>
                     </plugin>
 
-<!--                    <plugin>-->
-<!--                        <groupId>org.sonatype.plugins</groupId>-->
-<!--                        <artifactId>nexus-staging-maven-plugin</artifactId>-->
-<!--                        <version>1.6.8</version>-->
-<!--                        <extensions>true</extensions>-->
-<!--                        <configuration>-->
-<!--                            <serverId>ossrh</serverId>-->
-<!--                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>-->
-<!--                            <autoReleaseAfterClose>true</autoReleaseAfterClose>-->
-<!--                        </configuration>-->
-<!--                    </plugin>-->
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
 
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -1683,13 +1683,13 @@
         </site>
 
         <snapshotRepository>
-            <id>local</id>
-            <url>file:///Users/chris/Desktop/tessera-release/snapshots</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
 
         <repository>
-            <id>local</id>
-            <url>file:///Users/chris/Desktop/tessera-release/repository</url>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
 
 
