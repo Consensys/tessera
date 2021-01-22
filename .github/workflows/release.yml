@@ -32,4 +32,24 @@ jobs:
         run: |
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          mvn --settings .maven.xml release:perform -DskipTests -Darguments="-DskipTests"
+          mvn --settings .maven.xml -DskipTests -Darguments=-DskipTests -DworkingDirectory=${GITHUB_WORKSPACE}/release-checkout release:perform
+      - name: Save tessera-app.jar
+        uses: actions/upload-artifact@v2
+        with:
+          name: tessera-app
+          path: ${GITHUB_WORKSPACE}/release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar
+      - name: Determine tag name
+        run: |
+          echo ::set-output name=full-ver::$(echo $REF | sed -e 's/^.*tessera-app-\(.*\)-app.jar$/\1/g')
+          echo ::set-output name=minor-ver::$(echo $REF | sed -e 's/^.*tessera-app-\([[:digit:]]*\.[[:digit:]]*\).*-app.jar$/\1/g')
+      - name: Push Docker image
+        uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
+          repository: ${{ secrets.DOCKER_REPO }}
+          tags: ${{ steps.tag.outputs.full-ver }}, ${{ steps.tag.outputs.minor-ver }}
+          add_git_labels: true
+          dockerfile: ${GITHUB_WORKSPACE}/release-checkout/.github/workflows/noBuild.Dockerfile
+          path: ${GITHUB_WORKSPACE}/release-checkout/tessera-dist/tessera-app/target
+          build_args: JAR_FILE=tessera-app-${{ steps.tag.outputs.full-ver }}-app.jar
