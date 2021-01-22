@@ -17,17 +17,17 @@
 
     </servers>
 
-<!--    <profiles>-->
-<!--        &lt;!&ndash; Signing for Maven Central deployment &ndash;&gt;-->
-<!--        <profile>-->
-<!--            <id>ossrh</id>-->
-<!--            <activation>-->
-<!--                <activeByDefault>true</activeByDefault>-->
-<!--            </activation>-->
-<!--            <properties>-->
-<!--                <gpg.executable>${env.GPG_EXECUTABLE}</gpg.executable>-->
-<!--                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>-->
-<!--            </properties>-->
-<!--        </profile>-->
-<!--    </profiles>-->
+    <profiles>
+        <!-- Signing for Maven Central deployment -->
+        <profile>
+            <id>local</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.executable>${env.GPG_EXECUTABLE}</gpg.executable>
+                <gpg.passphrase>${env.GPG_PASSPHRASE}</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
 </settings>
