@@ -39,6 +39,7 @@ jobs:
           name: tessera-app
           path: ${GITHUB_WORKSPACE}/release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar
       - name: Determine tag name
+        id: tag
         run: |
           echo ::set-output name=full-ver::$(echo $REF | sed -e 's/^.*tessera-app-\(.*\)-app.jar$/\1/g')
           echo ::set-output name=minor-ver::$(echo $REF | sed -e 's/^.*tessera-app-\([[:digit:]]*\.[[:digit:]]*\).*-app.jar$/\1/g')
