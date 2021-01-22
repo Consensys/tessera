@@ -4,13 +4,6 @@ on:
   repository_dispatch:
     types: [release]
 
-env:
-  SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-  SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-#  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-#  GPG_EXECUTABLE: ${{ secrets.GPG_EXECUTABLE }}
-#  GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
-
 jobs:
   release:
     runs-on: [ubuntu-latest]
@@ -30,19 +23,21 @@ jobs:
           mvn --settings .maven.xml release:prepare -DskipTests -Darguments="-DskipTests"
       - name: Release Perform
         run: |
-#          echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
-#          echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          mvn --settings .maven.xml -DskipTests -Darguments="-DskipTests -Dmaven.deploy.skip=true -Dgpg.skip=true" -DworkingDirectory=${GITHUB_WORKSPACE}/release-checkout release:perform
+          mvn --settings .maven.xml -DskipTests -Darguments="-DskipTests -Dmaven.deploy.skip=true -Dgpg.skip=true" -DworkingDirectory=release-checkout release:perform
       - name: Save tessera-app.jar
         uses: actions/upload-artifact@v2
         with:
           name: tessera-app
-          path: ${GITHUB_WORKSPACE}/release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar
+          path: release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar
       - name: Determine tag name
         id: tag
         run: |
-          echo ::set-output name=full-ver::$(echo $REF | sed -e 's/^.*tessera-app-\(.*\)-app.jar$/\1/g')
-          echo ::set-output name=minor-ver::$(echo $REF | sed -e 's/^.*tessera-app-\([[:digit:]]*\.[[:digit:]]*\).*-app.jar$/\1/g')
+          DIST=$(ls release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar)
+          FULL_VER=$(echo $DIST | sed -e 's/^.*tessera-app-\(.*\)-app.jar$/\1/g')
+          MINOR_VER=$(echo $DIST | sed -e 's/^.*tessera-app-\([[:digit:]]*\.[[:digit:]]*\).*-app.jar$/\1/g')
+          echo $DIST $FULL_VER $MINOR_VER
+          echo ::set-output name=full-ver::$FULL_VER
+          echo ::set-output name=minor-ver::$MINOR_VER
       - name: Push Docker image
         uses: docker/build-push-action@v1
         with:
@@ -51,6 +46,6 @@ jobs:
           repository: ${{ secrets.DOCKER_REPO }}
           tags: ${{ steps.tag.outputs.full-ver }}, ${{ steps.tag.outputs.minor-ver }}
           add_git_labels: true
-          dockerfile: ${GITHUB_WORKSPACE}/release-checkout/.github/workflows/noBuild.Dockerfile
-          path: ${GITHUB_WORKSPACE}/release-checkout/tessera-dist/tessera-app/target
+          dockerfile: release-checkout/.github/workflows/noBuild.Dockerfile
+          path: release-checkout/tessera-dist/tessera-app/target
           build_args: JAR_FILE=tessera-app-${{ steps.tag.outputs.full-ver }}-app.jar
