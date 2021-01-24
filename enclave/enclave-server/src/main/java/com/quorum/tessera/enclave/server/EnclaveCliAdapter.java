@@ -23,7 +23,6 @@ import java.util.concurrent.Callable;
             "for a transaction manager. This means that the transaction manager does not perform any of the " +
             "operations inside its own process, shielding the user from potential attacks.",
         optionListHeading = "%nOptions:%n",
-        abbreviateSynopsis = true,
         subcommands = CommandLine.HelpCommand.class
 )
 public class EnclaveCliAdapter implements CliAdapter, Callable<CliResult> {

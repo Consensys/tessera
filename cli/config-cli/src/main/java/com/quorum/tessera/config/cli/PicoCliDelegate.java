@@ -35,7 +35,7 @@ public class PicoCliDelegate {
                 .setExecutionExceptionHandler(exceptionCapturer)
                 .setParameterExceptionHandler(exceptionCapturer);
 
-        try  {
+        try {
             // parse the args so that we can print usage help if no cmd args were provided
             final CommandLine.ParseResult parseResult = commandLine.parseArgs(args);
             final List<CommandLine> l = parseResult.asCommandLineList();
