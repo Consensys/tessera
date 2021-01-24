@@ -30,8 +30,8 @@ public class MainTest {
                 "h2",
                 "-outputfile",
                 outputPath.toString(),
-                "-dbpass",
-                "-dbuser");
+                "-dbpass", "",
+                "-dbuser", "");
     }
 
     @Test
@@ -49,8 +49,8 @@ public class MainTest {
                 "h2",
                 "-outputfile",
                 outputPath.toString(),
-                "-dbpass",
-                "-dbuser",
+                "-dbpass", "",
+                "-dbuser", "",
                 "debug");
     }
 }
