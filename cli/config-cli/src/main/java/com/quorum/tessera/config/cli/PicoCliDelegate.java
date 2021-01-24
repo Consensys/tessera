@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.cli;
 
+import com.quorum.tessera.cli.CLIExceptionCapturer;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.ArgonOptions;
