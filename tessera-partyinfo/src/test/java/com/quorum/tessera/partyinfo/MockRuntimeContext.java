@@ -31,6 +31,8 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
 
     private KeyEncryptor keyEncryptor;
 
+    private boolean orionMode;
+
     @Override
     public List<KeyPair> getKeys() {
         return keys;
@@ -84,6 +86,11 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
     @Override
     public boolean isRecoveryMode() {
         return false;
+    }
+
+    @Override
+    public boolean isOrionMode() {
+        return orionMode;
     }
 
     public MockRuntimeContext setKeys(List<KeyPair> keys) {

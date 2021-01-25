@@ -18,11 +18,11 @@ public class RuntimeContextTest extends ContextTestCase {
         final URI uri = URI.create("http://bogus");
 
         final RuntimeContext runtimeContext =
-                RuntimeContextBuilder.create()
-                        .withKeyEncryptor(keyEncryptor)
-                        .withP2pClient(client)
-                        .withP2pServerUri(uri)
-                        .build();
+            RuntimeContextBuilder.create()
+                .withKeyEncryptor(keyEncryptor)
+                .withP2pClient(client)
+                .withP2pServerUri(uri)
+                .build();
 
         assertThat(runtimeContext).isNotNull();
         assertThat(runtimeContext.getP2pServerUri()).isSameAs(uri);
@@ -38,6 +38,8 @@ public class RuntimeContextTest extends ContextTestCase {
         assertThat(runtimeContext.isRecoveryMode()).isFalse();
 
         assertThat(runtimeContext.isDisablePeerDiscovery()).isFalse();
+
+        assertThat(runtimeContext.isOrionMode()).isFalse();
 
         assertThat(runtimeContext.toString()).isNotEmpty();
     }
