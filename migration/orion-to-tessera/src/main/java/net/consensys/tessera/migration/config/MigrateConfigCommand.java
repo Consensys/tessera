@@ -90,9 +90,9 @@ public class MigrateConfigCommand implements Callable<Config> {
         String tlsserverkey = toml.getString("tlsserverkey");
         String tlsservertrust = toml.getString("tlsservertrust");
 
-        List<String> privateKeys = toml.getList("privatekeys", List.of());
-        String passwordsFile = toml.getString("passwords");
-        List<String> publicKeys = toml.getList("publickeys", List.of());
+        final List<String> privateKeys = toml.getList("privatekeys", List.of());
+        final String passwordsFile = toml.getString("passwords");
+        final List<String> publicKeys = toml.getList("publickeys", List.of());
 
         List<String> otherNodes = toml.getList("othernodes", List.of());
 

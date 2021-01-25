@@ -2,7 +2,6 @@ package net.consensys.tessera.migration.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmax.disruptor.dsl.Disruptor;
-import net.consensys.tessera.migration.OrionKeyHelper;
 
 import javax.json.JsonObject;
 import javax.sql.DataSource;
@@ -15,16 +14,18 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
 
     private final ObjectMapper cborObjectMapper;
 
-    private final OrionKeyHelper orionKeyHelper;
+    private final Disruptor<OrionEvent> disruptor;
 
-    private Disruptor<OrionRecordEvent> disruptor;
+    private final DataSource dataSource;
 
-    private DataSource dataSource;
+    private Long totalRecords;
 
-    public JdbcOrionDataAdapter(DataSource dataSource, ObjectMapper cborObjectMapper, OrionKeyHelper orionKeyHelper) {
+    public JdbcOrionDataAdapter(DataSource dataSource,
+                                ObjectMapper cborObjectMapper,
+                                Disruptor<OrionEvent> disruptor) {
         this.dataSource = Objects.requireNonNull(dataSource);
         this.cborObjectMapper = Objects.requireNonNull(cborObjectMapper);
-        this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
+        this.disruptor = Objects.requireNonNull(disruptor);
     }
 
     @Override
@@ -33,15 +34,27 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
         Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT * FROM STORE");
+
+        if(Objects.isNull(totalRecords)) {
+            try(ResultSet countRs = statement.executeQuery("SELECT COUNT(*) FROM STORE")) {
+                countRs.next();
+                totalRecords = countRs.getLong(1);
+            }
+        }
+
         try (connection;
                 statement;
                 resultSet) {
 
-            while (resultSet.next()) {
-                String key = resultSet.getString("KEY");
+            for (long i = 1;resultSet.next();i++) {
+                byte[] key = resultSet.getBytes("KEY");
                 byte[] value = resultSet.getBytes("VALUE");
 
                 JsonObject jsonObject = cborObjectMapper.readValue(value, JsonObject.class);
+                PayloadType payloadType = PayloadType.get(jsonObject);
+
+                disruptor.publishEvent(new OrionEvent(payloadType, jsonObject, key, value,totalRecords,i));
+
             }
         }
     }

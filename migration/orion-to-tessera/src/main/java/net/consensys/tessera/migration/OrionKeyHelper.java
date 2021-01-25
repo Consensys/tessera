@@ -59,8 +59,11 @@ public class OrionKeyHelper {
     }
 
     public void unlockedPrivateKeys() {
+        Path path = config.passwords()
+            .filter(Files::exists)
+            .get();
 
-        this.passwords = IOCallback.execute(() -> Files.readAllLines(config.passwords().get()));
+        this.passwords = IOCallback.execute(() -> Files.readAllLines(path));
         List<JsonObject> privateKeyJsonConfig =
                 config.privateKeys().stream()
                         .flatMap(p -> IOCallback.execute(() -> Files.lines(p)))
@@ -69,8 +72,7 @@ public class OrionKeyHelper {
                         .map(j -> j.getJsonObject("data"))
                         .collect(Collectors.toList());
 
-        assert (passwords.size() == config.publicKeys().size()) && privateKeyJsonConfig.size() == passwords.size()
-                : "Public keys, private keys and passwords need to gave same lengths";
+        assert (passwords.size() == config.publicKeys().size()) && privateKeyJsonConfig.size() == passwords.size() : "Public keys, private keys and passwords need to gave same lengths";
 
         IntStream.range(0, config.privateKeys().size())
                 .forEach(

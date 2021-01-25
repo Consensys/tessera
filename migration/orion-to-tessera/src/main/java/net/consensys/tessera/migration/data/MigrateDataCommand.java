@@ -1,11 +1,6 @@
 package net.consensys.tessera.migration.data;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
@@ -32,12 +27,7 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
     private InboundDbHelper inboundDbHelper;
 
-    private ObjectMapper cborObjectMapper =
-            JsonMapper.builder(new CBORFactory())
-                    .addModule(new Jdk8Module())
-                    .addModule(new JSR353Module())
-                    .serializationInclusion(JsonInclude.Include.NON_NULL)
-                    .build();
+    private ObjectMapper cborObjectMapper = JacksonObjectMapperFactory.createCborObjectMapper();
 
     static EntityManagerFactory createEntityManagerFactory(TesseraJdbcOptions jdbcOptions) {
         Map jdbcProperties = new HashMap<>();
@@ -63,31 +53,24 @@ public class MigrateDataCommand implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
 
-        Disruptor<OrionRecordEvent> disruptor =
+        Disruptor<OrionEvent> disruptor =
                 new Disruptor<>(
-                        OrionRecordEvent.FACTORY,
+                    OrionEvent.FACTORY,
                         128,
                         (ThreadFactory) Thread::new,
                         ProducerType.SINGLE,
                         new BlockingWaitStrategy());
 
         InputType inputType = inboundDbHelper.getInputType();
-        final RecordCounter recordCounter;
         final OrionDataAdapter inboundAdapter;
-        final PrivacyGroupPayloadLookup privacyGroupPayloadLookup;
         switch (inputType) {
             case LEVELDB:
                 inboundAdapter =
                         new LevelDbOrionDataAdapter(inboundDbHelper.getLevelDb().get(), cborObjectMapper, disruptor);
-                recordCounter = new LevelDbRecordCounter(inboundDbHelper.getLevelDb().get(), cborObjectMapper);
-                privacyGroupPayloadLookup =
-                        new LeveldbPrivacyGroupPayloadLookup(inboundDbHelper.getLevelDb().get(), cborObjectMapper);
                 break;
             case JDBC:
                 DataSource dataSource = inboundDbHelper.getJdbcDataSource().get();
-                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, orionKeyHelper);
-                recordCounter = new JdbcRecordCounter(dataSource);
-                privacyGroupPayloadLookup = new JdbcPrivacyGroupPayloadLookup(dataSource, cborObjectMapper);
+                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, disruptor);
                 break;
             default:
                 throw new UnsupportedOperationException("");
@@ -95,21 +78,26 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
         EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
 
-        int count = (int) recordCounter.count();
-        System.out.printf("COUNT %d", count);
-        System.out.println();
-        CountDownLatch countDownLatch = new CountDownLatch(count);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
 
+        PersistPrivacyGroupEventHandler persistPrivacyGroupEventHandler = new PersistPrivacyGroupEventHandler(entityManagerFactory);
+        PersistTransactionEventHandler persistTransactionEventHandler = new PersistTransactionEventHandler(entityManagerFactory);
         disruptor
-                .handleEventsWith(new EncryptedPayloadEventHandler(cborObjectMapper))
-                .then(new PrivacyGroupPayloadEventHandler(privacyGroupPayloadLookup))
-                .then(new RecipientBoxesEventHandler(orionKeyHelper))
-                .then(new ValidateEventHandler(orionKeyHelper, tesseraEncryptor))
-                .then(new PersistEventHandler(entityManagerFactory))
-                .then(new CompletionHandler(countDownLatch));
+                .handleEventsWith(
+                    persistPrivacyGroupEventHandler,
+                    persistTransactionEventHandler)
+                    .then(new CompletionHandler(countDownLatch));
+//                .then(new RecipientBoxesEventHandler(orionKeyHelper))
+//                .then(new ValidateEventHandler(orionKeyHelper, tesseraEncryptor))
+//                .then(persistEventHandler)
+//                .then(new CompletionHandler(countDownLatch))
+
+
+
 
         //  disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
         disruptor.start();
+
         inboundAdapter.start();
 
         countDownLatch.await();

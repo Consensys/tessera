@@ -30,8 +30,6 @@ public class ValidateEventHandler extends AbstractEventHandler {
 
         List<PublicKey> groupIds =
                 event.getRecipientKeyToBoxes().keySet().stream()
-                        .map(Base64.getDecoder()::decode)
-                        .map(PublicKey::from)
                         .sorted(Comparator.comparing(PublicKey::hashCode))
                         .collect(Collectors.toList());
 
@@ -54,11 +52,11 @@ public class ValidateEventHandler extends AbstractEventHandler {
             System.out.println("Key pair found for sender " + senderKeyData);
         }
 
-        for (Map.Entry<String, EncryptedKey> pair : event.getRecipientKeyToBoxes().entrySet()) {
+        for (Map.Entry<PublicKey, EncryptedKey> pair : event.getRecipientKeyToBoxes().entrySet()) {
 
             Box.PublicKey publicKey =
                     Stream.of(pair)
-                            .map(p -> p.getKey())
+                            .map(p -> p.getKey().getKeyBytes())
                             .map(Base64.getDecoder()::decode)
                             .map(Box.PublicKey::fromBytes)
                             .findFirst()

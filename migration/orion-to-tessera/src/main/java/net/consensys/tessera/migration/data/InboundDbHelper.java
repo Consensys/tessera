@@ -19,23 +19,37 @@ public class InboundDbHelper {
 
     private final DataSource jdbcDataSource;
 
-    private final DB leveldb;
+    enum Holder {
+        INSTANCE;
+
+        private DB leveldb;
+
+        public DB getLeveldb() {
+            return leveldb;
+        }
+
+        public void setLeveldb(DB leveldb) {
+            this.leveldb = leveldb;
+        }
+    }
 
     private InboundDbHelper(DataSource jdbcDataSource, DB leveldb) {
         this.jdbcDataSource = jdbcDataSource;
-        this.leveldb = leveldb;
+        if(Holder.INSTANCE.getLeveldb() == null) {
+            Holder.INSTANCE.setLeveldb(leveldb);
+        }
     }
 
-    Optional<DB> getLevelDb() {
-        return Optional.ofNullable(leveldb);
+    public Optional<DB> getLevelDb() {
+        return Optional.ofNullable(Holder.INSTANCE.getLeveldb());
     }
 
-    Optional<DataSource> getJdbcDataSource() {
+    public Optional<DataSource> getJdbcDataSource() {
         return Optional.ofNullable(jdbcDataSource);
     }
 
-    InputType getInputType() {
-        return Objects.nonNull(leveldb) ? InputType.LEVELDB : InputType.JDBC;
+    public InputType getInputType() {
+        return Objects.nonNull(Holder.INSTANCE.getLeveldb()) ? InputType.LEVELDB : InputType.JDBC;
     }
 
     public static InboundDbHelper from(Config config) {
@@ -54,17 +68,21 @@ public class InboundDbHelper {
         }
 
         if (connectionString.startsWith("leveldb")) {
-            Options options = new Options();
-            options.logger(s -> System.out.println(s));
-            options.createIfMissing(true);
-            String dbname = connectionString.split(":")[1];
-            try {
-                DB leveldb = factory.open(storageDir.resolve(dbname).toAbsolutePath().toFile(), options);
-                return new InboundDbHelper(null, leveldb);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            if(Holder.INSTANCE.getLeveldb() == null) {
+                Options options = new Options();
+                options.logger(s -> System.out.println(s));
+                options.createIfMissing(true);
+                String dbname = connectionString.split(":")[1];
+                try {
+                    DB leveldb = factory.open(storageDir.resolve(dbname).toAbsolutePath().toFile(), options);
+                    Holder.INSTANCE.setLeveldb(leveldb);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
+            return new InboundDbHelper(null, Holder.INSTANCE.getLeveldb());
         }
+
         throw new UnsupportedOperationException();
     }
 }

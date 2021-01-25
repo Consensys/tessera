@@ -2,16 +2,17 @@ package net.consensys.tessera.migration.data;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventTranslator;
+import com.quorum.tessera.encryption.PublicKey;
 import net.consensys.orion.enclave.EncryptedKey;
 import net.consensys.orion.enclave.EncryptedPayload;
 import net.consensys.orion.enclave.PrivacyGroupPayload;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class OrionRecordEvent implements EventTranslator<OrionRecordEvent> {
+
+    private PayloadType payloadType;
 
     private String key;
 
@@ -35,16 +36,32 @@ public class OrionRecordEvent implements EventTranslator<OrionRecordEvent> {
         this.recipientKeyToBoxes = null;
         this.value = null;
         this.inputType = null;
+        this.payloadType = null;
     }
 
-    public OrionRecordEvent(InputType inputType, String key, byte[] value) {
+    public OrionRecordEvent(PayloadType payloadType,InputType inputType, String key, byte[] value) {
         this.key = Objects.requireNonNull(key);
         this.value = Objects.requireNonNull(value);
         this.inputType = Objects.requireNonNull(inputType);
+        this.payloadType = Objects.requireNonNull(payloadType);
     }
 
-    public Map<String, EncryptedKey> getRecipientKeyToBoxes() {
-        return recipientKeyToBoxes;
+    public Map<PublicKey, EncryptedKey> getRecipientKeyToBoxes() {
+        return recipientKeyToBoxes.entrySet().stream()
+            .sorted(Map.Entry.<String, EncryptedKey>comparingByKey())
+            .collect(
+                Collectors.toMap(
+                    e ->
+                        Optional.of(e.getKey())
+                            .map(Base64.getDecoder()::decode)
+                            .map(PublicKey::from)
+                            .get(),
+                    e ->
+                        Optional.of(e.getValue())
+                            //  .map(Base64.getDecoder()::decode)
+                            .get(),
+                    (l, r) -> l,
+                    LinkedHashMap::new));
     }
 
     public EncryptedPayload getEncryptedPayload() {
@@ -79,6 +96,7 @@ public class OrionRecordEvent implements EventTranslator<OrionRecordEvent> {
         this.value = null;
         this.privacyGroupPayload = null;
         this.inputType = null;
+        this.payloadType = null;
     }
 
     @Override

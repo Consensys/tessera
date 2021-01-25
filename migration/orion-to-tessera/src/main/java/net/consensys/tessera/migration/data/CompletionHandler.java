@@ -3,8 +3,11 @@ package net.consensys.tessera.migration.data;
 import com.lmax.disruptor.EventHandler;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicLong;
 
-public class CompletionHandler implements EventHandler<OrionRecordEvent> {
+public class CompletionHandler implements EventHandler<OrionEvent> {
+
+    private AtomicLong counter = new AtomicLong(0);
 
     private CountDownLatch countDownLatch;
 
@@ -13,8 +16,11 @@ public class CompletionHandler implements EventHandler<OrionRecordEvent> {
     }
 
     @Override
-    public void onEvent(OrionRecordEvent event, long sequence, boolean endOfBatch) throws Exception {
+    public void onEvent(OrionEvent event, long sequence, boolean endOfBatch) throws Exception {
+        long count = counter.incrementAndGet();
+        if(count == event.getTotalEventCount()) {
+            countDownLatch.countDown();
+        }
         event.reset();
-        countDownLatch.countDown();
     }
 }

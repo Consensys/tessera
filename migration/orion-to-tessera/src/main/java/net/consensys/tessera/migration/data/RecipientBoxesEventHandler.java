@@ -27,7 +27,10 @@ public class RecipientBoxesEventHandler extends AbstractEventHandler {
         EncryptedPayload encryptedPayload = event.getEncryptedPayload();
 
         final List<String> recipients =
-                event.getPrivacyGroupPayload().map(PrivacyGroupPayload::addresses).map(List::of).orElse(List.of());
+                event.getPrivacyGroupPayload()
+                    .map(PrivacyGroupPayload::addresses)
+                    .map(List::of)
+                    .orElse(List.of());
 
         List<EncryptedKey> recipientBoxes = List.of(encryptedPayload.encryptedKeys());
 

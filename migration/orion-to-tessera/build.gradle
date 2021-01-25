@@ -1,7 +1,7 @@
 plugins {
     id "java-library"
     id "application"
-    id "org.javamodularity.moduleplugin" version "1.7.0"
+  //  id "org.javamodularity.moduleplugin" version "1.7.0"
 }
 
 group "net.consensys.quorum.tessera"
@@ -16,8 +16,10 @@ repositories {
 
 application {
     applicationName = "migrate"
-    mainClass = "net.consensys.tessera.migration.Main"
-    mainModule = "orion.to.tessera"
+    mainClassName = "net.consensys.tessera.migration.Main"
+//    mainClass = "net.consensys.tessera.migration.Main"
+    //mainModule = "orion.to.tessera"
+
     applicationDefaultJvmArgs = []
     startScripts.enabled = true
 }
@@ -53,8 +55,6 @@ dependencies {
     api "jakarta.validation:jakarta.validation-api:2.0.2"
     implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
 
-
-
     implementation "org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.7"
     implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
     implementation "info.picocli:picocli:4.0.4"
@@ -77,29 +77,15 @@ dependencies {
     testImplementation "org.mockito:mockito-inline:3.4.4"
 
 
-    implementation("net.consensys.quorum.tessera:config") {
-        transitive = false
-    }
-    implementation("net.consensys.quorum.tessera:shared") {
-        transitive = false
-    }
+    implementation project(":config")
+    implementation project(":shared")
+    implementation project(":tessera-data")
+    implementation project(":enclave:enclave-api")
+    implementation project(":encryption:encryption-api")
+    implementation project(":encryption:encryption-jnacl")
+    implementation project(":argon2")
+    implementation project(":key-generation")
 
-    implementation("net.consensys.quorum.tessera:tessera-data") {
-        transitive = false
-    }
-    implementation("net.consensys.quorum.tessera:enclave-api") {
-        transitive = false
-    }
-
-
-    implementation("net.consensys.quorum.tessera:encryption-api") {
-        transitive = false
-    }
-    implementation("net.consensys.quorum.tessera:encryption-jnacl")
-
-    implementation("net.consensys.quorum.tessera:argon2")
-
-    implementation("net.consensys.quorum.tessera:key-generation")
 
     implementation "org.bouncycastle:bcpkix-jdk15on:1.64"
     implementation "org.bouncycastle:bcprov-jdk15on:1.64"

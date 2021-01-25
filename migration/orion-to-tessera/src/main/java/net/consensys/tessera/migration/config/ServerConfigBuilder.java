@@ -55,11 +55,9 @@ public class ServerConfigBuilder {
     public ServerConfig build() {
 
         Objects.requireNonNull(type);
-        assert Objects.nonNull(socketFile) || Objects.nonNull(serverAddress)
-                : "Either socketFile serveradress must be present";
+        assert Objects.nonNull(socketFile) || Objects.nonNull(serverAddress) : "Either socketFile serveradress must be present";
 
-        assert !(Objects.nonNull(socketFile) && Objects.nonNull(serverAddress))
-                : "Both serverAddress and socket file cannot be specifed";
+        assert !(Objects.nonNull(socketFile) && Objects.nonNull(serverAddress)) : "Both serverAddress and socket file cannot be specifed";
 
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(type);

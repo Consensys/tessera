@@ -92,6 +92,7 @@ public class MigrateCommandTest {
         assertThat(config.isDisablePeerDiscovery()).isFalse();
         assertThat(config.isUseWhiteList()).isFalse();
 
+
         JaxbUtil.marshalWithNoValidation(config, System.out);
 
         assertThat(config.getJdbcConfig())

@@ -5,14 +5,18 @@ import java.util.Arrays;
 import java.util.function.Predicate;
 
 public enum PayloadType {
-    EncryptedPayload(j -> j.containsKey("sender")),
-    PrivacyGroupPayload(j -> j.containsKey("addresses") && j.containsKey("type")),
-    QueryPrivacyGroupPayload(j -> j.containsKey("addresses") && j.containsKey("toDelete"));
+    ENCRYPTED_PAYLOAD("EncryptedPayload", j -> j.containsKey("sender")),
+    PRIVACY_GROUP_PAYLOAD("PrivacyGroupPayload", j -> j.containsKey("addresses") && j.containsKey("type")),
+    QUERY_PRIVACY_GROUP_PAYLOAD(
+            "QueryPrivacyGroupPayload", j -> j.containsKey("addresses") && j.containsKey("toDelete"));
+
+    private final String value;
 
     private Predicate<JsonObject> predicate;
 
-    PayloadType(Predicate<JsonObject> predicate) {
+    PayloadType(String value, Predicate<JsonObject> predicate) {
         this.predicate = predicate;
+        this.value = value;
     }
 
     static PayloadType get(JsonObject jsonObject) {
