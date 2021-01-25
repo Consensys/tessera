@@ -476,12 +476,55 @@ public class PicoCliDelegateTest {
 
         Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
 
-        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-o", "jdbc.username=somename");
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-o", "jdbc.autoCreateTables=true", "-o", "useWhiteList=true");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
-        assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
-        assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
+        assertThat(result.getConfig().get().getJdbcConfig().isAutoCreateTables()).isTrue();
+        assertThat(result.getConfig().get().isUseWhiteList()).isTrue();
+    }
+
+    @Test
+    public void configOverrideNoParameter() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-o"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("Missing required parameter for option '--override' (<String=String>)");
+    }
+
+    @Test
+    public void configOverrideNoTarget() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-o", "=true"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("java.lang.NoSuchFieldException: ");
+    }
+
+    @Test
+    public void configOverrideNoValue() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-o", "jdbc.autoCreateTables"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("Value for option option '--override' (<String=String>) should be in KEY=VALUE format but was jdbc.autoCreateTables");
+    }
+
+    @Test
+    public void configOverrideUnknownTarget() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-o", "bogus=bogusvalue"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("java.lang.NoSuchFieldException: bogus");
     }
 
     @Test
@@ -554,6 +597,66 @@ public class PicoCliDelegateTest {
     }
 
     @Test
+    public void legacyConfigOverride() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        CliResult result = cliDelegate.execute("-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-useWhiteList", "true");
+
+        assertThat(result).isNotNull();
+        assertThat(result.getConfig()).isPresent();
+        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.isSuppressStartup()).isFalse();
+
+        Config config = result.getConfig().get();
+        assertThat(config.getJdbcConfig()).isNotNull();
+        assertThat(config.getJdbcConfig().isAutoCreateTables()).isTrue();
+        assertThat(config.isUseWhiteList()).isTrue();
+    }
+
+    @Test
+    public void legacyConfigOverrideNoTarget() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "true"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("Invalid config overrides. Consider using the --override option instead.");
+    }
+
+    @Test
+    public void legacyConfigOverrideNoValue() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-jdbc.autoCreateTables"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("Invalid config overrides. Consider using the --override option instead.");
+    }
+
+    @Test
+    public void legacyConfigOverrideSomeNoValue() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-useWhiteList"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage("Invalid config overrides. Consider using the --override option instead.");
+    }
+
+    @Test
+    public void legacyConfigOverrideUnknownTarget() throws Exception {
+
+        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-bogus", "bogusvalue"));
+
+        assertThat(ex).isExactlyInstanceOf(CliException.class);
+        assertThat(ex).hasMessage(String.join("\n", "Invalid config overrides. Consider using the --override option instead.", "java.lang.NoSuchFieldException: bogus"));
+    }
+
+    @Test
     public void updatingPasswordsDoesntProcessOtherOptions() throws Exception {
         MockKeyGeneratorFactory.reset();
 
@@ -618,15 +721,6 @@ public class PicoCliDelegateTest {
 
         assertThat(ex).isNotNull();
         assertThat(ex).isInstanceOf(CliException.class);
-    }
-
-    @Test
-    public void doNotAllowUnmatchableOptions() throws Exception {
-        Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
-        Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile", configFile.toString(), "-bogus"));
-
-        assertThat(ex).isExactlyInstanceOf(CliException.class);
-        assertThat(ex).hasMessage("Unknown option: '-bogus'");
     }
 
     @Test

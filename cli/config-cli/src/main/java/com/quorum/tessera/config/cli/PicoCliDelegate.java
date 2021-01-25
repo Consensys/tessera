@@ -33,7 +33,8 @@ public class PicoCliDelegate {
                 .setSeparator(" ")
                 .setCaseInsensitiveEnumValuesAllowed(true)
                 .setExecutionExceptionHandler(exceptionCapturer)
-                .setParameterExceptionHandler(exceptionCapturer);
+                .setParameterExceptionHandler(exceptionCapturer)
+                .setStopAtUnmatched(false);
 
         try {
             // parse the args so that we can print usage help if no cmd args were provided
