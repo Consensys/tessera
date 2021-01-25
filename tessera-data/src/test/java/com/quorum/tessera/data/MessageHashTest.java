@@ -1,6 +1,5 @@
-package com.quorum.tessera.enclave.model;
+package com.quorum.tessera.data;
 
-import com.quorum.tessera.data.MessageHash;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
