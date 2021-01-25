@@ -37,7 +37,7 @@ public class ReceiveResponse {
     private String[] managedParties;
 
     @Schema(description = "public key of the transaction sender", format = "base64")
-    private String sender;
+    private String senderKey;
 
     public ReceiveResponse() {}
 
@@ -81,11 +81,11 @@ public class ReceiveResponse {
         this.managedParties = managedParties;
     }
 
-    public String getSender() {
-        return sender;
+    public String getSenderKey() {
+        return senderKey;
     }
 
-    public void setSender(final String sender) {
-        this.sender = sender;
+    public void setSenderKey(String senderKey) {
+        this.senderKey = senderKey;
     }
 }

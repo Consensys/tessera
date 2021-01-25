@@ -267,7 +267,7 @@ public class TransactionResource3 {
         final SendResponse responseEntity = new SendResponse();
         responseEntity.setKey(encodedTransactionHash);
         responseEntity.setManagedParties(managedParties);
-        responseEntity.setSender(response.getSender().encodeToBase64());
+        responseEntity.setSenderKey(response.getSender().encodeToBase64());
 
         LOGGER.debug("Encoded key: {}", encodedTransactionHash);
 
@@ -331,7 +331,7 @@ public class TransactionResource3 {
         com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(request);
 
         final ReceiveResponse receiveResponse = new ReceiveResponse();
-        receiveResponse.setSender(response.sender().encodeToBase64());
+        receiveResponse.setSenderKey(response.sender().encodeToBase64());
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
         receiveResponse.setAffectedContractTransactions(
                 response.getAffectedTransactions().stream()
