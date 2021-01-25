@@ -39,6 +39,10 @@ public class ConfigFactoryTest {
         assertThat(config.getPeers()).hasSize(2);
         assertThat(config.getKeys().getKeyData()).hasSize(1);
         assertThat(config.getKeys().getKeyData().get(0)).isInstanceOf(KeyData.class);
+
+        assertThat(config.getFeatures().isEnablePrivacyEnhancements()).isFalse();
+        assertThat(config.getFeatures().isEnableRemoteKeyValidation()).isFalse();
+        assertThat(config.getClientMode()).isEqualTo(ClientMode.TESSERA);
     }
 
     @Test
@@ -71,5 +75,33 @@ public class ConfigFactoryTest {
         Config config = configFactory.create(configInputStream);
 
         assertThat(config).isNotNull();
+    }
+
+    @Test
+    public void createFromSampleV3() throws Exception {
+
+        ConfigFactory configFactory = ConfigFactory.create();
+
+        assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        InputStream configInputStream = ElUtil.process(getClass().getResourceAsStream("/sample_v3.json"), params);
+
+        Config config = configFactory.create(configInputStream);
+
+        assertThat(config).isNotNull();
+        assertThat(config.isUseWhiteList()).isFalse();
+        assertThat(config.getJdbcConfig().getUsername()).isEqualTo("scott");
+        assertThat(config.getPeers()).hasSize(2);
+        assertThat(config.getKeys().getKeyData()).hasSize(1);
+        assertThat(config.getKeys().getKeyData().get(0)).isInstanceOf(KeyData.class);
+
+        assertThat(config.getFeatures().isEnablePrivacyEnhancements()).isTrue();
+        assertThat(config.getFeatures().isEnableRemoteKeyValidation()).isTrue();
+        assertThat(config.getClientMode()).isEqualTo(ClientMode.ORION);
     }
 }
