@@ -47,9 +47,9 @@ public class Main {
             }
 
             final Config config =
-                    cliResult
-                            .getConfig()
-                            .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
+                cliResult
+                    .getConfig()
+                    .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
             //Start legacy spring profile stuff
             final String springProfileWarning = "Warn: Spring profiles will not be supported in future. To start in recover mode use 'tessera recover'";
@@ -78,15 +78,19 @@ public class Main {
 
             services.forEach(o -> LOGGER.debug("Service : {}", o));
 
+            if (runtimeContext.isOrionMode()) {
+                LOGGER.info("Starting Tessera in Orion compatible mode");
+            }
+
             Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
 
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
                 System.err.println(
-                        "ERROR: Config validation issue: "
-                                + violation.getPropertyPath()
-                                + " "
-                                + violation.getMessage());
+                    "ERROR: Config validation issue: "
+                        + violation.getPropertyPath()
+                        + " "
+                        + violation.getMessage());
             }
             System.exit(1);
         } catch (final ConfigException ex) {
