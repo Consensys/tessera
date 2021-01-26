@@ -5,7 +5,7 @@
     <parent>
         <artifactId>migration</artifactId>
         <groupId>net.consensys.quorum.tessera</groupId>
-        <version>20.10.1-SNAPSHOT</version>
+        <version>20.10.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
