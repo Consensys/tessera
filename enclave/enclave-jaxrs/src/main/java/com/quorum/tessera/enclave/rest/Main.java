@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 public class Main {
@@ -34,7 +35,11 @@ public class Main {
         commandLine.execute(args);
         final CliResult cliResult = commandLine.getExecutionResult();
 
-        if (!cliResult.getConfig().isPresent()) {
+        if (Objects.isNull(cliResult)) {
+            System.exit(1);
+        }
+
+        if (cliResult.getConfig().isEmpty()) {
             System.exit(cliResult.getStatus());
         }
 
