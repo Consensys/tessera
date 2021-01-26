@@ -1,9 +1,16 @@
 package exec;
 
-import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import suite.EnclaveType;
+import suite.ExecutionContext;
+import suite.ServerStatusCheck;
+import suite.ServerStatusCheckExecutor;
+
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,12 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import suite.EnclaveType;
-import suite.ExecutionContext;
-import suite.ServerStatusCheck;
-import suite.ServerStatusCheckExecutor;
 
 public class NodeExecManager implements ExecManager {
 
@@ -61,7 +62,6 @@ public class NodeExecManager implements ExecManager {
                         .withConfigFile(configDescriptor.getPath())
                         .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
                         .withClassPathItem(nodeServerJar);
-        // .withArg("-jdbc.autoCreateTables", "true");
 
         if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
             Path enclaveJar =

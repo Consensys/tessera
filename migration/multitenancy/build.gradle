@@ -13,7 +13,7 @@ dependencies {
 }
 
 group = 'net.consensys.quorum.tessera'
-version = '20.10.1-SNAPSHOT'
+version = '20.10.2-SNAPSHOT'
 description = 'multitenancy'
 
 shadowJar {
@@ -29,7 +29,7 @@ jar {
     manifest {
         attributes 'Tessera-Version': version,
                 "Implementation-Version": version,
-                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
+                'Specification-Version' : String.valueOf(version),
                 'Main-Class' : 'com.quorum.tessera.multitenancy.migration.Main'
 
     }

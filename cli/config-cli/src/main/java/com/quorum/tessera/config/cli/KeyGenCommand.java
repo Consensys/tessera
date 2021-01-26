@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @CommandLine.Command(
         name = "keygen",
         aliases = {"-keygen"},
-        headerHeading = "Usage:%n%n",
-        synopsisHeading = "%n",
-        descriptionHeading = "%nDescription:%n%n",
-        parameterListHeading = "%nParameters:%n",
-        optionListHeading = "%nOptions:%n",
         header = "Generate Tessera encryption keys",
+        descriptionHeading = "%nDescription: ",
+        description = "Generate one or more new key pairs and store in files or a supported key vault.  The key properties can be configured using the encryptor options.",
+        parameterListHeading = "Parameters:%n",
+        commandListHeading = "%nCommands:%n",
+        optionListHeading = "%nOptions:%n",
         abbreviateSynopsis = true,
         subcommands = {CommandLine.HelpCommand.class})
 public class KeyGenCommand implements Callable<CliResult> {
@@ -49,7 +49,6 @@ public class KeyGenCommand implements Callable<CliResult> {
     @CommandLine.Option(
             names = {"--keyout", "-filename"},
             split = ",",
-            arity = "0..1",
             description =
                     "Comma-separated list of paths to save generated key files. Can also be used with keyvault. Number of args determines number of key-pairs generated (default = ${DEFAULT-VALUE})")
     public List<String> keyOut;
@@ -63,7 +62,7 @@ public class KeyGenCommand implements Callable<CliResult> {
     @CommandLine.ArgGroup(heading = "Key Vault Options:%n", exclusive = false)
     KeyVaultConfigOptions keyVaultConfigOptions;
 
-    @CommandLine.ArgGroup(exclusive = false)
+    @CommandLine.ArgGroup(heading = "File Update Options:%n", exclusive = false)
     KeyGenFileUpdateOptions fileUpdateOptions;
 
     @CommandLine.Mixin public EncryptorOptions encryptorOptions;
@@ -81,11 +80,6 @@ public class KeyGenCommand implements Callable<CliResult> {
 
     @Override
     public CliResult call() throws IOException {
-        // TODO(cjh) this check shouldn't be required as --configfile is marked as 'required' in KeyGenFileUpdateOptions
-        if (Objects.nonNull(fileUpdateOptions) && Objects.isNull(fileUpdateOptions.getConfig())) {
-            throw new CliException("Missing required argument(s): --configfile=<config>");
-        }
-
         final EncryptorConfig encryptorConfig = this.encryptorConfig().orElse(EncryptorConfig.getDefault());
         final KeyVaultOptions keyVaultOptions = this.keyVaultOptions().orElse(null);
         final KeyVaultConfig keyVaultConfig = this.keyVaultConfig().orElse(null);
