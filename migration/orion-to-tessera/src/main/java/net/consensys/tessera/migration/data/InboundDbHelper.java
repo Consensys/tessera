@@ -19,16 +19,16 @@ public class InboundDbHelper {
 
     private final DataSource jdbcDataSource;
 
-    enum Holder {
+    private enum Holder {
         INSTANCE;
 
         private DB leveldb;
 
-        public DB getLeveldb() {
+        private DB getLeveldb() {
             return leveldb;
         }
 
-        public void setLeveldb(DB leveldb) {
+        private void setLeveldb(DB leveldb) {
             this.leveldb = leveldb;
         }
     }

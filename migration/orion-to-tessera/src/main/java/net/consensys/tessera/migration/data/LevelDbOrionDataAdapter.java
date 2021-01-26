@@ -24,7 +24,7 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
 
     private final OrionKeyHelper orionKeyHelper;
 
-    private OrionEventFactory orionEventFactory;
+    private volatile Long totalRecords;
 
     public LevelDbOrionDataAdapter(DB leveldb, ObjectMapper cborObjectMapper, Disruptor<OrionEvent> disruptor,OrionKeyHelper orionKeyHelper) {
         this.leveldb = Objects.requireNonNull(leveldb);
@@ -36,14 +36,14 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
     @Override
     public void start() throws Exception {
 
-        if (orionEventFactory == null) {
+        if (Objects.isNull(totalRecords)) {
 
             DBIterator iterator = leveldb.iterator();
             AtomicLong counter = new AtomicLong(0);
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
                 counter.incrementAndGet();
             }
-            orionEventFactory = new OrionEventFactory(counter.get());
+            totalRecords = counter.get();
         }
 
         DBIterator iterator = leveldb.iterator();
@@ -54,7 +54,11 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
 
             final PayloadType payloadType = PayloadType.get(jsonObject);
 
-            final OrionEvent orionEvent;
+            final OrionEvent.Builder orionEvent = OrionEvent.Builder.create()
+                .withTotalEventCount(totalRecords)
+                .withJsonObject(jsonObject)
+                .withKey(entry.getKey())
+                .withPayloadType(payloadType);
 
             if(payloadType == PayloadType.ENCRYPTED_PAYLOAD) {
 
@@ -63,19 +67,14 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
                 byte[] privacyGroupId = encryptedPayload.privacyGroupId();
                 byte[] privacyGroupData = leveldb.get(privacyGroupId);
 
-                final Map<PublicKey, RecipientBox> recipientBoxMap;
                 if(privacyGroupData != null) {
                     PrivacyGroupPayload privacyGroup = cborObjectMapper.readValue(privacyGroupData, PrivacyGroupPayload.class);
-                    recipientBoxMap = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup).getRecipientMapping();
-                } else {
-                    recipientBoxMap = Map.of();
+                    Map<PublicKey, RecipientBox> recipientBoxMap = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup).getRecipientMapping();
+                    orionEvent.withRecipientBoxMap(recipientBoxMap);
                 }
-                orionEvent = orionEventFactory.create(payloadType,entry.getKey(),entry.getValue(),jsonObject,recipientBoxMap);
-            } else {
-                orionEvent = orionEventFactory.create(payloadType,entry.getKey(),entry.getValue(),jsonObject,null);
             }
 
-            disruptor.publishEvent(orionEvent);
+            disruptor.publishEvent(orionEvent.build());
 
 
         }

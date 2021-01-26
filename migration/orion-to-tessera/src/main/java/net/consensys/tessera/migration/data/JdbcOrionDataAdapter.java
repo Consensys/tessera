@@ -16,7 +16,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 public class JdbcOrionDataAdapter implements OrionDataAdapter {
 
@@ -26,9 +25,9 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
 
     private final DataSource dataSource;
 
-    private OrionEventFactory orionEventFactory;
-
     private final OrionKeyHelper orionKeyHelper;
+
+    private volatile Long totalRecords;
 
     public JdbcOrionDataAdapter(DataSource dataSource,
                                 ObjectMapper cborObjectMapper,
@@ -49,11 +48,10 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
         PreparedStatement findRowByIdStatement = connection.prepareStatement("SELECT VALUE FROM STORE WHERE KEY = ?");
         ResultSet resultSet = statement.executeQuery("SELECT * FROM STORE");
 
-        if(Objects.isNull(orionEventFactory)) {
+        if(Objects.isNull(totalRecords)) {
             try(ResultSet countRs = statement.executeQuery("SELECT COUNT(*) FROM STORE")) {
                 countRs.next();
-                long totalRecords = countRs.getLong(1);
-                orionEventFactory = new OrionEventFactory(totalRecords);
+                totalRecords = countRs.getLong(1);
             }
         }
 
@@ -67,37 +65,33 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
 
                 JsonObject jsonObject = cborObjectMapper.readValue(value, JsonObject.class);
                 PayloadType payloadType = PayloadType.get(jsonObject);
-                final OrionEvent orionEvent;
+                final OrionEvent.Builder orionEvent = OrionEvent.Builder.create()
+                    .withTotalEventCount(totalRecords)
+                    .withJsonObject(jsonObject)
+                    .withKey(key)
+                    .withPayloadType(payloadType);
 
                 if(payloadType == PayloadType.ENCRYPTED_PAYLOAD) {
 
                     EncryptedPayload encryptedPayload = cborObjectMapper.readValue(value,EncryptedPayload.class);
                     try(findRowByIdStatement) {
 
-                        byte[] privacyGroupId = Optional.of(jsonObject)
-                            .map(j -> j.getString("privacyGroupId"))
-                            .map(String::getBytes)
-                            .get();
+                        byte[] privacyGroupId = encryptedPayload.privacyGroupId();
 
                         findRowByIdStatement.setBytes(1,privacyGroupId);
 
                         try(ResultSet rs = findRowByIdStatement.executeQuery()) {
-                            final Map<PublicKey, RecipientBox> recipientBoxMap;
                             if(rs.next()) {
                                 byte[] privacyGroupData = rs.getBytes(1);
                                 PrivacyGroupPayload privacyGroup = cborObjectMapper.readValue(privacyGroupData, PrivacyGroupPayload.class);
-                                recipientBoxMap = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup).getRecipientMapping();
-                            } else {
-                                recipientBoxMap = Map.of();
+                                final Map<PublicKey, RecipientBox> recipientBoxMap = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup).getRecipientMapping();
+                                orionEvent.withRecipientBoxMap(recipientBoxMap);
                             }
-                            orionEvent = orionEventFactory.create(payloadType,key,value,jsonObject,recipientBoxMap);
                         }
                     }
-                } else {
-                    orionEvent = orionEventFactory.create(payloadType,key,value,jsonObject,null);
                 }
 
-                disruptor.publishEvent(orionEvent);
+                disruptor.publishEvent(orionEvent.build());
             }
         }
     }

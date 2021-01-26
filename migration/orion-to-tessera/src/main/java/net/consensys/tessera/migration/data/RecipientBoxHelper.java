@@ -14,16 +14,16 @@ import java.util.stream.IntStream;
 
 public class RecipientBoxHelper {
 
-    private OrionKeyHelper orionKeyHelper;
+    private final OrionKeyHelper orionKeyHelper;
 
-    private EncryptedPayload encryptedPayload;
+    private final EncryptedPayload encryptedPayload;
 
-    private PrivacyGroupPayload privacyGroupPayload;
+    private final PrivacyGroupPayload privacyGroupPayload;
 
     public RecipientBoxHelper(OrionKeyHelper orionKeyHelper, EncryptedPayload encryptedPayload, PrivacyGroupPayload privacyGroupPayload) {
-        this.orionKeyHelper = orionKeyHelper;
-        this.encryptedPayload = encryptedPayload;
-        this.privacyGroupPayload = privacyGroupPayload;
+        this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
+        this.encryptedPayload = Objects.requireNonNull(encryptedPayload);
+        this.privacyGroupPayload = Objects.requireNonNull(privacyGroupPayload);
     }
 
     public Map<PublicKey, RecipientBox> getRecipientMapping() {
@@ -36,10 +36,15 @@ public class RecipientBoxHelper {
 
         List<EncryptedKey> recipientBoxes = List.of(encryptedPayload.encryptedKeys());
 
-        String sender = Base64.getEncoder().encodeToString(encryptedPayload.sender().bytesArray());
+        String sender = Optional.of(encryptedPayload)
+            .map(EncryptedPayload::sender)
+            .map(Box.PublicKey::bytesArray)
+            .map(Base64.getEncoder()::encodeToString)
+            .orElseThrow(() -> new IllegalStateException("Unable to find sender from payload"));
 
         List<String> ourKeys =
-            orionKeyHelper.getKeyPairs().stream()
+            orionKeyHelper.getKeyPairs()
+                .stream()
                 .map(Box.KeyPair::publicKey)
                 .map(Box.PublicKey::bytesArray)
                 .map(Base64.getEncoder()::encodeToString)

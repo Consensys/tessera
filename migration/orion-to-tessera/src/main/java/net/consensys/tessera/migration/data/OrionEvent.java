@@ -7,9 +7,16 @@ import com.quorum.tessera.encryption.PublicKey;
 
 import javax.json.JsonObject;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class OrionEvent implements EventTranslator<OrionEvent> {
+
+    private enum EventCounter{
+        INSTANCE;
+        private AtomicLong counter = new AtomicLong(0);
+    }
 
     private Long eventNumber;
 
@@ -21,8 +28,6 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
 
     private byte[] key;
 
-    private byte[] value;
-
     private Map<PublicKey, RecipientBox> recipientBoxMap;
 
     static final EventFactory<OrionEvent> FACTORY = () -> new OrionEvent();
@@ -30,9 +35,8 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
     private OrionEvent() {
     }
 
-    public OrionEvent(PayloadType payloadType,JsonObject jsonObject,byte[] key, byte[] value,Long totalEventCount,Long eventNumber,Map<PublicKey, RecipientBox> recipientBoxMap) {
+    public OrionEvent(PayloadType payloadType,JsonObject jsonObject,byte[] key, Long totalEventCount,Long eventNumber,Map<PublicKey, RecipientBox> recipientBoxMap) {
         this.key = key;
-        this.value = value;
         this.jsonObject = jsonObject;
         this.payloadType = payloadType;
         this.totalEventCount = totalEventCount;
@@ -43,7 +47,6 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
     @Override
     public void translateTo(OrionEvent orionEvent, long sequence) {
         orionEvent.key = key;
-        orionEvent.value = value;
         orionEvent.jsonObject = jsonObject;
         orionEvent.payloadType = payloadType;
         orionEvent.totalEventCount = totalEventCount;
@@ -52,7 +55,6 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
 
     public void reset() {
         this.key = null;
-        this.value = null;
         this.jsonObject = null;
         this.payloadType = null;
         this.totalEventCount = null;
@@ -61,10 +63,6 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
 
     public byte[] getKey() {
         return key;
-    }
-
-    public byte[] getValue() {
-        return value;
     }
 
     public JsonObject getJsonObject() {
@@ -96,4 +94,70 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
             ", jsonObject=" + jsonObject +
             '}';
     }
+
+    public static class Builder {
+
+        public static Builder create() {
+            return new Builder();
+        }
+
+
+        private Long totalEventCount;
+
+        private PayloadType payloadType;
+
+        private JsonObject jsonObject;
+
+        private byte[] key;
+
+        private Map<PublicKey,RecipientBox> recipientBoxMap;
+
+        public Builder withTotalEventCount(Long totalEventCount) {
+            this.totalEventCount = totalEventCount;
+            return this;
+        }
+
+        public Builder withRecipientBoxMap(Map<PublicKey,RecipientBox> recipientBoxMap) {
+            this.recipientBoxMap = recipientBoxMap;
+            return this;
+        }
+
+        public Builder withPayloadType(PayloadType payloadType) {
+            this.payloadType = payloadType;
+            return this;
+        }
+
+        public Builder withJsonObject(JsonObject jsonObject) {
+            this.jsonObject = jsonObject;
+            return this;
+        }
+
+        public Builder withKey(byte[] key) {
+            this.key = key;
+            return this;
+        }
+
+        public OrionEvent build() {
+
+            Objects.requireNonNull(totalEventCount);
+            Objects.requireNonNull(payloadType);
+            Objects.requireNonNull(jsonObject);
+            Objects.requireNonNull(key);
+
+            if (payloadType == PayloadType.ENCRYPTED_PAYLOAD) {
+                Objects.requireNonNull(recipientBoxMap);
+                assert !recipientBoxMap.isEmpty();
+            }
+
+            long eventNumber = EventCounter.INSTANCE.counter.incrementAndGet();
+
+            if (totalEventCount < eventNumber) {
+                throw new IllegalArgumentException("Event number is greater than the total");
+            }
+
+            return new OrionEvent(payloadType,jsonObject,key,totalEventCount,eventNumber,recipientBoxMap);
+        }
+
+    }
+
 }
