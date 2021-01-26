@@ -368,40 +368,6 @@ paths:
             application/vnd.tessera-2.1+json:
               schema:
                 $ref: '#/components/schemas/com.quorum.tessera.api.ReceiveResponse'
-  /receiveraw:
-    get:
-      tags:
-      - quorum-to-tessera
-      summary: /receiveraw
-      description: "get payload from database, decrypt, and return"
-      operationId: getDecryptedPayloadOctetStream
-      parameters:
-      - name: c11n-key
-        in: header
-        required: true
-        schema:
-          type: string
-          description: hash indicating encrypted payload to retrieve from database
-          format: base64
-      - name: c11n-to
-        in: header
-        schema:
-          type: string
-          description: "(optional) public key of recipient of the encrypted payload;\
-            \ used in decryption; if not provided, decryption is attempted with all\
-            \ known recipient keys in turn"
-          format: base64
-      responses:
-        "200":
-          description: decrypted ciphertext payload
-          content:
-            application/octet-stream:
-              schema:
-                type: array
-                items:
-                  type: string
-                  description: decrypted ciphertext payload
-                  format: byte
   /sendraw:
     post:
       tags:
@@ -446,6 +412,40 @@ paths:
                 type: string
                 description: encrypted payload hash
                 format: base64
+  /receiveraw:
+    get:
+      tags:
+      - quorum-to-tessera
+      summary: /receiveraw
+      description: "get payload from database, decrypt, and return"
+      operationId: getDecryptedPayloadOctetStream
+      parameters:
+      - name: c11n-key
+        in: header
+        required: true
+        schema:
+          type: string
+          description: hash indicating encrypted payload to retrieve from database
+          format: base64
+      - name: c11n-to
+        in: header
+        schema:
+          type: string
+          description: "(optional) public key of recipient of the encrypted payload;\
+            \ used in decryption; if not provided, decryption is attempted with all\
+            \ known recipient keys in turn"
+          format: base64
+      responses:
+        "200":
+          description: decrypted ciphertext payload
+          content:
+            application/octet-stream:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: decrypted ciphertext payload
+                  format: byte
   /receive:
     get:
       tags:
@@ -486,6 +486,93 @@ paths:
                 type: string
               example: Delete successful
       deprecated: true
+  /transaction/{hash}/isSender:
+    get:
+      tags:
+      - quorum-to-tessera
+      summary: "/transaction/{hash}/isSender"
+      description: check if the server was the sender of a transaction
+      operationId: isSender
+      parameters:
+      - name: hash
+        in: path
+        description: hash indicating encrypted payload to check sender for
+        required: true
+        schema:
+          type: string
+          format: base64
+      responses:
+        "200":
+          description: is server the sender
+          content:
+            text/plain:
+              schema:
+                type: boolean
+  /sendsignedtx:
+    post:
+      tags:
+      - quorum-to-tessera
+      summary: /sendsignedtx
+      description: "re-wraps a pre-stored & pre-encrypted payload, stores result in\
+        \ database, and publishes result to recipients"
+      operationId: sendStored
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/com.quorum.tessera.api.SendSignedRequest'
+          application/vnd.tessera-2.1+json:
+            schema:
+              $ref: '#/components/schemas/com.quorum.tessera.api.SendSignedRequest'
+          application/octet-stream:
+            schema:
+              type: array
+              items:
+                type: string
+                description: hash of pre-stored payload
+                format: base64
+      responses:
+        "200":
+          description: hash of rewrapped payload (for application/octet-stream requests)
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                description: hash of rewrapped payload
+                format: base64
+        "201":
+          description: hash of rewrapped payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/com.quorum.tessera.api.SendResponse'
+            application/vnd.tessera-2.1+json:
+              schema:
+                $ref: '#/components/schemas/com.quorum.tessera.api.SendResponse'
+  /transaction/{hash}/participants:
+    get:
+      tags:
+      - quorum-to-tessera
+      summary: "/transaction/{hash}/participants"
+      description: get list of recipient public keys for a transaction
+      operationId: getRecipients
+      parameters:
+      - name: hash
+        in: path
+        description: hash indicating encrypted payload to get recipients for
+        required: true
+        schema:
+          type: string
+          format: base64
+      responses:
+        "200":
+          description: comma-separated list of recipients
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: comma-separated list of recipients
+              example: "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="
   /transaction/{hash}:
     get:
       tags:
@@ -544,93 +631,6 @@ paths:
       responses:
         "204":
           description: delete successful
-  /transaction/{hash}/isSender:
-    get:
-      tags:
-      - quorum-to-tessera
-      summary: "/transaction/{hash}/isSender"
-      description: check if the server was the sender of a transaction
-      operationId: isSender
-      parameters:
-      - name: hash
-        in: path
-        description: hash indicating encrypted payload to check sender for
-        required: true
-        schema:
-          type: string
-          format: base64
-      responses:
-        "200":
-          description: is server the sender
-          content:
-            text/plain:
-              schema:
-                type: boolean
-  /transaction/{hash}/participants:
-    get:
-      tags:
-      - quorum-to-tessera
-      summary: "/transaction/{hash}/participants"
-      description: get list of recipient public keys for a transaction
-      operationId: getRecipients
-      parameters:
-      - name: hash
-        in: path
-        description: hash indicating encrypted payload to get recipients for
-        required: true
-        schema:
-          type: string
-          format: base64
-      responses:
-        "200":
-          description: comma-separated list of recipients
-          content:
-            text/plain:
-              schema:
-                type: string
-                description: comma-separated list of recipients
-              example: "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="
-  /sendsignedtx:
-    post:
-      tags:
-      - quorum-to-tessera
-      summary: /sendsignedtx
-      description: "re-wraps a pre-stored & pre-encrypted payload, stores result in\
-        \ database, and publishes result to recipients"
-      operationId: sendStored
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/com.quorum.tessera.api.SendSignedRequest'
-          application/vnd.tessera-2.1+json:
-            schema:
-              $ref: '#/components/schemas/com.quorum.tessera.api.SendSignedRequest'
-          application/octet-stream:
-            schema:
-              type: array
-              items:
-                type: string
-                description: hash of pre-stored payload
-                format: base64
-      responses:
-        "200":
-          description: hash of rewrapped payload (for application/octet-stream requests)
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                description: hash of rewrapped payload
-                format: base64
-        "201":
-          description: hash of rewrapped payload
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/com.quorum.tessera.api.SendResponse'
-            application/vnd.tessera-2.1+json:
-              schema:
-                $ref: '#/components/schemas/com.quorum.tessera.api.SendResponse'
   /send:
     post:
       tags:
