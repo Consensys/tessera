@@ -5,4 +5,6 @@ dependencies {
     compile project(':shared')
     compile project(':key-vault:key-vault-api')
     compile 'org.bouncycastle:bcpkix-jdk15on'
+    compile 'org.apache.tuweni:tuweni-rlp'
+    compile 'org.apache.tuweni:tuweni-bytes'
 }
