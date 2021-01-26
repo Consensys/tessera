@@ -7,6 +7,7 @@ import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
+import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.discovery.Discovery;
@@ -37,6 +38,8 @@ public class Main {
             final CliResult cliResult = picoCliDelegate.execute(args);
             LOGGER.debug("Executed PicoCliDelegate with args [{}].", String.join(",", args));
             CliDelegate.instance().setConfig(cliResult.getConfig().orElse(null));
+
+            cliResult.getConfig().ifPresent(c -> LOGGER.trace("Config {}", JaxbUtil.marshalToStringNoValidation(c)));
 
             if (cliResult.isSuppressStartup()) {
                 System.exit(0);
