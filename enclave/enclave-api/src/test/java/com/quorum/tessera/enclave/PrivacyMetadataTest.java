@@ -1,6 +1,5 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
 import java.util.List;
@@ -24,13 +23,13 @@ public class PrivacyMetadataTest {
         final PrivacyMetadata metaData =
                 PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroupId.from("GROUP_ID".getBytes()))
                         .build();
 
         assertThat(metaData).isNotNull();
         assertThat(metaData.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
         assertThat(metaData.getPrivacyGroupId()).isPresent();
-        assertThat(metaData.getPrivacyGroupId().get()).isEqualTo(PublicKey.from("GROUP_ID".getBytes()));
+        assertThat(metaData.getPrivacyGroupId().get()).isEqualTo(PrivacyGroupId.from("GROUP_ID".getBytes()));
     }
 
     @Test(expected = RuntimeException.class)
@@ -45,7 +44,7 @@ public class PrivacyMetadataTest {
     public void forPsvInvalid() {
         PrivacyMetadata.Builder.create()
                 .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                .withPrivacyGroupId(PrivacyGroupId.from("GROUP_ID".getBytes()))
                 .withExecHash(null)
                 .build();
     }
@@ -60,7 +59,7 @@ public class PrivacyMetadataTest {
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
                         .withAffectedTransactions(List.of(affected))
                         .withExecHash("execHash".getBytes())
-                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroupId.from("GROUP_ID".getBytes()))
                         .build();
 
         assertThat(metaData).isNotNull();
@@ -68,6 +67,6 @@ public class PrivacyMetadataTest {
         assertThat(metaData.getAffectedContractTransactions()).containsExactly(affected);
         assertThat(metaData.getExecHash()).isEqualTo("execHash".getBytes());
         assertThat(metaData.getPrivacyGroupId()).isPresent();
-        assertThat(metaData.getPrivacyGroupId().get()).isEqualTo(PublicKey.from("GROUP_ID".getBytes()));
+        assertThat(metaData.getPrivacyGroupId().get()).isEqualTo(PrivacyGroupId.from("GROUP_ID".getBytes()));
     }
 }

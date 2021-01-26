@@ -114,7 +114,7 @@ public class EncodedPayloadBuilderTest {
                         .withAffectedContractTransactions(affectedContractTransactionsRaw)
                         .withExecHash(execHash)
                         .withRecipientKey(recipientKey)
-                        .withPrivacyGroupId(PublicKey.from("PRIVACYGROUPID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroupId.from("PRIVACYGROUPID".getBytes()))
                         .build();
 
         final EncodedPayload result = EncodedPayload.Builder.from(sample).build();
@@ -126,37 +126,37 @@ public class EncodedPayloadBuilderTest {
                 .verify();
 
         assertThat(result.getPrivacyGroupId()).isPresent();
-        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PublicKey.from("PRIVACYGROUPID".getBytes()));
+        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroupId.from("PRIVACYGROUPID".getBytes()));
     }
 
     @Test(expected = RuntimeException.class)
     public void nonPSVButExecHashPresent() {
         EncodedPayload.Builder.create()
-            .withSenderKey(senderKey)
-            .withCipherText(cipherText)
-            .withCipherTextNonce(cipherTextNonce)
-            .withRecipientBox(recipientBox)
-            .withRecipientNonce(recipientNonce)
-            .withPrivacyFlag(1)
-            .withAffectedContractTransactions(affectedContractTransactionsRaw)
-            .withExecHash(execHash)
-            .withRecipientKey(recipientKey)
-            .withPrivacyGroupId(PublicKey.from("PRIVACYGROUPID".getBytes()))
-            .build();
+                .withSenderKey(senderKey)
+                .withCipherText(cipherText)
+                .withCipherTextNonce(cipherTextNonce)
+                .withRecipientBox(recipientBox)
+                .withRecipientNonce(recipientNonce)
+                .withPrivacyFlag(1)
+                .withAffectedContractTransactions(affectedContractTransactionsRaw)
+                .withExecHash(execHash)
+                .withRecipientKey(recipientKey)
+                .withPrivacyGroupId(PrivacyGroupId.from("PRIVACYGROUPID".getBytes()))
+                .build();
     }
 
     @Test(expected = RuntimeException.class)
     public void psvTxWithoutExecHash() {
         EncodedPayload.Builder.create()
-            .withSenderKey(senderKey)
-            .withCipherText(cipherText)
-            .withCipherTextNonce(cipherTextNonce)
-            .withRecipientBox(recipientBox)
-            .withRecipientNonce(recipientNonce)
-            .withPrivacyFlag(3)
-            .withAffectedContractTransactions(affectedContractTransactionsRaw)
-            .withRecipientKey(recipientKey)
-            .withPrivacyGroupId(PublicKey.from("PRIVACYGROUPID".getBytes()))
-            .build();
+                .withSenderKey(senderKey)
+                .withCipherText(cipherText)
+                .withCipherTextNonce(cipherTextNonce)
+                .withRecipientBox(recipientBox)
+                .withRecipientNonce(recipientNonce)
+                .withPrivacyFlag(3)
+                .withAffectedContractTransactions(affectedContractTransactionsRaw)
+                .withRecipientKey(recipientKey)
+                .withPrivacyGroupId(PrivacyGroupId.from("PRIVACYGROUPID".getBytes()))
+                .build();
     }
 }

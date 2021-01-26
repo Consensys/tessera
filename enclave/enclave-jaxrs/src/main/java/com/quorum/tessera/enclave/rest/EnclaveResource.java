@@ -89,7 +89,7 @@ public class EnclaveResource {
                         .withExecHash(payload.getExecHash());
 
         Optional.ofNullable(payload.getPrivacyGroupId())
-                .map(PublicKey::from)
+                .map(PrivacyGroupId::from)
                 .ifPresent(privacyMetaDataBuilder::withPrivacyGroupId);
 
         EncodedPayload outcome =
@@ -127,7 +127,7 @@ public class EnclaveResource {
                         .withExecHash(enclaveRawPayload.getExecHash());
 
         Optional.ofNullable(enclaveRawPayload.getPrivacyGroupId())
-                .map(PublicKey::from)
+                .map(PrivacyGroupId::from)
                 .ifPresent(privacyMetaDataBuilder::withPrivacyGroupId);
 
         EncodedPayload outcome =

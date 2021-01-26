@@ -312,7 +312,7 @@ public class EncoderCompatibilityTest {
                         .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withAffectedContractTransactions(emptyMap())
-                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroupId.from("GROUP_ID".getBytes()))
                         .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
@@ -351,7 +351,7 @@ public class EncoderCompatibilityTest {
                                         "1".getBytes(),
                                         TxHash.from("hash2".getBytes()),
                                         "2".getBytes()))
-                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroupId.from("GROUP_ID".getBytes()))
                         .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
@@ -391,7 +391,7 @@ public class EncoderCompatibilityTest {
                                         TxHash.from("hash2".getBytes()),
                                         "2".getBytes()))
                         .withExecHash("EXEC_HASH".getBytes())
-                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroupId.from("GROUP_ID".getBytes()))
                         .build();
 
         final byte[] encoded = v3Encoder.encode(payload);

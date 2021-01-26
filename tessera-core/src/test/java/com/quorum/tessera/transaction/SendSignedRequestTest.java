@@ -1,6 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class SendSignedRequestTest {
 
         MessageHash affectedTransaction = mock(MessageHash.class);
 
-        PublicKey groupId = mock(PublicKey.class);
+        PrivacyGroupId groupId = mock(PrivacyGroupId.class);
 
         SendSignedRequest request =
                 SendSignedRequest.Builder.create()

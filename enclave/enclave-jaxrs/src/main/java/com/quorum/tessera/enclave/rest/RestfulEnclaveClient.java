@@ -116,7 +116,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     enclavePayload.setExecHash(privacyMetaData.getExecHash());
                     privacyMetaData
                             .getPrivacyGroupId()
-                            .map(PublicKey::getKeyBytes)
+                            .map(PrivacyGroupId::getBytes)
                             .ifPresent(enclavePayload::setPrivacyGroupId);
 
                     Response response = client.target(uri).path("encrypt").request().post(Entity.json(enclavePayload));
@@ -153,7 +153,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
                     privacyMetaData
                             .getPrivacyGroupId()
-                            .map(PublicKey::getKeyBytes)
+                            .map(PrivacyGroupId::getBytes)
                             .ifPresent(enclaveRawPayload::setPrivacyGroupId);
 
                     Response response =

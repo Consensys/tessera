@@ -54,7 +54,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
 
         byte[] privacyGroupId = new byte[0];
         if (payload.getPrivacyGroupId().isPresent()) {
-            privacyGroupId = encodeField(payload.getPrivacyGroupId().get().getKeyBytes());
+            privacyGroupId = encodeField(payload.getPrivacyGroupId().get().getBytes());
         }
 
         return ByteBuffer.allocate(
@@ -209,7 +209,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
                 .withPrivacyMode(privacyMode)
                 .withAffectedContractTransactions(affectedContractTransactions)
                 .withExecHash(executionHash)
-                .withPrivacyGroupId(PublicKey.from(privacyGroupId))
+                .withPrivacyGroupId(PrivacyGroupId.from(privacyGroupId))
                 .build();
     }
 

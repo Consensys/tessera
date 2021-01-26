@@ -8,7 +8,7 @@ import java.util.Objects;
 
 public interface PrivacyGroup {
 
-    PublicKey getPrivacyGroupId();
+    PrivacyGroupId getPrivacyGroupId();
 
     String getName();
 
@@ -34,7 +34,7 @@ public interface PrivacyGroup {
 
     class Builder {
 
-        private PublicKey privacyGroupId;
+        private PrivacyGroupId privacyGroupId;
 
         private String name = "";
 
@@ -52,7 +52,7 @@ public interface PrivacyGroup {
             return new Builder() {};
         }
 
-        public Builder withPrivacyGroupId(final PublicKey privacyGroupId) {
+        public Builder withPrivacyGroupId(final PrivacyGroupId privacyGroupId) {
             this.privacyGroupId = privacyGroupId;
             return this;
         }
@@ -107,7 +107,7 @@ public interface PrivacyGroup {
 
             return new PrivacyGroup() {
                 @Override
-                public PublicKey getPrivacyGroupId() {
+                public PrivacyGroupId getPrivacyGroupId() {
                     return privacyGroupId;
                 }
 

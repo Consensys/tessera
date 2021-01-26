@@ -4,6 +4,7 @@ import com.quorum.tessera.data.PrivacyGroupDAO;
 import com.quorum.tessera.data.PrivacyGroupEntity;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.PrivacyGroup;
+import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.enclave.PrivacyGroupUtil;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotFoundException;
@@ -56,7 +57,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         final PrivacyGroup created =
                 PrivacyGroup.Builder.create()
-                        .withPrivacyGroupId(PublicKey.from(privacyGroupId))
+                        .withPrivacyGroupId(PrivacyGroupId.from(privacyGroupId))
                         .withName(name)
                         .withDescription(description)
                         .withMembers(members)
@@ -95,7 +96,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         final PrivacyGroup created =
                 PrivacyGroup.Builder.create()
-                        .withPrivacyGroupId(PublicKey.from(privacyGroupId))
+                        .withPrivacyGroupId(PrivacyGroupId.from(privacyGroupId))
                         .withName(name)
                         .withDescription(description)
                         .withMembers(members)
@@ -128,9 +129,9 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     }
 
     @Override
-    public PrivacyGroup retrievePrivacyGroup(PublicKey privacyGroupId) {
+    public PrivacyGroup retrievePrivacyGroup(PrivacyGroupId privacyGroupId) {
 
-        final byte[] id = privacyGroupId.getKeyBytes();
+        final byte[] id = privacyGroupId.getBytes();
 
         return privacyGroupDAO
                 .retrieve(id)
@@ -145,7 +146,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         final PrivacyGroup privacyGroup = privacyGroupUtil.decode(encodedData);
 
-        final byte[] id = privacyGroup.getPrivacyGroupId().getKeyBytes();
+        final byte[] id = privacyGroup.getPrivacyGroupId().getBytes();
         final byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
 
         final PrivacyGroupEntity entity = new PrivacyGroupEntity(id, lookupId, encodedData);
@@ -159,7 +160,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     }
 
     @Override
-    public PrivacyGroup deletePrivacyGroup(PublicKey from, PublicKey privacyGroupId) {
+    public PrivacyGroup deletePrivacyGroup(PublicKey from, PrivacyGroupId privacyGroupId) {
 
         final PrivacyGroup retrieved = retrievePrivacyGroup(privacyGroupId);
 
@@ -173,7 +174,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         final byte[] updatedData = privacyGroupUtil.encode(updated);
         final byte[] lookupId = privacyGroupUtil.generateLookupId(updated.getMembers());
         final PrivacyGroupEntity updatedEt =
-                new PrivacyGroupEntity(updated.getPrivacyGroupId().getKeyBytes(), lookupId, updatedData);
+                new PrivacyGroupEntity(updated.getPrivacyGroupId().getBytes(), lookupId, updatedData);
 
         final Set<PublicKey> localKeys = enclave.getPublicKeys();
         final List<PublicKey> forwardingMembers =

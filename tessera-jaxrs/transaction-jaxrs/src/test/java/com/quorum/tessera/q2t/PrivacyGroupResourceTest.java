@@ -2,6 +2,7 @@ package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.*;
 import com.quorum.tessera.enclave.PrivacyGroup;
+import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.util.Base64Codec;
@@ -61,7 +62,7 @@ public class PrivacyGroupResourceTest {
         mockResult = mock(PrivacyGroup.class);
         when(mockResult.getName()).thenReturn("name");
         when(mockResult.getDescription()).thenReturn("description");
-        when(mockResult.getPrivacyGroupId()).thenReturn(PublicKey.from("id".getBytes()));
+        when(mockResult.getPrivacyGroupId()).thenReturn(PrivacyGroupId.from("id".getBytes()));
         when(mockResult.getMembers())
                 .thenReturn(List.of(PublicKey.from("member1".getBytes()), PublicKey.from("member2".getBytes())));
         when(mockResult.getType()).thenReturn(PrivacyGroup.Type.PANTHEON);
@@ -137,7 +138,7 @@ public class PrivacyGroupResourceTest {
         assertThat(result.getName()).isEqualTo(mockResult.getName());
         assertThat(result.getDescription()).isEqualTo(mockResult.getDescription());
         assertThat(result.getMembers()).isEqualTo(req.getAddresses());
-        assertThat(result.getPrivacyGroupId()).isEqualTo(mockResult.getPrivacyGroupId().encodeToBase64());
+        assertThat(result.getPrivacyGroupId()).isEqualTo(mockResult.getPrivacyGroupId().getBase64());
         assertThat(result.getType()).isEqualTo(mockResult.getType().name());
 
         verify(privacyGroupManager).findPrivacyGroup(members);
@@ -162,10 +163,10 @@ public class PrivacyGroupResourceTest {
         assertThat(res.getDescription()).isEqualTo(mockResult.getDescription());
         assertThat(res.getMembers())
                 .isEqualTo(mockResult.getMembers().stream().map(PublicKey::encodeToBase64).toArray());
-        assertThat(res.getPrivacyGroupId()).isEqualTo(mockResult.getPrivacyGroupId().encodeToBase64());
+        assertThat(res.getPrivacyGroupId()).isEqualTo(mockResult.getPrivacyGroupId().getBase64());
         assertThat(res.getType()).isEqualTo(mockResult.getType().name());
 
-        verify(privacyGroupManager).retrievePrivacyGroup(PublicKey.from("id".getBytes()));
+        verify(privacyGroupManager).retrievePrivacyGroup(PrivacyGroupId.from("id".getBytes()));
     }
 
     @Test

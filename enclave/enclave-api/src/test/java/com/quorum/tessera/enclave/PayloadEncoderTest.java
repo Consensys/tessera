@@ -1587,7 +1587,7 @@ public class PayloadEncoderTest {
         recipientBoxes.add("box".getBytes());
         recipientBoxes.add("anotherBox".getBytes());
 
-        final PublicKey groupId = PublicKey.from("group".getBytes());
+        final PrivacyGroupId groupId = PrivacyGroupId.from("group".getBytes());
 
         final EncodedPayload originalPayload =
                 EncodedPayload.Builder.create()

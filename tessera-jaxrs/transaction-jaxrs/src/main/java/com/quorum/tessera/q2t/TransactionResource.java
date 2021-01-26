@@ -5,6 +5,7 @@ import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyGroup;
+import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
@@ -79,8 +80,8 @@ public class TransactionResource {
                         .map(PublicKey::from)
                         .orElseGet(transactionManager::defaultPublicKey);
 
-        final Optional<PublicKey> optionalPrivacyGroup =
-                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(base64Decoder::decode).map(PublicKey::from);
+        final Optional<PrivacyGroupId> optionalPrivacyGroup =
+                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroupId::from);
 
         final List<PublicKey> recipientList =
                 optionalPrivacyGroup
@@ -199,13 +200,11 @@ public class TransactionResource {
     public Response sendSignedTransactionEnhanced(
             @NotNull @Valid @PrivacyValid final SendSignedRequest sendSignedRequest) {
 
-        final Optional<PublicKey> optionalPrivacyGroup =
-                Optional.ofNullable(sendSignedRequest.getPrivacyGroupId())
-                        .map(base64Decoder::decode)
-                        .map(PublicKey::from);
+        final Optional<PrivacyGroupId> privacyGroupId =
+                Optional.ofNullable(sendSignedRequest.getPrivacyGroupId()).map(PrivacyGroupId::from);
 
         final List<PublicKey> recipients =
-                optionalPrivacyGroup
+                privacyGroupId
                         .map(privacyGroupManager::retrievePrivacyGroup)
                         .map(PrivacyGroup::getMembers)
                         .orElse(
@@ -235,7 +234,7 @@ public class TransactionResource {
                         .withPrivacyMode(privacyMode)
                         .withAffectedContractTransactions(affectedTransactions)
                         .withExecHash(execHash);
-        optionalPrivacyGroup.ifPresent(requestBuilder::withPrivacyGroupId);
+        privacyGroupId.ifPresent(requestBuilder::withPrivacyGroupId);
 
         final com.quorum.tessera.transaction.SendResponse response =
                 transactionManager.sendSignedTransaction(requestBuilder.build());
@@ -399,7 +398,7 @@ public class TransactionResource {
 
         receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
 
-        response.getPrivacyGroupId().map(PublicKey::encodeToBase64).ifPresent(receiveResponse::setPrivacyGroupId);
+        response.getPrivacyGroupId().map(PrivacyGroupId::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
 
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
     }

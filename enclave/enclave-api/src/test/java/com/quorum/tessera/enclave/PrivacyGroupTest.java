@@ -13,7 +13,7 @@ public class PrivacyGroupTest {
     @Test
     public void buildWithEverything() {
 
-        PublicKey privacyGroupId = mock(PublicKey.class);
+        PrivacyGroupId privacyGroupId = mock(PrivacyGroupId.class);
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
         byte[] seed = "seed".getBytes();
 
@@ -40,7 +40,7 @@ public class PrivacyGroupTest {
 
     @Test
     public void buildFrom() {
-        final PublicKey privacyGroupId = mock(PublicKey.class);
+        final PrivacyGroupId privacyGroupId = mock(PrivacyGroupId.class);
         final List<PublicKey> recipients = List.of(mock(PublicKey.class));
         byte[] seed = "seed".getBytes();
 
@@ -75,18 +75,18 @@ public class PrivacyGroupTest {
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutMembers() {
-        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PublicKey.class)).build();
+        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PrivacyGroupId.class)).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutState() {
-        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PublicKey.class)).withMembers(List.of()).build();
+        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PrivacyGroupId.class)).withMembers(List.of()).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutType() {
         PrivacyGroup.Builder.create()
-                .withPrivacyGroupId(mock(PublicKey.class))
+                .withPrivacyGroupId(mock(PrivacyGroupId.class))
                 .withMembers(List.of())
                 .withState(PrivacyGroup.State.ACTIVE)
                 .build();
