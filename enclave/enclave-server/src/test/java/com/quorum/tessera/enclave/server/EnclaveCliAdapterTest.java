@@ -48,7 +48,7 @@ public class EnclaveCliAdapterTest {
     }
 
     @Test
-    public void missingConfigurationOutputsErrorMessage() {
+    public void missingConfigurationOutputsErrorMessageAndUsage() {
         commandLine.execute();
         final CliResult result = commandLine.getExecutionResult();
 
@@ -56,7 +56,34 @@ public class EnclaveCliAdapterTest {
 
         assertThat(result).isNull();
 //        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
-        assertThat(output).contains("Missing required option '-configfile <config>'");
+        assertThat(output).contains("Missing required option: '--configfile <config>'");
+
+        assertThat(output)
+            .contains(
+                "Usage:",
+                "Run a standalone enclave to perform encryption/decryption operations",
+                "enclave -configfile <config> [-pidfile <pidFilePath>] [COMMAND]");
+
+        assertThat(output)
+            .contains(
+                "Description:",
+                "Run a standalone enclave, which will perform encryption/decryption operations",
+                "for a transaction manager. This means that the transaction manager does not",
+                "perform any of the operations inside its own process, shielding the user from");
+
+        assertThat(output)
+            .contains(
+                "Options:",
+                "      -configfile, --configfile <config>",
+                "         Path to enclave configuration file",
+                "      -pidfile, --pidfile <pidFilePath>",
+                "         Create a file at the specified path containing the process' ID (PID)");
+
+        assertThat(output)
+            .contains(
+                "Commands:",
+                " help  Displays help information about the specified command"
+            );
     }
 
     @Test
@@ -72,7 +99,7 @@ public class EnclaveCliAdapterTest {
                 .contains(
                         "Usage:",
                         "Run a standalone enclave to perform encryption/decryption operations",
-                        "<main class> [help] -configfile <config> [-pidfile <pidFilePath>]");
+                        "enclave -configfile <config> [-pidfile <pidFilePath>] [COMMAND]");
 
         assertThat(output)
                 .contains(
@@ -84,9 +111,16 @@ public class EnclaveCliAdapterTest {
         assertThat(output)
                 .contains(
                         "Options:",
-                        "      -configfile <config>   path to configuration file",
-                        "      help                   display this help message",
-                        "      -pidfile <pidFilePath> the path to write the PID to");
+                        "      -configfile, --configfile <config>",
+                        "         Path to enclave configuration file",
+                        "      -pidfile, --pidfile <pidFilePath>",
+                        "         Create a file at the specified path containing the process' ID (PID)");
+
+        assertThat(output)
+                .contains(
+                        "Commands:",
+                        " help  Displays help information about the specified command"
+                );
     }
 
     @Test

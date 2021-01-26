@@ -12,7 +12,7 @@ Feature: Hashicorp Vault support
         And the configfile contains the correct key data
         When Tessera is started with the following CLI args and token environment variable
             """
-            -configfile %s -pidfile %s -jdbc.autoCreateTables true
+            -configfile %s -pidfile %s -o jdbc.autoCreateTables=true
             """
         Then Tessera will retrieve the key pair from the vault
 
@@ -23,7 +23,7 @@ Feature: Hashicorp Vault support
         And the configfile contains the correct key data
         When Tessera is started with the following CLI args and approle environment variables
             """
-            -configfile %s -pidfile %s -jdbc.autoCreateTables true
+            -configfile %s -pidfile %s -o jdbc.autoCreateTables=true
             """
         Then Tessera will retrieve the key pair from the vault
 
@@ -34,7 +34,7 @@ Feature: Hashicorp Vault support
         And the configfile contains the correct key data
         When Tessera is started with the following CLI args and approle environment variables
             """
-            -configfile %s -pidfile %s -jdbc.autoCreateTables true
+            -configfile %s -pidfile %s -o jdbc.autoCreateTables=true
             """
         Then Tessera will retrieve the key pair from the vault
 

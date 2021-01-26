@@ -79,7 +79,7 @@ public class CmdLineExecutorTest {
         final CliResult result = commandLine.getExecutionResult();
 
         final String expectedLog =
-                "Missing required options [-storetype <storeType>, -inputpath <inputpath>, -exporttype <exportType>, -outputfile <outputFile>]";
+                "Missing required options: '-storetype <storeType>', '-inputpath <inputpath>', '-exporttype <exportType>', '-outputfile <outputFile>'";
 
         //        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
         assertThat(result).isNull();
@@ -93,7 +93,8 @@ public class CmdLineExecutorTest {
                     "-inputpath", "somefile.txt",
                     "-exporttype", "h2",
                     "-outputfile", outputPath.toString(),
-                    "-dbpass", "-dbuser"
+                    "-dbpass", "",
+                    "-dbuser", "admin"
                 };
 
         commandLine.execute(args);
@@ -101,7 +102,7 @@ public class CmdLineExecutorTest {
 
         //        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
         assertThat(result).isNull();
-        assertThat(systemErrRule.getLog()).contains("Missing required option '-storetype <storeType>'");
+        assertThat(systemErrRule.getLog()).contains("Missing required option: '-storetype <storeType>'");
     }
 
     @Test
@@ -111,7 +112,8 @@ public class CmdLineExecutorTest {
                     "-storetype", "bdb",
                     "-exporttype", "h2",
                     "-outputfile", outputPath.toString(),
-                    "-dbpass", "-dbuser"
+                    "-dbpass", "",
+                    "-dbuser", "admin"
                 };
 
         commandLine.execute(args);
@@ -119,7 +121,7 @@ public class CmdLineExecutorTest {
 
         //        assertThat(result).isEqualToComparingFieldByField(new CliResult(1, true, null));
         assertThat(result).isNull();
-        assertThat(systemErrRule.getLog()).contains("Missing required option '-inputpath <inputpath>'");
+        assertThat(systemErrRule.getLog()).contains("Missing required option: '-inputpath <inputpath>'");
     }
 
     @Test
@@ -166,7 +168,8 @@ public class CmdLineExecutorTest {
                     "-inputpath", inputFile.toString(),
                     "-outputfile", outputPath.toString(),
                     "-exporttype", "jdbc",
-                    "-dbpass", "-dbuser"
+                    "-dbpass", "",
+                    "-dbuser", "admin"
                 };
 
         commandLine.execute(args);
@@ -202,12 +205,15 @@ public class CmdLineExecutorTest {
                         "jdbc",
                         "-dbconfig",
                         dbConfigPath,
-                        "-dbpass",
-                        "-dbuser"
+                        "-dbpass", "",
+                        "-dbuser", ""
                     };
 
             commandLine.execute(args);
             final CliResult result = commandLine.getExecutionResult();
+
+            assertThat(result).isNotNull();
+            assertThat(systemErrRule.getLog()).isEmpty();
         } finally {
             mockObjectFactory.restoreDrivers();
         }

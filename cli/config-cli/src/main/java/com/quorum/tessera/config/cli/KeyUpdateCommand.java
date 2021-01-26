@@ -29,16 +29,13 @@ import static java.util.Collections.singletonList;
 @CommandLine.Command(
         name = "keyupdate",
         aliases = {"-updatepassword"},
-        headerHeading = "Usage:%n%n",
-        synopsisHeading = "%n",
-        descriptionHeading = "%nDescription:%n%n",
-        parameterListHeading = "%nParameters:%n",
-        optionListHeading = "%nOptions:%n",
         header = "Update the password for a key",
-        description =
-                "Change the password or update the encryption options for an already locked key, or apply a new password to an unlocked key",
-        subcommands = {CommandLine.HelpCommand.class},
-        abbreviateSynopsis = true)
+        descriptionHeading = "%nDescription: ",
+        description = "Change the password or update the encryption options for an already locked key, or apply a new password to an unlocked key",
+        commandListHeading = "%nCommands:%n",
+        optionListHeading = "%nOptions:%n",
+        abbreviateSynopsis = true,
+        subcommands = {CommandLine.HelpCommand.class})
 public class KeyUpdateCommand implements Callable<CliResult> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KeyUpdateCommand.class);
