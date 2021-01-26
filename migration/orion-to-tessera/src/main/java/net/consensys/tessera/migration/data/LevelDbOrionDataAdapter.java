@@ -2,82 +2,81 @@ package net.consensys.tessera.migration.data;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmax.disruptor.dsl.Disruptor;
+import com.quorum.tessera.enclave.RecipientBox;
+import com.quorum.tessera.encryption.PublicKey;
+import net.consensys.orion.enclave.EncryptedPayload;
 import net.consensys.orion.enclave.PrivacyGroupPayload;
-import net.consensys.orion.http.handler.privacy.PrivacyGroup;
+import net.consensys.tessera.migration.OrionKeyHelper;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
 
 import javax.json.*;
-import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class LevelDbOrionDataAdapter implements OrionDataAdapter {
 
-    private DB leveldb;
+    private final DB leveldb;
 
-    private ObjectMapper cborObjectMapper;
+    private final ObjectMapper cborObjectMapper;
 
-    private Disruptor<OrionEvent> disruptor;
+    private final Disruptor<OrionEvent> disruptor;
 
-    private volatile Long totalRecords;
+    private final OrionKeyHelper orionKeyHelper;
 
-    public LevelDbOrionDataAdapter(DB leveldb, ObjectMapper cborObjectMapper, Disruptor<OrionEvent> disruptor) {
-        this.leveldb = leveldb;
-        this.cborObjectMapper = cborObjectMapper;
-        this.disruptor = disruptor;
+    private OrionEventFactory orionEventFactory;
+
+    public LevelDbOrionDataAdapter(DB leveldb, ObjectMapper cborObjectMapper, Disruptor<OrionEvent> disruptor,OrionKeyHelper orionKeyHelper) {
+        this.leveldb = Objects.requireNonNull(leveldb);
+        this.cborObjectMapper = Objects.requireNonNull(cborObjectMapper);
+        this.disruptor = Objects.requireNonNull(disruptor);
+        this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
     }
 
     @Override
     public void start() throws Exception {
 
-        if (totalRecords == null) {
+        if (orionEventFactory == null) {
+
             DBIterator iterator = leveldb.iterator();
             AtomicLong counter = new AtomicLong(0);
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
                 counter.incrementAndGet();
             }
-            this.totalRecords = counter.get();
+            orionEventFactory = new OrionEventFactory(counter.get());
         }
 
         DBIterator iterator = leveldb.iterator();
-        AtomicLong counter = new AtomicLong(0);
         for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
             Map.Entry<byte[], byte[]> entry = iterator.peekNext();
 
-            JsonObject jsonObject = cborObjectMapper.readValue(entry.getValue(), JsonObject.class);
+            final JsonObject jsonObject = cborObjectMapper.readValue(entry.getValue(), JsonObject.class);
 
-            PayloadType payloadType = PayloadType.get(jsonObject);
+            final PayloadType payloadType = PayloadType.get(jsonObject);
+
+            final OrionEvent orionEvent;
 
             if(payloadType == PayloadType.ENCRYPTED_PAYLOAD) {
-                JsonUtil.prettyPrint(jsonObject, System.out);
-                byte[] privacyGroupId = Optional.of(jsonObject)
-                    .map(j -> j.getString("privacyGroupId"))
-                    .map(String::getBytes)
-                    .get();
 
+                EncryptedPayload encryptedPayload = cborObjectMapper.readValue(entry.getValue(),EncryptedPayload.class);
+
+                byte[] privacyGroupId = encryptedPayload.privacyGroupId();
                 byte[] privacyGroupData = leveldb.get(privacyGroupId);
 
+                final Map<PublicKey, RecipientBox> recipientBoxMap;
                 if(privacyGroupData != null) {
-                    JsonObject privacyGroup = cborObjectMapper.readValue(privacyGroupData, JsonObject.class);
-                    List<String> recipientBoxes = privacyGroup.getJsonArray("addresses").stream()
-                        .map(JsonString.class::cast)
-                        .map(JsonString::getString)
-                        .collect(Collectors.toList());
-
-                    jsonObject = Json.createObjectBuilder(jsonObject)
-                        .add("recipientBoxes",Json.createArrayBuilder(recipientBoxes)).build();
-
+                    PrivacyGroupPayload privacyGroup = cborObjectMapper.readValue(privacyGroupData, PrivacyGroupPayload.class);
+                    recipientBoxMap = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup).getRecipientMapping();
+                } else {
+                    recipientBoxMap = Map.of();
                 }
+                orionEvent = orionEventFactory.create(payloadType,entry.getKey(),entry.getValue(),jsonObject,recipientBoxMap);
+            } else {
+                orionEvent = orionEventFactory.create(payloadType,entry.getKey(),entry.getValue(),jsonObject,null);
             }
 
+            disruptor.publishEvent(orionEvent);
 
-
-            System.out.println("Publish " + payloadType);
-            JsonUtil.prettyPrint(jsonObject, System.out);
-            disruptor.publishEvent(new OrionEvent(payloadType, jsonObject, entry.getKey(), entry.getValue(), totalRecords, counter.incrementAndGet()));
 
         }
 

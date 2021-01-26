@@ -2,7 +2,12 @@ package net.consensys.tessera.migration.data;
 
 import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventTranslator;
+import com.quorum.tessera.enclave.RecipientBox;
+import com.quorum.tessera.encryption.PublicKey;
+
 import javax.json.JsonObject;
+import java.util.Map;
+import java.util.Optional;
 
 public class OrionEvent implements EventTranslator<OrionEvent> {
 
@@ -18,19 +23,21 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
 
     private byte[] value;
 
+    private Map<PublicKey, RecipientBox> recipientBoxMap;
 
     static final EventFactory<OrionEvent> FACTORY = () -> new OrionEvent();
 
     private OrionEvent() {
     }
 
-    public OrionEvent(PayloadType payloadType,JsonObject jsonObject,byte[] key, byte[] value,Long totalEventCount,Long eventNumber) {
+    public OrionEvent(PayloadType payloadType,JsonObject jsonObject,byte[] key, byte[] value,Long totalEventCount,Long eventNumber,Map<PublicKey, RecipientBox> recipientBoxMap) {
         this.key = key;
         this.value = value;
         this.jsonObject = jsonObject;
         this.payloadType = payloadType;
         this.totalEventCount = totalEventCount;
         this.eventNumber = eventNumber;
+        this.recipientBoxMap = recipientBoxMap;
     }
 
     @Override
@@ -76,7 +83,9 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
         return eventNumber;
     }
 
-
+    public Optional<Map<PublicKey, RecipientBox>> getRecipientBoxMap() {
+        return Optional.ofNullable(recipientBoxMap);
+    }
 
     @Override
     public String toString() {

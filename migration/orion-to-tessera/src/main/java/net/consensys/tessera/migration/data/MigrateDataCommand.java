@@ -66,11 +66,11 @@ public class MigrateDataCommand implements Callable<Boolean> {
         switch (inputType) {
             case LEVELDB:
                 inboundAdapter =
-                        new LevelDbOrionDataAdapter(inboundDbHelper.getLevelDb().get(), cborObjectMapper, disruptor);
+                        new LevelDbOrionDataAdapter(inboundDbHelper.getLevelDb().get(), cborObjectMapper, disruptor,orionKeyHelper);
                 break;
             case JDBC:
                 DataSource dataSource = inboundDbHelper.getJdbcDataSource().get();
-                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, disruptor);
+                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, disruptor,orionKeyHelper);
                 break;
             default:
                 throw new UnsupportedOperationException("");

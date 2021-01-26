@@ -1,16 +1,21 @@
 package net.consensys.tessera.migration.data;
 
-import com.lmax.disruptor.EventHandler;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.RecipientBox;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import javax.json.JsonObject;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 public class PersistTransactionEventHandler implements OrionEventHandler {
@@ -50,32 +55,22 @@ public class PersistTransactionEventHandler implements OrionEventHandler {
             .map(Base64.getDecoder()::decode)
             .get();
 
+
+        Map<PublicKey, RecipientBox> recipientKeyToBoxes = event.getRecipientBoxMap().orElse(Map.of());
+
             EncodedPayload encodedPayload = EncodedPayload.Builder.create()
                 .withPrivacyGroupId(privacyGroupId)
+                .withRecipientKeys(List.copyOf(recipientKeyToBoxes.keySet()))
+                .withRecipientBoxes(recipientKeyToBoxes.values()
+                    .stream()
+                    .map(RecipientBox::getData)
+                    .collect(Collectors.toList()))
                 .withSenderKey(senderKey)
                 .withCipherTextNonce(new Nonce(new byte[24]))
                 .withCipherText(cipherText)
                 .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                 .withRecipientNonce(nonce)
-
             .build();
-
-//        PublicKey privacyGroupId = PublicKey.from()
-//
-//        EncodedPayload encodedPayload =
-//            EncodedPayload.Builder.create()
-//                .withRecipientKeys(List.copyOf(recipientKeyToBoxes.keySet()))
-//                .withRecipientBoxes(
-//                    recipientKeyToBoxes.values().stream()
-//                        .map(EncryptedKey::getEncoded)
-//                        .collect(Collectors.toList()))
-//                .withSenderKey(sender)
-//                .withPrivacyGroupId(PublicKey.from(orionPrivacyGroupId))
-//                .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-//                .withRecipientNonce(recipientNonce)
-//                .withCipherTextNonce(new Nonce(new byte[24]))
-//                .withCipherText(ciperText)
-//                .build();
 
         MessageHash messageHash =
             Optional.of(event)
@@ -87,6 +82,12 @@ public class PersistTransactionEventHandler implements OrionEventHandler {
         EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
         encryptedTransaction.setHash(messageHash);
 
+        PayloadEncoder payloadEncoder = PayloadEncoder.create();
+        byte[] enccodedPayloadData = payloadEncoder.encode(encodedPayload);
+        encryptedTransaction.setEncodedPayload(enccodedPayloadData);
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.persist(encryptedTransaction);
 
 
 
