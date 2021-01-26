@@ -28,7 +28,7 @@ public class EntityManagerDAOFactory {
     private static final EncryptedStringResolver encryptedStringResolver = new EncryptedStringResolver();
 
     private EntityManagerDAOFactory(
-            EntityManagerFactory entityManagerFactory, EntityManagerFactory stagingEntityManagerFactory) {
+        EntityManagerFactory entityManagerFactory, EntityManagerFactory stagingEntityManagerFactory) {
         this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);
         this.stagingEntityManagerFactory = Objects.requireNonNull(stagingEntityManagerFactory);
     }
@@ -56,8 +56,8 @@ public class EntityManagerDAOFactory {
         properties.put("eclipselink.logging.parameters", "true");
         properties.put("eclipselink.logging.level.sql", "FINE");
         properties.put(
-                "javax.persistence.schema-generation.database.action",
-                config.getJdbcConfig().isAutoCreateTables() ? "create" : "none");
+            "javax.persistence.schema-generation.database.action",
+            config.getJdbcConfig().isAutoCreateTables() ? "create" : "none");
 
         LOGGER.debug("Creating EntityManagerFactory from {}", properties);
         final EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
@@ -68,7 +68,7 @@ public class EntityManagerDAOFactory {
         stagingProperties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
 
         final EntityManagerFactory stagingEntityManagerFactory =
-                Persistence.createEntityManagerFactory("tessera-recover", stagingProperties);
+            Persistence.createEntityManagerFactory("tessera-recover", stagingProperties);
 
         return new EntityManagerDAOFactory(entityManagerFactory, stagingEntityManagerFactory);
     }
@@ -81,6 +81,11 @@ public class EntityManagerDAOFactory {
     public EncryptedRawTransactionDAO createEncryptedRawTransactionDAO() {
         LOGGER.debug("Create EncryptedRawTransactionDAO");
         return new EncryptedRawTransactionDAOImpl(entityManagerFactory);
+    }
+
+    public PrivacyGroupDAO createPrivacyGroupDAO() {
+        LOGGER.debug("Create PrivacyGroupDAO");
+        return new PrivacyGroupDAOImpl(entityManagerFactory);
     }
 
     public StagingEntityDAO createStagingEntityDAO() {
