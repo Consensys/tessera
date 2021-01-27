@@ -11,14 +11,15 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import java.util.Base64;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
 
-    private EntityManagerFactory entityManagerFactory;
+    private final EntityManagerFactory entityManagerFactory;
 
     public PersistPrivacyGroupEventHandler(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerFactory = entityManagerFactory;
+        this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);
     }
 
     @Override
@@ -54,9 +55,7 @@ public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
             .withState(state)
             .build();
 
-
         PrivacyGroupUtil privacyGroupUtil = PrivacyGroupUtil.create();
-
         byte[] privacyGroupData = privacyGroupUtil.encode(privacyGroup);
         byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
 
