@@ -143,17 +143,19 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         final PrivacyGroup privacyGroup = privacyGroupUtil.decode(encodedData);
 
-        final byte[] id = privacyGroup.getId().getBytes();
-        final byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
-
-        final PrivacyGroupEntity entity = new PrivacyGroupEntity(id, lookupId, encodedData);
-
-        if (privacyGroupDAO.retrieve(id).isPresent()) {
-            privacyGroupDAO.update(entity);
+        if (privacyGroup.getState() == PrivacyGroup.State.DELETED) {
+            privacyGroupDAO.retrieve(privacyGroup.getId().getBytes()).ifPresent(et -> {
+                    et.setData(encodedData);
+                    privacyGroupDAO.update(et);
+            });
             return;
         }
+        final byte[] id = privacyGroup.getId().getBytes();
+        final byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
+        final PrivacyGroupEntity newEntity = new PrivacyGroupEntity(id, lookupId, encodedData);
 
-        privacyGroupDAO.save(entity);
+        privacyGroupDAO.save(newEntity);
+
     }
 
     @Override
