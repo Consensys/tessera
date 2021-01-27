@@ -110,7 +110,7 @@ public class MigrateConfigCommand implements Callable<Config> {
                 });
         config.setPeers(otherNodes.stream().map(Peer::new).collect(Collectors.toList()));
 
-        config.setJdbcConfig(JdbcConfigBuilder.create().buildDefault());
+        config.setJdbcConfig(new JdbcConfig());
 
         ServerConfig q2tServer =
                 ServerConfigBuilder.create()

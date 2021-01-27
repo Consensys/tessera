@@ -1,7 +1,13 @@
 package net.consensys.tessera.migration.data;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.quorum.tessera.encryption.Encryptor;
@@ -11,10 +17,13 @@ import net.consensys.tessera.migration.OrionKeyHelper;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.sql.DataSource;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.IntStream;
 
 public class MigrateDataCommand implements Callable<Boolean> {
 
@@ -26,7 +35,11 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
     private InboundDbHelper inboundDbHelper;
 
-    private ObjectMapper cborObjectMapper = JacksonObjectMapperFactory.createCborObjectMapper();
+    private ObjectMapper cborObjectMapper = JsonMapper.builder(new CBORFactory())
+        .addModule(new Jdk8Module())
+        .addModule(new JSR353Module())
+        .serializationInclusion(JsonInclude.Include.NON_NULL)
+        .build();
 
     static EntityManagerFactory createEntityManagerFactory(TesseraJdbcOptions jdbcOptions) {
         Map jdbcProperties = new HashMap<>();
@@ -77,13 +90,16 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
         EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
 
-        PersistPrivacyGroupEventHandler persistPrivacyGroupEventHandler = new PersistPrivacyGroupEventHandler(entityManagerFactory);
-        PersistTransactionEventHandler persistTransactionEventHandler = new PersistTransactionEventHandler(entityManagerFactory);
+        List<EventHandler<OrionEvent>> handlers = new ArrayList<>();
+        for(int i = 0;i < 10;i++) {
+            handlers.add(new PersistPrivacyGroupEventHandler(entityManagerFactory));
+            handlers.add(new PersistTransactionEventHandler(entityManagerFactory));
+        }
+
         CompletionHandler completionHandler = new CompletionHandler();
+
         disruptor
-                .handleEventsWith(
-                    persistPrivacyGroupEventHandler,
-                    persistTransactionEventHandler)
+                .handleEventsWith(handlers.toArray(EventHandler[]::new))
                     .then(completionHandler);
 
         disruptor.start();

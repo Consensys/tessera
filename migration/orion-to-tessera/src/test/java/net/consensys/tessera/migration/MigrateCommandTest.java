@@ -3,7 +3,6 @@ package net.consensys.tessera.migration;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.util.JaxbUtil;
-import net.consensys.tessera.migration.config.JdbcConfigBuilder;
 import org.junit.Before;
 import org.junit.Test;
 import picocli.CommandLine;
@@ -95,7 +94,9 @@ public class MigrateCommandTest {
 
         JaxbUtil.marshalWithNoValidation(config, System.out);
 
-        assertThat(config.getJdbcConfig())
-                .isEqualTo(JdbcConfigBuilder.create().withUser(dbuser).withUrl(dburl).withPassword(dbpassword).build());
+        assertThat(config.getJdbcConfig()).isNotNull();
+        assertThat(config.getJdbcConfig().getUsername()).isEqualTo(dbuser);
+        assertThat(config.getJdbcConfig().getPassword()).isEqualTo(dbpassword);
+        assertThat(config.getJdbcConfig().getUrl()).isEqualTo(dburl);
     }
 }

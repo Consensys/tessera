@@ -7,9 +7,6 @@ plugins {
 group "net.consensys.quorum.tessera"
 version "1.0-SNAPSHOT"
 
-sourceCompatibility = 11
-targetCompatibility = 11
-
 repositories {
     mavenCentral()
 }
@@ -42,7 +39,6 @@ configurations.all {
     exclude group: "javax.activation"
     exclude group: "org.glassfish.jaxb"
 }
-
 
 dependencies {
 
@@ -149,6 +145,13 @@ test {
 
     forkEvery = 1;
     workingDir = "build/resources/test"
+
+    jacoco {
+        enabled = false
+    }
 }
+
+
+
 
 //modularity.disableEffectiveArgumentsAdjustment()
