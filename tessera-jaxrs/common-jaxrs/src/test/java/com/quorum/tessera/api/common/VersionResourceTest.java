@@ -33,6 +33,6 @@ public class VersionResourceTest {
     public void getVersions() {
         assertThat(instance.getVersions())
                 .containsExactlyElementsOf(
-                        Stream.of("1.0", "2.0", "2.1").map(Json::createValue).collect(Collectors.toSet()));
+                        Stream.of("1.0", "2.0", "2.1", "3.0").map(Json::createValue).collect(Collectors.toSet()));
     }
 }
