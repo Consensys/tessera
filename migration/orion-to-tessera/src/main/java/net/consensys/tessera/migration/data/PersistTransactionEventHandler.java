@@ -32,9 +32,6 @@ public class PersistTransactionEventHandler implements OrionEventHandler {
             return;
         }
 
-        System.out.println("Save event");
-        JsonUtil.prettyPrint(event.getJsonObject(),System.out);
-
         JsonObject jsonObject = event.getJsonObject();
 
         PublicKey privacyGroupId = Optional.of(jsonObject)
@@ -88,9 +85,6 @@ public class PersistTransactionEventHandler implements OrionEventHandler {
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
         entityManager.persist(encryptedTransaction);
-
-
-
 
     }
 }
