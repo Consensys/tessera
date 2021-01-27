@@ -12,6 +12,7 @@ import javax.persistence.EntityManagerFactory;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
@@ -46,6 +47,11 @@ public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
         PrivacyGroup.State state = PrivacyGroup.State.valueOf(jsonObject.getString("state"));
         PrivacyGroup.Type type = PrivacyGroup.Type.valueOf(jsonObject.getString("type"));
 
+        byte[] seed = Optional.of(jsonObject)
+            .map(j -> j.getString("randomSeed"))
+            .map(Base64.getDecoder()::decode)
+            .get();
+
         PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
             .withPrivacyGroupId(privacyGroupId)
             .withDescription(description)
@@ -53,6 +59,7 @@ public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
             .withMembers(members)
             .withType(type)
             .withState(state)
+            .withSeed(seed)
             .build();
 
         PrivacyGroupUtil privacyGroupUtil = PrivacyGroupUtil.create();
