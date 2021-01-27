@@ -65,6 +65,9 @@ public class Config extends ConfigItem {
 
     @XmlTransient private boolean recoveryMode;
 
+    @XmlElement(name = "mode")
+    private ClientMode clientMode = ClientMode.TESSERA;
+
     @Deprecated
     public Config(
             final JdbcConfig jdbcConfig,
@@ -220,5 +223,13 @@ public class Config extends ConfigItem {
 
     public void setRecoveryMode(boolean recoveryMode) {
         this.recoveryMode = recoveryMode;
+    }
+
+    public ClientMode getClientMode() {
+        return clientMode;
+    }
+
+    public void setClientMode(ClientMode clientMode) {
+        this.clientMode = clientMode;
     }
 }
