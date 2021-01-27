@@ -3,6 +3,7 @@ package net.consensys.tessera.migration.data;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.quorum.tessera.enclave.RecipientBox;
+import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.PublicKey;
 import net.consensys.orion.enclave.EncryptedPayload;
 import net.consensys.orion.enclave.PrivacyGroupPayload;
@@ -16,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class JdbcOrionDataAdapter implements OrionDataAdapter {
 
@@ -27,16 +29,20 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
 
     private final OrionKeyHelper orionKeyHelper;
 
-    private volatile Long totalRecords;
+    private final AtomicLong totalRecords = new AtomicLong(0);
+
+    private final EncryptedKeyMatcher encryptedKeyMatcher;
 
     public JdbcOrionDataAdapter(DataSource dataSource,
                                 ObjectMapper cborObjectMapper,
                                 Disruptor<OrionEvent> disruptor,
-                                OrionKeyHelper orionKeyHelper) {
+                                OrionKeyHelper orionKeyHelper,
+                                Encryptor encryptor) {
         this.dataSource = Objects.requireNonNull(dataSource);
         this.cborObjectMapper = Objects.requireNonNull(cborObjectMapper);
         this.disruptor = Objects.requireNonNull(disruptor);
         this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
+        this.encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptor);
     }
 
     @Override
@@ -51,7 +57,7 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
         if(Objects.isNull(totalRecords)) {
             try(ResultSet countRs = statement.executeQuery("SELECT COUNT(*) FROM STORE")) {
                 countRs.next();
-                totalRecords = countRs.getLong(1);
+                totalRecords.set(countRs.getLong(1));
             }
         }
 
@@ -59,14 +65,15 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
                 statement;
                 resultSet) {
 
-            for (long i = 1;resultSet.next();i++) {
+            for (long eventNumber = 1;resultSet.next();eventNumber++) {
                 byte[] key = resultSet.getBytes("KEY");
                 byte[] value = resultSet.getBytes("VALUE");
 
                 JsonObject jsonObject = cborObjectMapper.readValue(value, JsonObject.class);
                 PayloadType payloadType = PayloadType.get(jsonObject);
-                final OrionEvent.Builder orionEvent = OrionEvent.Builder.create()
-                    .withTotalEventCount(totalRecords)
+                final OrionEvent.Builder orionEventBuilder = OrionEvent.Builder.create()
+                    .withTotalEventCount(totalRecords.get())
+                    .withEventNumber(eventNumber)
                     .withJsonObject(jsonObject)
                     .withKey(key)
                     .withPayloadType(payloadType);
@@ -85,13 +92,23 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
                                 byte[] privacyGroupData = rs.getBytes(1);
                                 PrivacyGroupPayload privacyGroup = cborObjectMapper.readValue(privacyGroupData, PrivacyGroupPayload.class);
                                 final Map<PublicKey, RecipientBox> recipientBoxMap = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup).getRecipientMapping();
-                                orionEvent.withRecipientBoxMap(recipientBoxMap);
+                                orionEventBuilder.withRecipientBoxMap(recipientBoxMap);
+                            } else {
+
+                                assert encryptedPayload.encryptedKeys().length == 1 : "There must only be one encryptedKey";
+
+                                final PublicKey recipientKey = encryptedKeyMatcher.findRecipientKeyWhenNotSenderAndPrivacyGroupNotFound(encryptedPayload).get();
+                                final RecipientBox recipientBox = RecipientBox.from(encryptedPayload.encryptedKeys()[0].getEncoded());
+
+                                final Map<PublicKey,RecipientBox> recipientBoxMap = Map.of(recipientKey,recipientBox);
+                                orionEventBuilder
+                                    .withRecipientBoxMap(recipientBoxMap);
                             }
                         }
                     }
                 }
 
-                disruptor.publishEvent(orionEvent.build());
+                disruptor.publishEvent(orionEventBuilder.build());
             }
         }
     }

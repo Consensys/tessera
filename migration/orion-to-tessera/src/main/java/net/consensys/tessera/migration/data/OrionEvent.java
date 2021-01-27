@@ -9,14 +9,8 @@ import javax.json.JsonObject;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class OrionEvent implements EventTranslator<OrionEvent> {
-
-    private enum EventCounter{
-        INSTANCE;
-        private AtomicLong counter = new AtomicLong(0);
-    }
 
     private Long eventNumber;
 
@@ -101,8 +95,9 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
             return new Builder();
         }
 
-
         private Long totalEventCount;
+
+        private Long eventNumber;
 
         private PayloadType payloadType;
 
@@ -114,6 +109,11 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
 
         public Builder withTotalEventCount(Long totalEventCount) {
             this.totalEventCount = totalEventCount;
+            return this;
+        }
+
+        public Builder withEventNumber(Long eventNumber) {
+            this.eventNumber = eventNumber;
             return this;
         }
 
@@ -143,13 +143,12 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
             Objects.requireNonNull(payloadType);
             Objects.requireNonNull(jsonObject);
             Objects.requireNonNull(key);
+            Objects.requireNonNull(eventNumber);
 
             if (payloadType == PayloadType.ENCRYPTED_PAYLOAD) {
                 Objects.requireNonNull(recipientBoxMap);
                 assert !recipientBoxMap.isEmpty();
             }
-
-            long eventNumber = EventCounter.INSTANCE.counter.incrementAndGet();
 
             if (totalEventCount < eventNumber) {
                 throw new IllegalArgumentException("Event number is greater than the total");

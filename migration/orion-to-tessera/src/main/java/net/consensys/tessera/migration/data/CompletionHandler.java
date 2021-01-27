@@ -1,17 +1,20 @@
 package net.consensys.tessera.migration.data;
 
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class CompletionHandler implements OrionEventHandler {
 
-    private AtomicLong counter = new AtomicLong(0);
+    private final AtomicLong counter = new AtomicLong(0);
 
-    private CountDownLatch countDownLatch;
+    private final CountDownLatch countDownLatch;
 
-    public CompletionHandler(CountDownLatch countDownLatch) {
-        this.countDownLatch = Objects.requireNonNull(countDownLatch);
+    public CompletionHandler() {
+        this.countDownLatch = new CountDownLatch(1);
+    }
+
+    public void await() throws InterruptedException {
+        countDownLatch.await();
     }
 
     @Override

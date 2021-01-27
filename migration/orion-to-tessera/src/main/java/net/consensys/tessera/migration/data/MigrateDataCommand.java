@@ -14,7 +14,6 @@ import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 
 public class MigrateDataCommand implements Callable<Boolean> {
@@ -66,11 +65,11 @@ public class MigrateDataCommand implements Callable<Boolean> {
         switch (inputType) {
             case LEVELDB:
                 inboundAdapter =
-                        new LevelDbOrionDataAdapter(inboundDbHelper.getLevelDb().get(), cborObjectMapper, disruptor,orionKeyHelper);
+                        new LevelDbOrionDataAdapter(inboundDbHelper.getLevelDb().get(), cborObjectMapper, disruptor,orionKeyHelper,tesseraEncryptor);
                 break;
             case JDBC:
                 DataSource dataSource = inboundDbHelper.getJdbcDataSource().get();
-                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, disruptor,orionKeyHelper);
+                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, disruptor,orionKeyHelper,tesseraEncryptor);
                 break;
             default:
                 throw new UnsupportedOperationException("");
@@ -78,29 +77,20 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
         EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
 
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-
         PersistPrivacyGroupEventHandler persistPrivacyGroupEventHandler = new PersistPrivacyGroupEventHandler(entityManagerFactory);
         PersistTransactionEventHandler persistTransactionEventHandler = new PersistTransactionEventHandler(entityManagerFactory);
+        CompletionHandler completionHandler = new CompletionHandler();
         disruptor
                 .handleEventsWith(
                     persistPrivacyGroupEventHandler,
                     persistTransactionEventHandler)
-                    .then(new CompletionHandler(countDownLatch));
-//                .then(new RecipientBoxesEventHandler(orionKeyHelper))
-//                .then(new ValidateEventHandler(orionKeyHelper, tesseraEncryptor))
-//                .then(persistEventHandler)
-//                .then(new CompletionHandler(countDownLatch))
+                    .then(completionHandler);
 
-
-
-
-        //  disruptor.setDefaultExceptionHandler(new FatalExceptionHandler());
         disruptor.start();
 
         inboundAdapter.start();
 
-        countDownLatch.await();
+        completionHandler.await();
 
         disruptor.shutdown();
 

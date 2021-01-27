@@ -20,16 +20,19 @@ public class RecipientBoxHelper {
 
     private final PrivacyGroupPayload privacyGroupPayload;
 
-    public RecipientBoxHelper(OrionKeyHelper orionKeyHelper, EncryptedPayload encryptedPayload, PrivacyGroupPayload privacyGroupPayload) {
+    public RecipientBoxHelper(OrionKeyHelper orionKeyHelper,
+                              EncryptedPayload encryptedPayload,
+                              PrivacyGroupPayload privacyGroupPayload) {
+
         this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
         this.encryptedPayload = Objects.requireNonNull(encryptedPayload);
-        this.privacyGroupPayload = Objects.requireNonNull(privacyGroupPayload);
+        this.privacyGroupPayload = privacyGroupPayload;
     }
 
     public Map<PublicKey, RecipientBox> getRecipientMapping() {
 
         final List<String> recipients =
-            Optional.of(privacyGroupPayload)
+            Optional.ofNullable(privacyGroupPayload)
                 .map(PrivacyGroupPayload::addresses)
                 .map(List::of)
                 .orElse(List.of());

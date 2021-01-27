@@ -1,11 +1,9 @@
 package net.consensys.tessera.migration.data;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -15,18 +13,11 @@ public class CompletionHandlerTest {
 
     private CompletionHandler completionHandler;
 
-    private CountDownLatch countDownLatch;
-
     @Before
     public void beforeTest() {
-        countDownLatch = spy(new CountDownLatch(1));
-        completionHandler = new CompletionHandler(countDownLatch);
+        completionHandler = new CompletionHandler();
     }
 
-    @After
-    public void afterTest() {
-        verifyNoMoreInteractions(countDownLatch);
-    }
 
     @Test
     public void handle() throws Exception {
@@ -34,10 +25,9 @@ public class CompletionHandlerTest {
         when(orionEvent.getTotalEventCount()).thenReturn(1L);
 
         completionHandler.onEvent(orionEvent);
+        completionHandler.await();
 
         verify(orionEvent).reset();
-        verify(countDownLatch).countDown();
-
     }
 
 
@@ -59,7 +49,8 @@ public class CompletionHandlerTest {
             verify(orionEvent).reset();
         }
 
-        verify(countDownLatch).countDown();
+        completionHandler.await();
+
     }
 
     @Test
@@ -78,8 +69,6 @@ public class CompletionHandlerTest {
             completionHandler.onEvent(orionEvent);
             verify(orionEvent).reset();
         }
-
-        verifyNoInteractions(countDownLatch);
 
 
     }

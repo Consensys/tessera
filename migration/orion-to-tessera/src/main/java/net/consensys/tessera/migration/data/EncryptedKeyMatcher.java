@@ -32,7 +32,7 @@ public class EncryptedKeyMatcher {
         return handleWhenNotSender(transaction, privacyGroupAddresses);
     }
 
-    private List<PublicKey> handleWhenSender(
+    public List<PublicKey> handleWhenSender(
             final EncryptedPayload transaction, final List<String> privacyGroupAddresses) {
         List<PublicKey> recipientKeys = new ArrayList<>();
 
@@ -75,7 +75,48 @@ public class EncryptedKeyMatcher {
         return recipientKeys;
     }
 
-    private List<PublicKey> handleWhenNotSender(
+    public Optional<PublicKey> findRecipientKeyWhenNotSenderAndPrivacyGroupNotFound(EncryptedPayload transaction) {
+
+        final PublicKey senderKey =
+            Optional.of(transaction.sender())
+                .map(Box.PublicKey::bytesArray)
+                .map(PublicKey::from)
+                .get();
+
+        final List<String> ourPublicKeysBase64 =
+            orionKeyHelper.getKeyPairs().stream()
+                .map(Box.KeyPair::publicKey)
+                .map(Box.PublicKey::bytesArray)
+                .map(pkBytes -> Base64.getEncoder().encodeToString(pkBytes))
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < transaction.encryptedKeys().length; i++) {
+
+            EncryptedKey encryptedKey = transaction.encryptedKeys()[i];
+            for (String ourPublicRecipientKey : ourPublicKeysBase64) {
+                Box.KeyPair keypairUnderTest =
+                    orionKeyHelper.getKeyPairs().stream()
+                        .filter(
+                            kp ->
+                                Objects.equals(
+                                    Base64.getEncoder().encodeToString(kp.publicKey().bytesArray()),
+                                    ourPublicRecipientKey))
+                        .findFirst()
+                        .get();
+
+                PublicKey ourPublicKey = PublicKey.from(keypairUnderTest.publicKey().bytesArray());
+                PrivateKey ourPrivateKey = PrivateKey.from(keypairUnderTest.secretKey().bytesArray());
+
+                final boolean canDecrypt = canDecrypt(transaction, encryptedKey, senderKey, ourPrivateKey);
+                if(canDecrypt) {
+                    return Optional.of(ourPublicKey);
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    public List<PublicKey> handleWhenNotSender(
             final EncryptedPayload transaction, final List<String> privacyGroupAddresses) {
         List<PublicKey> recipientKeys = new ArrayList<>();
 
@@ -85,12 +126,14 @@ public class EncryptedKeyMatcher {
         // Find the intersection of the privacy groups public keys and our local keys
         // as those are the only keys that are relevant for us now
         final List<String> ourPossibleRecipientKeys = new ArrayList<>(privacyGroupAddresses);
+
         final List<String> ourPublicKeysBase64 =
                 orionKeyHelper.getKeyPairs().stream()
                         .map(Box.KeyPair::publicKey)
                         .map(Box.PublicKey::bytesArray)
                         .map(pkBytes -> Base64.getEncoder().encodeToString(pkBytes))
                         .collect(Collectors.toList());
+
         ourPossibleRecipientKeys.removeIf(k -> !ourPublicKeysBase64.contains(k));
 
         for (int i = 0; i < transaction.encryptedKeys().length; i++) {
