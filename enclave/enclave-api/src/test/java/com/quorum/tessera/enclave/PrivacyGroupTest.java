@@ -3,6 +3,7 @@ package com.quorum.tessera.enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
+import java.util.Base64;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,7 +14,7 @@ public class PrivacyGroupTest {
     @Test
     public void buildWithEverything() {
 
-        PrivacyGroupId privacyGroupId = mock(PrivacyGroupId.class);
+        PrivacyGroup.Id privacyGroupId = mock(PrivacyGroup.Id.class);
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
         byte[] seed = "seed".getBytes();
 
@@ -29,7 +30,7 @@ public class PrivacyGroupTest {
                         .build();
 
         assertThat(privacyGroup).isNotNull();
-        assertThat(privacyGroup.getPrivacyGroupId()).isSameAs(privacyGroupId);
+        assertThat(privacyGroup.getId()).isSameAs(privacyGroupId);
         assertThat(privacyGroup.getName()).isEqualTo("name");
         assertThat(privacyGroup.getDescription()).isEqualTo("description");
         assertThat(privacyGroup.getMembers()).containsAll(recipients);
@@ -40,7 +41,7 @@ public class PrivacyGroupTest {
 
     @Test
     public void buildFrom() {
-        final PrivacyGroupId privacyGroupId = mock(PrivacyGroupId.class);
+        final byte[] privacyGroupId = "id".getBytes();
         final List<PublicKey> recipients = List.of(mock(PublicKey.class));
         byte[] seed = "seed".getBytes();
 
@@ -59,7 +60,7 @@ public class PrivacyGroupTest {
                 PrivacyGroup.Builder.create().from(privacyGroup).withState(PrivacyGroup.State.DELETED).build();
 
         assertThat(anotherPrivacyGroup).isNotNull();
-        assertThat(anotherPrivacyGroup.getPrivacyGroupId()).isSameAs(privacyGroupId);
+        assertThat(anotherPrivacyGroup.getId().getBytes()).isSameAs(privacyGroupId);
         assertThat(anotherPrivacyGroup.getName()).isEqualTo("name");
         assertThat(anotherPrivacyGroup.getDescription()).isEqualTo("description");
         assertThat(anotherPrivacyGroup.getMembers()).containsAll(recipients);
@@ -75,18 +76,18 @@ public class PrivacyGroupTest {
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutMembers() {
-        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PrivacyGroupId.class)).build();
+        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PrivacyGroup.Id.class)).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutState() {
-        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PrivacyGroupId.class)).withMembers(List.of()).build();
+        PrivacyGroup.Builder.create().withPrivacyGroupId(mock(PrivacyGroup.Id.class)).withMembers(List.of()).build();
     }
 
     @Test(expected = NullPointerException.class)
     public void buildWithoutType() {
         PrivacyGroup.Builder.create()
-                .withPrivacyGroupId(mock(PrivacyGroupId.class))
+                .withPrivacyGroupId(Base64.getEncoder().encodeToString("id".getBytes()))
                 .withMembers(List.of())
                 .withState(PrivacyGroup.State.ACTIVE)
                 .build();
