@@ -61,7 +61,7 @@ public class PersistPrivacyGroupEventHandlerTest {
             .add("description","A very private group")
             .add("name","Give me lard")
             .add("state", "ACTIVE")
-            .add("type","LEGACY")
+            .add("type","PANTHEON")
             .add("randomSeed","lYrcf8bPzEGTl1eY9HxAZla8qCI=")
             .build();
 
@@ -86,7 +86,7 @@ public class PersistPrivacyGroupEventHandlerTest {
         assertThat(privacyGroup.getDescription()).isEqualTo(jsonObject.getString("description"));
         assertThat(privacyGroup.getName()).isEqualTo(jsonObject.getString("name"));
         assertThat(privacyGroup.getState()).isEqualTo(PrivacyGroup.State.ACTIVE);
-        assertThat(privacyGroup.getType()).isEqualTo(PrivacyGroup.Type.LEGACY);
+        assertThat(privacyGroup.getType()).isEqualTo(PrivacyGroup.Type.PANTHEON);
         assertThat(privacyGroup.getSeed()).isEqualTo(Base64.getDecoder().decode(jsonObject.getString("randomSeed")));
 
         assertThat(privacyGroup.getMembers()).hasSize(2);

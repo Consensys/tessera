@@ -47,10 +47,15 @@ public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
         PrivacyGroup.State state = PrivacyGroup.State.valueOf(jsonObject.getString("state"));
         PrivacyGroup.Type type = PrivacyGroup.Type.valueOf(jsonObject.getString("type"));
 
+        if(type == PrivacyGroup.Type.PANTHEON && !jsonObject.containsKey("randomSeed")) {
+            throw new UnsupportedOperationException("No randomSeed elemet defined for PANTHEON group type");
+        }
+
         byte[] seed = Optional.of(jsonObject)
+            .filter(j -> j.containsKey("randomSeed"))
             .map(j -> j.getString("randomSeed"))
             .map(Base64.getDecoder()::decode)
-            .get();
+            .orElse(new byte[0]);
 
         PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
             .withPrivacyGroupId(privacyGroupId)
@@ -65,7 +70,6 @@ public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
         PrivacyGroupUtil privacyGroupUtil = PrivacyGroupUtil.create();
         byte[] privacyGroupData = privacyGroupUtil.encode(privacyGroup);
         byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
-
 
         PrivacyGroupEntity privacyGroupEntity = new PrivacyGroupEntity();
         privacyGroupEntity.setData(privacyGroupData);
