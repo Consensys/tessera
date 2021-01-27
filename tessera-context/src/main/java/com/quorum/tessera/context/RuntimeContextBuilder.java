@@ -115,19 +115,19 @@ public class RuntimeContextBuilder {
         Objects.requireNonNull(p2pClient, "No p2pClient provided. ");
 
         RuntimeContext instance =
-                new DefaultRuntimeContext(
-                        keys,
-                        keyEncryptor,
-                        alwaysSendTo,
-                        peers,
-                        p2pClient,
-                        remoteKeyValidation,
-                        enhancedPrivacy,
-                        p2pServerUri,
-                        disablePeerDiscovery,
-                        useWhiteList,
-                        recoveryMode,
-                        orionMode);
+            new DefaultRuntimeContext(
+                keys,
+                keyEncryptor,
+                alwaysSendTo,
+                peers,
+                p2pClient,
+                remoteKeyValidation,
+                enhancedPrivacy,
+                p2pServerUri,
+                disablePeerDiscovery,
+                useWhiteList,
+                recoveryMode,
+                orionMode);
         LOGGER.debug("Built {}", this);
         return instance;
     }
