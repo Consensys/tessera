@@ -1,3 +1,4 @@
 com.quorum.tessera.version.BaseVersion
 com.quorum.tessera.version.EnhancedPrivacyVersion
 com.quorum.tessera.version.MultiTenancyVersion
+com.quorum.tessera.version.PrivacyGroupVersion
