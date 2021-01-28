@@ -10,7 +10,7 @@ public class PrivacyGroupIdTest {
 
     @Test
     public void create() {
-        PrivacyGroupId id = PrivacyGroupId.from("foo".getBytes());
+        PrivacyGroup.Id id = PrivacyGroup.Id.fromBytes("foo".getBytes());
         assertThat(id).isNotNull();
         assertThat(id.getBytes()).isEqualTo("foo".getBytes());
         assertThat(id.getBase64()).isEqualTo("Zm9v");
@@ -18,7 +18,7 @@ public class PrivacyGroupIdTest {
 
     @Test
     public void createFromBase64Str() {
-        PrivacyGroupId id = PrivacyGroupId.from("Zm9v");
+        PrivacyGroup.Id id = PrivacyGroup.Id.fromBase64String("Zm9v");
         assertThat(id).isNotNull();
         assertThat(id.getBytes()).isEqualTo("foo".getBytes());
         assertThat(id.getBase64()).isEqualTo("Zm9v");
@@ -26,14 +26,14 @@ public class PrivacyGroupIdTest {
 
     @Test
     public void testEquals() {
-        PrivacyGroupId id = PrivacyGroupId.from("foo".getBytes());
-        PrivacyGroupId same = PrivacyGroupId.from("Zm9v");
+        PrivacyGroup.Id id = PrivacyGroup.Id.fromBytes("foo".getBytes());
+        PrivacyGroup.Id same = PrivacyGroup.Id.fromBase64String("Zm9v");
         assertThat(id).isEqualTo(same);
 
-        PrivacyGroupId bogus = PrivacyGroupId.from("another".getBytes());
+        PrivacyGroup.Id bogus = PrivacyGroup.Id.fromBytes("another".getBytes());
         assertThat(id).isNotEqualTo(bogus);
 
-        assertThat(id.toString()).isEqualTo(PrivacyGroupId.class.getSimpleName() + "[Zm9v]");
+        assertThat(id.toString()).isEqualTo(PrivacyGroup.Id.class.getSimpleName() + "[Zm9v]");
 
         assertThat(id.hashCode()).isEqualTo(Arrays.hashCode("foo".getBytes()));
     }

@@ -13,7 +13,7 @@ public interface PrivacyMetadata {
 
     byte[] getExecHash();
 
-    Optional<PrivacyGroupId> getPrivacyGroupId();
+    Optional<PrivacyGroup.Id> getPrivacyGroupId();
 
     class Builder {
 
@@ -23,7 +23,7 @@ public interface PrivacyMetadata {
 
         private byte[] execHash = new byte[0];
 
-        private PrivacyGroupId privacyGroupId;
+        private PrivacyGroup.Id privacyGroupId;
 
         public static Builder create() {
             return new Builder();
@@ -44,7 +44,7 @@ public interface PrivacyMetadata {
             return this;
         }
 
-        public Builder withPrivacyGroupId(PrivacyGroupId privacyGroupId) {
+        public Builder withPrivacyGroupId(PrivacyGroup.Id privacyGroupId) {
             this.privacyGroupId = privacyGroupId;
             return this;
         }
@@ -74,7 +74,7 @@ public interface PrivacyMetadata {
                 }
 
                 @Override
-                public Optional<PrivacyGroupId> getPrivacyGroupId() {
+                public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
                     return Optional.ofNullable(privacyGroupId);
                 }
             };

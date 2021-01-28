@@ -1,7 +1,6 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.enclave.PrivacyGroup;
-import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 
@@ -26,7 +25,7 @@ public class MockPrivacyGroupManager implements PrivacyGroupManager {
     }
 
     @Override
-    public PrivacyGroup retrievePrivacyGroup(PrivacyGroupId privacyGroupId) {
+    public PrivacyGroup retrievePrivacyGroup(PrivacyGroup.Id privacyGroupId) {
         return null;
     }
 
@@ -34,7 +33,7 @@ public class MockPrivacyGroupManager implements PrivacyGroupManager {
     public void storePrivacyGroup(byte[] encodedData) {}
 
     @Override
-    public PrivacyGroup deletePrivacyGroup(PublicKey from, PrivacyGroupId privacyGroupId) {
+    public PrivacyGroup deletePrivacyGroup(PublicKey from, PrivacyGroup.Id privacyGroupId) {
         return null;
     }
 

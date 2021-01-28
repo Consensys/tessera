@@ -696,7 +696,7 @@ public class EnclaveTest {
         final PrivacyMetadata metaData =
                 PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-                        .withPrivacyGroupId(PrivacyGroupId.from("GROUP".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("GROUP".getBytes()))
                         .build();
 
         EncodedPayload result =
@@ -709,7 +709,7 @@ public class EnclaveTest {
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
         assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
         assertThat(result.getPrivacyGroupId()).isPresent();
-        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroupId.from("GROUP".getBytes()));
+        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroup.Id.fromBytes("GROUP".getBytes()));
 
         verify(nacl).createMasterKey();
         verify(nacl, times(2)).randomNonce();
@@ -817,7 +817,7 @@ public class EnclaveTest {
         final PrivacyMetadata metaData =
                 PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-                        .withPrivacyGroupId(PrivacyGroupId.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("GROUP_ID".getBytes()))
                         .build();
 
         EncodedPayload result = enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
@@ -829,7 +829,7 @@ public class EnclaveTest {
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
         assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
         assertThat(result.getPrivacyGroupId()).isPresent();
-        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroupId.from("GROUP_ID".getBytes()));
+        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroup.Id.fromBytes("GROUP_ID".getBytes()));
 
         verify(nacl).randomNonce();
         verify(nacl).openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender);

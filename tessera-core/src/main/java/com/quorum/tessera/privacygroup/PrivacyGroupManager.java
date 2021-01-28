@@ -7,7 +7,6 @@ import com.quorum.tessera.data.PrivacyGroupDAO;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PrivacyGroup;
-import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.exception.*;
 import com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher;
@@ -54,7 +53,7 @@ public interface PrivacyGroupManager {
      * @param privacyGroupId Privacy group id
      * @return Privacy group object
      */
-    PrivacyGroup retrievePrivacyGroup(PrivacyGroupId privacyGroupId);
+    PrivacyGroup retrievePrivacyGroup(PrivacyGroup.Id privacyGroupId);
 
     /**
      * Store privacy group data from another node
@@ -66,9 +65,9 @@ public interface PrivacyGroupManager {
     /**
      * Mark a privacy group in database as deleted
      *
-     * @param privacyGroupId
+     * @param privacyGroupId id of privacy group to delete
      */
-    PrivacyGroup deletePrivacyGroup(PublicKey from, PrivacyGroupId privacyGroupId);
+    PrivacyGroup deletePrivacyGroup(PublicKey from, PrivacyGroup.Id privacyGroupId);
 
     /**
      * @see Enclave#defaultPublicKey()

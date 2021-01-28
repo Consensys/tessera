@@ -2,7 +2,6 @@ package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.*;
 import com.quorum.tessera.enclave.PrivacyGroup;
-import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.util.Base64Codec;
@@ -92,7 +91,7 @@ public class PrivacyGroupResource {
     @Produces(APPLICATION_JSON)
     public Response retrievePrivacyGroup(@NotNull final PrivacyGroupRetrieveRequest retrieveRequest) {
 
-        final PrivacyGroupId privacyGroupId = PrivacyGroupId.from(retrieveRequest.getPrivacyGroupId());
+        final PrivacyGroup.Id privacyGroupId = PrivacyGroup.Id.fromBase64String(retrieveRequest.getPrivacyGroupId());
 
         final PrivacyGroup privacyGroup = privacyGroupManager.retrievePrivacyGroup(privacyGroupId);
 
@@ -111,24 +110,20 @@ public class PrivacyGroupResource {
                         .map(PublicKey::from)
                         .orElseGet(privacyGroupManager::defaultPublicKey);
 
-        final PrivacyGroupId privacyGroupId = PrivacyGroupId.from(request.getPrivacyGroupId());
+        final PrivacyGroup.Id privacyGroupId = PrivacyGroup.Id.fromBase64String(request.getPrivacyGroupId());
 
         final PrivacyGroup privacyGroup = privacyGroupManager.deletePrivacyGroup(from, privacyGroupId);
 
         // Have to output in this format to match what is expected from Besu
         final String output =
-                Json.createArrayBuilder()
-                        .add(privacyGroup.getPrivacyGroupId().getBase64())
-                        .build()
-                        .getJsonString(0)
-                        .toString();
+                Json.createArrayBuilder().add(privacyGroup.getId().getBase64()).build().getJsonString(0).toString();
 
         return Response.ok().entity(output).build();
     }
 
     PrivacyGroupResponse toResponseObject(final PrivacyGroup privacyGroup) {
         return new PrivacyGroupResponse(
-                privacyGroup.getPrivacyGroupId().getBase64(),
+                privacyGroup.getId().getBase64(),
                 privacyGroup.getName(),
                 privacyGroup.getDescription(),
                 privacyGroup.getType().name(),

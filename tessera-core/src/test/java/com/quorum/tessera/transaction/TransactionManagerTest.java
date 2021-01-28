@@ -280,7 +280,8 @@ public class TransactionManagerTest {
         when(sendSignedRequest.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
         when(sendSignedRequest.getAffectedContractTransactions()).thenReturn(emptySet());
         when(sendSignedRequest.getExecHash()).thenReturn("execHash".getBytes());
-        when(sendSignedRequest.getPrivacyGroupId()).thenReturn(Optional.of(PrivacyGroupId.from("group".getBytes())));
+        when(sendSignedRequest.getPrivacyGroupId())
+                .thenReturn(Optional.of(PrivacyGroup.Id.fromBytes("group".getBytes())));
 
         SendResponse result = transactionManager.sendSignedTransaction(sendSignedRequest);
 
@@ -305,7 +306,7 @@ public class TransactionManagerTest {
         assertThat(passingData.getPrivacyGroupId())
                 .isPresent()
                 .get()
-                .isEqualTo(PrivacyGroupId.from("group".getBytes()));
+                .isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
     }
 
     @Test
@@ -930,7 +931,7 @@ public class TransactionManagerTest {
         when(payload.getExecHash()).thenReturn("execHash".getBytes());
         when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
         when(payload.getSenderKey()).thenReturn(sender);
-        when(payload.getPrivacyGroupId()).thenReturn(Optional.of(PrivacyGroupId.from("group".getBytes())));
+        when(payload.getPrivacyGroupId()).thenReturn(Optional.of(PrivacyGroup.Id.fromBytes("group".getBytes())));
         when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
         when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
@@ -949,7 +950,7 @@ public class TransactionManagerTest {
         assertThat(receiveResponse.sender()).isEqualTo(sender);
         assertThat(receiveResponse.getUnencryptedTransactionData()).isEqualTo(expectedOutcome);
         assertThat(receiveResponse.getPrivacyGroupId()).isPresent();
-        assertThat(receiveResponse.getPrivacyGroupId().get()).isEqualTo(PrivacyGroupId.from("group".getBytes()));
+        assertThat(receiveResponse.getPrivacyGroupId().get()).isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
 
         verify(payloadEncoder).decode(any(byte[].class));
         verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));

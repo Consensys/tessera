@@ -209,7 +209,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
                 .withPrivacyMode(privacyMode)
                 .withAffectedContractTransactions(affectedContractTransactions)
                 .withExecHash(executionHash)
-                .withPrivacyGroupId(PrivacyGroupId.from(privacyGroupId))
+                .withPrivacyGroupId(PrivacyGroup.Id.fromBytes(privacyGroupId))
                 .build();
     }
 

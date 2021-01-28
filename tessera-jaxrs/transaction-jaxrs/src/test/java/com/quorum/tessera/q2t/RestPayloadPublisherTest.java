@@ -3,7 +3,7 @@ package com.quorum.tessera.q2t;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.PrivacyGroupId;
+import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.jaxrs.mock.MockClient;
@@ -216,7 +216,7 @@ public class RestPayloadPublisherTest {
 
         EncodedPayload encodedPayload = mock(EncodedPayload.class);
         when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
-        when(encodedPayload.getPrivacyGroupId()).thenReturn(Optional.of(mock(PrivacyGroupId.class)));
+        when(encodedPayload.getPrivacyGroupId()).thenReturn(Optional.of(mock(PrivacyGroup.Id.class)));
         byte[] payloadData = "Some Data".getBytes();
         when(encoder.encode(encodedPayload)).thenReturn(payloadData);
 

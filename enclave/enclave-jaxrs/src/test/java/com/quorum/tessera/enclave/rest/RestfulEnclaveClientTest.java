@@ -141,7 +141,7 @@ public class RestfulEnclaveClientTest {
 
         final EncodedPayload payloadWithGroupId =
                 EncodedPayload.Builder.from(Fixtures.createSample())
-                        .withPrivacyGroupId(PrivacyGroupId.from("group".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
                         .build();
 
         List<AffectedTransaction> affectedTransactions =
@@ -155,7 +155,7 @@ public class RestfulEnclaveClientTest {
                 PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
                         .withAffectedTransactions(affectedTransactions)
-                        .withPrivacyGroupId(PrivacyGroupId.from("group".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
                         .build();
 
         when(enclave.encryptPayload(
@@ -181,7 +181,7 @@ public class RestfulEnclaveClientTest {
         assertThat(passingThroughPrivacyData.getPrivacyGroupId())
                 .isPresent()
                 .get()
-                .isEqualTo(PrivacyGroupId.from("group".getBytes()));
+                .isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
         assertThat(passingThroughPrivacyData.getPrivacyMode()).isEqualTo(privacyMetaData.getPrivacyMode());
         assertThat(passingThroughPrivacyData.getAffectedContractTransactions())
                 .isEqualTo(privacyMetaData.getAffectedContractTransactions());
@@ -249,7 +249,7 @@ public class RestfulEnclaveClientTest {
 
         EncodedPayload encodedPayloadWithGroupId =
                 EncodedPayload.Builder.from(Fixtures.createSample())
-                        .withPrivacyGroupId(PrivacyGroupId.from("group".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
                         .build();
 
         List<AffectedTransaction> affectedTransactions =
@@ -263,7 +263,7 @@ public class RestfulEnclaveClientTest {
                 PrivacyMetadata.Builder.create()
                         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
                         .withAffectedTransactions(affectedTransactions)
-                        .withPrivacyGroupId(PrivacyGroupId.from("group".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
                         .build();
 
         when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any()))
@@ -286,7 +286,7 @@ public class RestfulEnclaveClientTest {
         assertThat(passingThroughPrivacyData.getPrivacyGroupId())
                 .isPresent()
                 .get()
-                .isEqualTo(PrivacyGroupId.from("group".getBytes()));
+                .isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
         assertThat(passingThroughPrivacyData.getPrivacyMode()).isEqualTo(privacyMetaData.getPrivacyMode());
         assertThat(passingThroughPrivacyData.getAffectedContractTransactions())
                 .isEqualTo(privacyMetaData.getAffectedContractTransactions());

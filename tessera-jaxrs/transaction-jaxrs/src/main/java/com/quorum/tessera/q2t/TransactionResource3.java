@@ -8,7 +8,6 @@ import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyGroup;
-import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
@@ -104,8 +103,8 @@ public class TransactionResource3 {
                         .map(PublicKey::from)
                         .orElseGet(transactionManager::defaultPublicKey);
 
-        final Optional<PrivacyGroupId> privacyGroupId =
-                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroupId::from);
+        final Optional<PrivacyGroup.Id> privacyGroupId =
+                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroup.Id::fromBase64String);
 
         final List<PublicKey> recipientList =
                 privacyGroupId
@@ -229,8 +228,8 @@ public class TransactionResource3 {
     @Produces({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
     public Response sendSignedTransaction(@NotNull @Valid @PrivacyValid final SendSignedRequest sendSignedRequest) {
 
-        final Optional<PrivacyGroupId> privacyGroupId =
-                Optional.ofNullable(sendSignedRequest.getPrivacyGroupId()).map(PrivacyGroupId::from);
+        final Optional<PrivacyGroup.Id> privacyGroupId =
+                Optional.ofNullable(sendSignedRequest.getPrivacyGroupId()).map(PrivacyGroup.Id::fromBase64String);
 
         final List<PublicKey> recipients =
                 privacyGroupId
@@ -370,7 +369,7 @@ public class TransactionResource3 {
                         .map(PublicKey::encodeToBase64)
                         .toArray(String[]::new));
 
-        response.getPrivacyGroupId().map(PrivacyGroupId::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
+        response.getPrivacyGroupId().map(PrivacyGroup.Id::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
 
         return Response.ok(receiveResponse).build();
     }

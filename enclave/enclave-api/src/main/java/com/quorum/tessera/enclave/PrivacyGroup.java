@@ -3,12 +3,14 @@ package com.quorum.tessera.enclave;
 import com.quorum.tessera.encryption.PublicKey;
 
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 public interface PrivacyGroup {
 
-    PrivacyGroupId getPrivacyGroupId();
+    Id getId();
 
     String getName();
 
@@ -22,6 +24,57 @@ public interface PrivacyGroup {
 
     State getState();
 
+    interface Id {
+
+        byte[] getBytes();
+
+        String getBase64();
+
+        static Id fromBytes(final byte[] data) {
+
+            return new Id() {
+
+                @Override
+                public byte[] getBytes() {
+                    return data;
+                }
+
+                @Override
+                public String getBase64() {
+                    return Base64.getEncoder().encodeToString(data);
+                }
+
+                @Override
+                public boolean equals(Object arg0) {
+                    return getClass().isInstance(arg0) && Arrays.equals(data, getClass().cast(arg0).getBytes());
+                }
+
+                @Override
+                public int hashCode() {
+                    return Arrays.hashCode(data);
+                }
+
+                @Override
+                public String toString() {
+
+                    final String typeName =
+                            Stream.of(getClass())
+                                    .map(Class::getInterfaces)
+                                    .flatMap(Stream::of)
+                                    .map(Class::getSimpleName)
+                                    .findFirst()
+                                    .get();
+
+                    return String.format("%s[%s]", typeName, getBase64());
+                }
+            };
+        }
+
+        static Id fromBase64String(final String base64Data) {
+            return fromBytes(Base64.getDecoder().decode(base64Data));
+        }
+    }
+
     enum Type {
         LEGACY,
         PANTHEON
@@ -34,7 +87,7 @@ public interface PrivacyGroup {
 
     class Builder {
 
-        private PrivacyGroupId privacyGroupId;
+        private Id privacyGroupId;
 
         private String name = "";
 
@@ -52,8 +105,18 @@ public interface PrivacyGroup {
             return new Builder() {};
         }
 
-        public Builder withPrivacyGroupId(final PrivacyGroupId privacyGroupId) {
+        public Builder withPrivacyGroupId(final Id privacyGroupId) {
             this.privacyGroupId = privacyGroupId;
+            return this;
+        }
+
+        public Builder withPrivacyGroupId(final byte[] idBytes) {
+            this.privacyGroupId = Id.fromBytes(idBytes);
+            return this;
+        }
+
+        public Builder withPrivacyGroupId(final String idBase64) {
+            this.privacyGroupId = Id.fromBase64String(idBase64);
             return this;
         }
 
@@ -88,7 +151,7 @@ public interface PrivacyGroup {
         }
 
         public Builder from(final PrivacyGroup privacyGroup) {
-            this.privacyGroupId = privacyGroup.getPrivacyGroupId();
+            this.privacyGroupId = privacyGroup.getId();
             this.name = privacyGroup.getName();
             this.description = privacyGroup.getDescription();
             this.members = privacyGroup.getMembers();
@@ -107,7 +170,7 @@ public interface PrivacyGroup {
 
             return new PrivacyGroup() {
                 @Override
-                public PrivacyGroupId getPrivacyGroupId() {
+                public Id getId() {
                     return privacyGroupId;
                 }
 

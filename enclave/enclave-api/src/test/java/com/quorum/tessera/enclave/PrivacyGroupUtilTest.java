@@ -62,7 +62,8 @@ public class PrivacyGroupUtilTest {
 
         final PrivacyGroup privacyGroup =
                 PrivacyGroup.Builder.create()
-                        .withPrivacyGroupId(PrivacyGroupId.from("cOHh0dgkVV4lodSNuHu31ipEtUN/AFqviYekZDu4gEc="))
+                        .withPrivacyGroupId(
+                                PrivacyGroup.Id.fromBase64String("cOHh0dgkVV4lodSNuHu31ipEtUN/AFqviYekZDu4gEc="))
                         .withName("Organisation A")
                         .withDescription("Privacy group contains recipient 1,2, and 3")
                         .withSeed("foo".getBytes())
@@ -75,8 +76,8 @@ public class PrivacyGroupUtilTest {
 
         final PrivacyGroup decoded = privacyGroupUtil.decode(encoded);
 
-        assertThat(decoded.getPrivacyGroupId())
-                .isEqualTo(PrivacyGroupId.from("cOHh0dgkVV4lodSNuHu31ipEtUN/AFqviYekZDu4gEc="));
+        assertThat(decoded.getId())
+                .isEqualTo(PrivacyGroup.Id.fromBase64String("cOHh0dgkVV4lodSNuHu31ipEtUN/AFqviYekZDu4gEc="));
         assertThat(decoded.getName()).isEqualTo("Organisation A");
         assertThat(decoded.getDescription()).isEqualTo("Privacy group contains recipient 1,2, and 3");
         assertThat(decoded.getSeed()).isEqualTo("foo".getBytes());
@@ -88,11 +89,11 @@ public class PrivacyGroupUtilTest {
     @Test
     public void testEncodeDecodePartialData() {
 
-        final PrivacyGroupId groupId = PrivacyGroupId.from(privacyGroupUtil.generateId(List.of()));
+        final byte[] groupIdBytes = privacyGroupUtil.generateId(List.of());
 
         final PrivacyGroup privacyGroup =
                 PrivacyGroup.Builder.create()
-                        .withPrivacyGroupId(groupId)
+                        .withPrivacyGroupId(groupIdBytes)
                         .withMembers(List.of())
                         .withType(PrivacyGroup.Type.LEGACY)
                         .withState(PrivacyGroup.State.DELETED)
@@ -102,7 +103,7 @@ public class PrivacyGroupUtilTest {
 
         final PrivacyGroup decoded = privacyGroupUtil.decode(encoded);
 
-        assertThat(decoded.getPrivacyGroupId()).isEqualTo(groupId);
+        assertThat(decoded.getId().getBytes()).isEqualTo(groupIdBytes);
         assertThat(decoded.getName()).isEmpty();
         assertThat(decoded.getMembers()).isEmpty();
         assertThat(decoded.getType()).isEqualTo(PrivacyGroup.Type.LEGACY);

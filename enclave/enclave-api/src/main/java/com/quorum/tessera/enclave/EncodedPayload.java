@@ -27,7 +27,7 @@ public class EncodedPayload {
 
     private final byte[] execHash;
 
-    private final PrivacyGroupId privacyGroupId;
+    private final PrivacyGroup.Id privacyGroupId;
 
     private EncodedPayload(
             final PublicKey senderKey,
@@ -39,7 +39,7 @@ public class EncodedPayload {
             final PrivacyMode privacyMode,
             final Map<TxHash, SecurityHash> affectedContractTransactions,
             final byte[] execHash,
-            final PrivacyGroupId privacyGroupId) {
+            final PrivacyGroup.Id privacyGroupId) {
         this.senderKey = senderKey;
         this.cipherText = cipherText;
         this.cipherTextNonce = cipherTextNonce;
@@ -88,7 +88,7 @@ public class EncodedPayload {
         return execHash;
     }
 
-    public Optional<PrivacyGroupId> getPrivacyGroupId() {
+    public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
         return Optional.ofNullable(privacyGroupId);
     }
 
@@ -143,7 +143,7 @@ public class EncodedPayload {
 
         private byte[] execHash = new byte[0];
 
-        private PrivacyGroupId privacyGroupId;
+        private PrivacyGroup.Id privacyGroupId;
 
         public Builder withSenderKey(final PublicKey senderKey) {
             this.senderKey = senderKey;
@@ -221,7 +221,7 @@ public class EncodedPayload {
             return this;
         }
 
-        public Builder withPrivacyGroupId(final PrivacyGroupId privacyGroupId) {
+        public Builder withPrivacyGroupId(final PrivacyGroup.Id privacyGroupId) {
             this.privacyGroupId = privacyGroupId;
             return this;
         }

@@ -1,7 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.PrivacyGroupId;
+import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
@@ -72,14 +72,14 @@ public class ReceiveResponseTest {
                         .withAffectedTransactions(Set.of(new MessageHash("hash".getBytes())))
                         .withExecHash("execHash".getBytes())
                         .withManagedParties(Set.of(PublicKey.from("ownKey".getBytes())))
-                        .withPrivacyGroupId(PrivacyGroupId.from("group".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
                         .build();
 
         assertThat(result.getPrivacyGroupId()).isPresent();
         assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
         assertThat(result.getAffectedTransactions()).containsExactly(new MessageHash("hash".getBytes()));
         assertThat(result.getExecHash()).isEqualTo("execHash".getBytes());
-        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroupId.from("group".getBytes()));
+        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
         assertThat(result.sender()).isEqualTo(PublicKey.from("sender".getBytes()));
         assertThat(result.getManagedParties()).containsExactly(PublicKey.from("ownKey".getBytes()));
     }

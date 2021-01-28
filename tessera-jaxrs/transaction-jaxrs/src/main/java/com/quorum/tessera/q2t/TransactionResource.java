@@ -5,7 +5,6 @@ import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyGroup;
-import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
@@ -80,8 +79,8 @@ public class TransactionResource {
                         .map(PublicKey::from)
                         .orElseGet(transactionManager::defaultPublicKey);
 
-        final Optional<PrivacyGroupId> optionalPrivacyGroup =
-                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroupId::from);
+        final Optional<PrivacyGroup.Id> optionalPrivacyGroup =
+                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroup.Id::fromBase64String);
 
         final List<PublicKey> recipientList =
                 optionalPrivacyGroup
@@ -200,8 +199,8 @@ public class TransactionResource {
     public Response sendSignedTransactionEnhanced(
             @NotNull @Valid @PrivacyValid final SendSignedRequest sendSignedRequest) {
 
-        final Optional<PrivacyGroupId> privacyGroupId =
-                Optional.ofNullable(sendSignedRequest.getPrivacyGroupId()).map(PrivacyGroupId::from);
+        final Optional<PrivacyGroup.Id> privacyGroupId =
+                Optional.ofNullable(sendSignedRequest.getPrivacyGroupId()).map(PrivacyGroup.Id::fromBase64String);
 
         final List<PublicKey> recipients =
                 privacyGroupId
@@ -398,7 +397,7 @@ public class TransactionResource {
 
         receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
 
-        response.getPrivacyGroupId().map(PrivacyGroupId::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
+        response.getPrivacyGroupId().map(PrivacyGroup.Id::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
 
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
     }

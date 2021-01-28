@@ -1,7 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.PrivacyGroupId;
+import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
@@ -19,7 +19,7 @@ public class SendRequestTest {
     public void buildWithEverything() {
         byte[] payload = "Payload".getBytes();
         PublicKey sender = mock(PublicKey.class);
-        PrivacyGroupId groupId = mock(PrivacyGroupId.class);
+        PrivacyGroup.Id groupId = mock(PrivacyGroup.Id.class);
         List<PublicKey> recipients = List.of(mock(PublicKey.class));
         MessageHash affectedTransaction = mock(MessageHash.class);
         final byte[] execHash = "ExecHash".getBytes();

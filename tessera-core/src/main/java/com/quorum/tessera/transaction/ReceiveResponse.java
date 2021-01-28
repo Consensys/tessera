@@ -1,7 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.PrivacyGroupId;
+import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 
@@ -21,7 +21,7 @@ public interface ReceiveResponse {
 
     PublicKey sender();
 
-    Optional<PrivacyGroupId> getPrivacyGroupId();
+    Optional<PrivacyGroup.Id> getPrivacyGroupId();
 
     class Builder {
 
@@ -37,7 +37,7 @@ public interface ReceiveResponse {
 
         private PublicKey sender;
 
-        private PrivacyGroupId privacyGroupId;
+        private PrivacyGroup.Id privacyGroupId;
 
         private Builder() {}
 
@@ -75,7 +75,7 @@ public interface ReceiveResponse {
             return this;
         }
 
-        public Builder withPrivacyGroupId(PrivacyGroupId privacyGroupId) {
+        public Builder withPrivacyGroupId(PrivacyGroup.Id privacyGroupId) {
             this.privacyGroupId = privacyGroupId;
             return this;
         }
@@ -125,7 +125,7 @@ public interface ReceiveResponse {
                 }
 
                 @Override
-                public Optional<PrivacyGroupId> getPrivacyGroupId() {
+                public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
                     return Optional.ofNullable(privacyGroupId);
                 }
             };

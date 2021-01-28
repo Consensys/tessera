@@ -4,7 +4,6 @@ import com.quorum.tessera.api.*;
 import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyGroup;
-import com.quorum.tessera.enclave.PrivacyGroupId;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
@@ -70,8 +69,8 @@ public class BesuTransactionResource {
                         .map(PublicKey::from)
                         .orElseGet(transactionManager::defaultPublicKey);
 
-        final Optional<PrivacyGroupId> optionalPrivacyGroup =
-                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroupId::from);
+        final Optional<PrivacyGroup.Id> optionalPrivacyGroup =
+                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroup.Id::fromBase64String);
 
         final List<PublicKey> recipientList =
                 optionalPrivacyGroup
@@ -110,7 +109,7 @@ public class BesuTransactionResource {
                 requestBuilder::withPrivacyGroupId,
                 () -> {
                     PrivacyGroup legacyGroup = privacyGroupManager.createLegacyPrivacyGroup(sender, recipientList);
-                    requestBuilder.withPrivacyGroupId(legacyGroup.getPrivacyGroupId());
+                    requestBuilder.withPrivacyGroupId(legacyGroup.getId());
                 });
 
         final com.quorum.tessera.transaction.SendResponse response = transactionManager.send(requestBuilder.build());
@@ -180,7 +179,7 @@ public class BesuTransactionResource {
         BesuReceiveResponse receiveResponse = new BesuReceiveResponse();
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
         receiveResponse.setSenderKey(response.sender().encodeToBase64());
-        response.getPrivacyGroupId().map(PrivacyGroupId::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
+        response.getPrivacyGroupId().map(PrivacyGroup.Id::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
 
         return Response.status(Response.Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
     }

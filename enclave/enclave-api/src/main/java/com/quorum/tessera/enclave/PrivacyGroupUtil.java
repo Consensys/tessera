@@ -102,7 +102,7 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
         else groupId = generateId(memberKeys, seed);
 
         return PrivacyGroup.Builder.create()
-                .withPrivacyGroupId(PrivacyGroupId.from(groupId))
+                .withPrivacyGroupId(groupId)
                 .withName(new String(name))
                 .withDescription(new String(description))
                 .withMembers(memberKeys)
