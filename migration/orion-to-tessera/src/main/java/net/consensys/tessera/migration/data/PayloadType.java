@@ -20,6 +20,12 @@ public enum PayloadType {
     }
 
     static PayloadType get(JsonObject jsonObject) {
-        return Arrays.stream(PayloadType.values()).filter(p -> p.predicate.test(jsonObject)).findFirst().get();
+        return Arrays.stream(PayloadType.values())
+            .filter(p -> p.predicate.test(jsonObject))
+            .findFirst().get();
+    }
+
+    public String getValue() {
+        return value;
     }
 }
