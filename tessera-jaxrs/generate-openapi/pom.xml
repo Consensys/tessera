@@ -3,7 +3,7 @@
     <parent>
         <artifactId>tessera-jaxrs</artifactId>
         <groupId>net.consensys.quorum.tessera</groupId>
-        <version>21.1.0</version>
+        <version>21.1.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -13,22 +13,22 @@
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>common-jaxrs</artifactId>
-            <version>21.1.0</version>
+            <version>21.1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>sync-jaxrs</artifactId>
-            <version>21.1.0</version>
+            <version>21.1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>thirdparty-jaxrs</artifactId>
-            <version>21.1.0</version>
+            <version>21.1.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>transaction-jaxrs</artifactId>
-            <version>21.1.0</version>
+            <version>21.1.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

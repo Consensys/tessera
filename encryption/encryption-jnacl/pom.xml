@@ -11,7 +11,7 @@
     <parent>
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>encryption</artifactId>
-        <version>21.1.0</version>
+        <version>21.1.1-SNAPSHOT</version>
     </parent>
 
     <dependencyManagement>

@@ -8,7 +8,7 @@
     <parent>
         <artifactId>enclave</artifactId>
         <groupId>net.consensys.quorum.tessera</groupId>
-        <version>21.1.0</version>
+        <version>21.1.1-SNAPSHOT</version>
     </parent>
 
     <dependencies>
