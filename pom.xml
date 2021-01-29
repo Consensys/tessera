@@ -5,7 +5,7 @@
 
     <groupId>net.consensys.quorum.tessera</groupId>
     <artifactId>tessera</artifactId>
-    <version>21.1.0-SNAPSHOT</version>
+    <version>21.1.0</version>
 
     <name>tessera</name>
     <packaging>pom</packaging>
@@ -20,7 +20,7 @@
         <url>https://github.com/ConsenSys/tessera</url>
         <connection>scm:git:https://github.com/ConsenSys/tessera.git</connection>
         <developerConnection>scm:git:https://github.com/ConsenSys/tessera.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>tessera-21.1.0</tag>
     </scm>
 
     <description>Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution
@@ -512,223 +512,223 @@
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>encryption-api</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>argon2</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>config</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>cli-api</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>config-cli</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>security</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>encryption-jnacl</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>encryption-kalium</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
                 <scope>runtime</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>service-locator-api</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>enclave-api</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-partyinfo</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>enclave-jaxrs</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
                 <classifier>server</classifier>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>service-locator-spring</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>mock-service-locator</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>server-api</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>jersey-server</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>test-util</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
                 <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>shared</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-core</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>sync-jaxrs</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>transaction-jaxrs</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>thirdparty-jaxrs</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>key-vault-api</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>azure-key-vault</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>aws-key-vault</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>hashicorp-key-vault</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>key-generation</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>jaxrs-client</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>ddls</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>jaxrs-client-unixsocket</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-data</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>encryption-ec</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-context</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>eclipselink-utils</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>
                 <groupId>net.consensys.quorum.tessera</groupId>
                 <artifactId>tessera-recover</artifactId>
-                <version>21.1.0-SNAPSHOT</version>
+                <version>21.1.0</version>
             </dependency>
 
             <dependency>

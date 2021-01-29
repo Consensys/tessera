@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera-jaxrs</artifactId>
-        <version>21.1.0-SNAPSHOT</version>
+        <version>21.1.0</version>
     </parent>
     <artifactId>sync-jaxrs</artifactId>
     <packaging>jar</packaging>
@@ -13,7 +13,7 @@
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>common-jaxrs</artifactId>
-            <version>21.1.0-SNAPSHOT</version>
+            <version>21.1.0</version>
         </dependency>
 
         <dependency>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>net.consensys.quorum.tessera</groupId>
             <artifactId>mock-jaxrs</artifactId>
-            <version>21.1.0-SNAPSHOT</version>
+            <version>21.1.0</version>
             <scope>test</scope>
             <type>jar</type>
         </dependency>
