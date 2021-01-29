@@ -42,7 +42,7 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
         this.cborObjectMapper = Objects.requireNonNull(cborObjectMapper);
         this.disruptor = Objects.requireNonNull(disruptor);
         this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
-        this.encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptor);
+        this.encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,new EncryptorHelper(encryptor));
     }
 
     @Override
@@ -107,7 +107,6 @@ public class JdbcOrionDataAdapter implements OrionDataAdapter {
                         }
                     }
                 }
-
                 disruptor.publishEvent(orionEventBuilder.build());
             }
         }

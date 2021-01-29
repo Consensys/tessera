@@ -1,21 +1,27 @@
 package net.consensys.tessera.migration.data;
 
+import com.lmax.disruptor.EventHandler;
 import com.quorum.tessera.data.PrivacyGroupEntity;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyGroupUtil;
 import com.quorum.tessera.encryption.PublicKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
+public class PersistPrivacyGroupEventHandler implements EventHandler<OrionEvent> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistPrivacyGroupEventHandler.class);
 
     private final EntityManagerFactory entityManagerFactory;
 
@@ -24,9 +30,10 @@ public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
     }
 
     @Override
-    public void onEvent(OrionEvent event) throws Exception {
+    public void onEvent(OrionEvent event,long sequence,boolean endOfBatch) throws Exception {
 
         if(event.getPayloadType() != PayloadType.PRIVACY_GROUP_PAYLOAD) {
+            LOGGER.debug("Ignoring event {}",event);
             return;
         }
 
@@ -77,7 +84,11 @@ public class PersistPrivacyGroupEventHandler implements OrionEventHandler {
         privacyGroupEntity.setId(privacyGroup.getPrivacyGroupId().getKeyBytes());
 
         EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+        entityTransaction.begin();
         entityManager.persist(privacyGroupEntity);
+        entityTransaction.commit();
+        LOGGER.info("Persisted {}", event);
 
     }
 }

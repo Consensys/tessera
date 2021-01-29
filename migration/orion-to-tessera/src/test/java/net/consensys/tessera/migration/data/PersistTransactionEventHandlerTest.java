@@ -16,6 +16,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 
 import java.util.Base64;
 import java.util.Map;
@@ -33,10 +34,14 @@ public class PersistTransactionEventHandlerTest {
 
     private EntityManager entityManager;
 
+    private EntityTransaction entityTransaction;
+
     @Before
     public void beforeTest() {
         entityManagerFactory = mock(EntityManagerFactory.class);
         entityManager = mock(EntityManager.class);
+        entityTransaction = mock(EntityTransaction.class);
+        when(entityManager.getTransaction()).thenReturn(entityTransaction);
         when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
         persistTransactionEventHandler = new PersistTransactionEventHandler(entityManagerFactory);
     }
@@ -45,6 +50,7 @@ public class PersistTransactionEventHandlerTest {
     public void afterTest() {
         verifyNoMoreInteractions(entityManagerFactory);
         verifyNoMoreInteractions(entityManager);
+        verifyNoMoreInteractions(entityTransaction);
     }
 
     @Test
@@ -78,10 +84,13 @@ public class PersistTransactionEventHandlerTest {
 
         ArgumentCaptor<EncryptedTransaction> persistCapture = ArgumentCaptor.forClass(EncryptedTransaction.class);
 
-        persistTransactionEventHandler.onEvent(orionEvent);
+        persistTransactionEventHandler.onEvent(orionEvent,1L,false);
 
         verify(entityManagerFactory).createEntityManager();
         verify(entityManager).persist(persistCapture.capture());
+        verify(entityManager).getTransaction();
+        verify(entityTransaction).begin();
+        verify(entityTransaction).commit();
 
         EncryptedTransaction encryptedTransaction = persistCapture.getValue();
 

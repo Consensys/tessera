@@ -4,6 +4,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import picocli.CommandLine;
 
@@ -12,7 +13,7 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-
+@Ignore
 public class MigrateCommandTest {
 
     private Path orionConfigFile;

@@ -75,6 +75,7 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
         return eventNumber;
     }
 
+
     public Optional<Map<PublicKey, RecipientBox>> getRecipientBoxMap() {
         return Optional.ofNullable(recipientBoxMap);
     }

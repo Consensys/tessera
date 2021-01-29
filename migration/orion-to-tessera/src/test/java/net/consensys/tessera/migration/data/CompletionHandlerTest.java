@@ -24,7 +24,7 @@ public class CompletionHandlerTest {
         OrionEvent orionEvent = mock(OrionEvent.class);
         when(orionEvent.getTotalEventCount()).thenReturn(1L);
 
-        completionHandler.onEvent(orionEvent);
+        completionHandler.onEvent(orionEvent,1L,false);
         completionHandler.await();
 
         verify(orionEvent).reset();
@@ -43,14 +43,11 @@ public class CompletionHandlerTest {
             when(e.getTotalEventCount()).thenReturn((long) total);
         });
 
-
         for(OrionEvent orionEvent : events) {
-            completionHandler.onEvent(orionEvent);
+            completionHandler.onEvent(orionEvent,1L,false);
             verify(orionEvent).reset();
         }
-
         completionHandler.await();
-
     }
 
     @Test
@@ -66,10 +63,8 @@ public class CompletionHandlerTest {
 
         for(int i = 0;i < 2;i++) {
             OrionEvent orionEvent = events.get(i);
-            completionHandler.onEvent(orionEvent);
+            completionHandler.onEvent(orionEvent,1L,false);
             verify(orionEvent).reset();
         }
-
-
     }
 }

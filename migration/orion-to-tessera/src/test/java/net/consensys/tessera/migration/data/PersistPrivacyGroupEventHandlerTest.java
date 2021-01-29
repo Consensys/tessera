@@ -13,6 +13,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,11 +30,15 @@ public class PersistPrivacyGroupEventHandlerTest {
 
     private EntityManager entityManager;
 
+    private EntityTransaction entityTransaction;
+
     @Before
     public void beforeTest() {
 
         entityManagerFactory = mock(EntityManagerFactory.class);
         entityManager = mock(EntityManager.class);
+        entityTransaction = mock(EntityTransaction.class);
+        when(entityManager.getTransaction()).thenReturn(entityTransaction);
         when(entityManagerFactory.createEntityManager()).thenReturn(entityManager);
 
         persistPrivacyGroupEventHandler = new PersistPrivacyGroupEventHandler(entityManagerFactory);
@@ -43,6 +48,7 @@ public class PersistPrivacyGroupEventHandlerTest {
     public void afterTest() {
         verifyNoMoreInteractions(entityManagerFactory);
         verifyNoMoreInteractions(entityManager);
+        verifyNoMoreInteractions(entityTransaction);
     }
 
     @Test
@@ -70,10 +76,13 @@ public class PersistPrivacyGroupEventHandlerTest {
         ArgumentCaptor<PrivacyGroupEntity> persistArgCapture
             = ArgumentCaptor.forClass(PrivacyGroupEntity.class);
 
-        persistPrivacyGroupEventHandler.onEvent(orionEvent);
+        persistPrivacyGroupEventHandler.onEvent(orionEvent,1L,false);
 
         verify(entityManagerFactory).createEntityManager();
         verify(entityManager).persist(persistArgCapture.capture());
+        verify(entityManager).getTransaction();
+        verify(entityTransaction).begin();
+        verify(entityTransaction).commit();
 
         PrivacyGroupEntity result = persistArgCapture.getValue();
         assertThat(result).isNotNull();
@@ -108,7 +117,7 @@ public class PersistPrivacyGroupEventHandlerTest {
         }).collect(Collectors.toList());
 
         for(OrionEvent orionEvent : events) {
-            persistPrivacyGroupEventHandler.onEvent(orionEvent);
+            persistPrivacyGroupEventHandler.onEvent(orionEvent,1L,false);
         }
 
         verifyNoInteractions(entityManagerFactory);

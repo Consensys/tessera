@@ -7,12 +7,16 @@ import net.consensys.orion.enclave.EncryptedPayload;
 import net.consensys.orion.enclave.PrivacyGroupPayload;
 import net.consensys.tessera.migration.OrionKeyHelper;
 import org.apache.tuweni.crypto.sodium.Box;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class RecipientBoxHelper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RecipientBoxHelper.class);
 
     private final OrionKeyHelper orionKeyHelper;
 
@@ -65,12 +69,10 @@ public class RecipientBoxHelper {
                 .map(Base64.getEncoder()::encodeToString)
                 .collect(Collectors.toList());
 
-        System.out.println(recipientList.size() + " = " + recipientBoxes.size() + ", Sender? " + issender);
+        LOGGER.info("Recipients {}, Recipient boxes {}, Sender? {}",recipientList.size(),recipientBoxes.size(),issender);
 
         if (recipientList.size() != recipientBoxes.size()) {
-            System.err.println("WARN: Not great. "); // Add sender?
-            // continue;
-            //    return;
+            throw new IllegalStateException("Recipient list and recipient box list aren't same size");
         }
 
         final Map<PublicKey, RecipientBox> map = new LinkedHashMap<>();

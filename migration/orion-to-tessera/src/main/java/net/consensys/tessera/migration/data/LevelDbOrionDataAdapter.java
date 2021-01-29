@@ -10,12 +10,16 @@ import net.consensys.orion.enclave.PrivacyGroupPayload;
 import net.consensys.tessera.migration.OrionKeyHelper;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class LevelDbOrionDataAdapter implements OrionDataAdapter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LevelDbOrionDataAdapter.class);
 
     private final DB leveldb;
 
@@ -34,7 +38,7 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
         this.cborObjectMapper = Objects.requireNonNull(cborObjectMapper);
         this.disruptor = Objects.requireNonNull(disruptor);
         this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
-        this.encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptor);
+        this.encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,new EncryptorHelper(encryptor));
     }
 
     @Override
@@ -45,7 +49,10 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
             for (iterator.seekToFirst(); iterator.hasNext(); iterator.next()) {
                 totalRecords.incrementAndGet();
             }
+            LOGGER.info("Total records {}",totalRecords.get());
         }
+
+
 
         AtomicLong eventCounter = new AtomicLong(0);
         DBIterator iterator = leveldb.iterator();
@@ -67,21 +74,23 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
 
                 EncryptedPayload encryptedPayload = cborObjectMapper.readValue(entry.getValue(),EncryptedPayload.class);
 
-                byte[] privacyGroupId = encryptedPayload.privacyGroupId();
+                byte[] privacyGroupId = Optional.of(encryptedPayload)
+                    .map(EncryptedPayload::privacyGroupId)
+                    .map(Base64.getEncoder()::encode)
+                    .get();
 
-                byte[] privacyGroupKey = Base64.getEncoder().encode(privacyGroupId);
-                byte[] privacyGroupData = leveldb.get(privacyGroupKey);
+                byte[] privacyGroupData = leveldb.get(privacyGroupId);
 
                 if(privacyGroupData != null) {
 
                     PrivacyGroupPayload privacyGroup = cborObjectMapper.readValue(privacyGroupData, PrivacyGroupPayload.class);
-                    Map<PublicKey, RecipientBox> recipientBoxMap = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup).getRecipientMapping();
+                    RecipientBoxHelper recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup);
+
+                    Map<PublicKey, RecipientBox> recipientBoxMap = recipientBoxHelper.getRecipientMapping();
                     orionEventBuilder
                         .withRecipientBoxMap(recipientBoxMap);
 
-                } else {
-                    //TODO: Handle
-                    assert encryptedPayload.encryptedKeys().length == 1 : "There must only be one encryptedKey";
+                } else if(encryptedPayload.encryptedKeys().length == 1) {
 
                     final PublicKey recipientKey = encryptedKeyMatcher.findRecipientKeyWhenNotSenderAndPrivacyGroupNotFound(encryptedPayload).get();
                     final RecipientBox recipientBox = RecipientBox.from(encryptedPayload.encryptedKeys()[0].getEncoded());
@@ -89,11 +98,12 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
                     final Map<PublicKey,RecipientBox> recipientBoxMap = Map.of(recipientKey,recipientBox);
                     orionEventBuilder
                         .withRecipientBoxMap(recipientBoxMap);
+                } else {
+                    throw new UnsupportedOperationException("");
                 }
             }
             disruptor.publishEvent(orionEventBuilder.build());
-
         }
-
+        LOGGER.info("All records published.");
     }
 }

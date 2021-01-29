@@ -1,5 +1,6 @@
 package net.consensys.tessera.migration.data;
 
+import com.lmax.disruptor.EventHandler;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -8,27 +9,36 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.enclave.RecipientBox;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.json.JsonObject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import java.util.Base64;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import javax.persistence.EntityTransaction;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class PersistTransactionEventHandler implements OrionEventHandler {
+public class PersistTransactionEventHandler implements EventHandler<OrionEvent> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(PersistTransactionEventHandler.class);
 
     private final EntityManagerFactory entityManagerFactory;
 
+    private EntityManager entityManager;
+
+    private ThreadLocal<EntityTransaction> txn = new ThreadLocal<>();
+
     public PersistTransactionEventHandler(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;
+        this.entityManager = entityManagerFactory.createEntityManager();
     }
 
     @Override
-    public void onEvent(OrionEvent event) throws Exception {
+    public void onEvent(OrionEvent event,long sequence,boolean endOfBatch) throws Exception {
         if(event.getPayloadType() != PayloadType.ENCRYPTED_PAYLOAD) {
+            LOGGER.debug("Ignoring event {}",event);
             return;
         }
 
@@ -83,8 +93,10 @@ public class PersistTransactionEventHandler implements OrionEventHandler {
         byte[] enccodedPayloadData = payloadEncoder.encode(encodedPayload);
         encryptedTransaction.setEncodedPayload(enccodedPayloadData);
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction entityTransaction = entityManager.getTransaction();
+        entityTransaction.begin();
         entityManager.persist(encryptedTransaction);
-
+        entityTransaction.commit();
+        LOGGER.info("Persisted {}", event);
     }
 }
