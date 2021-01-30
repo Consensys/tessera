@@ -74,7 +74,7 @@ public class PicoCliDelegateTest {
 
         final String sysoutNoNewLine = sysout.replace("\n", "");
 
-        assertThat(sysoutNoNewLine).matches(Pattern.compile("^.*[0-9]{2}\\.[0-9]{2}(\\.[0-9]{1,2})?(-SNAPSHOT)?$"));
+        assertThat(sysoutNoNewLine).matches(Pattern.compile("^.*[0-9]{2}\\.[0-9]{1,2}(\\.[0-9]{1,2})?(-SNAPSHOT)?$"));
     }
 
     @Test
