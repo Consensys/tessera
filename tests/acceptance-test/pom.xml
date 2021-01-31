@@ -208,6 +208,7 @@
                     <includes>
                         <include>RecoverIT</include>
                         <include>CucumberFileKeyGenerationIT</include>
+                        <include>CucumberVersionCliIT</include>
                         <include>RestSuiteHttpH2</include>
                         <include>RestSuiteHttpHSQL</include>
                         <include>RestSuiteHttpSqllite</include>
@@ -354,6 +355,7 @@
                             <rerunFailingTestsCount>0</rerunFailingTestsCount>
                             <includes>
                                 <include>CucumberFileKeyGenerationIT</include>
+                                <include>CucumberVersionCliIT</include>
                                 <include>AdminRestSuite</include>
                                 <include>RestSuiteSimple</include>
                                 <include>RestSuiteUnixH2</include>

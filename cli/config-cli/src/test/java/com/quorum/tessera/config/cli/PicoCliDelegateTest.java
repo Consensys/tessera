@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
 import static org.assertj.core.api.Assertions.*;
@@ -55,26 +54,6 @@ public class PicoCliDelegateTest {
         cliDelegate = new PicoCliDelegate();
         this.systemErrOutput.clearLog();
         this.systemOutOutput.clearLog();
-    }
-
-    @Test
-    public void version() throws Exception {
-        final CliResult result = cliDelegate.execute("version");
-
-        assertThat(result).isNotNull();
-        assertThat(result.getConfig()).isNotPresent();
-        assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.isSuppressStartup()).isTrue();
-
-        final String syserr = systemErrOutput.getLog();
-        assertThat(syserr).isEmpty();
-
-        final String sysout = systemOutOutput.getLogWithNormalizedLineSeparator();
-        assertThat(sysout).isNotEmpty();
-
-        final String sysoutNoNewLine = sysout.replace("\n", "");
-
-        assertThat(sysoutNoNewLine).matches(Pattern.compile("^.*[0-9]{2}\\.[0-9]{1,2}(\\.[0-9]{1,2})?(-SNAPSHOT)?$"));
     }
 
     @Test
