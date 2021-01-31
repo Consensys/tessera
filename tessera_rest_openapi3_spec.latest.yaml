@@ -270,6 +270,26 @@ paths:
         "403":
           description: server is in recovery mode and encoded payload is not a Standard
             Private transaction
+  /resendBatch:
+    post:
+      tags:
+      - peer-to-peer
+      summary: /resendBatch
+      description: initiate resend of all transactions for a given public key in batches
+      operationId: requestPayloadBatchResend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchRequest'
+        required: true
+      responses:
+        "200":
+          description: count of total transactions being resent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchResponse'
   /resend:
     post:
       tags:
@@ -296,26 +316,6 @@ paths:
                   description: empty if request was for ALL; else the encoded INDIVIDUAL
                     transaction
                   format: byte
-  /resendBatch:
-    post:
-      tags:
-      - peer-to-peer
-      summary: /resendBatch
-      description: initiate resend of all transactions for a given public key in batches
-      operationId: requestPayloadBatchResend
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchRequest'
-        required: true
-      responses:
-        "200":
-          description: count of total transactions being resent
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchResponse'
   /encodedpayload/create:
     post:
       tags:
@@ -486,28 +486,6 @@ paths:
                 type: string
               example: Delete successful
       deprecated: true
-  /transaction/{hash}/isSender:
-    get:
-      tags:
-      - quorum-to-tessera
-      summary: "/transaction/{hash}/isSender"
-      description: check if the server was the sender of a transaction
-      operationId: isSender
-      parameters:
-      - name: hash
-        in: path
-        description: hash indicating encrypted payload to check sender for
-        required: true
-        schema:
-          type: string
-          format: base64
-      responses:
-        "200":
-          description: is server the sender
-          content:
-            text/plain:
-              schema:
-                type: boolean
   /transaction/{hash}/participants:
     get:
       tags:
@@ -631,6 +609,28 @@ paths:
       responses:
         "204":
           description: delete successful
+  /transaction/{hash}/isSender:
+    get:
+      tags:
+      - quorum-to-tessera
+      summary: "/transaction/{hash}/isSender"
+      description: check if the server was the sender of a transaction
+      operationId: isSender
+      parameters:
+      - name: hash
+        in: path
+        description: hash indicating encrypted payload to check sender for
+        required: true
+        schema:
+          type: string
+          format: base64
+      responses:
+        "200":
+          description: is server the sender
+          content:
+            text/plain:
+              schema:
+                type: boolean
   /send:
     post:
       tags:
@@ -750,25 +750,6 @@ components:
             type: string
             description: list of encoded payloads
             format: byte
-    com.quorum.tessera.p2p.resend.ResendRequest:
-      required:
-      - publicKey
-      - type
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - ALL
-          - INDIVIDUAL
-        publicKey:
-          type: string
-          description: resend transactions involving this public key
-          format: base64
-        key:
-          type: string
-          description: hash of encoded transaction (INDIVIDUAL only)
-          format: base64
     com.quorum.tessera.p2p.recovery.ResendBatchResponse:
       type: object
       properties:
@@ -789,6 +770,25 @@ components:
           type: integer
           description: default value is used if not provided
           format: int32
+    com.quorum.tessera.p2p.resend.ResendRequest:
+      required:
+      - publicKey
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - ALL
+          - INDIVIDUAL
+        publicKey:
+          type: string
+          description: resend transactions involving this public key
+          format: base64
+        key:
+          type: string
+          description: hash of encoded transaction (INDIVIDUAL only)
+          format: base64
     com.quorum.tessera.api.SendRequest:
       required:
       - payload
