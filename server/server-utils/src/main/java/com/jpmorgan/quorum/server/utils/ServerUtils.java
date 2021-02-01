@@ -45,7 +45,7 @@ public class ServerUtils {
 
             SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
             sslContextFactory.setSslContext(sslContext);
-            sslContextFactory.setNeedClientAuth(true);
+            sslContextFactory.setNeedClientAuth(serverConfig.getSslConfig().isClientAuth());
             sslContextFactory.setRenegotiationAllowed(false);
 
             final String[] excludedCipherSuites = serverConfig.getSslConfig().getExcludeCipherSuites();
