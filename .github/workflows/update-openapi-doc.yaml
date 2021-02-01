@@ -1,57 +1,63 @@
-name: Update OpenAPI Document
+name: Update OpenAPI doc
 on:
   push:
     branches:
       - master
-    paths:
-      - 'tessera-jaxrs/**'
+    tags:
+      - 'tessera-*'
+
 env:
-  TESSERA_DIR: tessera
-  DOC_DIR: gh-pages
-  DOC_REF: refs/heads/gh-pages
-  DOC_OPENAPI_PATH: tessera_rest_openapi3_spec.latest.yaml
-  TESSERA_OPENAPI_PATH: tessera-jaxrs/generate-openapi/build/generated-resources/openapi/openapi.yaml
+  GHPAGES_DIR: gh-pages
+  GHPAGES_REF: refs/heads/gh-pages
+  GENERERATED_SPEC: ./tessera-jaxrs/generate-openapi/build/generated-resources/openapi/openapi.yaml
 jobs:
-  run:
-    name: Check for updates and raise PR
+  update-version:
+    name: Update API versions list
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Checkout github pages
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.GHPAGES_REF }}
+          path: ${{ env.GHPAGES_DIR }}
+
       - name: Set up JDK 11
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Checkout docs
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ env.DOC_REF }}
-          path: ${{ env.DOC_DIR }}
-      - name: Checkout master
-        uses: actions/checkout@v2
-        with:
-          path: ${{ env.TESSERA_DIR }}
-      - name: Grant execute permission for gradlew
-        working-directory: ${{ env.TESSERA_DIR }}
-        run: chmod +x gradlew
       - name: Generate OpenAPI document
-        working-directory: ${{ env.TESSERA_DIR }}
         run: ./gradlew -Dorg.gradle.jvmargs=-Xmx4096m generateOpenApiDoc
-      - name: Copy OpenAPI document to ${{ env.DOC_DIR }}
+
+      - name: Install dependencies
         run: |
-          cp ${{ env.TESSERA_DIR }}/${{ env.TESSERA_OPENAPI_PATH }} ${{ env.DOC_DIR }}/${{ env.DOC_OPENAPI_PATH }}
-      - name: Raise PR if any changes
-        id: pr
-        uses: peter-evans/create-pull-request@v3
+          cd ./.github/actions/update-api-doc
+          npm ci
+
+      - name: Update version list and copy spec files
+        uses: ./.github/actions/update-api-doc
         with:
-          token: ${{ secrets.QUORUMBOT_PAT }}
-          path: ${{ env.DOC_DIR }}
-          commit-message: Automated openapi doc update
-          branch: automated-openapi-update
-          delete-branch: true
-          title: Automated openapi doc update
-          body: Automated update of openapi documentation triggered by ref=${{ github.ref }} sha=${{ github.sha }}
-      - name: Summary
+          specs-source: ${{ env.GENERERATED_SPEC }}
+          gh-pages-branch: ${{ env.GHPAGES_DIR }}
+
+      - name: Log generated changes
         run: |
-          echo "Triggered by ${{ github.ref }} ${{ github.sha }}"
-          echo "Created PR ${{ steps.pr.outputs.pull-request-url }}"
+          echo "::group::gh-pages dist dir"
+          ls -la ${{ env.GHPAGES_DIR }}
+          echo "::endgroup::"
+          echo "::group::versions.json"
+          cat ${{ env.GHPAGES_DIR }}/versions.json
+          echo "::endgroup::"
+          echo "::group::yaml-spec"
+          cat ${{ env.GHPAGES_DIR }}/*.yaml
+          echo "::endgroup::"
 
-
+      - name: Deploy changes to gh-pages
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ env.GHPAGES_DIR }} # The branch the action should deploy to.
+          FOLDER: ${{ env.GHPAGES_DIR }} # The folder the action should deploy.
+          CLEAN: false
+          PRESERVE: true
