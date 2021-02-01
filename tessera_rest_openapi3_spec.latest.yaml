@@ -88,24 +88,6 @@ paths:
                 Database unavailable:
                   description: Database unavailable
                   value: Database unavailable
-  /version:
-    get:
-      tags:
-      - quorum-to-tessera
-      - peer-to-peer
-      - third-party
-      summary: /version
-      description: Tessera distribution version
-      operationId: getVersion
-      responses:
-        "200":
-          description: Tessera distribution version
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: 20.10.1
-      deprecated: true
   /version/api:
     get:
       tags:
@@ -144,6 +126,24 @@ paths:
               schema:
                 type: string
               example: 20.10.1
+  /version:
+    get:
+      tags:
+      - quorum-to-tessera
+      - peer-to-peer
+      - third-party
+      summary: /version
+      description: Tessera distribution version
+      operationId: getVersion
+      responses:
+        "200":
+          description: Tessera distribution version
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: 20.10.1
+      deprecated: true
   /partyinfo:
     get:
       tags:
@@ -270,26 +270,6 @@ paths:
         "403":
           description: server is in recovery mode and encoded payload is not a Standard
             Private transaction
-  /resendBatch:
-    post:
-      tags:
-      - peer-to-peer
-      summary: /resendBatch
-      description: initiate resend of all transactions for a given public key in batches
-      operationId: requestPayloadBatchResend
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchRequest'
-        required: true
-      responses:
-        "200":
-          description: count of total transactions being resent
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchResponse'
   /resend:
     post:
       tags:
@@ -316,6 +296,26 @@ paths:
                   description: empty if request was for ALL; else the encoded INDIVIDUAL
                     transaction
                   format: byte
+  /resendBatch:
+    post:
+      tags:
+      - peer-to-peer
+      summary: /resendBatch
+      description: initiate resend of all transactions for a given public key in batches
+      operationId: requestPayloadBatchResend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchRequest'
+        required: true
+      responses:
+        "200":
+          description: count of total transactions being resent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchResponse'
   /encodedpayload/create:
     post:
       tags:
@@ -486,71 +486,6 @@ paths:
                 type: string
               example: Delete successful
       deprecated: true
-  /transaction/{hash}/participants:
-    get:
-      tags:
-      - quorum-to-tessera
-      summary: "/transaction/{hash}/participants"
-      description: get list of recipient public keys for a transaction
-      operationId: getRecipients
-      parameters:
-      - name: hash
-        in: path
-        description: hash indicating encrypted payload to get recipients for
-        required: true
-        schema:
-          type: string
-          format: base64
-      responses:
-        "200":
-          description: comma-separated list of recipients
-          content:
-            text/plain:
-              schema:
-                type: string
-                description: comma-separated list of recipients
-              example: "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="
-  /sendsignedtx:
-    post:
-      tags:
-      - quorum-to-tessera
-      summary: /sendsignedtx
-      description: "re-wraps a pre-stored & pre-encrypted payload, stores result in\
-        \ database, and publishes result to recipients"
-      operationId: sendStored
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/com.quorum.tessera.api.SendSignedRequest'
-          application/vnd.tessera-2.1+json:
-            schema:
-              $ref: '#/components/schemas/com.quorum.tessera.api.SendSignedRequest'
-          application/octet-stream:
-            schema:
-              type: array
-              items:
-                type: string
-                description: hash of pre-stored payload
-                format: base64
-      responses:
-        "200":
-          description: hash of rewrapped payload (for application/octet-stream requests)
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                description: hash of rewrapped payload
-                format: base64
-        "201":
-          description: hash of rewrapped payload
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/com.quorum.tessera.api.SendResponse'
-            application/vnd.tessera-2.1+json:
-              schema:
-                $ref: '#/components/schemas/com.quorum.tessera.api.SendResponse'
   /transaction/{hash}:
     get:
       tags:
@@ -631,6 +566,71 @@ paths:
             text/plain:
               schema:
                 type: boolean
+  /transaction/{hash}/participants:
+    get:
+      tags:
+      - quorum-to-tessera
+      summary: "/transaction/{hash}/participants"
+      description: get list of recipient public keys for a transaction
+      operationId: getRecipients
+      parameters:
+      - name: hash
+        in: path
+        description: hash indicating encrypted payload to get recipients for
+        required: true
+        schema:
+          type: string
+          format: base64
+      responses:
+        "200":
+          description: comma-separated list of recipients
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: comma-separated list of recipients
+              example: "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="
+  /sendsignedtx:
+    post:
+      tags:
+      - quorum-to-tessera
+      summary: /sendsignedtx
+      description: "re-wraps a pre-stored & pre-encrypted payload, stores result in\
+        \ database, and publishes result to recipients"
+      operationId: sendStored
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/com.quorum.tessera.api.SendSignedRequest'
+          application/vnd.tessera-2.1+json:
+            schema:
+              $ref: '#/components/schemas/com.quorum.tessera.api.SendSignedRequest'
+          application/octet-stream:
+            schema:
+              type: array
+              items:
+                type: string
+                description: hash of pre-stored payload
+                format: base64
+      responses:
+        "200":
+          description: hash of rewrapped payload (for application/octet-stream requests)
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                description: hash of rewrapped payload
+                format: base64
+        "201":
+          description: hash of rewrapped payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/com.quorum.tessera.api.SendResponse'
+            application/vnd.tessera-2.1+json:
+              schema:
+                $ref: '#/components/schemas/com.quorum.tessera.api.SendResponse'
   /send:
     post:
       tags:
@@ -750,6 +750,25 @@ components:
             type: string
             description: list of encoded payloads
             format: byte
+    com.quorum.tessera.p2p.resend.ResendRequest:
+      required:
+      - publicKey
+      - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - ALL
+          - INDIVIDUAL
+        publicKey:
+          type: string
+          description: resend transactions involving this public key
+          format: base64
+        key:
+          type: string
+          description: hash of encoded transaction (INDIVIDUAL only)
+          format: base64
     com.quorum.tessera.p2p.recovery.ResendBatchResponse:
       type: object
       properties:
@@ -770,25 +789,6 @@ components:
           type: integer
           description: default value is used if not provided
           format: int32
-    com.quorum.tessera.p2p.resend.ResendRequest:
-      required:
-      - publicKey
-      - type
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-          - ALL
-          - INDIVIDUAL
-        publicKey:
-          type: string
-          description: resend transactions involving this public key
-          format: base64
-        key:
-          type: string
-          description: hash of encoded transaction (INDIVIDUAL only)
-          format: base64
     com.quorum.tessera.api.SendRequest:
       required:
       - payload
