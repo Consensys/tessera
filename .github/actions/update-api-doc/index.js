@@ -41,9 +41,13 @@ function writeSpecFiles(specsSource, cfg){
   //write json files
   const specYamlString = fs.readFileSync(specsSource, 'utf8');
   const spec = YAML.parse(specYamlString);
-  spec.info.version = cfg.spec.version;
+  if(cfg.spec.isReleaseVersion) {
+    spec.info.version = cfg.spec.version;
+    saveSpecYaml(spec, cfg.spec.releaseDist);
+  }else{
+    spec.info.version = `${cfg.spec.version}-${github.context.hash.substring(0,8)}`;
+  }
   saveSpecYaml(spec, cfg.spec.latestDist);
-  saveSpecYaml(spec, cfg.spec.releaseDist);
 }
 
 /**
@@ -70,11 +74,6 @@ async function fetchVersions(versionsFile, repo) {
   );
 }
 
-/**
- * update versions
- * @param versions
- * @param {string} specVersion
- */
 function updateVersions(versions, specVersion) {
   versions[specVersion] = {
     spec: specVersion,
