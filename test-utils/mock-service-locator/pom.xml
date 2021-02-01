@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>test-utils</artifactId>
-        <version>21.1.0-SNAPSHOT</version>
+        <version>21.1.1-SNAPSHOT</version>
     </parent>
     <artifactId>mock-service-locator</artifactId>
     <packaging>jar</packaging>
