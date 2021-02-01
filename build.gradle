@@ -171,12 +171,10 @@ subprojects {
     dependencyCheck {
         failBuildOnCVSS = 0
         suppressionFile = 'cvss-suppressions.xml'
-
-
     }
 
     jacoco {
-        toolVersion = "0.8.5"
+        toolVersion = "0.8.6"
     }
 
     spotless {
