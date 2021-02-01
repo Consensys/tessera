@@ -75,6 +75,7 @@ test {
             '**/CucumberWhitelistIT.class',
             '**/ConfigMigrationIT.class',
             '**/CucumberFileKeyGenerationIT.class',
+            '**/CucumberVersionCliIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',
             '**/RunAzureIT.class'

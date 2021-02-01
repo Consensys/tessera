@@ -56,15 +56,13 @@ public interface PrivacyGroup {
 
                 @Override
                 public String toString() {
-
                     final String typeName =
-                            Stream.of(getClass())
-                                    .map(Class::getInterfaces)
-                                    .flatMap(Stream::of)
-                                    .map(Class::getSimpleName)
-                                    .findFirst()
-                                    .get();
-
+                        Stream.of(getClass())
+                            .map(Class::getInterfaces)
+                            .flatMap(Stream::of)
+                            .map(Class::getSimpleName)
+                            .findFirst()
+                            .get();
                     return String.format("%s[%s]", typeName, getBase64());
                 }
             };
@@ -110,14 +108,12 @@ public interface PrivacyGroup {
             return this;
         }
 
-        public Builder withPrivacyGroupId(final byte[] idBytes) {
-            this.privacyGroupId = Id.fromBytes(idBytes);
-            return this;
+        public Builder withPrivacyGroupId(final byte[] privacyGroupId) {
+            return withPrivacyGroupId(PrivacyGroup.Id.fromBytes(privacyGroupId));
         }
 
-        public Builder withPrivacyGroupId(final String idBase64) {
-            this.privacyGroupId = Id.fromBase64String(idBase64);
-            return this;
+        public Builder withPrivacyGroupId(final String privacyGroupId) {
+            return withPrivacyGroupId(PrivacyGroup.Id.fromBase64String(privacyGroupId));
         }
 
         public Builder withName(final String name) {

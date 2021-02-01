@@ -62,7 +62,7 @@ public class RestPrivacyGroupPublisherTest {
                             return Response.ok().build();
                         })
                 .when(invocationBuilder)
-                .post(any(javax.ws.rs.client.Entity.class));
+                .post(any(Entity.class));
 
         final byte[] data = new byte[] {15};
         publisher.publishPrivacyGroup(data, PublicKey.from("PUBLIC_KEY".getBytes()));
@@ -77,7 +77,7 @@ public class RestPrivacyGroupPublisherTest {
 
         doAnswer((invocation) -> Response.serverError().build())
                 .when(invocationBuilder)
-                .post(any(javax.ws.rs.client.Entity.class));
+                .post(any(Entity.class));
 
         final byte[] data = new byte[5];
         try {
@@ -92,7 +92,7 @@ public class RestPrivacyGroupPublisherTest {
     public void testPublishSingleNodeOffline() {
 
         Invocation.Builder invocationBuilder = mockClient.getWebTarget().getMockInvocationBuilder();
-        doThrow(ProcessingException.class).when(invocationBuilder).post(any(javax.ws.rs.client.Entity.class));
+        doThrow(ProcessingException.class).when(invocationBuilder).post(any(Entity.class));
 
         final byte[] data = new byte[5];
         try {

@@ -10,7 +10,7 @@
     <parent>
         <artifactId>cli</artifactId>
         <groupId>net.consensys.quorum.tessera</groupId>
-        <version>20.10.2-SNAPSHOT</version>
+        <version>21.1.1-SNAPSHOT</version>
     </parent>
 
     <dependencies>

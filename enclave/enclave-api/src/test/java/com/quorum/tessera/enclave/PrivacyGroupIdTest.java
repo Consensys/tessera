@@ -36,5 +36,6 @@ public class PrivacyGroupIdTest {
         assertThat(id.toString()).isEqualTo(PrivacyGroup.Id.class.getSimpleName() + "[Zm9v]");
 
         assertThat(id.hashCode()).isEqualTo(Arrays.hashCode("foo".getBytes()));
+
     }
 }
