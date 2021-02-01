@@ -49,8 +49,8 @@ jobs:
           echo "::group::versions.json"
           cat ${{ env.GHPAGES_DIR }}/versions.json
           echo "::endgroup::"
-          echo "::group::yaml-spec"
-          cat ${{ env.GHPAGES_DIR }}/*.yaml
+          echo "::group::latest yaml-spec"
+          cat ${{ env.GHPAGES_DIR }}/*latest.yaml
           echo "::endgroup::"
 
       - name: Deploy changes to gh-pages
