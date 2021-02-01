@@ -1531,7 +1531,6 @@ public class PayloadEncoderTest {
         assertThat(result.getRecipientNonce()).isEqualTo(control.getRecipientNonce());
         assertThat(result.getCipherTextNonce()).isEqualTo(control.getCipherTextNonce());
         assertThat(result.getRecipientKeys()).hasSize(1).containsExactly(recipientKey);
-        // assertThat(result.getRecipientBoxes()).isNotEqualTo(control.getRecipientBoxes());
         assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
 
         assertThat(result.getPrivacyGroupId()).isNotPresent();

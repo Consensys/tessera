@@ -237,7 +237,6 @@ public class ConfigBuilder {
 
         final List<KeyData> pairs =
                 keys.entrySet().stream()
-                        //  .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
                         .map(
                                 e -> {
                                     KeyData keyData = new KeyData();
