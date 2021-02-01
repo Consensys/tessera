@@ -45,7 +45,7 @@ function writeSpecFiles(specsSource, cfg){
     spec.info.version = cfg.spec.version;
     saveSpecYaml(spec, cfg.spec.releaseDist);
   }else{
-    spec.info.version = `${cfg.spec.version}-${github.context.hash.substring(0,8)}`;
+    spec.info.version = `${cfg.spec.version}-${github.context.sha.substring(0,8)}`;
   }
   saveSpecYaml(spec, cfg.spec.latestDist);
 }
