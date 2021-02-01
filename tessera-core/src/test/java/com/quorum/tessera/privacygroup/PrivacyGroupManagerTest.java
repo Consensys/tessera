@@ -64,8 +64,9 @@ public class PrivacyGroupManagerTest {
         when(privacyGroupUtil.generateId(anyList(), any(byte[].class))).thenReturn("generatedId".getBytes());
         when(privacyGroupUtil.generateLookupId(anyList())).thenReturn("lookup".getBytes());
         when(privacyGroupUtil.encode(any())).thenReturn("encoded".getBytes());
-
-        final List<PublicKey> members = List.of(localKey, mock(PublicKey.class), mock(PublicKey.class));
+        PublicKey recipient1 = mock(PublicKey.class);
+        PublicKey recipient2 = mock(PublicKey.class);
+        final List<PublicKey> members = List.of(localKey, recipient1, recipient2);
 
         doAnswer(
             invocation -> {
@@ -94,10 +95,7 @@ public class PrivacyGroupManagerTest {
         verify(publisher).publishPrivacyGroup(payloadCaptor.capture(), recipientsCaptor.capture());
         assertThat(payloadCaptor.getValue()).isEqualTo("encoded".getBytes());
 
-        List<PublicKey> forwardingMembers =
-            members.stream().filter(Predicate.not(localKey::equals)).collect(Collectors.toList());
-
-        assertThat(recipientsCaptor.getValue()).containsAll(forwardingMembers);
+        assertThat(recipientsCaptor.getValue()).containsExactlyInAnyOrder(recipient1, recipient2);
 
         // Verify generated privacy group has the correct values
         assertThat(privacyGroup).isNotNull();
