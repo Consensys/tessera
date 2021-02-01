@@ -38,6 +38,16 @@
             <artifactId>bcpkix-jdk15on</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.tuweni</groupId>
+            <artifactId>tuweni-bytes</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tuweni</groupId>
+            <artifactId>tuweni-rlp</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>
