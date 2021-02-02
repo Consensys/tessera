@@ -3,11 +3,9 @@ package net.consensys.tessera.migration.data;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.quorum.tessera.enclave.RecipientBox;
-import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.PublicKey;
 import net.consensys.orion.enclave.EncryptedPayload;
 import net.consensys.orion.enclave.PrivacyGroupPayload;
-import net.consensys.tessera.migration.OrionKeyHelper;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.DBIterator;
 import org.slf4j.Logger;
@@ -27,18 +25,19 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
 
     private final Disruptor<OrionEvent> disruptor;
 
-    private final OrionKeyHelper orionKeyHelper;
-
     private final AtomicLong totalRecords = new AtomicLong(0);
 
     private final EncryptedKeyMatcher encryptedKeyMatcher;
 
-    public LevelDbOrionDataAdapter(DB leveldb, ObjectMapper cborObjectMapper, Disruptor<OrionEvent> disruptor,OrionKeyHelper orionKeyHelper,Encryptor encryptor) {
+    private final RecipientBoxHelper recipientBoxHelper;
+
+    public LevelDbOrionDataAdapter(DB leveldb, ObjectMapper cborObjectMapper, Disruptor<OrionEvent> disruptor,EncryptedKeyMatcher encryptedKeyMatcher,
+                                   RecipientBoxHelper recipientBoxHelper) {
         this.leveldb = Objects.requireNonNull(leveldb);
         this.cborObjectMapper = Objects.requireNonNull(cborObjectMapper);
         this.disruptor = Objects.requireNonNull(disruptor);
-        this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
-        this.encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,new EncryptorHelper(encryptor));
+        this.encryptedKeyMatcher = Objects.requireNonNull(encryptedKeyMatcher);
+        this.recipientBoxHelper = Objects.requireNonNull(recipientBoxHelper);
     }
 
     @Override
@@ -51,8 +50,6 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
             }
             LOGGER.info("Total records {}",totalRecords.get());
         }
-
-
 
         AtomicLong eventCounter = new AtomicLong(0);
         DBIterator iterator = leveldb.iterator();
@@ -67,7 +64,7 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
                 .withTotalEventCount(totalRecords.get())
                 .withEventNumber(eventCounter.incrementAndGet())
                 .withJsonObject(jsonObject)
-                .withKey(entry.getKey())
+                .withKey(Base64.getEncoder().encode(entry.getKey()))
                 .withPayloadType(payloadType);
 
             if(payloadType == PayloadType.ENCRYPTED_PAYLOAD) {
@@ -84,9 +81,7 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
                 if(privacyGroupData != null) {
 
                     PrivacyGroupPayload privacyGroup = cborObjectMapper.readValue(privacyGroupData, PrivacyGroupPayload.class);
-                    RecipientBoxHelper recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroup);
-
-                    Map<PublicKey, RecipientBox> recipientBoxMap = recipientBoxHelper.getRecipientMapping();
+                    Map<PublicKey, RecipientBox> recipientBoxMap = recipientBoxHelper.getRecipientMapping(encryptedPayload,privacyGroup);
                     orionEventBuilder
                         .withRecipientBoxMap(recipientBoxMap);
 

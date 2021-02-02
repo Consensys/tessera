@@ -20,20 +20,11 @@ public class RecipientBoxHelper {
 
     private final OrionKeyHelper orionKeyHelper;
 
-    private final EncryptedPayload encryptedPayload;
-
-    private final PrivacyGroupPayload privacyGroupPayload;
-
-    public RecipientBoxHelper(OrionKeyHelper orionKeyHelper,
-                              EncryptedPayload encryptedPayload,
-                              PrivacyGroupPayload privacyGroupPayload) {
-
+    public RecipientBoxHelper(OrionKeyHelper orionKeyHelper) {
         this.orionKeyHelper = Objects.requireNonNull(orionKeyHelper);
-        this.encryptedPayload = Objects.requireNonNull(encryptedPayload);
-        this.privacyGroupPayload = privacyGroupPayload;
     }
 
-    public Map<PublicKey, RecipientBox> getRecipientMapping() {
+    public Map<PublicKey, RecipientBox> getRecipientMapping(EncryptedPayload encryptedPayload,PrivacyGroupPayload privacyGroupPayload) {
 
         final List<String> recipients =
             Optional.ofNullable(privacyGroupPayload)
@@ -72,7 +63,10 @@ public class RecipientBoxHelper {
         LOGGER.info("Recipients {}, Recipient boxes {}, Sender? {}",recipientList.size(),recipientBoxes.size(),issender);
 
         if (recipientList.size() != recipientBoxes.size()) {
-            throw new IllegalStateException("Recipient list and recipient box list aren't same size");
+
+            String message = String.format("Recipient list and recipient box list aren't same size. Recipient list : %s, recipient box list %s",recipientList.size(),recipientBoxes.size());
+
+            throw new IllegalStateException(message);
         }
 
         final Map<PublicKey, RecipientBox> map = new LinkedHashMap<>();

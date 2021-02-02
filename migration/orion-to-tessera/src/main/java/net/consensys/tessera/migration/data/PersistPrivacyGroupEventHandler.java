@@ -55,7 +55,7 @@ public class PersistPrivacyGroupEventHandler implements EventHandler<OrionEvent>
         PrivacyGroup.Type type = PrivacyGroup.Type.valueOf(jsonObject.getString("type"));
 
         if(type == PrivacyGroup.Type.PANTHEON && !jsonObject.containsKey("randomSeed")) {
-            throw new UnsupportedOperationException("No randomSeed elemet defined for PANTHEON group type");
+            throw new UnsupportedOperationException("No randomSeed element defined for PANTHEON group type");
         }
 
         byte[] seed = Optional.of(jsonObject)

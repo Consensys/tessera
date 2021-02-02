@@ -1,5 +1,6 @@
 package net.consensys.tessera.migration.data;
 
+import com.quorum.tessera.io.IOCallback;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import net.consensys.orion.config.Config;
@@ -7,41 +8,27 @@ import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 
 import javax.sql.DataSource;
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
 
-public class InboundDbHelper {
+public class InboundDbHelper implements Closeable {
 
     private final DataSource jdbcDataSource;
 
-    private enum Holder {
-        INSTANCE;
-
-        private DB leveldb;
-
-        private DB getLeveldb() {
-            return leveldb;
-        }
-
-        private void setLeveldb(DB leveldb) {
-            this.leveldb = leveldb;
-        }
-    }
+    private final DB leveldb;
 
     private InboundDbHelper(DataSource jdbcDataSource, DB leveldb) {
         this.jdbcDataSource = jdbcDataSource;
-        if(Holder.INSTANCE.getLeveldb() == null) {
-            Holder.INSTANCE.setLeveldb(leveldb);
-        }
+        this.leveldb = leveldb;
     }
 
     public Optional<DB> getLevelDb() {
-        return Optional.ofNullable(Holder.INSTANCE.getLeveldb());
+        return Optional.ofNullable(leveldb);
     }
 
     public Optional<DataSource> getJdbcDataSource() {
@@ -49,7 +36,7 @@ public class InboundDbHelper {
     }
 
     public InputType getInputType() {
-        return Objects.nonNull(Holder.INSTANCE.getLeveldb()) ? InputType.LEVELDB : InputType.JDBC;
+        return Objects.nonNull(jdbcDataSource) ? InputType.JDBC : InputType.LEVELDB;
     }
 
     public static InboundDbHelper from(Config config) {
@@ -68,21 +55,24 @@ public class InboundDbHelper {
         }
 
         if (connectionString.startsWith("leveldb")) {
-            if(Holder.INSTANCE.getLeveldb() == null) {
-                Options options = new Options();
-                options.logger(s -> System.out.println(s));
-                options.createIfMissing(true);
-                String dbname = connectionString.split(":")[1];
-                try {
-                    DB leveldb = factory.open(storageDir.resolve(dbname).toAbsolutePath().toFile(), options);
-                    Holder.INSTANCE.setLeveldb(leveldb);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            }
-            return new InboundDbHelper(null, Holder.INSTANCE.getLeveldb());
+
+            Options options = new Options();
+            options.logger(s -> System.out.println(s));
+            options.createIfMissing(true);
+            String dbname = connectionString.split(":")[1];
+
+            DB leveldb = IOCallback.execute(
+                () -> factory.open(storageDir.resolve(dbname).toAbsolutePath().toFile(), options)
+            );
+            return new InboundDbHelper(null, leveldb);
+
         }
 
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void close() throws IOException {
+        leveldb.close();
     }
 }

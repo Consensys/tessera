@@ -68,9 +68,9 @@ public class RecipientBoxHelperTest {
 
         when(orionKeyHelper.getKeyPairs()).thenReturn(pairs);
 
-        RecipientBoxHelper recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper,encryptedPayload,privacyGroupPayload);
+        RecipientBoxHelper recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper);
 
-        Map<PublicKey, RecipientBox> results = recipientBoxHelper.getRecipientMapping();
+        Map<PublicKey, RecipientBox> results = recipientBoxHelper.getRecipientMapping(encryptedPayload,privacyGroupPayload);
 
         assertThat(results).hasSize(3);
 

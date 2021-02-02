@@ -1,11 +1,6 @@
 package net.consensys.tessera.migration.data;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.ExceptionHandler;
@@ -39,11 +34,7 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
     private InboundDbHelper inboundDbHelper;
 
-    private ObjectMapper cborObjectMapper = JsonMapper.builder(new CBORFactory())
-        .addModule(new Jdk8Module())
-        .addModule(new JSR353Module())
-        .serializationInclusion(JsonInclude.Include.NON_NULL)
-        .build();
+    private ObjectMapper cborObjectMapper = JacksonObjectMapperFactory.create();
 
     static EntityManagerFactory createEntityManagerFactory(TesseraJdbcOptions jdbcOptions) {
         Map<String,String> jdbcProperties = new HashMap<>();
@@ -85,14 +76,17 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
         InputType inputType = inboundDbHelper.getInputType();
         final OrionDataAdapter inboundAdapter;
+        EncryptorHelper encryptorHelper = new EncryptorHelper(tesseraEncryptor);
+        EncryptedKeyMatcher encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptorHelper);
+        RecipientBoxHelper recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper);
         switch (inputType) {
             case LEVELDB:
                 inboundAdapter =
-                        new LevelDbOrionDataAdapter(inboundDbHelper.getLevelDb().get(), cborObjectMapper, disruptor,orionKeyHelper,tesseraEncryptor);
+                        new LevelDbOrionDataAdapter(inboundDbHelper.getLevelDb().get(), cborObjectMapper, disruptor,encryptedKeyMatcher,recipientBoxHelper);
                 break;
             case JDBC:
                 DataSource dataSource = inboundDbHelper.getJdbcDataSource().get();
-                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, disruptor,orionKeyHelper,tesseraEncryptor);
+                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, disruptor,encryptedKeyMatcher,recipientBoxHelper);
                 break;
             default:
                 throw new UnsupportedOperationException("");
