@@ -1,0 +1,25 @@
+name: 'update-api-doc'
+description: 'Update API version'
+inputs:
+  specs-source:
+    description: 'Generated OpenAPI spec file'
+    required: true
+  gh-pages-branch:
+    description: 'Branch used to publish to GitHub Pages'
+    required: true
+    default: gh-pages
+  versions-file:
+    description: 'JSON file on ghpages with all the available versions listed'
+    required: true
+    default: 'versions.json'
+  dev-branch:
+    description: 'development branch'
+    required: true
+    default: 'master'
+  spec-target-prefix:
+    description: 'target spec file prefix'
+    required: true
+    default: 'tessera_rest_openapi3_spec'
+runs:
+  using: 'node12'
+  main: 'index.js'
