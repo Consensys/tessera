@@ -15,6 +15,7 @@ import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
+import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -87,10 +88,13 @@ public class P2PRestApp extends TesseraRestApplication {
             new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
+        final PrivacyGroupManager privacyGroupManager = PrivacyGroupManager.create(config);
+        final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
+
         if (runtimeContext.isRecoveryMode()) {
             return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource);
         }
-        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource, upCheckResource);
+        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource, privacyGroupResource, upCheckResource);
     }
 
     @Override

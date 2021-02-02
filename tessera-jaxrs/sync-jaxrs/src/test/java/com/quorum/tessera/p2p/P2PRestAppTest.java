@@ -76,7 +76,7 @@ public class P2PRestAppTest {
     @Test
     public void getSingletons() {
         Set<Object> results = p2PRestApp.getSingletons();
-        assertThat(results).hasSize(4);
+        assertThat(results).hasSize(5);
         results.forEach(
                 o ->
                         assertThat(o)
@@ -84,7 +84,8 @@ public class P2PRestAppTest {
                                         PartyInfoResource.class,
                                         IPWhitelistFilter.class,
                                         UpCheckResource.class,
-                                        TransactionResource.class));
+                                        TransactionResource.class,
+                                        PrivacyGroupResource.class));
     }
 
     @Test
