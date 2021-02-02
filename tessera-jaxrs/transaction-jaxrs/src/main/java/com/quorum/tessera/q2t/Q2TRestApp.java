@@ -5,6 +5,7 @@ import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -45,6 +46,7 @@ public class Q2TRestApp extends TesseraRestApplication {
 
         TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
         EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create(config);
+        final PrivacyGroupManager privacyGroupManager = PrivacyGroupManager.create(config);
 
         TransactionResource transactionResource = new TransactionResource(transactionManager);
         TransactionResource3 transactionResource3 = new TransactionResource3(transactionManager);
@@ -54,10 +56,13 @@ public class Q2TRestApp extends TesseraRestApplication {
                 new EncodedPayloadResource(encodedPayloadManager, transactionManager);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
+        final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
+
         return Set.of(
                 transactionResource,
                 rawTransactionResource,
                 encodedPayloadResource,
+                privacyGroupResource,
                 upCheckResource,
                 transactionResource3);
     }

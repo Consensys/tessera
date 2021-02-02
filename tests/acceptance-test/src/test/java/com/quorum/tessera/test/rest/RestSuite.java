@@ -5,6 +5,7 @@ import com.quorum.tessera.test.CucumberRestIT;
 import suite.TestSuite;
 
 @TestSuite.SuiteClasses({
+    PrivacyGroupIT.class,
     PrivacyIT.class,
     VersionIT.class,
     MultipleKeyNodeIT.class,
