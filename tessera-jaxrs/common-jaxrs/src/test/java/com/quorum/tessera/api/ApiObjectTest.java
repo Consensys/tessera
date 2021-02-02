@@ -40,5 +40,7 @@ public class ApiObjectTest {
                 .isNotNull()
                 .extracting(StoreRawResponse::getKey)
                 .isNotNull();
+
+        assertThat(new PrivacyGroupResponse("id", "name", "description", "type", new String[] {})).isNotNull();
     }
 }
