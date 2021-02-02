@@ -95,6 +95,9 @@ public class SslConfig extends ConfigItem {
 
     @XmlElement private String[] excludeCipherSuites;
 
+    @XmlElement(defaultValue = "true")
+    private boolean clientAuth = true;
+
     public SslConfig(
             SslAuthenticationMode tls,
             boolean generateKeyStoreIfNotExisted,
@@ -325,5 +328,13 @@ public class SslConfig extends ConfigItem {
 
     public void setExcludeCipherSuites(String[] excludeCipherSuites) {
         this.excludeCipherSuites = excludeCipherSuites;
+    }
+
+    public boolean isClientAuth() {
+        return clientAuth;
+    }
+
+    public void setClientAuth(boolean clientAuth) {
+        this.clientAuth = clientAuth;
     }
 }
