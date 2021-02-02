@@ -76,6 +76,7 @@ public class EnclaveTest {
                         .withRecipientNonce(recipientNonce)
                         .withRecipientKeys(List.of(recipientKey, senderKey))
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("EXEC_HASH".getBytes())
                         .build();
 
         final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
@@ -122,6 +123,7 @@ public class EnclaveTest {
                         .withRecipientNonce(recipientNonce)
                         .withRecipientKeys(List.of(recipientKey, senderKey))
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("EXEC_HASH".getBytes())
                         .build();
 
         final Throwable throwable = catchThrowable(() -> enclave.unencryptTransaction(payload, nonRecipientKey));
