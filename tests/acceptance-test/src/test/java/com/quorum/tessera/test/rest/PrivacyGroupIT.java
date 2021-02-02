@@ -76,7 +76,9 @@ public class PrivacyGroupIT {
         assertThat(nodeDJson).isEqualTo(nodeCJson);
 
         // Retrieve will fail on node A as it's not a member
-        assertThatThrownBy(() -> privacyGroupTestUtil.retrieve("A", privacyGroupId)).isInstanceOf(AssertionError.class);
+        assertThatThrownBy(() -> privacyGroupTestUtil.retrieve("A", privacyGroupId))
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("404");
     }
 
     @Test
