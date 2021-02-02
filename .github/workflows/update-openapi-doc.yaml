@@ -12,7 +12,7 @@ env:
   GENERERATED_SPEC: ./tessera-jaxrs/generate-openapi/build/generated-resources/openapi/openapi.yaml
 jobs:
   update-version:
-    name: Update API versions list
+    name: Update API versions list and specs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
