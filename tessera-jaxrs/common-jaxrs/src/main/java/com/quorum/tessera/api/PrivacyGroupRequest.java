@@ -1,11 +1,24 @@
 package com.quorum.tessera.api;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public class PrivacyGroupRequest {
 
+    @ArraySchema(
+            arraySchema = @Schema(description = "public keys identifying the members of the privacy group"),
+            schema = @Schema(format = "base64"))
     private String[] addresses;
+
+    @Schema(description = "public key identifying the sender of the request", type = "string", format = "base64")
     private String from;
+
+    @Schema(description = "name of the privacy group", type = "string")
     private String name;
+
+    @Schema(description = "description of the privacy group", type = "string")
     private String description;
+
     private String seed;
 
     public PrivacyGroupRequest() {}
