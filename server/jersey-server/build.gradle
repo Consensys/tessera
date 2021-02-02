@@ -22,3 +22,7 @@ description = 'jersey-server'
 jacocoTestCoverageVerification {
     enabled false
 }
+
+test {
+    systemProperty "sun.net.http.allowRestrictedHeaders", true
+}
