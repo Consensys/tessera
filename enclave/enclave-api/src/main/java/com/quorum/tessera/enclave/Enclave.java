@@ -59,7 +59,7 @@ public interface Enclave extends Service {
      * Decrypts a {@link RawTransaction} so that it can be re-encrypted into a {@link EncodedPayload} with the given
      * recipient list
      *
-     * @param rawTransaction the transactiopn to decrypt and re-encrypt with recipients
+     * @param rawTransaction the transaction to decrypt and re-encrypt with recipients
      * @param recipientPublicKeys the recipients to encrypt the transaction for
      * @return the encrypted information, represented by an {@link EncodedPayload}
      */
@@ -92,7 +92,7 @@ public interface Enclave extends Service {
 
     /**
      * Decrypt a transaction and fetch the original message using the given public key. Throws an {@link
-     * com.quorum.tessera.nacl.NaclException} if the provided public key OR one of the Enclave's managed keys cannot be
+     * com.quorum.tessera.encryption.EncryptorException} if the provided public key OR one of the Enclave's managed keys cannot be
      * used to decrypt the payload
      *
      * @param payload the encrypted payload
@@ -102,7 +102,7 @@ public interface Enclave extends Service {
     byte[] unencryptTransaction(EncodedPayload payload, PublicKey providedKey);
 
     /**
-     * Decrypt a raw payload and fetch the original message. Throws an {@link com.quorum.tessera.nacl.NaclException} if
+     * Decrypt a raw payload and fetch the original message. Throws an {@link com.quorum.tessera.encryption.EncryptorException} if
      * the provided public key OR one of the Enclave's managed keys cannot be used to decrypt the payload
      *
      * @param payload the encrypted raw payload
