@@ -7,17 +7,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.*;
-
-import com.quorum.tessera.encryption.Encryptor;
-import com.quorum.tessera.encryption.KeyManager;
-import com.quorum.tessera.encryption.MasterKey;
-import com.quorum.tessera.encryption.Nonce;
-import com.quorum.tessera.encryption.PrivateKey;
-import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.encryption.SharedKey;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class EnclaveImpl implements Enclave {
@@ -38,9 +27,7 @@ public class EnclaveImpl implements Enclave {
             final byte[] message,
             final PublicKey senderPublicKey,
             final List<PublicKey> recipientPublicKeys,
-            final PrivacyMode privacyMode,
-            final List<AffectedTransaction> affectedContractTransactions,
-            final byte[] execHash) {
+            final PrivacyMetadata privacyMetadata) {
 
         final MasterKey masterKey = encryptor.createMasterKey();
         final Nonce nonce = encryptor.randomNonce();
@@ -53,22 +40,26 @@ public class EnclaveImpl implements Enclave {
 
         final Map<TxHash, byte[]> affectedContractTransactionHashes =
                 buildAffectedContractTransactionHashes(
-                        affectedContractTransactions.stream()
+                        privacyMetadata.getAffectedContractTransactions().stream()
                                 .collect(
                                         Collectors.toUnmodifiableMap(
                                                 AffectedTransaction::getHash, AffectedTransaction::getPayload)),
                         cipherText);
 
-        return EncodedPayload.Builder.create()
+        final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
+
+        privacyMetadata.getPrivacyGroupId().ifPresent(payloadBuilder::withPrivacyGroupId);
+
+        return payloadBuilder
                 .withSenderKey(senderPublicKey)
                 .withCipherText(cipherText)
                 .withCipherTextNonce(nonce)
                 .withRecipientBoxes(encryptedMasterKeys)
                 .withRecipientNonce(recipientNonce)
                 .withRecipientKeys(recipientPublicKeys)
-                .withPrivacyMode(privacyMode)
+                .withPrivacyMode(privacyMetadata.getPrivacyMode())
                 .withAffectedContractTransactions(affectedContractTransactionHashes)
-                .withExecHash(execHash)
+                .withExecHash(privacyMetadata.getExecHash())
                 .build();
     }
 
@@ -122,9 +113,7 @@ public class EnclaveImpl implements Enclave {
     public EncodedPayload encryptPayload(
             final RawTransaction rawTransaction,
             final List<PublicKey> recipientPublicKeys,
-            final PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions,
-            final byte[] execHash) {
+            final PrivacyMetadata privacyMetadata) {
 
         final MasterKey masterKey =
                 this.getMasterKey(
@@ -138,22 +127,26 @@ public class EnclaveImpl implements Enclave {
 
         final Map<TxHash, byte[]> affectedContractTransactionHashes =
                 buildAffectedContractTransactionHashes(
-                        affectedContractTransactions.stream()
+                        privacyMetadata.getAffectedContractTransactions().stream()
                                 .collect(
                                         Collectors.toMap(
                                                 AffectedTransaction::getHash, AffectedTransaction::getPayload)),
                         rawTransaction.getEncryptedPayload());
 
-        return EncodedPayload.Builder.create()
+        final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
+
+        privacyMetadata.getPrivacyGroupId().ifPresent(payloadBuilder::withPrivacyGroupId);
+
+        return payloadBuilder
                 .withSenderKey(rawTransaction.getFrom())
                 .withCipherText(rawTransaction.getEncryptedPayload())
                 .withCipherTextNonce(rawTransaction.getNonce())
                 .withRecipientBoxes(encryptedMasterKeys)
                 .withRecipientNonce(recipientNonce)
                 .withRecipientKeys(recipientPublicKeys)
-                .withPrivacyMode(privacyMode)
+                .withPrivacyMode(privacyMetadata.getPrivacyMode())
                 .withAffectedContractTransactions(affectedContractTransactionHashes)
-                .withExecHash(execHash)
+                .withExecHash(privacyMetadata.getExecHash())
                 .build();
     }
 
@@ -300,9 +293,9 @@ public class EnclaveImpl implements Enclave {
     @Override
     public byte[] unencryptRawPayload(RawTransaction payload) {
 
-        final PrivateKey senderPrivKey = keyManager.getPrivateKeyForPublicKey(payload.getFrom());
+        final PrivateKey senderPrivateKey = keyManager.getPrivateKeyForPublicKey(payload.getFrom());
 
-        final SharedKey sharedKey = encryptor.computeSharedKey(payload.getFrom(), senderPrivKey);
+        final SharedKey sharedKey = encryptor.computeSharedKey(payload.getFrom(), senderPrivateKey);
 
         final byte[] recipientBox = payload.getEncryptedKey();
 
