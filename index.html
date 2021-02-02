@@ -83,16 +83,18 @@
         return `tessera_rest_openapi3_spec.${spec}.yaml`;
       }
 
-      // is the version passed as param the one displayed accoring to the url
+      // is the version passed as param the one displayed according to the url
       function isDisplayedVersion(version){
-         return getVersionFromURL() == version || (getVersionFromURL() == '' && version == DEFAULT_VERSION);
+         return getVersionFromURL() === version || (getVersionFromURL() === '' && version === DEFAULT_VERSION);
       }
 
       // Update the redoc element and run the redoc display
       function updateSpec(){
         const element = $( `<redoc spec-url="${getSpecPath(getVersionFromURL())}"></redoc>` );
         element.appendTo( "main.container" );
-        Redoc.init(element.attr('spec-url'), {});
+        // using timestamp as a search param that has no impact on the file
+        // but forces the cache to be cleared and load the up to date spec.
+        Redoc.init(`${element.attr('spec-url')}?ts=${Date.now()}`, {});
         updateVersionsDropDown();
       }
 
@@ -100,7 +102,7 @@
       function updateVersionsDropDown(){
         $("#versionsList").empty();
         $.each( versions, function( version, infos ) {
-          var sourceText = (version == infos.source) ? '' : ` (${infos.source})`;
+          var sourceText = (version === infos.source) ? '' : ` (${infos.source})`;
 
           var item = $( `<a class="version-number-item dropdown-item" href="#${version}">${version}${sourceText}</a>" `);
 
@@ -124,6 +126,7 @@
       // set the global versions value from the Json file,
       // update spec page on completions
       function getVersionsFromJsonFile(){
+        $.ajaxSetup({cache: false});
         $.getJSON( "versions.json", function( data ) {
           if(!jQuery.isEmptyObject(data)){ versions = data; }
         })
