@@ -1,13 +1,11 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public interface ReceiveResponse {
 
@@ -23,6 +21,8 @@ public interface ReceiveResponse {
 
     PublicKey sender();
 
+    Optional<PrivacyGroup.Id> getPrivacyGroupId();
+
     class Builder {
 
         private byte[] unencryptedTransactionData;
@@ -36,6 +36,8 @@ public interface ReceiveResponse {
         private Set<PublicKey> managedParties = Collections.emptySet();
 
         private PublicKey sender;
+
+        private PrivacyGroup.Id privacyGroupId;
 
         private Builder() {}
 
@@ -70,6 +72,11 @@ public interface ReceiveResponse {
 
         public Builder withSender(PublicKey sender) {
             this.sender = sender;
+            return this;
+        }
+
+        public Builder withPrivacyGroupId(PrivacyGroup.Id privacyGroupId) {
+            this.privacyGroupId = privacyGroupId;
             return this;
         }
 
@@ -115,6 +122,11 @@ public interface ReceiveResponse {
                 @Override
                 public PublicKey sender() {
                     return sender;
+                }
+
+                @Override
+                public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
+                    return Optional.ofNullable(privacyGroupId);
                 }
             };
         }
