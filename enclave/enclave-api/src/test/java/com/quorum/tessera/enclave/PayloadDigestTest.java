@@ -28,7 +28,7 @@ public class PayloadDigestTest {
         String cipherText = "cipherText";
         byte[] result = digest.digest(cipherText.getBytes());
 
-        // What Orion will have generated
+        // This is what Orion would have generated
         final String expectedB64 = "7AagSZbaNRe/IJzrUKTp8Hl60wncQL1DHvDJCVQ+YIk=";
 
         assertThat(result).isNotNull();

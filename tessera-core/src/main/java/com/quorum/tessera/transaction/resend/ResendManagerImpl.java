@@ -3,7 +3,6 @@ package com.quorum.tessera.transaction.resend;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 

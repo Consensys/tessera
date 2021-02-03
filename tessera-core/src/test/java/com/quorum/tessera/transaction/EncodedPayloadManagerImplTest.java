@@ -1,7 +1,5 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
