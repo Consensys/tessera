@@ -53,13 +53,15 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
         privacyHelper.validateSendRequest(privacyMode, recipientListNoDuplicate, affectedContractTransactions);
         LOGGER.debug("Successful validation against affected contracts");
 
+        final PrivacyMetadata.Builder metaDataBuilder =
+                PrivacyMetadata.Builder.create()
+                        .withPrivacyMode(privacyMode)
+                        .withAffectedTransactions(affectedContractTransactions)
+                        .withExecHash(request.getExecHash());
+        request.getPrivacyGroupId().ifPresent(metaDataBuilder::withPrivacyGroupId);
+
         return enclave.encryptPayload(
-                request.getPayload(),
-                senderPublicKey,
-                recipientListNoDuplicate,
-                privacyMode,
-                affectedContractTransactions,
-                request.getExecHash());
+                request.getPayload(), senderPublicKey, recipientListNoDuplicate, metaDataBuilder.build());
     }
 
     @Override
@@ -81,24 +83,27 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
         final byte[] decryptedTransactionData = enclave.unencryptTransaction(payload, recipientKey);
 
-        final Set<MessageHash> affectedTransactions =
+        final Set<MessageHash> affectedTransaction =
                 payload.getAffectedContractTransactions().keySet().stream()
                         .map(TxHash::getBytes)
                         .map(MessageHash::new)
                         .collect(Collectors.toSet());
 
-        return ReceiveResponse.Builder.create()
-                .withUnencryptedTransactionData(decryptedTransactionData)
-                .withPrivacyMode(payload.getPrivacyMode())
-                .withAffectedTransactions(affectedTransactions)
-                .withExecHash(payload.getExecHash())
-                .withSender(payload.getSenderKey())
-                .build();
+        ReceiveResponse.Builder builder =
+                ReceiveResponse.Builder.create()
+                        .withUnencryptedTransactionData(decryptedTransactionData)
+                        .withPrivacyMode(payload.getPrivacyMode())
+                        .withAffectedTransactions(affectedTransaction)
+                        .withExecHash(payload.getExecHash())
+                        .withSender(payload.getSenderKey());
+
+        payload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
+
+        return builder.build();
     }
 
     private Optional<PublicKey> searchForRecipientKey(final EncodedPayload payload) {
         final MessageHash customPayloadHash = new MessageHash(payloadDigest.digest(payload.getCipherText()));
-
         for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
             try {
                 LOGGER.debug(
