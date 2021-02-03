@@ -3,7 +3,6 @@ package com.quorum.tessera.transaction.resend;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 
@@ -17,16 +16,21 @@ public class ResendManagerImpl implements ResendManager {
 
     private final Enclave enclave;
 
-    private final MessageHashFactory messageHashFactory = MessageHashFactory.create();
+    private final PayloadDigest payloadDigest;
 
-    public ResendManagerImpl(EncryptedTransactionDAO encryptedTransactionDAO, Enclave enclave) {
-        this(encryptedTransactionDAO, PayloadEncoder.create(), enclave);
+    public ResendManagerImpl(EncryptedTransactionDAO encryptedTransactionDAO, Enclave enclave, PayloadDigest payloadDigest) {
+        this(encryptedTransactionDAO, PayloadEncoder.create(), enclave, payloadDigest);
     }
 
-    public ResendManagerImpl(final EncryptedTransactionDAO dao, final PayloadEncoder encoder, final Enclave enclave) {
+    public ResendManagerImpl(
+            final EncryptedTransactionDAO dao,
+            final PayloadEncoder encoder,
+            final Enclave enclave,
+            final PayloadDigest payloadDigest) {
         this.encryptedTransactionDAO = dao;
         this.payloadEncoder = encoder;
         this.enclave = enclave;
+        this.payloadDigest = payloadDigest;
     }
 
     // TODO: synchronize based on messagehash, so different message don't lock each other
@@ -52,7 +56,8 @@ public class ResendManagerImpl implements ResendManager {
         final MessageHash transactionHash =
                 Optional.of(payload)
                         .map(EncodedPayload::getCipherText)
-                        .map(messageHashFactory::createFromCipherText)
+                        .map(payloadDigest::digest)
+                        .map(MessageHash::new)
                         .get();
 
         final PublicKey sender = payload.getSenderKey();
