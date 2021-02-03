@@ -43,7 +43,7 @@ public class TransactionManagerTest {
 
     private Enclave enclave;
 
-    private MessageHashFactory messageHashFactory = MessageHashFactory.create();
+    private PayloadDigest mockDigest;
 
     private PrivacyHelper privacyHelper;
 
@@ -58,6 +58,7 @@ public class TransactionManagerTest {
         resendManager = mock(ResendManager.class);
         privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, true);
         batchPayloadPublisher = mock(BatchPayloadPublisher.class);
+        mockDigest = cipherText -> cipherText;
 
         transactionManager =
                 new TransactionManagerImpl(
@@ -68,7 +69,8 @@ public class TransactionManagerTest {
                         enclave,
                         encryptedRawTransactionDAO,
                         resendManager,
-                        privacyHelper);
+                        privacyHelper,
+                        mockDigest);
     }
 
     @After
@@ -664,7 +666,8 @@ public class TransactionManagerTest {
                         enclave,
                         encryptedRawTransactionDAO,
                         resendManager,
-                        privacyHelper);
+                        privacyHelper,
+                        mockDigest);
 
         when(privacyHelper.validatePayload(any(), any(), any())).thenReturn(true);
 
@@ -1253,7 +1256,7 @@ public class TransactionManagerTest {
         when(sendRequest.getSender()).thenReturn(PublicKey.from(sender));
         when(sendRequest.getPayload()).thenReturn(payload);
 
-        MessageHash expectedHash = messageHashFactory.createFromCipherText("CIPHERTEXT".getBytes());
+        MessageHash expectedHash = new MessageHash(mockDigest.digest("CIPHERTEXT".getBytes()));
 
         StoreRawResponse result = transactionManager.store(sendRequest);
 
@@ -1288,7 +1291,7 @@ public class TransactionManagerTest {
         byte[] payload = Base64.getEncoder().encode("PAYLOAD".getBytes());
         StoreRawRequest sendRequest = StoreRawRequest.Builder.create().withPayload(payload).build();
 
-        MessageHash expectedHash = messageHashFactory.createFromCipherText("CIPHERTEXT".getBytes());
+        MessageHash expectedHash = new MessageHash(mockDigest.digest("CIPHERTEXT".getBytes()));
 
         try {
             transactionManager.store(sendRequest);
@@ -1333,7 +1336,8 @@ public class TransactionManagerTest {
                         enclave,
                         encryptedRawTransactionDAO,
                         resendManager,
-                        privacyHelper);
+                        privacyHelper,
+                        mockDigest);
 
         assertThat(tm).isNotNull();
     }
