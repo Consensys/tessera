@@ -1,11 +1,6 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveException;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import org.junit.After;
@@ -27,7 +22,7 @@ public class EncodedPayloadManagerImplTest {
 
     private PrivacyHelper privacyHelper;
 
-    private MessageHashFactory messageHashFactory;
+    private PayloadDigest payloadDigest;
 
     private EncodedPayloadManager encodedPayloadManager;
 
@@ -35,14 +30,14 @@ public class EncodedPayloadManagerImplTest {
     public void init() {
         this.enclave = mock(Enclave.class);
         this.privacyHelper = mock(PrivacyHelper.class);
-        this.messageHashFactory = mock(MessageHashFactory.class);
+        this.payloadDigest = mock(PayloadDigest.class);
 
-        this.encodedPayloadManager = new EncodedPayloadManagerImpl(enclave, privacyHelper, messageHashFactory);
+        this.encodedPayloadManager = new EncodedPayloadManagerImpl(enclave, privacyHelper, payloadDigest);
     }
 
     @After
     public void after() {
-        verifyNoMoreInteractions(enclave, privacyHelper, messageHashFactory);
+        verifyNoMoreInteractions(enclave, privacyHelper, payloadDigest);
     }
 
     @Test
@@ -131,7 +126,7 @@ public class EncodedPayloadManagerImplTest {
             .withExecHash(new byte[0])
             .build();
 
-        when(messageHashFactory.createFromCipherText(any())).thenReturn(new MessageHash("test hash".getBytes()));
+        when(payloadDigest.digest(any())).thenReturn("test hash".getBytes());
         when(enclave.getPublicKeys()).thenReturn(Set.of(singleRecipient));
         when(enclave.unencryptTransaction(samplePayload, singleRecipient)).thenReturn("decrypted data".getBytes());
 
@@ -142,7 +137,7 @@ public class EncodedPayloadManagerImplTest {
         assertThat(response.getAffectedTransactions()).isEmpty();
         assertThat(response.getExecHash()).isEmpty();
 
-        verify(messageHashFactory, times(2)).createFromCipherText(any());
+        verify(payloadDigest, times(2)).digest(any());
         verify(enclave).getPublicKeys();
         verify(enclave, times(2)).unencryptTransaction(samplePayload, singleRecipient);
     }
@@ -167,7 +162,7 @@ public class EncodedPayloadManagerImplTest {
             .withExecHash(new byte[0])
             .build();
 
-        when(messageHashFactory.createFromCipherText(any())).thenReturn(new MessageHash("test hash".getBytes()));
+        when(payloadDigest.digest(any())).thenReturn("test hash".getBytes());
         when(enclave.getPublicKeys()).thenReturn(Set.of(singleRecipient));
         when(enclave.unencryptTransaction(any(), any())).thenThrow(new EnclaveException("test exception"));
 
@@ -178,7 +173,7 @@ public class EncodedPayloadManagerImplTest {
             .isInstanceOf(RecipientKeyNotFoundException.class)
             .hasMessage("No suitable recipient keys found to decrypt payload for dGVzdCBoYXNo");
 
-        verify(messageHashFactory, times(2)).createFromCipherText(any());
+        verify(payloadDigest, times(2)).digest(any());
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(any(), any());
     }
@@ -203,7 +198,7 @@ public class EncodedPayloadManagerImplTest {
             .withExecHash(new byte[0])
             .build();
 
-        when(messageHashFactory.createFromCipherText(any())).thenReturn(new MessageHash("test hash".getBytes()));
+        when(payloadDigest.digest(any())).thenReturn("test hash".getBytes());
         when(enclave.getPublicKeys()).thenReturn(emptySet());
         when(enclave.unencryptTransaction(any(), any())).thenThrow(new EnclaveException("test exception"));
 
@@ -214,7 +209,7 @@ public class EncodedPayloadManagerImplTest {
             .isInstanceOf(EnclaveException.class)
             .hasMessage("test exception");
 
-        verify(messageHashFactory).createFromCipherText(any());
+        verify(payloadDigest).digest(any());
         verify(enclave).unencryptTransaction(samplePayload, singleRecipient);
     }
 

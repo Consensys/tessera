@@ -3,10 +3,10 @@ package com.quorum.tessera.transaction;
 import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.data.EntityManagerDAOFactory;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadDigest;
 import com.quorum.tessera.encryption.PublicKey;
 
 /**
@@ -45,8 +45,8 @@ public interface EncodedPayloadManager {
                             boolean privacyEnabled = config.getFeatures().isEnablePrivacyEnhancements();
                             final PrivacyHelper privacyHelper =
                                     new PrivacyHelperImpl(emDAOFactory.createEncryptedTransactionDAO(), privacyEnabled);
-
-                            return new EncodedPayloadManagerImpl(enclave, privacyHelper, MessageHashFactory.create());
+                            final PayloadDigest payloadDigest = PayloadDigest.create(config);
+                            return new EncodedPayloadManagerImpl(enclave, privacyHelper, payloadDigest);
                         });
     }
 }

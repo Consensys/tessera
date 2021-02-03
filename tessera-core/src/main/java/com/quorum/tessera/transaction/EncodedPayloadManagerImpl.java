@@ -1,7 +1,6 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
@@ -20,13 +19,13 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
     private final PrivacyHelper privacyHelper;
 
-    private final MessageHashFactory messageHashFactory;
+    private final PayloadDigest payloadDigest;
 
     public EncodedPayloadManagerImpl(
-            final Enclave enclave, final PrivacyHelper privacyHelper, final MessageHashFactory mhFactory) {
+            final Enclave enclave, final PrivacyHelper privacyHelper, final PayloadDigest payloadDigest) {
         this.enclave = Objects.requireNonNull(enclave);
         this.privacyHelper = Objects.requireNonNull(privacyHelper);
-        this.messageHashFactory = Objects.requireNonNull(mhFactory);
+        this.payloadDigest = Objects.requireNonNull(payloadDigest);
     }
 
     @Override
@@ -65,7 +64,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
     @Override
     public ReceiveResponse decrypt(final EncodedPayload payload, final PublicKey maybeDefaultRecipient) {
-        final MessageHash customPayloadHash = messageHashFactory.createFromCipherText(payload.getCipherText());
+        final MessageHash customPayloadHash = new MessageHash(payloadDigest.digest(payload.getCipherText()));
         LOGGER.debug("Decrypt request for custom message with hash {}", customPayloadHash);
 
         final PublicKey recipientKey =
@@ -82,7 +81,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
         final byte[] decryptedTransactionData = enclave.unencryptTransaction(payload, recipientKey);
 
-        final Set<MessageHash> txns =
+        final Set<MessageHash> affectedTransactions =
                 payload.getAffectedContractTransactions().keySet().stream()
                         .map(TxHash::getBytes)
                         .map(MessageHash::new)
@@ -91,14 +90,14 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
         return ReceiveResponse.Builder.create()
                 .withUnencryptedTransactionData(decryptedTransactionData)
                 .withPrivacyMode(payload.getPrivacyMode())
-                .withAffectedTransactions(txns)
+                .withAffectedTransactions(affectedTransactions)
                 .withExecHash(payload.getExecHash())
                 .withSender(payload.getSenderKey())
                 .build();
     }
 
     private Optional<PublicKey> searchForRecipientKey(final EncodedPayload payload) {
-        final MessageHash customPayloadHash = messageHashFactory.createFromCipherText(payload.getCipherText());
+        final MessageHash customPayloadHash = new MessageHash(payloadDigest.digest(payload.getCipherText()));
 
         for (final PublicKey potentialMatchingKey : enclave.getPublicKeys()) {
             try {
