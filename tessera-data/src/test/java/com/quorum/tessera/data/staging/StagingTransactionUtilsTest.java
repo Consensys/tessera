@@ -33,11 +33,10 @@ public class StagingTransactionUtilsTest {
                         .withRecipientKeys(Arrays.asList(recipient1))
                         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
                         .withAffectedContractTransactions(singletonMap(affectedHash, "somesecurityHash".getBytes()))
-                        .withExecHash("execHash".getBytes())
                         .build();
 
         final String messageHash =
-            Base64.getEncoder().encodeToString(new PayloadDigest.Default().digest(encodedPayload.getCipherText()));
+                Base64.getEncoder().encodeToString(new PayloadDigest.Default().digest(encodedPayload.getCipherText()));
 
         final byte[] raw = encoder.encode(encodedPayload);
 

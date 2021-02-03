@@ -18,7 +18,8 @@ public class ResendManagerImpl implements ResendManager {
 
     private final PayloadDigest payloadDigest;
 
-    public ResendManagerImpl(EncryptedTransactionDAO encryptedTransactionDAO, Enclave enclave, PayloadDigest payloadDigest) {
+    public ResendManagerImpl(
+            EncryptedTransactionDAO encryptedTransactionDAO, Enclave enclave, PayloadDigest payloadDigest) {
         this(encryptedTransactionDAO, PayloadEncoder.create(), enclave, payloadDigest);
     }
 
@@ -45,6 +46,7 @@ public class ResendManagerImpl implements ResendManager {
             final EncodedPayload tempPayload =
                     EncodedPayload.Builder.from(payload)
                             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                            .withExecHash(new byte[0])
                             .withNewRecipientKeys(List.of(payload.getRecipientKeys().get(0)))
                             .withRecipientBoxes(List.of(payload.getRecipientBoxes().get(0).getData()))
                             .build();
