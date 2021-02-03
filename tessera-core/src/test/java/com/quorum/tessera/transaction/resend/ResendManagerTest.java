@@ -6,7 +6,6 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.enclave.PayloadDigest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

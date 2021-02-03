@@ -83,7 +83,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
         final byte[] decryptedTransactionData = enclave.unencryptTransaction(payload, recipientKey);
 
-        final Set<MessageHash> affectedTransaction =
+        final Set<MessageHash> affectedTransactions =
                 payload.getAffectedContractTransactions().keySet().stream()
                         .map(TxHash::getBytes)
                         .map(MessageHash::new)
@@ -93,7 +93,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
                 ReceiveResponse.Builder.create()
                         .withUnencryptedTransactionData(decryptedTransactionData)
                         .withPrivacyMode(payload.getPrivacyMode())
-                        .withAffectedTransactions(affectedTransaction)
+                        .withAffectedTransactions(affectedTransactions)
                         .withExecHash(payload.getExecHash())
                         .withSender(payload.getSenderKey());
 

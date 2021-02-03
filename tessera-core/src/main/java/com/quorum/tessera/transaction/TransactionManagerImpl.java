@@ -10,7 +10,6 @@ import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Codec;
-import com.quorum.tessera.enclave.PayloadDigest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -224,6 +223,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         final byte[] digest = payloadDigest.digest(payload.getCipherText());
         final MessageHash transactionHash = new MessageHash(digest);
+
         final List<AffectedTransaction> affectedContractTransactions =
                 privacyHelper.findAffectedContractTransactionsFromPayload(payload);
 
@@ -459,6 +459,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
         RawTransaction rawTransaction = enclave.encryptRawPayload(storeRequest.getPayload(), storeRequest.getSender());
         MessageHash hash = new MessageHash(payloadDigest.digest(rawTransaction.getEncryptedPayload()));
+
         EncryptedRawTransaction encryptedRawTransaction =
                 new EncryptedRawTransaction(
                         hash,
