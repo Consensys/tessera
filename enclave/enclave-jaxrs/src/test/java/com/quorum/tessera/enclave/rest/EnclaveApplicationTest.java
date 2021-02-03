@@ -81,7 +81,7 @@ public class EnclaveApplicationTest {
                             return pay;
                         })
                 .when(enclave)
-                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyList(), any());
+                .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any());
 
         PublicKey senderPublicKey = pay.getSenderKey();
         List<PublicKey> recipientPublicKeys = pay.getRecipientKeys();
@@ -96,20 +96,19 @@ public class EnclaveApplicationTest {
         when(acoth.getAffectedContractTransactions()).thenReturn(Collections.emptyMap());
         when(acoth.getExecHash()).thenReturn("0".getBytes());
 
-
         TxHash txHash = new TxHash("key".getBytes());
         AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
         when(affectedTransaction.getPayload()).thenReturn(acoth);
         when(affectedTransaction.getHash()).thenReturn(txHash);
 
+        PrivacyMetadata privacyMetaData =
+                PrivacyMetadata.Builder.create()
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedTransactions(List.of(affectedTransaction))
+                        .build();
+
         EncodedPayload result =
-                restfulEnclaveClient.encryptPayload(
-                        message,
-                        senderPublicKey,
-                        recipientPublicKeys,
-                        PrivacyMode.STANDARD_PRIVATE,
-                        List.of(affectedTransaction),
-                        new byte[0]);
+                restfulEnclaveClient.encryptPayload(message, senderPublicKey, recipientPublicKeys, privacyMetaData);
 
         assertThat(result.getSenderKey()).isNotNull().isEqualTo(pay.getSenderKey());
 
@@ -127,7 +126,7 @@ public class EnclaveApplicationTest {
 
         assertThat(results.get(0)).isEqualTo(message);
 
-        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(), anyList(), any());
+        verify(enclave).encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any(PrivacyMetadata.class));
     }
 
     @Test
