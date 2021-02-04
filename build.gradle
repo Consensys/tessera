@@ -224,7 +224,9 @@ subprojects {
         testImplementation "org.assertj:assertj-core"
         testImplementation "org.mockito:mockito-inline"
         testImplementation "com.openpojo:openpojo"
-        testImplementation "com.github.stefanbirkner:system-rules"
+        testImplementation("com.github.stefanbirkner:system-rules") {
+            exclude group: "junit", module: "junit-dep"
+        }
         testImplementation "nl.jqno.equalsverifier:equalsverifier"
     }
 
