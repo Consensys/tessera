@@ -209,7 +209,7 @@ public class AwsKeyVaultIT {
             }
         });
 
-        assertThat(startUpLatch.await(30, TimeUnit.SECONDS)).isTrue();
+        assertThat(startUpLatch.await(2, TimeUnit.MINUTES)).isTrue();
 
         assertThat(httpHandler.getCounter()).isEqualTo(2);
 
