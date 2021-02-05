@@ -116,6 +116,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload secondaryPayload =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(sender, recipient1, recipient2))
                         .withRecipientBoxes(List.of("boxSender".getBytes(), recipient1Box, "box2".getBytes()))
@@ -123,6 +124,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload primaryPayload =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(recipient1, sender, recipient2))
                         .withRecipientBox(recipient1Box)
@@ -167,6 +169,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload primaryPayload =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(sender, recipient1, recipient2))
                         .withRecipientBoxes(List.of("boxSender".getBytes(), recipient1Box, "box2".getBytes()))
@@ -174,6 +177,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload secondaryPayload =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(recipient1, sender, recipient2))
                         .withRecipientBox(recipient1Box)
@@ -194,6 +198,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload secondaryPayload =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(sender, recipient1, recipient2))
                         .withRecipientBoxes(List.of("boxSender".getBytes(), recipient1Box, "box2".getBytes()))
@@ -201,6 +206,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload primaryPayload =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(recipient1, sender, recipient2))
                         .withRecipientBox(recipient1Box)
@@ -226,6 +232,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload primaryPayload =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(recipient1, sender, recipient2))
                         .withRecipientBoxes(List.of(recipient1Box))
@@ -234,6 +241,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload secondaryPayload =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(recipient2, sender, recipient1))
                         .withRecipientBox(recipient2Box)
@@ -245,6 +253,7 @@ public class EncryptedTransactionMigratorTest {
         final EncodedPayload expected =
                 EncodedPayload.Builder.create()
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withSenderKey(sender)
                         .withNewRecipientKeys(List.of(recipient2, recipient1, sender))
                         .withRecipientBoxes(List.of(recipient2Box, recipient1Box))

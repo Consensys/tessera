@@ -6,6 +6,7 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.enclave.PayloadDigest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +40,7 @@ public class ResendManagerTest {
         this.encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
         this.payloadEncoder = mock(PayloadEncoder.class);
         this.enclave = mock(Enclave.class);
-        this.payloadDigest = cipherText -> cipherText;
+        payloadDigest = cipherText -> cipherText;
 
         this.resendManager = new ResendManagerImpl(encryptedTransactionDAO, payloadEncoder, enclave, payloadDigest);
     }
@@ -165,6 +166,7 @@ public class ResendManagerTest {
                 EncodedPayload.Builder.create()
                         .withSenderKey(senderKey)
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withCipherText("CIPHERTEXT".getBytes())
                         .withRecipientBoxes(singletonList(recipientBox2))
                         .withRecipientKeys(List.of(recipientKey2, senderKey))

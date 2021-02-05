@@ -1,26 +1,23 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.*;
-import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.Nonce;
-import com.quorum.tessera.service.Service;
+import com.quorum.tessera.encryption.PublicKey;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.json.JsonArray;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.net.URI;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RestfulEnclaveClient implements EnclaveClient {
 
@@ -71,7 +68,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     JsonArray results = response.readEntity(JsonArray.class);
 
                     return IntStream.range(0, results.size())
-                            .mapToObj(i -> results.getString(i))
+                            .mapToObj(results::getString)
                             .map(s -> Base64.getDecoder().decode(s))
                             .map(PublicKey::from)
                             .collect(Collectors.toSet());
@@ -89,7 +86,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     JsonArray results = response.readEntity(JsonArray.class);
 
                     return IntStream.range(0, results.size())
-                            .mapToObj(i -> results.getString(i))
+                            .mapToObj(results::getString)
                             .map(s -> Base64.getDecoder().decode(s))
                             .map(PublicKey::from)
                             .collect(Collectors.toSet());
@@ -98,12 +95,10 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     @Override
     public EncodedPayload encryptPayload(
-            byte[] message,
-            PublicKey senderPublicKey,
-            List<PublicKey> recipientPublicKeys,
-            PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions,
-            byte[] execHash) {
+            final byte[] message,
+            final PublicKey senderPublicKey,
+            final List<PublicKey> recipientPublicKeys,
+            final PrivacyMetadata privacyMetaData) {
 
         return ClientCallback.execute(
                 () -> {
@@ -111,13 +106,15 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     enclavePayload.setData(message);
                     enclavePayload.setSenderKey(senderPublicKey.getKeyBytes());
                     enclavePayload.setRecipientPublicKeys(
-                            recipientPublicKeys.stream()
-                                .map(PublicKey::getKeyBytes)
-                                .collect(Collectors.toList()));
-                    enclavePayload.setPrivacyMode(privacyMode);
+                            recipientPublicKeys.stream().map(PublicKey::getKeyBytes).collect(Collectors.toList()));
+                    enclavePayload.setPrivacyMode(privacyMetaData.getPrivacyMode());
                     enclavePayload.setAffectedContractTransactions(
-                            convertAffectedContractTransactions(affectedContractTransactions));
-                    enclavePayload.setExecHash(execHash);
+                            convertAffectedContractTransactions(privacyMetaData.getAffectedContractTransactions()));
+                    enclavePayload.setExecHash(privacyMetaData.getExecHash());
+                    privacyMetaData
+                            .getPrivacyGroupId()
+                            .map(PrivacyGroup.Id::getBytes)
+                            .ifPresent(enclavePayload::setPrivacyGroupId);
 
                     Response response = client.target(uri).path("encrypt").request().post(Entity.json(enclavePayload));
 
@@ -131,11 +128,9 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     @Override
     public EncodedPayload encryptPayload(
-            RawTransaction rawTransaction,
-            List<PublicKey> recipientPublicKeys,
-            PrivacyMode privacyMode,
-            List<AffectedTransaction> affectedContractTransactions,
-            byte[] execHash) {
+            final RawTransaction rawTransaction,
+            final List<PublicKey> recipientPublicKeys,
+            final PrivacyMetadata privacyMetaData) {
 
         return ClientCallback.execute(
                 () -> {
@@ -147,11 +142,16 @@ public class RestfulEnclaveClient implements EnclaveClient {
                     enclaveRawPayload.setEncryptedPayload(rawTransaction.getEncryptedPayload());
                     enclaveRawPayload.setEncryptedKey(rawTransaction.getEncryptedKey());
 
-                    enclaveRawPayload.setPrivacyMode(privacyMode);
-                    enclaveRawPayload.setExecHash(execHash);
+                    enclaveRawPayload.setPrivacyMode(privacyMetaData.getPrivacyMode());
+                    enclaveRawPayload.setExecHash(privacyMetaData.getExecHash());
 
                     enclaveRawPayload.setAffectedContractTransactions(
-                            convertAffectedContractTransactions(affectedContractTransactions));
+                            convertAffectedContractTransactions(privacyMetaData.getAffectedContractTransactions()));
+
+                    privacyMetaData
+                            .getPrivacyGroupId()
+                            .map(PrivacyGroup.Id::getBytes)
+                            .ifPresent(enclaveRawPayload::setPrivacyGroupId);
 
                     Response response =
                             client.target(uri)
@@ -284,17 +284,17 @@ public class RestfulEnclaveClient implements EnclaveClient {
      * @return Status
      */
     @Override
-    public Service.Status status() {
+    public Status status() {
 
-        Future<Service.Status> outcome =
+        Future<Status> outcome =
                 executorService.submit(
                         () -> {
                             Response response = client.target(uri).path("ping").request().get();
 
                             if (response.getStatus() == 200) {
-                                return Service.Status.STARTED;
+                                return Status.STARTED;
                             }
-                            return Service.Status.STOPPED;
+                            return Status.STOPPED;
                         });
 
         try {
@@ -302,7 +302,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
             return outcome.get(2, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             LOGGER.trace(null, ex);
-            return Service.Status.STOPPED;
+            return Status.STOPPED;
         }
     }
 
@@ -318,11 +318,14 @@ public class RestfulEnclaveClient implements EnclaveClient {
         }
     }
 
-    private List<KeyValuePair> convertAffectedContractTransactions(List<AffectedTransaction> affectedContractTransactions) {
-        return affectedContractTransactions.stream().map(
-            affectedTransaction ->
-                new KeyValuePair(affectedTransaction.getHash().getBytes(),
-                    this.payloadEncoder.encode(affectedTransaction.getPayload())))
-            .collect(Collectors.toList());
+    private List<KeyValuePair> convertAffectedContractTransactions(
+            List<AffectedTransaction> affectedContractTransactions) {
+        return affectedContractTransactions.stream()
+                .map(
+                        affectedTransaction ->
+                                new KeyValuePair(
+                                        affectedTransaction.getHash().getBytes(),
+                                        this.payloadEncoder.encode(affectedTransaction.getPayload())))
+                .collect(Collectors.toList());
     }
 }

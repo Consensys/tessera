@@ -125,6 +125,7 @@ public class PreparePayloadForRecipientTest {
                 EncodedPayload.Builder.create()
                         .withSenderKey(targetResendKey)
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("execHash".getBytes())
                         .withRecipientKeys(List.of(recipient1, recipient2))
                         .withRecipientBox("encrypteddata1".getBytes())
                         .build();
