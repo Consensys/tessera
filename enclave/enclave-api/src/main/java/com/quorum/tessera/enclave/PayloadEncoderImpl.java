@@ -7,7 +7,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Collections.*;
-import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.toList;
 
 public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
@@ -52,10 +51,10 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
             executionHash = encodeField(payload.getExecHash());
         }
 
-        byte[] privacyGroupId = new byte[0];
-        if (payload.getPrivacyGroupId().isPresent()) {
-            privacyGroupId = encodeField(payload.getPrivacyGroupId().get().getBytes());
-        }
+        byte[] privacyGroupId = payload.getPrivacyGroupId()
+            .map(PrivacyGroup.Id::getBytes)
+            .map(this::encodeField)
+            .orElse(new byte[0]);
 
         return ByteBuffer.allocate(
                         senderKey.length

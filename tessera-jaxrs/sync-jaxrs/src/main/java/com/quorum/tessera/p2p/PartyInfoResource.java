@@ -170,7 +170,7 @@ public class PartyInfoResource {
                                 enclave.encryptPayload(
                                         dataToEncrypt.getBytes(),
                                         localPublicKey,
-                                        Arrays.asList(r.getKey()),
+                                        List.of(r.getKey()),
                                         PrivacyMetadata.Builder.forStandardPrivate().build());
 
                         final byte[] encodedPayloadBytes = payloadEncoder.encode(encodedPayload);

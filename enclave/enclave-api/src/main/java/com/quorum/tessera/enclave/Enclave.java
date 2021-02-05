@@ -55,7 +55,7 @@ public interface Enclave extends Service {
      * Decrypts a {@link RawTransaction} so that it can be re-encrypted into a {@link EncodedPayload} with the given
      * recipient list
      *
-     * @param rawTransaction the transactiopn to decrypt and re-encrypt with recipients
+     * @param rawTransaction the transaction to decrypt and re-encrypt with recipients
      * @param recipientPublicKeys the recipients to encrypt the transaction for
      * @param privacyMetadata privacy metadata of the transaction
      * @return the encrypted information, represented by an {@link EncodedPayload}

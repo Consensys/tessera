@@ -104,26 +104,26 @@ public class EncodedPayloadBuilderTest {
     @Test
     public void withPrivacyGroupId() {
         final EncodedPayload sample =
-                EncodedPayload.Builder.create()
-                        .withSenderKey(senderKey)
-                        .withCipherText(cipherText)
-                        .withCipherTextNonce(cipherTextNonce)
-                        .withRecipientBox(recipientBox)
-                        .withRecipientNonce(recipientNonce)
-                        .withPrivacyFlag(3)
-                        .withAffectedContractTransactions(affectedContractTransactionsRaw)
-                        .withExecHash(execHash)
-                        .withRecipientKey(recipientKey)
-                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
-                        .build();
+            EncodedPayload.Builder.create()
+                .withSenderKey(senderKey)
+                .withCipherText(cipherText)
+                .withCipherTextNonce(cipherTextNonce)
+                .withRecipientBox(recipientBox)
+                .withRecipientNonce(recipientNonce)
+                .withPrivacyFlag(3)
+                .withAffectedContractTransactions(affectedContractTransactionsRaw)
+                .withExecHash(execHash)
+                .withRecipientKey(recipientKey)
+                .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
+                .build();
 
         final EncodedPayload result = EncodedPayload.Builder.from(sample).build();
         assertThat(result).isNotSameAs(sample).isEqualTo(sample);
 
         EqualsVerifier.forClass(EncodedPayload.class)
-                .withIgnoredFields("affectedContractTransactions")
-                .usingGetClass()
-                .verify();
+            .withIgnoredFields("affectedContractTransactions")
+            .usingGetClass()
+            .verify();
 
         assertThat(result.getPrivacyGroupId()).isPresent();
         assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()));
@@ -132,31 +132,31 @@ public class EncodedPayloadBuilderTest {
     @Test(expected = RuntimeException.class)
     public void nonPSVButExecHashPresent() {
         EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText(cipherText)
-                .withCipherTextNonce(cipherTextNonce)
-                .withRecipientBox(recipientBox)
-                .withRecipientNonce(recipientNonce)
-                .withPrivacyFlag(1)
-                .withAffectedContractTransactions(affectedContractTransactionsRaw)
-                .withExecHash(execHash)
-                .withRecipientKey(recipientKey)
-                .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
-                .build();
+            .withSenderKey(senderKey)
+            .withCipherText(cipherText)
+            .withCipherTextNonce(cipherTextNonce)
+            .withRecipientBox(recipientBox)
+            .withRecipientNonce(recipientNonce)
+            .withPrivacyFlag(1)
+            .withAffectedContractTransactions(affectedContractTransactionsRaw)
+            .withExecHash(execHash)
+            .withRecipientKey(recipientKey)
+            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
+            .build();
     }
 
     @Test(expected = RuntimeException.class)
     public void psvTxWithoutExecHash() {
         EncodedPayload.Builder.create()
-                .withSenderKey(senderKey)
-                .withCipherText(cipherText)
-                .withCipherTextNonce(cipherTextNonce)
-                .withRecipientBox(recipientBox)
-                .withRecipientNonce(recipientNonce)
-                .withPrivacyFlag(3)
-                .withAffectedContractTransactions(affectedContractTransactionsRaw)
-                .withRecipientKey(recipientKey)
-                .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
-                .build();
+            .withSenderKey(senderKey)
+            .withCipherText(cipherText)
+            .withCipherTextNonce(cipherTextNonce)
+            .withRecipientBox(recipientBox)
+            .withRecipientNonce(recipientNonce)
+            .withPrivacyFlag(3)
+            .withAffectedContractTransactions(affectedContractTransactionsRaw)
+            .withRecipientKey(recipientKey)
+            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
+            .build();
     }
 }

@@ -1,11 +1,17 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMetadata;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
-import com.quorum.tessera.partyinfo.model.*;
+import com.quorum.tessera.partyinfo.model.NodeInfoUtil;
+import com.quorum.tessera.partyinfo.model.Party;
+import com.quorum.tessera.partyinfo.model.PartyInfo;
+import com.quorum.tessera.partyinfo.model.Recipient;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import org.junit.After;
 import org.junit.Before;
@@ -28,7 +34,8 @@ import java.io.UncheckedIOException;
 import java.net.URI;
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 public class PartyInfoResourceTest {

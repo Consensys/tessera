@@ -3,7 +3,6 @@ package com.quorum.tessera.enclave.rest;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.service.Service;
 import com.quorum.tessera.service.Service.Status;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
@@ -396,8 +395,8 @@ public class RestfulEnclaveClientTest {
 
     @Test
     public void statusStarted() {
-        when(enclave.status()).thenReturn(Service.Status.STARTED);
-        assertThat(enclaveClient.status()).isEqualTo(Service.Status.STARTED);
+        when(enclave.status()).thenReturn(Status.STARTED);
+        assertThat(enclaveClient.status()).isEqualTo(Status.STARTED);
 
         verify(enclave).status();
     }
@@ -406,7 +405,7 @@ public class RestfulEnclaveClientTest {
     public void statusStopped() {
 
         when(enclave.status()).thenThrow(RuntimeException.class);
-        assertThat(enclaveClient.status()).isEqualTo(Service.Status.STOPPED);
+        assertThat(enclaveClient.status()).isEqualTo(Status.STOPPED);
         verify(enclave).status();
     }
 
@@ -426,7 +425,7 @@ public class RestfulEnclaveClientTest {
 
         Status result = restfulEnclaveClient.status();
 
-        assertThat(result).isEqualTo(Service.Status.STOPPED);
+        assertThat(result).isEqualTo(Status.STOPPED);
     }
 
     @Test
