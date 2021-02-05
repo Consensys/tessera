@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-2b99e7d6
+  version: latest-123c3be9
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -98,15 +98,15 @@ paths:
                 Database unavailable:
                   description: Database unavailable
                   value: Database unavailable
-  /version/distribution:
+  /version:
     get:
       tags:
         - quorum-to-tessera
         - peer-to-peer
         - third-party
-      summary: /version/distribution
+      summary: /version
       description: Tessera distribution version
-      operationId: getDistributionVersion
+      operationId: getVersion
       responses:
         "200":
           description: Tessera distribution version
@@ -115,6 +115,7 @@ paths:
               schema:
                 type: string
               example: 20.10.1
+      deprecated: true
   /version/api:
     get:
       tags:
@@ -136,15 +137,15 @@ paths:
               example:
                 - "1.0"
                 - "2.0"
-  /version:
+  /version/distribution:
     get:
       tags:
         - quorum-to-tessera
         - peer-to-peer
         - third-party
-      summary: /version
+      summary: /version/distribution
       description: Tessera distribution version
-      operationId: getVersion
+      operationId: getDistributionVersion
       responses:
         "200":
           description: Tessera distribution version
@@ -153,7 +154,6 @@ paths:
               schema:
                 type: string
               example: 20.10.1
-      deprecated: true
   /partyinfo:
     get:
       tags:
@@ -270,6 +270,35 @@ paths:
       responses:
         "200":
           description: batch successfully stored
+  /push:
+    post:
+      tags:
+        - peer-to-peer
+      summary: /push
+      description: store encoded payload to the server's database
+      operationId: pushPayload
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: array
+              description: encoded payload
+              items:
+                type: string
+                description: encoded payload
+                format: byte
+      responses:
+        "201":
+          description: hash of encoded payload
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: hash of encrypted payload
+                format: base64
+        "403":
+          description: server is in recovery mode and encoded payload is not a Standard
+            Private transaction
   /resend:
     post:
       tags:
@@ -316,35 +345,28 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchResponse"
-  /push:
+  /receive:
     post:
       tags:
-        - peer-to-peer
-      summary: /push
-      description: store encoded payload to the server's database
-      operationId: pushPayload
+        - quorum-to-tessera
+      summary: /receive
+      description: get payload from database, decrypt, and return
+      operationId: getDecryptedPayloadJson
       requestBody:
         content:
-          application/octet-stream:
+          application/json:
             schema:
-              type: array
-              description: encoded payload
-              items:
-                type: string
-                description: encoded payload
-                format: byte
+              $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveRequest"
+          application/vnd.orion.v1+json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveRequest"
       responses:
-        "201":
-          description: hash of encoded payload
+        "200":
+          description: decrypted payload
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                description: hash of encrypted payload
-                format: base64
-        "403":
-          description: server is in recovery mode and encoded payload is not a Standard
-            Private transaction
+                $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
   /encodedpayload/create:
     post:
       tags:
@@ -560,18 +582,40 @@ paths:
                 type: string
               example: Delete successful
       deprecated: true
-  /receive:
+  "/transaction/{hash}":
     get:
       tags:
         - quorum-to-tessera
-      summary: /receive
+      summary: /transaction/{hash}
       description: get payload from database, decrypt, and return
-      operationId: getDecryptedPayloadJson
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveRequest"
+      operationId: getDecryptedPayloadJsonUrl
+      parameters:
+        - name: hash
+          in: path
+          description: hash indicating encrypted payload to retrieve from database
+          required: true
+          schema:
+            type: string
+            format: base64
+        - name: to
+          in: query
+          description: (optional) public key of recipient of the encrypted payload; used
+            in decryption; if not provided, decryption is attempted with all
+            known recipient keys in turn
+          schema:
+            type: string
+            format: base64
+        - name: isRaw
+          in: query
+          description: >-
+            (optional) indicates whether the payload is raw; determines which
+            database the payload is retrieved from; possible values
+
+            * true - for pre-stored payloads in the "raw" database
+
+            * false (default) - for already sent payloads in "standard" database
+          schema:
+            type: string
       responses:
         "200":
           description: decrypted payload
@@ -579,6 +623,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
+            application/vnd.tessera-2.1+json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
+    delete:
+      tags:
+        - quorum-to-tessera
+      summary: /transaction/{hash}
+      description: delete payload from database
+      operationId: delete
+      parameters:
+        - name: hash
+          in: path
+          description: hash indicating encrypted payload to delete from database
+          required: true
+          schema:
+            type: string
+            format: base64
+      responses:
+        "204":
+          description: delete successful
   "/transaction/{hash}/isSender":
     get:
       tags:
@@ -666,67 +730,6 @@ paths:
             application/vnd.tessera-2.1+json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
-  "/transaction/{hash}":
-    get:
-      tags:
-        - quorum-to-tessera
-      summary: /transaction/{hash}
-      description: get payload from database, decrypt, and return
-      operationId: getDecryptedPayloadJsonUrl
-      parameters:
-        - name: hash
-          in: path
-          description: hash indicating encrypted payload to retrieve from database
-          required: true
-          schema:
-            type: string
-            format: base64
-        - name: to
-          in: query
-          description: (optional) public key of recipient of the encrypted payload; used
-            in decryption; if not provided, decryption is attempted with all
-            known recipient keys in turn
-          schema:
-            type: string
-            format: base64
-        - name: isRaw
-          in: query
-          description: >-
-            (optional) indicates whether the payload is raw; determines which
-            database the payload is retrieved from; possible values
-
-            * true - for pre-stored payloads in the "raw" database
-
-            * false (default) - for already sent payloads in "standard" database
-          schema:
-            type: string
-      responses:
-        "200":
-          description: decrypted payload
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
-            application/vnd.tessera-2.1+json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
-    delete:
-      tags:
-        - quorum-to-tessera
-      summary: /transaction/{hash}
-      description: delete payload from database
-      operationId: delete
-      parameters:
-        - name: hash
-          in: path
-          description: hash indicating encrypted payload to delete from database
-          required: true
-          schema:
-            type: string
-            format: base64
-      responses:
-        "204":
-          description: delete successful
   /send:
     post:
       tags:
@@ -887,6 +890,79 @@ components:
           type: integer
           description: default value is used if not provided
           format: int32
+    com.quorum.tessera.api.ReceiveResponse:
+      type: object
+      properties:
+        payload:
+          type: string
+          description: decrypted ciphertext payload
+          format: base64
+        privacyFlag:
+          type: integer
+          description: |-
+            the privacy mode of the transaction
+            * 0 = standard private
+            * 1 = party protection
+            * 3 = private-state validation
+          format: int32
+          enum:
+            - 0
+            - 1
+            - 3
+        affectedContractTransactions:
+          type: array
+          description: encoded payload hashes identifying all affected private contracts
+            after tx simulation
+          format: base64
+          items:
+            type: string
+            description: encoded payload hashes identifying all affected private contracts
+              after tx simulation
+            format: base64
+        execHash:
+          type: string
+          description: execution hash; merkle root of all affected contracts after tx
+            simulation
+          format: base64
+        managedParties:
+          type: array
+          description: participant public keys of key pairs managed by the enclave of this
+            Tessera instance
+          format: base64
+          items:
+            type: string
+            description: participant public keys of key pairs managed by the enclave of this
+              Tessera instance
+            format: base64
+        senderKey:
+          type: string
+          description: public key of the transaction sender
+          format: base64
+        privacyGroupId:
+          type: string
+          description: privacy group id of the transaction
+          format: base64
+    com.quorum.tessera.api.ReceiveRequest:
+      required:
+        - key
+      type: object
+      properties:
+        key:
+          maxLength: 2147483647
+          minLength: 1
+          type: string
+          description: hash indicating encrypted payload to retrieve from database
+          format: base64
+        to:
+          maxLength: 2147483647
+          minLength: 1
+          type: string
+          description: (optional) public key of recipient of the encrypted payload; used
+            in decryption; if not provided, decryption is attempted with all
+            known recipient keys in turn
+          format: base64
+        raw:
+          type: boolean
     com.quorum.tessera.api.SendRequest:
       required:
         - payload
@@ -931,6 +1007,10 @@ components:
           type: string
           description: execution hash; merkle root of all affected contracts after tx
             simulation
+          format: base64
+        privacyGroupId:
+          type: string
+          description: privacy group id of the payload
           format: base64
     com.quorum.tessera.api.PayloadEncryptResponse:
       type: object
@@ -1050,54 +1130,6 @@ components:
           description: execution hash; merkle root of all affected contracts after tx
             simulation
           format: base64
-    com.quorum.tessera.api.ReceiveResponse:
-      type: object
-      properties:
-        payload:
-          type: string
-          description: decrypted ciphertext payload
-          format: base64
-        privacyFlag:
-          type: integer
-          description: |-
-            the privacy mode of the transaction
-            * 0 = standard private
-            * 1 = party protection
-            * 3 = private-state validation
-          format: int32
-          enum:
-            - 0
-            - 1
-            - 3
-        affectedContractTransactions:
-          type: array
-          description: encoded payload hashes identifying all affected private contracts
-            after tx simulation
-          format: base64
-          items:
-            type: string
-            description: encoded payload hashes identifying all affected private contracts
-              after tx simulation
-            format: base64
-        execHash:
-          type: string
-          description: execution hash; merkle root of all affected contracts after tx
-            simulation
-          format: base64
-        managedParties:
-          type: array
-          description: participant public keys of key pairs managed by the enclave of this
-            Tessera instance
-          format: base64
-          items:
-            type: string
-            description: participant public keys of key pairs managed by the enclave of this
-              Tessera instance
-            format: base64
-        senderKey:
-          type: string
-          description: public key of the transaction sender
-          format: base64
     com.quorum.tessera.api.PrivacyGroupRequest:
       type: object
       properties:
@@ -1167,27 +1199,6 @@ components:
           type: string
           description: hash indicating encrypted payload to delete from database
           format: base64
-    com.quorum.tessera.api.ReceiveRequest:
-      required:
-        - key
-      type: object
-      properties:
-        key:
-          maxLength: 2147483647
-          minLength: 1
-          type: string
-          description: hash indicating encrypted payload to retrieve from database
-          format: base64
-        to:
-          maxLength: 2147483647
-          minLength: 1
-          type: string
-          description: (optional) public key of recipient of the encrypted payload; used
-            in decryption; if not provided, decryption is attempted with all
-            known recipient keys in turn
-          format: base64
-        raw:
-          type: boolean
     com.quorum.tessera.api.SendSignedRequest:
       required:
         - hash
@@ -1228,6 +1239,10 @@ components:
           type: string
           description: execution hash; merkle root of all affected contracts after tx
             simulation
+          format: base64
+        privacyGroupId:
+          type: string
+          description: privacy group id of the payload
           format: base64
     com.quorum.tessera.api.SendResponse:
       type: object
