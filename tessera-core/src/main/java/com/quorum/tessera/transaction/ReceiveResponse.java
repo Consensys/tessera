@@ -1,12 +1,11 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.encryption.PublicKey;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public interface ReceiveResponse {
 
@@ -18,6 +17,12 @@ public interface ReceiveResponse {
 
     Set<MessageHash> getAffectedTransactions();
 
+    Set<PublicKey> getManagedParties();
+
+    PublicKey sender();
+
+    Optional<PrivacyGroup.Id> getPrivacyGroupId();
+
     class Builder {
 
         private byte[] unencryptedTransactionData;
@@ -27,6 +32,12 @@ public interface ReceiveResponse {
         private byte[] execHash = new byte[0];
 
         private Set<MessageHash> affectedTransactions = Collections.emptySet();
+
+        private Set<PublicKey> managedParties = Collections.emptySet();
+
+        private PublicKey sender;
+
+        private PrivacyGroup.Id privacyGroupId;
 
         private Builder() {}
 
@@ -54,10 +65,26 @@ public interface ReceiveResponse {
             return this;
         }
 
+        public Builder withManagedParties(Set<PublicKey> managedKeys) {
+            this.managedParties = managedKeys;
+            return this;
+        }
+
+        public Builder withSender(PublicKey sender) {
+            this.sender = sender;
+            return this;
+        }
+
+        public Builder withPrivacyGroupId(PrivacyGroup.Id privacyGroupId) {
+            this.privacyGroupId = privacyGroupId;
+            return this;
+        }
+
         public ReceiveResponse build() {
 
             Objects.requireNonNull(unencryptedTransactionData, "unencrypted payload is required");
             Objects.requireNonNull(privacyMode, "Privacy mode is required");
+            Objects.requireNonNull(sender, "transaction sender is required");
 
             if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
                 if (execHash.length == 0) {
@@ -85,6 +112,21 @@ public interface ReceiveResponse {
                 @Override
                 public Set<MessageHash> getAffectedTransactions() {
                     return Set.copyOf(affectedTransactions);
+                }
+
+                @Override
+                public Set<PublicKey> getManagedParties() {
+                    return managedParties;
+                }
+
+                @Override
+                public PublicKey sender() {
+                    return sender;
+                }
+
+                @Override
+                public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
+                    return Optional.ofNullable(privacyGroupId);
                 }
             };
         }

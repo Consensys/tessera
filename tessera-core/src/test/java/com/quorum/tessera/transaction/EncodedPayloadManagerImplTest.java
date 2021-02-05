@@ -1,11 +1,6 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.data.MessageHashFactory;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveException;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import org.junit.After;
@@ -27,7 +22,7 @@ public class EncodedPayloadManagerImplTest {
 
     private PrivacyHelper privacyHelper;
 
-    private MessageHashFactory messageHashFactory;
+    private PayloadDigest payloadDigest;
 
     private EncodedPayloadManager encodedPayloadManager;
 
@@ -35,14 +30,14 @@ public class EncodedPayloadManagerImplTest {
     public void init() {
         this.enclave = mock(Enclave.class);
         this.privacyHelper = mock(PrivacyHelper.class);
-        this.messageHashFactory = mock(MessageHashFactory.class);
+        this.payloadDigest = mock(PayloadDigest.class);
 
-        this.encodedPayloadManager = new EncodedPayloadManagerImpl(enclave, privacyHelper, messageHashFactory);
+        this.encodedPayloadManager = new EncodedPayloadManagerImpl(enclave, privacyHelper, payloadDigest);
     }
 
     @After
     public void after() {
-        verifyNoMoreInteractions(enclave, privacyHelper, messageHashFactory);
+        verifyNoMoreInteractions(enclave, privacyHelper, payloadDigest);
     }
 
     @Test
@@ -56,25 +51,29 @@ public class EncodedPayloadManagerImplTest {
         final PublicKey singleRecipient = PublicKey.from(Base64.getDecoder().decode(singleRecipientBase64));
         final List<PublicKey> recipients = List.of(singleRecipient);
 
-        final SendRequest request = SendRequest.Builder.create()
-            .withSender(sender)
-            .withRecipients(recipients)
-            .withPayload(testPayload.getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .withAffectedContractTransactions(emptySet())
-            .withExecHash(new byte[0])
-            .build();
+        final SendRequest request =
+                SendRequest.Builder.create()
+                        .withSender(sender)
+                        .withRecipients(recipients)
+                        .withPayload(testPayload.getBytes())
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedContractTransactions(emptySet())
+                        .withExecHash(new byte[0])
+                        .build();
 
         final EncodedPayload sampleReturnPayload = EncodedPayload.Builder.create().build();
-        when(enclave.encryptPayload(any(), eq(sender), eq(List.of(singleRecipient, sender)), any(), any(), any())).thenReturn(sampleReturnPayload);
+        when(enclave.encryptPayload(any(), eq(sender), eq(List.of(singleRecipient, sender)), any()))
+                .thenReturn(sampleReturnPayload);
 
         final EncodedPayload encodedPayload = encodedPayloadManager.create(request);
 
         assertThat(encodedPayload).isEqualTo(sampleReturnPayload);
 
         verify(privacyHelper).findAffectedContractTransactionsFromSendRequest(emptySet());
-        verify(privacyHelper).validateSendRequest(PrivacyMode.STANDARD_PRIVATE, List.of(singleRecipient, sender), emptyList());
-        verify(enclave).encryptPayload(request.getPayload(), sender, List.of(singleRecipient, sender), PrivacyMode.STANDARD_PRIVATE, emptyList(), request.getExecHash());
+        verify(privacyHelper)
+                .validateSendRequest(PrivacyMode.STANDARD_PRIVATE, List.of(singleRecipient, sender), emptyList());
+        verify(enclave)
+                .encryptPayload(eq(request.getPayload()), eq(sender), eq(List.of(singleRecipient, sender)), any());
         verify(enclave).getForwardingKeys();
     }
 
@@ -87,27 +86,32 @@ public class EncodedPayloadManagerImplTest {
 
         final String singleRecipientBase64 = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
         final PublicKey singleRecipient = PublicKey.from(Base64.getDecoder().decode(singleRecipientBase64));
-        final List<PublicKey> recipients = List.of(singleRecipient, sender, singleRecipient); //list the keys multiple times
+        final List<PublicKey> recipients =
+                List.of(singleRecipient, sender, singleRecipient); // list the keys multiple times
 
-        final SendRequest request = SendRequest.Builder.create()
-            .withSender(sender)
-            .withRecipients(recipients)
-            .withPayload(testPayload.getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .withAffectedContractTransactions(emptySet())
-            .withExecHash(new byte[0])
-            .build();
+        final SendRequest request =
+                SendRequest.Builder.create()
+                        .withSender(sender)
+                        .withRecipients(recipients)
+                        .withPayload(testPayload.getBytes())
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedContractTransactions(emptySet())
+                        .withExecHash(new byte[0])
+                        .build();
 
         final EncodedPayload sampleReturnPayload = EncodedPayload.Builder.create().build();
-        when(enclave.encryptPayload(any(), eq(sender), eq(List.of(singleRecipient, sender)), any(), any(), any())).thenReturn(sampleReturnPayload);
+        when(enclave.encryptPayload(any(), eq(sender), eq(List.of(singleRecipient, sender)), any()))
+                .thenReturn(sampleReturnPayload);
 
         final EncodedPayload encodedPayload = encodedPayloadManager.create(request);
 
         assertThat(encodedPayload).isEqualTo(sampleReturnPayload);
 
         verify(privacyHelper).findAffectedContractTransactionsFromSendRequest(emptySet());
-        verify(privacyHelper).validateSendRequest(PrivacyMode.STANDARD_PRIVATE, List.of(singleRecipient, sender), emptyList());
-        verify(enclave).encryptPayload(request.getPayload(), sender, List.of(singleRecipient, sender), PrivacyMode.STANDARD_PRIVATE, emptyList(), request.getExecHash());
+        verify(privacyHelper)
+                .validateSendRequest(PrivacyMode.STANDARD_PRIVATE, List.of(singleRecipient, sender), emptyList());
+        verify(enclave)
+                .encryptPayload(eq(request.getPayload()), eq(sender), eq(List.of(singleRecipient, sender)), any());
         verify(enclave).getForwardingKeys();
     }
 
@@ -120,18 +124,19 @@ public class EncodedPayloadManagerImplTest {
 
         final String singleRecipientBase64 = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
         final PublicKey singleRecipient = PublicKey.from(Base64.getDecoder().decode(singleRecipientBase64));
-        final List<PublicKey> recipients = List.of(singleRecipient); //list the keys multiple times
+        final List<PublicKey> recipients = List.of(singleRecipient);
 
-        final EncodedPayload samplePayload = EncodedPayload.Builder.create()
-            .withSenderKey(sender)
-            .withRecipientKeys(recipients)
-            .withCipherText(testPayload.getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .withAffectedContractTransactions(emptyMap())
-            .withExecHash(new byte[0])
-            .build();
+        final EncodedPayload samplePayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withRecipientKeys(recipients)
+                        .withCipherText(testPayload.getBytes())
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedContractTransactions(emptyMap())
+                        .withExecHash(new byte[0])
+                        .build();
 
-        when(messageHashFactory.createFromCipherText(any())).thenReturn(new MessageHash("test hash".getBytes()));
+        when(payloadDigest.digest(any())).thenReturn("test hash".getBytes());
         when(enclave.getPublicKeys()).thenReturn(Set.of(singleRecipient));
         when(enclave.unencryptTransaction(samplePayload, singleRecipient)).thenReturn("decrypted data".getBytes());
 
@@ -142,7 +147,7 @@ public class EncodedPayloadManagerImplTest {
         assertThat(response.getAffectedTransactions()).isEmpty();
         assertThat(response.getExecHash()).isEmpty();
 
-        verify(messageHashFactory, times(2)).createFromCipherText(any());
+        verify(payloadDigest, times(2)).digest(any());
         verify(enclave).getPublicKeys();
         verify(enclave, times(2)).unencryptTransaction(samplePayload, singleRecipient);
     }
@@ -156,29 +161,29 @@ public class EncodedPayloadManagerImplTest {
 
         final String singleRecipientBase64 = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
         final PublicKey singleRecipient = PublicKey.from(Base64.getDecoder().decode(singleRecipientBase64));
-        final List<PublicKey> recipients = List.of(singleRecipient); //list the keys multiple times
+        final List<PublicKey> recipients = List.of(singleRecipient);
 
-        final EncodedPayload samplePayload = EncodedPayload.Builder.create()
-            .withSenderKey(sender)
-            .withRecipientKeys(recipients)
-            .withCipherText(testPayload.getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .withAffectedContractTransactions(emptyMap())
-            .withExecHash(new byte[0])
-            .build();
+        final EncodedPayload samplePayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withRecipientKeys(recipients)
+                        .withCipherText(testPayload.getBytes())
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedContractTransactions(emptyMap())
+                        .withExecHash(new byte[0])
+                        .build();
 
-        when(messageHashFactory.createFromCipherText(any())).thenReturn(new MessageHash("test hash".getBytes()));
+        when(payloadDigest.digest(any())).thenReturn("test hash".getBytes());
         when(enclave.getPublicKeys()).thenReturn(Set.of(singleRecipient));
         when(enclave.unencryptTransaction(any(), any())).thenThrow(new EnclaveException("test exception"));
 
-        final Throwable throwable
-            = catchThrowable(() -> encodedPayloadManager.decrypt(samplePayload, null));
+        final Throwable throwable = catchThrowable(() -> encodedPayloadManager.decrypt(samplePayload, null));
 
         assertThat(throwable)
-            .isInstanceOf(RecipientKeyNotFoundException.class)
-            .hasMessage("No suitable recipient keys found to decrypt payload for dGVzdCBoYXNo");
+                .isInstanceOf(RecipientKeyNotFoundException.class)
+                .hasMessage("No suitable recipient keys found to decrypt payload for dGVzdCBoYXNo");
 
-        verify(messageHashFactory, times(2)).createFromCipherText(any());
+        verify(payloadDigest, times(2)).digest(any());
         verify(enclave).getPublicKeys();
         verify(enclave).unencryptTransaction(any(), any());
     }
@@ -192,30 +197,27 @@ public class EncodedPayloadManagerImplTest {
 
         final String singleRecipientBase64 = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
         final PublicKey singleRecipient = PublicKey.from(Base64.getDecoder().decode(singleRecipientBase64));
-        final List<PublicKey> recipients = List.of(singleRecipient); //list the keys multiple times
+        final List<PublicKey> recipients = List.of(singleRecipient);
 
-        final EncodedPayload samplePayload = EncodedPayload.Builder.create()
-            .withSenderKey(sender)
-            .withRecipientKeys(recipients)
-            .withCipherText(testPayload.getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .withAffectedContractTransactions(emptyMap())
-            .withExecHash(new byte[0])
-            .build();
+        final EncodedPayload samplePayload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(sender)
+                        .withRecipientKeys(recipients)
+                        .withCipherText(testPayload.getBytes())
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedContractTransactions(emptyMap())
+                        .withExecHash(new byte[0])
+                        .build();
 
-        when(messageHashFactory.createFromCipherText(any())).thenReturn(new MessageHash("test hash".getBytes()));
+        when(payloadDigest.digest(any())).thenReturn("test hash".getBytes());
         when(enclave.getPublicKeys()).thenReturn(emptySet());
         when(enclave.unencryptTransaction(any(), any())).thenThrow(new EnclaveException("test exception"));
 
-        final Throwable throwable
-            = catchThrowable(() -> encodedPayloadManager.decrypt(samplePayload, singleRecipient));
+        final Throwable throwable = catchThrowable(() -> encodedPayloadManager.decrypt(samplePayload, singleRecipient));
 
-        assertThat(throwable)
-            .isInstanceOf(EnclaveException.class)
-            .hasMessage("test exception");
+        assertThat(throwable).isInstanceOf(EnclaveException.class).hasMessage("test exception");
 
-        verify(messageHashFactory).createFromCipherText(any());
+        verify(payloadDigest).digest(any());
         verify(enclave).unencryptTransaction(samplePayload, singleRecipient);
     }
-
 }

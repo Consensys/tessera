@@ -2,8 +2,8 @@ package config;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
-
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import com.quorum.tessera.config.keys.KeyEncryptor;
@@ -11,6 +11,7 @@ import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.KeyDataUtil;
 import suite.NodeAlias;
 
+import static java.util.stream.Collectors.toList;
 
 public class ConfigDescriptor {
 
@@ -57,14 +58,27 @@ public class ConfigDescriptor {
     public ConfigKeyPair getKey() {
 
         if (isEnclave()) {
-            return enclaveConfig.getKeys().getKeyData()
-                .stream().findFirst()
-
-                .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor)).get();
+            return enclaveConfig.getKeys().getKeyData().stream()
+                    .findFirst()
+                    .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
+                    .get();
         } else {
-            return config.getKeys().getKeyData().stream().findFirst()
-                .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor)).get();
+            return config.getKeys().getKeyData().stream()
+                    .findFirst()
+                    .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
+                    .get();
         }
     }
 
+    public List<ConfigKeyPair> getAllKeys() {
+        if (isEnclave()) {
+            return enclaveConfig.getKeys().getKeyData().stream()
+                    .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
+                    .collect(toList());
+        }
+
+        return config.getKeys().getKeyData().stream()
+                .map(kd -> KeyDataUtil.unmarshal(kd, keyEncryptor))
+                .collect(toList());
+    }
 }

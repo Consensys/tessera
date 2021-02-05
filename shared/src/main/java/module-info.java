@@ -23,5 +23,8 @@ module tessera.shared.main {
         com.quorum.tessera.nio.unix.UnixSocketFileSystemProvider;
 
     provides com.quorum.tessera.version.ApiVersion
-        with com.quorum.tessera.version.BaseVersion, com.quorum.tessera.version.EnhancedPrivacyVersion;
+        with com.quorum.tessera.version.BaseVersion,
+            com.quorum.tessera.version.EnhancedPrivacyVersion,
+            com.quorum.tessera.version.MultiTenancyVersion,
+            com.quorum.tessera.version.PrivacyGroupVersion;
 }

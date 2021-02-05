@@ -1,6 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.PayloadDigest;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,8 +18,11 @@ public class EncodedPayloadManagerProviderTest {
     @Test
     public void provider() {
         try(var mockedEnclaveFactory = mockStatic(Enclave.class);
-            var mockedPrivacyHelper = mockStatic(PrivacyHelper.class)
+            var mockedPrivacyHelper = mockStatic(PrivacyHelper.class);
+            var mockedPayloadDigest = mockStatic(PayloadDigest.class)
         ) {
+
+            mockedPayloadDigest.when(PayloadDigest::create).thenReturn(mock(PayloadDigest.class));
 
             mockedPrivacyHelper.when(PrivacyHelper::create).thenReturn(mock(PrivacyHelper.class));
             mockedEnclaveFactory.when(Enclave::create).thenReturn(mock(Enclave.class));
@@ -26,7 +30,7 @@ public class EncodedPayloadManagerProviderTest {
             EncodedPayloadManager encodedPayloadManager = EncodedPayloadManagerProvider.provider();
             assertThat(encodedPayloadManager).isNotNull();
             assertThat(encodedPayloadManager)
-                .describedAs("Subsequent invocations shoudl return teh same instance")
+                .describedAs("Subsequent invocations should return the same instance")
                 .isSameAs(EncodedPayloadManagerProvider.provider());
 
             mockedPrivacyHelper.verify(PrivacyHelper::create);
@@ -35,6 +39,8 @@ public class EncodedPayloadManagerProviderTest {
             mockedEnclaveFactory.verify(Enclave::create);
             mockedEnclaveFactory.verifyNoMoreInteractions();
 
+            mockedPayloadDigest.verify(PayloadDigest::create);
+            mockedPayloadDigest.verifyNoMoreInteractions();
 
         }
     }

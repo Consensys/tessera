@@ -3,6 +3,7 @@ package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.common.RawTransactionResource;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
@@ -24,17 +25,20 @@ public class Q2TRestAppTest {
 
     private Q2TRestApp q2TRestApp;
 
+    private PrivacyGroupManager privacyGroupManager;
+
     @Before
     public void beforeTest() throws Exception {
         transactionManager = mock(TransactionManager.class);
         encodedPayloadManager = mock(EncodedPayloadManager.class);
+        privacyGroupManager = mock(PrivacyGroupManager.class);
 
-        q2TRestApp = new Q2TRestApp(transactionManager,encodedPayloadManager);
+        q2TRestApp = new Q2TRestApp(transactionManager,encodedPayloadManager,privacyGroupManager);
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(transactionManager,encodedPayloadManager);
+        verifyNoMoreInteractions(transactionManager,encodedPayloadManager,privacyGroupManager);
     }
 
     @Test
@@ -66,12 +70,16 @@ public class Q2TRestAppTest {
     public void defaultConstructor() {
         try(
             var transactionManagerMockedStatic = mockStatic(TransactionManager.class);
-            var encodedPayloadManagerMockedStatic = mockStatic(EncodedPayloadManager.class)
+            var encodedPayloadManagerMockedStatic = mockStatic(EncodedPayloadManager.class);
+            var privacyGroupManagerMockedStatic = mockStatic(PrivacyGroupManager.class)
             ) {
             transactionManagerMockedStatic.when(TransactionManager::create)
                 .thenReturn(transactionManager);
             encodedPayloadManagerMockedStatic.when(EncodedPayloadManager::create)
                 .thenReturn(encodedPayloadManager);
+
+            privacyGroupManagerMockedStatic.when(PrivacyGroupManager::create)
+                .thenReturn(privacyGroupManager);
 
             new Q2TRestApp();
 
@@ -80,6 +88,9 @@ public class Q2TRestAppTest {
 
             encodedPayloadManagerMockedStatic.verify(EncodedPayloadManager::create);
             encodedPayloadManagerMockedStatic.verifyNoMoreInteractions();
+
+            privacyGroupManagerMockedStatic.verify(PrivacyGroupManager::create);
+            privacyGroupManagerMockedStatic.verifyNoMoreInteractions();
         }
 
     }

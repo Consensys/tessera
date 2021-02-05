@@ -1,5 +1,6 @@
 package suite;
 
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
@@ -32,4 +33,6 @@ public @interface ProcessConfig {
     boolean p2pSsl() default false;
 
     EncryptorType encryptorType();
+
+    ClientMode clientMode() default ClientMode.TESSERA;
 }

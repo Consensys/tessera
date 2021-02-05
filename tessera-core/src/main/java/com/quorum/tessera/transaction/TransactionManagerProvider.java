@@ -2,8 +2,8 @@ package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.PayloadDigest;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -42,9 +42,10 @@ public class TransactionManagerProvider {
         LOGGER.debug("Created PrivacyHelper {}",privacyHelper);
 
         int resendBatchSize = 100;
-        LOGGER.debug("Creating MessageHashFactory");
-        final MessageHashFactory messageHashFactory = MessageHashFactory.create();
-        LOGGER.debug("Created MessageHashFactory {}",messageHashFactory);
+        LOGGER.debug("Creating PayloadDigest");
+        final PayloadDigest messageHashFactory = PayloadDigest.create();
+        LOGGER.debug("Created PayloadDigest {}",messageHashFactory);
+
 
         return transactionManagerHolder.store(
             new TransactionManagerImpl(
@@ -52,10 +53,8 @@ public class TransactionManagerProvider {
                 enclave,
                 encryptedRawTransactionDAO,
                 resendManager,
-                payloadPublisher,
                 batchPayloadPublisher,
                 privacyHelper,
-                resendBatchSize,
                 messageHashFactory
             ));
 

@@ -57,57 +57,444 @@ public class EnclaveTest {
         verify(keyManager).getPublicKeys();
     }
 
+    // Case 1
     @Test
-    public void unencryptTransaction() {
+    public void unencryptPSVTransaction() {
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
 
-        PublicKey senderKey = mock(PublicKey.class);
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBox(recipientBox.getData())
+                        .withRecipientNonce(recipientNonce)
+                        .withRecipientKeys(List.of(recipientKey, senderKey))
+                        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("EXEC_HASH".getBytes())
+                        .build();
 
-        PublicKey recipientKey = mock(PublicKey.class);
+        final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(recipientPrivateKey);
 
-        PublicKey providedSenderKey = mock(PublicKey.class);
+        final SharedKey sharedKey = SharedKey.from("shared-key".getBytes());
+        when(nacl.computeSharedKey(senderKey, recipientPrivateKey)).thenReturn(sharedKey);
 
-        byte[] cipherText = "cipherText".getBytes();
+        final byte[] expectedOutcome = "SUCCESS".getBytes();
 
-        Nonce cipherTextNonce = mock(Nonce.class);
-
-        RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
-
-        Nonce recipientNonce = mock(Nonce.class);
-
-        EncodedPayload payload = mock(EncodedPayload.class);
-        when(payload.getSenderKey()).thenReturn(senderKey);
-        when(payload.getCipherText()).thenReturn(cipherText);
-        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
-        when(payload.getRecipientBoxes()).thenReturn(singletonList(recipientBox));
-        when(payload.getRecipientNonce()).thenReturn(recipientNonce);
-        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
-
-        when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(senderKey));
-
-        PrivateKey senderPrivateKey = mock(PrivateKey.class);
-
-        when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(senderPrivateKey);
-
-        SharedKey sharedKey = mock(SharedKey.class);
-        when(nacl.computeSharedKey(recipientKey, senderPrivateKey)).thenReturn(sharedKey);
-
-        byte[] expectedOutcome = "SUCCESS".getBytes();
-
-        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class)))
+        when(nacl.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey))
                 .thenReturn("sharedOrMasterKeyBytes".getBytes());
-
-        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class)))
+        when(nacl.openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class)))
                 .thenReturn(expectedOutcome);
 
-        byte[] result = enclave.unencryptTransaction(payload, providedSenderKey);
+        final byte[] result = enclave.unencryptTransaction(payload, recipientKey);
 
         assertThat(result).isNotNull().isSameAs(expectedOutcome);
 
-        verify(nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
-        verify(nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class));
+        verify(nacl).openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
+        verify(nacl).openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class));
+        verify(nacl).computeSharedKey(senderKey, recipientPrivateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
+    }
+
+    // Case 1 - error with unknown key
+    @Test
+    public void unencryptPSVTransactionWithUnknownKey() {
+        final PublicKey nonRecipientKey = PublicKey.from("unknown".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBox(recipientBox.getData())
+                        .withRecipientNonce(recipientNonce)
+                        .withRecipientKeys(List.of(recipientKey, senderKey))
+                        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+                        .withExecHash("EXEC_HASH".getBytes())
+                        .build();
+
+        final Throwable throwable = catchThrowable(() -> enclave.unencryptTransaction(payload, nonRecipientKey));
+
+        assertThat(throwable).isInstanceOf(EnclaveException.class).hasMessage("recipient not found in listed keys");
+    }
+
+    // Case 2
+    @Test
+    public void unencryptNoRecipientsSingleBoxTransaction() {
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBox(recipientBox.getData())
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(recipientPrivateKey);
+
+        final SharedKey sharedKey = SharedKey.from("shared-key".getBytes());
+        when(nacl.computeSharedKey(senderKey, recipientPrivateKey)).thenReturn(sharedKey);
+
+        final byte[] expectedOutcome = "SUCCESS".getBytes();
+
+        when(nacl.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey))
+                .thenReturn("sharedOrMasterKeyBytes".getBytes());
+        when(nacl.openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
+
+        final byte[] result = enclave.unencryptTransaction(payload, recipientKey);
+
+        assertThat(result).isNotNull().isSameAs(expectedOutcome);
+
+        verify(nacl).openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
+        verify(nacl).openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class));
+        verify(nacl).computeSharedKey(senderKey, recipientPrivateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
+    }
+
+    // Case 3 - decrypt using the recipient key
+    @Test
+    public void unencryptTransactionWeSentUsingRecipientKey() {
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("recipientBox".getBytes());
+        final RecipientBox senderBox = RecipientBox.from("senderBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBoxes(List.of(senderBox.getData(), recipientBox.getData()))
+                        .withRecipientKeys(List.of(senderKey, recipientKey))
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(recipientPrivateKey);
+
+        final SharedKey sharedKey = SharedKey.from("shared-key".getBytes());
+        when(nacl.computeSharedKey(senderKey, recipientPrivateKey)).thenReturn(sharedKey);
+
+        final byte[] expectedOutcome = "SUCCESS".getBytes();
+
+        when(nacl.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey))
+                .thenReturn("sharedOrMasterKeyBytes".getBytes());
+        when(nacl.openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
+
+        final byte[] result = enclave.unencryptTransaction(payload, recipientKey);
+
+        assertThat(result).isNotNull().isSameAs(expectedOutcome);
+
+        verify(nacl).openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
+        verify(nacl).openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class));
+        verify(nacl).computeSharedKey(senderKey, recipientPrivateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
+    }
+
+    // Case 3 - decrypt using the sender key
+    @Test
+    public void unencryptTransactionWeSentUsingSenderKey() {
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("recipientBox".getBytes());
+        final RecipientBox senderBox = RecipientBox.from("senderBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBoxes(List.of(senderBox.getData(), recipientBox.getData()))
+                        .withRecipientKeys(List.of(senderKey, recipientKey))
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        final PrivateKey senderPrivateKey = PrivateKey.from("private-key".getBytes());
+        when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(senderPrivateKey);
+
+        final SharedKey sharedKey = SharedKey.from("shared-key".getBytes());
+        when(nacl.computeSharedKey(senderKey, senderPrivateKey)).thenReturn(sharedKey);
+
+        final byte[] expectedOutcome = "SUCCESS".getBytes();
+
+        when(nacl.openAfterPrecomputation(senderBox.getData(), recipientNonce, sharedKey))
+                .thenReturn("sharedOrMasterKeyBytes".getBytes());
+        when(nacl.openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
+
+        final byte[] result = enclave.unencryptTransaction(payload, senderKey);
+
+        assertThat(result).isNotNull().isSameAs(expectedOutcome);
+
+        verify(nacl).openAfterPrecomputation(senderBox.getData(), recipientNonce, sharedKey);
+        verify(nacl).openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class));
+        verify(nacl).computeSharedKey(senderKey, senderPrivateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(senderKey);
+    }
+
+    // Case 3 - error when decrypt using the unknown key
+    @Test
+    public void unencryptTransactionWeSentUsingUnknownKey() {
+        final PublicKey nonRecipientKey = PublicKey.from("unknown".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("recipientBox".getBytes());
+        final RecipientBox senderBox = RecipientBox.from("senderBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBoxes(List.of(senderBox.getData(), recipientBox.getData()))
+                        .withRecipientKeys(List.of(senderKey, recipientKey))
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        final Throwable throwable = catchThrowable(() -> enclave.unencryptTransaction(payload, nonRecipientKey));
+
+        assertThat(throwable).isInstanceOf(EnclaveException.class).hasMessage("recipient not found in listed keys");
+    }
+
+    // Case 5 - decrypt normal transaction which we didn't send
+    @Test
+    public void unencryptTransactionFromOtherNode() {
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("recipientBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBox(recipientBox.getData())
+                        .withRecipientKey(recipientKey)
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(recipientPrivateKey);
+        when(keyManager.getPublicKeys()).thenReturn(Set.of(recipientKey));
+
+        final SharedKey sharedKey = SharedKey.from("shared-key".getBytes());
+        when(nacl.computeSharedKey(senderKey, recipientPrivateKey)).thenReturn(sharedKey);
+
+        final byte[] expectedOutcome = "SUCCESS".getBytes();
+
+        when(nacl.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey))
+                .thenReturn("sharedOrMasterKeyBytes".getBytes());
+        when(nacl.openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
+
+        final byte[] result = enclave.unencryptTransaction(payload, recipientKey);
+
+        assertThat(result).isNotNull().isSameAs(expectedOutcome);
+
+        verify(nacl).openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
+        verify(nacl).openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class));
+        verify(nacl).computeSharedKey(senderKey, recipientPrivateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
+        verify(keyManager).getPublicKeys();
+    }
+
+    // Case 5 - error case where wrong key is used
+    @Test
+    public void unencryptTransactionFromOtherNodeUsingWrongKey() {
+        final PublicKey nonRecipientKey = PublicKey.from("unknown".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("recipientBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBox(recipientBox.getData())
+                        .withRecipientKey(recipientKey)
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        when(keyManager.getPublicKeys()).thenReturn(Set.of(recipientKey));
+
+        final Throwable throwable = catchThrowable(() -> enclave.unencryptTransaction(payload, nonRecipientKey));
+
+        assertThat(throwable).isInstanceOf(EnclaveException.class).hasMessage("recipient not found in listed keys");
+
+        verify(keyManager).getPublicKeys();
+    }
+
+    // Case 4.1 - decrypt transaction we sent from a very early version
+    // where the sender didn't get an entry
+    @Test
+    public void unencryptTransactionFromEarlyVersionUsingSender() {
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("recipientBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBox(recipientBox.getData())
+                        .withRecipientKey(recipientKey)
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        final PrivateKey senderPrivateKey = PrivateKey.from("private-key".getBytes());
+        when(keyManager.getPrivateKeyForPublicKey(senderKey)).thenReturn(senderPrivateKey);
+        when(keyManager.getPublicKeys()).thenReturn(Set.of(senderKey));
+
+        final SharedKey sharedKey = SharedKey.from("shared-key".getBytes());
+        when(nacl.computeSharedKey(recipientKey, senderPrivateKey)).thenReturn(sharedKey);
+
+        final byte[] expectedOutcome = "SUCCESS".getBytes();
+
+        when(nacl.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey))
+                .thenReturn("sharedOrMasterKeyBytes".getBytes());
+        when(nacl.openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
+
+        final byte[] result = enclave.unencryptTransaction(payload, senderKey);
+
+        assertThat(result).isNotNull().isSameAs(expectedOutcome);
+
+        verify(nacl).openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
+        verify(nacl).openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class));
+        verify(nacl).computeSharedKey(recipientKey, senderPrivateKey);
         verify(keyManager).getPrivateKeyForPublicKey(senderKey);
         verify(keyManager).getPublicKeys();
-        verify(nacl).computeSharedKey(recipientKey, senderPrivateKey);
+    }
+
+    // Case 4.2 - decrypt transaction we sent from a very early version
+    // where the sender didn't get an entry
+    @Test
+    public void unencryptTransactionFromEarlyVersionUsingRecipient() {
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("recipientBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBox(recipientBox.getData())
+                        .withRecipientKey(recipientKey)
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
+        when(keyManager.getPrivateKeyForPublicKey(recipientKey)).thenReturn(recipientPrivateKey);
+        when(keyManager.getPublicKeys()).thenReturn(Set.of(senderKey, recipientKey));
+
+        final SharedKey sharedKey = SharedKey.from("shared-key".getBytes());
+        when(nacl.computeSharedKey(senderKey, recipientPrivateKey)).thenReturn(sharedKey);
+
+        final byte[] expectedOutcome = "SUCCESS".getBytes();
+
+        when(nacl.openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey))
+                .thenReturn("sharedOrMasterKeyBytes".getBytes());
+        when(nacl.openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class)))
+                .thenReturn(expectedOutcome);
+
+        final byte[] result = enclave.unencryptTransaction(payload, recipientKey);
+
+        assertThat(result).isNotNull().isSameAs(expectedOutcome);
+
+        verify(nacl).openAfterPrecomputation(recipientBox.getData(), recipientNonce, sharedKey);
+        verify(nacl).openAfterPrecomputation(any(byte[].class), eq(cipherTextNonce), any(MasterKey.class));
+        verify(nacl).computeSharedKey(senderKey, recipientPrivateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
+        verify(keyManager).getPublicKeys();
+    }
+
+    // Case 4.2 - error where given key wasn't recipient
+    @Test
+    public void unencryptTransactionFromEarlyVersionUsingUnknownRecipient() {
+        final PublicKey nonRecipientKey = PublicKey.from("unknown".getBytes());
+
+        final PublicKey senderKey = PublicKey.from("senderKey".getBytes());
+        final PublicKey recipientKey = PublicKey.from("recipientKey".getBytes());
+        final byte[] cipherText = "cipherText".getBytes();
+        final Nonce cipherTextNonce = mock(Nonce.class);
+        final RecipientBox recipientBox = RecipientBox.from("recipientBox".getBytes());
+        final Nonce recipientNonce = mock(Nonce.class);
+
+        final EncodedPayload payload =
+                EncodedPayload.Builder.create()
+                        .withSenderKey(senderKey)
+                        .withCipherText(cipherText)
+                        .withCipherTextNonce(cipherTextNonce)
+                        .withRecipientBox(recipientBox.getData())
+                        .withRecipientKey(recipientKey)
+                        .withRecipientNonce(recipientNonce)
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .build();
+
+        when(keyManager.getPublicKeys()).thenReturn(Set.of(senderKey, recipientKey));
+
+        final Throwable throwable = catchThrowable(() -> enclave.unencryptTransaction(payload, nonRecipientKey));
+
+        assertThat(throwable).isInstanceOf(EnclaveException.class).hasMessage("recipient not found in listed keys");
+
+        verify(keyManager).getPublicKeys();
     }
 
     @Test
@@ -149,62 +536,6 @@ public class EnclaveTest {
     }
 
     @Test
-    public void unencryptTransactionFromAnotherNode() {
-
-        PublicKey senderKey = mock(PublicKey.class);
-
-        PublicKey recipientKey = mock(PublicKey.class);
-
-        PublicKey providedSenderKey = mock(PublicKey.class);
-
-        byte[] cipherText = "cipherText".getBytes();
-
-        Nonce cipherTextNonce = mock(Nonce.class);
-
-        RecipientBox recipientBox = RecipientBox.from("RecipientBox".getBytes());
-
-        Nonce recipientNonce = mock(Nonce.class);
-
-        EncodedPayload payload = mock(EncodedPayload.class);
-        when(payload.getSenderKey()).thenReturn(senderKey);
-        when(payload.getCipherText()).thenReturn(cipherText);
-        when(payload.getCipherTextNonce()).thenReturn(cipherTextNonce);
-        when(payload.getRecipientBoxes()).thenReturn(singletonList(recipientBox));
-        when(payload.getRecipientNonce()).thenReturn(recipientNonce);
-        when(payload.getRecipientKeys()).thenReturn(singletonList(recipientKey));
-        when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
-        when(payload.getAffectedContractTransactions()).thenReturn(emptyMap());
-        when(payload.getExecHash()).thenReturn(new byte[0]);
-
-        when(keyManager.getPublicKeys()).thenReturn(Collections.emptySet());
-
-        PrivateKey senderPrivateKey = mock(PrivateKey.class);
-
-        when(keyManager.getPrivateKeyForPublicKey(providedSenderKey)).thenReturn(senderPrivateKey);
-
-        SharedKey sharedKey = mock(SharedKey.class);
-        when(nacl.computeSharedKey(senderKey, senderPrivateKey)).thenReturn(sharedKey);
-
-        byte[] expectedOutcome = "SUCCESS".getBytes();
-
-        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class)))
-                .thenReturn("sharedOrMasterKeyBytes".getBytes());
-
-        when(nacl.openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class)))
-                .thenReturn(expectedOutcome);
-
-        byte[] result = enclave.unencryptTransaction(payload, providedSenderKey);
-
-        assertThat(result).isNotNull().isSameAs(expectedOutcome);
-
-        verify(nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(SharedKey.class));
-        verify(nacl).openAfterPrecomputation(any(byte[].class), any(Nonce.class), any(MasterKey.class));
-        verify(keyManager).getPrivateKeyForPublicKey(providedSenderKey);
-        verify(keyManager).getPublicKeys();
-        verify(nacl).computeSharedKey(senderKey, senderPrivateKey);
-    }
-
-    @Test
     public void encryptPayload() {
 
         byte[] message = "MESSAGE".getBytes();
@@ -233,14 +564,11 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
+
         EncodedPayload result =
-                enclave.encryptPayload(
-                        message,
-                        senderPublicKey,
-                        Arrays.asList(recipientPublicKey),
-                        PrivacyMode.STANDARD_PRIVATE,
-                        emptyList(),
-                        null);
+                enclave.encryptPayload(message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -248,6 +576,7 @@ public class EnclaveTest {
         assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
         assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
+        assertThat(result.getPrivacyGroupId()).isNotPresent();
 
         verify(nacl).createMasterKey();
         verify(nacl, times(2)).randomNonce();
@@ -299,8 +628,8 @@ public class EnclaveTest {
         when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
 
-
-        TxHash txnHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        TxHash txnHash =
+                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
 
         AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
         when(affectedTransaction.getHash()).thenReturn(txnHash);
@@ -308,14 +637,14 @@ public class EnclaveTest {
 
         List<AffectedTransaction> affectedContractTransactions = List.of(affectedTransaction);
 
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create()
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withAffectedTransactions(affectedContractTransactions)
+                        .build();
+
         final EncodedPayload result =
-                enclave.encryptPayload(
-                        message,
-                        senderPublicKey,
-                        Arrays.asList(recipientPublicKey),
-                        PrivacyMode.STANDARD_PRIVATE,
-                    affectedContractTransactions,
-                        new byte[0]);
+                enclave.encryptPayload(message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -333,6 +662,61 @@ public class EnclaveTest {
         verify(nacl, times(2)).computeSharedKey(recipientPublicKey, senderPrivateKey);
         verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderPublicKey);
         verify(keyManager).getPublicKeys();
+    }
+
+    @Test
+    public void encryptPayloadWithPrivacyGroupId() {
+
+        byte[] message = "MESSAGE".getBytes();
+
+        PublicKey senderPublicKey = mock(PublicKey.class);
+        PublicKey recipientPublicKey = mock(PublicKey.class);
+
+        byte[] masterKeyBytes = "masterKeyBytes".getBytes();
+        MasterKey masterKey = MasterKey.from(masterKeyBytes);
+        Nonce cipherNonce = mock(Nonce.class);
+        Nonce recipientNonce = mock(Nonce.class);
+
+        byte[] cipherText = "cipherText".getBytes();
+
+        when(nacl.createMasterKey()).thenReturn(masterKey);
+        when(nacl.randomNonce()).thenReturn(cipherNonce, recipientNonce);
+
+        when(nacl.sealAfterPrecomputation(message, cipherNonce, masterKey)).thenReturn(cipherText);
+
+        PrivateKey senderPrivateKey = mock(PrivateKey.class);
+        when(keyManager.getPrivateKeyForPublicKey(senderPublicKey)).thenReturn(senderPrivateKey);
+
+        SharedKey sharedKey = mock(SharedKey.class);
+        when(nacl.computeSharedKey(recipientPublicKey, senderPrivateKey)).thenReturn(sharedKey);
+
+        byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
+        when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
+
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create()
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("GROUP".getBytes()))
+                        .build();
+
+        EncodedPayload result =
+                enclave.encryptPayload(message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
+        assertThat(result.getCipherText()).isEqualTo(cipherText);
+        assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
+        assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
+        assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
+        assertThat(result.getPrivacyGroupId()).isPresent();
+        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroup.Id.fromBytes("GROUP".getBytes()));
+
+        verify(nacl).createMasterKey();
+        verify(nacl, times(2)).randomNonce();
+        verify(nacl).sealAfterPrecomputation(message, cipherNonce, masterKey);
+        verify(nacl).sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey);
+        verify(nacl).computeSharedKey(recipientPublicKey, senderPrivateKey);
+        verify(keyManager).getPrivateKeyForPublicKey(senderPublicKey);
     }
 
     @Test
@@ -372,13 +756,10 @@ public class EnclaveTest {
         byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
         when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
 
-        EncodedPayload result =
-                enclave.encryptPayload(
-                        rawTransaction,
-                        Arrays.asList(recipientPublicKey),
-                        PrivacyMode.STANDARD_PRIVATE,
-                        emptyList(),
-                        new byte[0]);
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
+
+        EncodedPayload result = enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
 
         assertThat(result).isNotNull();
         assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -386,6 +767,69 @@ public class EnclaveTest {
         assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
         assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
         assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
+        assertThat(result.getPrivacyGroupId()).isNotPresent();
+
+        verify(nacl).randomNonce();
+        verify(nacl).openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender);
+        verify(nacl).sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey);
+        verify(nacl).computeSharedKey(recipientPublicKey, senderPrivateKey);
+        verify(nacl).computeSharedKey(senderPublicKey, senderPrivateKey);
+        verify(keyManager, times(2)).getPrivateKeyForPublicKey(senderPublicKey);
+    }
+
+    @Test
+    public void encryptPayloadRawTransactionWithPrivacyGroupId() {
+
+        byte[] message = "MESSAGE".getBytes();
+
+        byte[] masterKeyBytes = "masterKeyBytes".getBytes();
+        MasterKey masterKey = MasterKey.from(masterKeyBytes);
+        PublicKey senderPublicKey = PublicKey.from("SENDER".getBytes());
+        PrivateKey senderPrivateKey = mock(PrivateKey.class);
+
+        PublicKey recipientPublicKey = PublicKey.from("RECIPIENT".getBytes());
+        Nonce cipherNonce = new Nonce("NONCE".getBytes());
+        byte[] cipherText = "cipherText".getBytes();
+        byte[] encryptedKeyBytes = "ENCRYPTED_KEY".getBytes();
+
+        RawTransaction rawTransaction = new RawTransaction(cipherText, encryptedKeyBytes, cipherNonce, senderPublicKey);
+
+        Nonce recipientNonce = mock(Nonce.class);
+
+        when(keyManager.getPrivateKeyForPublicKey(senderPublicKey)).thenReturn(senderPrivateKey);
+
+        SharedKey sharedKeyForSender = mock(SharedKey.class);
+        when(nacl.computeSharedKey(senderPublicKey, senderPrivateKey)).thenReturn(sharedKeyForSender);
+
+        when(nacl.openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender))
+                .thenReturn(masterKeyBytes);
+
+        when(nacl.randomNonce()).thenReturn(recipientNonce);
+
+        when(nacl.sealAfterPrecomputation(message, cipherNonce, masterKey)).thenReturn(cipherText);
+
+        SharedKey sharedKey = mock(SharedKey.class);
+        when(nacl.computeSharedKey(recipientPublicKey, senderPrivateKey)).thenReturn(sharedKey);
+
+        byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
+        when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey)).thenReturn(encryptedMasterKeys);
+
+        final PrivacyMetadata metaData =
+                PrivacyMetadata.Builder.create()
+                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("GROUP_ID".getBytes()))
+                        .build();
+
+        EncodedPayload result = enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
+        assertThat(result.getCipherText()).isEqualTo(cipherText);
+        assertThat(result.getCipherTextNonce()).isEqualTo(cipherNonce);
+        assertThat(result.getSenderKey()).isEqualTo(senderPublicKey);
+        assertThat(result.getRecipientBoxes()).containsExactly(RecipientBox.from(encryptedMasterKeys));
+        assertThat(result.getPrivacyGroupId()).isPresent();
+        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroup.Id.fromBytes("GROUP_ID".getBytes()));
 
         verify(nacl).randomNonce();
         verify(nacl).openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender);
@@ -527,8 +971,13 @@ public class EnclaveTest {
 
         when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(recipientKey));
 
-        TxHash txHash = TxHash.from(Base64.getDecoder().decode("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="));
-        Map<TxHash, SecurityHash> affectedContractTransactionHashes = Map.of(txHash,SecurityHash.from("securityHash".getBytes()));
+        TxHash txHash =
+                TxHash.from(
+                        Base64.getDecoder()
+                                .decode(
+                                        "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="));
+        Map<TxHash, SecurityHash> affectedContractTransactionHashes =
+                Map.of(txHash, SecurityHash.from("securityHash".getBytes()));
 
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getSenderKey()).thenReturn(senderKey);
@@ -552,12 +1001,11 @@ public class EnclaveTest {
         when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
 
-
-        var txnHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        var txnHash =
+                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
         AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
         when(affectedTransaction.getHash()).thenReturn(txnHash);
         when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
-
 
         Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
 
@@ -596,7 +1044,8 @@ public class EnclaveTest {
         TxHash txHash =
                 new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
 
-        final Map<TxHash, SecurityHash> affectedContractTransactionHashes = Map.of(txHash,SecurityHash.from(digestSHA3.digest("cipherTextcipherTextopen".getBytes())));
+        final Map<TxHash, SecurityHash> affectedContractTransactionHashes =
+                Map.of(txHash, SecurityHash.from(digestSHA3.digest("cipherTextcipherTextopen".getBytes())));
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getCipherText()).thenReturn(cipherText);
@@ -626,7 +1075,6 @@ public class EnclaveTest {
         when(affectedTransaction.getHash()).thenReturn(txHash);
         when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
 
-
         Set<TxHash> invalidHashes = enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
 
         assertThat(invalidHashes).hasSize(0);
@@ -652,8 +1100,11 @@ public class EnclaveTest {
 
         when(keyManager.getPublicKeys()).thenReturn(Collections.singleton(recipientKey));
 
-        final Map<TxHash, SecurityHash> affectedContractTransactionHashes = Map.of(new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-            SecurityHash.from("securityHash".getBytes()));
+        final Map<TxHash, SecurityHash> affectedContractTransactionHashes =
+                Map.of(
+                        new TxHash(
+                                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+                        SecurityHash.from("securityHash".getBytes()));
 
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getSenderKey()).thenReturn(senderKey);
@@ -677,7 +1128,8 @@ public class EnclaveTest {
         when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
 
-        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        TxHash txHash =
+                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
         AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
         when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
         when(affectedTransaction.getHash()).thenReturn(txHash);
@@ -726,7 +1178,7 @@ public class EnclaveTest {
                 SecurityHash.from(securityHash));
         affectedContractTransactionHashes.put(
                 new TxHash("afMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-            SecurityHash.from("securityHash2".getBytes()));
+                SecurityHash.from("securityHash2".getBytes()));
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getSenderKey()).thenReturn(senderKey);
         when(payload.getCipherText()).thenReturn(cipherText);
@@ -754,7 +1206,8 @@ public class EnclaveTest {
                 new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
                 affectedTxPayload);
 
-        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        TxHash txHash =
+                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
         AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
         when(affectedTransaction.getHash()).thenReturn(txHash);
         when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
@@ -785,9 +1238,11 @@ public class EnclaveTest {
         when(nacl.computeSharedKey(senderKey, privateKey))
                 .thenThrow(new EncryptorException("JNacl could not compute the shared key"));
 
-        Map<TxHash, SecurityHash> affectedContractTransactionHashes = Map.of(
-            new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
-            SecurityHash.from("securityHash".getBytes()));
+        Map<TxHash, SecurityHash> affectedContractTransactionHashes =
+                Map.of(
+                        new TxHash(
+                                "bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ=="),
+                        SecurityHash.from("securityHash".getBytes()));
 
         final EncodedPayload payload = mock(EncodedPayload.class);
         when(payload.getSenderKey()).thenReturn(senderKey);
@@ -811,12 +1266,11 @@ public class EnclaveTest {
         when(affectedTxPayload.getAffectedContractTransactions()).thenReturn(emptyMap());
         when(affectedTxPayload.getExecHash()).thenReturn(new byte[0]);
 
-
-        TxHash txHash = new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
+        TxHash txHash =
+                new TxHash("bfMIqWJ/QGQhkK4USxMBxduzfgo/SIGoCros5bWYfPKUBinlAUCqLVOUAP9q+BgLlsWni1M6rnzfmaqSw2J5hQ==");
         AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
         when(affectedTransaction.getHash()).thenReturn(txHash);
         when(affectedTransaction.getPayload()).thenReturn(affectedTxPayload);
-
 
         try {
             enclave.findInvalidSecurityHashes(payload, List.of(affectedTransaction));
@@ -829,21 +1283,5 @@ public class EnclaveTest {
         verify(keyManager, times(2)).getPublicKeys();
         verify(keyManager).getPrivateKeyForPublicKey(recipientKey);
         verify(nacl).computeSharedKey(senderKey, privateKey);
-    }
-
-    @Test
-    public void create() {
-
-        Enclave expectedEnclave = mock(Enclave.class);
-        Enclave result;
-        try(var mockStaticServiceLoader = mockStatic(ServiceLoader.class)) {
-            ServiceLoader<Enclave> serviceLoader = mock(ServiceLoader.class);
-            when(serviceLoader.findFirst()).thenReturn(Optional.of(expectedEnclave));
-            mockStaticServiceLoader.when(() -> ServiceLoader.load(Enclave.class)).thenReturn(serviceLoader);
-
-            result = Enclave.create();
-        }
-
-        assertThat(result).isSameAs(expectedEnclave);
     }
 }

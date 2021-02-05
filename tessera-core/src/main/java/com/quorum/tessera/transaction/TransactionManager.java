@@ -16,8 +16,6 @@ public interface TransactionManager {
 
     void delete(MessageHash messageHash);
 
-    ResendResponse resend(ResendRequest request);
-
     MessageHash storePayload(EncodedPayload transactionPayload);
 
     ReceiveResponse receive(ReceiveRequest request);

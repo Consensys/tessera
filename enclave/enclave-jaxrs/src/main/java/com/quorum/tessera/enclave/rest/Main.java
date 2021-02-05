@@ -4,10 +4,8 @@ import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.parsers.ConfigConverter;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveServer;
 import com.quorum.tessera.enclave.server.EnclaveCliAdapter;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
@@ -15,7 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.util.Set;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 public class Main {
@@ -35,7 +34,11 @@ public class Main {
         commandLine.execute(args);
         final CliResult cliResult = commandLine.getExecutionResult();
 
-        if (!cliResult.getConfig().isPresent()) {
+        if (Objects.isNull(cliResult)) {
+            System.exit(1);
+        }
+
+        if (cliResult.getConfig().isEmpty()) {
             System.exit(cliResult.getStatus());
         }
 
@@ -43,15 +46,18 @@ public class Main {
 
         final Config config = cliResult.getConfig().get();
 
-        ConfigFactory.create().store(config);
+        final Enclave enclave = Enclave.create();
+
+        final EnclaveResource enclaveResource = new EnclaveResource(enclave);
+
+        final EnclaveApplication application = new EnclaveApplication(enclaveResource);
 
         final ServerConfig serverConfig = config.getServerConfigs()
                                                 .stream()
                                                 .findFirst()
                                                 .get();
-        Enclave enclave = EnclaveServer.create();
-        LOGGER.debug("Created enclave {}",enclave);
-        final TesseraServer server = restServerFactory.createServer(serverConfig, Set.of(new EnclaveApplication(enclave)));
+
+        final TesseraServer server = restServerFactory.createServer(serverConfig, Collections.singleton(application));
         server.start();
 
         CountDownLatch latch = new CountDownLatch(1);

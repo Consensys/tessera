@@ -2,33 +2,23 @@ package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.ws.rs.core.Application;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class EnclaveApplication extends Application implements com.quorum.tessera.config.apps.TesseraApp {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveApplication.class);
+    private final EnclaveResource resource;
 
-    private final Enclave enclave;
-
-    public EnclaveApplication() {
-        this(EnclaveServer.create());
-    }
-
-    public EnclaveApplication(Enclave enclave) {
-        LOGGER.debug("Create EnclaveApplication with {}",enclave);
-        this.enclave = Objects.requireNonNull(enclave);
+    public EnclaveApplication(final EnclaveResource resource) {
+        this.resource = Objects.requireNonNull(resource);
     }
 
     @Override
     public Set<Object> getSingletons() {
-        return Set.of(new EnclaveResource(enclave),new DefaultExceptionMapper());
+        return Stream.of(resource, new DefaultExceptionMapper()).collect(Collectors.toSet());
     }
 
     @Override

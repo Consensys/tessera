@@ -15,7 +15,6 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
     requires tessera.tessera.jaxrs.jaxrs.client.main;
     requires tessera.shared.main;
 
-
     exports com.quorum.tessera.q2t;
 
     provides com.quorum.tessera.config.apps.TesseraApp with
@@ -26,4 +25,11 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
 
     provides com.quorum.tessera.transaction.publish.BatchPayloadPublisher with
         com.quorum.tessera.q2t.BatchPayloadPublisherProvider;
+
+    provides com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher
+        with com.quorum.tessera.q2t.PrivacyGroupPublisherProvider;
+
+    provides com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher
+        with com.quorum.tessera.q2t.BatchPrivacyGroupPublisherProvider;
+
 }

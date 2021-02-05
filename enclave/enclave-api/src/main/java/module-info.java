@@ -1,3 +1,4 @@
+
 module tessera.enclave.enclave.api.main {
     requires tessera.config.main;
     requires tessera.encryption.encryption.api.main;
@@ -20,6 +21,8 @@ module tessera.enclave.enclave.api.main {
 
     uses com.quorum.tessera.enclave.EnclaveServer;
 
+    uses com.quorum.tessera.enclave.PayloadDigest;
+
     opens com.quorum.tessera.enclave to org.eclipse.persistence.moxy;
 
     provides com.quorum.tessera.enclave.PayloadEncoder with
@@ -30,4 +33,7 @@ module tessera.enclave.enclave.api.main {
 
     provides com.quorum.tessera.enclave.EnclaveServer with
         com.quorum.tessera.enclave.EnclaveServerProvider;
+
+    provides com.quorum.tessera.enclave.PayloadDigest with
+        com.quorum.tessera.enclave.DefaultPayloadDigest,com.quorum.tessera.enclave.SHA512256PayloadDigest;
 }

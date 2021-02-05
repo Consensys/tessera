@@ -31,14 +31,15 @@ class EnclaveServerImpl implements EnclaveServer {
     }
 
     @Override
-    public EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys, PrivacyMode privacyMode, List<AffectedTransaction> affectedContractTransactions, byte[] execHash) {
-        return enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys, privacyMode, affectedContractTransactions, execHash);
+    public EncodedPayload encryptPayload(byte[] message, PublicKey senderPublicKey, List<PublicKey> recipientPublicKeys, PrivacyMetadata privacyMetadata) {
+        return enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys, privacyMetadata);
     }
 
     @Override
-    public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys, PrivacyMode privacyMode, List<AffectedTransaction> affectedContractTransactions, byte[] execHash) {
-        return enclave.encryptPayload(rawTransaction, recipientPublicKeys, privacyMode, affectedContractTransactions, execHash);
+    public EncodedPayload encryptPayload(RawTransaction rawTransaction, List<PublicKey> recipientPublicKeys, PrivacyMetadata privacyMetadata) {
+        return enclave.encryptPayload(rawTransaction, recipientPublicKeys, privacyMetadata);
     }
+
 
     @Override
     public Set<TxHash> findInvalidSecurityHashes(EncodedPayload encodedPayload, List<AffectedTransaction> affectedContractTransactions) {

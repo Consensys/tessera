@@ -4,8 +4,8 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.data.EncryptedRawTransactionDAO;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.PayloadDigest;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.resend.ResendManager;
@@ -37,7 +37,7 @@ public class TransactionManagerProviderTest {
             var mockedStaticBatchPayloadPublisher= mockStatic(BatchPayloadPublisher.class);
             var mockedStaticPrivacyHelper = mockStatic(PrivacyHelper.class);
             var mockedStaticResendManager = mockStatic(ResendManager.class);
-            var mockedStaticMessageHashFactory = mockStatic(MessageHashFactory.class)
+            var mockedStaticPayloadDigest = mockStatic(PayloadDigest.class)
         ) {
 
             ConfigFactory configFactory = mock(ConfigFactory.class);
@@ -70,7 +70,7 @@ public class TransactionManagerProviderTest {
                 .thenReturn(mock(ResendManager.class));
 
 
-            mockedStaticMessageHashFactory.when(MessageHashFactory::create).thenReturn(mock(MessageHashFactory.class));
+            mockedStaticPayloadDigest.when(PayloadDigest::create).thenReturn(mock(PayloadDigest.class));
 
             TransactionManager transactionManager = TransactionManagerProvider.provider();
             assertThat(transactionManager).isNotNull();
@@ -101,8 +101,8 @@ public class TransactionManagerProviderTest {
             mockedStaticResendManager.verify(ResendManager::create);
             mockedStaticResendManager.verifyNoMoreInteractions();
 
-            mockedStaticMessageHashFactory.verify(MessageHashFactory::create);
-            mockedStaticMessageHashFactory.verifyNoMoreInteractions();
+            mockedStaticPayloadDigest.verify(PayloadDigest::create);
+            mockedStaticPayloadDigest.verifyNoMoreInteractions();
 
         }
 

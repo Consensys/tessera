@@ -1,7 +1,7 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.data.MessageHashFactory;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.PayloadDigest;
 
 public class EncodedPayloadManagerProvider {
 
@@ -15,9 +15,9 @@ public class EncodedPayloadManagerProvider {
         Enclave enclave = Enclave.create();
 
         PrivacyHelper privacyHelper = PrivacyHelper.create();
-        MessageHashFactory messageHashFactory = MessageHashFactory.create();
+        PayloadDigest payloadDigest = PayloadDigest.create();
 
-        EncodedPayloadManager encodedPayloadManager = new EncodedPayloadManagerImpl(enclave,privacyHelper,messageHashFactory);
+        EncodedPayloadManager encodedPayloadManager = new EncodedPayloadManagerImpl(enclave,privacyHelper,payloadDigest);
         encodedPayloadManagerHolder.storeInstance(encodedPayloadManager);
         return encodedPayloadManager;
     }

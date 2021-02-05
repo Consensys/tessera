@@ -11,6 +11,7 @@ import com.quorum.tessera.transaction.ReceiveResponse;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -111,7 +112,7 @@ public class EncodedPayloadResourceTest {
     }
 
 
-
+@Ignore
     @Test
     public void decryptPayload() {
         final Base64.Decoder decoder = Base64.getDecoder();

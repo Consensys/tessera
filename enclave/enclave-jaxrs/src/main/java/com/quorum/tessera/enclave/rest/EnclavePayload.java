@@ -2,10 +2,10 @@ package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.PrivacyMode;
 
-import java.io.Serializable;
-import java.util.List;
 import javax.xml.bind.annotation.XmlMimeType;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.io.Serializable;
+import java.util.List;
 
 @XmlRootElement
 public class EnclavePayload implements Serializable {
@@ -25,6 +25,9 @@ public class EnclavePayload implements Serializable {
 
     @XmlMimeType("base64Binary")
     private byte[] execHash;
+
+    @XmlMimeType("base64Binary")
+    private byte[] privacyGroupId;
 
     public byte[] getData() {
         return data;
@@ -72,5 +75,13 @@ public class EnclavePayload implements Serializable {
 
     public void setExecHash(byte[] execHash) {
         this.execHash = execHash;
+    }
+
+    public byte[] getPrivacyGroupId() {
+        return privacyGroupId;
+    }
+
+    public void setPrivacyGroupId(byte[] privacyGroupId) {
+        this.privacyGroupId = privacyGroupId;
     }
 }

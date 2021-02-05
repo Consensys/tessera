@@ -27,6 +27,8 @@ public class EncodedPayload {
 
     private final byte[] execHash;
 
+    private final PrivacyGroup.Id privacyGroupId;
+
     private EncodedPayload(
             final PublicKey senderKey,
             final byte[] cipherText,
@@ -36,7 +38,8 @@ public class EncodedPayload {
             final List<PublicKey> recipientKeys,
             final PrivacyMode privacyMode,
             final Map<TxHash, SecurityHash> affectedContractTransactions,
-            final byte[] execHash) {
+            final byte[] execHash,
+            final PrivacyGroup.Id privacyGroupId) {
         this.senderKey = senderKey;
         this.cipherText = cipherText;
         this.cipherTextNonce = cipherTextNonce;
@@ -46,6 +49,7 @@ public class EncodedPayload {
         this.privacyMode = privacyMode;
         this.affectedContractTransactions = affectedContractTransactions;
         this.execHash = execHash;
+        this.privacyGroupId = privacyGroupId;
     }
 
     public PublicKey getSenderKey() {
@@ -84,6 +88,10 @@ public class EncodedPayload {
         return execHash;
     }
 
+    public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
+        return Optional.ofNullable(privacyGroupId);
+    }
+
     public static class Builder {
 
         private Builder() {}
@@ -96,21 +104,25 @@ public class EncodedPayload {
 
             final Map<TxHash, byte[]> affectedContractTransactionMap =
                     encodedPayload.getAffectedContractTransactions().entrySet().stream()
-                            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getData()));
+                            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getData()));
 
-            return create().withPrivacyMode(encodedPayload.getPrivacyMode())
-                    .withSenderKey(encodedPayload.getSenderKey())
-                    .withRecipientNonce(encodedPayload.getRecipientNonce())
-                    .withRecipientKeys(encodedPayload.getRecipientKeys())
-                    .withRecipientBoxes(
-                            encodedPayload.getRecipientBoxes().stream()
-                                    .map(RecipientBox::getData)
-                                    .collect(Collectors.toList()))
-                    .withPrivacyMode(encodedPayload.getPrivacyMode())
-                    .withExecHash(encodedPayload.getExecHash())
-                    .withCipherText(encodedPayload.getCipherText())
-                    .withCipherTextNonce(encodedPayload.getCipherTextNonce())
-                    .withAffectedContractTransactions(affectedContractTransactionMap);
+            final Builder builder =
+                    create().withSenderKey(encodedPayload.getSenderKey())
+                            .withRecipientNonce(encodedPayload.getRecipientNonce())
+                            .withRecipientKeys(encodedPayload.getRecipientKeys())
+                            .withRecipientBoxes(
+                                    encodedPayload.getRecipientBoxes().stream()
+                                            .map(RecipientBox::getData)
+                                            .collect(Collectors.toList()))
+                            .withCipherText(encodedPayload.getCipherText())
+                            .withCipherTextNonce(encodedPayload.getCipherTextNonce())
+                            .withPrivacyMode(encodedPayload.getPrivacyMode())
+                            .withAffectedContractTransactions(affectedContractTransactionMap)
+                            .withExecHash(encodedPayload.getExecHash());
+
+            encodedPayload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
+
+            return builder;
         }
 
         private PublicKey senderKey;
@@ -131,6 +143,8 @@ public class EncodedPayload {
 
         private byte[] execHash = new byte[0];
 
+        private PrivacyGroup.Id privacyGroupId;
+
         public Builder withSenderKey(final PublicKey senderKey) {
             this.senderKey = senderKey;
             return this;
@@ -148,6 +162,11 @@ public class EncodedPayload {
 
         public Builder withRecipientKeys(final List<PublicKey> recipientKeys) {
             this.recipientKeys.addAll(recipientKeys);
+            return this;
+        }
+
+        public Builder withNewRecipientKeys(final List<PublicKey> recipientKeys) {
+            this.recipientKeys = recipientKeys;
             return this;
         }
 
@@ -176,8 +195,8 @@ public class EncodedPayload {
             return this;
         }
 
-        public Builder withRecipientBox(byte[] newbox) {
-            this.recipientBoxes.add(newbox);
+        public Builder withRecipientBox(byte[] newBox) {
+            this.recipientBoxes.add(newBox);
             return this;
         }
 
@@ -196,20 +215,31 @@ public class EncodedPayload {
         }
 
         public Builder withExecHash(final byte[] execHash) {
-            this.execHash = execHash;
+            if (Objects.nonNull(execHash)) {
+                this.execHash = execHash;
+            }
+            return this;
+        }
+
+        public Builder withPrivacyGroupId(final PrivacyGroup.Id privacyGroupId) {
+            this.privacyGroupId = privacyGroupId;
             return this;
         }
 
         public EncodedPayload build() {
 
-            Map<TxHash, SecurityHash> affectedTxns =
+            Map<TxHash, SecurityHash> affectedTransactions =
                     affectedContractTransactions.entrySet().stream()
                             .collect(
                                     Collectors.toUnmodifiableMap(
-                                            e -> e.getKey(), e -> SecurityHash.from(e.getValue())));
+                                            Map.Entry::getKey, e -> SecurityHash.from(e.getValue())));
 
             List<RecipientBox> recipientBoxes =
                     this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
+
+            if ((privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) == (execHash.length == 0)) {
+                throw new RuntimeException("ExecutionHash data is invalid");
+            }
 
             return new EncodedPayload(
                     senderKey,
@@ -219,10 +249,10 @@ public class EncodedPayload {
                     recipientNonce,
                     recipientKeys,
                     privacyMode,
-                    affectedTxns,
-                    execHash);
+                    affectedTransactions,
+                    execHash,
+                    privacyGroupId);
         }
-
     }
 
     @Override
@@ -237,13 +267,21 @@ public class EncodedPayload {
                 && Objects.equals(recipientNonce, that.recipientNonce)
                 && Objects.equals(recipientKeys, that.recipientKeys)
                 && privacyMode == that.privacyMode
-                && Arrays.equals(execHash, that.execHash);
+                && Arrays.equals(execHash, that.execHash)
+                && Objects.equals(privacyGroupId, that.privacyGroupId);
     }
 
     @Override
     public int hashCode() {
         int result =
-                Objects.hash(senderKey, cipherTextNonce, recipientBoxes, recipientNonce, recipientKeys, privacyMode);
+                Objects.hash(
+                        senderKey,
+                        cipherTextNonce,
+                        recipientBoxes,
+                        recipientNonce,
+                        recipientKeys,
+                        privacyMode,
+                        privacyGroupId);
         result = 31 * result + Arrays.hashCode(cipherText);
         result = 31 * result + Arrays.hashCode(execHash);
         return result;

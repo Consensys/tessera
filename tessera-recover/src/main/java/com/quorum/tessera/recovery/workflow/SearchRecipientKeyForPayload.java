@@ -12,41 +12,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SearchRecipientKeyForPayload implements BatchWorkflowAction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SearchRecipientKeyForPayload.class);
 
-    private Enclave enclave;
+    private final Enclave enclave;
 
-    public SearchRecipientKeyForPayload(Enclave enclave) {
-        this.enclave = enclave;
+    public SearchRecipientKeyForPayload(final Enclave enclave) {
+        this.enclave = Objects.requireNonNull(enclave);
     }
 
     @Override
     public boolean execute(BatchWorkflowContext event) {
+        final Set<EncodedPayload> encodedPayloads = event.getPayloadsToPublish();
 
-        EncodedPayload encodedPayload = event.getEncodedPayload();
-
-        if (!encodedPayload.getRecipientKeys().isEmpty()) {
+        final boolean keysAreEmpty =
+                encodedPayloads.stream().map(EncodedPayload::getRecipientKeys).allMatch(List::isEmpty);
+        // if the payload has someone in it, then we are good
+        if (!keysAreEmpty) {
             return true;
         }
 
-        PublicKey recipientKey =
-                searchForRecipientKey(encodedPayload)
-                        .orElseThrow(
-                                () -> {
-                                    EncryptedTransaction encryptedTransaction = event.getEncryptedTransaction();
-                                    final MessageHash hash = encryptedTransaction.getHash();
-                                    String message = String.format("No key found as recipient of message %s", hash);
-                                    return new RecipientKeyNotFoundException(message);
-                                });
+        // the keys are not present, so we need to search for the relevant recipient
+        final Set<EncodedPayload> adjustedPayloads =
+                encodedPayloads.stream()
+                        .map(
+                                payload -> {
+                                    // this is a pre-PE tx, so find the recipient key
+                                    final PublicKey recipientKey =
+                                            searchForRecipientKey(payload)
+                                                    .orElseThrow(
+                                                            () -> {
+                                                                final EncryptedTransaction encryptedTransaction =
+                                                                        event.getEncryptedTransaction();
+                                                                final MessageHash hash = encryptedTransaction.getHash();
+                                                                final String message =
+                                                                        String.format(
+                                                                                "No key found as recipient of message %s",
+                                                                                hash);
+                                                                return new RecipientKeyNotFoundException(message);
+                                                            });
 
-        EncodedPayload adjustedPayload =
-                EncodedPayload.Builder.from(encodedPayload).withRecipientKeys(List.of(recipientKey)).build();
+                                    return EncodedPayload.Builder.from(payload)
+                                            .withRecipientKeys(List.of(recipientKey))
+                                            .build();
+                                })
+                        .collect(Collectors.toSet());
 
-        event.setEncodedPayload(adjustedPayload);
+        event.setPayloadsToPublish(adjustedPayloads);
 
         return true;
     }

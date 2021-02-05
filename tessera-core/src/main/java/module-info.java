@@ -12,6 +12,9 @@ module tessera.tessera.core.main {
     exports com.quorum.tessera.transaction;
     exports com.quorum.tessera.transaction.exception;
     exports com.quorum.tessera.transaction.publish;
+    exports com.quorum.tessera.privacygroup;
+    exports com.quorum.tessera.privacygroup.exception;
+    exports com.quorum.tessera.privacygroup.publish;
 
     uses com.quorum.tessera.transaction.publish.PayloadPublisher;
 
@@ -25,6 +28,12 @@ module tessera.tessera.core.main {
 
     uses com.quorum.tessera.transaction.PrivacyHelper;
 
+    uses com.quorum.tessera.privacygroup.PrivacyGroupManager;
+
+    uses com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher;
+
+    uses com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
+
     provides com.quorum.tessera.transaction.TransactionManager with
         com.quorum.tessera.transaction.TransactionManagerProvider;
 
@@ -37,6 +46,8 @@ module tessera.tessera.core.main {
     provides com.quorum.tessera.transaction.resend.ResendManager
         with com.quorum.tessera.transaction.resend.ResendManagerProvider;
 
+    provides com.quorum.tessera.privacygroup.PrivacyGroupManager with
+        com.quorum.tessera.privacygroup.PrivacyGroupManagerProvider;
 
 
 
