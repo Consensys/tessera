@@ -83,9 +83,9 @@ public class P2PRestApp extends TesseraRestApplication {
         final LegacyResendManager legacyResendManager = LegacyResendManager.create(config);
 
         final TransactionResource transactionResource =
-            new TransactionResource(transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
+                new TransactionResource(transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
         final RecoveryResource recoveryResource =
-            new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
+                new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
         final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
         final PrivacyGroupManager privacyGroupManager = PrivacyGroupManager.create(config);
@@ -99,8 +99,7 @@ public class P2PRestApp extends TesseraRestApplication {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Stream.concat(super.getClasses().stream(), Stream.of(P2PApiResource.class))
-            .collect(toSet());
+        return Stream.concat(super.getClasses().stream(), Stream.of(P2PApiResource.class)).collect(toSet());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package suite;
 
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -8,7 +9,6 @@ import config.ConfigDescriptor;
 import config.ConfigGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,6 +38,8 @@ public class ExecutionContext {
 
     private EncryptorType encryptorType;
 
+    private ClientMode clientMode;
+
     private ExecutionContext(
             DBType dbType,
             CommunicationType communicationType,
@@ -47,7 +49,8 @@ public class ExecutionContext {
             String prefix,
             CommunicationType p2pCommunicationType,
             boolean p2pSsl,
-            EncryptorType encryptorType) {
+            EncryptorType encryptorType,
+            ClientMode clientMode) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -57,6 +60,7 @@ public class ExecutionContext {
         this.p2pCommunicationType = p2pCommunicationType;
         this.p2pSsl = p2pSsl;
         this.encryptorType = encryptorType;
+        this.clientMode = clientMode;
     }
 
     public DBType getDbType() {
@@ -99,6 +103,10 @@ public class ExecutionContext {
         return encryptorType;
     }
 
+    public ClientMode getClientMode() {
+        return clientMode;
+    }
+
     public static class Builder {
 
         private DBType dbType;
@@ -116,6 +124,8 @@ public class ExecutionContext {
         private boolean p2pSsl = false;
 
         private EncryptorType encryptorType;
+
+        private ClientMode clientMode;
 
         private Builder() {}
 
@@ -170,6 +180,11 @@ public class ExecutionContext {
             return this;
         }
 
+        public Builder with(ClientMode clientMode) {
+            this.clientMode = clientMode;
+            return this;
+        }
+
         public ExecutionContext build() {
             Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
                     .forEach(Objects::requireNonNull);
@@ -186,7 +201,8 @@ public class ExecutionContext {
                             prefix,
                             p2pCommunicationType,
                             p2pSsl,
-                            encryptorType);
+                            encryptorType,
+                            clientMode);
 
             return executionContext;
         }
@@ -213,10 +229,11 @@ public class ExecutionContext {
 
             List<ConfigDescriptor> configs = new ConfigGenerator().generateConfigs(executionContext);
             configs.stream()
-                .map(ConfigDescriptor::getConfig)
-                .forEach(c -> {
-                    LOGGER.debug("Generated config {}",JaxbUtil.marshalToStringNoValidation(c));
-                });
+                    .map(ConfigDescriptor::getConfig)
+                    .forEach(
+                            c -> {
+                                LOGGER.debug("Generated config {}", JaxbUtil.marshalToStringNoValidation(c));
+                            });
             // FIXME: YUk
             executionContext.configs = configs;
 

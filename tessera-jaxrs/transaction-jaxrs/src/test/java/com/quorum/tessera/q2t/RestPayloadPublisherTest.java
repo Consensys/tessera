@@ -3,9 +3,11 @@ package com.quorum.tessera.q2t;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.jaxrs.mock.MockClient;
+import com.quorum.tessera.privacygroup.exception.PrivacyGroupNotSupportedException;
 import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
@@ -22,6 +24,7 @@ import javax.ws.rs.core.Response;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -201,6 +204,38 @@ public class RestPayloadPublisherTest {
         } catch (EnhancedPrivacyNotSupportedException ex) {
             assertThat(ex).isNotNull();
             assertThat(ex).hasMessageContaining("Transactions with enhanced privacy is not currently supported");
+        } finally {
+            verify(discovery).getRemoteNodeInfo(eq(recipientKey));
+        }
+    }
+
+    @Test
+    public void publishPrivacyGroupToNodesThatDoNotSupport() {
+
+        String targetUrl = "http://someplace.com";
+
+        EncodedPayload encodedPayload = mock(EncodedPayload.class);
+        when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
+        when(encodedPayload.getPrivacyGroupId()).thenReturn(Optional.of(mock(PrivacyGroup.Id.class)));
+        byte[] payloadData = "Some Data".getBytes();
+        when(encoder.encode(encodedPayload)).thenReturn(payloadData);
+
+        PublicKey recipientKey = mock(PublicKey.class);
+        NodeInfo nodeInfo = mock(NodeInfo.class);
+        when(nodeInfo.supportedApiVersions()).thenReturn(Set.of("v1", "v2", "2.1"));
+        Recipient recipient = mock(Recipient.class);
+        when(recipient.getKey()).thenReturn(recipientKey);
+        when(recipient.getUrl()).thenReturn(targetUrl);
+
+        when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
+        when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
+
+        try {
+            publisher.publishPayload(encodedPayload, recipientKey);
+            failBecauseExceptionWasNotThrown(PrivacyGroupNotSupportedException.class);
+        } catch (PrivacyGroupNotSupportedException ex) {
+            assertThat(ex).isNotNull();
+            assertThat(ex).hasMessageContaining("Transactions with privacy group is not currently supported");
         } finally {
             verify(discovery).getRemoteNodeInfo(eq(recipientKey));
         }

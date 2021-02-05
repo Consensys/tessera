@@ -4,8 +4,10 @@ import com.quorum.tessera.api.*;
 import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,8 +53,15 @@ public class TransactionResource {
 
     private final TransactionManager transactionManager;
 
-    public TransactionResource(TransactionManager transactionManager) {
+    private final PrivacyGroupManager privacyGroupManager;
+
+    private final Base64.Decoder base64Decoder = Base64.getDecoder();
+
+    private final Base64.Encoder base64Encoder = Base64.getEncoder();
+
+    public TransactionResource(TransactionManager transactionManager, PrivacyGroupManager privacyGroupManager) {
         this.transactionManager = Objects.requireNonNull(transactionManager);
+        this.privacyGroupManager = Objects.requireNonNull(privacyGroupManager);
     }
 
     // hide this operation from swagger generation; the /send operation is overloaded and must be documented in a single
@@ -64,26 +73,31 @@ public class TransactionResource {
     @Produces(APPLICATION_JSON)
     public Response send(@NotNull @Valid @PrivacyValid final SendRequest sendRequest) {
 
-        Base64.Decoder base64Decoder = Base64.getDecoder();
-
-        PublicKey sender =
+        final PublicKey sender =
                 Optional.ofNullable(sendRequest.getFrom())
                         .map(base64Decoder::decode)
                         .map(PublicKey::from)
                         .orElseGet(transactionManager::defaultPublicKey);
 
+        final Optional<PrivacyGroup.Id> optionalPrivacyGroup =
+                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroup.Id::fromBase64String);
+
         final List<PublicKey> recipientList =
-                Stream.of(sendRequest)
-                        .filter(sr -> Objects.nonNull(sr.getTo()))
-                        .flatMap(s -> Stream.of(s.getTo()))
-                        .map(base64Decoder::decode)
-                        .map(PublicKey::from)
-                        .collect(Collectors.toList());
+                optionalPrivacyGroup
+                        .map(privacyGroupManager::retrievePrivacyGroup)
+                        .map(PrivacyGroup::getMembers)
+                        .orElse(
+                                Stream.of(sendRequest)
+                                        .filter(sr -> Objects.nonNull(sr.getTo()))
+                                        .flatMap(s -> Stream.of(s.getTo()))
+                                        .map(base64Decoder::decode)
+                                        .map(PublicKey::from)
+                                        .collect(Collectors.toList()));
 
         final Set<MessageHash> affectedTransactions =
                 Stream.ofNullable(sendRequest.getAffectedContractTransactions())
                         .flatMap(Arrays::stream)
-                        .map(Base64.getDecoder()::decode)
+                        .map(base64Decoder::decode)
                         .map(MessageHash::new)
                         .collect(Collectors.toSet());
 
@@ -92,30 +106,30 @@ public class TransactionResource {
 
         final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendRequest.getPrivacyFlag());
 
-        final com.quorum.tessera.transaction.SendRequest request =
+        final com.quorum.tessera.transaction.SendRequest.Builder requestBuilder =
                 com.quorum.tessera.transaction.SendRequest.Builder.create()
                         .withRecipients(recipientList)
                         .withSender(sender)
                         .withPayload(sendRequest.getPayload())
                         .withExecHash(execHash)
                         .withPrivacyMode(privacyMode)
-                        .withAffectedContractTransactions(affectedTransactions)
-                        .build();
+                        .withAffectedContractTransactions(affectedTransactions);
+        optionalPrivacyGroup.ifPresent(requestBuilder::withPrivacyGroupId);
 
-        final com.quorum.tessera.transaction.SendResponse response = transactionManager.send(request);
+        final com.quorum.tessera.transaction.SendResponse response = transactionManager.send(requestBuilder.build());
 
         final String encodedKey =
                 Optional.of(response)
                         .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
                         .map(MessageHash::getHashBytes)
-                        .map(Base64.getEncoder()::encodeToString)
+                        .map(base64Encoder::encodeToString)
                         .get();
 
         final SendResponse sendResponse =
                 Optional.of(response)
                         .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
                         .map(MessageHash::getHashBytes)
-                        .map(Base64.getEncoder()::encodeToString)
+                        .map(base64Encoder::encodeToString)
                         .map(messageHash -> new SendResponse(messageHash, null, null))
                         .get();
 
@@ -146,7 +160,7 @@ public class TransactionResource {
                         .filter(s -> !Objects.equals("", s))
                         .map(v -> v.split(","))
                         .flatMap(Arrays::stream)
-                        .map(Base64.getDecoder()::decode)
+                        .map(base64Decoder::decode)
                         .map(PublicKey::from)
                         .collect(Collectors.toList());
 
@@ -162,7 +176,7 @@ public class TransactionResource {
         final com.quorum.tessera.transaction.SendResponse response = transactionManager.sendSignedTransaction(request);
 
         final String encodedTransactionHash =
-                Base64.getEncoder().encodeToString(response.getTransactionHash().getHashBytes());
+                base64Encoder.encodeToString(response.getTransactionHash().getHashBytes());
 
         LOGGER.debug("Encoded key: {}", encodedTransactionHash);
 
@@ -185,42 +199,50 @@ public class TransactionResource {
     public Response sendSignedTransactionEnhanced(
             @NotNull @Valid @PrivacyValid final SendSignedRequest sendSignedRequest) {
 
+        final Optional<PrivacyGroup.Id> privacyGroupId =
+                Optional.ofNullable(sendSignedRequest.getPrivacyGroupId()).map(PrivacyGroup.Id::fromBase64String);
+
         final List<PublicKey> recipients =
-                Optional.ofNullable(sendSignedRequest.getTo())
-                        .map(Arrays::stream)
-                        .orElse(Stream.empty())
-                        .map(Base64.getDecoder()::decode)
-                        .map(PublicKey::from)
-                        .collect(Collectors.toList());
+                privacyGroupId
+                        .map(privacyGroupManager::retrievePrivacyGroup)
+                        .map(PrivacyGroup::getMembers)
+                        .orElse(
+                                Optional.ofNullable(sendSignedRequest.getTo())
+                                        .map(Arrays::stream)
+                                        .orElse(Stream.empty())
+                                        .map(base64Decoder::decode)
+                                        .map(PublicKey::from)
+                                        .collect(Collectors.toList()));
 
         final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendSignedRequest.getPrivacyFlag());
 
         final Set<MessageHash> affectedTransactions =
                 Stream.ofNullable(sendSignedRequest.getAffectedContractTransactions())
                         .flatMap(Arrays::stream)
-                        .map(Base64.getDecoder()::decode)
+                        .map(base64Decoder::decode)
                         .map(MessageHash::new)
                         .collect(Collectors.toSet());
 
         final byte[] execHash =
                 Optional.ofNullable(sendSignedRequest.getExecHash()).map(String::getBytes).orElse(new byte[0]);
 
-        final com.quorum.tessera.transaction.SendSignedRequest request =
+        final com.quorum.tessera.transaction.SendSignedRequest.Builder requestBuilder =
                 com.quorum.tessera.transaction.SendSignedRequest.Builder.create()
                         .withSignedData(sendSignedRequest.getHash())
                         .withRecipients(recipients)
                         .withPrivacyMode(privacyMode)
                         .withAffectedContractTransactions(affectedTransactions)
-                        .withExecHash(execHash)
-                        .build();
+                        .withExecHash(execHash);
+        privacyGroupId.ifPresent(requestBuilder::withPrivacyGroupId);
 
-        final com.quorum.tessera.transaction.SendResponse response = transactionManager.sendSignedTransaction(request);
+        final com.quorum.tessera.transaction.SendResponse response =
+                transactionManager.sendSignedTransaction(requestBuilder.build());
 
         final String endcodedTransactionHash =
                 Optional.of(response)
                         .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
                         .map(MessageHash::getHashBytes)
-                        .map(Base64.getEncoder()::encodeToString)
+                        .map(base64Encoder::encodeToString)
                         .get();
 
         LOGGER.debug("Encoded key: {}", endcodedTransactionHash);
@@ -273,7 +295,7 @@ public class TransactionResource {
         final PublicKey senderKey =
                 Optional.ofNullable(sender)
                         .filter(Predicate.not(String::isEmpty))
-                        .map(Base64.getDecoder()::decode)
+                        .map(base64Decoder::decode)
                         .map(PublicKey::from)
                         .orElseGet(transactionManager::defaultPublicKey);
 
@@ -283,7 +305,7 @@ public class TransactionResource {
                         .filter(s -> !Objects.equals("", s))
                         .map(v -> v.split(","))
                         .flatMap(Arrays::stream)
-                        .map(Base64.getDecoder()::decode)
+                        .map(base64Decoder::decode)
                         .map(PublicKey::from)
                         .collect(Collectors.toList());
 
@@ -303,7 +325,7 @@ public class TransactionResource {
                 Optional.of(sendResponse)
                         .map(com.quorum.tessera.transaction.SendResponse::getTransactionHash)
                         .map(MessageHash::getHashBytes)
-                        .map(Base64.getEncoder()::encodeToString)
+                        .map(base64Encoder::encodeToString)
                         .get();
 
         LOGGER.debug("Encoded key: {}", encodedTransactionHash);
@@ -345,7 +367,6 @@ public class TransactionResource {
                     @QueryParam("isRaw")
                     final String isRaw) {
 
-        Base64.Decoder base64Decoder = Base64.getDecoder();
         final PublicKey recipient =
                 Optional.ofNullable(toStr)
                         .filter(Predicate.not(String::isEmpty))
@@ -369,67 +390,14 @@ public class TransactionResource {
         receiveResponse.setAffectedContractTransactions(
                 response.getAffectedTransactions().stream()
                         .map(MessageHash::getHashBytes)
-                        .map(Base64.getEncoder()::encodeToString)
+                        .map(base64Encoder::encodeToString)
                         .toArray(String[]::new));
 
         Optional.ofNullable(response.getExecHash()).map(String::new).ifPresent(receiveResponse::setExecHash);
 
         receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
 
-        return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
-    }
-
-    @Operation(
-            summary = "/receive",
-            operationId = "getDecryptedPayloadJson",
-            description = "get payload from database, decrypt, and return")
-    @ApiResponse(
-            responseCode = "200",
-            description = "decrypted payload",
-            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
-    @GET
-    @Path("/receive")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    public Response receive(@Valid final ReceiveRequest request) {
-
-        LOGGER.debug("Received receive request");
-
-        Base64.Decoder decoder = Base64.getDecoder();
-
-        MessageHash transactionHash =
-                Optional.of(request).map(ReceiveRequest::getKey).map(decoder::decode).map(MessageHash::new).get();
-
-        PublicKey recipient =
-                Optional.of(request)
-                        .map(ReceiveRequest::getTo)
-                        .filter(Predicate.not(String::isEmpty))
-                        .filter(Objects::nonNull)
-                        .map(decoder::decode)
-                        .map(PublicKey::from)
-                        .orElse(null);
-
-        com.quorum.tessera.transaction.ReceiveRequest receiveRequest =
-                com.quorum.tessera.transaction.ReceiveRequest.Builder.create()
-                        .withTransactionHash(transactionHash)
-                        .withRecipient(recipient)
-                        .withRaw(request.isRaw())
-                        .build();
-
-        com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(receiveRequest);
-
-        ReceiveResponse receiveResponse = new ReceiveResponse();
-        receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
-        receiveResponse.setPayload(response.getUnencryptedTransactionData());
-        Optional.ofNullable(response.getExecHash()).map(String::new).ifPresent(receiveResponse::setExecHash);
-
-        String[] affectedTransactions =
-                response.getAffectedTransactions().stream()
-                        .map(MessageHash::getHashBytes)
-                        .map(Base64.getEncoder()::encodeToString)
-                        .toArray(String[]::new);
-
-        receiveResponse.setAffectedContractTransactions(affectedTransactions);
+        response.getPrivacyGroupId().map(PrivacyGroup.Id::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
 
         return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
     }
@@ -470,9 +438,9 @@ public class TransactionResource {
 
         LOGGER.debug("Received receiveraw request for hash : {}, recipientKey: {}", hash, recipientKey);
 
-        MessageHash transactionHash = Optional.of(hash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
+        MessageHash transactionHash = Optional.of(hash).map(base64Decoder::decode).map(MessageHash::new).get();
         PublicKey recipient =
-                Optional.ofNullable(recipientKey).map(Base64.getDecoder()::decode).map(PublicKey::from).orElse(null);
+                Optional.ofNullable(recipientKey).map(base64Decoder::decode).map(PublicKey::from).orElse(null);
         com.quorum.tessera.transaction.ReceiveRequest request =
                 com.quorum.tessera.transaction.ReceiveRequest.Builder.create()
                         .withTransactionHash(transactionHash)
@@ -504,7 +472,7 @@ public class TransactionResource {
         MessageHash messageHash =
                 Optional.of(deleteRequest)
                         .map(DeleteRequest::getKey)
-                        .map(Base64.getDecoder()::decode)
+                        .map(base64Decoder::decode)
                         .map(MessageHash::new)
                         .get();
 

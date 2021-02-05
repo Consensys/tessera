@@ -47,6 +47,7 @@ public class TestSuite extends Suite {
                             .with(annotatedConfig.enclaveType())
                             .withAdmin(annotatedConfig.admin())
                             .with(annotatedConfig.encryptorType())
+                            .with(annotatedConfig.clientMode())
                             .prefix(annotatedConfig.prefix())
                             .createAndSetupContext();
 

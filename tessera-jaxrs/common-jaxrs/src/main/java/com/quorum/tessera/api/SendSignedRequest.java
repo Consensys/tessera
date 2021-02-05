@@ -44,6 +44,9 @@ public class SendSignedRequest {
             format = "base64")
     private String execHash;
 
+    @Schema(description = "privacy group id of the payload", format = "base64")
+    private String privacyGroupId;
+
     public byte[] getHash() {
         return hash;
     }
@@ -82,5 +85,13 @@ public class SendSignedRequest {
 
     public void setExecHash(String execHash) {
         this.execHash = execHash;
+    }
+
+    public String getPrivacyGroupId() {
+        return privacyGroupId;
+    }
+
+    public void setPrivacyGroupId(String privacyGroupId) {
+        this.privacyGroupId = privacyGroupId;
     }
 }

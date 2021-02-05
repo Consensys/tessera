@@ -47,6 +47,9 @@ public class SendRequest {
             format = "base64")
     private String execHash;
 
+    @Schema(description = "privacy group id of the payload", format = "base64")
+    private String privacyGroupId;
+
     public byte[] getPayload() {
         return this.payload;
     }
@@ -93,5 +96,13 @@ public class SendRequest {
 
     public void setExecHash(String execHash) {
         this.execHash = execHash;
+    }
+
+    public String getPrivacyGroupId() {
+        return privacyGroupId;
+    }
+
+    public void setPrivacyGroupId(String privacyGroupId) {
+        this.privacyGroupId = privacyGroupId;
     }
 }
