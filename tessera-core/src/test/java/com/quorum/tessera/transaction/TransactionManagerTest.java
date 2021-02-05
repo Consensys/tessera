@@ -17,7 +17,6 @@ import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.util.Base64Codec;
-import com.quorum.tessera.enclave.PayloadDigest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
