@@ -12,6 +12,11 @@ application {
     startScripts.enabled = true
 }
 
+configurations.all {
+    exclude module: "jakarta.activation"
+    exclude module: "jakarta.inject"
+}
+
 dependencies {
 
     implementation "info.picocli:picocli"
@@ -65,12 +70,8 @@ dependencies {
 }
 
 distZip {
-    exclude("**/jakarta.activation-1.2.2.jar")
-    exclude("**/jakarta.inject-2.6.1.jar")
     exclude("**/asm-*.jar")
 }
 distTar {
-    exclude("**/jakarta.activation-1.2.2.jar")
-    exclude("**/jakarta.inject-2.6.1.jar")
     exclude("**/asm-*.jar")
 }

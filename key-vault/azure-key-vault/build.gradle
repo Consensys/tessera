@@ -11,7 +11,9 @@ dependencyCheck {
 }
 
 configurations.all {
-    exclude group: 'stax'
+    exclude group: "stax"
+    exclude module: "jakarta.activation"
+    exclude module: "javax.mail"
 }
 
 dependencies {
@@ -37,17 +39,5 @@ dependencies {
     implementation("com.azure:azure-core:1.10.0") {
     //    transitive = false
     }
-
-    distZip {
-        exclude("**/commons-logging-*.jar")
-        exclude("**/jakarta.activation-1.2.2.jar")
-        exclude("**/javax.mail-1.6.1.jar")
-    }
-    distTar {
-        exclude("**/commons-logging-*.jar")
-        exclude("**/jakarta.activation-1.2.2.jar")
-        exclude("**/javax.mail-1.6.1.jar")
-    }
-
 
 }

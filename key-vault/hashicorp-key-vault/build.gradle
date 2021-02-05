@@ -14,6 +14,7 @@ configurations.all {
     exclude group: "commons-logging"
     exclude group: "org.springframework", module: "spring-jcl"
     exclude group: "org.springframework", module: "spring-aop"
+    exclude module: "jakarta.activation"
 }
 
 def springVersion = "5.2.3.RELEASE"
@@ -38,10 +39,4 @@ dependencies {
 
     runtimeOnly "org.slf4j:jcl-over-slf4j"
 
-}
-distZip {
-    exclude("**/jakarta.activation-1.2.2.jar")
-}
-distTar {
-    exclude("**/jakarta.activation-1.2.2.jar")
 }

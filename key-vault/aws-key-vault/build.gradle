@@ -14,6 +14,7 @@ application {
 
 configurations.all {
     exclude group: "commons-logging"
+    exclude module: "jakarta.activation"
 }
 
 
@@ -45,14 +46,4 @@ dependencies {
 }
 
 
-distZip {
-   // exclude("**/commons-logging-*.jar")
-    exclude("**/jakarta.activation-1.2.2.jar")
-   // exclude("**/javax.mail-1.6.1.jar")
-}
-distTar {
-  //  exclude("**/commons-logging-*.jar")
-    exclude("**/jakarta.activation-1.2.2.jar")
-  //  exclude("**/javax.mail-1.6.1.jar")
-}
 
