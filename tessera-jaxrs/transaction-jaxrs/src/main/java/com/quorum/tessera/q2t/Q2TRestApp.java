@@ -1,8 +1,12 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.common.RawTransactionResource;
+import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.ClientMode;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -40,12 +44,31 @@ public class Q2TRestApp extends TesseraRestApplication implements com.quorum.tes
 
     @Override
     public Set<Object> getSingletons() {
-        TransactionResource transactionResource = new TransactionResource(transactionManager,privacyGroupManager);
-        RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
-        EncodedPayloadResource encodedPayloadResource
-            = new EncodedPayloadResource(encodedPayloadManager, transactionManager);
+        TransactionResource transactionResource = new TransactionResource(transactionManager, privacyGroupManager);
+        TransactionResource3 transactionResource3 = new TransactionResource3(transactionManager, privacyGroupManager);
 
-        return Set.of(transactionResource, rawTransactionResource, encodedPayloadResource);
+        RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
+        EncodedPayloadResource encodedPayloadResource =
+            new EncodedPayloadResource(encodedPayloadManager, transactionManager);
+        final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+
+        final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
+
+        final Config config = ConfigFactory.create().getConfig();
+        if (config.getClientMode() == ClientMode.ORION) {
+            final BesuTransactionResource besuResource =
+                new BesuTransactionResource(transactionManager, privacyGroupManager);
+            return Set.of(besuResource, rawTransactionResource, privacyGroupResource, upCheckResource);
+        }
+
+        return Set.of(
+            transactionResource,
+            rawTransactionResource,
+            encodedPayloadResource,
+            privacyGroupResource,
+            upCheckResource,
+            transactionResource3);
+
     }
 
     @Override
@@ -53,6 +76,7 @@ public class Q2TRestApp extends TesseraRestApplication implements com.quorum.tes
         return Stream.concat(super.getClasses().stream(), Stream.of(Q2TApiResource.class))
             .collect(toSet());
     }
+
     @Override
     public AppType getAppType() {
         return AppType.Q2T;

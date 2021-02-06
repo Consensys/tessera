@@ -14,6 +14,7 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
     requires tessera.tessera.context.main;
     requires tessera.tessera.jaxrs.jaxrs.client.main;
     requires tessera.shared.main;
+    requires java.json;
 
     exports com.quorum.tessera.q2t;
 

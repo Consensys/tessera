@@ -12,6 +12,7 @@ import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
+import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -53,8 +54,17 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
 
     private final LegacyResendManager legacyResendManager;
 
+    private final PrivacyGroupManager privacyGroupManager;
+
     public P2PRestApp() {
-        this(Discovery.create(),Enclave.create(),PartyStore.getInstance(),TransactionManager.create(),BatchResendManager.create(),PayloadEncoder.create(),LegacyResendManager.create());
+        this(Discovery.create(),
+            Enclave.create(),
+            PartyStore.getInstance(),
+            TransactionManager.create(),
+            BatchResendManager.create(),
+            PayloadEncoder.create(),
+            LegacyResendManager.create(),
+            PrivacyGroupManager.create());
     }
 
     public P2PRestApp(Discovery discovery,
@@ -63,7 +73,8 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
                       TransactionManager transactionManager,
                       BatchResendManager batchResendManager,
                       PayloadEncoder payloadEncoder,
-                      LegacyResendManager legacyResendManager) {
+                      LegacyResendManager legacyResendManager,
+                      PrivacyGroupManager privacyGroupManager) {
         this.discovery = Objects.requireNonNull(discovery);
         this.enclave = Objects.requireNonNull(enclave);
         this.partyStore = Objects.requireNonNull(partyStore);
@@ -71,6 +82,7 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
         this.batchResendManager = Objects.requireNonNull(batchResendManager);
         this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
         this.legacyResendManager = Objects.requireNonNull(legacyResendManager);
+        this.privacyGroupManager = Objects.requireNonNull(privacyGroupManager);
     }
 
     @Override
@@ -96,22 +108,24 @@ public class P2PRestApp extends TesseraRestApplication implements com.quorum.tes
 
         final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
+        final TransactionResource transactionResource =
+                new TransactionResource(transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
+
+        final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+
+        final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
+
         if (runtimeContext.isRecoveryMode()) {
             final RecoveryResource recoveryResource =
                 new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
-            return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource);
+            return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource);
         }
-
-        final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
-        final TransactionResource transactionResource =
-            new TransactionResource(transactionManager,batchResendManager,payloadEncoder,legacyResendManager);
-        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource,upCheckResource);
+        return Set.of(partyInfoResource, iPWhitelistFilter, transactionResource, privacyGroupResource, upCheckResource);
     }
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Stream.concat(super.getClasses().stream(), Stream.of(P2PApiResource.class))
-            .collect(toSet());
+        return Stream.concat(super.getClasses().stream(), Stream.of(P2PApiResource.class)).collect(toSet());
     }
 
     @Override

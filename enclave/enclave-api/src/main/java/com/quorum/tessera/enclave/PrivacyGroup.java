@@ -28,6 +28,8 @@ public interface PrivacyGroup {
 
         byte[] getBytes();
 
+        //FIXME: NO. NO, NO
+        @Deprecated
         String getBase64();
 
         static Id fromBytes(final byte[] data) {
@@ -109,6 +111,7 @@ public interface PrivacyGroup {
         }
 
         public Builder withPrivacyGroupId(final byte[] privacyGroupId) {
+            //FIXME: NO. NO, NO .. Errors need to happen in build().. thats the point!!
             return withPrivacyGroupId(PrivacyGroup.Id.fromBytes(privacyGroupId));
         }
 

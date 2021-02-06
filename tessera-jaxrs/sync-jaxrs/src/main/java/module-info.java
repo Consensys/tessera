@@ -26,6 +26,7 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
     exports com.quorum.tessera.p2p.recovery;
 
     opens com.quorum.tessera.p2p.recovery to org.eclipse.persistence.moxy,org.eclipse.persistence.core;
+    opens com.quorum.tessera.p2p.resend to org.eclipse.persistence.moxy,org.eclipse.persistence.core,org.hibernate.validator;
 
     uses com.quorum.tessera.p2p.recovery.RecoveryClient;
     uses com.quorum.tessera.p2p.resend.ResendClient;

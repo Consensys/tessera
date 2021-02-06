@@ -8,6 +8,7 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
+import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -44,6 +45,8 @@ public class P2PRestAppTest {
 
     private LegacyResendManager legacyResendManager;
 
+    private PrivacyGroupManager privacyGroupManager;
+
     private URI peerUri = URI.create("junit");
 
     @Before
@@ -58,8 +61,9 @@ public class P2PRestAppTest {
         batchResendManager = mock(BatchResendManager.class);
         payloadEncoder = PayloadEncoder.create();
         legacyResendManager = mock(LegacyResendManager.class);
+        privacyGroupManager = mock(PrivacyGroupManager.class);
 
-        p2PRestApp = new P2PRestApp(discovery,enclave,partyStore,transactionManager,batchResendManager,payloadEncoder,legacyResendManager);
+        p2PRestApp = new P2PRestApp(discovery,enclave,partyStore,transactionManager,batchResendManager,payloadEncoder,legacyResendManager,privacyGroupManager);
 
         Client client = mock(Client.class);
         when(runtimeContext.getP2pClient()).thenReturn(client);
@@ -79,6 +83,7 @@ public class P2PRestAppTest {
         verifyNoMoreInteractions(transactionManager);
         verifyNoMoreInteractions(batchResendManager);
         verifyNoMoreInteractions(legacyResendManager);
+        verifyNoMoreInteractions(privacyGroupManager);
     }
 
     @Test
@@ -90,11 +95,11 @@ public class P2PRestAppTest {
                 .thenReturn(runtimeContext);
 
             Set<Object> results = p2PRestApp.getSingletons();
-            assertThat(results).hasSize(4);
+            assertThat(results).hasSize(5);
             results.forEach(
                 o ->
                     assertThat(o)
-                        .isInstanceOfAny(
+                        .isInstanceOfAny(PrivacyGroupResource.class,
                             PartyInfoResource.class, IPWhitelistFilter.class, TransactionResource.class, UpCheckResource.class));
 
             mockedStaticRuntimeContext.verify(RuntimeContext::getInstance);
@@ -119,11 +124,11 @@ public class P2PRestAppTest {
             mockedStaticRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
             Set<Object> results = p2PRestApp.getSingletons();
-            assertThat(results).hasSize(3);
+            assertThat(results).hasSize(4);
             results.forEach(
                 o ->
                     assertThat(o)
-                        .isInstanceOfAny(
+                        .isInstanceOfAny(PrivacyGroupResource.class,UpCheckResource.class,
                             PartyInfoResource.class, IPWhitelistFilter.class, RecoveryResource.class));
 
             mockedStaticRuntimeContext.verify(RuntimeContext::getInstance);
@@ -158,8 +163,11 @@ public class P2PRestAppTest {
             var transactionManagerMockedStatic = mockStatic(TransactionManager.class);
             var payloadEncoderMockedStatic = mockStatic(PayloadEncoder.class);
             var batchResendManagerMockedStatic = mockStatic(BatchResendManager.class);
-            var legacyResendManagerMockedStatic = mockStatic(LegacyResendManager.class)
+            var legacyResendManagerMockedStatic = mockStatic(LegacyResendManager.class);
+            var privacyGroupManagerMockedStatic = mockStatic(PrivacyGroupManager.class)
         ) {
+
+            privacyGroupManagerMockedStatic.when(PrivacyGroupManager::create).thenReturn(privacyGroupManager);
 
             legacyResendManagerMockedStatic.when(LegacyResendManager::create).thenReturn(legacyResendManager);
             enclaveMockedStatic.when(Enclave::create).thenReturn(enclave);
@@ -191,6 +199,9 @@ public class P2PRestAppTest {
 
             legacyResendManagerMockedStatic.verify(LegacyResendManager::create);
             legacyResendManagerMockedStatic.verifyNoMoreInteractions();
+
+            privacyGroupManagerMockedStatic.verify(PrivacyGroupManager::create);
+            partyStoreMockedStatic.verifyNoMoreInteractions();
         }
 
     }
