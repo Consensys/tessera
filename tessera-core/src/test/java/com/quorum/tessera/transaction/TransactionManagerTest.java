@@ -12,7 +12,6 @@ import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -23,7 +22,6 @@ import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class TransactionManagerTest {
 
     private TransactionManager transactionManager;
@@ -562,8 +560,8 @@ public class TransactionManagerTest {
 
         transactionManager.storePayload(payload);
         // Ignore transaction - not save
-        verify(encryptedTransactionDAO, times(0)).save(any(EncryptedTransaction.class));
         verify(encryptedTransactionDAO).findByHashes(any());
+        verify(payloadEncoder).decode(affectedContractPayload);
     }
 
     @Test
