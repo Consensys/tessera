@@ -2,7 +2,11 @@ package com.quorum.tessera.q2t;
 
 
 import com.quorum.tessera.api.common.RawTransactionResource;
+import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.ClientMode;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -44,16 +48,48 @@ public class Q2TRestAppTest {
     @Test
     public void getSingletons() {
 
+        Config config = mock(Config.class);
+        ConfigFactory configFactory = mock(ConfigFactory.class);
+        when(configFactory.getConfig()).thenReturn(config);
+        try(var configFactoryMockedStatic = mockStatic(ConfigFactory.class)) {
+            configFactoryMockedStatic.when(ConfigFactory::create).thenReturn(configFactory);
+
         Set<Object> results = q2TRestApp.getSingletons();
-        assertThat(results).hasSize(3);
+        assertThat(results).hasSize(6);
         List<Class> types = results.stream().map(Object::getClass).collect(Collectors.toList());
         assertThat(types)
             .containsExactlyInAnyOrder(
                 TransactionResource.class,
                 RawTransactionResource.class,
-                EncodedPayloadResource.class
+                EncodedPayloadResource.class,
+                UpCheckResource.class,
+                TransactionResource3.class,
+                PrivacyGroupResource.class
             );
+        }
+    }
 
+    @Test
+    public void getSingletonsOrionClientMode() {
+
+        Config config = mock(Config.class);
+        when(config.getClientMode()).thenReturn(ClientMode.ORION);
+        ConfigFactory configFactory = mock(ConfigFactory.class);
+        when(configFactory.getConfig()).thenReturn(config);
+        try(var configFactoryMockedStatic = mockStatic(ConfigFactory.class)) {
+            configFactoryMockedStatic.when(ConfigFactory::create).thenReturn(configFactory);
+
+            Set<Object> results = q2TRestApp.getSingletons();
+            assertThat(results).hasSize(4);
+            List<Class> types = results.stream().map(Object::getClass).collect(Collectors.toList());
+            assertThat(types)
+                .containsExactlyInAnyOrder(
+                    BesuTransactionResource.class,
+                    UpCheckResource.class,
+                    PrivacyGroupResource.class,
+                    RawTransactionResource.class
+                );
+        }
     }
 
     @Test
@@ -71,8 +107,11 @@ public class Q2TRestAppTest {
         try(
             var transactionManagerMockedStatic = mockStatic(TransactionManager.class);
             var encodedPayloadManagerMockedStatic = mockStatic(EncodedPayloadManager.class);
-            var privacyGroupManagerMockedStatic = mockStatic(PrivacyGroupManager.class)
+            var privacyGroupManagerMockedStatic = mockStatic(PrivacyGroupManager.class);
+            var configFactoryMockedStatic = mockStatic(ConfigFactory.class)
             ) {
+
+
             transactionManagerMockedStatic.when(TransactionManager::create)
                 .thenReturn(transactionManager);
             encodedPayloadManagerMockedStatic.when(EncodedPayloadManager::create)
