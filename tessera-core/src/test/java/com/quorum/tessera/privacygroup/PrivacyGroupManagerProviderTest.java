@@ -12,6 +12,11 @@ import static org.mockito.Mockito.mockStatic;
 public class PrivacyGroupManagerProviderTest {
 
     @Test
+    public void defaultConstructor() {
+        assertThat(new PrivacyGroupManagerProvider()).isNotNull();
+    }
+
+    @Test
     public void provider() {
 
         try(var enclaveMockedStatic = mockStatic(Enclave.class);
