@@ -91,6 +91,11 @@ public class TransactionResource3 {
                 @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = SendResponse.class)),
                 @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = SendResponse.class)),
             })
+    @ApiResponse(
+        responseCode = "200",
+        description = "hash returned when running in orion mode",
+        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = SendResponse.class))
+        )
     @POST
     @Path("send")
     @Consumes({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
