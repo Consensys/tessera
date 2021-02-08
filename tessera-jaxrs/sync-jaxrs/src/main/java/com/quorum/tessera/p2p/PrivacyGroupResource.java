@@ -12,7 +12,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 @Tag(name = "peer-to-peer")
 @Path("/")
