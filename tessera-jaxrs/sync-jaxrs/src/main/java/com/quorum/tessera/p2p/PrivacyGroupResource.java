@@ -1,6 +1,8 @@
 package com.quorum.tessera.p2p;
 
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.validation.constraints.NotNull;
@@ -10,6 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 @Tag(name = "peer-to-peer")
 @Path("/")
@@ -21,6 +24,8 @@ public class PrivacyGroupResource {
         this.privacyGroupManager = privacyGroupManager;
     }
 
+    @Operation(summary = "/pushPrivacyGroup", operationId = "pushPrivacyGroup", description = "store privacy group's encoded data")
+    @ApiResponse(responseCode = "200", description = "privacy group payload stored successfully")
     @POST
     @Path("pushPrivacyGroup")
     @Consumes(APPLICATION_OCTET_STREAM)

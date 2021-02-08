@@ -56,6 +56,7 @@ public class PrivacyGroupResource {
         description = "created privacy group",
         content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupResponse.class))
     )
+    @ApiResponse(responseCode = "403", description = "privacy group not supported on remote member")
     @POST
     @Path("createPrivacyGroup")
     @Consumes(APPLICATION_JSON)
@@ -132,6 +133,7 @@ public class PrivacyGroupResource {
         description = "A privacy group object",
         content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupResponse.class))
     )
+    @ApiResponse(responseCode = "404", description = "privacy group not found")
     @POST
     @Path("retrievePrivacyGroup")
     @Consumes(APPLICATION_JSON)
@@ -159,6 +161,7 @@ public class PrivacyGroupResource {
         description = "id of the deleted privacy group",
         content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))
     )
+    @ApiResponse(responseCode = "404", description = "privacy group not found")
     @POST
     @Path("deletePrivacyGroup")
     @Consumes(APPLICATION_JSON)
