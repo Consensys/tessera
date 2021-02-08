@@ -6,6 +6,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.util.Base64Codec;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
@@ -95,7 +96,7 @@ public class PrivacyGroupResource {
     @ApiResponse(
         responseCode = "200",
         description = "An array of privacy group objects for all privacy groups containing only the specified members",
-        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupResponse[].class))
+        content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema = @Schema(implementation = PrivacyGroupResponse.class)))
     )
     @POST
     @Path("findPrivacyGroup")
