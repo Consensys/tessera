@@ -5,6 +5,11 @@ import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.util.Base64Codec;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.json.Json;
@@ -36,6 +41,20 @@ public class PrivacyGroupResource {
         this.privacyGroupManager = privacyGroupManager;
     }
 
+    @Operation(
+        summary = "/createPrivacyGroup",
+        operationId = "createPrivacyGroup",
+        description = "creates a privacy group, stores data in database, and distribute to members",
+        requestBody =
+            @RequestBody(
+                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupRequest.class))
+            )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "created privacy group",
+        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupResponse.class))
+    )
     @POST
     @Path("createPrivacyGroup")
     @Consumes(APPLICATION_JSON)
@@ -64,6 +83,20 @@ public class PrivacyGroupResource {
         return Response.status(Response.Status.OK).entity(toResponseObject(created)).build();
     }
 
+    @Operation(
+        summary = "/findPrivacyGroup",
+        operationId = "findPrivacyGroup",
+        description = "find all the privacy groups that contain the specified members",
+        requestBody =
+        @RequestBody(
+            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupSearchRequest.class))
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "An array of privacy group objects for all privacy groups containing only the specified members",
+        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupResponse[].class))
+    )
     @POST
     @Path("findPrivacyGroup")
     @Consumes(APPLICATION_JSON)
@@ -84,6 +117,20 @@ public class PrivacyGroupResource {
         return Response.status(Response.Status.OK).type(APPLICATION_JSON).entity(results).build();
     }
 
+    @Operation(
+        summary = "/retrievePrivacyGroup",
+        operationId = "retrievePrivacyGroup",
+        description = "retrieve privacy group from a privacy group id",
+        requestBody =
+        @RequestBody(
+            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupRetrieveRequest.class))
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "A privacy group object",
+        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupResponse.class))
+    )
     @POST
     @Path("retrievePrivacyGroup")
     @Consumes(APPLICATION_JSON)
@@ -97,6 +144,20 @@ public class PrivacyGroupResource {
         return Response.ok().entity(toResponseObject(privacyGroup)).build();
     }
 
+    @Operation(
+        summary = "/deletePrivacyGroup",
+        operationId = "deletePrivacyGroup",
+        description = "mark a privacy group as deleted",
+        requestBody =
+        @RequestBody(
+            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupDeleteRequest.class))
+        )
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "id of the deleted privacy group",
+        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))
+    )
     @POST
     @Path("deletePrivacyGroup")
     @Consumes(APPLICATION_JSON)
