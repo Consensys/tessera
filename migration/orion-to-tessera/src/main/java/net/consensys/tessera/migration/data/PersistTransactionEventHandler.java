@@ -82,7 +82,6 @@ public class PersistTransactionEventHandler implements EventHandler<OrionEvent> 
         MessageHash messageHash =
             Optional.of(event)
                 .map(OrionEvent::getKey)
-                .map(Base64.getDecoder()::decode)
                 .map(MessageHash::new)
                 .get();
 
