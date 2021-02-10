@@ -64,7 +64,7 @@ public class LevelDbOrionDataAdapter implements OrionDataAdapter {
                 .withTotalEventCount(totalRecords.get())
                 .withEventNumber(eventCounter.incrementAndGet())
                 .withJsonObject(jsonObject)
-                .withKey(Base64.getEncoder().encode(entry.getKey()))
+                .withKey(Base64.getDecoder().decode(entry.getKey()))
                 .withPayloadType(payloadType);
 
             if(payloadType == PayloadType.ENCRYPTED_PAYLOAD) {
