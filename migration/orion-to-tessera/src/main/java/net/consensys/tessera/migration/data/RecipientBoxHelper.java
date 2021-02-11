@@ -55,7 +55,6 @@ public class RecipientBoxHelper {
                 .filter(r -> issender || ourKeys.contains(r))
                 .map(Base64.getDecoder()::decode)
                 .map(Box.PublicKey::fromBytes)
-                .sorted(Comparator.comparing(Box.PublicKey::hashCode))
                 .map(Box.PublicKey::bytesArray)
                 .map(Base64.getEncoder()::encodeToString)
                 .collect(Collectors.toList());
