@@ -45,6 +45,7 @@ public class OrionEvent implements EventTranslator<OrionEvent> {
         orionEvent.payloadType = payloadType;
         orionEvent.totalEventCount = totalEventCount;
         orionEvent.eventNumber = eventNumber;
+        orionEvent.recipientBoxMap = recipientBoxMap;
     }
 
     public void reset() {
