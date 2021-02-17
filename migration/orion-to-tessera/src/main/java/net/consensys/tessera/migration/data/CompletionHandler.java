@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class CompletionHandler implements EventHandler<OrionEvent> {
+public class CompletionHandler implements EventHandler<OrionDataEvent> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CompletionHandler.class);
 
@@ -17,7 +17,7 @@ public class CompletionHandler implements EventHandler<OrionEvent> {
     private final CountDownLatch countDownLatch = new CountDownLatch(1);
 
     @Override
-    public void onEvent(OrionEvent event,long sequence,boolean endOfBatch) throws Exception {
+    public void onEvent(OrionDataEvent event,long sequence,boolean endOfBatch) throws Exception {
         long count = counter.incrementAndGet();
         LOGGER.info("Completed event {}",event);
         if(count == event.getTotalEventCount()) {

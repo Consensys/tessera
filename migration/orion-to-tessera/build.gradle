@@ -45,6 +45,10 @@ dependencies {
     api "org.slf4j:slf4j-api:1.7.30"
     runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
     runtimeOnly "ch.qos.logback:logback-core:1.2.3"
+
+  //  testRuntime "org.slf4j:jul-to-slf4j:1.7.30"
+    implementation "org.slf4j:jul-to-slf4j:1.7.30"
+
     implementation "org.glassfish:jakarta.el:3.0.3"
 
     implementation "com.moandjiezana.toml:toml4j:0.7.2"
@@ -101,6 +105,13 @@ dependencies {
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.12.0"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr353:2.12.0"
 
+    implementation "co.nstant.in:cbor:0.9"
+    /*
+    <groupId>co.nstant.in</groupId>
+	<artifactId>cbor</artifactId>
+	<version>0.9</version>
+     */
+
 //    implementation("org.iq80.leveldb:leveldb-api:0.12")  {
 //        transitive = false
 //    }
@@ -137,9 +148,6 @@ dependencies {
 
     implementation "com.zaxxer:HikariCP:3.2.0"
 
-
-    testImplementation "co.nstant.in:cbor:0.9"
-
 }
 
 test {
@@ -147,10 +155,10 @@ test {
     systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
 
     forkEvery = 1;
-    //workingDir = "build/resources/test"
+    workingDir = "build/resources/test"
 
     jacoco {
-       // enabled = false
+        enabled = false
     }
 }
 

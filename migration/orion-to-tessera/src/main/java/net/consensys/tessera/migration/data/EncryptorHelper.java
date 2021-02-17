@@ -6,6 +6,10 @@ import net.consensys.orion.enclave.EncryptedPayload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.JsonObject;
+import java.util.Base64;
+import java.util.Optional;
+
 public class EncryptorHelper {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptorHelper.class);
@@ -14,6 +18,41 @@ public class EncryptorHelper {
 
     public EncryptorHelper(Encryptor encryptor) {
         this.encryptor = encryptor;
+    }
+
+    public boolean canDecrypt(JsonObject transaction,JsonObject encryptedKey,final PublicKey publicKey,
+                              final PrivateKey ourPrivateKey) {
+
+        final SharedKey sharedKey = encryptor.computeSharedKey(publicKey, ourPrivateKey);
+
+        final Nonce nonce = Optional.of(transaction)
+            .map(j -> j.getString("nonce").getBytes())
+            .map(Nonce::new).get();
+
+        final byte[] decryptedKeyData;
+        try {
+            byte[] encryptedKeyData = Optional.of(encryptedKey)
+                .map(j -> j.getString("encoded"))
+                .map(Base64.getDecoder()::decode)
+                .get();
+
+            decryptedKeyData = encryptor.openAfterPrecomputation(encryptedKeyData, nonce, sharedKey);
+        } catch (EncryptorException e) {
+            LOGGER.error(null,e);
+            // Wrong key, keep trying the others.
+            return false;
+        }
+
+        final MasterKey masterKey = MasterKey.from(decryptedKeyData);
+
+        // this isn't used anywhere, but acts as a sanity check we got all the keys right.
+        // TODO: this should not fail, but if it does, do we want to catch the exception or let it blow up?
+
+        byte[] cipherText = transaction.getString("cipherText").getBytes();
+
+        encryptor.openAfterPrecomputation(cipherText, new Nonce(new byte[24]), masterKey);
+
+        return true;
     }
 
     public boolean canDecrypt(

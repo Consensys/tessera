@@ -6,6 +6,7 @@ import org.junit.runners.Parameterized;
 
 import javax.json.Json;
 import javax.json.JsonObject;
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +25,14 @@ public class PayloadTypeTest {
     }
 
     @Test
-    public void getFromJson() {
-        PayloadType result = PayloadType.get(jsonObject);
-        assertThat(result).isEqualTo(payloadType);
-        assertThat(result.getValue()).isEqualTo(payloadType.getValue());
+    public void parsePayloadType() throws Exception {
+        try(ByteArrayOutputStream cborEndcoded = new ByteArrayOutputStream()) {
+            JacksonObjectMapperFactory.create().writeValue(cborEndcoded, jsonObject);
+
+            PayloadType result = PayloadType.parsePayloadType(cborEndcoded.toByteArray());
+            assertThat(result).isEqualTo(payloadType);
+            assertThat(result.getValue()).isEqualTo(payloadType.getValue());
+        }
     }
 
     @Parameterized.Parameters(name = "{0}")

@@ -16,6 +16,7 @@ import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -59,39 +60,50 @@ public class OrionKeyHelper {
     }
 
     public void unlockedPrivateKeys() {
-        Path path = config.passwords()
-            .filter(Files::exists)
-            .get();
+        config.passwords().filter(Files::exists).ifPresentOrElse(
+            p -> this.passwords = IOCallback.execute(() -> Files.readAllLines(p)),
+            () -> this.passwords = List.of()
+        );
 
-        this.passwords = IOCallback.execute(() -> Files.readAllLines(path));
+        Path baseDir = Paths.get("").toAbsolutePath();
+
+        List<Path> privateKeyPaths = config.privateKeys().stream()
+            .map(p -> Paths.get(baseDir.toString(),p.toString()))
+            .collect(Collectors.toList());
+
         List<JsonObject> privateKeyJsonConfig =
-                config.privateKeys().stream()
-                        .flatMap(p -> IOCallback.execute(() -> Files.lines(p)))
-                        .map(l -> Json.createReader(new StringReader(l)))
-                        .map(JsonReader::readObject)
-                        .map(j -> j.getJsonObject("data"))
-                        .collect(Collectors.toList());
-
-        assert (passwords.size() == config.publicKeys().size()) && privateKeyJsonConfig.size() == passwords.size() : "Public keys, private keys and passwords need to gave same lengths";
+            privateKeyPaths.stream()
+                .flatMap(p -> IOCallback.execute(() -> Files.lines(p)))
+                .map(StringReader::new)
+                .map(Json::createReader)
+                .map(JsonReader::readObject)
+                .collect(Collectors.toList());
 
         IntStream.range(0, config.privateKeys().size())
-                .forEach(
-                        i -> {
-                            JsonObject privateKey = privateKeyJsonConfig.get(i);
-                            byte[] data = Base64.getDecoder().decode(privateKey.getString("bytes"));
-                            String password = passwords.get(i);
-                            byte[] unlocked = unlock(data, password);
+            .forEach(
+                i -> {
+                    JsonObject privateKey = privateKeyJsonConfig.get(i);
+                    JsonObject privateKeyData = privateKey.getJsonObject("data");
+                    byte[] unlocked;
+                    final String password;
+                    if (privateKey.getString("type").equals("unlocked")) {
+                        unlocked = Base64.getDecoder().decode(privateKeyData.getString("bytes"));
+                        password = null;
+                    } else {
+                        byte[] data = Base64.getDecoder().decode(privateKeyData.getString("bytes"));
+                        password = passwords.get(i);
+                        unlocked = unlock(data, password);
+                    }
 
-                            Path publicKeyFile = config.publicKeys().get(i);
-
-                            String publicKeyData = IOCallback.execute(() -> Files.readString(publicKeyFile));
-                            Box.PublicKey publicKey =
-                                    Box.PublicKey.fromBytes(Base64.getDecoder().decode(publicKeyData));
-                            Box.SecretKey secretKey = Box.SecretKey.fromBytes(unlocked);
-                            Box.KeyPair keyPair = new Box.KeyPair(publicKey, secretKey);
-                            passwordLookup.put(publicKey, password);
-                            keyPairLookup.put(publicKeyFile, keyPair);
-                        });
+                    Path publicKeyFile = Paths.get(baseDir.toString(),config.publicKeys().get(i).toString());
+                    String publicKeyData = IOCallback.execute(() -> Files.readString(publicKeyFile));
+                    Box.PublicKey publicKey =
+                        Box.PublicKey.fromBytes(Base64.getDecoder().decode(publicKeyData));
+                    Box.SecretKey secretKey = Box.SecretKey.fromBytes(unlocked);
+                    Box.KeyPair keyPair = new Box.KeyPair(publicKey, secretKey);
+                    passwordLookup.put(publicKey, Optional.ofNullable(password).orElse(""));
+                    keyPairLookup.put(publicKeyFile, keyPair);
+                });
     }
 
     static byte[] unlock(byte[] keyBytes, String password) {

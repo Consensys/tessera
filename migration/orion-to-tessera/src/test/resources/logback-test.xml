@@ -7,7 +7,10 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <logger name="eclipselink.logging.sql" level="DEBUG" />
+    <logger name="org.h2.jdbc" level="ALL" />
+    <logger name="eclipselink" level="ALL" />
+    <root level="ALL">
         <appender-ref ref="STDOUT"/>
     </root>
 

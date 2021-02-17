@@ -1,6 +1,7 @@
 package net.consensys.tessera.migration.data;
 
-import com.quorum.tessera.encryption.*;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
 import net.consensys.orion.enclave.EncryptedKey;
 import net.consensys.orion.enclave.EncryptedPayload;
 import net.consensys.tessera.migration.OrionKeyHelper;
@@ -8,7 +9,11 @@ import org.apache.tuweni.crypto.sodium.Box;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import javax.json.JsonObject;
+import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class EncryptedKeyMatcher {
@@ -78,6 +83,51 @@ public class EncryptedKeyMatcher {
 //
 //        return recipientKeys;
 //    }
+
+    public Optional<PublicKey> findRecipientKeyWhenNotSenderAndPrivacyGroupNotFound(JsonObject transaction) {
+
+        final PublicKey senderKey =
+            Optional.of(transaction.getString("sender"))
+                .map(Base64.getDecoder()::decode)
+                .map(Box.PublicKey::fromBytes)
+                .map(Box.PublicKey::bytesArray)
+                .map(PublicKey::from)
+                .get();
+
+        final List<Box.KeyPair> keyPairs = orionKeyHelper.getKeyPairs();
+
+        final List<String> ourPublicKeysBase64 = keyPairs.stream()
+            .map(Box.KeyPair::publicKey)
+            .map(Box.PublicKey::bytesArray)
+            .map(pkBytes -> Base64.getEncoder().encodeToString(pkBytes))
+            .collect(Collectors.toList());
+
+        for (int i = 0; i < transaction.getJsonArray("encryptedKeys").size(); i++) {
+            JsonObject encryptedKey = transaction.getJsonArray("encryptedKeys").get(i).asJsonObject();
+            for (String ourPublicRecipientKey : ourPublicKeysBase64) {
+                Box.KeyPair keypairUnderTest = keyPairs.stream()
+                    .filter(
+                        kp ->
+                            Objects.equals(
+                                Base64.getEncoder().encodeToString(kp.publicKey().bytesArray()),
+                                ourPublicRecipientKey))
+                    .findFirst()
+                    .get();
+
+                PublicKey ourPublicKey = PublicKey.from(keypairUnderTest.publicKey().bytesArray());
+                PrivateKey ourPrivateKey = PrivateKey.from(keypairUnderTest.secretKey().bytesArray());
+
+                final boolean canDecrypt = tesseraEncryptor.canDecrypt(transaction, encryptedKey, senderKey, ourPrivateKey);
+                if(canDecrypt) {
+                    return Optional.of(ourPublicKey);
+                }
+            }
+
+        }
+
+            return Optional.empty();
+    }
+
 
     public Optional<PublicKey> findRecipientKeyWhenNotSenderAndPrivacyGroupNotFound(EncryptedPayload transaction) {
 
