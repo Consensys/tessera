@@ -1,25 +1,23 @@
 package net.consensys.tessera.migration.data;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lmax.disruptor.BlockingWaitStrategy;
-import com.lmax.disruptor.EventHandler;
-import com.lmax.disruptor.ExceptionHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.EncryptorFactory;
 import net.consensys.tessera.migration.OrionKeyHelper;
+import org.iq80.leveldb.DB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.CountDownLatch;
 
 public class MigrateDataCommand implements Callable<Boolean> {
 
@@ -33,22 +31,21 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
     private InboundDbHelper inboundDbHelper;
 
-    private ObjectMapper cborObjectMapper = JacksonObjectMapperFactory.create();
-
     static EntityManagerFactory createEntityManagerFactory(TesseraJdbcOptions jdbcOptions) {
         Map<String,String> jdbcProperties = new HashMap<>();
         jdbcProperties.put("javax.persistence.jdbc.user", jdbcOptions.getUsername());
         jdbcProperties.put("javax.persistence.jdbc.password", jdbcOptions.getPassword());
         jdbcProperties.put("javax.persistence.jdbc.url", jdbcOptions.getUrl());
 
-        jdbcProperties.put("eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
         jdbcProperties.put("eclipselink.logging.level", "FINE");
         jdbcProperties.put("eclipselink.logging.parameters", "true");
         jdbcProperties.put("eclipselink.logging.level.sql", "FINE");
 
-        jdbcProperties.put("eclipselink.connection-pool.initial","20");
-        jdbcProperties.put("eclipselink.connection-pool.min","20");
-        jdbcProperties.put("eclipselink.connection-pool.max","20");
+        jdbcProperties.put("eclipselink.jdbc.batch-writing","JDBC");
+        jdbcProperties.put("eclipselink.jdbc.batch-writing.size","100");
+        jdbcProperties.put("eclipselink.connection-pool.initial","10");
+        jdbcProperties.put("eclipselink.connection-pool.min","10");
+        jdbcProperties.put("eclipselink.connection-pool.max","10");
 
         jdbcProperties.put("javax.persistence.schema-generation.database.action", jdbcOptions.getAction());
 
@@ -68,82 +65,85 @@ public class MigrateDataCommand implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
 
-        Disruptor<OrionDataEvent> disruptor =
-                new Disruptor<>(
-                    OrionDataEvent.FACTORY,
-                        16,
-                        (ThreadFactory) Thread::new,
-                        ProducerType.SINGLE,
-                        new BlockingWaitStrategy());
-
-        InputType inputType = inboundDbHelper.getInputType();
-        final LevelDbDataProducer inboundAdapter;
-        EncryptorHelper encryptorHelper = new EncryptorHelper(tesseraEncryptor);
-        EncryptedKeyMatcher encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptorHelper);
-        RecipientBoxHelper recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper);
+        final InputType inputType = inboundDbHelper.getInputType();
 
         switch (inputType) {
             case LEVELDB:
-                new LeveldbMigrationInfoFactory().from(inboundDbHelper.getLevelDb().get());
-                inboundAdapter =
-                        new LevelDbDataProducer(inboundDbHelper.getLevelDb().get(), disruptor);
+                DB leveldb = inboundDbHelper.getLevelDb().get();
+                new LeveldbMigrationInfoFactory().init(leveldb);
                 break;
-//            case JDBC:
-//                DataSource dataSource = inboundDbHelper.getJdbcDataSource().get();
-//                inboundAdapter = new JdbcOrionDataAdapter(dataSource, cborObjectMapper, disruptor,encryptedKeyMatcher,recipientBoxHelper);
-//                break;
+
+            default: throw new UnsupportedOperationException(inputType +" Is not supported");
+        }
+
+        final EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
+
+        final MigrationInfo migrationInfo = MigrationInfo.getInstance();
+        final CountDownLatch insertedRowCounter = new CountDownLatch(migrationInfo.getTransactionCount() + migrationInfo.getPrivacyGroupCount());
+
+        Disruptor<TesseraDataEvent> tesseraDataEventDisruptor = new Disruptor<>(
+            TesseraDataEvent.FACTORY,
+            32,
+            r -> {
+                return new Thread(r,"TesseraDataEvent");
+            },
+            ProducerType.MULTI,
+            new BlockingWaitStrategy());
+
+        tesseraDataEventDisruptor
+            .handleEventsWith((event, sequence, endOfBatch) -> {
+                    EntityManager entityManager = entityManagerFactory.createEntityManager();
+                    EntityTransaction entityTransaction = entityManager.getTransaction();
+                    entityTransaction.begin();
+                    entityManager.persist(event.getEntity());
+                    entityTransaction.commit();
+                    event.reset();
+                    insertedRowCounter.countDown();
+                }
+            );
+
+        Disruptor<OrionDataEvent> orionDataEventDisruptor =
+                new Disruptor<>(
+                    OrionDataEvent.FACTORY,
+                        16,
+                    r -> {
+                        return new Thread(r,"OrionDataEvent");
+                    },
+                        ProducerType.SINGLE,
+                        new BlockingWaitStrategy());
+
+
+        final DataProducer dataProducer;
+        switch (inputType) {
+            case LEVELDB:
+                dataProducer =
+                    new LevelDbDataProducer(inboundDbHelper.getLevelDb().get(), orionDataEventDisruptor);
+                break;
             default:
                 throw new UnsupportedOperationException("");
         }
 
-        EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
+        EncryptorHelper encryptorHelper = new EncryptorHelper(tesseraEncryptor);
+        EncryptedKeyMatcher encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptorHelper);
+        RecipientBoxHelper recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper);
 
-        List<EventHandler<OrionDataEvent>> handlers = new ArrayList<>();
+        orionDataEventDisruptor
+            .handleEventsWith(new PrivacyGroupLookupHandler(recipientBoxHelper,encryptedKeyMatcher))
+            .handleEventsWith(
+                new ConvertToPrivacyGroupEntity(tesseraDataEventDisruptor),
+                new ConvertToTransactionEntity(tesseraDataEventDisruptor));
 
-        Disruptor<TesseraDataEvent> tesseraDataEventDisruptor = new Disruptor<TesseraDataEvent>(TesseraDataEvent.FACTORY,
-            16,
-            (ThreadFactory) Thread::new,
-            ProducerType.SINGLE,
-            new BlockingWaitStrategy());
 
-        for(int i = 0;i < 1;i++) {
-            handlers.add(new ConvertToPrivacyGroupEntity(tesseraDataEventDisruptor));
-            handlers.add(new ConvertToTransactionEntity(tesseraDataEventDisruptor));
-        }
+        tesseraDataEventDisruptor.start();
+        orionDataEventDisruptor.start();
+        dataProducer.start();
 
-        CompletionHandler completionHandler = new CompletionHandler();
+        insertedRowCounter.await();
 
-        disruptor
-                .handleEventsWith(handlers.toArray(EventHandler[]::new))
-                    .then(completionHandler);
-
-        disruptor.setDefaultExceptionHandler(new ExceptionHandler<OrionDataEvent>() {
-            @Override
-            public void handleEventException(Throwable ex, long sequence, OrionDataEvent event) {
-                LOGGER.error("Unable to process event {}",event);
-                LOGGER.error(null,ex);
-                disruptor.shutdown();
-            }
-
-            @Override
-            public void handleOnStartException(Throwable ex) {
-                LOGGER.error(null,ex);
-            }
-
-            @Override
-            public void handleOnShutdownException(Throwable ex) {
-                LOGGER.error(null,ex);
-            }
-        });
-
-        disruptor.start();
-
-        inboundAdapter.start();
-
-        completionHandler.await();
         LOGGER.info("DONE");
 
-        disruptor.shutdown();
+        orionDataEventDisruptor.shutdown();
+        tesseraDataEventDisruptor.shutdown();
 
         return Boolean.TRUE;
     }

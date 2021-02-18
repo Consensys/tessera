@@ -16,7 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class LevelDbDataProducer {
+public class LevelDbDataProducer implements DataProducer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LevelDbDataProducer.class);
 

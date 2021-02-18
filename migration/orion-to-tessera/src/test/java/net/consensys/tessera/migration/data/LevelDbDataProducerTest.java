@@ -75,7 +75,6 @@ public class LevelDbDataProducerTest {
         jdbcProperties.put("javax.persistence.jdbc.password", "junit");
         jdbcProperties.put("javax.persistence.jdbc.url", tesseraJdbcUrl);
 
-       // jdbcProperties.put("eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
         jdbcProperties.put("eclipselink.logging.level", "FINE");
         jdbcProperties.put("eclipselink.logging.parameters", "true");
         jdbcProperties.put("eclipselink.logging.level.sql", "FINE");
@@ -115,7 +114,8 @@ public class LevelDbDataProducerTest {
             () -> factory.open(storageDir.resolve(dbname).toAbsolutePath().toFile(), options)
         );
 
-        migrationInfo = new LeveldbMigrationInfoFactory().from(leveldb);
+        new LeveldbMigrationInfoFactory().init(leveldb);
+        migrationInfo = MigrationInfo.getInstance();
         System.out.println("migrationInfo "+ migrationInfo);
         tesseraDataEventDisruptor = new Disruptor<>(
             TesseraDataEvent.FACTORY,

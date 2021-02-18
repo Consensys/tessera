@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class LeveldbMigrationInfoFactory implements MigrationInfoFactory<DB> {
     @Override
-    public MigrationInfo from(DB leveldb) {
+    public void init(DB leveldb) {
 
         AtomicInteger totalRecords = new AtomicInteger(0);
         AtomicInteger transactionRecords = new AtomicInteger(0);
@@ -35,11 +35,12 @@ public class LeveldbMigrationInfoFactory implements MigrationInfoFactory<DB> {
             totalRecords.incrementAndGet();
         }
 
-        return MigrationInfo.from(
+        MigrationInfo.from(
                                 totalRecords.get(),
                                 transactionRecords.get(),
                                 privacyGroupRecords.get(),
                                 queryPrivacyGroupRecords.get());
 
     }
+
 }
