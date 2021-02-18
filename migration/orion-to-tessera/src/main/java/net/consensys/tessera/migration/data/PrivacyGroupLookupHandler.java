@@ -72,7 +72,7 @@ public class PrivacyGroupLookupHandler implements EventHandler<OrionDataEvent> {
             orionDataEvent.setRecipientBoxMap(Map.of(recipientKey,recipientBox));
 
         } else {
-            throw new UnsupportedOperationException("");
+            throw new UnsupportedOperationException(""+ orionDataEvent);
         }
     }
 }

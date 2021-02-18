@@ -21,16 +21,15 @@ import javax.persistence.Persistence;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
 public class LevelDbDataProducerTest {
@@ -114,7 +113,11 @@ public class LevelDbDataProducerTest {
             () -> factory.open(storageDir.resolve(dbname).toAbsolutePath().toFile(), options)
         );
 
-        new LeveldbMigrationInfoFactory().init(leveldb);
+        InboundDbHelper inboundDbHelper = mock(InboundDbHelper.class);
+        when(inboundDbHelper.getInputType()).thenReturn(InputType.LEVELDB);
+        when(inboundDbHelper.getLevelDb()).thenReturn(Optional.of(leveldb));
+
+        MigrationInfoFactory.create(inboundDbHelper);
         migrationInfo = MigrationInfo.getInstance();
         System.out.println("migrationInfo "+ migrationInfo);
         tesseraDataEventDisruptor = new Disruptor<>(

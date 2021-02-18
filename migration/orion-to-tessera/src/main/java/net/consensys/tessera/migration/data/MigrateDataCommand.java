@@ -6,7 +6,6 @@ import com.lmax.disruptor.dsl.ProducerType;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.EncryptorFactory;
 import net.consensys.tessera.migration.OrionKeyHelper;
-import org.iq80.leveldb.DB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,15 +65,7 @@ public class MigrateDataCommand implements Callable<Boolean> {
     public Boolean call() throws Exception {
 
         final InputType inputType = inboundDbHelper.getInputType();
-
-        switch (inputType) {
-            case LEVELDB:
-                DB leveldb = inboundDbHelper.getLevelDb().get();
-                new LeveldbMigrationInfoFactory().init(leveldb);
-                break;
-
-            default: throw new UnsupportedOperationException(inputType +" Is not supported");
-        }
+        MigrationInfoFactory.create(inboundDbHelper).init();
 
         final EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
 
@@ -113,15 +104,7 @@ public class MigrateDataCommand implements Callable<Boolean> {
                         new BlockingWaitStrategy());
 
 
-        final DataProducer dataProducer;
-        switch (inputType) {
-            case LEVELDB:
-                dataProducer =
-                    new LevelDbDataProducer(inboundDbHelper.getLevelDb().get(), orionDataEventDisruptor);
-                break;
-            default:
-                throw new UnsupportedOperationException("");
-        }
+        final DataProducer dataProducer = DataProducer.create(inboundDbHelper,orionDataEventDisruptor);
 
         EncryptorHelper encryptorHelper = new EncryptorHelper(tesseraEncryptor);
         EncryptedKeyMatcher encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptorHelper);

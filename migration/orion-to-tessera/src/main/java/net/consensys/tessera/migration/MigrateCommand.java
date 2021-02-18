@@ -30,7 +30,8 @@ public class MigrateCommand implements Callable<Config> {
     @CommandLine.Option(names = {"-v", "--verbose"})
     private boolean verbose;
 
-    @CommandLine.Mixin private TesseraJdbcOptions tesseraJdbcOptions = new TesseraJdbcOptions();
+    @CommandLine.Mixin
+    private TesseraJdbcOptions tesseraJdbcOptions = new TesseraJdbcOptions();
 
     @Override
     public Config call() throws Exception {

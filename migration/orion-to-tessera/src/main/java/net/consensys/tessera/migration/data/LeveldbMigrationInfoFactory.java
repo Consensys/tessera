@@ -7,8 +7,15 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class LeveldbMigrationInfoFactory implements MigrationInfoFactory<DB> {
+
+    private final DB leveldb;
+
+    public LeveldbMigrationInfoFactory(DB leveldb) {
+        this.leveldb = leveldb;
+    }
+
     @Override
-    public void init(DB leveldb) {
+    public void init() throws Exception {
 
         AtomicInteger totalRecords = new AtomicInteger(0);
         AtomicInteger transactionRecords = new AtomicInteger(0);

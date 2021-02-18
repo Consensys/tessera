@@ -106,11 +106,6 @@ dependencies {
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr353:2.12.0"
 
     implementation "co.nstant.in:cbor:0.9"
-    /*
-    <groupId>co.nstant.in</groupId>
-	<artifactId>cbor</artifactId>
-	<version>0.9</version>
-     */
 
 //    implementation("org.iq80.leveldb:leveldb-api:0.12")  {
 //        transitive = false
@@ -158,7 +153,7 @@ test {
     workingDir = "build/resources/test"
 
     jacoco {
-        enabled = false
+        enabled = false //Skip coverage
     }
 }
 

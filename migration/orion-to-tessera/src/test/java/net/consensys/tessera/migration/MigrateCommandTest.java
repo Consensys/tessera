@@ -67,7 +67,7 @@ public class MigrateCommandTest {
 
         String dbuser = "junituser";
         String dbpassword = "junitpassword";
-        String dburl = "jdbc:h2:./build/testdb2;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0";
+        String dburl = "jdbc:h2:./build/testdb233;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0";
 
         String[] args =
                 new String[] {

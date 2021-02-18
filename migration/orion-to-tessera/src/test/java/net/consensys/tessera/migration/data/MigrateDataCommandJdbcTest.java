@@ -27,9 +27,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Parameterized.class)
-public class MigrateDataCommandTest {
+public class MigrateDataCommandJdbcTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MigrateDataCommandTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MigrateDataCommandJdbcTest.class);
 
     private MigrateDataCommand migrateDataCommand;
 
@@ -43,12 +43,12 @@ public class MigrateDataCommandTest {
 
     private Path pwd = Paths.get("").toAbsolutePath();
 
-    public MigrateDataCommandTest(Path orionConfigDir) {
+    public MigrateDataCommandJdbcTest(Path orionConfigDir) {
         this.orionConfigDir = orionConfigDir;
     }
 
     @Before
-    public void beforeTest() {
+    public void beforeTest() throws Exception {
         tesseraJdbcUrl = "jdbc:h2:" + pwd + "/" + UUID.randomUUID().toString() + ".db";
         final Path orionConfigFile = orionConfigDir.resolve("orion.conf");
 
@@ -60,9 +60,15 @@ public class MigrateDataCommandTest {
             () -> factory.open(orionConfigDir.resolve(dbname).toAbsolutePath().toFile(), options)
         );
 
+        JdbcDataSource orionDataSource = new JdbcDataSource();
+        orionDataSource.setURL("jdbc:h2:" + pwd + "/orion-" + UUID.randomUUID().toString() + ".db");
+        orionDataSource.setUser("orion");
+        orionDataSource.setPassword("orion");
+        LevelDbToJdbcUtil.copy(leveldb,orionDataSource);
+
         inboundDbHelper = mock(InboundDbHelper.class);
-        when(inboundDbHelper.getLevelDb()).thenReturn(Optional.of(leveldb));
-        when(inboundDbHelper.getInputType()).thenReturn(InputType.LEVELDB);
+        when(inboundDbHelper.getJdbcDataSource()).thenReturn(Optional.of(orionDataSource));
+        when(inboundDbHelper.getInputType()).thenReturn(InputType.JDBC);
 
         tesseraJdbcOptions = mock(TesseraJdbcOptions.class);
         when(tesseraJdbcOptions.getAction()).thenReturn("drop-and-create");
