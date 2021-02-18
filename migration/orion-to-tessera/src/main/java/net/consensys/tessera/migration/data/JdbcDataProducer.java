@@ -72,7 +72,7 @@ public class JdbcDataProducer implements DataProducer {
             }
 
 
-            LOGGER.info("All {} records published.",MigrationInfo.getInstance().getRowCount());
+            LOGGER.info("All {} records published.",migrationInfo.getRowCount());
         }
     }
 }

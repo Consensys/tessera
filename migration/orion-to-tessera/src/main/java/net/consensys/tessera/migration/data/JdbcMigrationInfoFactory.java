@@ -14,7 +14,7 @@ public class JdbcMigrationInfoFactory implements MigrationInfoFactory<DataSource
     }
 
     @Override
-    public void init() throws Exception {
+    public MigrationInfo init() throws Exception {
 
         AtomicInteger totalRecords = new AtomicInteger(0);
         AtomicInteger transactionRecords = new AtomicInteger(0);
@@ -27,8 +27,10 @@ public class JdbcMigrationInfoFactory implements MigrationInfoFactory<DataSource
             ) {
 
             while(resultSet.next()) {
+
                 byte[] value = resultSet.getBytes(1);
                 PayloadType payloadType = PayloadType.parsePayloadType(value);
+
                 switch (payloadType) {
                     case ENCRYPTED_PAYLOAD:
                         transactionRecords.incrementAndGet();
@@ -45,7 +47,7 @@ public class JdbcMigrationInfoFactory implements MigrationInfoFactory<DataSource
 
             }
 
-            MigrationInfo.from(
+            return MigrationInfo.from(
                 totalRecords.get(),
                 transactionRecords.get(),
                 privacyGroupRecords.get(),

@@ -14,13 +14,12 @@ public interface LevelDbToJdbcUtil {
 
         try(Connection connection = dataSource.getConnection()) {
             connection.createStatement().execute("CREATE TABLE STORE (\n" +
-                "  key char(60) primary KEY,\n" +
-                "  VALUE blob\n" +
-                ");");
+                "  KEY CHAR(60) PRIMARY KEY,\n" +
+                "  VALUE BLOB\n" +
+                ")");
             connection.commit();
         }
 
-        int batchCount = 0;
         try(Connection connection = dataSource.getConnection();
             PreparedStatement statement = connection.prepareStatement("INSERT INTO STORE (KEY,VALUE) VALUES (?,?)")) {
 
@@ -31,18 +30,10 @@ public interface LevelDbToJdbcUtil {
                 byte[] key = entry.getKey();
                 byte[] value = entry.getValue();
 
-                PayloadType payloadType = PayloadType.parsePayloadType(value);
-                System.out.println(payloadType + " "+ new String(key) + " "+ key.length);
-
                 statement.setString(1,new String(key));
                 statement.setBytes(2,value);
 
-                if(batchCount > 100) {
-                    statement.executeBatch();
-                    batchCount = 0;
-                    continue;
-                }
-                batchCount++;
+                statement.execute();
             }
 
             statement.executeBatch();

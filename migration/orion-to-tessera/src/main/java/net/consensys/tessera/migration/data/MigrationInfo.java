@@ -46,7 +46,6 @@ public class MigrationInfo {
     }
 
     public static MigrationInfo from(int rowCount, int transactionCount, int privacyGroupCount,int queryPrivacyGroupCount) {
-        Holder.INSTANCE.setMigrationInfo(null);
 
         if (Holder.INSTANCE.getMigrationInfo().isEmpty()) {
             Holder.INSTANCE

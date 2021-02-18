@@ -15,7 +15,7 @@ public class LeveldbMigrationInfoFactory implements MigrationInfoFactory<DB> {
     }
 
     @Override
-    public void init() throws Exception {
+    public MigrationInfo init() throws Exception {
 
         AtomicInteger totalRecords = new AtomicInteger(0);
         AtomicInteger transactionRecords = new AtomicInteger(0);
@@ -42,7 +42,7 @@ public class LeveldbMigrationInfoFactory implements MigrationInfoFactory<DB> {
             totalRecords.incrementAndGet();
         }
 
-        MigrationInfo.from(
+       return MigrationInfo.from(
                                 totalRecords.get(),
                                 transactionRecords.get(),
                                 privacyGroupRecords.get(),

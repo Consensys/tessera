@@ -93,7 +93,7 @@ public class MigrateDataCommandJdbcTest {
         assertThat(migrateDataCommand.call()).isTrue();
 
         MigrationInfo migrationInfo = MigrationInfo.getInstance();
-        LOGGER.info(" {}", migrationInfo);
+        LOGGER.info(" HERE {}", migrationInfo);
 
         JdbcDataSource dataSource = new JdbcDataSource();
         dataSource.setURL(tesseraJdbcUrl);

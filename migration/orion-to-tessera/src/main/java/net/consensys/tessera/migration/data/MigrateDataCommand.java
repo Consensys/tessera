@@ -36,6 +36,7 @@ public class MigrateDataCommand implements Callable<Boolean> {
         jdbcProperties.put("javax.persistence.jdbc.password", jdbcOptions.getPassword());
         jdbcProperties.put("javax.persistence.jdbc.url", jdbcOptions.getUrl());
 
+        //jdbcProperties.put("eclipselink.logging.logger","JavaLogger");
         jdbcProperties.put("eclipselink.logging.level", "FINE");
         jdbcProperties.put("eclipselink.logging.parameters", "true");
         jdbcProperties.put("eclipselink.logging.level.sql", "FINE");
@@ -64,20 +65,16 @@ public class MigrateDataCommand implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
 
-        final InputType inputType = inboundDbHelper.getInputType();
-        MigrationInfoFactory.create(inboundDbHelper).init();
+        final MigrationInfo migrationInfo = MigrationInfoFactory.create(inboundDbHelper);
 
         final EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
 
-        final MigrationInfo migrationInfo = MigrationInfo.getInstance();
         final CountDownLatch insertedRowCounter = new CountDownLatch(migrationInfo.getTransactionCount() + migrationInfo.getPrivacyGroupCount());
 
         Disruptor<TesseraDataEvent> tesseraDataEventDisruptor = new Disruptor<>(
             TesseraDataEvent.FACTORY,
             32,
-            r -> {
-                return new Thread(r,"TesseraDataEvent");
-            },
+            new CustomThreadFactory("TesseraDataEvent"),
             ProducerType.MULTI,
             new BlockingWaitStrategy());
 
@@ -97,9 +94,7 @@ public class MigrateDataCommand implements Callable<Boolean> {
                 new Disruptor<>(
                     OrionDataEvent.FACTORY,
                         16,
-                    r -> {
-                        return new Thread(r,"OrionDataEvent");
-                    },
+                        new CustomThreadFactory("OrionDataEvent"),
                         ProducerType.SINGLE,
                         new BlockingWaitStrategy());
 

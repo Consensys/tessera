@@ -2,15 +2,16 @@ package net.consensys.tessera.migration.data;
 
 public interface MigrationInfoFactory<T> {
 
-    void init() throws Exception;
+    MigrationInfo init() throws Exception;
 
-    static  MigrationInfoFactory create(InboundDbHelper inboundDbHelper) {
+    static MigrationInfo create(InboundDbHelper inboundDbHelper) throws Exception {
+
         if(inboundDbHelper.getInputType() == InputType.LEVELDB) {
-            return new LeveldbMigrationInfoFactory(inboundDbHelper.getLevelDb().get());
+           return new LeveldbMigrationInfoFactory(inboundDbHelper.getLevelDb().get()).init();
         }
 
         if(inboundDbHelper.getInputType() == InputType.JDBC) {
-            return new JdbcMigrationInfoFactory(inboundDbHelper.getJdbcDataSource().get());
+            return new JdbcMigrationInfoFactory(inboundDbHelper.getJdbcDataSource().get()).init();
         }
         throw new UnsupportedOperationException();
 
