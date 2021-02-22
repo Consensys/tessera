@@ -7,6 +7,7 @@ import org.bouncycastle.jcajce.provider.digest.Keccak;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public interface PrivacyGroupUtil extends BinaryEncoder {
@@ -101,9 +102,13 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
         final byte[] state = new byte[Math.toIntExact(stateSize)];
         buffer.get(state);
 
-        final byte[] groupId;
-        if (pgType == PrivacyGroup.Type.LEGACY) groupId = generateId(memberKeys);
-        else groupId = generateId(memberKeys, seed);
+        final Map<PrivacyGroup.Type, Supplier<byte[]>> groupIdFromType = Map.of(
+            PrivacyGroup.Type.LEGACY, () -> generateId(memberKeys),
+            PrivacyGroup.Type.RESIDENT, () -> name,
+            PrivacyGroup.Type.PANTHEON, () -> generateId(memberKeys, seed)
+        );
+
+        final byte[] groupId = groupIdFromType.get(pgType).get();
 
         return PrivacyGroup.Builder.create()
                 .withPrivacyGroupId(PrivacyGroup.Id.fromBytes(groupId))
@@ -119,4 +124,5 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
     static PrivacyGroupUtil create() {
         return new PrivacyGroupUtil() {};
     }
+
 }

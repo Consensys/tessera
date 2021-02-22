@@ -75,7 +75,8 @@ public interface PrivacyGroup {
 
     enum Type {
         LEGACY,
-        PANTHEON
+        PANTHEON,
+        RESIDENT
     }
 
     enum State {
