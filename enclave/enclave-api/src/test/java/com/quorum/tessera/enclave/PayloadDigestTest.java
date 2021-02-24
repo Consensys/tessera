@@ -1,5 +1,6 @@
 package com.quorum.tessera.enclave;
 
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.Config;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ public class PayloadDigestTest {
         String cipherText = "cipherText";
         byte[] result = digest.digest(cipherText.getBytes());
 
-        // What Orion will have generated
+        // This is what Orion would have generated
         final String expectedB64 = "7AagSZbaNRe/IJzrUKTp8Hl60wncQL1DHvDJCVQ+YIk=";
 
         assertThat(result).isNotNull();
@@ -41,7 +42,7 @@ public class PayloadDigestTest {
         Config config = mock(Config.class);
         assertThat(PayloadDigest.create(config)).isNotNull().isInstanceOf(PayloadDigest.Default.class);
 
-        when(config.isBesu()).thenReturn(true);
+        when(config.getClientMode()).thenReturn(ClientMode.ORION);
         assertThat(PayloadDigest.create(config)).isNotNull().isInstanceOf(PayloadDigest.SHA512256.class);
     }
 }

@@ -124,7 +124,7 @@ public class EncodedPayloadManagerImplTest {
 
         final String singleRecipientBase64 = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
         final PublicKey singleRecipient = PublicKey.from(Base64.getDecoder().decode(singleRecipientBase64));
-        final List<PublicKey> recipients = List.of(singleRecipient); // list the keys multiple times
+        final List<PublicKey> recipients = List.of(singleRecipient);
 
         final EncodedPayload samplePayload =
                 EncodedPayload.Builder.create()
@@ -161,7 +161,7 @@ public class EncodedPayloadManagerImplTest {
 
         final String singleRecipientBase64 = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
         final PublicKey singleRecipient = PublicKey.from(Base64.getDecoder().decode(singleRecipientBase64));
-        final List<PublicKey> recipients = List.of(singleRecipient); // list the keys multiple times
+        final List<PublicKey> recipients = List.of(singleRecipient);
 
         final EncodedPayload samplePayload =
                 EncodedPayload.Builder.create()
@@ -197,7 +197,7 @@ public class EncodedPayloadManagerImplTest {
 
         final String singleRecipientBase64 = "QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc=";
         final PublicKey singleRecipient = PublicKey.from(Base64.getDecoder().decode(singleRecipientBase64));
-        final List<PublicKey> recipients = List.of(singleRecipient); // list the keys multiple times
+        final List<PublicKey> recipients = List.of(singleRecipient);
 
         final EncodedPayload samplePayload =
                 EncodedPayload.Builder.create()

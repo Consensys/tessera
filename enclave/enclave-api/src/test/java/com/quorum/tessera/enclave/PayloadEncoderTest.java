@@ -1531,7 +1531,6 @@ public class PayloadEncoderTest {
         assertThat(result.getRecipientNonce()).isEqualTo(control.getRecipientNonce());
         assertThat(result.getCipherTextNonce()).isEqualTo(control.getCipherTextNonce());
         assertThat(result.getRecipientKeys()).hasSize(1).containsExactly(recipientKey);
-        // assertThat(result.getRecipientBoxes()).isNotEqualTo(control.getRecipientBoxes());
         assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
 
         assertThat(result.getPrivacyGroupId()).isNotPresent();
@@ -1587,7 +1586,7 @@ public class PayloadEncoderTest {
         recipientBoxes.add("box".getBytes());
         recipientBoxes.add("anotherBox".getBytes());
 
-        final PublicKey groupId = PublicKey.from("group".getBytes());
+        final PrivacyGroup.Id groupId = PrivacyGroup.Id.fromBytes("group".getBytes());
 
         final EncodedPayload originalPayload =
                 EncodedPayload.Builder.create()

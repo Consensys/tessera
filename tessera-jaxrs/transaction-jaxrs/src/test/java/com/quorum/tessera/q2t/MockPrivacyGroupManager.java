@@ -25,7 +25,7 @@ public class MockPrivacyGroupManager implements PrivacyGroupManager {
     }
 
     @Override
-    public PrivacyGroup retrievePrivacyGroup(PublicKey privacyGroupId) {
+    public PrivacyGroup retrievePrivacyGroup(PrivacyGroup.Id privacyGroupId) {
         return null;
     }
 
@@ -33,7 +33,7 @@ public class MockPrivacyGroupManager implements PrivacyGroupManager {
     public void storePrivacyGroup(byte[] encodedData) {}
 
     @Override
-    public PrivacyGroup deletePrivacyGroup(PublicKey from, PublicKey privacyGroupId) {
+    public PrivacyGroup deletePrivacyGroup(PublicKey from, PrivacyGroup.Id privacyGroupId) {
         return null;
     }
 

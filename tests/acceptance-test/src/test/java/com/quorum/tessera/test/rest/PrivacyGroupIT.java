@@ -4,15 +4,16 @@ import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import org.junit.Test;
 
-import javax.json.*;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonString;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import java.io.StringReader;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,12 +76,9 @@ public class PrivacyGroupIT {
         assertThat(nodeDJson).isEqualTo(nodeCJson);
 
         // Retrieve will fail on node A as it's not a member
-        try {
-            privacyGroupTestUtil.retrieve("A", privacyGroupId);
-            failBecauseExceptionWasNotThrown(AssertionError.class);
-        } catch (AssertionError err) {
-            assertThat(err).hasMessageContaining("404");
-        }
+        assertThatThrownBy(() -> privacyGroupTestUtil.retrieve("A", privacyGroupId))
+            .isInstanceOf(AssertionError.class)
+            .hasMessageContaining("404");
     }
 
     @Test

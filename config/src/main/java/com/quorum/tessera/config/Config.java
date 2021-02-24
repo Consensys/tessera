@@ -65,7 +65,8 @@ public class Config extends ConfigItem {
 
     @XmlTransient private boolean recoveryMode;
 
-    @XmlElement private boolean isBesu;
+    @XmlElement(name = "mode")
+    private ClientMode clientMode = ClientMode.TESSERA;
 
     @Deprecated
     public Config(
@@ -224,11 +225,11 @@ public class Config extends ConfigItem {
         this.recoveryMode = recoveryMode;
     }
 
-    public boolean isBesu() {
-        return isBesu;
+    public ClientMode getClientMode() {
+        return clientMode;
     }
 
-    public void setBesu(boolean isBesu) {
-        this.isBesu = isBesu;
+    public void setClientMode(ClientMode clientMode) {
+        this.clientMode = clientMode;
     }
 }

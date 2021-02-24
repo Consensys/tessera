@@ -5,7 +5,6 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import org.junit.Test;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,18 +19,6 @@ public class EncoderCompatibilityTest {
     private final V2PayloadEncoder v2Encoder = new V2PayloadEncoder();
 
     private final PayloadEncoder v3Encoder = new PayloadEncoderImpl();
-
-    @Test
-    public void test() {
-        String base64 =
-                "AAAAAAAAACAFQt5HwnJRaGK64IxT8csDRDmnORhP5wcgjdkoF7LcGgAAAAAAAAATTb9YJCMFHIPnjgOuf8kt2wQqYwAAAAAAAAAYs5vt/PiGQuNtk8T1mcgmqlBGOjoxvDabAAAAAAAAAAIAAAAAAAAAMPofTMvARcZ9sj+YTQjJ0ZVJboAWU/mQc/mWb+/A4UUcx/2QU8V5+BqJDTdZ0BkDFAAAAAAAAAAww5Ht0Fw6akO6sHuM6sosDQrV4RE6Co+9HL4uEgmEUs7s2qHtq2NwtPNSKarpH/sZAAAAAAAAABhrgQ71zS29K4OsrEeTiz0sYEyMSFD82XUAAAAAAAAAAgAAAAAAAAAgBULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3BoAAAAAAAAAIEH3gwMrPTDw7NlxxMbXPOIyhh8WYP2o+dg04dL7QN13AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAIPKMPIbszi5wrhf9FjbCF9F3G90JGHrpaZ0BxVWTw6zu";
-
-        byte[] encoded = Base64.getDecoder().decode(base64);
-
-        EncodedPayload payload = v3Encoder.decode(encoded);
-
-        System.out.println("Test");
-    }
 
     @Test
     public void legacyToV2() {
@@ -180,7 +167,6 @@ public class EncoderCompatibilityTest {
                         .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
                         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
                         .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
-                        //                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
                         .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
@@ -215,7 +201,6 @@ public class EncoderCompatibilityTest {
                         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
                         .withAffectedContractTransactions(Map.of(TxHash.from("hash".getBytes()), "hash".getBytes()))
                         .withExecHash("EXEC_HASH".getBytes())
-                        //                .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
                         .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
@@ -312,7 +297,7 @@ public class EncoderCompatibilityTest {
                         .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
                         .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
                         .withAffectedContractTransactions(emptyMap())
-                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("GROUP_ID".getBytes()))
                         .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
@@ -351,7 +336,7 @@ public class EncoderCompatibilityTest {
                                         "1".getBytes(),
                                         TxHash.from("hash2".getBytes()),
                                         "2".getBytes()))
-                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("GROUP_ID".getBytes()))
                         .build();
 
         final byte[] encoded = v3Encoder.encode(payload);
@@ -391,7 +376,7 @@ public class EncoderCompatibilityTest {
                                         TxHash.from("hash2".getBytes()),
                                         "2".getBytes()))
                         .withExecHash("EXEC_HASH".getBytes())
-                        .withPrivacyGroupId(PublicKey.from("GROUP_ID".getBytes()))
+                        .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("GROUP_ID".getBytes()))
                         .build();
 
         final byte[] encoded = v3Encoder.encode(payload);

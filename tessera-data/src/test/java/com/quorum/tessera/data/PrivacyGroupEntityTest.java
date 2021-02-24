@@ -1,6 +1,5 @@
 package com.quorum.tessera.data;
 
-import com.quorum.tessera.data.PrivacyGroupEntity;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

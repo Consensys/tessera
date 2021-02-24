@@ -7,6 +7,7 @@ import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.cli.PicoCliDelegate;
+import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.discovery.Discovery;
@@ -38,6 +39,8 @@ public class Main {
             LOGGER.debug("Executed PicoCliDelegate with args [{}].", String.join(",", args));
             CliDelegate.instance().setConfig(cliResult.getConfig().orElse(null));
 
+            cliResult.getConfig().ifPresent(c -> LOGGER.trace("Config {}", JaxbUtil.marshalToStringNoValidation(c)));
+
             if (cliResult.isSuppressStartup()) {
                 System.exit(0);
             }
@@ -47,9 +50,9 @@ public class Main {
             }
 
             final Config config =
-                    cliResult
-                            .getConfig()
-                            .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
+                cliResult
+                    .getConfig()
+                    .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
             //Start legacy spring profile stuff
             final String springProfileWarning = "Warn: Spring profiles will not be supported in future. To start in recover mode use 'tessera recover'";
@@ -78,15 +81,19 @@ public class Main {
 
             services.forEach(o -> LOGGER.debug("Service : {}", o));
 
+            if (runtimeContext.isOrionMode()) {
+                LOGGER.info("Starting Tessera in Orion compatible mode");
+            }
+
             Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
 
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
                 System.err.println(
-                        "ERROR: Config validation issue: "
-                                + violation.getPropertyPath()
-                                + " "
-                                + violation.getMessage());
+                    "ERROR: Config validation issue: "
+                        + violation.getPropertyPath()
+                        + " "
+                        + violation.getMessage());
             }
             System.exit(1);
         } catch (final ConfigException ex) {

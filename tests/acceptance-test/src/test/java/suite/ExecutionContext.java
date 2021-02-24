@@ -1,5 +1,6 @@
 package suite;
 
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -8,7 +9,6 @@ import config.ConfigDescriptor;
 import config.ConfigGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class ExecutionContext {
 
     private EncryptorType encryptorType;
 
-    private boolean orionCompatibleMode;
+    private ClientMode clientMode;
 
     private ExecutionContext(
             DBType dbType,
@@ -50,7 +50,7 @@ public class ExecutionContext {
             CommunicationType p2pCommunicationType,
             boolean p2pSsl,
             EncryptorType encryptorType,
-            boolean orionCompatibleMode) {
+            ClientMode clientMode) {
         this.dbType = dbType;
         this.communicationType = communicationType;
         this.socketType = socketType;
@@ -60,7 +60,7 @@ public class ExecutionContext {
         this.p2pCommunicationType = p2pCommunicationType;
         this.p2pSsl = p2pSsl;
         this.encryptorType = encryptorType;
-        this.orionCompatibleMode = orionCompatibleMode;
+        this.clientMode = clientMode;
     }
 
     public DBType getDbType() {
@@ -103,8 +103,8 @@ public class ExecutionContext {
         return encryptorType;
     }
 
-    public boolean isOrionCompatibleMode() {
-        return orionCompatibleMode;
+    public ClientMode getClientMode() {
+        return clientMode;
     }
 
     public static class Builder {
@@ -125,7 +125,7 @@ public class ExecutionContext {
 
         private EncryptorType encryptorType;
 
-        private boolean orionCompatibleMode;
+        private ClientMode clientMode;
 
         private Builder() {}
 
@@ -180,8 +180,8 @@ public class ExecutionContext {
             return this;
         }
 
-        public Builder with(boolean orionCompatibleMode) {
-            this.orionCompatibleMode = orionCompatibleMode;
+        public Builder with(ClientMode clientMode) {
+            this.clientMode = clientMode;
             return this;
         }
 
@@ -202,7 +202,7 @@ public class ExecutionContext {
                             p2pCommunicationType,
                             p2pSsl,
                             encryptorType,
-                            orionCompatibleMode);
+                            clientMode);
 
             return executionContext;
         }

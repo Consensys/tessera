@@ -2,6 +2,7 @@ package com.quorum.tessera.q2t;
 
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -27,7 +28,7 @@ public class Q2TRestAppBesuTest {
     @Before
     public void setUp() throws Exception {
         Config config = mock(Config.class);
-        when(config.isBesu()).thenReturn(true);
+        when(config.getClientMode()).thenReturn(ClientMode.ORION);
         final Set<Object> services = Set.of(config);
 
         final MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();

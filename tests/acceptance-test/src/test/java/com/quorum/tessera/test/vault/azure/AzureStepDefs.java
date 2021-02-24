@@ -216,8 +216,8 @@ public class AzureStepDefs implements En {
                                             tempTesseraConfig.toString(),
                                             "-pidfile",
                                             pid.toAbsolutePath().toString(),
-                                            "-jdbc.autoCreateTables",
-                                            "true"));
+                                            "-o",
+                                            "jdbc.autoCreateTables=true"));
 
                     startTessera(args, tempTesseraConfig);
                 });

@@ -47,17 +47,17 @@ public class EntityManagerDAOFactoryTest {
         when(config.getJdbcConfig()).thenReturn(jdbcConfig);
 
         assertThatExceptionOfType(EncryptionOperationNotPossibleException.class)
-                .isThrownBy(() -> {
-                    ByteArrayInputStream in = new ByteArrayInputStream(("bogus" + System.lineSeparator() + "bogus").getBytes());
-                    System.setIn(in);
-                    entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
-                });
+            .isThrownBy(() -> {
+                ByteArrayInputStream in = new ByteArrayInputStream(("bogus" + System.lineSeparator() + "bogus").getBytes());
+                System.setIn(in);
+                entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
+            });
     }
 
     @Test
     public void createEncryptedRawTransactionDAO() {
         EncryptedRawTransactionDAO encryptedRawTransactionDAO =
-                entityManagerDAOFactory.createEncryptedRawTransactionDAO();
+            entityManagerDAOFactory.createEncryptedRawTransactionDAO();
         assertThat(encryptedRawTransactionDAO).isNotNull();
     }
 

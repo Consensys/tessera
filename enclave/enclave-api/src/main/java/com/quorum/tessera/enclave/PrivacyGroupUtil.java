@@ -11,6 +11,10 @@ import java.util.stream.Collectors;
 
 public interface PrivacyGroupUtil extends BinaryEncoder {
 
+    /*
+    This bytes is added to the list of addresses to generate id for querying purpose.
+    The matches the same value being used in Orion to maintain backward compatibility
+     */
     byte[] BYTES = Bytes.fromHexString("5375ba871e5c3d0f1d055b5da0ac02ea035bed38").toArrayUnsafe();
 
     default byte[] generateId(final List<PublicKey> addresses, final byte[] seed) {
@@ -102,7 +106,7 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
         else groupId = generateId(memberKeys, seed);
 
         return PrivacyGroup.Builder.create()
-                .withPrivacyGroupId(PublicKey.from(groupId))
+                .withPrivacyGroupId(PrivacyGroup.Id.fromBytes(groupId))
                 .withName(new String(name))
                 .withDescription(new String(description))
                 .withMembers(memberKeys)

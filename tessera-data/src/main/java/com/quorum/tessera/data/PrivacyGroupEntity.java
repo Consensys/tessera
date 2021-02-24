@@ -12,9 +12,9 @@ import java.util.Arrays;
             query = "select pg from PrivacyGroupEntity pg WHERE pg.lookupId = :lookupId")
 })
 @Entity
-@Table(name = "PRIVACY_GROUP", indexes = {
-    @Index(name = "PRIVACY_GROUP_LOOKUPID", columnList = "LOOKUP_ID")
-})
+@Table(
+        name = "PRIVACY_GROUP",
+        indexes = {@Index(name = "PRIVACY_GROUP_LOOKUPID", columnList = "LOOKUP_ID")})
 public class PrivacyGroupEntity implements Serializable {
 
     @Id

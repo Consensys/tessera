@@ -42,7 +42,7 @@ public class ConfigFactoryTest {
 
         assertThat(config.getFeatures().isEnablePrivacyEnhancements()).isFalse();
         assertThat(config.getFeatures().isEnableRemoteKeyValidation()).isFalse();
-        assertThat(config.isBesu()).isFalse();
+        assertThat(config.getClientMode()).isEqualTo(ClientMode.TESSERA);
     }
 
     @Test
@@ -102,6 +102,6 @@ public class ConfigFactoryTest {
 
         assertThat(config.getFeatures().isEnablePrivacyEnhancements()).isTrue();
         assertThat(config.getFeatures().isEnableRemoteKeyValidation()).isTrue();
-        assertThat(config.isBesu()).isTrue();
+        assertThat(config.getClientMode()).isEqualTo(ClientMode.ORION);
     }
 }

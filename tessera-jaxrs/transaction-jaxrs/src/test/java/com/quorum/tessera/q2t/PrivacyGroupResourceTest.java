@@ -61,7 +61,7 @@ public class PrivacyGroupResourceTest {
         mockResult = mock(PrivacyGroup.class);
         when(mockResult.getName()).thenReturn("name");
         when(mockResult.getDescription()).thenReturn("description");
-        when(mockResult.getPrivacyGroupId()).thenReturn(PublicKey.from("id".getBytes()));
+        when(mockResult.getId()).thenReturn(PrivacyGroup.Id.fromBytes("id".getBytes()));
         when(mockResult.getMembers())
                 .thenReturn(List.of(PublicKey.from("member1".getBytes()), PublicKey.from("member2".getBytes())));
         when(mockResult.getType()).thenReturn(PrivacyGroup.Type.PANTHEON);
@@ -137,7 +137,7 @@ public class PrivacyGroupResourceTest {
         assertThat(result.getName()).isEqualTo(mockResult.getName());
         assertThat(result.getDescription()).isEqualTo(mockResult.getDescription());
         assertThat(result.getMembers()).isEqualTo(req.getAddresses());
-        assertThat(result.getPrivacyGroupId()).isEqualTo(mockResult.getPrivacyGroupId().encodeToBase64());
+        assertThat(result.getPrivacyGroupId()).isEqualTo(mockResult.getId().getBase64());
         assertThat(result.getType()).isEqualTo(mockResult.getType().name());
 
         verify(privacyGroupManager).findPrivacyGroup(members);
@@ -149,7 +149,7 @@ public class PrivacyGroupResourceTest {
         PrivacyGroupRetrieveRequest req = new PrivacyGroupRetrieveRequest();
         req.setPrivacyGroupId("aWQ=");
 
-        when(privacyGroupManager.retrievePrivacyGroup(mockResult.getPrivacyGroupId())).thenReturn(mockResult);
+        when(privacyGroupManager.retrievePrivacyGroup(mockResult.getId())).thenReturn(mockResult);
 
         final Response response =
                 jersey.target("retrievePrivacyGroup").request().post(Entity.entity(req, MediaType.APPLICATION_JSON));
@@ -162,10 +162,10 @@ public class PrivacyGroupResourceTest {
         assertThat(res.getDescription()).isEqualTo(mockResult.getDescription());
         assertThat(res.getMembers())
                 .isEqualTo(mockResult.getMembers().stream().map(PublicKey::encodeToBase64).toArray());
-        assertThat(res.getPrivacyGroupId()).isEqualTo(mockResult.getPrivacyGroupId().encodeToBase64());
+        assertThat(res.getPrivacyGroupId()).isEqualTo(mockResult.getId().getBase64());
         assertThat(res.getType()).isEqualTo(mockResult.getType().name());
 
-        verify(privacyGroupManager).retrievePrivacyGroup(PublicKey.from("id".getBytes()));
+        verify(privacyGroupManager).retrievePrivacyGroup(PrivacyGroup.Id.fromBytes("id".getBytes()));
     }
 
     @Test
@@ -175,8 +175,7 @@ public class PrivacyGroupResourceTest {
         req.setPrivacyGroupId("aWQ=");
         req.setFrom(PublicKey.from("member1".getBytes()).encodeToBase64());
 
-        when(privacyGroupManager.deletePrivacyGroup(
-                        PublicKey.from("member1".getBytes()), mockResult.getPrivacyGroupId()))
+        when(privacyGroupManager.deletePrivacyGroup(PublicKey.from("member1".getBytes()), mockResult.getId()))
                 .thenReturn(mockResult);
 
         final Response response =
@@ -189,7 +188,6 @@ public class PrivacyGroupResourceTest {
 
         assertThat(out).isEqualTo("\"aWQ=\"");
 
-        verify(privacyGroupManager)
-                .deletePrivacyGroup(PublicKey.from("member1".getBytes()), mockResult.getPrivacyGroupId());
+        verify(privacyGroupManager).deletePrivacyGroup(PublicKey.from("member1".getBytes()), mockResult.getId());
     }
 }

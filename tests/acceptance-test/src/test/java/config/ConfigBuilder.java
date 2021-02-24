@@ -237,7 +237,6 @@ public class ConfigBuilder {
 
         final List<KeyData> pairs =
                 keys.entrySet().stream()
-                        //  .map(e -> new DirectKeyPair(e.getKey(), e.getValue()))
                         .map(
                                 e -> {
                                     KeyData keyData = new KeyData();
@@ -253,7 +252,7 @@ public class ConfigBuilder {
 
         config.setFeatures(featureToggles);
 
-        config.setBesu(executionContext.isOrionCompatibleMode());
+        config.setClientMode(executionContext.getClientMode());
 
         return config;
     }

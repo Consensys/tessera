@@ -62,7 +62,7 @@ jar {
     manifest {
         attributes 'Tessera-Version': version,
                 "Implementation-Version": version,
-                'Specification-Version' : String.valueOf(version).replaceAll("-SNAPSHOT",""),
+                'Specification-Version' : String.valueOf(version),
                 'Main-Class' : 'com.quorum.tessera.launcher.Main'
 
     }

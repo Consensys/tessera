@@ -104,29 +104,29 @@ public class EncodedPayloadBuilderTest {
     @Test
     public void withPrivacyGroupId() {
         final EncodedPayload sample =
-                EncodedPayload.Builder.create()
-                        .withSenderKey(senderKey)
-                        .withCipherText(cipherText)
-                        .withCipherTextNonce(cipherTextNonce)
-                        .withRecipientBox(recipientBox)
-                        .withRecipientNonce(recipientNonce)
-                        .withPrivacyFlag(3)
-                        .withAffectedContractTransactions(affectedContractTransactionsRaw)
-                        .withExecHash(execHash)
-                        .withRecipientKey(recipientKey)
-                        .withPrivacyGroupId(PublicKey.from("PRIVACYGROUPID".getBytes()))
-                        .build();
+            EncodedPayload.Builder.create()
+                .withSenderKey(senderKey)
+                .withCipherText(cipherText)
+                .withCipherTextNonce(cipherTextNonce)
+                .withRecipientBox(recipientBox)
+                .withRecipientNonce(recipientNonce)
+                .withPrivacyFlag(3)
+                .withAffectedContractTransactions(affectedContractTransactionsRaw)
+                .withExecHash(execHash)
+                .withRecipientKey(recipientKey)
+                .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
+                .build();
 
         final EncodedPayload result = EncodedPayload.Builder.from(sample).build();
         assertThat(result).isNotSameAs(sample).isEqualTo(sample);
 
         EqualsVerifier.forClass(EncodedPayload.class)
-                .withIgnoredFields("affectedContractTransactions")
-                .usingGetClass()
-                .verify();
+            .withIgnoredFields("affectedContractTransactions")
+            .usingGetClass()
+            .verify();
 
         assertThat(result.getPrivacyGroupId()).isPresent();
-        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PublicKey.from("PRIVACYGROUPID".getBytes()));
+        assertThat(result.getPrivacyGroupId().get()).isEqualTo(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()));
     }
 
     @Test(expected = RuntimeException.class)
@@ -141,7 +141,7 @@ public class EncodedPayloadBuilderTest {
             .withAffectedContractTransactions(affectedContractTransactionsRaw)
             .withExecHash(execHash)
             .withRecipientKey(recipientKey)
-            .withPrivacyGroupId(PublicKey.from("PRIVACYGROUPID".getBytes()))
+            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
             .build();
     }
 
@@ -156,7 +156,7 @@ public class EncodedPayloadBuilderTest {
             .withPrivacyFlag(3)
             .withAffectedContractTransactions(affectedContractTransactionsRaw)
             .withRecipientKey(recipientKey)
-            .withPrivacyGroupId(PublicKey.from("PRIVACYGROUPID".getBytes()))
+            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
             .build();
     }
 }

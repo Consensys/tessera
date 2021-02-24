@@ -38,7 +38,7 @@ public class RuntimeContextBuilder {
 
     private boolean recoveryMode;
 
-    private boolean isBesu;
+    private boolean orionMode;
 
     private RuntimeContextBuilder() {}
 
@@ -101,8 +101,8 @@ public class RuntimeContextBuilder {
         return this;
     }
 
-    public RuntimeContextBuilder isBesu(boolean isBesu) {
-        this.isBesu = isBesu;
+    public RuntimeContextBuilder withOrionMode(boolean orionMode) {
+        this.orionMode = orionMode;
         return this;
     }
 
@@ -115,19 +115,19 @@ public class RuntimeContextBuilder {
         Objects.requireNonNull(p2pClient, "No p2pClient provided. ");
 
         RuntimeContext instance =
-                new DefaultRuntimeContext(
-                        keys,
-                        keyEncryptor,
-                        alwaysSendTo,
-                        peers,
-                        p2pClient,
-                        remoteKeyValidation,
-                        enhancedPrivacy,
-                        p2pServerUri,
-                        disablePeerDiscovery,
-                        useWhiteList,
-                        recoveryMode,
-                        isBesu);
+            new DefaultRuntimeContext(
+                keys,
+                keyEncryptor,
+                alwaysSendTo,
+                peers,
+                p2pClient,
+                remoteKeyValidation,
+                enhancedPrivacy,
+                p2pServerUri,
+                disablePeerDiscovery,
+                useWhiteList,
+                recoveryMode,
+                orionMode);
         LOGGER.debug("Built {}", this);
         return instance;
     }

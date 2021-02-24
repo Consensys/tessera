@@ -118,7 +118,7 @@ public class TransactionResourceTest {
         when(response.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
         when(response.getUnencryptedTransactionData()).thenReturn("Success".getBytes());
 
-        PublicKey privacyGroupId = PublicKey.from("group".getBytes());
+        PrivacyGroup.Id privacyGroupId = PrivacyGroup.Id.fromBytes("group".getBytes());
         when(response.getPrivacyGroupId()).thenReturn(Optional.of(privacyGroupId));
 
         when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class))).thenReturn(response);
@@ -138,7 +138,7 @@ public class TransactionResourceTest {
         assertThat(resultResponse.getAffectedContractTransactions()).isNull();
         assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
 
-        assertThat(resultResponse.getPrivacyGroupId()).isEqualTo(privacyGroupId.encodeToBase64());
+        assertThat(resultResponse.getPrivacyGroupId()).isEqualTo(privacyGroupId.getBase64());
 
         verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
     }
@@ -242,9 +242,9 @@ public class TransactionResourceTest {
         when(transactionManager.send(any(com.quorum.tessera.transaction.SendRequest.class))).thenReturn(sendResponse);
 
         PrivacyGroup retrieved = mock(PrivacyGroup.class);
-        PublicKey groupId = PublicKey.from(Base64.getDecoder().decode(base64Key));
+        PrivacyGroup.Id groupId = PrivacyGroup.Id.fromBase64String(base64Key);
         PublicKey member = PublicKey.from("member".getBytes());
-        when(retrieved.getPrivacyGroupId()).thenReturn(groupId);
+        when(retrieved.getId()).thenReturn(groupId);
         when(retrieved.getMembers()).thenReturn(List.of(member));
         when(privacyGroupManager.retrievePrivacyGroup(groupId)).thenReturn(retrieved);
 
@@ -293,7 +293,7 @@ public class TransactionResourceTest {
         final PublicKey sender = mock(PublicKey.class);
         when(transactionManager.defaultPublicKey()).thenReturn(sender);
 
-        PublicKey groupId = PublicKey.from(Base64.getDecoder().decode(base64Key));
+        PrivacyGroup.Id groupId = PrivacyGroup.Id.fromBase64String(base64Key);
 
         when(privacyGroupManager.retrievePrivacyGroup(groupId))
                 .thenThrow(new PrivacyGroupNotFoundException("Not found"));
@@ -553,15 +553,15 @@ public class TransactionResourceTest {
         when(transactionManager.sendSignedTransaction(any(com.quorum.tessera.transaction.SendSignedRequest.class)))
                 .thenReturn(sendResponse);
 
-        PublicKey groupId = PublicKey.from("groupId".getBytes());
+        PrivacyGroup.Id groupId = PrivacyGroup.Id.fromBytes("groupId".getBytes());
 
         SendSignedRequest sendSignedRequest = new SendSignedRequest();
         sendSignedRequest.setHash("SOMEDATA".getBytes());
-        sendSignedRequest.setPrivacyGroupId(groupId.encodeToBase64());
+        sendSignedRequest.setPrivacyGroupId(groupId.getBase64());
 
         final PrivacyGroup pg = mock(PrivacyGroup.class);
         when(pg.getMembers()).thenReturn(List.of(PublicKey.from("r1".getBytes()), PublicKey.from("r2".getBytes())));
-        when(pg.getPrivacyGroupId()).thenReturn(PublicKey.from("groupId".getBytes()));
+        when(pg.getId()).thenReturn(PrivacyGroup.Id.fromBytes("groupId".getBytes()));
 
         when(privacyGroupManager.retrievePrivacyGroup(groupId)).thenReturn(pg);
 

@@ -1,7 +1,5 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.encryption.PublicKey;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -15,7 +13,7 @@ public interface PrivacyMetadata {
 
     byte[] getExecHash();
 
-    Optional<PublicKey> getPrivacyGroupId();
+    Optional<PrivacyGroup.Id> getPrivacyGroupId();
 
     class Builder {
 
@@ -25,7 +23,7 @@ public interface PrivacyMetadata {
 
         private byte[] execHash = new byte[0];
 
-        private PublicKey privacyGroupId;
+        private PrivacyGroup.Id privacyGroupId;
 
         public static Builder create() {
             return new Builder();
@@ -46,7 +44,7 @@ public interface PrivacyMetadata {
             return this;
         }
 
-        public Builder withPrivacyGroupId(PublicKey privacyGroupId) {
+        public Builder withPrivacyGroupId(PrivacyGroup.Id privacyGroupId) {
             this.privacyGroupId = privacyGroupId;
             return this;
         }
@@ -76,7 +74,7 @@ public interface PrivacyMetadata {
                 }
 
                 @Override
-                public Optional<PublicKey> getPrivacyGroupId() {
+                public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
                     return Optional.ofNullable(privacyGroupId);
                 }
             };

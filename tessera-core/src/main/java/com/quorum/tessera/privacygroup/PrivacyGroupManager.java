@@ -28,7 +28,7 @@ public interface PrivacyGroupManager {
      * @return Created privacy group object
      */
     PrivacyGroup createPrivacyGroup(
-            String name, String description, PublicKey from, List<PublicKey> members, byte[] seed);
+        String name, String description, PublicKey from, List<PublicKey> members, byte[] seed);
 
     /**
      * Create a legacy privacy group to support EEA Transactions
@@ -53,7 +53,7 @@ public interface PrivacyGroupManager {
      * @param privacyGroupId Privacy group id
      * @return Privacy group object
      */
-    PrivacyGroup retrievePrivacyGroup(PublicKey privacyGroupId);
+    PrivacyGroup retrievePrivacyGroup(PrivacyGroup.Id privacyGroupId);
 
     /**
      * Store privacy group data from another node
@@ -67,7 +67,7 @@ public interface PrivacyGroupManager {
      *
      * @param privacyGroupId
      */
-    PrivacyGroup deletePrivacyGroup(PublicKey from, PublicKey privacyGroupId);
+    PrivacyGroup deletePrivacyGroup(PublicKey from, PrivacyGroup.Id privacyGroupId);
 
     /**
      * @see Enclave#defaultPublicKey()
@@ -77,17 +77,17 @@ public interface PrivacyGroupManager {
 
     static PrivacyGroupManager create(final Config config) {
         return ServiceLoaderUtil.load(PrivacyGroupManager.class)
-                .orElseGet(
-                        () -> {
-                            Enclave enclave = EnclaveFactory.create().create(config);
-                            EntityManagerDAOFactory entityManagerDAOFactory =
-                                    EntityManagerDAOFactory.newFactory(config);
-                            PrivacyGroupDAO privacyGroupDAO = entityManagerDAOFactory.createPrivacyGroupDAO();
-                            PrivacyGroupPublisher publisher =
-                                    PrivacyGroupPublisherFactory.newFactory(config).create(config);
-                            BatchPrivacyGroupPublisher batchPublisher =
-                                    BatchPrivacyGroupPublisherFactory.newFactory(config).create(publisher);
-                            return new PrivacyGroupManagerImpl(enclave, privacyGroupDAO, batchPublisher);
-                        });
+            .orElseGet(
+                () -> {
+                    Enclave enclave = EnclaveFactory.create().create(config);
+                    EntityManagerDAOFactory entityManagerDAOFactory =
+                        EntityManagerDAOFactory.newFactory(config);
+                    PrivacyGroupDAO privacyGroupDAO = entityManagerDAOFactory.createPrivacyGroupDAO();
+                    PrivacyGroupPublisher publisher =
+                        PrivacyGroupPublisherFactory.newFactory(config).create(config);
+                    BatchPrivacyGroupPublisher batchPublisher =
+                        BatchPrivacyGroupPublisherFactory.newFactory(config).create(publisher);
+                    return new PrivacyGroupManagerImpl(enclave, privacyGroupDAO, batchPublisher);
+                });
     }
 }

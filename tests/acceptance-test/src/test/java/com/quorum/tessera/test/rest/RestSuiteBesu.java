@@ -1,5 +1,6 @@
 package com.quorum.tessera.test.rest;
 
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
@@ -15,5 +16,5 @@ import suite.TestSuite;
         dbType = DBType.H2,
         socketType = SocketType.HTTP,
         encryptorType = EncryptorType.NACL,
-        orionCompatibleMode = true)
+        clientMode = ClientMode.ORION)
 public class RestSuiteBesu extends RestSuite {}

@@ -6,13 +6,13 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.enclave.PayloadDigest;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisherFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import com.quorum.tessera.transaction.resend.ResendManagerImpl;
-import com.quorum.tessera.enclave.PayloadDigest;
 
 import java.util.Objects;
 import java.util.Optional;

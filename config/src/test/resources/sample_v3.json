@@ -79,5 +79,5 @@
         "enableRemoteKeyValidation" : "true",
         "enablePrivacyEnhancements" : "true"
     },
-    "isBesu" : "true"
+    "mode" : "orion"
 }

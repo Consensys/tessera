@@ -47,11 +47,6 @@ public class AsyncBatchPrivacyGroupPublisherTest {
         mockCountDownLatchFactory = mock(CancellableCountDownLatchFactory.class);
         when(mockCountDownLatchFactory.create(anyInt())).thenReturn(mockCountDownLatch);
 
-        //        when(own.getUrl()).thenReturn("http://own.com/");
-        //        when(own.getRecipientsAsMap())
-        //                .thenReturn(Map.of(recipient, "http://url1.com/", otherRecipient, "http://url2.com/"));
-        //        when(mockDiscovery.getCurrent()).thenReturn(own);
-
         mockPublisher = mock(RestPrivacyGroupPublisher.class);
 
         publisher = new AsyncBatchPrivacyGroupPublisher(mockExecutorFactory, mockCountDownLatchFactory, mockPublisher);

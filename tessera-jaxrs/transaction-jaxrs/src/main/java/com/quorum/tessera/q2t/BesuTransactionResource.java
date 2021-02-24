@@ -69,8 +69,8 @@ public class BesuTransactionResource {
                         .map(PublicKey::from)
                         .orElseGet(transactionManager::defaultPublicKey);
 
-        final Optional<PublicKey> optionalPrivacyGroup =
-                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(base64Decoder::decode).map(PublicKey::from);
+        final Optional<PrivacyGroup.Id> optionalPrivacyGroup =
+                Optional.ofNullable(sendRequest.getPrivacyGroupId()).map(PrivacyGroup.Id::fromBase64String);
 
         final List<PublicKey> recipientList =
                 optionalPrivacyGroup
@@ -109,7 +109,7 @@ public class BesuTransactionResource {
                 requestBuilder::withPrivacyGroupId,
                 () -> {
                     PrivacyGroup legacyGroup = privacyGroupManager.createLegacyPrivacyGroup(sender, recipientList);
-                    requestBuilder.withPrivacyGroupId(legacyGroup.getPrivacyGroupId());
+                    requestBuilder.withPrivacyGroupId(legacyGroup.getId());
                 });
 
         final com.quorum.tessera.transaction.SendResponse response = transactionManager.send(requestBuilder.build());
@@ -142,11 +142,14 @@ public class BesuTransactionResource {
     @Operation(
             summary = "/receive",
             operationId = "getDecryptedPayloadJson",
-            description = "get payload from database, decrypt, and return")
+            description = "get payload from database, decrypt, and return. This endpoint is only to be used by Besu")
     @ApiResponse(
             responseCode = "200",
             description = "decrypted payload",
-            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
+            content = {
+                @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = BesuReceiveResponse.class)),
+                @Content(mediaType = ORION, schema = @Schema(implementation = BesuReceiveResponse.class))
+            })
     @POST
     @Path("/receive")
     @Consumes({APPLICATION_JSON, ORION})
@@ -179,7 +182,7 @@ public class BesuTransactionResource {
         BesuReceiveResponse receiveResponse = new BesuReceiveResponse();
         receiveResponse.setPayload(response.getUnencryptedTransactionData());
         receiveResponse.setSenderKey(response.sender().encodeToBase64());
-        response.getPrivacyGroupId().map(PublicKey::encodeToBase64).ifPresent(receiveResponse::setPrivacyGroupId);
+        response.getPrivacyGroupId().map(PrivacyGroup.Id::getBase64).ifPresent(receiveResponse::setPrivacyGroupId);
 
         return Response.status(Response.Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
     }

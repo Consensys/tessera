@@ -4,6 +4,7 @@ import com.quorum.tessera.api.common.RawTransactionResource;
 import com.quorum.tessera.api.common.UpCheckResource;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.service.locator.ServiceLocator;
@@ -58,7 +59,7 @@ public class Q2TRestApp extends TesseraRestApplication {
 
         final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 
-        if (config.isBesu()) {
+        if (config.getClientMode() == ClientMode.ORION) {
             final BesuTransactionResource besuResource =
                     new BesuTransactionResource(transactionManager, privacyGroupManager);
             return Set.of(besuResource, rawTransactionResource, privacyGroupResource, upCheckResource);
