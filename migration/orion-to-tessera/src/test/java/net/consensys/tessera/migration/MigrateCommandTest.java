@@ -48,6 +48,8 @@ public class MigrateCommandTest {
 
     private OrionKeyHelper orionKeyHelper;
 
+    private Enclave enclave;
+
     public MigrateCommandTest(MigrateTestConfig migrateTestConfig) {
         this.migrateTestConfig = migrateTestConfig;
     }
@@ -90,6 +92,8 @@ public class MigrateCommandTest {
         LOGGER.info("Args: {}", Arrays.toString(args));
 
         orionKeyHelper = OrionKeyHelper.from(adjustedOrionConfigFile);
+
+        enclave = createEnclave(orionKeyHelper);
 
     }
 
@@ -136,8 +140,6 @@ public class MigrateCommandTest {
                     byte[] payload = resultSet.getBytes(1);
 
                     EncodedPayload encodedPayload = PayloadEncoder.create().decode(payload);
-                    Enclave enclave = createEnclave();
-
                     PublicKey encryptionKey = orionKeyHelper.getKeyPairs().stream().findFirst()
                         .map(Box.KeyPair::publicKey)
                         .map(Box.PublicKey::bytesArray)
@@ -147,11 +149,9 @@ public class MigrateCommandTest {
                     byte[] unencryptedTransaction = enclave.unencryptTransaction(encodedPayload,encryptionKey);
 
                     assertThat(unencryptedTransaction).isEqualTo(Base64.getDecoder().decode(expected));
-
                     assertThat(encodedPayload.getPrivacyGroupId()).isPresent();
                     assertThat(encodedPayload.getPrivacyGroupId().get().encodeToBase64())
                         .isEqualTo(fixture.getPrivacyGroup());
-
                     assertThat(encodedPayload.getSenderKey().encodeToBase64())
                         .isEqualTo(fixture.getSender());
                 }
@@ -182,7 +182,7 @@ public class MigrateCommandTest {
         );
     }
 
-    private Enclave createEnclave() {
+    private static Enclave createEnclave(OrionKeyHelper orionKeyHelper) {
         Config tesseraConfig = new Config();
         EncryptorConfig tesseraEncryptorConfig = new EncryptorConfig();
         tesseraEncryptorConfig.setType(EncryptorType.NACL);
