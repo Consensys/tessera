@@ -7,6 +7,7 @@ import net.consensys.tessera.migration.data.*;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Callable;
 
@@ -56,12 +57,17 @@ public class MigrateCommand implements Callable<Config> {
         MigrateDataCommand migrateDataCommand =
                 new MigrateDataCommand(inboundDbHelper, tesseraJdbcOptions, orionKeyHelper);
 
-        boolean outcome = migrateDataCommand.call();
-        if(outcome) {
-            System.out.println("Success");
-        } else {
-            System.err.println("ERROR");
-        }
+        Map<PayloadType,Long> outcome = migrateDataCommand.call();
+
+        System.out.println("=== Migration report ===");
+        System.out.printf("Migrated %s of %s transactions",outcome.get(PayloadType.ENCRYPTED_PAYLOAD),migrationInfo.getTransactionCount());
+        System.out.println();
+        System.out.printf("Migrated %s of %s privacy groups",outcome.get(PayloadType.PRIVACY_GROUP_PAYLOAD),migrationInfo.getPrivacyGroupCount());
+        System.out.println();
+
+        assert outcome.get(PayloadType.ENCRYPTED_PAYLOAD) == migrationInfo.getTransactionCount();
+        assert outcome.get(PayloadType.PRIVACY_GROUP_PAYLOAD) == migrationInfo.getPrivacyGroupCount();
+
 
         return config;
     }

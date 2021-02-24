@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 
-public class MigrateDataCommand implements Callable<Boolean> {
+public class MigrateDataCommand implements Callable<Map<PayloadType,Long>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MigrateDataCommand.class);
 
@@ -63,7 +63,7 @@ public class MigrateDataCommand implements Callable<Boolean> {
     }
 
     @Override
-    public Boolean call() throws Exception {
+    public Map<PayloadType,Long> call() throws Exception {
 
         final MigrationInfo migrationInfo = MigrationInfo.getInstance();
 
@@ -137,8 +137,9 @@ public class MigrateDataCommand implements Callable<Boolean> {
         tesseraDataEventDisruptor.shutdown();
 
 
-        ValidateMigratedData validateMigratedData = new ValidateMigratedData(entityManagerFactory);
-        return validateMigratedData.validate(migrationInfo);
+        CountMigratedData validateMigratedData = new CountMigratedData(entityManagerFactory);
+
+        return validateMigratedData.countMigratedData();
 
     }
 }

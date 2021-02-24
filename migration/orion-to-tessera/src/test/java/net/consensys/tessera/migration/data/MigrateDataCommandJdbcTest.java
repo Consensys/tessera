@@ -95,7 +95,7 @@ public class MigrateDataCommandJdbcTest {
 
     @Test
     public void migrate() throws Exception {
-        assertThat(migrateDataCommand.call()).isTrue();
+        assertThat(migrateDataCommand.call()).hasSize(2);
 
         MigrationInfo migrationInfo = MigrationInfo.getInstance();
         LOGGER.info(" HERE {}", migrationInfo);
