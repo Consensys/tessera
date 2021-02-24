@@ -5,10 +5,7 @@ import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.enclave.RecipientBox;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import org.slf4j.Logger;
@@ -65,7 +62,7 @@ public class ConvertToTransactionEntity implements EventHandler<OrionDataEvent> 
         Map<PublicKey, RecipientBox> recipientKeyToBoxes = event.getRecipientBoxMap().orElse(Map.of());
 
             EncodedPayload encodedPayload = EncodedPayload.Builder.create()
-                .withPrivacyGroupId(privacyGroupId)
+                .withPrivacyGroupId(PrivacyGroup.Id.fromBytes(privacyGroupId.getKeyBytes()))
                 .withRecipientKeys(List.copyOf(recipientKeyToBoxes.keySet()))
                 .withRecipientBoxes(recipientKeyToBoxes.values()
                     .stream()

@@ -150,7 +150,7 @@ public class MigrateCommandTest {
 
                     assertThat(unencryptedTransaction).isEqualTo(Base64.getDecoder().decode(expected));
                     assertThat(encodedPayload.getPrivacyGroupId()).isPresent();
-                    assertThat(encodedPayload.getPrivacyGroupId().get().encodeToBase64())
+                    assertThat(encodedPayload.getPrivacyGroupId().get().getBase64())
                         .isEqualTo(fixture.getPrivacyGroup());
                     assertThat(encodedPayload.getSenderKey().encodeToBase64())
                         .isEqualTo(fixture.getSender());

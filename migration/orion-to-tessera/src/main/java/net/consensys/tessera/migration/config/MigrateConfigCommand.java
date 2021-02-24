@@ -47,8 +47,7 @@ public class MigrateConfigCommand implements Callable<Config> {
         config.getJdbcConfig().setPassword(tesseraJdbcOptions.getPassword());
         config.getJdbcConfig().setUrl(tesseraJdbcOptions.getUrl());
         config.getJdbcConfig().setAutoCreateTables(true);
-
-        config.setBesu(true);
+        config.setClientMode(ClientMode.ORION);
 
         try (OutputStream outputStream = Files.newOutputStream(outputFile)) {
             if (skipValidation) {

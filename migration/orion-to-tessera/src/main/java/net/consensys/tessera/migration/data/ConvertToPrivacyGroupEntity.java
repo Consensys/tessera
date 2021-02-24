@@ -66,7 +66,7 @@ public class ConvertToPrivacyGroupEntity implements EventHandler<OrionDataEvent>
             .orElse(new byte[0]);
 
         PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
-            .withPrivacyGroupId(privacyGroupId)
+            .withPrivacyGroupId(privacyGroupId.getKeyBytes())
             .withDescription(description)
             .withName(name)
             .withMembers(members)
@@ -82,7 +82,7 @@ public class ConvertToPrivacyGroupEntity implements EventHandler<OrionDataEvent>
         PrivacyGroupEntity privacyGroupEntity = new PrivacyGroupEntity();
         privacyGroupEntity.setData(privacyGroupData);
         privacyGroupEntity.setLookupId(lookupId);
-        privacyGroupEntity.setId(privacyGroup.getPrivacyGroupId().getKeyBytes());
+        privacyGroupEntity.setId(privacyGroup.getId().getBytes());
 
         tesseraDataEventDisruptor.publishEvent(new TesseraDataEvent<>(privacyGroupEntity));
 
