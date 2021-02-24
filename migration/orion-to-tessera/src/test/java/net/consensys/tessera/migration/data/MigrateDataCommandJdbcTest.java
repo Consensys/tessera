@@ -15,9 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -95,38 +94,26 @@ public class MigrateDataCommandJdbcTest {
 
     @Test
     public void migrate() throws Exception {
-        assertThat(migrateDataCommand.call()).hasSize(2);
+
+
+        Map<PayloadType,Long> result = migrateDataCommand.call();
+        assertThat(result)
+            .containsOnlyKeys(PayloadType.ENCRYPTED_PAYLOAD,PayloadType.PRIVACY_GROUP_PAYLOAD);
 
         MigrationInfo migrationInfo = MigrationInfo.getInstance();
-        LOGGER.info(" HERE {}", migrationInfo);
-
-        JdbcDataSource dataSource = new JdbcDataSource();
-        dataSource.setURL(tesseraJdbcUrl);
-        dataSource.setUser("junit");
-        dataSource.setPassword("junit");
+        assertThat(result.get(PayloadType.ENCRYPTED_PAYLOAD)).isEqualTo(migrationInfo.getTransactionCount());
+        assertThat(result.get(PayloadType.PRIVACY_GROUP_PAYLOAD)).isEqualTo(migrationInfo.getPrivacyGroupCount());
 
 
-        try (
-            Connection connection = dataSource.getConnection();
-            ResultSet txnRs = connection.createStatement().executeQuery("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION");
-            ResultSet privacyGroupRs = connection.createStatement().executeQuery("SELECT COUNT(*) FROM PRIVACY_GROUP")
-        ) {
-
-            assertThat(txnRs.next()).isTrue();
-            assertThat(txnRs.getLong(1)).isEqualTo(migrationInfo.getTransactionCount());
-
-            assertThat(privacyGroupRs.next()).isTrue();
-            assertThat(privacyGroupRs.getLong(1)).isEqualTo(migrationInfo.getPrivacyGroupCount());
-        }
     }
 
 
     @Parameterized.Parameters(name = "{0}")
     public static List<Path> configs() {
         return List.of(
-            Paths.get("samples", "10k", "orion"),
-            Paths.get("samples","100k","orion"),
-            Paths.get("samples","120k","orion")
+            Paths.get("samples", "10k", "orion")
+//            Paths.get("samples","100k","orion"),
+//            Paths.get("samples","120k","orion")
         );
     }
 
