@@ -1,13 +1,15 @@
 package net.consensys.tessera.migration.data;
 
-import com.quorum.tessera.encryption.*;
+import com.quorum.tessera.encryption.PrivateKey;
+import com.quorum.tessera.encryption.PublicKey;
 import net.consensys.orion.enclave.EncryptedKey;
 import net.consensys.orion.enclave.EncryptedPayload;
-import net.consensys.tessera.migration.OrionKeyHelper;
 import org.apache.tuweni.crypto.sodium.Box;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,20 +20,19 @@ public class EncryptedKeyMatcherTest {
 
     private EncryptedKeyMatcher encryptedKeyMatcher;
 
-    private OrionKeyHelper orionKeyHelper;
+    private List<Box.KeyPair> keyPairs;
 
     private EncryptorHelper encryptor;
 
     @Before
     public void beforeTest() {
-        orionKeyHelper = mock(OrionKeyHelper.class);
+        keyPairs = new ArrayList<>();
         encryptor = mock(EncryptorHelper.class);
-        encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptor);
+        encryptedKeyMatcher = new EncryptedKeyMatcher(keyPairs,encryptor);
     }
 
     @After
     public void afterTest() {
-        verifyNoMoreInteractions(orionKeyHelper);
         verifyNoMoreInteractions(encryptor);
     }
 
@@ -48,7 +49,7 @@ public class EncryptedKeyMatcherTest {
         when(configuredKeyPair.publicKey()).thenReturn(publicKey);
         when(configuredKeyPair.secretKey()).thenReturn(secretKey);
 
-        when(orionKeyHelper.getKeyPairs()).thenReturn(List.of(configuredKeyPair));
+        keyPairs.addAll(List.of(configuredKeyPair));
 
         EncryptedPayload encryptedPayload = mock(EncryptedPayload.class);
 
@@ -67,7 +68,6 @@ public class EncryptedKeyMatcherTest {
         assertThat(result).isPresent()
             .contains(PublicKey.from("PublicKeyBytes".getBytes()));
 
-        verify(orionKeyHelper).getKeyPairs();
         verify(encryptor).canDecrypt(same(encryptedPayload),same(encryptedKey),any(PublicKey.class),any(PrivateKey.class));
     }
 

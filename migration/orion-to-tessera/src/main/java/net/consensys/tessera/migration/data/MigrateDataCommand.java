@@ -65,9 +65,12 @@ public class MigrateDataCommand implements Callable<Boolean> {
     @Override
     public Boolean call() throws Exception {
 
-        final MigrationInfo migrationInfo = MigrationInfoFactory.create(inboundDbHelper);
+        final MigrationInfo migrationInfo = MigrationInfo.getInstance();
 
         final EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
+
+        EntityManager em = entityManagerFactory.createEntityManager();
+        em.close();
 
         final CountDownLatch insertedRowCounter = new CountDownLatch(migrationInfo.getTransactionCount() + migrationInfo.getPrivacyGroupCount());
 
@@ -102,14 +105,26 @@ public class MigrateDataCommand implements Callable<Boolean> {
         final DataProducer dataProducer = DataProducer.create(inboundDbHelper,orionDataEventDisruptor);
 
         EncryptorHelper encryptorHelper = new EncryptorHelper(tesseraEncryptor);
-        EncryptedKeyMatcher encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper,encryptorHelper);
+        EncryptedKeyMatcher encryptedKeyMatcher = new EncryptedKeyMatcher(orionKeyHelper.getKeyPairs(),encryptorHelper);
         RecipientBoxHelper recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper);
 
         orionDataEventDisruptor
-            .handleEventsWith(new PrivacyGroupLookupHandler(recipientBoxHelper,encryptedKeyMatcher))
+            .handleEventsWith(new HydrateEncryptedPayload())
+            .handleEventsWith(
+                new LookupRecipientsFromPrivacyGroup(recipientBoxHelper),
+                new LookupRecipientFromKeys(encryptedKeyMatcher)
+            )
+            .handleEventsWith((event, sequence, endOfBatch) -> {
+                if(event.getPayloadType() != PayloadType.ENCRYPTED_PAYLOAD) {
+                    return;
+                }
+                event.getRecipientBoxMap()
+                    .orElseThrow(() -> new IllegalStateException("No recipients resolved for "+ event));
+            })
             .handleEventsWith(
                 new ConvertToPrivacyGroupEntity(tesseraDataEventDisruptor),
-                new ConvertToTransactionEntity(tesseraDataEventDisruptor));
+                new ConvertToTransactionEntity(tesseraDataEventDisruptor))
+            .then((event, sequence, endOfBatch) -> event.reset());
 
 
         tesseraDataEventDisruptor.start();
@@ -118,11 +133,12 @@ public class MigrateDataCommand implements Callable<Boolean> {
 
         insertedRowCounter.await();
 
-        LOGGER.info("DONE");
-
         orionDataEventDisruptor.shutdown();
         tesseraDataEventDisruptor.shutdown();
 
-        return Boolean.TRUE;
+
+        ValidateMigratedData validateMigratedData = new ValidateMigratedData(entityManagerFactory);
+        return validateMigratedData.validate(migrationInfo);
+
     }
 }

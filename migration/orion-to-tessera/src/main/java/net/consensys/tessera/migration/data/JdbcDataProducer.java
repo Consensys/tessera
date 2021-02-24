@@ -61,7 +61,7 @@ public class JdbcDataProducer implements DataProducer {
                                     orionDataEventBuilder.withPrivacyGroupData(privacyGroupData);
                                 }
                             } else {
-                                LOGGER.info("No privacy group data found for {}",new String(privacyGroupId));
+                                LOGGER.warn("No privacy group data found for {}",new String(privacyGroupId));
                             }
                         }
                     }

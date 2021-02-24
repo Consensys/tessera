@@ -50,6 +50,7 @@ public class RecipientBoxHelper {
         List<String> recipientList =
             recipients.stream()
                 .filter(isOurs.or(isSender))
+                .filter(Objects::nonNull)
                 .map(Base64.getDecoder()::decode)
                 .map(Box.PublicKey::fromBytes)
                 .map(Box.PublicKey::bytesArray)

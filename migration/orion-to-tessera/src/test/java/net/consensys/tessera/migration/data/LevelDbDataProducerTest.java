@@ -98,7 +98,7 @@ public class LevelDbDataProducerTest {
 
         orionKeyHelper = OrionKeyHelper.from(testInfo.getConfigFilePath());
         encryptedKeyMatcher = new EncryptedKeyMatcher(
-                                    orionKeyHelper,
+                                    orionKeyHelper.getKeyPairs(),
                                     new EncryptorHelper(EncryptorFactory.newFactory("NACL").create())
         );
         recipientBoxHelper = new RecipientBoxHelper(orionKeyHelper);
@@ -149,7 +149,9 @@ public class LevelDbDataProducerTest {
 
 
         orionDataEventDisruptor
-            .handleEventsWith(new PrivacyGroupLookupHandler(recipientBoxHelper,encryptedKeyMatcher))
+            .handleEventsWith(
+                    new LookupRecipientsFromPrivacyGroup(recipientBoxHelper),
+                    new LookupRecipientFromKeys(encryptedKeyMatcher))
             .handleEventsWith(
                 new ConvertToTransactionEntity(tesseraDataEventDisruptor),
                 new ConvertToPrivacyGroupEntity(tesseraDataEventDisruptor)

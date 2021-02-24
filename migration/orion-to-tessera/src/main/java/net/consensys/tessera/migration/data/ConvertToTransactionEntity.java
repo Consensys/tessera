@@ -81,6 +81,7 @@ public class ConvertToTransactionEntity implements EventHandler<OrionDataEvent> 
         MessageHash messageHash =
             Optional.of(event)
                 .map(OrionDataEvent::getKey)
+                .map(Base64.getDecoder()::decode)
                 .map(MessageHash::new)
                 .get();
 

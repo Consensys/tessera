@@ -57,9 +57,10 @@ public class InboundDbHelper implements Closeable {
         if (connectionString.startsWith("leveldb")) {
 
             Options options = new Options();
-            options.logger(s -> System.out.println(s));
+           // options.logger(s -> System.out.println(s));
             options.createIfMissing(true);
-            String dbname = connectionString.split(":")[1];
+            String[] tokens = connectionString.split(":");
+            String dbname = tokens.length == 2 ? connectionString.split(":")[1] : "routerdb";
 
             DB leveldb = IOCallback.execute(
                 () -> factory.open(storageDir.resolve(dbname).toAbsolutePath().toFile(), options)

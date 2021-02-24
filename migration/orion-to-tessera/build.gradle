@@ -17,7 +17,10 @@ application {
 //    mainClass = "net.consensys.tessera.migration.Main"
     //mainModule = "orion.to.tessera"
 
-    applicationDefaultJvmArgs = []
+    applicationDefaultJvmArgs = [
+            "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+            "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory"
+    ]
     startScripts.enabled = true
 }
 task allDeps(type: DependencyReportTask) {}
@@ -134,10 +137,10 @@ dependencies {
     implementation "jakarta.xml.bind:jakarta.xml.bind-api:2.3.3"
 
 
-    runtimeOnly("org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.7") {
+    implementation("org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.7") {
         exclude group: "jakarta.json", module: "jakarta,json-api"
     }
-    runtimeOnly "org.glassfish.jaxb:jaxb-runtime:2.3.3"
+    implementation "org.glassfish.jaxb:jaxb-runtime:2.3.3"
 
     testImplementation "com.h2database:h2:1.4.200"
 

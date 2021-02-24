@@ -69,7 +69,7 @@ public class MigrationInfo {
         return Holder.INSTANCE.getMigrationInfo().get();
     }
 
-    static void clear() {
+    public static void clear() {
         Holder.INSTANCE.setMigrationInfo(null);
     }
 }

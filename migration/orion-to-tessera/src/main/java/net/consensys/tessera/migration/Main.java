@@ -8,7 +8,8 @@ public class Main {
 
         MigrateCommand migrateCommand = new MigrateCommand();
 
-        CommandLine commandLine = new CommandLine(migrateCommand).setCaseInsensitiveEnumValuesAllowed(true);
+        CommandLine commandLine = new CommandLine(migrateCommand)
+            .setCaseInsensitiveEnumValuesAllowed(true);
 
         commandLine.registerConverter(OrionKeyHelper.class, new OrionKeyHelperConvertor());
 

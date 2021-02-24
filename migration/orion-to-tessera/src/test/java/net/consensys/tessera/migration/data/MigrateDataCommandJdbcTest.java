@@ -49,6 +49,9 @@ public class MigrateDataCommandJdbcTest {
 
     @Before
     public void beforeTest() throws Exception {
+
+
+
         tesseraJdbcUrl = "jdbc:h2:" + pwd + "/" + UUID.randomUUID().toString() + ".db";
         final Path orionConfigFile = orionConfigDir.resolve("orion.conf");
 
@@ -79,6 +82,8 @@ public class MigrateDataCommandJdbcTest {
         OrionKeyHelper orionKeyHelper = OrionKeyHelper.from(orionConfigFile);
 
         migrateDataCommand = new MigrateDataCommand(inboundDbHelper, tesseraJdbcOptions, orionKeyHelper);
+
+        MigrationInfoFactory.create(inboundDbHelper);
 
     }
 

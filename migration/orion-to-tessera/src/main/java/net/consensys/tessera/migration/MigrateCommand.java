@@ -1,10 +1,9 @@
 package net.consensys.tessera.migration;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.util.JaxbUtil;
 import net.consensys.tessera.migration.config.MigrateConfigCommand;
-import net.consensys.tessera.migration.data.InboundDbHelper;
-import net.consensys.tessera.migration.data.MigrateDataCommand;
-import net.consensys.tessera.migration.data.TesseraJdbcOptions;
+import net.consensys.tessera.migration.data.*;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
@@ -41,12 +40,23 @@ public class MigrateCommand implements Callable<Config> {
                         orionKeyHelper.getFilePath(), outputFile, skipValidation, verbose, tesseraJdbcOptions);
         Config config = migrateConfigCommand.call();
 
+        System.out.println("Generated tessera config");
+        JaxbUtil.marshalWithNoValidation(config,System.out);
+
         InboundDbHelper inboundDbHelper = InboundDbHelper.from(orionKeyHelper.getConfig());
+
+        MigrationInfo migrationInfo = MigrationInfoFactory.create(inboundDbHelper);
+        System.out.println("Found "+ migrationInfo + " to migrate.");
 
         MigrateDataCommand migrateDataCommand =
                 new MigrateDataCommand(inboundDbHelper, tesseraJdbcOptions, orionKeyHelper);
 
         boolean outcome = migrateDataCommand.call();
+        if(outcome) {
+            System.out.println("Success");
+        } else {
+            System.err.println("ERROR");
+        }
 
         return config;
     }

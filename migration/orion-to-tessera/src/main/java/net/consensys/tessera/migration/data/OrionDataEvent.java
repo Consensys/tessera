@@ -4,6 +4,7 @@ import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventTranslator;
 import com.quorum.tessera.enclave.RecipientBox;
 import com.quorum.tessera.encryption.PublicKey;
+import net.consensys.orion.enclave.EncryptedPayload;
 
 import java.util.Map;
 import java.util.Optional;
@@ -24,15 +25,12 @@ public class OrionDataEvent implements EventTranslator<OrionDataEvent> {
 
     private Map<PublicKey, RecipientBox> recipientBoxMap;
 
+    private EncryptedPayload encryptedPayload;
+
     private OrionDataEvent() {
     }
 
-    static final EventFactory<OrionDataEvent> FACTORY = new EventFactory<OrionDataEvent>() {
-        @Override
-        public OrionDataEvent newInstance() {
-            return new OrionDataEvent();
-        }
-    };
+    static final EventFactory<OrionDataEvent> FACTORY = () -> new OrionDataEvent();
 
     private OrionDataEvent(byte[] key,byte[] payloadData,byte[] privacyGroupData,PayloadType payloadType,Long eventNumber,Long totalEventCount,Map<PublicKey, RecipientBox> recipientBoxMap) {
         this.key = key;
@@ -53,16 +51,18 @@ public class OrionDataEvent implements EventTranslator<OrionDataEvent> {
         orionDataEvent.recipientBoxMap = recipientBoxMap;
         orionDataEvent.payloadData = payloadData;
         orionDataEvent.privacyGroupData = privacyGroupData;
+        orionDataEvent.encryptedPayload = encryptedPayload;
     }
 
     public void reset() {
-        this.key = new byte[44];
-        this.payloadData = new byte[20000];
+        this.key = null;
+        this.payloadData = null;
         this.totalEventCount = null;
         this.eventNumber = null;
         this.payloadType = null;
         this.recipientBoxMap = null;
-        this.privacyGroupData = new byte[20000];
+        this.privacyGroupData = null;
+        this.encryptedPayload = null;
     }
 
     public Long getEventNumber() {
@@ -93,6 +93,14 @@ public class OrionDataEvent implements EventTranslator<OrionDataEvent> {
         this.recipientBoxMap = recipientBoxMap;
     }
 
+    public Optional<EncryptedPayload> getEncryptedPayload() {
+        return Optional.ofNullable(encryptedPayload);
+    }
+
+    public void setEncryptedPayload(EncryptedPayload encryptedPayload) {
+        this.encryptedPayload = encryptedPayload;
+    }
+
     public byte[] getPrivacyGroupData() {
         return privacyGroupData;
     }
@@ -112,7 +120,6 @@ public class OrionDataEvent implements EventTranslator<OrionDataEvent> {
         private PayloadType payloadType;
 
         private Map<PublicKey, RecipientBox> recipientBoxMap;
-
 
         public Builder withEventNumber(Long eventNumber) {
             this.eventNumber = eventNumber;

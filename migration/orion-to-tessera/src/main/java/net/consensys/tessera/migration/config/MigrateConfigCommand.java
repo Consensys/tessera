@@ -3,9 +3,9 @@ package net.consensys.tessera.migration.config;
 import com.moandjiezana.toml.Toml;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
-import net.consensys.tessera.migration.TeeOutputStream;
 import net.consensys.tessera.migration.data.TesseraJdbcOptions;
 
+import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -46,12 +46,20 @@ public class MigrateConfigCommand implements Callable<Config> {
         config.getJdbcConfig().setUsername(tesseraJdbcOptions.getUsername());
         config.getJdbcConfig().setPassword(tesseraJdbcOptions.getPassword());
         config.getJdbcConfig().setUrl(tesseraJdbcOptions.getUrl());
+        config.getJdbcConfig().setAutoCreateTables(true);
 
-        try (OutputStream outputStream = new TeeOutputStream(Files.newOutputStream(outputFile), System.out)) {
+        config.setBesu(true);
+
+        try (OutputStream outputStream = Files.newOutputStream(outputFile)) {
             if (skipValidation) {
                 JaxbUtil.marshalWithNoValidation(config, outputStream);
             } else {
-                JaxbUtil.marshal(config, outputStream);
+                try {
+                    JaxbUtil.marshal(config, outputStream);
+                } catch(ConstraintViolationException ex) {
+                    ex.printStackTrace();
+                    JaxbUtil.marshalWithNoValidation(config, System.out);
+                }
             }
         }
 
@@ -64,7 +72,7 @@ public class MigrateConfigCommand implements Callable<Config> {
         String knownnodesstorage = toml.getString("knownnodesstorage");
 
         Long nodeport = toml.getLong("nodeport"); // p2p
-        String nodeurl = toml.getString("nodeurl"); // p2p
+        String nodeurl = toml.getString("nodeurl","https://127.0.0.1:".concat(nodeport.toString())); // p2p
         List<String> tlsserverchain = toml.getList("tlsserverchain", List.of());
 
         String tlsservercert = toml.getString("tlsservercert");
@@ -85,7 +93,7 @@ public class MigrateConfigCommand implements Callable<Config> {
         String tlsclientcert = toml.getString("tlsclientcert");
 
         String serverAuthTls = toml.getString("tls");
-        String socketfile = toml.getString("socket", "[No IPC socket file specfied]");
+        String socketfile = toml.getString("socket");
 
         String tlsserverkey = toml.getString("tlsserverkey");
         String tlsservertrust = toml.getString("tlsservertrust");
@@ -116,6 +124,7 @@ public class MigrateConfigCommand implements Callable<Config> {
                 ServerConfigBuilder.create()
                         .withAppType(AppType.Q2T)
                         .withSocketFile(socketfile)
+                        .withServerAddress(nodeurl)
                         //     .withServerPort(clientport)
                         //     .withServerAddress(clienturl)
                         //                .withSslConfig(SslConfigBuilder.create()
