@@ -7,6 +7,7 @@ import net.consensys.tessera.migration.data.*;
 import picocli.CommandLine;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public class MigrateCommand implements Callable<Config> {
@@ -43,7 +44,11 @@ public class MigrateCommand implements Callable<Config> {
         System.out.println("Generated tessera config");
         JaxbUtil.marshalWithNoValidation(config,System.out);
 
-        InboundDbHelper inboundDbHelper = InboundDbHelper.from(orionKeyHelper.getConfig());
+        net.consensys.orion.config.Config orionConfig = orionKeyHelper.getConfig();
+        //TODO: add any other orion config validations
+        Objects.requireNonNull(orionConfig.storage(),"Storage config is required. Not found in toml or env");
+
+        InboundDbHelper inboundDbHelper = InboundDbHelper.from(orionConfig);
 
         MigrationInfo migrationInfo = MigrationInfoFactory.create(inboundDbHelper);
         System.out.println("Found "+ migrationInfo + " to migrate.");
