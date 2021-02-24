@@ -113,31 +113,14 @@ public class MigrateCommandTest {
 
         assertThat(exitCode).isZero();
 
+        if(migrateTestConfig.getOutcomeFixtures().isEmpty()) {
+            return;
+        }
 
         JdbcDataSource tesseraDataSource = new JdbcDataSource();
         tesseraDataSource.setURL(tesseraJdbcUrl);
         tesseraDataSource.setUser("junit");
         tesseraDataSource.setPassword("junit");
-
-        MigrationInfo migrationInfo = MigrationInfo.getInstance();
-
-        try (
-            Connection connection = tesseraDataSource.getConnection();
-            ResultSet txnRs = connection.createStatement().executeQuery("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION");
-            ResultSet privacyGroupRs = connection.createStatement().executeQuery("SELECT COUNT(*) FROM PRIVACY_GROUP")
-        ) {
-
-            assertThat(txnRs.next()).isTrue();
-            assertThat(txnRs.getLong(1)).isEqualTo(migrationInfo.getTransactionCount());
-
-            assertThat(privacyGroupRs.next()).isTrue();
-            assertThat(privacyGroupRs.getLong(1)).isEqualTo(migrationInfo.getPrivacyGroupCount());
-        }
-
-        if(migrateTestConfig.getOutcomeFixtures().isEmpty()) {
-            return;
-        }
-
 
         try(Connection connection = tesseraDataSource.getConnection();
             PreparedStatement statement = connection.prepareStatement("SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?")
