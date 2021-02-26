@@ -174,7 +174,7 @@ subprojects {
 
 //        exclude group: 'javax.servlet'
 //        exclude group: 'javax.ws.rs'
-//        exclude group: "javax.activation"
+        exclude group: "javax.activation"
 
 
         resolutionStrategy.capabilitiesResolution.all {
@@ -207,10 +207,7 @@ subprojects {
             if(details.requested.group == "commons-logging") {
                 details.useTarget("org.slf4j:jcl-over-slf4j:$slf4jVersion")
             }
-
         }
-
-
     }
 
 

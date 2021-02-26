@@ -1,14 +1,16 @@
 package com.quorum.tessera.api.common;
 
 import com.quorum.tessera.api.Version;
+import com.quorum.tessera.version.ApiVersion;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -48,14 +50,33 @@ public class VersionResourceTest {
         verify(expectedVersion).version();
     }
 
-    @Ignore
     @Test
     public void getVersions() {
-        assertThat(instance.getVersions()).isEmpty();
-        assertThat(instance.getVersions())
-            .containsExactlyElementsOf(Stream.of("1.0", "2.0")
-                .map(Json::createValue)
-                .collect(Collectors.toSet()));
+        //Make sure that elements are defined in unnatural order to test sorting
+        List<Double> versions = List.of(03.00,01.00,02.00);
+
+        JsonArray result;
+        try(var apiVersionMockedStatic = mockStatic(ApiVersion.class)) {
+
+            apiVersionMockedStatic.when(ApiVersion::versions)
+                .thenReturn(versions.stream()
+                    .map(String::valueOf)
+                    .map(s -> "v"+ s)
+                    .collect(Collectors.toList())
+                );
+
+            result = instance.getVersions();
+
+            apiVersionMockedStatic.verify(ApiVersion::versions);
+            apiVersionMockedStatic.verifyNoMoreInteractions();
+        }
+
+        JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+        versions.stream().sorted().map(String::valueOf).forEach(v -> jsonArrayBuilder.add(v));
+        JsonArray expected = jsonArrayBuilder.build();
+
+        assertThat(result)
+            .containsExactlyElementsOf(expected);
     }
 
     @Test

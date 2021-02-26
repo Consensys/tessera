@@ -17,7 +17,6 @@ import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -142,7 +141,6 @@ public class LegacyResendManagerTest {
         verify(encoder).forRecipient(nonSPPayload, targetResendKey);
     }
 
-    @Ignore
     @Test
     public void targetIsSenderOfTransaction() {
         final MessageHash txHash = new MessageHash("sample-hash".getBytes());

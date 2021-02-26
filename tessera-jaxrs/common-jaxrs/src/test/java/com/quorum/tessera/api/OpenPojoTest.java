@@ -23,7 +23,13 @@ public class OpenPojoTest {
             SendResponse.class,
             SendSignedRequest.class,
             StoreRawRequest.class,
-            StoreRawResponse.class
+            StoreRawResponse.class,
+            PrivacyGroupRequest.class,
+            PrivacyGroupResponse.class,
+            PrivacyGroupRetrieveRequest.class,
+            PrivacyGroupDeleteRequest.class,
+            PrivacyGroupSearchRequest.class,
+            BesuReceiveResponse.class
         );
 
         final Validator pojoValidator = ValidatorBuilder.create()

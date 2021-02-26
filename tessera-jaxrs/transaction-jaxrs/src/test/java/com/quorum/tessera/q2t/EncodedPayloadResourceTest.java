@@ -11,7 +11,6 @@ import com.quorum.tessera.transaction.ReceiveResponse;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -112,9 +111,11 @@ public class EncodedPayloadResourceTest {
     }
 
 
-@Ignore
     @Test
     public void decryptPayload() {
+
+        final PrivacyMode privacyMode = PrivacyMode.PRIVATE_STATE_VALIDATION;
+
         final Base64.Decoder decoder = Base64.getDecoder();
 
         final PayloadDecryptRequest request = new PayloadDecryptRequest();
@@ -124,16 +125,19 @@ public class EncodedPayloadResourceTest {
         request.setRecipientBoxes(List.of(decoder.decode("FNirZRc2ayMaYopCBaWQ/1I7VWFiCM0lNw533Hckzxb+qpvngdWVVzJlsE05dbxl")));
         request.setRecipientNonce(decoder.decode("p9gYDJlEoBvLdUQ+ZoONl2Jl9AirV1en"));
         request.setRecipientKeys(List.of(decoder.decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")));
-        request.setPrivacyMode(0);
+        request.setPrivacyMode(privacyMode.getPrivacyFlag());
         request.setAffectedContractTransactions(Map.of("dHgx", "dHgxdmFs", "dHgy", "dHgydmFs"));
         request.setExecHash("execHash".getBytes());
 
-        final ReceiveResponse response = ReceiveResponse.Builder.create()
-            .withUnencryptedTransactionData("decryptedData".getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .withAffectedTransactions(Set.of(new MessageHash("tx1val".getBytes()), new MessageHash("tx2val".getBytes())))
-            .withExecHash("execHash".getBytes())
-            .build();
+        final ReceiveResponse response = mock(ReceiveResponse.class);
+        when(response.getPrivacyMode()).thenReturn(privacyMode);
+        when(response.getUnencryptedTransactionData()).thenReturn("decryptedData".getBytes());
+        when(response.getExecHash()).thenReturn("I Love sparrows".getBytes());
+
+        MessageHash messageHash = mock(MessageHash.class);
+        when(messageHash.getHashBytes()).thenReturn("SomeMessageHashBytes".getBytes());
+
+        when(response.getAffectedTransactions()).thenReturn(Set.of(messageHash));
 
         when(encodedPayloadManager.decrypt(any(), eq(null))).thenReturn(response);
 
@@ -143,29 +147,16 @@ public class EncodedPayloadResourceTest {
 
         final com.quorum.tessera.api.ReceiveResponse payloadEncryptResponse
             = com.quorum.tessera.api.ReceiveResponse.class.cast(result.getEntity());
+
         assertThat(payloadEncryptResponse.getPayload()).isEqualTo("decryptedData".getBytes());
-        assertThat(payloadEncryptResponse.getPrivacyFlag()).isEqualTo(0);
+        assertThat(payloadEncryptResponse.getPrivacyFlag()).isEqualTo(privacyMode.getPrivacyFlag());
         assertThat(payloadEncryptResponse.getAffectedContractTransactions())
-            .containsExactlyInAnyOrder("dHgxdmFs", "dHgydmFs");
-        assertThat(payloadEncryptResponse.getExecHash()).isEqualTo("execHash");
+            .contains(Base64.getEncoder().encodeToString("SomeMessageHashBytes".getBytes()));
 
-        final ArgumentCaptor<EncodedPayload> argumentCaptor = ArgumentCaptor.forClass(EncodedPayload.class);
-        verify(encodedPayloadManager).decrypt(argumentCaptor.capture(), eq(null));
+        assertThat(payloadEncryptResponse.getExecHash()).isEqualTo("I Love sparrows");
 
-        final EncodedPayload payloadBeforeDecryption = argumentCaptor.getValue();
-        assertThat(payloadBeforeDecryption.getSenderKey().encodeToBase64()).isEqualTo("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=");
-        assertThat(payloadBeforeDecryption.getCipherText()).isEqualTo(decoder.decode("h7av/vhPlaPFECB1K30hNWugv/Bu"));
-        assertThat(payloadBeforeDecryption.getCipherTextNonce().getNonceBytes()).isEqualTo(decoder.decode("8MVXAESCQuRHWxrQ6b5MXuYApjia+2h0"));
-        assertThat(payloadBeforeDecryption.getRecipientBoxes()).containsExactly(RecipientBox.from(decoder.decode("FNirZRc2ayMaYopCBaWQ/1I7VWFiCM0lNw533Hckzxb+qpvngdWVVzJlsE05dbxl")));
-        assertThat(payloadBeforeDecryption.getRecipientNonce().getNonceBytes()).isEqualTo(decoder.decode("p9gYDJlEoBvLdUQ+ZoONl2Jl9AirV1en"));
-        assertThat(payloadBeforeDecryption.getRecipientKeys()).containsExactly(PublicKey.from(decoder.decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")));
-        assertThat(payloadBeforeDecryption.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
-        assertThat(payloadBeforeDecryption.getAffectedContractTransactions())
-            .contains(
-                entry(TxHash.from("tx1".getBytes()), SecurityHash.from("tx1val".getBytes())),
-                entry(TxHash.from("tx2".getBytes()), SecurityHash.from("tx2val".getBytes()))
-            );
-        assertThat(payloadBeforeDecryption.getExecHash()).isEqualTo("execHash".getBytes());
+        verify(encodedPayloadManager).decrypt(any(), eq(null));
+
     }
 
 }

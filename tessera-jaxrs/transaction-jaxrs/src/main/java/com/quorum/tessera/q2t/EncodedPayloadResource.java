@@ -165,7 +165,9 @@ public class EncodedPayloadResource {
                         .map(Base64.getEncoder()::encodeToString)
                         .toArray(String[]::new));
 
-        Optional.ofNullable(response.getExecHash()).map(String::new).ifPresent(receiveResponse::setExecHash);
+        Optional.ofNullable(response.getExecHash())
+            .map(String::new)
+            .ifPresent(receiveResponse::setExecHash);
 
         return Response.ok(receiveResponse).build();
     }
