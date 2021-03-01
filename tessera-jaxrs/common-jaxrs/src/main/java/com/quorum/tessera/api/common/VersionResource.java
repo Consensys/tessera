@@ -22,7 +22,11 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /** Provides endpoints to determine versioning information */
-@Tags({@Tag(name = "quorum-to-tessera"), @Tag(name = "peer-to-peer"), @Tag(name = "third-party")})
+@Tags({
+    @Tag(name = "quorum-to-tessera"),
+    @Tag(name = "peer-to-peer"),
+    @Tag(name = "third-party")
+})
 @Path("/")
 public class VersionResource {
 
@@ -79,8 +83,10 @@ public class VersionResource {
     public JsonArray getVersions() {
         List<String> versions =
                 ApiVersion.versions().stream()
-                        .map(version -> version.substring(1)) // remove the "v" prefix
-                        .map(Double::parseDouble)
+                        // remove the "v" prefix
+                        .map(
+                                version -> version.startsWith("v") ? version.substring(1) : version
+                        ).map(Double::parseDouble)
                         .sorted()
                         .map(Objects::toString)
                         .collect(Collectors.toList());
