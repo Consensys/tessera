@@ -20,12 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PushIT {
 
-
-    private static final String MSG_BASE64 = "AAAAAAAAACDIZyOQXJmSVNNeufz5YiRjCJwDYQYGf3BkWRy0Bp3hfQAAAAAAAAATJ9Sb5lOtjzaZayBRFP9jOUDczAAAAAAAAAAYggoaH+1mIGV91rR0KkrM89Pizi0e6MYGAAAAAAAAAAEAAAAAAAAAMP+KGceAS1WXguC8E6lq4tvtBi2gJfMa0QZ6DAGBdBp3fDAdTq8tKOjstP1aNIFqvAAAAAAAAAAYM9xGQhx2/GYXetUmFZNMe9ED57Rh58MWAAAAAAAAAAA=";
+    private static final String MSG_BASE64 =
+            "AAAAAAAAACDIZyOQXJmSVNNeufz5YiRjCJwDYQYGf3BkWRy0Bp3hfQAAAAAAAAATJ9Sb5lOtjzaZayBRFP9jOUDczAAAAAAAAAAYggoaH+1mIGV91rR0KkrM89Pizi0e6MYGAAAAAAAAAAEAAAAAAAAAMP+KGceAS1WXguC8E6lq4tvtBi2gJfMa0QZ6DAGBdBp3fDAdTq8tKOjstP1aNIFqvAAAAAAAAAAYM9xGQhx2/GYXetUmFZNMe9ED57Rh58MWAAAAAAAAAAA=";
 
     private static final String PUSH_PATH = "/push";
 
-    private static final String ENCODED_HASH = "QrAgXFRrZ8V24or%2BBZueIdZ6JBl2WQrqZqmmyFh%2FatsXyVkr2aMNEvQh0AsJvzt12oDpNkKmIv0KSnzM2HZL1w%3D%3D";
+    private static final String ENCODED_HASH =
+            "QrAgXFRrZ8V24or%2BBZueIdZ6JBl2WQrqZqmmyFh%2FatsXyVkr2aMNEvQh0AsJvzt12oDpNkKmIv0KSnzM2HZL1w%3D%3D";
 
     private final Client client = ClientBuilder.newClient();
 
@@ -80,29 +81,6 @@ public class PushIT {
 
     }
 
-    //TODO: There needs to be a protocol change/ammendment 
-    // as 500 gives us false positives. We cant discriminate between error types 
-    @Test
-    public void storeExistingPayloadThrowsError() {
-        final Response pushReponse = client.target(party.getP2PUri())
-            .path(PUSH_PATH)
-            .request()
-            .post(Entity.entity(message, APPLICATION_OCTET_STREAM));
-
-        assertThat(pushReponse).isNotNull();
-        assertThat(pushReponse.getStatus()).isEqualTo(201);
-
-        //send it again
-
-        final Response pushReponseDup = client.target(party.getP2PUri())
-            .path(PUSH_PATH)
-            .request()
-            .post(Entity.entity(message, APPLICATION_OCTET_STREAM));
-
-        assertThat(pushReponseDup).isNotNull();
-        //TODO: should this be a 400?
-        assertThat(pushReponseDup.getStatus()).isEqualTo(500);
-    }
 
     //TODO: There needs to be a protocol change/ammendment 
     // as 500 gives us false positives. We cant discriminate between error types 
