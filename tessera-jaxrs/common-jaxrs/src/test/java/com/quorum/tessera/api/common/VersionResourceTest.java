@@ -79,6 +79,35 @@ public class VersionResourceTest {
             .containsExactlyElementsOf(expected);
     }
 
+
+    @Test
+    public void getVersionsNoPrefix() {
+        //Make sure that elements are defined in unnatural order to test sorting
+        List<Double> versions = List.of(03.00,01.00,02.00);
+
+        JsonArray result;
+        try(var apiVersionMockedStatic = mockStatic(ApiVersion.class)) {
+
+            apiVersionMockedStatic.when(ApiVersion::versions)
+                .thenReturn(versions.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList())
+                );
+
+            result = instance.getVersions();
+
+            apiVersionMockedStatic.verify(ApiVersion::versions);
+            apiVersionMockedStatic.verifyNoMoreInteractions();
+        }
+
+        JsonArrayBuilder jsonArrayBuilder = Json.createArrayBuilder();
+        versions.stream().sorted().map(String::valueOf).forEach(v -> jsonArrayBuilder.add(v));
+        JsonArray expected = jsonArrayBuilder.build();
+
+        assertThat(result)
+            .containsExactlyElementsOf(expected);
+    }
+
     @Test
     public void defaultConstructor() {
         VersionResource versionResource = new VersionResource();
@@ -88,4 +117,5 @@ public class VersionResourceTest {
         assertThat(versionResource.getVersion())
             .isEqualTo(System.getProperty("project.version"),"project.version not set");
     }
+
 }

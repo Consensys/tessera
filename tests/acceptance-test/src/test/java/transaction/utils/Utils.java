@@ -4,7 +4,6 @@ import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.EncryptorFactory;
 import com.quorum.tessera.encryption.PublicKey;
-
 import java.util.Random;
 
 public class Utils {

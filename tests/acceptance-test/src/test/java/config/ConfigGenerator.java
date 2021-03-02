@@ -5,10 +5,6 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.test.DBType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import suite.*;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -18,6 +14,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import suite.EnclaveType;
+import suite.ExecutionContext;
+import suite.NodeAlias;
+import suite.NodeId;
+import suite.SocketType;
 
 public class ConfigGenerator {
 
@@ -86,7 +90,7 @@ public class ConfigGenerator {
         final Config enclaveConfig = new Config();
 
         ServerConfig serverConfig =
-            config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.ENCLAVE).findAny().get();
+                config.getServerConfigs().stream().filter(s -> s.getApp() == AppType.ENCLAVE).findAny().get();
 
         enclaveConfig.setServerConfigs(Arrays.asList(serverConfig));
 
@@ -97,21 +101,17 @@ public class ConfigGenerator {
     }
 
     public static Path calculatePath(ExecutionContext executionContext) {
-        //try {
 
             URI baseUri = Paths.get("build/").toAbsolutePath().toUri();
 
             return executionContext
-                .getPrefix()
-                .map(v -> Paths.get(baseUri).resolve(v))
-                .orElse(Paths.get(baseUri))
-                .resolve(executionContext.getCommunicationType().name().toLowerCase())
-                .resolve(executionContext.getSocketType().name().toLowerCase())
-                .resolve(executionContext.getDbType().name().toLowerCase())
-                .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
-//        } catch (URISyntaxException ex) {
-//            throw new RuntimeException(ex);
-//        }
+                    .getPrefix()
+                    .map(v -> Paths.get(baseUri).resolve(v))
+                    .orElse(Paths.get(baseUri))
+                    .resolve(executionContext.getCommunicationType().name().toLowerCase())
+                    .resolve(executionContext.getSocketType().name().toLowerCase())
+                    .resolve(executionContext.getDbType().name().toLowerCase())
+                    .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
     }
 
     private static Map<Integer, SortedMap<String, String>> keyLookup(EncryptorType encryptorType) {
@@ -119,46 +119,46 @@ public class ConfigGenerator {
         return new HashMap<Integer, SortedMap<String, String>>() {
             {
                 put(
-                    1,
-                    new TreeMap<String, String>() {
-                        KeyPair pair = encryptor.generateNewKeys();
+                        1,
+                        new TreeMap<String, String>() {
+                            KeyPair pair = encryptor.generateNewKeys();
 
-                        {
-                            put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                        }
-                    });
-
-                put(
-                    2,
-                    new TreeMap<String, String>() {
-                        KeyPair pair = encryptor.generateNewKeys();
-
-                        {
-                            put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                        }
-                    });
+                            {
+                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                            }
+                        });
 
                 put(
-                    3,
-                    new TreeMap<String, String>() {
-                        KeyPair pair = encryptor.generateNewKeys();
-                        KeyPair pair2 = encryptor.generateNewKeys();
+                        2,
+                        new TreeMap<String, String>() {
+                            KeyPair pair = encryptor.generateNewKeys();
 
-                        {
-                            put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                            put(pair2.getPublicKey().encodeToBase64(), pair2.getPrivateKey().encodeToBase64());
-                        }
-                    });
+                            {
+                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                            }
+                        });
 
                 put(
-                    4,
-                    new TreeMap<String, String>() {
-                        KeyPair pair = encryptor.generateNewKeys();
+                        3,
+                        new TreeMap<String, String>() {
+                            KeyPair pair = encryptor.generateNewKeys();
+                            KeyPair pair2 = encryptor.generateNewKeys();
 
-                        {
-                            put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
-                        }
-                    });
+                            {
+                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                                put(pair2.getPublicKey().encodeToBase64(), pair2.getPrivateKey().encodeToBase64());
+                            }
+                        });
+
+                put(
+                        4,
+                        new TreeMap<String, String>() {
+                            KeyPair pair = encryptor.generateNewKeys();
+
+                            {
+                                put(pair.getPublicKey().encodeToBase64(), pair.getPrivateKey().encodeToBase64());
+                            }
+                        });
             }
         };
     }
@@ -178,29 +178,29 @@ public class ConfigGenerator {
 
         EncryptorType encryptorType = executionContext.getEncryptorType();
         EncryptorConfig encryptorConfig =
-            new EncryptorConfig() {
-                {
-                    setType(encryptorType);
-                }
-            };
+                new EncryptorConfig() {
+                    {
+                        setType(encryptorType);
+                    }
+                };
 
         Map<Integer, SortedMap<String, String>> keyLookUp = keyLookup(encryptorType);
 
         // Node A,B,C have enhanced private enabled, node D does not
 
         Config first =
-            new ConfigBuilder()
-                .withNodeId(nodeId)
-                .withNodeNumber(1)
-                .withExecutionContext(executionContext)
-                .withQt2Port(port.nextPort())
-                .withP2pPort(port.nextPort())
-                .withEnclavePort(port.nextPort())
-                .withPartyInfoInterval(partyInfoInterval)
-                .withKeys(keyLookUp.get(1))
-                .withFeatureToggles(enhancedPrivacyEnabledToggle)
-                .withEncryptorConfig(encryptorConfig)
-                .build();
+                new ConfigBuilder()
+                        .withNodeId(nodeId)
+                        .withNodeNumber(1)
+                        .withExecutionContext(executionContext)
+                        .withQt2Port(port.nextPort())
+                        .withP2pPort(port.nextPort())
+                        .withEnclavePort(port.nextPort())
+                        .withPartyInfoInterval(partyInfoInterval)
+                        .withKeys(keyLookUp.get(1))
+                        .withFeatureToggles(enhancedPrivacyEnabledToggle)
+                        .withEncryptorConfig(encryptorConfig)
+                        .build();
 
         Config second =
                 new ConfigBuilder()
@@ -253,11 +253,11 @@ public class ConfigGenerator {
         List<Config> configList = List.of(first, second, third, fourth);
         if (LOGGER.isDebugEnabled()) {
             configList.stream()
-                .map(JaxbUtil::marshalToString)
-                .forEach(
-                    s -> {
-                        LOGGER.debug(s);
-                    });
+                    .map(JaxbUtil::marshalToString)
+                    .forEach(
+                            s -> {
+                                LOGGER.debug(s);
+                            });
         }
         return configList;
     }

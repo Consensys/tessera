@@ -5,10 +5,7 @@ import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.PayloadEncoderImpl;
-import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.recovery.resend.PushBatchRequest;
@@ -239,30 +236,38 @@ public class BatchResendManagerTest {
     @Test
     public void testStoreResendBatchMultipleVersions() {
 
-        final EncodedPayload encodedPayload =
-            EncodedPayload.Builder.create()
-                .withSenderKey(publicKey)
-                .withCipherText("cipherText".getBytes())
-                .withCipherTextNonce(new Nonce("nonce".getBytes()))
-                .withRecipientBoxes(singletonList("box".getBytes()))
-                .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                .withRecipientKeys(singletonList(PublicKey.from("receiverKey".getBytes())))
-                .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-                .withAffectedContractTransactions(emptyMap())
-                .withExecHash(new byte[0])
-                .build();
+        try (var payloadDigestMockedStatic = mockStatic(PayloadDigest.class)) {
 
-        final byte[] raw = new PayloadEncoderImpl().encode(encodedPayload);
+            payloadDigestMockedStatic.when(PayloadDigest::create)
+                .thenReturn((PayloadDigest) cipherText -> cipherText);
+            final EncodedPayload encodedPayload =
+                EncodedPayload.Builder.create()
+                    .withSenderKey(publicKey)
+                    .withCipherText("cipherText".getBytes())
+                    .withCipherTextNonce(new Nonce("nonce".getBytes()))
+                    .withRecipientBoxes(singletonList("box".getBytes()))
+                    .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+                    .withRecipientKeys(singletonList(PublicKey.from("receiverKey".getBytes())))
+                    .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                    .withAffectedContractTransactions(emptyMap())
+                    .withExecHash(new byte[0])
+                    .build();
 
-        PushBatchRequest request = PushBatchRequest.from(List.of(raw));
+            final byte[] raw = new PayloadEncoderImpl().encode(encodedPayload);
 
-        StagingTransaction existing = new StagingTransaction();
+            PushBatchRequest request = PushBatchRequest.from(List.of(raw));
 
-        when(stagingEntityDAO.retrieveByHash(any())).thenReturn(Optional.of(existing));
-        when(stagingEntityDAO.update(any(StagingTransaction.class))).thenReturn(new StagingTransaction());
+            StagingTransaction existing = new StagingTransaction();
 
-        manager.storeResendBatch(request);
+            when(stagingEntityDAO.retrieveByHash(any())).thenReturn(Optional.of(existing));
+            when(stagingEntityDAO.update(any(StagingTransaction.class))).thenReturn(new StagingTransaction());
 
-        verify(stagingEntityDAO).save(any(StagingTransaction.class));
+            manager.storeResendBatch(request);
+
+            verify(stagingEntityDAO).save(any(StagingTransaction.class));
+
+            payloadDigestMockedStatic.verify(PayloadDigest::create);
+            payloadDigestMockedStatic.verifyNoMoreInteractions();
+        }
     }
 }

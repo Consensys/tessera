@@ -171,7 +171,7 @@ public class RecoverIT {
         int exitCode = process.waitFor();
 
         assertThat(exitCode)
-            .describedAs("Exit code should be zero")
+            .describedAs("Exit code should be zero. %s",nodeAlias.name())
             .isZero();
 
         if (nodeAlias == NodeAlias.D) {
@@ -258,7 +258,7 @@ public class RecoverIT {
                     partyInfoSyncLatch.countDown();
                 });
 
-        if (!partyInfoSyncLatch.await(2, TimeUnit.MINUTES)) {
+        if (!partyInfoSyncLatch.await(10, TimeUnit.MINUTES)) {
             fail("Unable to sync party info");
         }
         executorService.shutdown();

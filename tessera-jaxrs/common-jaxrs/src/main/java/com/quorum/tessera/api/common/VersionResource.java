@@ -81,12 +81,11 @@ public class VersionResource {
     @Path("version/api")
     @Produces(MediaType.APPLICATION_JSON)
     public JsonArray getVersions() {
+
         List<String> versions =
                 ApiVersion.versions().stream()
-                        // remove the "v" prefix
-                        .map(
-                                version -> version.startsWith("v") ? version.substring(1) : version
-                        ).map(Double::parseDouble)
+                    .map(v -> v.replaceFirst("v",""))
+                    .map(Double::parseDouble)
                         .sorted()
                         .map(Objects::toString)
                         .collect(Collectors.toList());

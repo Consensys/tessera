@@ -75,7 +75,7 @@ public class VersionIT {
             assertThat(versions.stream()
                 .map(JsonString.class::cast)
                 .map(JsonString::getString)
-                .toArray(String[]::new)).containsExactly("1.0", "2.0");
+                .toArray(String[]::new)).containsExactly("1.0", "2.0", "2.1", "3.0");
 
         });
 

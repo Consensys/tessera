@@ -1,7 +1,6 @@
 package com.quorum.tessera.test;
 
 import java.util.stream.Stream;
-
 import suite.NodeAlias;
 
 public interface PartyHelper {

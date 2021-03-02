@@ -17,7 +17,7 @@ open module tessera.tessera.data.main {
     exports com.quorum.tessera.data;
     exports com.quorum.tessera.data.staging;
 
-    uses com.quorum.tessera.data.MessageHashFactory;
+    uses com.quorum.tessera.enclave.PayloadDigest;
     uses com.quorum.tessera.data.EncryptedTransactionDAO;
     uses com.quorum.tessera.data.EncryptedRawTransactionDAO;
     uses com.quorum.tessera.data.staging.StagingEntityDAO;
@@ -39,6 +39,5 @@ open module tessera.tessera.data.main {
     provides com.quorum.tessera.data.DataSourceFactory with
         com.quorum.tessera.data.DataSourceFactoryProvider;
 
-    provides com.quorum.tessera.data.MessageHashFactory with
-        com.quorum.tessera.data.MessageHashFactoryImpl;
+
 }

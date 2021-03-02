@@ -2,6 +2,7 @@ package com.quorum.tessera.transaction.resend;
 
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.PayloadDigest;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,7 +19,8 @@ public class ResendManagerProviderTest {
     @Test
     public void provider() {
         try(var mockedEncryptedTransactionDAO = mockStatic(EncryptedTransactionDAO.class);
-            var mockedEnclave = mockStatic(Enclave.class)
+            var mockedEnclave = mockStatic(Enclave.class);
+            var mockedStaticPayloadDigest = mockStatic(PayloadDigest.class)
         ) {
 
             Enclave enclave = mock(Enclave.class);
@@ -28,8 +30,21 @@ public class ResendManagerProviderTest {
             mockedEncryptedTransactionDAO.when(EncryptedTransactionDAO::create)
                 .thenReturn(mock(EncryptedTransactionDAO.class));
 
+            mockedStaticPayloadDigest.when(PayloadDigest::create)
+                .thenReturn(mock(PayloadDigest.class));
+
             ResendManager resendManager = ResendManagerProvider.provider();
             assertThat(resendManager).isNotNull();
+
+            mockedEncryptedTransactionDAO.verify(EncryptedTransactionDAO::create);
+            mockedEncryptedTransactionDAO.verifyNoMoreInteractions();
+
+            mockedEnclave.verify(Enclave::create);
+            mockedEnclave.verifyNoMoreInteractions();
+
+            mockedStaticPayloadDigest.verify(PayloadDigest::create);
+            mockedStaticPayloadDigest.verifyNoMoreInteractions();
+
         }
     }
 
