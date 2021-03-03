@@ -11,6 +11,7 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.privacygroup.ResidentGroupHandler;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -70,6 +71,8 @@ public class Main {
 
             com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
             Discovery.getInstance().onCreate();
+
+            ResidentGroupHandler.create(config).onCreate(config);
 
             LOGGER.debug("Creating service locator");
             ServiceLocator serviceLocator = ServiceLocator.create();
