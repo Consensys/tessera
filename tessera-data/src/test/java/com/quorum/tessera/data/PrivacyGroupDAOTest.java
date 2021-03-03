@@ -153,6 +153,23 @@ public class PrivacyGroupDAOTest {
     }
 
     @Test
+    public void saveAndFindAll() {
+        final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findAll();
+        assertThat(shouldBeEmpty).isEmpty();
+
+        final PrivacyGroupEntity entity =
+                new PrivacyGroupEntity("id1".getBytes(), "lookup".getBytes(), "data".getBytes());
+        privacyGroupDAO.save(entity);
+        final PrivacyGroupEntity another =
+                new PrivacyGroupEntity("id2".getBytes(), "lookup".getBytes(), "data".getBytes());
+        privacyGroupDAO.save(another);
+
+        final List<PrivacyGroupEntity> pgs = privacyGroupDAO.findAll();
+        assertThat(pgs).isNotEmpty();
+        assertThat(pgs).containsExactlyInAnyOrder(entity, another);
+    }
+
+    @Test
     public void savePrivacyGroupWithCallback() throws Exception {
         final PrivacyGroupEntity entity =
                 new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());

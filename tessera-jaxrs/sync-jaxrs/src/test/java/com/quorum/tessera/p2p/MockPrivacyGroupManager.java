@@ -5,6 +5,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 
 import java.util.List;
+import java.util.Set;
 
 public class MockPrivacyGroupManager implements PrivacyGroupManager {
 
@@ -20,7 +21,17 @@ public class MockPrivacyGroupManager implements PrivacyGroupManager {
     }
 
     @Override
+    public PrivacyGroup saveResidentGroup(String name, String description, List<PublicKey> members) {
+        return null;
+    }
+
+    @Override
     public List<PrivacyGroup> findPrivacyGroup(List<PublicKey> members) {
+        return null;
+    }
+
+    @Override
+    public List<PrivacyGroup> findPrivacyGroupByType(PrivacyGroup.Type privacyGroupType) {
         return null;
     }
 
@@ -39,6 +50,11 @@ public class MockPrivacyGroupManager implements PrivacyGroupManager {
 
     @Override
     public PublicKey defaultPublicKey() {
+        return null;
+    }
+
+    @Override
+    public Set<PublicKey> getManagedKeys() {
         return null;
     }
 }
