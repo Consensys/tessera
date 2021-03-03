@@ -4,10 +4,12 @@ import com.quorum.tessera.test.util.ElUtil;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -103,5 +105,44 @@ public class ConfigFactoryTest {
         assertThat(config.getFeatures().isEnablePrivacyEnhancements()).isTrue();
         assertThat(config.getFeatures().isEnableRemoteKeyValidation()).isTrue();
         assertThat(config.getClientMode()).isEqualTo(ClientMode.ORION);
+    }
+
+    @Test
+    public void createFromSampleResidentGroup() throws IOException {
+
+        ConfigFactory configFactory = ConfigFactory.create();
+
+        assertThat(configFactory).isExactlyInstanceOf(JaxbConfigFactory.class);
+
+        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("unixSocketPath", unixSocketPath.toString());
+
+        final InputStream configInputStream = ElUtil.process(getClass().getResourceAsStream("/sample_rg.json"), params);
+
+        ResidentGroup expected1 = new ResidentGroup();
+        expected1.setName("legacy");
+        expected1.setDescription("Privacy groups to support the creation of groups by privateFor and privateFrom");
+        expected1.setMembers(
+                List.of(
+                        "B687sgdtqsem2qEXO8h8UqvW1Mb3yKo7id5hPFLwCmY=",
+                        "arhIcNa+MuYXZabmzJD5B33F3dZgqb0hEbM3FZsylSg="));
+
+        ResidentGroup expected2 = new ResidentGroup();
+        expected2.setName("web3js-eea");
+        expected2.setDescription("test");
+        expected2.setMembers(
+                List.of(
+                        "arhIcNa+MuYXZabmzJD5B33F3dZgqb0hEbM3FZsylSg=",
+                        "B687sgdtqsem2qEXO8h8UqvW1Mb3yKo7id5hPFLwCmY="));
+
+        Config config = configFactory.create(configInputStream);
+
+        assertThat(config).isNotNull();
+
+        assertThat(config.getResidentGroups()).isNotEmpty();
+        assertThat(config.getResidentGroups()).hasSize(2);
+        assertThat(config.getResidentGroups()).containsExactly(expected1, expected2);
     }
 }
