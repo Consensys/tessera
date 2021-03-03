@@ -23,7 +23,7 @@ public class Util {
                 enable(TestProperties.DUMP_ENTITY);
                 set(TestProperties.CONTAINER_PORT,"0");
 
-                return ResourceConfig.forApplication(new EnclaveApplication(new EnclaveResource(enclave)));
+                return ResourceConfig.forApplication(new EnclaveApplication(enclave));
 
             }
         };

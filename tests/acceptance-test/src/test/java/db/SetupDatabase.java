@@ -67,20 +67,20 @@ public class SetupDatabase {
 
     private Connection getConnection(NodeAlias nodeAlias) {
         return executionContext.getConfigs().stream()
-            .filter(c -> c.getAlias() == nodeAlias)
-            .map(ConfigDescriptor::getConfig)
-            .map(Config::getJdbcConfig)
-            .map(
-                j -> {
-                    try {
-                        LOGGER.info("{}", j.getUrl());
-                        return DriverManager.getConnection(j.getUrl(), j.getUsername(), j.getPassword());
-                    } catch (SQLException ex) {
-                        throw new UncheckedSQLException(ex);
-                    }
-                })
-            .findFirst()
-            .get();
+                .filter(c -> c.getAlias() == nodeAlias)
+                .map(ConfigDescriptor::getConfig)
+                .map(Config::getJdbcConfig)
+                .map(
+                        j -> {
+                            try {
+                                LOGGER.info("{}", j.getUrl());
+                                return DriverManager.getConnection(j.getUrl(), j.getUsername(), j.getPassword());
+                            } catch (SQLException ex) {
+                                throw new UncheckedSQLException(ex);
+                            }
+                        })
+                .findFirst()
+                .get();
     }
 
     private List<Connection> getConnections() {

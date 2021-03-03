@@ -8,7 +8,6 @@ import com.quorum.tessera.encryption.PublicKey;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -70,7 +69,6 @@ public class EnclaveApplicationTest {
         verify(enclave).status();
     }
 
-    @Ignore
     @Test
     public void encryptPayload() {
         byte[] message = "SOMEDATA".getBytes();
@@ -173,12 +171,12 @@ public class EnclaveApplicationTest {
 
     @Test
     public void appType() {
-        assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getAppType()).isEqualTo(AppType.ENCLAVE);
+        assertThat(new EnclaveApplication(enclave).getAppType()).isEqualTo(AppType.ENCLAVE);
     }
 
     @Test
     public void getCommunicationType() {
-        assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getCommunicationType())
+        assertThat(new EnclaveApplication(enclave).getCommunicationType())
                 .isEqualTo(CommunicationType.REST);
     }
 }
