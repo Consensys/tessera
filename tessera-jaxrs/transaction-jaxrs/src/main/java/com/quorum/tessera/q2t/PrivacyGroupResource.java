@@ -15,10 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.json.Json;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.security.SecureRandom;
 import java.util.Arrays;
@@ -183,6 +180,21 @@ public class PrivacyGroupResource {
                 Json.createArrayBuilder().add(privacyGroup.getId().getBase64()).build().getJsonString(0).toString();
 
         return Response.ok().entity(output).build();
+    }
+
+    @GET
+    @Path("groups/{type}")
+    @Produces(APPLICATION_JSON)
+    public Response getPrivacyGroups(@PathParam("type") String type) {
+
+        PrivacyGroup.Type queryType = PrivacyGroup.Type.valueOf(type.toUpperCase());
+
+        final List<PrivacyGroup> privacyGroups = privacyGroupManager.findPrivacyGroupByType(queryType);
+
+        final PrivacyGroupResponse[] results =
+                privacyGroups.stream().map(this::toResponseObject).toArray(PrivacyGroupResponse[]::new);
+
+        return Response.status(Response.Status.OK).type(APPLICATION_JSON).entity(results).build();
     }
 
     PrivacyGroupResponse toResponseObject(final PrivacyGroup privacyGroup) {

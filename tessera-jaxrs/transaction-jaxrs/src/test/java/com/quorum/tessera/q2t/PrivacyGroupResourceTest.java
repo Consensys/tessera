@@ -190,4 +190,42 @@ public class PrivacyGroupResourceTest {
 
         verify(privacyGroupManager).deletePrivacyGroup(PublicKey.from("member1".getBytes()), mockResult.getId());
     }
+
+    @Test
+    public void testGetGroups() {
+
+        when(privacyGroupManager.findPrivacyGroupByType(PrivacyGroup.Type.RESIDENT)).thenReturn(List.of(mockResult));
+
+        final Response response = jersey.target("groups/resident").request().get();
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+        PrivacyGroupResponse result =
+                Arrays.stream(response.readEntity(PrivacyGroupResponse[].class)).iterator().next();
+        assertThat(result.getName()).isEqualTo(mockResult.getName());
+        assertThat(result.getDescription()).isEqualTo(mockResult.getDescription());
+        assertThat(result.getPrivacyGroupId()).isEqualTo(mockResult.getId().getBase64());
+        assertThat(result.getType()).isEqualTo(mockResult.getType().name());
+
+        verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
+    }
+
+    @Test
+    public void testGetNoGroupsFound() {
+        final Response response = jersey.target("groups/legacy").request().get();
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+        PrivacyGroupResponse[] responses = response.readEntity(PrivacyGroupResponse[].class);
+
+        assertThat(responses.length).isEqualTo(0);
+
+        verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.LEGACY));
+    }
+
+    @Test
+    public void testGetGroupNotValid() {
+        final Response response = jersey.target("groups/bogus").request().get();
+        assertThat(response.getStatus()).isNotEqualTo(200);
+    }
 }
