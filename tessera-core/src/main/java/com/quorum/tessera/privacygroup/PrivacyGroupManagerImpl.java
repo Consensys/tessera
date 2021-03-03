@@ -116,6 +116,19 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     }
 
     @Override
+    public PrivacyGroup saveResidentGroup(String name, String description, List<PublicKey> members) {
+
+        final PrivacyGroup privacyGroup = PrivacyGroup.Builder.buildResidentGroup(name, description, members);
+
+        final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
+        final byte[] encodedData = privacyGroupUtil.encode(privacyGroup);
+
+        privacyGroupDAO.update(new PrivacyGroupEntity(name.getBytes(), lookupId, encodedData));
+
+        return privacyGroup;
+    }
+
+    @Override
     public List<PrivacyGroup> findPrivacyGroup(List<PublicKey> members) {
 
         final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
@@ -124,6 +137,15 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
                 .map(PrivacyGroupEntity::getData)
                 .map(privacyGroupUtil::decode)
                 .filter(pg -> pg.getState() == PrivacyGroup.State.ACTIVE)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    @Override
+    public List<PrivacyGroup> findPrivacyGroupByType(PrivacyGroup.Type type) {
+        return privacyGroupDAO.findAll().stream()
+                .map(PrivacyGroupEntity::getData)
+                .map(privacyGroupUtil::decode)
+                .filter(pg -> pg.getState() == PrivacyGroup.State.ACTIVE && pg.getType() == type)
                 .collect(Collectors.toUnmodifiableList());
     }
 
@@ -144,10 +166,13 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         final PrivacyGroup privacyGroup = privacyGroupUtil.decode(encodedData);
 
         if (privacyGroup.getState() == PrivacyGroup.State.DELETED) {
-            privacyGroupDAO.retrieve(privacyGroup.getId().getBytes()).ifPresent(et -> {
-                    et.setData(encodedData);
-                    privacyGroupDAO.update(et);
-            });
+            privacyGroupDAO
+                    .retrieve(privacyGroup.getId().getBytes())
+                    .ifPresent(
+                            et -> {
+                                et.setData(encodedData);
+                                privacyGroupDAO.update(et);
+                            });
             return;
         }
         final byte[] id = privacyGroup.getId().getBytes();
@@ -155,7 +180,6 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
         final PrivacyGroupEntity newEntity = new PrivacyGroupEntity(id, lookupId, encodedData);
 
         privacyGroupDAO.save(newEntity);
-
     }
 
     @Override
@@ -172,8 +196,7 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
 
         final byte[] updatedData = privacyGroupUtil.encode(updated);
         final byte[] lookupId = privacyGroupUtil.generateLookupId(updated.getMembers());
-        final PrivacyGroupEntity updatedEt =
-                new PrivacyGroupEntity(updated.getId().getBytes(), lookupId, updatedData);
+        final PrivacyGroupEntity updatedEt = new PrivacyGroupEntity(updated.getId().getBytes(), lookupId, updatedData);
 
         final Set<PublicKey> localKeys = enclave.getPublicKeys();
         final List<PublicKey> forwardingMembers =
@@ -192,5 +215,10 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     @Override
     public PublicKey defaultPublicKey() {
         return enclave.defaultPublicKey();
+    }
+
+    @Override
+    public Set<PublicKey> getManagedKeys() {
+        return enclave.getPublicKeys();
     }
 }

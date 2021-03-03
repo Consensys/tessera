@@ -15,6 +15,7 @@ import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisherFactory;
 
 import java.util.List;
+import java.util.Set;
 
 public interface PrivacyGroupManager {
 
@@ -28,7 +29,7 @@ public interface PrivacyGroupManager {
      * @return Created privacy group object
      */
     PrivacyGroup createPrivacyGroup(
-        String name, String description, PublicKey from, List<PublicKey> members, byte[] seed);
+            String name, String description, PublicKey from, List<PublicKey> members, byte[] seed);
 
     /**
      * Create a legacy privacy group to support EEA Transactions
@@ -39,12 +40,30 @@ public interface PrivacyGroupManager {
     PrivacyGroup createLegacyPrivacyGroup(PublicKey from, List<PublicKey> members);
 
     /**
+     * Create a resident privacy group to manage local keys
+     *
+     * @param name
+     * @param description
+     * @param members
+     * @return Created privacy group objects
+     */
+    PrivacyGroup saveResidentGroup(String name, String description, List<PublicKey> members);
+
+    /**
      * Find the privacy groups in database based on its members
      *
      * @param members List of members public keys
      * @return A list of privacy groups associated with requested members
      */
     List<PrivacyGroup> findPrivacyGroup(List<PublicKey> members);
+
+    /**
+     * Find the privacy groups in database based on its type
+     *
+     * @param privacyGroupType
+     * @return A list of privacy groups
+     */
+    List<PrivacyGroup> findPrivacyGroupByType(PrivacyGroup.Type privacyGroupType);
 
     /**
      * Retrieve the privacy group from database based on privacy group id. Throws an {@link
@@ -75,19 +94,21 @@ public interface PrivacyGroupManager {
      */
     PublicKey defaultPublicKey();
 
+    Set<PublicKey> getManagedKeys();
+
     static PrivacyGroupManager create(final Config config) {
         return ServiceLoaderUtil.load(PrivacyGroupManager.class)
-            .orElseGet(
-                () -> {
-                    Enclave enclave = EnclaveFactory.create().create(config);
-                    EntityManagerDAOFactory entityManagerDAOFactory =
-                        EntityManagerDAOFactory.newFactory(config);
-                    PrivacyGroupDAO privacyGroupDAO = entityManagerDAOFactory.createPrivacyGroupDAO();
-                    PrivacyGroupPublisher publisher =
-                        PrivacyGroupPublisherFactory.newFactory(config).create(config);
-                    BatchPrivacyGroupPublisher batchPublisher =
-                        BatchPrivacyGroupPublisherFactory.newFactory(config).create(publisher);
-                    return new PrivacyGroupManagerImpl(enclave, privacyGroupDAO, batchPublisher);
-                });
+                .orElseGet(
+                        () -> {
+                            Enclave enclave = EnclaveFactory.create().create(config);
+                            EntityManagerDAOFactory entityManagerDAOFactory =
+                                    EntityManagerDAOFactory.newFactory(config);
+                            PrivacyGroupDAO privacyGroupDAO = entityManagerDAOFactory.createPrivacyGroupDAO();
+                            PrivacyGroupPublisher publisher =
+                                    PrivacyGroupPublisherFactory.newFactory(config).create(config);
+                            BatchPrivacyGroupPublisher batchPublisher =
+                                    BatchPrivacyGroupPublisherFactory.newFactory(config).create(publisher);
+                            return new PrivacyGroupManagerImpl(enclave, privacyGroupDAO, batchPublisher);
+                        });
     }
 }
