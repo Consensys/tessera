@@ -158,6 +158,16 @@ public interface PrivacyGroup {
             return this;
         }
 
+        public static PrivacyGroup buildResidentGroup(String name, String desc, List<PublicKey> members) {
+            return create().withPrivacyGroupId(name.getBytes())
+                    .withName(name)
+                    .withDescription(desc)
+                    .withMembers(members)
+                    .withState(State.ACTIVE)
+                    .withType(Type.RESIDENT)
+                    .build();
+        }
+
         public PrivacyGroup build() {
 
             Objects.requireNonNull(privacyGroupId);

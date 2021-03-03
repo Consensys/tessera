@@ -92,4 +92,13 @@ public class PrivacyGroupTest {
                 .withState(PrivacyGroup.State.ACTIVE)
                 .build();
     }
+
+    @Test
+    public void buildResidentGroup() {
+        PrivacyGroup rg = PrivacyGroup.Builder.buildResidentGroup("name", "desc", List.of());
+
+        assertThat(rg).isNotNull();
+        assertThat(rg.getType()).isEqualTo(PrivacyGroup.Type.RESIDENT);
+        assertThat(rg.getId().getBytes()).isEqualTo("name".getBytes());
+    }
 }
