@@ -148,7 +148,7 @@ public class WhitelistSteps implements En {
                     Boolean started =
                         executorService
                             .submit(new ServerStatusCheckExecutor(serverStatusCheck))
-                            .get(20, TimeUnit.SECONDS);
+                            .get(60, TimeUnit.SECONDS);
 
                     assertThat(started).isTrue();
                 });
