@@ -78,9 +78,10 @@ public class PrivacyGroupResource {
         final byte[] randomSeed =
                 Optional.ofNullable(request.getSeed()).map(base64Codec::decode).orElseGet(generateRandomSeed);
 
-        final PrivacyGroup created =
-                privacyGroupManager.createPrivacyGroup(
-                        request.getName(), request.getDescription(), from, members, randomSeed);
+        final String name = Optional.ofNullable(request.getName()).orElse("");
+        final String description = Optional.ofNullable(request.getDescription()).orElse("");
+
+        final PrivacyGroup created = privacyGroupManager.createPrivacyGroup(name, description, from, members, randomSeed);
 
         return Response.status(Response.Status.OK).entity(toResponseObject(created)).build();
     }
