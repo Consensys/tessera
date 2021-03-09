@@ -18,6 +18,7 @@ import javax.validation.Validator;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @CommandLine.Command(
@@ -91,19 +92,57 @@ public class KeyGenCommand implements Callable<CliResult> {
             throw new CliException("Missing required argument(s): --configfile=<config>");
         }
 
-        final EncryptorConfig encryptorConfig = this.encryptorConfig().orElse(EncryptorConfig.getDefault());
-        final KeyVaultOptions keyVaultOptions = this.keyVaultOptions().orElse(null);
-        final KeyVaultConfig keyVaultConfig = this.keyVaultConfig().orElse(null);
+        final EncryptorConfig encryptorConfig = Optional.ofNullable(fileUpdateOptions)
+            .map(KeyGenFileUpdateOptions::getConfig)
+            .map(Config::getEncryptor)
+            .orElseGet(() ->
+                Optional.ofNullable(encryptorOptions)
+                    .map(EncryptorOptions::parseEncryptorConfig)
+                    .orElse(EncryptorConfig.getDefault())
+            );
+
+        final KeyVaultOptions keyVaultOptions = Optional.ofNullable(keyVaultConfigOptions)
+                                                        .map(KeyVaultConfigOptions::getHashicorpSecretEnginePath)
+                                                        .map(KeyVaultOptions::new)
+                                                        .orElse(null);
+
+        final KeyVaultConfig keyVaultConfig;
+        if(keyVaultConfigOptions == null) {
+            keyVaultConfig = null;
+        } else if(keyVaultConfigOptions.getVaultType() == null) {
+            throw new CliException("Key vault type either not provided or not recognised");
+        } else if(fileUpdateOptions != null) {
+            keyVaultConfig =
+                Optional.of(fileUpdateOptions)
+                    .map(KeyGenFileUpdateOptions::getConfig)
+                    .map(Config::getKeys)
+                    .flatMap(c -> c.getKeyVaultConfig(keyVaultConfigOptions.getVaultType()))
+                    .orElse(null);
+        } else {
+
+            final KeyVaultHandler keyVaultHandler = new DispatchingKeyVaultHandler();
+            keyVaultConfig = keyVaultHandler.handle(keyVaultConfigOptions);
+
+            if(keyVaultConfig.getKeyVaultType() == KeyVaultType.HASHICORP) {
+
+                if (Objects.isNull(keyOut)) {
+                    throw new CliException(
+                        "At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
+                }
+            }
+
+            final Set<ConstraintViolation<KeyVaultConfig>> violations = validator.validate(keyVaultConfig);
+            if (!violations.isEmpty()) {
+                throw new ConstraintViolationException(violations);
+            }
+        }
 
         final KeyGenerator keyGenerator = keyGeneratorFactory.create(keyVaultConfig, encryptorConfig);
 
-        final List<String> newKeyNames = new ArrayList<>();
-
-        if (Objects.isNull(keyOut) || keyOut.isEmpty()) {
-            newKeyNames.add("");
-        } else {
-            newKeyNames.addAll(keyOut);
-        }
+        final List<String> newKeyNames = Optional.ofNullable(keyOut)
+            .filter(Predicate.not(List::isEmpty))
+            .map(List::copyOf)
+            .orElseGet(() -> List.of(""));
 
         final List<ConfigKeyPair> newConfigKeyPairs =
                 newKeyNames.stream()
@@ -126,12 +165,7 @@ public class KeyGenCommand implements Callable<CliResult> {
         }
 
         // prepare config for addition of new keys if required
-        if (Objects.isNull(fileUpdateOptions.getConfig().getKeys())) {
-            fileUpdateOptions.getConfig().setKeys(new KeyConfiguration());
-        }
-        if (Objects.isNull(fileUpdateOptions.getConfig().getKeys().getKeyData())) {
-            fileUpdateOptions.getConfig().getKeys().setKeyData(new ArrayList<>());
-        }
+        prepareConfigForNewKeys(fileUpdateOptions.getConfig());
 
         if (Objects.nonNull(fileUpdateOptions.getConfigOut())) {
             if (Objects.nonNull(fileUpdateOptions.getPwdOut())) {
@@ -148,97 +182,14 @@ public class KeyGenCommand implements Callable<CliResult> {
         return new CliResult(0, true, null);
     }
 
-    private Optional<EncryptorConfig> encryptorConfig() {
-        Optional<EncryptorConfig> fromConfigFile =
-                Optional.ofNullable(fileUpdateOptions)
-                        .map(KeyGenFileUpdateOptions::getConfig)
-                        .map(Config::getEncryptor);
-
-        Optional<EncryptorConfig> fromCliOptions =
-                Optional.ofNullable(encryptorOptions).map(EncryptorOptions::parseEncryptorConfig);
-
-        if (fromConfigFile.isPresent()) {
-            return fromConfigFile;
-        } else {
-            return fromCliOptions;
+    static void prepareConfigForNewKeys(Config config) {
+        if (Objects.isNull(config.getKeys())) {
+            config.setKeys(new KeyConfiguration());
+        }
+        if (Objects.isNull(config.getKeys().getKeyData())) {
+            config.getKeys().setKeyData(new ArrayList<>());
         }
     }
 
-    private Optional<KeyVaultOptions> keyVaultOptions() {
-        if (!Optional.ofNullable(keyVaultConfigOptions)
-                .map(KeyVaultConfigOptions::getHashicorpSecretEnginePath)
-                .isPresent()) {
-            return Optional.empty();
-        }
 
-        return Optional.of(new KeyVaultOptions(keyVaultConfigOptions.getHashicorpSecretEnginePath()));
-    }
-
-    private Optional<KeyVaultConfig> keyVaultConfig() {
-        if (Objects.isNull(keyVaultConfigOptions)) {
-            return Optional.empty();
-        }
-
-        if (Objects.isNull(keyVaultConfigOptions.getVaultType())) {
-            throw new CliException("Key vault type either not provided or not recognised");
-        }
-
-        final KeyVaultConfig keyVaultConfig;
-
-        final Optional<DefaultKeyVaultConfig> fromConfigFile =
-                Optional.ofNullable(fileUpdateOptions)
-                        .map(KeyGenFileUpdateOptions::getConfig)
-                        .map(Config::getKeys)
-                        .flatMap(c -> c.getKeyVaultConfig(keyVaultConfigOptions.getVaultType()));
-
-        if (fromConfigFile.isPresent()) {
-            return Optional.of(fromConfigFile.get());
-        }
-
-        if (KeyVaultType.AZURE.equals(keyVaultConfigOptions.getVaultType())) {
-            keyVaultConfig = new AzureKeyVaultConfig(keyVaultConfigOptions.getVaultUrl());
-
-            Set<ConstraintViolation<AzureKeyVaultConfig>> violations =
-                    validator.validate((AzureKeyVaultConfig) keyVaultConfig);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
-            }
-        } else if (KeyVaultType.HASHICORP.equals(keyVaultConfigOptions.getVaultType())) {
-            if (Objects.isNull(keyOut) || keyOut.isEmpty()) {
-                throw new CliException(
-                        "At least one -filename must be provided when saving generated keys in a Hashicorp Vault");
-            }
-
-            keyVaultConfig =
-                    new HashicorpKeyVaultConfig(
-                            keyVaultConfigOptions.getVaultUrl(),
-                            keyVaultConfigOptions.getHashicorpApprolePath(),
-                            keyVaultConfigOptions.getHashicorpTlsKeystore(),
-                            keyVaultConfigOptions.getHashicorpTlsTruststore());
-
-            Set<ConstraintViolation<HashicorpKeyVaultConfig>> violations =
-                    validator.validate((HashicorpKeyVaultConfig) keyVaultConfig);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
-            }
-        } else {
-            DefaultKeyVaultConfig awsKeyVaultConfig = new DefaultKeyVaultConfig();
-            awsKeyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
-
-            Optional.ofNullable(keyVaultConfigOptions.getVaultUrl())
-                    .ifPresent(u -> awsKeyVaultConfig.setProperty("endpoint", u));
-
-            keyVaultConfig = awsKeyVaultConfig;
-
-            Set<ConstraintViolation<DefaultKeyVaultConfig>> violations = validator.validate(awsKeyVaultConfig);
-
-            if (!violations.isEmpty()) {
-                throw new ConstraintViolationException(violations);
-            }
-        }
-
-        return Optional.of(keyVaultConfig);
-    }
 }

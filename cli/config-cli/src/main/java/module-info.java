@@ -1,4 +1,5 @@
 module tessera.cli.config.cli.main {
+
     requires java.management;
     requires java.validation;
     requires java.xml.bind;
@@ -22,5 +23,7 @@ module tessera.cli.config.cli.main {
     provides com.quorum.tessera.config.cli.KeyDataMarshaller with
         com.quorum.tessera.config.cli.DefaultKeyDataMarshaller;
 
+    provides com.quorum.tessera.config.cli.KeyVaultHandler
+        with com.quorum.tessera.config.cli.DispatchingKeyVaultHandler;
 
 }
