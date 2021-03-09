@@ -2,44 +2,107 @@ package com.quorum.tessera.config.cli;
 
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
+import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.FilesystemKeyPair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.key.generation.KeyGenerator;
+import com.quorum.tessera.key.generation.KeyGeneratorFactory;
 import org.assertj.core.util.Strings;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonWriter;
 import javax.validation.ConstraintViolationException;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@Ignore
 public class PicoCliDelegateTest {
+
+    @Rule
+    public TemporaryFolder dir = new TemporaryFolder();
+
+    private Path baseDir;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PicoCliDelegateTest.class);
 
     private PicoCliDelegate cliDelegate;
 
+    private KeyPasswordResolver keyPasswordResolver;
+
+    private MockedStatic<KeyGeneratorFactory> keyGeneratorFactoryMockedStatic;
+
+    private KeyGenerator keyGenerator;
+
+    private MockedStatic<KeyDataMarshaller> keyDataMarshallerMockedStatic;
+
+    private KeyGeneratorFactory keyGeneratorFactory;
+
+    private KeyGenCommand keyGenCommand;
+
+    private KeyUpdateCommand keyUpdateCommand;
+
+    private KeyDataMarshaller keyDataMarshaller;
+
     @Before
-    public void setUp() {
-        cliDelegate = new PicoCliDelegate();
+    public void beforeTest() throws Exception {
+        baseDir = dir.getRoot().toPath();
+
+        keyGenCommand = mock(KeyGenCommand.class);
+        keyUpdateCommand = mock(KeyUpdateCommand.class);
+        keyGeneratorFactory = mock(KeyGeneratorFactory.class);
+        keyGenerator = mock(KeyGenerator.class);
+        when(keyGeneratorFactory.create(any(), any())).thenReturn(keyGenerator);
+
+        keyDataMarshaller = mock(KeyDataMarshaller.class);
+
+        keyGeneratorFactoryMockedStatic = mockStatic(KeyGeneratorFactory.class);
+        keyGeneratorFactoryMockedStatic.when(KeyGeneratorFactory::create).thenReturn(keyGeneratorFactory);
+
+        keyDataMarshallerMockedStatic = mockStatic(KeyDataMarshaller.class);
+        keyDataMarshallerMockedStatic.when(KeyDataMarshaller::create).thenReturn(keyDataMarshaller);
+
+        keyPasswordResolver = mock(KeyPasswordResolver.class);
+
+        cliDelegate = new PicoCliDelegate(keyPasswordResolver);
+    }
+
+    @After
+    public void afterTest() {
+
+        try {
+            verifyNoMoreInteractions(keyDataMarshaller);
+            verifyNoMoreInteractions(keyGeneratorFactory);
+            verifyNoMoreInteractions(keyGenerator);
+            verifyNoMoreInteractions(keyPasswordResolver);
+            verifyNoMoreInteractions(keyGenCommand);
+            verifyNoMoreInteractions(keyUpdateCommand);
+        } finally {
+            keyGeneratorFactoryMockedStatic.close();
+            keyDataMarshallerMockedStatic.close();
+        }
+
     }
 
     @Test
@@ -87,6 +150,8 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.isSuppressStartup()).isFalse();
+
+        verify(keyPasswordResolver).resolveKeyPasswords(result.getConfig().get());
     }
 
     @Test
@@ -101,7 +166,7 @@ public class PicoCliDelegateTest {
         assertThat(pidFilePath).doesNotExist();
 
         CliResult result =
-                cliDelegate.execute("-configfile", configFile.toString(), "-pidfile", pidFilePath.toString());
+            cliDelegate.execute("-configfile", configFile.toString(), "-pidfile", pidFilePath.toString());
 
         assertThat(pidFilePath).exists();
         pidFilePath.toFile().deleteOnExit();
@@ -110,6 +175,8 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.isSuppressStartup()).isFalse();
+
+        verify(keyPasswordResolver).resolveKeyPasswords(result.getConfig().get());
     }
 
     @Test
@@ -124,7 +191,7 @@ public class PicoCliDelegateTest {
         assertThat(pidFilePath).exists();
 
         CliResult result =
-                cliDelegate.execute("-configfile", configFile.toString(), "-pidfile", pidFilePath.toString());
+            cliDelegate.execute("-configfile", configFile.toString(), "-pidfile", pidFilePath.toString());
 
         assertThat(pidFilePath).exists();
 
@@ -132,6 +199,8 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getStatus()).isEqualTo(0);
         assertThat(result.isSuppressStartup()).isFalse();
+
+        verify(keyPasswordResolver).resolveKeyPasswords(result.getConfig().get());
     }
 
     @Test(expected = CliException.class)
@@ -154,29 +223,45 @@ public class PicoCliDelegateTest {
 
     @Test
     public void keygen() throws Exception {
-
-        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        String outputFileName = UUID.randomUUID().toString();
         FilesystemKeyPair keypair = mock(FilesystemKeyPair.class);
-        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
-
-        CliResult result = cliDelegate.execute("-keygen", "-filename", UUID.randomUUID().toString());
+        when(keyGenerator.generate(outputFileName, null, null)).thenReturn(keypair);
+        CliResult result = cliDelegate.execute("-keygen", "-filename", outputFileName);
 
         assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(0);
+        assertThat(result.getStatus()).isZero();
         assertThat(result.getConfig()).isNotNull();
         assertThat(result.isSuppressStartup()).isTrue();
 
-        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
+        verify(keyGenerator).generate(outputFileName, null, null);
         verifyNoMoreInteractions(keyGenerator);
+
+        verify(keyDataMarshaller).marshal(keypair);
+
+        verify(keyGeneratorFactory).create(any(), any());
     }
 
     @Test
     public void keygenThenExit() throws Exception {
 
+        ConfigKeyPair configKeyPair = mock(ConfigKeyPair.class);
+        when(keyGenerator.generate("", null, null)).thenReturn(configKeyPair);
+
+        ArgumentCaptor<ConfigKeyPair> configKeyPairCaptor = ArgumentCaptor.forClass(ConfigKeyPair.class);
+
         final CliResult result = cliDelegate.execute("-keygen", "--encryptor.type", "NACL");
 
         assertThat(result).isNotNull();
         assertThat(result.isSuppressStartup()).isTrue();
+
+        verify(keyDataMarshaller).marshal(configKeyPairCaptor.capture());
+        ConfigKeyPair keyPair = configKeyPairCaptor.getValue();
+        assertThat(keyPair).isSameAs(configKeyPair);
+
+        verify(keyGeneratorFactory).create(eq(null), any(EncryptorConfig.class));
+        verify(keyGenerator).generate("", null, null);
+
+
     }
 
     @Test
@@ -184,25 +269,26 @@ public class PicoCliDelegateTest {
 
         final Throwable throwable = catchThrowable(() -> cliDelegate.execute("--pidfile", "bogus"));
         assertThat(throwable)
-                .isInstanceOf(CliException.class)
-                .hasMessage("Missing required option '--configfile <config>'");
+            .isInstanceOf(CliException.class)
+            .hasMessage("Missing required option '--configfile <config>'");
     }
 
     @Test
     public void output() throws Exception {
 
-        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        KeyData keyData = new KeyData();
+        keyData.setPublicKey("PublicKeyData");
+        keyData.setPrivateKey("PrivateKeyData");
 
-        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        when(keyDataMarshaller.marshal(any(FilesystemKeyPair.class))).thenReturn(keyData);
 
-        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
-        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+        Path publicKeyPath = createSamplePublicKey(baseDir);
+        Path privateKeyPath = createSamplePrivateKey(baseDir);
 
         KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
-        when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
+        when(keyGenerator.generate(anyString(), any(), any())).thenReturn(keypair);
 
         Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
         Map<String, Object> params = new HashMap<>();
@@ -217,14 +303,14 @@ public class PicoCliDelegateTest {
         assertThat(Files.exists(configOutputPath)).isFalse();
 
         CliResult result =
-                cliDelegate.execute(
-                        "-keygen",
-                        "-filename",
-                        keyOutputPath.toString(),
-                        "-output",
-                        configOutputPath.toString(),
-                        "-configfile",
-                        configFile.toString());
+            cliDelegate.execute(
+                "-keygen",
+                "-filename",
+                keyOutputPath.toString(),
+                "-output",
+                configOutputPath.toString(),
+                "-configfile",
+                configFile.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -234,35 +320,38 @@ public class PicoCliDelegateTest {
         assertThat(Files.exists(configOutputPath)).isTrue();
         configOutputPath.toFile().deleteOnExit();
 
-        verify(keyGenerator).generate(anyString(), eq(null), eq(null));
-        verifyNoMoreInteractions(keyGenerator);
+
 
         try {
             cliDelegate.execute(
-                    "-keygen",
-                    "-filename",
-                    UUID.randomUUID().toString(),
-                    "-output",
-                    configOutputPath.toString(),
-                    "-configfile",
-                    configFile.toString());
-            failBecauseExceptionWasNotThrown(Exception.class);
-        } catch (Exception ex) {
-            assertThat(ex).isInstanceOf(UncheckedIOException.class);
+                "-keygen",
+                "-filename",
+                UUID.randomUUID().toString(),
+                "-output",
+                configOutputPath.toString(),
+                "-configfile",
+                configFile.toString());
+            failBecauseExceptionWasNotThrown(UncheckedIOException.class);
+        } catch (UncheckedIOException ex) {
             assertThat(ex.getCause()).isExactlyInstanceOf(FileAlreadyExistsException.class);
         }
+
+        verify(keyDataMarshaller,times(2)).marshal(any(ConfigKeyPair.class));
+        verify(keyGeneratorFactory,times(2)).create(eq(null),any(EncryptorConfig.class));
+        verify(keyGenerator,times(2)).generate(anyString(), eq(null), eq(null));
     }
 
     @Test
     public void outputConfigAndPasswordFiles() throws Exception {
 
-        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        KeyData keyData = new KeyData();
+        keyData.setPublicKey("PublicKeyData");
+        keyData.setPrivateKey("PrivateKeyData");
 
-        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        when(keyDataMarshaller.marshal(any(FilesystemKeyPair.class))).thenReturn(keyData);
 
-        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
-        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+        Path publicKeyPath = createSamplePublicKey(baseDir);
+        Path privateKeyPath = createSamplePrivateKey(baseDir);
 
         KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
@@ -282,16 +371,16 @@ public class PicoCliDelegateTest {
         assertThat(Files.exists(pwdOutputPath)).isFalse();
 
         CliResult result =
-                cliDelegate.execute(
-                        "-keygen",
-                        "-filename",
-                        keyOutputPath.toString(),
-                        "-output",
-                        configOutputPath.toString(),
-                        "-configfile",
-                        configFile.toString(),
-                        "--pwdout",
-                        pwdOutputPath.toString());
+            cliDelegate.execute(
+                "-keygen",
+                "-filename",
+                keyOutputPath.toString(),
+                "-output",
+                configOutputPath.toString(),
+                "-configfile",
+                configFile.toString(),
+                "--pwdout",
+                pwdOutputPath.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
@@ -309,37 +398,42 @@ public class PicoCliDelegateTest {
 
         try {
             cliDelegate.execute(
-                    "-keygen",
-                    "-filename",
-                    UUID.randomUUID().toString(),
-                    "-output",
-                    configOutputPath.toString(),
-                    "-configfile",
-                    configFile.toString());
-            failBecauseExceptionWasNotThrown(Exception.class);
-        } catch (Exception ex) {
-            assertThat(ex).isInstanceOf(UncheckedIOException.class);
+                "-keygen",
+                "-filename",
+                UUID.randomUUID().toString(),
+                "-output",
+                configOutputPath.toString(),
+                "-configfile",
+                configFile.toString());
+            failBecauseExceptionWasNotThrown(UncheckedIOException.class);
+        } catch (UncheckedIOException ex) {
             assertThat(ex.getCause()).isExactlyInstanceOf(FileAlreadyExistsException.class);
         }
+
+        verify(keyDataMarshaller,times(2)).marshal(any(ConfigKeyPair.class));
+        verify(keyGeneratorFactory,times(2)).create(eq(null),any(EncryptorConfig.class));
+        verify(keyGenerator,times(2)).generate(anyString(), eq(null), eq(null));
     }
 
     @Test
     public void keygenOutputToCLI() throws Exception {
 
-        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
+        KeyData keyData = new KeyData();
+        keyData.setPublicKey("PublicKeyData");
+        keyData.setPrivateKey("PrivateKeyData");
 
-        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        when(keyDataMarshaller.marshal(any(FilesystemKeyPair.class))).thenReturn(keyData);
 
-        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
-        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+        Map.Entry<Path, Path> sampleKeyPair = createSampleKeyPair(baseDir);
+        Path publicKeyPath = sampleKeyPair.getKey();
+        Path privateKeyPath = sampleKeyPair.getValue();
 
         KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
 
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, keyEncryptor);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
-        Path unixSocketPath = Files.createTempFile(UUID.randomUUID().toString(), ".ipc");
+        Path unixSocketPath = baseDir.resolve(UUID.randomUUID().toString().concat(".ipc"));
         Map<String, Object> params = new HashMap<>();
         params.put("unixSocketPath", unixSocketPath.toString());
 
@@ -347,16 +441,19 @@ public class PicoCliDelegateTest {
         Path keyOutputPath = configFile.resolveSibling(UUID.randomUUID().toString());
 
         CliResult result =
-                cliDelegate.execute(
-                        "-keygen", "-filename", keyOutputPath.toString(), "-configfile", configFile.toString());
+            cliDelegate.execute(
+                "-keygen", "-filename", keyOutputPath.toString(), "-configfile", configFile.toString());
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(0);
-        assertThat(result.getConfig()).isNotNull();
         assertThat(result.isSuppressStartup()).isTrue();
 
         verify(keyGenerator).generate(anyString(), eq(null), eq(null));
-        verifyNoMoreInteractions(keyGenerator);
+
+        verify(keyDataMarshaller).marshal(keypair);
+
+        verify(keyGeneratorFactory).create(eq(null), any(EncryptorConfig.class));
+
     }
 
     @Test
@@ -379,6 +476,9 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getJdbcConfig().getUsername()).isEqualTo("somename");
         assertThat(result.getConfig().get().getJdbcConfig().getPassword()).isEqualTo("tiger");
+
+        verify(keyPasswordResolver).resolveKeyPasswords(result.getConfig().get());
+
     }
 
 //    @Ignore
@@ -417,13 +517,13 @@ public class PicoCliDelegateTest {
         Files.write(configFile, "{}".getBytes());
         try {
             CliResult result =
-                    cliDelegate.execute(
-                            "-configfile",
-                            configFile.toString(),
-                            "-o",
-                            Strings.join("unixSocketFile=", unixSocketFile.toString()).with(""),
-                            "-o",
-                            "encryptor.type=NACL");
+                cliDelegate.execute(
+                    "-configfile",
+                    configFile.toString(),
+                    "-o",
+                    Strings.join("unixSocketFile=", unixSocketFile.toString()).with(""),
+                    "-o",
+                    "encryptor.type=NACL");
 
             assertThat(result).isNotNull();
             failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
@@ -442,11 +542,11 @@ public class PicoCliDelegateTest {
         CliResult result = null;
         try {
             result =
-                    cliDelegate.execute(
-                            "-configfile",
-                            configFile.toString(),
-                            "-o",
-                            Strings.join("alwaysSendTo[1]=", alwaysSendToKey).with(""));
+                cliDelegate.execute(
+                    "-configfile",
+                    configFile.toString(),
+                    "-o",
+                    Strings.join("alwaysSendTo[1]=", alwaysSendToKey).with(""));
         } catch (Exception ex) {
             fail(ex.getMessage());
         }
@@ -454,7 +554,9 @@ public class PicoCliDelegateTest {
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getAlwaysSendTo()).hasSize(2);
         assertThat(result.getConfig().get().getAlwaysSendTo())
-                .containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", alwaysSendToKey);
+            .containsExactly("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=", alwaysSendToKey);
+
+        verify(keyPasswordResolver).resolveKeyPasswords(result.getConfig().get());
     }
 
     @Test
@@ -464,20 +566,22 @@ public class PicoCliDelegateTest {
             .getResource("/sample-config.json").toURI());
 
         CliResult result =
-                cliDelegate.execute(
-                        "-configfile", configFile.toString(),
-                        "-o", "peer[2].url=http://anotherpeer",
-                        "--override", "peer[3].url=http://yetanotherpeer");
+            cliDelegate.execute(
+                "-configfile", configFile.toString(),
+                "-o", "peer[2].url=http://anotherpeer",
+                "--override", "peer[3].url=http://yetanotherpeer");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
         assertThat(result.getConfig().get().getPeers()).hasSize(4);
         assertThat(result.getConfig().get().getPeers().stream().map(Peer::getUrl))
-                .containsExactlyInAnyOrder(
-                        "http://anotherpeer", "http://yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
+            .containsExactlyInAnyOrder(
+                "http://anotherpeer", "http://yetanotherpeer", "http://bogus1.com", "http://bogus2.com");
+
+        verify(keyPasswordResolver).resolveKeyPasswords(result.getConfig().get());
     }
 
- //   @Test
+    //   @Test
 //    public void updatingPasswordsDoesntProcessOtherOptions() throws Exception {
 //
 //        final InputStream oldIn = System.in;
@@ -509,29 +613,39 @@ public class PicoCliDelegateTest {
         final CliResult cliResult = cliDelegate.execute("-keygen", "--encryptor.type", "NACL");
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
+        verify(keyDataMarshaller).marshal(null);//TODO Why shoud we allow this?
+        verify(keyGeneratorFactory).create(eq(null),any(EncryptorConfig.class));
+        verify(keyGenerator).generate(anyString(),any(),any());
     }
 
     @Test
     public void suppressStartupForKeygenOptionWithFileOutputOptions() throws Exception {
-        final KeyGenerator keyGenerator = mock(KeyGenerator.class);
-        Path publicKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Path privateKeyPath = Files.createTempFile(UUID.randomUUID().toString(), "");
+        KeyData keyData = new KeyData();
+        keyData.setPublicKey("PublicKeyData");
+        keyData.setPrivateKey("PrivateKeyData");
 
-        Files.write(privateKeyPath, Arrays.asList("SOMEDATA"));
-        Files.write(publicKeyPath, Arrays.asList("SOMEDATA"));
+        when(keyDataMarshaller.marshal(any(FilesystemKeyPair.class))).thenReturn(keyData);
+
+        var keyPair = createSampleKeyPair(baseDir);
+        Path publicKeyPath = keyPair.getKey();
+        Path privateKeyPath = keyPair.getValue();
 
         FilesystemKeyPair keypair = new FilesystemKeyPair(publicKeyPath, privateKeyPath, null);
         when(keyGenerator.generate(anyString(), eq(null), eq(null))).thenReturn(keypair);
 
-        final Path configFile = Paths.get("/sample-config.json");
+        final Path configFile = Paths.get(getClass().getResource("/sample-config.json").toURI());
 
         final Path configOutputPath = configFile.resolveSibling(UUID.randomUUID().toString() + ".json");
 
         final CliResult cliResult =
-                cliDelegate.execute(
-                        "-keygen", "-configfile", configFile.toString(), "-output", configOutputPath.toString());
+            cliDelegate.execute(
+                "-keygen", "-configfile", configFile.toString(), "-output", configOutputPath.toString());
 
         assertThat(cliResult.isSuppressStartup()).isTrue();
+
+        verify(keyDataMarshaller).marshal(any(ConfigKeyPair.class));
+        verify(keyGeneratorFactory).create(eq(null),any(EncryptorConfig.class));
+        verify(keyGenerator).generate(anyString(),any(),any());
     }
 
     @Test
@@ -558,6 +672,8 @@ public class PicoCliDelegateTest {
         Config config = result.getConfig().get();
         assertThat(config.getJdbcConfig()).isNotNull();
         assertThat(config.getJdbcConfig().isAutoCreateTables()).isTrue();
+
+        verify(keyPasswordResolver).resolveKeyPasswords(config);
     }
 
     @Test
@@ -572,6 +688,8 @@ public class PicoCliDelegateTest {
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.isSuppressStartup()).isFalse();
+
+        verify(keyPasswordResolver).resolveKeyPasswords(result.getConfig().get());
     }
 
     @Test
@@ -586,6 +704,8 @@ public class PicoCliDelegateTest {
         assertThat(result.getStatus()).isEqualTo(0);
 
         assertThat(result.isSuppressStartup()).isFalse();
+
+        verify(keyPasswordResolver).resolveKeyPasswords(result.getConfig().get());
     }
 
     @Test
@@ -594,8 +714,8 @@ public class PicoCliDelegateTest {
         Path configFile = Paths.get(getClass()
             .getResource("/sample-config.json").toURI());
         CliResult result =
-                cliDelegate.execute(
-                        "-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
+            cliDelegate.execute(
+                "-configfile", configFile.toString(), "-jdbc.autoCreateTables", "true", "-jdbc.url", "someurl");
 
         assertThat(result).isNotNull();
         assertThat(result.getConfig()).isPresent();
@@ -607,6 +727,8 @@ public class PicoCliDelegateTest {
         assertThat(config.getJdbcConfig()).isNotNull();
         assertThat(config.getJdbcConfig().isAutoCreateTables()).isTrue();
         assertThat(config.getJdbcConfig().getUrl()).isEqualTo("someurl");
+
+        verify(keyPasswordResolver).resolveKeyPasswords(config);
     }
 
     @Test
@@ -621,5 +743,76 @@ public class PicoCliDelegateTest {
 
         Config config = result.getConfig().get();
         assertThat(config.isRecoveryMode()).isTrue();
+
+        verify(keyPasswordResolver).resolveKeyPasswords(config);
+    }
+
+    private Map.Entry<Path, Path> createSampleKeyPair(Path inDir) {
+        return createSampleKeyPair(inDir,UUID.randomUUID().toString());
+    }
+
+    private Map.Entry<Path, Path> createSampleKeyPair(Path inDir, String name) {
+        Path privateKey = createSamplePrivateKey(inDir, name);
+        Path publicKey = createSamplePublicKey(inDir, name);
+        return Map.entry(publicKey, privateKey);
+    }
+
+    static Path createSamplePublicKey(Path inDir) {
+        return createSamplePublicKey(inDir, UUID.randomUUID().toString());
+    }
+
+    static Path createSamplePublicKey(Path inDir, String name) {
+        Path publicKeyPath = inDir.resolve(name.concat(".pub"));
+        try {
+            Files.createFile(publicKeyPath);
+            Files.write(publicKeyPath, List.of("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc="));
+        } catch (IOException ioException) {
+            throw new UncheckedIOException(ioException);
+        }
+        return publicKeyPath;
+    }
+
+    static Path createSamplePrivateKey(Path inDir) {
+        return createSamplePrivateKey(inDir, UUID.randomUUID().toString());
+    }
+
+    static Path createSamplePrivateKey(Path inDir, String name) {
+        String someEncodedBytes = Base64.getEncoder().encodeToString("SOMEDATA".getBytes());
+        JsonObject privateKeyJson = Json.createObjectBuilder()
+            .add("data",
+                Json.createObjectBuilder()
+                    .add("bytes", someEncodedBytes)
+            )
+            .add("type", "unlocked")
+            .build();
+
+        Path path = inDir.resolve(name.concat(".key"));
+        try (OutputStream outputStream = Files.newOutputStream(path)) {
+            try (JsonWriter jsonWriter = Json.createWriter(outputStream)) {
+                jsonWriter.writeObject(privateKeyJson);
+            }
+        } catch (IOException ioException) {
+            throw new UncheckedIOException(ioException);
+        }
+        return path;
+    }
+
+    @Test
+    public void defaultConstructor() {
+
+        KeyPasswordResolver keyPasswordResolver = mock(KeyPasswordResolver.class);
+        try(var keyPasswordResolverMockedStatic = mockStatic(KeyPasswordResolver.class)) {
+            keyPasswordResolverMockedStatic.when(KeyPasswordResolver::create).thenReturn(keyPasswordResolver);
+
+            PicoCliDelegate instance = new PicoCliDelegate();
+            assertThat(instance).isNotNull();
+
+            keyPasswordResolverMockedStatic.verify(KeyPasswordResolver::create);
+            keyPasswordResolverMockedStatic.verifyNoMoreInteractions();
+
+        }
+        verifyNoInteractions(keyPasswordResolver);
     }
 }
+
+

@@ -179,7 +179,7 @@ public class KeyGenCommand implements Callable<CliResult> {
             configFileUpdaterWriter.updateAndWriteToCLI(newKeyData, keyVaultConfig, fileUpdateOptions.getConfig());
         }
 
-        return new CliResult(0, true, null);
+        return new CliResult(0, true, fileUpdateOptions.getConfig());
     }
 
     static void prepareConfigForNewKeys(Config config) {

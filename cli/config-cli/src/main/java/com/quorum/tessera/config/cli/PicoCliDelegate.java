@@ -49,7 +49,6 @@ public class PicoCliDelegate {
             return doExecute(args);
         } catch (Throwable ex) {
             LOGGER.debug("",ex);
-            ex.getCause().printStackTrace();
             throw ex;
         }
     }
@@ -116,13 +115,14 @@ public class PicoCliDelegate {
             return new CliResult(0, true, null);
         }
 
-        commandLine.execute(args);
+        int exitCode = commandLine.execute(args);
 
         // if an exception occurred, throw it to to the upper levels where it gets handled
         if (mapper.getThrown() != null) {
             throw mapper.getThrown();
         }
-        return new CliResult(0, true, null);
+
+        return new CliResult(exitCode, true, null);
     }
 
     private Config getConfigFromCLI(CommandLine.ParseResult parseResult) throws Exception {

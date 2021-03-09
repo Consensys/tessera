@@ -367,7 +367,6 @@ public class KeyGenCommandTest {
         assertThat(result).isNotNull();
         assertThat(result.isSuppressStartup()).isTrue();
         assertThat(result.getStatus()).isZero();
-        assertThat(result.getConfig()).isNotPresent();
 
         verifyNoMoreInteractions(configConverter);
         verify(keyGeneratorFactory).create(eq(null), any(EncryptorConfig.class));
