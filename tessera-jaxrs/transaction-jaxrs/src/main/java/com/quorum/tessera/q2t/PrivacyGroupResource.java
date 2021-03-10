@@ -70,7 +70,8 @@ public class PrivacyGroupResource {
                         .orElseGet(privacyGroupManager::defaultPublicKey);
 
         final List<PublicKey> members =
-                Arrays.stream(request.getAddresses())
+                Stream.ofNullable(request.getAddresses())
+                        .flatMap(Arrays::stream)
                         .map(base64Codec::decode)
                         .map(PublicKey::from)
                         .collect(Collectors.toList());
