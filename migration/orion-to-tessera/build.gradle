@@ -102,11 +102,11 @@ dependencies {
     implementation("net.consensys:orion:20.10.0") {
         transitive = false
     }
-    implementation "com.fasterxml.jackson.core:jackson-databind:2.12.0"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.0"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.0"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.12.0"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr353:2.12.0"
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.12.2"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-cbor:2.12.2"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.12.2"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-json-org:2.12.2"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr353:2.12.2"
 
     implementation "co.nstant.in:cbor:0.9"
 
