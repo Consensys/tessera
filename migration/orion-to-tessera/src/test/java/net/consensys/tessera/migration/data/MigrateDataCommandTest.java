@@ -12,12 +12,16 @@ import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.fusesource.leveldbjni.JniDBFactory.factory;
@@ -104,12 +108,17 @@ public class MigrateDataCommandTest {
 
 
     @Parameterized.Parameters(name = "{0}")
-    public static List<Path> configs() {
-        return List.of(
-            Paths.get("samples", "10k", "orion")
-//            Paths.get("samples","100k","orion"),
-//            Paths.get("samples","120k","orion")
-        );
+    public static List<Path> configs() throws IOException {
+        return Files.list(Paths.get("samples"))
+            .filter(Files::isDirectory)
+            .flatMap(d -> {
+                try {
+                    return Files.list(d).filter(Files::isDirectory);
+                } catch (IOException ioException) {
+                    throw new UncheckedIOException(ioException);
+                }
+            })
+            .collect(Collectors.toUnmodifiableList());
     }
 
 

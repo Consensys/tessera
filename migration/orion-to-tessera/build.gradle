@@ -151,7 +151,6 @@ dependencies {
 test {
     systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
     systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
-
     forkEvery = 1;
     workingDir = "build/resources/test"
 
@@ -161,6 +160,14 @@ test {
 }
 
 
+
+task downloadAndUnpackSamples {
+    if(project.hasProperty("downloadOrionMigrationSamples")) {
+        ant.get(src: "https://codeload.github.com/ConsenSys/orion-to-tessera-migration-samples/zip/master", dest: "$buildDir/samples.zip", skipexisting: true)
+        ant.unzip(src: "$buildDir/samples.zip", dest: "$buildDir/resources/test/samples")
+    }
+
+}
 
 
 //modularity.disableEffectiveArgumentsAdjustment()
