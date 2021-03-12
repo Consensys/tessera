@@ -69,7 +69,25 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 11
-    - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test -P downloadOrionMigrationSamples --info
+    - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test --info
+
+  orion-migration-test:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
+          restore-keys: |
+            ${{ env.GRADLE_CACHE_KEY }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew :migration:orion-to-tessera:clean :migration:orion-to-tessera:test -P downloadOrionMigrationSamples --info
+
   itest:
     runs-on: ubuntu-latest
     needs: [build]
