@@ -89,7 +89,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew :migration:orion-to-tessera:test --info
+      - run: ./gradlew :migration:orion-to-tessera:test -P downloadOrionMigrationSamples --info
 
   itest:
     runs-on: ubuntu-latest
