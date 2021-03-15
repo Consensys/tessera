@@ -164,7 +164,7 @@ test {
 task downloadAndUnpackSamples {
     if(project.hasProperty("downloadOrionMigrationSamples")) {
         ant.get(src: "https://api.github.com/repos/ConsenSys/orion-to-tessera-migration-samples/zipball/master", dest: "$buildDir/samples.zip", skipexisting: true,verbose:true)
-        ant.unzip(src: "$buildDir/samples.zip", dest: "$buildDir/resources/test/samples",overwrite: false)
+        ant.unzip(src: "$buildDir/samples.zip", dest: "$buildDir/resources/test/samples",overwrite: false,verbose:true)
     }
 
 }
