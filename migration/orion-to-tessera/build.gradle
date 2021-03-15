@@ -157,6 +157,8 @@ test {
     jacoco {
         enabled = false //Skip coverage
     }
+
+    doFirst {downloadAndUnpackSamples}
 }
 
 
