@@ -169,15 +169,9 @@ task downloadAndUnpackSamples {
             ant.cutdirsmapper(dirs: "1")
         }
 
-        outputs.dir "$buildDir/resources/test/samples"
+        outputs.dir "$buildDir/resources/test"
     }
 
-}
-
-sourceSets {
-    schemas {
-        output.dir "${buildDir}/resources/test/samples", builtBy: 'downloadAndUnpackSamples'
-    }
 }
 
 
