@@ -157,13 +157,11 @@ test {
     jacoco {
         enabled = false //Skip coverage
     }
-
-    doFirst {downloadAndUnpackSamples}
 }
 
 
 
-task downloadAndUnpackSamples {
+task downloadAndUnpackSamples (type:Exec) {
     if(project.hasProperty("downloadOrionMigrationSamples")) {
         mkdir "$buildDir"
         ant.get(src: "https://github.com/ConsenSys/orion-to-tessera-migration-samples/archive/master.tar.gz", dest: "$buildDir/samples.tar.gz", skipexisting: true,verbose:true)
