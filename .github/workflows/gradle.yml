@@ -86,6 +86,11 @@ jobs:
         with:
           java-version: 11
       - run: ./gradlew :migration:orion-to-tessera:test -P downloadOrionMigrationSamples --info
+      - uses: actions/upload-artifact@v1
+        if: always()
+        with:
+            name: orion_migration_test-report
+         path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
 
   itest:
     runs-on: ubuntu-latest
