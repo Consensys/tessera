@@ -26,13 +26,12 @@ application {
 task allDeps(type: DependencyReportTask) {}
 
 repositories {
-    jcenter()
     mavenCentral()
     mavenLocal()
     maven { url "https://hyperledger.jfrog.io/hyperledger/besu-maven" }
-    maven { url "https://consensys.bintray.com/pegasys-repo" }
     maven { url "https://repo.spring.io/libs-release" }
-    maven { url "https://dl.bintray.com/open-telemetry/maven" }
+    maven { url "https://artifacts.consensys.net/public/maven/maven/" }
+
 }
 
 configurations.all {
@@ -99,7 +98,7 @@ dependencies {
     testImplementation "org.bouncycastle:bcpkix-jdk15on:1.64"
     testImplementation "org.bouncycastle:bcprov-jdk15on:1.64"
 
-    implementation("net.consensys:orion:20.10.0") {
+    implementation("net.consensys:orion:21.1.1") {
         transitive = false
     }
     implementation "com.fasterxml.jackson.core:jackson-databind:2.12.2"
