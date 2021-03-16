@@ -76,10 +76,6 @@ jobs:
     needs: [build]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/checkout@v2
-        with:
-          repository: ConsenSys/orion-to-tessera-migration-samples
-          path: migration/orion-to-tessera/build/resources/test/samples
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -89,7 +85,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew :migration:orion-to-tessera:test --info
+      - run: ./gradlew :migration:orion-to-tessera:test -P downloadOrionMigrationSamples --info
 
   itest:
     runs-on: ubuntu-latest
