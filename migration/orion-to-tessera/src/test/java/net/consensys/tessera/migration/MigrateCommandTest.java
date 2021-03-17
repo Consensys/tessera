@@ -83,7 +83,6 @@ public class MigrateCommandTest {
                 "-o",tesseraConfigFile.toString(),
                 "tessera.jdbc.user=junit",
                 "tessera.jdbc.password=junit",
-                "tessera.db.action=create",
                 "tessera.jdbc.url=".concat(tesseraJdbcUrl)
         );
 

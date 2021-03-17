@@ -16,7 +16,7 @@ public class MigrateCommand implements Callable<Config> {
     @CommandLine.Option(
             names = {"-f", "orionfile", "orionconfig"},
             required = true,
-            description = "Orion config file")
+            description = "Orion config file",paramLabel = "Orion config file")
     private OrionKeyHelper orionKeyHelper;
 
     @CommandLine.Option(
@@ -53,6 +53,10 @@ public class MigrateCommand implements Callable<Config> {
 
         MigrationInfo migrationInfo = MigrationInfoFactory.create(inboundDbHelper);
         System.out.println("Found "+ migrationInfo + " to migrate.");
+
+        if(migrationInfo.getRowCount() == 0) {
+            throw new IllegalStateException(String.format("No data found for %s. Check orion storage config string and/or storage env",inboundDbHelper.getStorageInfo()));
+        }
 
         MigrateDataCommand migrateDataCommand =
                 new MigrateDataCommand(inboundDbHelper, tesseraJdbcOptions, orionKeyHelper);

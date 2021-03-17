@@ -36,7 +36,7 @@ public class MigrateDataCommand implements Callable<Map<PayloadType,Long>> {
         jdbcProperties.put("javax.persistence.jdbc.password", jdbcOptions.getPassword());
         jdbcProperties.put("javax.persistence.jdbc.url", jdbcOptions.getUrl());
 
-        //jdbcProperties.put("eclipselink.logging.logger","JavaLogger");
+        jdbcProperties.put("eclipselink.logging.logger","org.eclipse.persistence.logging.slf4j.SLF4JLogger");
         jdbcProperties.put("eclipselink.logging.level", "FINE");
         jdbcProperties.put("eclipselink.logging.parameters", "true");
         jdbcProperties.put("eclipselink.logging.level.sql", "FINE");
@@ -64,6 +64,8 @@ public class MigrateDataCommand implements Callable<Map<PayloadType,Long>> {
 
     @Override
     public Map<PayloadType,Long> call() throws Exception {
+
+
 
         final MigrationInfo migrationInfo = MigrationInfo.getInstance();
 

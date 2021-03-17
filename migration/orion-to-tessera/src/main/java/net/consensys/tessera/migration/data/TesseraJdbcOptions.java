@@ -22,7 +22,7 @@ public class TesseraJdbcOptions {
             description = "Target Tessera DB JDBC connection string")
     private String url;
 
-    @CommandLine.Option(names = "tessera.db.action", hidden = true, fallbackValue = "create")
+    @CommandLine.Option(names = "tessera.db.action", hidden = true, fallbackValue = "create",defaultValue = "create")
     private String action;
 
     public String getUsername() {

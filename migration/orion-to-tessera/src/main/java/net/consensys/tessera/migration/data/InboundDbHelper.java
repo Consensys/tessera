@@ -6,9 +6,12 @@ import com.zaxxer.hikari.HikariDataSource;
 import net.consensys.orion.config.Config;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -18,13 +21,22 @@ import static org.fusesource.leveldbjni.JniDBFactory.factory;
 
 public class InboundDbHelper implements Closeable {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InboundDbHelper.class);
+
     private final DataSource jdbcDataSource;
 
     private final DB leveldb;
 
-    private InboundDbHelper(DataSource jdbcDataSource, DB leveldb) {
+    private final String storageInfo;
+
+    private InboundDbHelper(DataSource jdbcDataSource, DB leveldb,String storageInfo) {
         this.jdbcDataSource = jdbcDataSource;
         this.leveldb = leveldb;
+        this.storageInfo = storageInfo;
+    }
+
+    public String getStorageInfo() {
+        return storageInfo;
     }
 
     public Optional<DB> getLevelDb() {
@@ -51,7 +63,7 @@ public class InboundDbHelper implements Closeable {
             hikariConfig.setJdbcUrl(storageOptions[1]);
             HikariDataSource dataSource = new HikariDataSource(hikariConfig);
 
-            return new InboundDbHelper(dataSource, null);
+            return new InboundDbHelper(dataSource, null,hikariConfig.toString());
         }
 
         if (connectionString.startsWith("leveldb")) {
@@ -62,10 +74,19 @@ public class InboundDbHelper implements Closeable {
             String[] tokens = connectionString.split(":");
             String dbname = tokens.length == 2 ? connectionString.split(":")[1] : "routerdb";
 
+            File dbpath = storageDir.resolve(dbname).toAbsolutePath().toFile();
+            LOGGER.info("Opening leveldb {}",dbpath);
             DB leveldb = IOCallback.execute(
-                () -> factory.open(storageDir.resolve(dbname).toAbsolutePath().toFile(), options)
+                () -> factory.open(dbpath, options)
             );
-            return new InboundDbHelper(null, leveldb);
+
+            String description = new StringBuilder("LevelDB{")
+                .append("path = ")
+                .append(dbpath)
+                .append("}")
+                .toString();
+
+            return new InboundDbHelper(null, leveldb,description);
 
         }
 
