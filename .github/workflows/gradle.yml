@@ -90,7 +90,7 @@ jobs:
         if: always()
         with:
             name: orion_migration_test-report
-         path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
+            path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
 
   itest:
     runs-on: ubuntu-latest
