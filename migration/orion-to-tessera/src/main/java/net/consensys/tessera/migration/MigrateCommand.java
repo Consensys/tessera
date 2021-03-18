@@ -28,9 +28,6 @@ public class MigrateCommand implements Callable<Config> {
     @CommandLine.Option(names = {"-sv", "skipValidation"})
     private boolean skipValidation;
 
-    @CommandLine.Option(names = {"-v", "--verbose"})
-    private boolean verbose;
-
     @CommandLine.Mixin
     private TesseraJdbcOptions tesseraJdbcOptions = new TesseraJdbcOptions();
 
@@ -39,7 +36,7 @@ public class MigrateCommand implements Callable<Config> {
 
         MigrateConfigCommand migrateConfigCommand =
                 new MigrateConfigCommand(
-                        orionKeyHelper.getFilePath(), outputFile, skipValidation, verbose, tesseraJdbcOptions);
+                        orionKeyHelper.getFilePath(), outputFile, skipValidation, tesseraJdbcOptions);
         Config config = migrateConfigCommand.call();
 
         System.out.println("Generated tessera config");
