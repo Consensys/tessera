@@ -23,20 +23,16 @@ public class MigrateConfigCommand implements Callable<Config> {
 
     private boolean skipValidation;
 
-    private boolean verbose;
-
     private TesseraJdbcOptions tesseraJdbcOptions;
 
     public MigrateConfigCommand(
             Path orionConfigFile,
             Path outputFile,
             boolean skipValidation,
-            boolean verbose,
             TesseraJdbcOptions tesseraJdbcOptions) {
         this.orionConfigFile = orionConfigFile;
         this.outputFile = outputFile;
         this.skipValidation = skipValidation;
-        this.verbose = verbose;
         this.tesseraJdbcOptions = tesseraJdbcOptions;
     }
 
@@ -69,6 +65,9 @@ public class MigrateConfigCommand implements Callable<Config> {
         Toml toml = new Toml().read(orionConfigFile.toAbsolutePath().toFile());
 
         String knownnodesstorage = toml.getString("knownnodesstorage");
+
+        final Path currentDir = Paths.get("").toAbsolutePath();
+        final Path workdir = currentDir.resolve(toml.getString("workdir","."));
 
         Long nodeport = toml.getLong("nodeport"); // p2p
         String nodeurl = toml.getString("nodeurl","https://127.0.0.1:".concat(nodeport.toString())); // p2p
@@ -176,6 +175,7 @@ public class MigrateConfigCommand implements Callable<Config> {
 
         config.setKeys(
                 KeyConfigBuilder.create()
+                        .withWorkDir(workdir)
                         .withPrivateKeys(privateKeys)
                         .withPublicKeys(publicKeys)
                         .withPasswordsFile(passwordsFile)
