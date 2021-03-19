@@ -1,0 +1,145 @@
+name: PSV Acceptance tests
+on: pull_request
+
+jobs:
+  docker-build:
+    name: "Build Docker image"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out tessera project files"
+        uses: actions/checkout@v2
+
+      - name: "Check out project files"
+        uses: actions/checkout@v2
+        with:
+          repository: ConsenSys/quorum
+          path: quorum
+          ref: master
+
+      - name: "Check out quorum-acceptance-tests project files"
+        uses: actions/checkout@v2
+        with:
+          repository: ConsenSys/quorum-acceptance-tests
+          path: quorum-acceptance-tests
+          ref: master
+      - name: "Build docker image"
+        id: build
+        run: |
+          ls
+          output_dir=${{ runner.temp }}/docker
+          mkdir -p $output_dir
+          cd quorum
+          docker build -t quorumengineering/quorum:pr .
+          docker save quorumengineering/quorum:pr > quorum-pr.tar
+          tar cfvz $output_dir/quorum-pr.tar.gz quorum-pr.tar
+          cd /home/runner/work/tessera/tessera
+          docker build -t quorumengineering/tessera:pe .
+          docker save quorumengineering/tessera:pe > tessera-pe.tar
+          tar cfvz $output_dir/tessera-pe.tar.gz tessera-pe.tar
+          cd quorum-acceptance-tests
+          docker build -t quorumengineering/quorum-acceptance-tests:pe .
+          docker save quorumengineering/quorum-acceptance-tests:pe > qat-pe.tar
+          tar cfvz $output_dir/qat-pe.tar.gz qat-pe.tar
+          echo "::set-output name=output_dir::$output_dir"
+      - name: "Upload workflow artifact - Docker image"
+        uses: actions/upload-artifact@v1
+        with:
+          name: docker-image
+          path: ${{ steps.build.outputs.output_dir }}
+
+  atest_psv_raft:
+    runs-on: ubuntu-latest
+    name: Test PSV Raft
+    needs: docker-build
+    steps:
+      - name: "Download workflow artifact - Docker image"
+        uses: actions/download-artifact@v1
+        with:
+          name: docker-image
+      - name: "Load Docker image"
+        id: setup
+        run: |
+          tar xfvz docker-image/quorum-pr.tar.gz
+          docker load --input quorum-pr.tar
+          docker tag quorumengineering/quorum:pr quorumengineering/quorum:latest
+          echo "::set-output name=outputDir::${{ runner.temp }}"
+      - name: "Get Tessera Docker image"
+        id: setupTessera
+        run: |
+          tar xfvz docker-image/tessera-pe.tar.gz
+          docker load --input tessera-pe.tar
+          docker tag quorumengineering/tessera:pe quorumengineering/tessera:latest
+      - name: "Get QAT Docker image"
+        id: setupQAT
+        run: |
+          tar xfvz docker-image/qat-pe.tar.gz
+          docker load --input qat-pe.tar
+      - name: "Run acceptance tests"
+        run: |
+          mkdir -p /tmp/gauge/reports/
+          docker run --mount 'type=bind,source=/tmp/gauge/reports/,destination=/workspace/target/gauge/reports/' --rm \
+            --network host \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
+            -e TF_VAR_quorum_docker_image='{ name = "quorumengineering/quorum:latest", local = true }' \
+            -e TF_VAR_tessera_docker_image='{ name = "quorumengineering/tessera:latest", local = true }' \
+            -e TF_VAR_privacy_enhancements='{ block = 0, enabled = true }' \
+            quorumengineering/quorum-acceptance-tests:pe test \
+              -Pauto \
+              -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
+              -Dtags='(basic && !privacy-enhancements-disabled) || privacy-enhancements || basic-raft || (advanced && raft) || networks/typical::raft'
+
+      - name: "Upload gauge reports"
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: gauge-reports
+          path: /tmp/gauge/reports/
+
+  atest_psv_upgrade_raft:
+    runs-on: ubuntu-latest
+    name: Test PSV upgrade node raft
+    needs: docker-build
+    steps:
+      - name: "Download workflow artifact - Docker image"
+        uses: actions/download-artifact@v1
+        with:
+          name: docker-image
+      - name: "Load Docker image"
+        id: setup
+        run: |
+          tar xfvz docker-image/quorum-pr.tar.gz
+          docker load --input quorum-pr.tar
+          docker tag quorumengineering/quorum:pr quorumengineering/quorum:latest
+          echo "::set-output name=outputDir::${{ runner.temp }}"
+      - name: "Get Tessera Docker image"
+        id: setupTessera
+        run: |
+          tar xfvz docker-image/tessera-pe.tar.gz
+          docker load --input tessera-pe.tar
+          docker tag quorumengineering/tessera:pe quorumengineering/tessera:latest
+      - name: "Get QAT Docker image"
+        id: setupQAT
+        run: |
+          tar xfvz docker-image/qat-pe.tar.gz
+          docker load --input qat-pe.tar
+      - name: "Run acceptance tests"
+        run: |
+          mkdir -p /tmp/gauge/reports/
+          docker run --mount 'type=bind,source=/tmp/gauge/reports/,destination=/workspace/target/gauge/reports/' --rm \
+            --network host \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
+            -e TF_VAR_quorum_docker_image='{ name = "quorumengineering/quorum:latest", local = true }' \
+            -e TF_VAR_tessera_docker_image='{ name = "quorumengineering/tessera:latest", local = true }' \
+            -e TF_VAR_privacy_enhancements='{ block = 0, enabled = false }' \
+            quorumengineering/quorum-acceptance-tests:pe test \
+              -Pauto \
+              -Dauto.outputDir=${{ steps.setup.outputs.outputDir  }} \
+              -Dtags="privacy-enhancements-upgrade || networks/template::raft-4nodes-pe"
+      - name: "Upload gauge reports"
+        uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: gauge-reports
+          path: /tmp/gauge/reports/
