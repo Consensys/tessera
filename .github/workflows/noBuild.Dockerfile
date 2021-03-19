@@ -2,4 +2,7 @@
 
 FROM adoptopenjdk/openjdk11:alpine
 
-ENTRYPOINT ["/tessera/tessera-dist/build/distributions/tessera/bin/tessera"]
+ARG DIST
+COPY ${DIST} /tessera-dist
+
+ENTRYPOINT ["/tessera-dist/bin/tessera"]

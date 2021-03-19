@@ -1,0 +1,63 @@
+name: Update OpenAPI doc
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - 'tessera-*'
+
+env:
+  GHPAGES_DIR: gh-pages
+  GHPAGES_REF: refs/heads/gh-pages
+  GENERERATED_SPEC: ./tessera-jaxrs/generate-openapi/build/generated-resources/openapi/openapi.yaml
+jobs:
+  update-version:
+    name: Update API versions list and specs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Checkout github pages
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.GHPAGES_REF }}
+          path: ${{ env.GHPAGES_DIR }}
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - name: Generate OpenAPI document
+        run: ./gradlew -Dorg.gradle.jvmargs=-Xmx4096m generateOpenApiDoc
+
+      - name: Install dependencies
+        run: |
+          cd ./.github/actions/update-api-doc
+          npm ci
+
+      - name: Update version list and copy spec files
+        uses: ./.github/actions/update-api-doc
+        with:
+          specs-source: ${{ env.GENERERATED_SPEC }}
+          gh-pages-branch: ${{ env.GHPAGES_DIR }}
+
+      - name: Log generated changes
+        run: |
+          echo "::group::gh-pages dist dir"
+          ls -la ${{ env.GHPAGES_DIR }}
+          echo "::endgroup::"
+          echo "::group::versions.json"
+          cat ${{ env.GHPAGES_DIR }}/versions.json
+          echo "::endgroup::"
+          echo "::group::latest yaml-spec"
+          cat ${{ env.GHPAGES_DIR }}/*latest.yaml
+          echo "::endgroup::"
+
+      - name: Deploy changes to gh-pages
+        uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ env.GHPAGES_DIR }} # The branch the action should deploy to.
+          FOLDER: ${{ env.GHPAGES_DIR }} # The folder the action should deploy.
+          CLEAN: false
+          PRESERVE: true
