@@ -203,8 +203,8 @@ jobs:
 #          repository: quorumengineering/tessera
 #          tags: latest
 #          push: false
-#          dockerfile: .github/workflows/noBuild.Dockerfile
-#          build_args: DIST=tessera/
+#          dockerfile: .github/workflows/DockerfileTest
+#          build_args: JAR_FILE=tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar
 #      - run:
 #          docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
 #      - uses: actions/upload-artifact@v1
@@ -223,13 +223,13 @@ jobs:
       - run: |
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           cp tessera-dist/build/distributions/tessera-*.tar tessera-dist/build/distributions/tessera.tar
-          tar xvf tessera-dist/build/distributions/tessera.tar
+          mkdir tessera-extracted && tar xvf tessera-dist/build/distributions/tessera.tar -C tessera-extracted --strip-components 1
       - uses: docker/build-push-action@v1
         with:
           repository: quorumengineering/tessera
           tags: latest
           push: false
           dockerfile: .github/workflows/noBuild.Dockerfile
-          build_args: DIST=tessera/
+          build_args: DIST=tessera-extracted
       - run:
           docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="basic || basic-istanbul || networks/typical::istanbul" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
