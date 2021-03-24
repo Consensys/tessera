@@ -7,14 +7,12 @@ import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.data.MessageHash;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Ignore
 public class MigrationCliAdapterTest {
 
     @Test
