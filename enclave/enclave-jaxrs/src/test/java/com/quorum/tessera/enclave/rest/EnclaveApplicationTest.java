@@ -2,25 +2,34 @@ package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.enclave.AffectedTransaction;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveServer;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMetadata;
+import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.service.Service;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.quorum.tessera.enclave.rest.Fixtures.createSample;
-import com.quorum.tessera.service.Service;
-
-import java.util.*;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import org.mockito.Mockito;
 import static org.mockito.Mockito.*;
 
 public class EnclaveApplicationTest {
@@ -178,5 +187,21 @@ public class EnclaveApplicationTest {
     public void getCommunicationType() {
         assertThat(new EnclaveApplication(enclave).getCommunicationType())
                 .isEqualTo(CommunicationType.REST);
+    }
+
+    @Test
+    public void defaultContstructor() throws Exception {
+
+        EnclaveServer enclaveServer = mock(EnclaveServer.class);
+
+        try(var mockedStaticEnclaveServer = mockStatic(EnclaveServer.class)) {
+            mockedStaticEnclaveServer.when(EnclaveServer::create).thenReturn(enclaveServer);
+
+            EnclaveApplication enclaveApplication = new EnclaveApplication();
+            assertThat(enclaveApplication).isNotNull();
+            mockedStaticEnclaveServer.verify(EnclaveServer::create);
+            mockedStaticEnclaveServer.verifyNoMoreInteractions();
+        }
+
     }
 }
