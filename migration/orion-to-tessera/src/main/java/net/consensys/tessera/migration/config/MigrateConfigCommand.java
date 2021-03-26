@@ -1,13 +1,21 @@
 package net.consensys.tessera.migration.config;
 
 import com.moandjiezana.toml.Toml;
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.ClientMode;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.Peer;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
 import net.consensys.tessera.migration.data.TesseraJdbcOptions;
 
 import javax.validation.ConstraintViolationException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -69,14 +77,24 @@ public class MigrateConfigCommand implements Callable<Config> {
         final Path currentDir = Paths.get("").toAbsolutePath();
         final Path workdir = currentDir.resolve(toml.getString("workdir","."));
 
-        Long nodeport = toml.getLong("nodeport"); // p2p
-        String nodeurl = toml.getString("nodeurl","https://127.0.0.1:".concat(nodeport.toString())); // p2p
+        Long p2pPort = toml.getLong("nodeport"); // p2p
+        String p2pUrl = toml.getString("nodeurl","http://127.0.0.1"); // p2p
+        URI p2pUri = URI.create(String.format("%s:%s",p2pUrl,String.valueOf(p2pPort)));
+
         List<String> tlsserverchain = toml.getList("tlsserverchain", List.of());
+        String p2pBindingAddress = String.format("%s://%s:%s",
+            p2pUri.getScheme(),toml.getString("nodenetworkinterface","0.0.0.0"),
+            String.valueOf(p2pPort));
 
         String tlsservercert = toml.getString("tlsservercert");
 
-        String clienturl = toml.getString("clienturl");
-        Integer clientport = toml.contains("clientport") ? Math.toIntExact(toml.getLong("clientport")) : null;
+        String q2tUrl = toml.getString("clienturl","http://127.0.0.1");
+        Integer q2tPort = toml.contains("clientport") ? Math.toIntExact(toml.getLong("clientport")) : null;
+
+
+        URI qt2Uri = URI.create(String.format("%s:%s",q2tUrl,String.valueOf(q2tPort)));
+        String qt2BindingAddress = String.format("%s://%s:%s",qt2Uri.getScheme(),
+            toml.getString("clientnetworkinterface","0.0.0.0"),String.valueOf(q2tPort));
 
         String tlsclientkey = toml.getString("tlsclientkey");
         String tlsclienttrust = toml.getString("tlsclienttrust");
@@ -122,7 +140,10 @@ public class MigrateConfigCommand implements Callable<Config> {
                 ServerConfigBuilder.create()
                         .withAppType(AppType.Q2T)
                         .withSocketFile(socketfile)
-                        .withServerAddress(nodeurl)
+                        .withServerAddress(qt2Uri.toString())
+                        .withBindingAddress(qt2BindingAddress)
+                    .withServerPort(q2tPort)
+
                         //     .withServerPort(clientport)
                         //     .withServerAddress(clienturl)
                         //                .withSslConfig(SslConfigBuilder.create()
@@ -134,8 +155,9 @@ public class MigrateConfigCommand implements Callable<Config> {
         ServerConfig p2pServer =
                 ServerConfigBuilder.create()
                         .withAppType(AppType.P2P)
-                        .withServerAddress(nodeurl)
-                        .withServerPort(Math.toIntExact(nodeport))
+                        .withServerAddress(p2pUri.toString())
+                        .withBindingAddress(p2pBindingAddress)
+                        .withServerPort(Math.toIntExact(p2pPort))
                         .withSslConfig(
                                 SslConfigBuilder.create()
                                         .withSslAuthenticationMode(serverAuthTls)

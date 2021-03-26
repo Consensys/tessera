@@ -4,7 +4,6 @@ import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,7 +66,9 @@ public class KeyConfigBuilder {
                         .collect(Collectors.toList());
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
-        Optional.ofNullable(passwordsFile).map(Paths::get).ifPresent(keyConfiguration::setPasswordFile);
+        Optional.ofNullable(passwordsFile)
+            .map(workDir::resolve)
+            .ifPresent(keyConfiguration::setPasswordFile);
 
         keyConfiguration.setKeyData(keys);
 

@@ -1,8 +1,11 @@
 package net.consensys.tessera.migration.config;
 
+import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
 import net.consensys.tessera.migration.data.TesseraJdbcOptions;
 import org.junit.Before;
@@ -10,6 +13,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -54,7 +58,9 @@ public class MigrateConfigCommandTest {
 
         assertThat(config.getServerConfigs()).hasSize(2);
 
-        List<KeyData> keys = config.getKeys().getKeyData();
+        KeyConfiguration keyConfiguration = config.getKeys();
+
+        List<KeyData> keys = keyConfiguration.getKeyData();
         assertThat(keys).hasSize(1);
         KeyData keyData = keys.iterator().next();
 
@@ -63,6 +69,23 @@ public class MigrateConfigCommandTest {
 
         assertThat(keyData.getPublicKeyPath().toAbsolutePath()).isEqualTo(Paths.get("").toAbsolutePath()
             .resolve("data").resolve("keys").resolve("tm1.pub"));
+
+
+        assertThat(keyConfiguration.getPasswordFile()).isEqualTo(Paths.get("").toAbsolutePath()
+            .resolve("data").resolve("password.txt"));
+
+        ServerConfig q2tServerConfig = config.getServerConfigs().stream()
+            .filter(sc -> sc.getApp() == AppType.Q2T).findFirst().get();
+
+
+        assertThat(q2tServerConfig.getServerUri()).isEqualTo(URI.create("http://127.0.0.1:9002"));
+        assertThat(q2tServerConfig.getBindingUri()).isEqualTo(URI.create("http://0.0.0.0:9002"));
+
+        ServerConfig p2pServerConfig = config.getServerConfigs().stream()
+            .filter(sc -> sc.getApp() == AppType.P2P).findFirst().get();
+
+        assertThat(p2pServerConfig.getServerUri()).isEqualTo(URI.create("http://127.0.0.1:9001"));
+        assertThat(p2pServerConfig.getBindingUri()).isEqualTo(URI.create("http://0.0.0.0:9001"));
 
         JaxbUtil.marshalWithNoValidation(config,System.out);
 

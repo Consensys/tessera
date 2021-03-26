@@ -65,7 +65,7 @@ public class ServerConfigBuilder {
         if (Objects.isNull(socketFile)) {
             URI serverUri = URI.create(serverAddress);
             if (Objects.nonNull(serverPort)) {
-                assert serverUri.getPort() == serverPort : "Server URI port and configured server port domt match";
+                assert serverUri.getPort() == serverPort : "Server URI port and configured server port dont match";
             }
 
             Optional.ofNullable(bindingAddress).ifPresent(serverConfig::setBindingAddress);
