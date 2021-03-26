@@ -38,7 +38,7 @@ public class ConvertToPrivacyGroupEntity implements EventHandler<OrionDataEvent>
             return;
         }
 
-        PublicKey privacyGroupId = PublicKey.from(event.getKey());
+        PrivacyGroup.Id privacyGroupId = PrivacyGroup.Id.fromBase64String(new String(event.getKey()));
 
         JsonObject jsonObject = cborObjectMapper.readValue(event.getPayloadData(),JsonObject.class);
 
@@ -66,7 +66,7 @@ public class ConvertToPrivacyGroupEntity implements EventHandler<OrionDataEvent>
             .orElse(new byte[0]);
 
         PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
-            .withPrivacyGroupId(privacyGroupId.getKeyBytes())
+            .withPrivacyGroupId(privacyGroupId)
             .withDescription(description)
             .withName(name)
             .withMembers(members)
