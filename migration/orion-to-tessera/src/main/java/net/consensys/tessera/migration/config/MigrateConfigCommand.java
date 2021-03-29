@@ -77,36 +77,30 @@ public class MigrateConfigCommand implements Callable<Config> {
         final Path currentDir = Paths.get("").toAbsolutePath();
         final Path workdir = currentDir.resolve(toml.getString("workdir", "."));
 
-        Long p2pPort = toml.getLong("nodeport"); // p2p
-        String p2pUrl = toml.getString("nodeurl", "http://127.0.0.1"); // p2p
-        final URI p2pUri;
-        if (p2pPort == null) {
-            p2pUri = URI.create(p2pUrl);
-        } else {
-            final URI puri = URI.create(p2pUrl);
-            p2pUri = URI.create(String.format("%s://%s:%s", puri.getScheme(), puri.getHost(), p2pPort));
+        Integer p2pPort = Math.toIntExact(toml.getLong("nodeport",8080L)); // p2p
+        String p2pUrl = toml.getString("nodeurl", "http://127.0.0.1:8080"); // p2p
+        URI p2pUri = URI.create(p2pUrl);
+        if(p2pUri.getPort() != p2pPort) {
+            p2pUri = URI.create(String.format("%s://%s:%s",p2pUri.getScheme(),p2pUri.getHost(),p2pPort));
         }
-        final String p2pBindingAddress = toml.getString("nodenetworkinterface", "0.0.0.0");
+
+        final String p2pBindingAddress = toml.getString("nodenetworkinterface", "127.0.0.1");
         final URI p2pBindingUri = URI.create(String.format("%s://%s:%s",p2pUri.getScheme(),p2pBindingAddress,p2pUri.getPort()));
 
         List<String> tlsserverchain = toml.getList("tlsserverchain", List.of());
 
         final String tlsservercert = toml.getString("tlsservercert");
 
-        String q2tUrl = toml.getString("clienturl", "http://127.0.0.1");
-        Integer q2tPort = toml.contains("clientport") ? Math.toIntExact(toml.getLong("clientport")) : null;
-        final URI qt2Uri;
-
-        final String qt2BindingAddress = toml.getString("clientnetworkinterface", "0.0.0.0");
-
-        if (q2tPort == null) {
-            qt2Uri = URI.create(q2tUrl);
-        } else {
-            URI quri = URI.create(q2tUrl);
-            qt2Uri = URI.create(String.format("%s://%s:%s", quri.getScheme(), quri.getHost(), q2tPort));
+        String q2tUrl = toml.getString("clienturl", "http://127.0.0.1:8888");
+        Integer q2tPort = Math.toIntExact(toml.getLong("clientport",8888L));
+        URI qt2Uri = URI.create(q2tUrl);
+        if(q2tPort != qt2Uri.getPort()) {
+            qt2Uri = URI.create(String.format("%s://%s:%s",qt2Uri.getScheme(),qt2Uri.getHost(),q2tPort));
         }
-        final URI qt2BindingUri = URI.create(String.format("%s://%s:%s", qt2Uri.getScheme(), qt2BindingAddress, qt2Uri.getPort()));
 
+        final String qt2BindingAddress = toml.getString("clientnetworkinterface", "127.0.0.1");
+
+        final URI qt2BindingUri = URI.create(String.format("%s://%s:%s", qt2Uri.getScheme(), qt2BindingAddress, qt2Uri.getPort()));
 
         String tlsclientkey = toml.getString("tlsclientkey");
         String tlsclienttrust = toml.getString("tlsclienttrust");
