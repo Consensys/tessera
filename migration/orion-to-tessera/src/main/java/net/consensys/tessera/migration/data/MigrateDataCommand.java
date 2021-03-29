@@ -65,13 +65,23 @@ public class MigrateDataCommand implements Callable<Map<PayloadType,Long>> {
     @Override
     public Map<PayloadType,Long> call() throws Exception {
 
-
-
         final MigrationInfo migrationInfo = MigrationInfo.getInstance();
 
         final EntityManagerFactory entityManagerFactory = createEntityManagerFactory(tesseraJdbcOptions);
 
         EntityManager em = entityManagerFactory.createEntityManager();
+
+        Long txnCount = em.createQuery("select count(t) from EncryptedTransaction t",Long.class).getSingleResult();
+        if(txnCount != 0) {
+            throw new IllegalStateException("There are existing records in ENCRYPTED_TRANSACTION table");
+        }
+
+        Long privacyGroupCount = em.createQuery("select count(p) from PrivacyGroupEntity p",Long.class).getSingleResult();
+
+        if(privacyGroupCount != 0) {
+            throw new IllegalStateException("There are existing records in PRIVACY_GROUP table");
+        }
+
         em.close();
 
         final CountDownLatch insertedRowCounter = new CountDownLatch(migrationInfo.getTransactionCount() + migrationInfo.getPrivacyGroupCount());
@@ -144,4 +154,6 @@ public class MigrateDataCommand implements Callable<Map<PayloadType,Long>> {
         return validateMigratedData.countMigratedData();
 
     }
+
+
 }
