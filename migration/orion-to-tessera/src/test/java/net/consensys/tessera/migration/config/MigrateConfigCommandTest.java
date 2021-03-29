@@ -72,7 +72,7 @@ public class MigrateConfigCommandTest {
 
 
         assertThat(keyConfiguration.getPasswordFile()).isEqualTo(Paths.get("").toAbsolutePath()
-            .resolve("data").resolve("password.txt"));
+            .resolve("data").resolve("keys").resolve("password.txt"));
 
         ServerConfig q2tServerConfig = config.getServerConfigs().stream()
             .filter(sc -> sc.getApp() == AppType.Q2T).findFirst().get();
