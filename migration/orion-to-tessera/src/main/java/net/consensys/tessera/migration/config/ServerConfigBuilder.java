@@ -5,15 +5,10 @@ import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
 
-import java.net.URI;
 import java.util.Objects;
 import java.util.Optional;
 
 public class ServerConfigBuilder {
-
-    private Integer serverPort;
-
-    private String socketFile;
 
     private AppType type;
 
@@ -32,10 +27,6 @@ public class ServerConfigBuilder {
         return this;
     }
 
-    public ServerConfigBuilder withSocketFile(String socketFile) {
-        this.socketFile = socketFile;
-        return this;
-    }
 
     public ServerConfigBuilder withServerAddress(String serverAddress) {
         this.serverAddress = serverAddress;
@@ -55,25 +46,14 @@ public class ServerConfigBuilder {
     public ServerConfig build() {
 
         Objects.requireNonNull(type);
-        assert Objects.nonNull(socketFile) || Objects.nonNull(serverAddress) : "Either socketFile serveradress must be present";
-
-        assert !(Objects.nonNull(socketFile) && Objects.nonNull(serverAddress)) : "Both serverAddress and socket file cannot be specifed";
+        Objects.requireNonNull(serverAddress, "Server Address is required");
 
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setApp(type);
 
-        if (Objects.isNull(socketFile)) {
-            URI serverUri = URI.create(serverAddress);
-            if (Objects.nonNull(serverPort)) {
-                assert serverUri.getPort() == serverPort : "Server URI port and configured server port dont match";
-            }
-
-            Optional.ofNullable(bindingAddress).ifPresent(serverConfig::setBindingAddress);
-            serverConfig.setServerAddress(serverAddress);
-
-        } else {
-            serverConfig.setServerAddress(String.format("unix://%s", socketFile));
-        }
+        serverConfig.setServerAddress(serverAddress);
+        Optional.ofNullable(bindingAddress)
+            .ifPresent(serverConfig::setBindingAddress);
 
         serverConfig.setCommunicationType(CommunicationType.REST);
 
@@ -84,8 +64,4 @@ public class ServerConfigBuilder {
         return serverConfig;
     }
 
-    public ServerConfigBuilder withServerPort(Integer serverPort) {
-        this.serverPort = serverPort;
-        return this;
-    }
 }

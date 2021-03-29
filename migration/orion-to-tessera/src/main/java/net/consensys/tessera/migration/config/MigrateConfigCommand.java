@@ -34,10 +34,10 @@ public class MigrateConfigCommand implements Callable<Config> {
     private TesseraJdbcOptions tesseraJdbcOptions;
 
     public MigrateConfigCommand(
-            Path orionConfigFile,
-            Path outputFile,
-            boolean skipValidation,
-            TesseraJdbcOptions tesseraJdbcOptions) {
+        Path orionConfigFile,
+        Path outputFile,
+        boolean skipValidation,
+        TesseraJdbcOptions tesseraJdbcOptions) {
         this.orionConfigFile = orionConfigFile;
         this.outputFile = outputFile;
         this.skipValidation = skipValidation;
@@ -59,7 +59,7 @@ public class MigrateConfigCommand implements Callable<Config> {
             } else {
                 try {
                     JaxbUtil.marshal(config, outputStream);
-                } catch(ConstraintViolationException ex) {
+                } catch (ConstraintViolationException ex) {
                     ex.printStackTrace();
                     JaxbUtil.marshalWithNoValidation(config, System.out);
                 }
@@ -75,26 +75,38 @@ public class MigrateConfigCommand implements Callable<Config> {
         String knownnodesstorage = toml.getString("knownnodesstorage");
 
         final Path currentDir = Paths.get("").toAbsolutePath();
-        final Path workdir = currentDir.resolve(toml.getString("workdir","."));
+        final Path workdir = currentDir.resolve(toml.getString("workdir", "."));
 
         Long p2pPort = toml.getLong("nodeport"); // p2p
-        String p2pUrl = toml.getString("nodeurl","http://127.0.0.1"); // p2p
-        URI p2pUri = URI.create(String.format("%s:%s",p2pUrl,String.valueOf(p2pPort)));
+        String p2pUrl = toml.getString("nodeurl", "http://127.0.0.1"); // p2p
+        final URI p2pUri;
+        if (p2pPort == null) {
+            p2pUri = URI.create(p2pUrl);
+        } else {
+            final URI puri = URI.create(p2pUrl);
+            p2pUri = URI.create(String.format("%s://%s:%s", puri.getScheme(), puri.getHost(), p2pPort));
+        }
+        final String p2pBindingAddress = toml.getString("nodenetworkinterface", "0.0.0.0");
+        final URI p2pBindingUri = URI.create(String.format("%s://%s:%s",p2pUri.getScheme(),p2pBindingAddress,p2pUri.getPort()));
 
         List<String> tlsserverchain = toml.getList("tlsserverchain", List.of());
-        String p2pBindingAddress = String.format("%s://%s:%s",
-            p2pUri.getScheme(),toml.getString("nodenetworkinterface","0.0.0.0"),
-            String.valueOf(p2pPort));
 
-        String tlsservercert = toml.getString("tlsservercert");
+        final String tlsservercert = toml.getString("tlsservercert");
 
-        String q2tUrl = toml.getString("clienturl","http://127.0.0.1");
+        String q2tUrl = toml.getString("clienturl", "http://127.0.0.1");
         Integer q2tPort = toml.contains("clientport") ? Math.toIntExact(toml.getLong("clientport")) : null;
+        final URI qt2Uri;
 
+        final String qt2BindingAddress = toml.getString("clientnetworkinterface", "0.0.0.0");
 
-        URI qt2Uri = URI.create(String.format("%s:%s",q2tUrl,String.valueOf(q2tPort)));
-        String qt2BindingAddress = String.format("%s://%s:%s",qt2Uri.getScheme(),
-            toml.getString("clientnetworkinterface","0.0.0.0"),String.valueOf(q2tPort));
+        if (q2tPort == null) {
+            qt2Uri = URI.create(q2tUrl);
+        } else {
+            URI quri = URI.create(q2tUrl);
+            qt2Uri = URI.create(String.format("%s://%s:%s", quri.getScheme(), quri.getHost(), q2tPort));
+        }
+        final URI qt2BindingUri = URI.create(String.format("%s://%s:%s", qt2Uri.getScheme(), qt2BindingAddress, qt2Uri.getPort()));
+
 
         String tlsclientkey = toml.getString("tlsclientkey");
         String tlsclienttrust = toml.getString("tlsclienttrust");
@@ -109,7 +121,6 @@ public class MigrateConfigCommand implements Callable<Config> {
         String tlsclientcert = toml.getString("tlsclientcert");
 
         String serverAuthTls = toml.getString("tls");
-        String socketfile = toml.getString("socket");
 
         String tlsserverkey = toml.getString("tlsserverkey");
         String tlsservertrust = toml.getString("tlsservertrust");
@@ -127,81 +138,78 @@ public class MigrateConfigCommand implements Callable<Config> {
         config.setUseWhiteList(false);
         config.setRecoveryMode(false);
         config.setEncryptor(
-                new EncryptorConfig() {
-                    {
-                        setType(EncryptorType.NACL);
-                    }
-                });
+            new EncryptorConfig() {
+                {
+                    setType(EncryptorType.NACL);
+                }
+            });
         config.setPeers(otherNodes.stream().map(Peer::new).collect(Collectors.toList()));
 
         config.setJdbcConfig(new JdbcConfig());
 
         ServerConfig q2tServer =
-                ServerConfigBuilder.create()
-                        .withAppType(AppType.Q2T)
-                        .withSocketFile(socketfile)
-                        .withServerAddress(qt2Uri.toString())
-                        .withBindingAddress(qt2BindingAddress)
-                    .withServerPort(q2tPort)
+            ServerConfigBuilder.create()
+                .withAppType(AppType.Q2T)
+                .withServerAddress(qt2Uri.toString())
+                .withBindingAddress(qt2BindingUri.toString())
 
-                        //     .withServerPort(clientport)
-                        //     .withServerAddress(clienturl)
-                        //                .withSslConfig(SslConfigBuilder.create()
-                        //                        .withClientTrustMode(clientconnectiontls)
-                        //                        .withClientKeyStore(tlsclientkey)
-                        //                        .build())
-                        .build();
+                //     .withServerPort(clientport)
+                //     .withServerAddress(clienturl)
+                //                .withSslConfig(SslConfigBuilder.create()
+                //                        .withClientTrustMode(clientconnectiontls)
+                //                        .withClientKeyStore(tlsclientkey)
+                //                        .build())
+                .build();
 
         ServerConfig p2pServer =
-                ServerConfigBuilder.create()
-                        .withAppType(AppType.P2P)
-                        .withServerAddress(p2pUri.toString())
-                        .withBindingAddress(p2pBindingAddress)
-                        .withServerPort(Math.toIntExact(p2pPort))
-                        .withSslConfig(
-                                SslConfigBuilder.create()
-                                        .withSslAuthenticationMode(serverAuthTls)
-                                        .withServerKeyStore(tlsserverkey)
-                                        .withTlsServerTrust(tlsservertrust)
-                                        .withKnownClientFilePath(tlsknownclients)
-                                        .withKnownServersFilePath(tlsknownservers)
-                                        .withClientTrustMode(tlsclienttrust)
-                                        .withClientKeyStore(tlsclientkey)
-                                        .withServerTlsCertificatePath(tlsservercert)
-                                        .withClientTlsCertificatePath(tlsclientcert)
-                                        .withClientTrustMode(clientconnectionTlsServerTrust)
-                                        .build())
-                        .build();
+            ServerConfigBuilder.create()
+                .withAppType(AppType.P2P)
+                .withServerAddress(p2pUri.toString())
+                .withBindingAddress(p2pBindingUri.toString())
+                .withSslConfig(
+                    SslConfigBuilder.create()
+                        .withSslAuthenticationMode(serverAuthTls)
+                        .withServerKeyStore(tlsserverkey)
+                        .withTlsServerTrust(tlsservertrust)
+                        .withKnownClientFilePath(tlsknownclients)
+                        .withKnownServersFilePath(tlsknownservers)
+                        .withClientTrustMode(tlsclienttrust)
+                        .withClientKeyStore(tlsclientkey)
+                        .withServerTlsCertificatePath(tlsservercert)
+                        .withClientTlsCertificatePath(tlsclientcert)
+                        .withClientTrustMode(clientconnectionTlsServerTrust)
+                        .build())
+                .build();
 
         config.setServerConfigs(List.of(q2tServer, p2pServer));
 
         List<String> encodeKeyValues =
-                alwaysSendTo.stream()
-                        .map(Paths::get)
-                        .map(
-                                p -> {
-                                    try {
-                                        return Files.lines(p)
-                                                .findFirst()
-                                                .orElse(
-                                                        String.format(
-                                                                "[Error: No lines found in file %s",
-                                                                p.toAbsolutePath()));
-                                    } catch (IOException e) {
-                                        return String.format("[Error: Unable to read key file %s]", p.toAbsolutePath());
-                                    }
-                                })
-                        .collect(Collectors.toList());
+            alwaysSendTo.stream()
+                .map(Paths::get)
+                .map(
+                    p -> {
+                        try {
+                            return Files.lines(p)
+                                .findFirst()
+                                .orElse(
+                                    String.format(
+                                        "[Error: No lines found in file %s",
+                                        p.toAbsolutePath()));
+                        } catch (IOException e) {
+                            return String.format("[Error: Unable to read key file %s]", p.toAbsolutePath());
+                        }
+                    })
+                .collect(Collectors.toList());
 
         config.getAlwaysSendTo().addAll(encodeKeyValues);
 
         config.setKeys(
-                KeyConfigBuilder.create()
-                        .withWorkDir(workdir)
-                        .withPrivateKeys(privateKeys)
-                        .withPublicKeys(publicKeys)
-                        .withPasswordsFile(passwordsFile)
-                        .build());
+            KeyConfigBuilder.create()
+                .withWorkDir(workdir)
+                .withPrivateKeys(privateKeys)
+                .withPublicKeys(publicKeys)
+                .withPasswordsFile(passwordsFile)
+                .build());
 
         return config;
     }
