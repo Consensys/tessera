@@ -91,6 +91,6 @@ public class ConvertToTransactionEntity implements EventHandler<OrionDataEvent> 
 
         tesseraDataEventDisruptor.publishEvent(new TesseraDataEvent<>(encryptedTransaction));
 
-        LOGGER.info("Published {}", encryptedTransaction);
+        LOGGER.debug("Published {}", encryptedTransaction);
     }
 }

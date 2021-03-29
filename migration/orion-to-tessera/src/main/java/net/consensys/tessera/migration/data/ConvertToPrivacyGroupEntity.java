@@ -86,7 +86,7 @@ public class ConvertToPrivacyGroupEntity implements EventHandler<OrionDataEvent>
 
         tesseraDataEventDisruptor.publishEvent(new TesseraDataEvent<>(privacyGroupEntity));
 
-        LOGGER.info("Published {}", privacyGroupEntity);
+        LOGGER.debug("Published {}", privacyGroupEntity);
 
     }
 }
