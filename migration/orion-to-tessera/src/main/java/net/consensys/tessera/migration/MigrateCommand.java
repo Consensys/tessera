@@ -42,7 +42,7 @@ public class MigrateCommand implements Callable<Config> {
         System.out.println("Generated tessera config");
         JaxbUtil.marshalWithNoValidation(config,System.out);
 
-        net.consensys.orion.config.Config orionConfig = orionKeyHelper.getConfig();
+        net.consensys.orion.config.Config orionConfig = orionKeyHelper.getOrionConfig();
         //TODO: add any other orion config validations
         Objects.requireNonNull(orionConfig.storage(),"Storage config is required. Not found in toml or env");
 

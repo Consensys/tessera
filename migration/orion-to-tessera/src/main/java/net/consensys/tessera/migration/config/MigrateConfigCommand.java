@@ -7,6 +7,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.JdbcConfig;
+import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -77,7 +78,7 @@ public class MigrateConfigCommand implements Callable<Config> {
         final Path currentDir = Paths.get("").toAbsolutePath();
         final Path workdir = currentDir.resolve(toml.getString("workdir", "."));
 
-        Integer p2pPort = Math.toIntExact(toml.getLong("nodeport",8080L)); // p2p
+        long p2pPort = toml.getLong("nodeport",8080L); // p2p
         String p2pUrl = toml.getString("nodeurl", "http://127.0.0.1:8080"); // p2p
         URI p2pUri = URI.create(p2pUrl);
         if(p2pUri.getPort() != p2pPort) {
@@ -92,7 +93,7 @@ public class MigrateConfigCommand implements Callable<Config> {
         final String tlsservercert = toml.getString("tlsservercert");
 
         String q2tUrl = toml.getString("clienturl", "http://127.0.0.1:8888");
-        Integer q2tPort = Math.toIntExact(toml.getLong("clientport",8888L));
+        long q2tPort = toml.getLong("clientport",8888L);
         URI qt2Uri = URI.create(q2tUrl);
         if(q2tPort != qt2Uri.getPort()) {
             qt2Uri = URI.create(String.format("%s://%s:%s",qt2Uri.getScheme(),qt2Uri.getHost(),q2tPort));
@@ -197,13 +198,14 @@ public class MigrateConfigCommand implements Callable<Config> {
 
         config.getAlwaysSendTo().addAll(encodeKeyValues);
 
-        config.setKeys(
-            KeyConfigBuilder.create()
-                .withWorkDir(workdir)
-                .withPrivateKeys(privateKeys)
-                .withPublicKeys(publicKeys)
-                .withPasswordsFile(passwordsFile)
-                .build());
+        KeyConfiguration keyConfiguration = KeyConfigBuilder.create()
+            .withWorkDir(workdir)
+            .withPrivateKeys(privateKeys)
+            .withPublicKeys(publicKeys)
+            .withPasswordsFile(passwordsFile)
+            .build();
+
+        config.setKeys(keyConfiguration);
 
         return config;
     }

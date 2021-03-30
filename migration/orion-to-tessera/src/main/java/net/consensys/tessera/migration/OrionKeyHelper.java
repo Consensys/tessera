@@ -29,12 +29,12 @@ public class OrionKeyHelper {
 
     private List<String> passwords;
 
-    private final Config config;
+    private final Config orionConfig;
 
     private final Path filePath;
 
-    private OrionKeyHelper(Config config, Path filePath) {
-        this.config = Objects.requireNonNull(config, "Config is required");
+    private OrionKeyHelper(Config orionConfig, Path filePath) {
+        this.orionConfig = Objects.requireNonNull(orionConfig, "Config is required");
         this.filePath = Objects.requireNonNull(filePath);
 
         this.unlockedPrivateKeys();
@@ -60,14 +60,14 @@ public class OrionKeyHelper {
     }
 
     public void unlockedPrivateKeys() {
-        config.passwords().filter(Files::exists).ifPresentOrElse(
+        orionConfig.passwords().filter(Files::exists).ifPresentOrElse(
             p -> this.passwords = IOCallback.execute(() -> Files.readAllLines(p)),
             () -> this.passwords = List.of()
         );
 
         Path baseDir = Paths.get("").toAbsolutePath();
 
-        List<Path> privateKeyPaths = config.privateKeys().stream()
+        List<Path> privateKeyPaths = orionConfig.privateKeys().stream()
             .map(p -> Paths.get(baseDir.toString(),p.toString()))
             .collect(Collectors.toList());
 
@@ -79,7 +79,7 @@ public class OrionKeyHelper {
                 .map(JsonReader::readObject)
                 .collect(Collectors.toList());
 
-        IntStream.range(0, config.privateKeys().size())
+        IntStream.range(0, orionConfig.privateKeys().size())
             .forEach(
                 i -> {
                     JsonObject privateKey = privateKeyJsonConfig.get(i);
@@ -95,7 +95,7 @@ public class OrionKeyHelper {
                         unlocked = unlock(data, password);
                     }
 
-                    Path publicKeyFile = Paths.get(baseDir.toString(),config.publicKeys().get(i).toString());
+                    Path publicKeyFile = Paths.get(baseDir.toString(), orionConfig.publicKeys().get(i).toString());
                     String publicKeyData = IOCallback.execute(() -> Files.readString(publicKeyFile));
                     Box.PublicKey publicKey =
                         Box.PublicKey.fromBytes(Base64.getDecoder().decode(publicKeyData));
@@ -146,8 +146,8 @@ public class OrionKeyHelper {
                 .map(Box.KeyPair::secretKey);
     }
 
-    public Config getConfig() {
-        return config;
+    public Config getOrionConfig() {
+        return orionConfig;
     }
 
     public Path getFilePath() {
