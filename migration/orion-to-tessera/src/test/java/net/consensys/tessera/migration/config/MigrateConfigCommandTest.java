@@ -45,7 +45,7 @@ public class MigrateConfigCommandTest {
         MigrateConfigCommand migrateConfigCommand = new MigrateConfigCommand(
             orionConfigFile,
             outputDir.getRoot().toPath().resolve("tessera-config.json"),
-            false,tesseraJdbcOptions
+            tesseraJdbcOptions
         );
 
         Config config = migrateConfigCommand.call();
@@ -99,7 +99,6 @@ public class MigrateConfigCommandTest {
         MigrateConfigCommand migrateConfigCommand = new MigrateConfigCommand(
             orionConfigFile,
             outputDir.getRoot().toPath().resolve("tessera-config.json"),
-            false,
             tesseraJdbcOptions
         );
 
@@ -120,7 +119,6 @@ public class MigrateConfigCommandTest {
         MigrateConfigCommand migrateConfigCommand = new MigrateConfigCommand(
             orionConfigFile,
             outputDir.getRoot().toPath().resolve("tessera-config.json"),
-            false,
             tesseraJdbcOptions
         );
 

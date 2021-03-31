@@ -4,6 +4,7 @@ import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyData;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -54,20 +55,23 @@ public class KeyConfigBuilder {
             throw new IllegalStateException("Expected public and private key pairs to match");
         }
 
+        final Path absoluteWorkingDirPath = workDir.toAbsolutePath();
+
+
         List<KeyData> keys =
                 IntStream.range(0, privateKeys.size())
                         .mapToObj(
                                 i -> {
                                     KeyData keyData = new KeyData();
-                                    keyData.setPrivateKeyPath(workDir.resolve(privateKeys.get(i)));
-                                    keyData.setPublicKeyPath(workDir.resolve(publicKeys.get(i)));
+                                    keyData.setPrivateKeyPath(Paths.get(absoluteWorkingDirPath.toString(),privateKeys.get(i)));
+                                    keyData.setPublicKeyPath(Paths.get(absoluteWorkingDirPath.toString(),publicKeys.get(i)));
                                     return keyData;
                                 })
                         .collect(Collectors.toList());
 
         KeyConfiguration keyConfiguration = new KeyConfiguration();
         Optional.ofNullable(passwordsFile)
-            .map(workDir::resolve)
+            .map(absoluteWorkingDirPath::resolve)
             .ifPresent(keyConfiguration::setPasswordFile);
 
         keyConfiguration.setKeyData(keys);

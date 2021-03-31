@@ -10,12 +10,9 @@ import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.config.util.JaxbUtil;
 import net.consensys.tessera.migration.data.TesseraJdbcOptions;
 
-import javax.validation.ConstraintViolationException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,18 +27,15 @@ public class MigrateConfigCommand implements Callable<Config> {
 
     private Path outputFile;
 
-    private boolean skipValidation;
 
     private TesseraJdbcOptions tesseraJdbcOptions;
 
     public MigrateConfigCommand(
         Path orionConfigFile,
         Path outputFile,
-        boolean skipValidation,
         TesseraJdbcOptions tesseraJdbcOptions) {
         this.orionConfigFile = orionConfigFile;
         this.outputFile = outputFile;
-        this.skipValidation = skipValidation;
         this.tesseraJdbcOptions = tesseraJdbcOptions;
     }
 
@@ -53,19 +47,6 @@ public class MigrateConfigCommand implements Callable<Config> {
         config.getJdbcConfig().setUrl(tesseraJdbcOptions.getUrl());
         config.getJdbcConfig().setAutoCreateTables(true);
         config.setClientMode(ClientMode.ORION);
-
-        try (OutputStream outputStream = Files.newOutputStream(outputFile)) {
-            if (skipValidation) {
-                JaxbUtil.marshalWithNoValidation(config, outputStream);
-            } else {
-                try {
-                    JaxbUtil.marshal(config, outputStream);
-                } catch (ConstraintViolationException ex) {
-                    ex.printStackTrace();
-                    JaxbUtil.marshalWithNoValidation(config, System.out);
-                }
-            }
-        }
 
         return config;
     }

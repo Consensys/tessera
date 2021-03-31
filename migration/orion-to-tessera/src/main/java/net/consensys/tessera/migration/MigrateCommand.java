@@ -6,6 +6,8 @@ import net.consensys.tessera.migration.config.MigrateConfigCommand;
 import net.consensys.tessera.migration.data.*;
 import picocli.CommandLine;
 
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
@@ -25,9 +27,6 @@ public class MigrateCommand implements Callable<Config> {
             description = "Output Tessera config file")
     private Path outputFile;
 
-    @CommandLine.Option(names = {"-sv", "skipValidation"})
-    private boolean skipValidation;
-
     @CommandLine.Mixin
     private TesseraJdbcOptions tesseraJdbcOptions = new TesseraJdbcOptions();
 
@@ -36,11 +35,12 @@ public class MigrateCommand implements Callable<Config> {
 
         MigrateConfigCommand migrateConfigCommand =
                 new MigrateConfigCommand(
-                        orionKeyHelper.getFilePath(), outputFile, skipValidation, tesseraJdbcOptions);
+                        orionKeyHelper.getFilePath(), outputFile, tesseraJdbcOptions);
         Config config = migrateConfigCommand.call();
 
-        System.out.println("Generated tessera config");
-        JaxbUtil.marshalWithNoValidation(config,System.out);
+        try(OutputStream outputStream = new TeeOutputStream(Files.newOutputStream(outputFile),System.out)) {
+            JaxbUtil.marshal(config, outputStream);
+        }
 
         net.consensys.orion.config.Config orionConfig = orionKeyHelper.getOrionConfig();
         //TODO: add any other orion config validations
@@ -65,10 +65,10 @@ public class MigrateCommand implements Callable<Config> {
         System.out.println();
         System.out.printf("Migrated %s of %s privacy groups",outcome.get(PayloadType.PRIVACY_GROUP_PAYLOAD),migrationInfo.getPrivacyGroupCount());
         System.out.println();
-
+        System.out.printf("Tessera config file %s",outputFile);
+        System.out.println();
         assert outcome.get(PayloadType.ENCRYPTED_PAYLOAD) == migrationInfo.getTransactionCount();
         assert outcome.get(PayloadType.PRIVACY_GROUP_PAYLOAD) == migrationInfo.getPrivacyGroupCount();
-
 
         return config;
     }
