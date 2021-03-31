@@ -1,12 +1,19 @@
 package net.consensys.tessera.migration;
 
+import com.quorum.tessera.argon2.Argon2Impl;
+import com.quorum.tessera.argon2.ArgonOptions;
+import com.quorum.tessera.argon2.ArgonResult;
+import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.encryption.Encryptor;
+import com.quorum.tessera.encryption.EncryptorFactory;
+import com.quorum.tessera.encryption.Nonce;
+import com.quorum.tessera.encryption.SharedKey;
 import com.quorum.tessera.io.IOCallback;
 import net.consensys.orion.config.Config;
 import net.consensys.orion.enclave.EncryptedKey;
 import net.consensys.orion.enclave.EncryptedPayload;
 import org.apache.tuweni.crypto.sodium.Box;
-import org.apache.tuweni.crypto.sodium.PasswordHash;
-import org.apache.tuweni.crypto.sodium.SecretBox;
 
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -14,18 +21,16 @@ import javax.json.JsonReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class OrionKeyHelper {
 
-    private Map<Box.PublicKey, String> passwordLookup = new HashMap<>();
+    private final Map<Box.PublicKey, String> passwordLookup = new HashMap<>();
 
-    private Map<Path, Box.KeyPair> keyPairLookup = new HashMap<>();
+    private final Map<Path, Box.KeyPair> keyPairLookup = new HashMap<>();
 
     private List<String> passwords;
 
@@ -93,6 +98,8 @@ public class OrionKeyHelper {
                         byte[] data = Base64.getDecoder().decode(privateKeyData.getString("bytes"));
                         password = passwords.get(i);
                         unlocked = unlock(data, password);
+
+                        migrateKeyToTesseraFormat(privateKeyPaths.get(i), data);
                     }
 
                     Path publicKeyFile = Paths.get(baseDir.toString(), orionConfig.publicKeys().get(i).toString());
@@ -106,8 +113,39 @@ public class OrionKeyHelper {
                 });
     }
 
-    static byte[] unlock(byte[] keyBytes, String password) {
-        return SecretBox.decrypt(keyBytes, password, 3, 268435456, PasswordHash.Algorithm.argon2i13());
+    private void migrateKeyToTesseraFormat(Path privateKeyPath, byte[] orionPrivateKeyData) {
+        Path tesseraKeyOutputFile = privateKeyPath.resolveSibling(privateKeyPath.getFileName().toString() + ".tessera");
+
+        PrivateKeyData privKeyComponents = new PrivateKeyData();
+        Base64.Encoder encoder = Base64.getEncoder();
+
+        privKeyComponents.setArgonOptions(new com.quorum.tessera.config.ArgonOptions("i", 3, 268435456 / 1024, 1));
+        privKeyComponents.setAsalt(encoder.encodeToString(Arrays.copyOf(orionPrivateKeyData, 16)));
+        privKeyComponents.setSnonce(encoder.encodeToString(Arrays.copyOf(orionPrivateKeyData, 24)));
+        privKeyComponents.setSbox(encoder.encodeToString(Arrays.copyOfRange(orionPrivateKeyData, 24, orionPrivateKeyData.length)));
+        KeyDataConfig tesseraKeyConfig = new KeyDataConfig(privKeyComponents, PrivateKeyType.LOCKED);
+
+        String marshalled = JaxbUtil.marshalToStringNoValidation(tesseraKeyConfig);
+        IOCallback.execute(() -> Files.writeString(tesseraKeyOutputFile, marshalled, StandardOpenOption.CREATE_NEW, StandardOpenOption.DSYNC));
+    }
+
+    static byte[] unlock(byte[] keyAsBytes, String password) {
+        final byte[] extractedNonce = Arrays.copyOf(keyAsBytes, 24);
+
+        final byte[] salt = Arrays.copyOfRange(extractedNonce, 0, 16);
+        final ArgonOptions options = new ArgonOptions("i", 3, 268435456 / 1024, 1);
+        final ArgonResult hash = new Argon2Impl().hash(options, password.toCharArray(), salt);
+
+        EncryptorConfig encryptorConfig = new EncryptorConfig() {
+            {
+                setType(EncryptorType.NACL);
+            }
+        };
+        Encryptor encryptor =
+            EncryptorFactory.newFactory(encryptorConfig.getType().name()).create(encryptorConfig.getProperties());
+
+        return encryptor.openAfterPrecomputation(
+            Arrays.copyOfRange(keyAsBytes, 24, keyAsBytes.length), new Nonce(extractedNonce), SharedKey.from(hash.getHash()));
     }
 
     public Box.KeyPair findKeyPairByPublicKeyPath(Path p) {
