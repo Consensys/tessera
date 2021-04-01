@@ -114,7 +114,7 @@ public class OrionKeyHelper {
     }
 
     private void migrateKeyToTesseraFormat(Path privateKeyPath, byte[] orionPrivateKeyData) {
-        Path tesseraKeyOutputFile = privateKeyPath.resolveSibling(privateKeyPath.getFileName().toString() + ".tessera");
+        final Path tesseraKeyOutputFile = privateKeyPath.resolveSibling(privateKeyPath.getFileName().toString() + ".tessera");
 
         PrivateKeyData privKeyComponents = new PrivateKeyData();
         Base64.Encoder encoder = Base64.getEncoder();

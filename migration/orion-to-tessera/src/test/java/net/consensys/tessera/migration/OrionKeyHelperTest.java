@@ -2,7 +2,6 @@ package net.consensys.tessera.migration;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyDataConfig;
-import com.quorum.tessera.config.PrivateKeyData;
 import com.quorum.tessera.config.PrivateKeyType;
 import com.quorum.tessera.config.util.JaxbUtil;
 import org.junit.After;
