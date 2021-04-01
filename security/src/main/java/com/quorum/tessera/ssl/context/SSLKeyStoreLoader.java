@@ -48,6 +48,10 @@ final class SSLKeyStoreLoader {
 
     private static final Base64.Decoder decoder = Base64.getMimeDecoder();
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     private SSLKeyStoreLoader() {}
 
     static KeyManager[] fromJksKeyStore(Path keyStoreFile, char[] keyStorePassword)
