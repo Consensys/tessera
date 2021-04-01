@@ -1,12 +1,17 @@
 package net.consensys.tessera.migration.data;
 
+import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 import com.quorum.tessera.io.IOCallback;
 import net.consensys.tessera.migration.OrionKeyHelper;
+import org.apache.commons.io.FileUtils;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
@@ -17,6 +22,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,7 +49,8 @@ public class MigrateDataCommandTest {
 
     private String tesseraJdbcUrl;
 
-    private Path pwd = Paths.get("").toAbsolutePath();
+    @Rule
+    public TemporaryFolder outputDir = new TemporaryFolder();
 
     private OrionKeyHelper orionKeyHelper;
 
@@ -55,15 +62,30 @@ public class MigrateDataCommandTest {
 
     @Before
     public void beforeTest() throws Exception {
-        tesseraJdbcUrl = "jdbc:h2:" + pwd + "/" + UUID.randomUUID().toString() + ".db";
-        final Path orionConfigFile = orionConfigDir.resolve("orion.conf");
+
+        FileUtils.copyDirectory(orionConfigDir.toFile(),outputDir.getRoot());
+
+        Path workfingOrionConfigDir = outputDir.getRoot().toPath();
+
+        tesseraJdbcUrl = "jdbc:h2:" + workfingOrionConfigDir.toAbsolutePath() + "/" + UUID.randomUUID().toString() + ".db";
+        final Path orionConfigFile = Paths.get(workfingOrionConfigDir.toString(),"orion.conf");
+        assertThat(orionConfigFile).exists();
+
+        Toml toml = new Toml().read(orionConfigFile.toFile());
+
+        Map orionConfig = new HashMap(toml.toMap());
+        orionConfig.put("workdir",workfingOrionConfigDir.toString());
+        TomlWriter tomlWriter = new TomlWriter();
+
+        Path adjustedOrionConfigFile = workfingOrionConfigDir.resolve("orion-adjusted.conf");
+        tomlWriter.write(orionConfig,Files.newOutputStream(adjustedOrionConfigFile));
 
         Options options = new Options();
         //options.logger(s -> System.out.println(s));
         options.createIfMissing(true);
         String dbname = "routerdb";
         final DB leveldb = IOCallback.execute(
-            () -> factory.open(orionConfigDir.resolve(dbname).toAbsolutePath().toFile(), options)
+            () -> factory.open(workfingOrionConfigDir.resolve(dbname).toAbsolutePath().toFile(), options)
         );
 
         inboundDbHelper = mock(InboundDbHelper.class);
@@ -76,7 +98,7 @@ public class MigrateDataCommandTest {
         when(tesseraJdbcOptions.getUsername()).thenReturn("junit");
         when(tesseraJdbcOptions.getPassword()).thenReturn("junit");
 
-        orionKeyHelper = OrionKeyHelper.from(orionConfigFile);
+        orionKeyHelper = OrionKeyHelper.from(adjustedOrionConfigFile);
 
         migrateDataCommand = new MigrateDataCommand(inboundDbHelper, tesseraJdbcOptions, orionKeyHelper);
 

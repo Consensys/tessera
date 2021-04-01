@@ -2,7 +2,11 @@ package net.consensys.tessera.migration;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -28,7 +32,12 @@ import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -54,22 +63,32 @@ public class MigrateCommandTest {
         this.migrateTestConfig = migrateTestConfig;
     }
 
+
     @Before
     public void beforeTest() throws Exception {
 
-        Path orionConfigFilePath = migrateTestConfig.getOrionConfigDir().resolve("orion.conf");
+        Path configDir = migrateTestConfig.getOrionConfigDir();
+
+        Path dir = outputDir.getRoot().toPath();
+
+        org.apache.commons.io.FileUtils.copyDirectory(configDir.toFile(),dir.toFile());
+
+        Files.list(dir).forEach(System.out::println);
+
+        Path orionConfigFilePath = Paths.get(dir.toString(),"orion.conf");
+
+        Toml toml = new Toml().read(orionConfigFilePath.toFile());
+
+        Map orionConfig = new HashMap(toml.toMap());
+        orionConfig.put("workdir",dir.toString());
+
 
         assertThat(orionConfigFilePath).exists();
 
-        Toml toml = new Toml().read(orionConfigFilePath.toFile());
-        Path adjustedOrionConfigFile = migrateTestConfig.getOrionConfigDir().resolve("orion-adjusted.conf");
+        TomlWriter tomlWriter = new TomlWriter();
 
-        TomlWriter tomlWriter = new TomlWriter.Builder().build();
-        Map m = new HashMap(toml.toMap());
-        Path workdir = Path.of("").toAbsolutePath();
-        m.put("workdir",workdir.toString());
-        m.put("storage","leveldb:"+ workdir +"/"+ migrateTestConfig.getOrionConfigDir().resolve("routerdb").toString());
-        tomlWriter.write(m,Files.newOutputStream(adjustedOrionConfigFile));
+        Path adjustedOrionConfigFile = dir.resolve("orion-adjusted.conf");
+        tomlWriter.write(orionConfig,Files.newOutputStream(adjustedOrionConfigFile));
 
         Files.lines(adjustedOrionConfigFile).forEach(System.out::println);
 

@@ -70,11 +70,7 @@ public class OrionKeyHelper {
             () -> this.passwords = List.of()
         );
 
-        Path baseDir = Paths.get("").toAbsolutePath();
-
-        List<Path> privateKeyPaths = orionConfig.privateKeys().stream()
-            .map(p -> Paths.get(baseDir.toString(),p.toString()))
-            .collect(Collectors.toList());
+        List<Path> privateKeyPaths = orionConfig.privateKeys();
 
         List<JsonObject> privateKeyJsonConfig =
             privateKeyPaths.stream()
@@ -102,7 +98,7 @@ public class OrionKeyHelper {
                         migrateKeyToTesseraFormat(privateKeyPaths.get(i), data);
                     }
 
-                    Path publicKeyFile = Paths.get(baseDir.toString(), orionConfig.publicKeys().get(i).toString());
+                    Path publicKeyFile = orionConfig.publicKeys().get(i);
                     String publicKeyData = IOCallback.execute(() -> Files.readString(publicKeyFile));
                     Box.PublicKey publicKey =
                         Box.PublicKey.fromBytes(Base64.getDecoder().decode(publicKeyData));
@@ -114,19 +110,26 @@ public class OrionKeyHelper {
     }
 
     private void migrateKeyToTesseraFormat(Path privateKeyPath, byte[] orionPrivateKeyData) {
-        Path tesseraKeyOutputFile = privateKeyPath.resolveSibling(privateKeyPath.getFileName().toString() + ".tessera");
 
-        PrivateKeyData privKeyComponents = new PrivateKeyData();
-        Base64.Encoder encoder = Base64.getEncoder();
+        IOCallback.execute(() -> {
 
-        privKeyComponents.setArgonOptions(new com.quorum.tessera.config.ArgonOptions("i", 3, 268435456 / 1024, 1));
-        privKeyComponents.setAsalt(encoder.encodeToString(Arrays.copyOf(orionPrivateKeyData, 16)));
-        privKeyComponents.setSnonce(encoder.encodeToString(Arrays.copyOf(orionPrivateKeyData, 24)));
-        privKeyComponents.setSbox(encoder.encodeToString(Arrays.copyOfRange(orionPrivateKeyData, 24, orionPrivateKeyData.length)));
-        KeyDataConfig tesseraKeyConfig = new KeyDataConfig(privKeyComponents, PrivateKeyType.LOCKED);
+            Path backupFile = privateKeyPath.resolveSibling(privateKeyPath.getFileName().toString() + ".orion");
+            Files.copy(privateKeyPath, backupFile);
+            Files.delete(privateKeyPath);
 
-        String marshalled = JaxbUtil.marshalToStringNoValidation(tesseraKeyConfig);
-        IOCallback.execute(() -> Files.writeString(tesseraKeyOutputFile, marshalled, StandardOpenOption.CREATE_NEW, StandardOpenOption.DSYNC));
+            PrivateKeyData privKeyComponents = new PrivateKeyData();
+            Base64.Encoder encoder = Base64.getEncoder();
+
+            privKeyComponents.setArgonOptions(new com.quorum.tessera.config.ArgonOptions("i", 3, 268435456 / 1024, 1));
+            privKeyComponents.setAsalt(encoder.encodeToString(Arrays.copyOf(orionPrivateKeyData, 16)));
+            privKeyComponents.setSnonce(encoder.encodeToString(Arrays.copyOf(orionPrivateKeyData, 24)));
+            privKeyComponents.setSbox(encoder.encodeToString(Arrays.copyOfRange(orionPrivateKeyData, 24, orionPrivateKeyData.length)));
+            KeyDataConfig tesseraKeyConfig = new KeyDataConfig(privKeyComponents, PrivateKeyType.LOCKED);
+
+            String marshalled = JaxbUtil.marshalToStringNoValidation(tesseraKeyConfig);
+            Files.writeString(privateKeyPath, marshalled, StandardOpenOption.CREATE_NEW, StandardOpenOption.DSYNC);
+            return null;
+        });
     }
 
     static byte[] unlock(byte[] keyAsBytes, String password) {
