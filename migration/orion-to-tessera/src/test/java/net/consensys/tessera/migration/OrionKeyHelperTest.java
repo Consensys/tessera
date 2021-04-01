@@ -1,6 +1,5 @@
 package net.consensys.tessera.migration;
 
-import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.KeyDataConfig;
@@ -52,7 +51,6 @@ public class OrionKeyHelperTest {
         Files.createFile(publicKeyFile);
         Files.writeString(publicKeyFile,"arhIcNa+MuYXZabmzJD5B33F3dZgqb0hEbM3FZsylSg=");
 
-        Toml toml = new Toml();
         Map env = Map.of(
             "workdir",outputDir.getRoot().toPath().toAbsolutePath().toString(),
             "privatekeys",new String[] {"junit.key"},
