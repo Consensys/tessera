@@ -1,5 +1,7 @@
 package com.quorum.tessera.ssl.context;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
@@ -12,7 +14,14 @@ import java.io.InputStream;
 import java.nio.CharBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.Security;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
