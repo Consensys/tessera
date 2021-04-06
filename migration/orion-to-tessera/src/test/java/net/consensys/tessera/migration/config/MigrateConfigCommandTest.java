@@ -1,11 +1,6 @@
 package net.consensys.tessera.migration.config;
 
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.EncryptorType;
-import com.quorum.tessera.config.KeyConfiguration;
-import com.quorum.tessera.config.KeyData;
-import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import net.consensys.tessera.migration.data.TesseraJdbcOptions;
 import org.junit.Before;
@@ -86,6 +81,32 @@ public class MigrateConfigCommandTest {
 
         assertThat(p2pServerConfig.getServerUri()).isEqualTo(URI.create("http://127.0.0.1:9001"));
         assertThat(p2pServerConfig.getBindingUri()).isEqualTo(URI.create("http://0.0.0.0:9001"));
+
+        // Assert SSL related values
+        final SslConfig p2pSslConfig = p2pServerConfig.getSslConfig();
+
+        assertThat(p2pSslConfig.getTls()).isEqualTo(SslAuthenticationMode.STRICT);
+        assertThat(p2pSslConfig.getServerTlsKeyPath().getFileName().toString()).isEqualTo("server-key.pem");
+        assertThat(p2pSslConfig.getServerTlsCertificatePath().getFileName().toString()).isEqualTo("server-cert.pem");
+        assertThat(p2pSslConfig.getServerTrustCertificates()).hasSize(2);
+        assertThat(p2pSslConfig.getServerTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+        assertThat(p2pSslConfig.getKnownClientsFile().getFileName().toString()).isEqualTo("known-clients");
+
+        assertThat(p2pSslConfig.getClientTlsKeyPath().getFileName().toString()).isEqualTo("client-key.pem");
+        assertThat(p2pSslConfig.getClientTlsCertificatePath().getFileName().toString()).isEqualTo("client-cert.pem");
+        assertThat(p2pSslConfig.getClientTrustCertificates()).hasSize(1);
+        assertThat(p2pSslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA);
+        assertThat(p2pSslConfig.getKnownServersFile().getFileName().toString()).isEqualTo("known-servers");
+
+        final SslConfig q2tSslConfig = q2tServerConfig.getSslConfig();
+        assertThat(q2tSslConfig.getTls()).isEqualTo(SslAuthenticationMode.OFF);
+
+        assertThat(q2tSslConfig.getServerTlsKeyPath().getFileName().toString()).isEqualTo("key.pem");
+        assertThat(q2tSslConfig.getServerTlsCertificatePath().getFileName().toString()).isEqualTo("client-presented-cert.pem");
+        assertThat(q2tSslConfig.getServerTrustCertificates()).hasSize(0);
+        assertThat(q2tSslConfig.getServerTrustMode()).isEqualTo(SslTrustMode.WHITELIST);
+        assertThat(q2tSslConfig.getKnownClientsFile().getFileName().toString()).isEqualTo("client-connection-known-clients");
+
 
         JaxbUtil.marshalWithNoValidation(config,System.out);
 
