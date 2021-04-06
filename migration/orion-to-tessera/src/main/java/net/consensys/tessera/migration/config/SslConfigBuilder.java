@@ -2,11 +2,12 @@ package net.consensys.tessera.migration.config;
 
 import com.quorum.tessera.config.SslAuthenticationMode;
 import com.quorum.tessera.config.SslConfig;
+import com.quorum.tessera.config.SslConfigType;
 import com.quorum.tessera.config.SslTrustMode;
 
 import java.nio.file.Paths;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SslConfigBuilder {
@@ -17,24 +18,40 @@ public class SslConfigBuilder {
 
     private String sslAuthenticationMode;
 
-    private String clientTrustMode;
+    private String serverTlsKey;
 
-    private String serverKeyStore;
+    private String clientTlsKey;
 
-    private String clientKeyStore;
+    private String serverTlsCertificatePath;
 
     private String clientTlsCertificatePath;
 
-    private String tlsservertrust;
+    private List<String> clientTrustCertificates;
+
+    private List<String> serverTrustCertificates;
+
+    private String tlsServerTrustMode;
+
+    private String tlsClientTrustMode;
 
     private String knownServersFilePath;
 
     private String knownClientFilePath;
 
-    private String serverTlsCertificatePath;
+    private String sslConfigType;
 
     public SslConfigBuilder withServerTlsCertificatePath(String serverTlsCertificatePath) {
         this.serverTlsCertificatePath = serverTlsCertificatePath;
+        return this;
+    }
+
+    public SslConfigBuilder withServerTlsTrustCertChain(List<String> serverTlsTrustCertChain) {
+        this.serverTrustCertificates = serverTlsTrustCertChain;
+        return this;
+    }
+
+    public SslConfigBuilder withClientTlsTrustCertChain(List<String> clientTlsTrustCertChain) {
+        this.clientTrustCertificates = clientTlsTrustCertChain;
         return this;
     }
 
@@ -53,18 +70,23 @@ public class SslConfigBuilder {
         return this;
     }
 
-    public SslConfigBuilder withServerKeyStore(String serverKeyStore) {
-        this.serverKeyStore = serverKeyStore;
+    public SslConfigBuilder withServerTlsKey(String serverTlsKey) {
+        this.serverTlsKey = serverTlsKey;
         return this;
     }
 
-    public SslConfigBuilder withTlsServerTrust(String tlsservertrust) {
-        this.tlsservertrust = tlsservertrust;
+    public SslConfigBuilder withTlsServerTrustMode(String tlsServerTrustMode) {
+        this.tlsServerTrustMode = tlsServerTrustMode;
         return this;
     }
 
-    public SslConfigBuilder withClientKeyStore(String clientKeyStore) {
-        this.clientKeyStore = clientKeyStore;
+    public SslConfigBuilder withTlsClientTrustMode(String tlsClientTrustMode) {
+        this.tlsClientTrustMode = tlsClientTrustMode;
+        return this;
+    }
+
+    public SslConfigBuilder withClientTlsKey(String clientTlsKey) {
+        this.clientTlsKey = clientTlsKey;
         return this;
     }
 
@@ -73,14 +95,14 @@ public class SslConfigBuilder {
         return this;
     }
 
-    public SslConfigBuilder withClientTrustMode(String clientTrustMode) {
-        this.clientTrustMode = clientTrustMode;
+    public SslConfigBuilder withSslConfigType(String sslConfigType) {
+        this.sslConfigType = sslConfigType;
         return this;
     }
 
     public SslConfig build() {
 
-        if (Stream.of(serverKeyStore, clientKeyStore, tlsservertrust).allMatch(o -> Objects.isNull(o))) {
+        if (Stream.of(serverTlsKey, clientTlsKey, tlsServerTrustMode, tlsClientTrustMode).allMatch(o -> Objects.isNull(o))) {
             return null;
         }
 
@@ -92,19 +114,21 @@ public class SslConfigBuilder {
                 .map(SslAuthenticationMode::valueOf)
                 .ifPresent(sslConfig::setTls);
 
-        Optional.ofNullable(serverKeyStore).map(Paths::get).ifPresent(sslConfig::setServerKeyStore);
+        Optional.ofNullable(serverTlsKey).map(Paths::get).ifPresent(sslConfig::setServerTlsKeyPath);
 
-        Optional.ofNullable(tlsservertrust)
+        Optional.ofNullable(serverTlsCertificatePath).map(Paths::get).ifPresent(sslConfig::setServerTlsCertificatePath);
+
+        Optional.ofNullable(tlsServerTrustMode)
                 .map(String::toUpperCase)
                 .map(s -> s.replaceAll("-", "_"))
                 .map(SslTrustMode::valueOf)
                 .ifPresent(sslConfig::setServerTrustMode);
 
-        Optional.ofNullable(clientKeyStore).map(Paths::get).ifPresent(sslConfig::setClientKeyStore);
+        Optional.ofNullable(clientTlsKey).map(Paths::get).ifPresent(sslConfig::setClientTlsKeyPath);
 
         Optional.ofNullable(clientTlsCertificatePath).map(Paths::get).ifPresent(sslConfig::setClientTlsCertificatePath);
 
-        Optional.ofNullable(clientTrustMode)
+        Optional.ofNullable(tlsClientTrustMode)
                 .map(String::toUpperCase)
                 .map(SslTrustMode::valueOf)
                 .ifPresent(sslConfig::setClientTrustMode);
@@ -113,9 +137,15 @@ public class SslConfigBuilder {
 
         Optional.ofNullable(knownClientFilePath).map(Paths::get).ifPresent(sslConfig::setKnownClientsFile);
 
-        Optional.ofNullable(serverTlsCertificatePath).map(Paths::get).ifPresent(sslConfig::setServerTlsCertificatePath);
+        sslConfig.setClientTrustCertificates(
+            Stream.ofNullable(clientTrustCertificates).flatMap(Collection::stream).map(Paths::get).collect(Collectors.toList())
+        );
 
-        Optional.ofNullable(clientKeyStore).map(Paths::get).ifPresent(sslConfig::setClientKeyStore);
+        sslConfig.setServerTrustCertificates(
+            Stream.ofNullable(serverTrustCertificates).flatMap(Collection::stream).map(Paths::get).collect(Collectors.toList())
+        );
+
+        Optional.ofNullable(sslConfigType).map(SslConfigType::valueOf).ifPresent(sslConfig::setSslConfigType);
 
         return sslConfig;
     }

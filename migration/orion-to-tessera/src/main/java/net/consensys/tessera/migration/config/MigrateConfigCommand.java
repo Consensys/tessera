@@ -69,10 +69,6 @@ public class MigrateConfigCommand implements Callable<Config> {
         final String p2pBindingAddress = toml.getString("nodenetworkinterface", "127.0.0.1");
         final URI p2pBindingUri = URI.create(String.format("%s://%s:%s",p2pUri.getScheme(),p2pBindingAddress,p2pUri.getPort()));
 
-        List<String> tlsserverchain = toml.getList("tlsserverchain", List.of());
-
-        final String tlsservercert = toml.getString("tlsservercert");
-
         String q2tUrl = toml.getString("clienturl", "http://127.0.0.1:8888");
         long q2tPort = toml.getLong("clientport",8888L);
         URI qt2Uri = URI.create(q2tUrl);
@@ -84,22 +80,30 @@ public class MigrateConfigCommand implements Callable<Config> {
 
         final URI qt2BindingUri = URI.create(String.format("%s://%s:%s", qt2Uri.getScheme(), qt2BindingAddress, qt2Uri.getPort()));
 
-        String tlsclientkey = toml.getString("tlsclientkey");
-        String tlsclienttrust = toml.getString("tlsclienttrust");
-        String clientconnectiontls = toml.getString("clientconnectiontls");
-        String clientconnectiontlsservercert = toml.getString("clientconnectiontlsservercert");
-        List<String> clientconnectiontlsserverchain = toml.getList("clientconnectiontlsserverchain");
-        String clientconnectiontlsserverkey = toml.getString("clientconnectiontlsserverkey");
-        String clientconnectionTlsServerTrust = toml.getString("clientconnectionTlsServerTrust");
-        String tlsknownclients = toml.getString("tlsknownclients");
-        String tlsknownservers = toml.getString("tlsknownservers");
 
-        String tlsclientcert = toml.getString("tlsclientcert");
+        String authMode = toml.getString("tls"); // STRICT or OFF
 
-        String serverAuthTls = toml.getString("tls");
+        String tlsServerTrust = toml.getString("tlsservertrust"); //Server trust mode
+        String tlsServerKey = toml.getString("tlsserverkey");
+        String tlsServerCert = toml.getString("tlsservercert");
+        List<String> tlsServerChain = toml.getList("tlsserverchain", List.of());
+        String tlsKnownClients = toml.getString("tlsknownclients");
 
-        String tlsserverkey = toml.getString("tlsserverkey");
-        String tlsservertrust = toml.getString("tlsservertrust");
+        String tlsClientTrust = toml.getString("tlsclienttrust"); // Client trust mode
+        String tlsClientKey = toml.getString("tlsclientkey");
+        String tlsClientCert = toml.getString("tlsclientcert");
+        List<String> tlsClientChain = toml.getList("tlsclientchain", List.of());
+        String tlsKnownServers = toml.getString("tlsknownservers");
+
+
+        // This will be migrated into Q2T server
+        String clientConnectionTls = toml.getString("clientconnectiontls");
+        String clientConnectionTlsServerKey = toml.getString("clientconnectiontlsserverkey");
+        String clientConnectionTlsServerCert = toml.getString("clientconnectiontlsservercert");
+        List<String> clientConnectionTlsServerChain = toml.getList("clientconnectiontlsserverchain");
+        String clientConnectionTlsServerTrust = toml.getString("clientconnectiontlsservertrust"); // Trust mode
+        String clientConnectionTlsKnownClients = toml.getString("clientconnectiontlsknownclients");
+
 
         final List<String> privateKeys = toml.getList("privatekeys", List.of());
         final String passwordsFile = toml.getString("passwords");
@@ -128,13 +132,16 @@ public class MigrateConfigCommand implements Callable<Config> {
                 .withAppType(AppType.Q2T)
                 .withServerAddress(qt2Uri.toString())
                 .withBindingAddress(qt2BindingUri.toString())
-
-                //     .withServerPort(clientport)
-                //     .withServerAddress(clienturl)
-                //                .withSslConfig(SslConfigBuilder.create()
-                //                        .withClientTrustMode(clientconnectiontls)
-                //                        .withClientKeyStore(tlsclientkey)
-                //                        .build())
+                .withSslConfig(
+                    SslConfigBuilder.create().withSslConfigType("SERVER_ONLY")
+                        .withSslAuthenticationMode(clientConnectionTls)
+                        .withServerTlsKey(clientConnectionTlsServerKey)
+                        .withServerTlsCertificatePath(clientConnectionTlsServerCert)
+                        .withServerTlsTrustCertChain(clientConnectionTlsServerChain)
+                        .withTlsServerTrustMode(clientConnectionTlsServerTrust)
+                        .withKnownClientFilePath(clientConnectionTlsKnownClients)
+                        .build()
+                )
                 .build();
 
         ServerConfig p2pServer =
@@ -144,16 +151,17 @@ public class MigrateConfigCommand implements Callable<Config> {
                 .withBindingAddress(p2pBindingUri.toString())
                 .withSslConfig(
                     SslConfigBuilder.create()
-                        .withSslAuthenticationMode(serverAuthTls)
-                        .withServerKeyStore(tlsserverkey)
-                        .withTlsServerTrust(tlsservertrust)
-                        .withKnownClientFilePath(tlsknownclients)
-                        .withKnownServersFilePath(tlsknownservers)
-                        .withClientTrustMode(tlsclienttrust)
-                        .withClientKeyStore(tlsclientkey)
-                        .withServerTlsCertificatePath(tlsservercert)
-                        .withClientTlsCertificatePath(tlsclientcert)
-                        .withClientTrustMode(clientconnectionTlsServerTrust)
+                        .withSslAuthenticationMode(authMode)
+                        .withTlsServerTrustMode(tlsServerTrust)
+                        .withServerTlsKey(tlsServerKey)
+                        .withServerTlsCertificatePath(tlsServerCert)
+                        .withServerTlsTrustCertChain(tlsServerChain)
+                        .withKnownClientFilePath(tlsKnownClients)
+                        .withTlsClientTrustMode(tlsClientTrust)
+                        .withClientTlsKey(tlsClientKey)
+                        .withClientTlsCertificatePath(tlsClientCert)
+                        .withClientTlsTrustCertChain(tlsClientChain)
+                        .withKnownServersFilePath(tlsKnownServers)
                         .build())
                 .build();
 
