@@ -130,6 +130,7 @@ public class SslConfigBuilder {
 
         Optional.ofNullable(tlsClientTrustMode)
                 .map(String::toUpperCase)
+                .map(s -> s.replaceAll("-", "_"))
                 .map(SslTrustMode::valueOf)
                 .ifPresent(sslConfig::setClientTrustMode);
 

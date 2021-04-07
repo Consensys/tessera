@@ -83,17 +83,17 @@ public class MigrateConfigCommand implements Callable<Config> {
 
         String authMode = toml.getString("tls"); // STRICT or OFF
 
-        String tlsServerTrust = toml.getString("tlsservertrust"); //Server trust mode
-        String tlsServerKey = toml.getString("tlsserverkey");
-        String tlsServerCert = toml.getString("tlsservercert");
+        String tlsServerTrust = toml.getString("tlsservertrust", "tofu"); //Server trust mode
+        String tlsServerKey = toml.getString("tlsserverkey", "tls-server-key.pem");
+        String tlsServerCert = toml.getString("tlsservercert", "tls-server-cert.pem");
         List<String> tlsServerChain = toml.getList("tlsserverchain", List.of());
-        String tlsKnownClients = toml.getString("tlsknownclients");
+        String tlsKnownClients = toml.getString("tlsknownclients", "tls-known-clients");
 
-        String tlsClientTrust = toml.getString("tlsclienttrust"); // Client trust mode
-        String tlsClientKey = toml.getString("tlsclientkey");
-        String tlsClientCert = toml.getString("tlsclientcert");
+        String tlsClientTrust = toml.getString("tlsclienttrust", "ca-or-tofu"); // Client trust mode
+        String tlsClientKey = toml.getString("tlsclientkey", "tls-client-key.pem");
+        String tlsClientCert = toml.getString("tlsclientcert", "tls-client-cert.pem");
         List<String> tlsClientChain = toml.getList("tlsclientchain", List.of());
-        String tlsKnownServers = toml.getString("tlsknownservers");
+        String tlsKnownServers = toml.getString("tlsknownservers", "tls-known-servers");
 
 
         // This will be migrated into Q2T server

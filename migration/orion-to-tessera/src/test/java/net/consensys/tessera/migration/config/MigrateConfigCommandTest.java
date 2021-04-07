@@ -8,6 +8,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -157,6 +158,34 @@ public class MigrateConfigCommandTest {
         assertThat(keyData.getPublicKeyPath().toAbsolutePath()).isEqualTo(Paths.get("").toAbsolutePath()
             .resolve("workdir/orion1").resolve("nodeKey.pub"));
 
+
+    }
+
+    @Test
+    public void minimalSslConfigAssertDefaultValues() throws IOException {
+
+        Path orionConfigFile = loadFromClassloader("/minimal-ssl.toml");
+
+        MigrateConfigCommand migrateConfigCommand = new MigrateConfigCommand(
+            orionConfigFile,
+            outputDir.getRoot().toPath().resolve("tessera-config.json"),
+            tesseraJdbcOptions
+        );
+
+        Config config = migrateConfigCommand.call();
+        JaxbUtil.marshalWithNoValidation(config,System.out);
+
+        final SslConfig p2pSslConfig = config.getP2PServerConfig().getSslConfig();
+
+        assertThat(p2pSslConfig.getTls()).isEqualTo(SslAuthenticationMode.STRICT);
+        assertThat(p2pSslConfig.getServerTlsKeyPath().getFileName().toString()).isEqualTo("tls-server-key.pem");
+        assertThat(p2pSslConfig.getServerTlsCertificatePath().getFileName().toString()).isEqualTo("tls-server-cert.pem");
+
+        assertThat(p2pSslConfig.getServerTrustMode()).isEqualTo(SslTrustMode.TOFU);
+        assertThat(p2pSslConfig.getKnownClientsFile().getFileName().toString()).isEqualTo("tls-known-clients");
+
+        assertThat(p2pSslConfig.getClientTrustMode()).isEqualTo(SslTrustMode.CA_OR_TOFU);
+        assertThat(p2pSslConfig.getKnownServersFile().getFileName().toString()).isEqualTo("tls-known-servers");
 
     }
 
