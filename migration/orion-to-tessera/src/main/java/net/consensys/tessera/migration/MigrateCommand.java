@@ -3,7 +3,12 @@ package net.consensys.tessera.migration;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
 import net.consensys.tessera.migration.config.MigrateConfigCommand;
-import net.consensys.tessera.migration.data.*;
+import net.consensys.tessera.migration.data.InboundDbHelper;
+import net.consensys.tessera.migration.data.MigrateDataCommand;
+import net.consensys.tessera.migration.data.MigrationInfo;
+import net.consensys.tessera.migration.data.MigrationInfoFactory;
+import net.consensys.tessera.migration.data.PayloadType;
+import net.consensys.tessera.migration.data.TesseraJdbcOptions;
 import picocli.CommandLine;
 
 import java.io.OutputStream;
@@ -14,6 +19,10 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public class MigrateCommand implements Callable<Config> {
+
+    @CommandLine.Option(names = {"-h", "--help","help"},
+        usageHelp = true, description = "Print this message")
+    private boolean usageHelpRequested;
 
     @CommandLine.Option(
             names = {"-f", "orionfile", "orionconfig"},
@@ -29,6 +38,10 @@ public class MigrateCommand implements Callable<Config> {
 
     @CommandLine.Mixin
     private TesseraJdbcOptions tesseraJdbcOptions = new TesseraJdbcOptions();
+
+    public boolean isUsageHelpRequested() {
+        return usageHelpRequested;
+    }
 
     @Override
     public Config call() throws Exception {
