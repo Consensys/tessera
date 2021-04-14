@@ -67,16 +67,16 @@ public class PrivacyGroupManagerTest {
         final List<PublicKey> members = List.of(localKey, recipient1, recipient2);
 
         doAnswer(
-            invocation -> {
-                Callable callable = invocation.getArgument(1);
-                callable.call();
-                return mock(PrivacyGroupEntity.class);
-            })
-            .when(privacyGroupDAO)
-            .save(any(), any());
+                        invocation -> {
+                            Callable callable = invocation.getArgument(1);
+                            callable.call();
+                            return mock(PrivacyGroupEntity.class);
+                        })
+                .when(privacyGroupDAO)
+                .save(any(), any());
 
         final PrivacyGroup privacyGroup =
-            privacyGroupManager.createPrivacyGroup("name", "description", localKey, members, new byte[1]);
+                privacyGroupManager.createPrivacyGroup("name", "description", localKey, members, new byte[1]);
 
         // Verify entity being saved has the correct values
         ArgumentCaptor<PrivacyGroupEntity> argCaptor = ArgumentCaptor.forClass(PrivacyGroupEntity.class);
@@ -115,10 +115,10 @@ public class PrivacyGroupManagerTest {
         final List<PublicKey> members = List.of(mock(PublicKey.class), mock(PublicKey.class));
 
         assertThatThrownBy(
-            () ->
-                privacyGroupManager.createPrivacyGroup(
-                    "name", "description", localKey, members, new byte[1]))
-            .isInstanceOf(PrivacyViolationException.class);
+                        () ->
+                                privacyGroupManager.createPrivacyGroup(
+                                        "name", "description", localKey, members, new byte[1]))
+                .isInstanceOf(PrivacyViolationException.class);
     }
 
     @Test
@@ -134,7 +134,7 @@ public class PrivacyGroupManagerTest {
 
         // Verify entity being saved has the correct values
         ArgumentCaptor<PrivacyGroupEntity> argCaptor = ArgumentCaptor.forClass(PrivacyGroupEntity.class);
-        verify(privacyGroupDAO).save(argCaptor.capture());
+        verify(privacyGroupDAO).retrieveOrSave(argCaptor.capture());
         PrivacyGroupEntity savedEntity = argCaptor.getValue();
         assertThat(savedEntity).isNotNull();
         assertThat(savedEntity.getId()).isEqualTo("generatedId".getBytes());
@@ -146,12 +146,12 @@ public class PrivacyGroupManagerTest {
         assertThat(privacyGroup.getId().getBytes()).isEqualTo("generatedId".getBytes());
         assertThat(privacyGroup.getName()).isEqualTo("legacy");
         assertThat(privacyGroup.getDescription())
-            .isEqualTo("Privacy groups to support the creation of groups by privateFor and privateFrom");
+                .isEqualTo("Privacy groups to support the creation of groups by privateFor and privateFrom");
         assertThat(privacyGroup.getMembers()).containsAll(members).contains(localKey);
         assertThat(privacyGroup.getType()).isEqualTo(PrivacyGroup.Type.LEGACY);
         assertThat(privacyGroup.getState()).isEqualTo(PrivacyGroup.State.ACTIVE);
 
-        verify(privacyGroupDAO).retrieve("generatedId".getBytes());
+        verify(privacyGroupDAO).retrieveOrSave(any());
     }
 
     @Test
@@ -161,13 +161,13 @@ public class PrivacyGroupManagerTest {
         when(privacyGroupUtil.generateId(anyList())).thenReturn("generatedId".getBytes());
 
         when(privacyGroupDAO.retrieve("generatedId".getBytes()))
-            .thenReturn(Optional.of(mock(PrivacyGroupEntity.class)));
+                .thenReturn(Optional.of(mock(PrivacyGroupEntity.class)));
 
         final PrivacyGroup privacyGroup = privacyGroupManager.createLegacyPrivacyGroup(localKey, members);
 
         assertThat(privacyGroup).isNotNull();
 
-        verify(privacyGroupDAO).retrieve("generatedId".getBytes());
+        verify(privacyGroupDAO).retrieveOrSave(any());
     }
 
     @Test
@@ -333,13 +333,13 @@ public class PrivacyGroupManagerTest {
         when(privacyGroupUtil.generateLookupId(any())).thenReturn("lookup".getBytes());
 
         doAnswer(
-            invocation -> {
-                Callable callable = invocation.getArgument(1);
-                callable.call();
-                return mock(PrivacyGroupEntity.class);
-            })
-            .when(privacyGroupDAO)
-            .update(any(), any());
+                        invocation -> {
+                            Callable callable = invocation.getArgument(1);
+                            callable.call();
+                            return mock(PrivacyGroupEntity.class);
+                        })
+                .when(privacyGroupDAO)
+                .update(any(), any());
 
         PrivacyGroup result = privacyGroupManager.deletePrivacyGroup(from, PrivacyGroup.Id.fromBytes("id".getBytes()));
 
@@ -355,7 +355,7 @@ public class PrivacyGroupManagerTest {
         assertThat(payloadCaptor.getValue()).isEqualTo("deletedData".getBytes());
 
         assertThat(recipientsCaptor.getValue())
-            .containsAll(List.of(PublicKey.from("r1".getBytes()), PublicKey.from("r2".getBytes())));
+                .containsAll(List.of(PublicKey.from("r1".getBytes()), PublicKey.from("r2".getBytes())));
 
         ArgumentCaptor<PrivacyGroup> argCaptor = ArgumentCaptor.forClass(PrivacyGroup.class);
         verify(privacyGroupUtil).encode(argCaptor.capture());
@@ -371,10 +371,10 @@ public class PrivacyGroupManagerTest {
         when(privacyGroupUtil.encode(any())).thenReturn("deletedData".getBytes());
 
         assertThatThrownBy(
-            () ->
-                privacyGroupManager.deletePrivacyGroup(
-                    mock(PublicKey.class), PrivacyGroup.Id.fromBytes("id".getBytes())))
-            .isInstanceOf(PrivacyGroupNotFoundException.class);
+                        () ->
+                                privacyGroupManager.deletePrivacyGroup(
+                                        mock(PublicKey.class), PrivacyGroup.Id.fromBytes("id".getBytes())))
+                .isInstanceOf(PrivacyGroupNotFoundException.class);
 
         verify(privacyGroupDAO).retrieve("id".getBytes());
     }
@@ -396,8 +396,9 @@ public class PrivacyGroupManagerTest {
 
         when(privacyGroupUtil.decode("data".getBytes())).thenReturn(mockPG);
 
-        assertThatThrownBy(() -> privacyGroupManager.deletePrivacyGroup(from, PrivacyGroup.Id.fromBytes("id".getBytes())))
-            .isInstanceOf(PrivacyViolationException.class);
+        assertThatThrownBy(
+                        () -> privacyGroupManager.deletePrivacyGroup(from, PrivacyGroup.Id.fromBytes("id".getBytes())))
+                .isInstanceOf(PrivacyViolationException.class);
 
         verify(privacyGroupDAO).retrieve("id".getBytes());
     }
@@ -419,10 +420,10 @@ public class PrivacyGroupManagerTest {
         when(privacyGroupUtil.encode(any())).thenReturn("deletedData".getBytes());
 
         assertThatThrownBy(
-            () ->
-                privacyGroupManager.deletePrivacyGroup(
-                    mock(PublicKey.class), PrivacyGroup.Id.fromBytes("id".getBytes())))
-            .isInstanceOf(PrivacyGroupNotFoundException.class);
+                        () ->
+                                privacyGroupManager.deletePrivacyGroup(
+                                        mock(PublicKey.class), PrivacyGroup.Id.fromBytes("id".getBytes())))
+                .isInstanceOf(PrivacyGroupNotFoundException.class);
 
         verify(privacyGroupDAO).retrieve("id".getBytes());
     }

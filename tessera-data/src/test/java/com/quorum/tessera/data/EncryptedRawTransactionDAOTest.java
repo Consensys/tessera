@@ -68,7 +68,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "ENCRYPTED_PAYLOAD");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCRYPTED_PAYLOAD");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("ENCRYPTED_PAYLOAD");
         }
     }
@@ -86,7 +86,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "HASH");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "HASH");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("HASH");
         }
     }
@@ -104,7 +104,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "NONCE");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "NONCE");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("NONCE");
         }
     }
@@ -122,7 +122,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "ENCRYPTED_KEY");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCRYPTED_KEY");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("ENCRYPTED_KEY");
         }
     }
@@ -140,7 +140,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "SENDER");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "SENDER");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("SENDER");
         }
     }
@@ -167,7 +167,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(duplicateTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            assertThat(ex).hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+            assertThat(ex).hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
         }
     }
 
