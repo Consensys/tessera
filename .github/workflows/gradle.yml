@@ -177,7 +177,7 @@ jobs:
       - uses: docker/build-push-action@v1
         with:
           repository: quorumengineering/tessera
-          tags: latest
+          tags: develop
           push: false
           dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: JAR_FILE=tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar
