@@ -109,6 +109,8 @@ dependencies {
 
     implementation "co.nstant.in:cbor:0.9"
 
+    testImplementation("org.postgresql:postgresql:42.2.6")
+
 //    implementation("org.iq80.leveldb:leveldb-api:0.12")  {
 //        transitive = false
 //    }
