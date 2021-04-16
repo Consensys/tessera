@@ -73,16 +73,6 @@ jobs:
 
   orion-migration-test:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     needs: [build]
     steps:
       - uses: actions/checkout@v2
@@ -95,12 +85,42 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew :migration:orion-to-tessera:test -P downloadOrionMigrationSamples -P runPostgresTests --info
+      - run: ./gradlew :migration:orion-to-tessera:test -P downloadOrionMigrationSamples --info
       - uses: actions/upload-artifact@v1
         if: always()
         with:
             name: orion_migration_test-report
             path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
+
+  orion-postres-migration-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
+          restore-keys: |
+            ${{ env.GRADLE_CACHE_KEY }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew :migration:orion-to-tessera:test -P runPostgresTests --info
+      - uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: orion_migration_test-report
+          path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
 
   itest:
     runs-on: ubuntu-latest

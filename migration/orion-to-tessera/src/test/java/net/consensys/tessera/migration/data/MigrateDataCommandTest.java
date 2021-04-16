@@ -343,6 +343,14 @@ public class MigrateDataCommandTest {
         public List<EncryptedTransactionFixture> getEncryptedTransactionFixtures() {
             return encryptedTransactionFixtures;
         }
+
+        @Override
+        public String toString() {
+            return "TestConfig{" +
+                "orionDbType=" + orionDbType +
+                ", configDirPath=" + configDirPath +
+                '}';
+        }
     }
 
     static class PrivacyGroupFixture {
