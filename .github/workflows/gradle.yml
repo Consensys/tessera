@@ -120,12 +120,12 @@ jobs:
         with:
           java-version: 11
       - run: ./gradlew :migration:orion-to-tessera:test -P runPostgresTests --info
-      - env:
-        POSTGRES_HOST: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_DB: orion
-        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        env:
+          POSTGRES_HOST: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: orion
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
       - uses: actions/upload-artifact@v1
         if: always()
         with:
