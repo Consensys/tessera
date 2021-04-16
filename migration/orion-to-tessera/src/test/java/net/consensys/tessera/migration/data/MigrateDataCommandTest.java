@@ -43,6 +43,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -115,11 +116,11 @@ public class MigrateDataCommandTest {
             when(inboundDbHelper.getLevelDb()).thenReturn(Optional.of(leveldb));
             when(inboundDbHelper.getInputType()).thenReturn(InputType.LEVELDB);
         }
-        else {
+        else if(testConfig.getOrionDbType() == OrionDbType.POSTGRES) {
             HikariConfig hikariConfig = new HikariConfig();
-            hikariConfig.setJdbcUrl("jdbc:postgresql://localhost:5432/namtruong");
-            hikariConfig.setUsername("postgres");
-            hikariConfig.setPassword("postgres");
+            hikariConfig.setJdbcUrl(System.getProperty("postgres.jdbc.url"));
+            hikariConfig.setUsername(System.getProperty("postgres.jdbc.user"));
+            hikariConfig.setPassword(System.getProperty("postgres.jdbc.password"));
 
             HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
             when(inboundDbHelper.getJdbcDataSource()).thenReturn(Optional.of(hikariDataSource));
@@ -300,7 +301,12 @@ public class MigrateDataCommandTest {
                 )))
             .collect(Collectors.toUnmodifiableList());
 
-        return List.copyOf(postgresConfigs);
+        List<TestConfig> configs = new ArrayList<>(levelDbConfigs);
+        if(Boolean.valueOf(System.getProperty("postgres.tests","false"))) {
+            configs.addAll(postgresConfigs);
+        }
+
+        return List.copyOf(configs);
     }
 
     static class TestConfig {

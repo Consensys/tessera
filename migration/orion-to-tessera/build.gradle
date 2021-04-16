@@ -154,6 +154,14 @@ dependencies {
 test {
 
     doFirst {
+
+        if(project.hasProperty("runPostgresTests")) {
+            systemProperty("postgres.tests","true")
+            systemProperty("postgres.jdbc.url","jdbc:postgresql://localhost:5432/orion")
+            systemProperty("postgres.jdbc.user","postgres")
+            systemProperty("postgres.jdbc.password","postgres")
+        }
+
         if(project.hasProperty("downloadOrionMigrationSamples")) {
 
             def samplesDir = file("${buildDir}/resources/test/samples/")
