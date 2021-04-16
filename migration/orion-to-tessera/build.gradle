@@ -109,6 +109,8 @@ dependencies {
 
     implementation "co.nstant.in:cbor:0.9"
 
+    testImplementation("org.postgresql:postgresql:42.2.6")
+
 //    implementation("org.iq80.leveldb:leveldb-api:0.12")  {
 //        transitive = false
 //    }
@@ -152,6 +154,14 @@ dependencies {
 test {
 
     doFirst {
+
+        if(project.hasProperty("runPostgresTests")) {
+            systemProperty("postgres.tests","true")
+            systemProperty("postgres.jdbc.url","jdbc:postgresql://"+ System.getenv("POSTGRES_HOST") +":"+ System.getenv("POSTGRES_PORT") +"/"+ System.getenv("POSTGRES_DB"))
+            systemProperty("postgres.jdbc.user","postgres")
+            systemProperty("postgres.jdbc.password","postgres")
+        }
+
         if(project.hasProperty("downloadOrionMigrationSamples")) {
 
             def samplesDir = file("${buildDir}/resources/test/samples/")

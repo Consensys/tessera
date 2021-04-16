@@ -2,9 +2,19 @@ package net.consensys.tessera.migration.data;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyGroup;
+import com.quorum.tessera.enclave.PrivacyGroupUtil;
+import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.io.IOCallback;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import net.consensys.tessera.migration.OrionKeyHelper;
 import org.apache.commons.io.FileUtils;
+import org.apache.tuweni.crypto.sodium.Box;
+import org.h2.jdbcx.JdbcDataSource;
 import org.iq80.leveldb.DB;
 import org.iq80.leveldb.Options;
 import org.junit.After;
@@ -22,6 +32,14 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +63,6 @@ public class MigrateDataCommandTest {
 
     private TesseraJdbcOptions tesseraJdbcOptions;
 
-    private Path orionConfigDir;
-
     private String tesseraJdbcUrl;
 
     @Rule
@@ -54,16 +70,16 @@ public class MigrateDataCommandTest {
 
     private OrionKeyHelper orionKeyHelper;
 
-    private MigrationInfo migrationInfo;
+    private TestConfig testConfig;
 
-    public MigrateDataCommandTest(Path orionConfigDir) {
-        this.orionConfigDir = orionConfigDir;
+    public MigrateDataCommandTest(TestConfig testConfig) {
+        this.testConfig = testConfig;
     }
 
     @Before
     public void beforeTest() throws Exception {
 
-        FileUtils.copyDirectory(orionConfigDir.toFile(),outputDir.getRoot());
+        FileUtils.copyDirectory(testConfig.getConfigDirPath().toFile(),outputDir.getRoot());
 
         Path workfingOrionConfigDir = outputDir.getRoot().toPath();
 
@@ -80,17 +96,61 @@ public class MigrateDataCommandTest {
         Path adjustedOrionConfigFile = workfingOrionConfigDir.resolve("orion-adjusted.conf");
         tomlWriter.write(orionConfig,Files.newOutputStream(adjustedOrionConfigFile));
 
-        Options options = new Options();
-        //options.logger(s -> System.out.println(s));
-        options.createIfMissing(true);
-        String dbname = "routerdb";
-        final DB leveldb = IOCallback.execute(
-            () -> factory.open(workfingOrionConfigDir.resolve(dbname).toAbsolutePath().toFile(), options)
-        );
-
         inboundDbHelper = mock(InboundDbHelper.class);
-        when(inboundDbHelper.getLevelDb()).thenReturn(Optional.of(leveldb));
-        when(inboundDbHelper.getInputType()).thenReturn(InputType.LEVELDB);
+        if(testConfig.getOrionDbType() == OrionDbType.LEVELDB) {
+            Options options = new Options();
+            //options.logger(s -> System.out.println(s));
+            options.createIfMissing(true);
+            String dbname = "routerdb";
+            final DB leveldb = IOCallback.execute(
+                () -> factory.open(workfingOrionConfigDir.resolve(dbname).toAbsolutePath().toFile(), options)
+            );
+            when(inboundDbHelper.getLevelDb()).thenReturn(Optional.of(leveldb));
+            when(inboundDbHelper.getInputType()).thenReturn(InputType.LEVELDB);
+        }
+        else if(testConfig.getOrionDbType() == OrionDbType.POSTGRES) {
+            HikariConfig hikariConfig = new HikariConfig();
+            hikariConfig.setJdbcUrl(System.getProperty("postgres.jdbc.url"));
+            hikariConfig.setUsername(System.getProperty("postgres.jdbc.user"));
+            hikariConfig.setPassword(System.getProperty("postgres.jdbc.password"));
+
+            HikariDataSource hikariDataSource = new HikariDataSource(hikariConfig);
+            when(inboundDbHelper.getJdbcDataSource()).thenReturn(Optional.of(hikariDataSource));
+            when(inboundDbHelper.getInputType()).thenReturn(InputType.JDBC);
+
+            try(Connection connection = hikariDataSource.getConnection()) {
+                try(Statement statement = connection.createStatement()) {
+
+                    statement.execute("DROP TABLE IF EXISTS store");
+
+                    statement.execute("CREATE TABLE store (\n" +
+                        "  key char(60),\n" +
+                        "  value bytea,\n" +
+                        "  primary key(key)\n" +
+                        ")");
+                }
+
+                Path sqlFile = workfingOrionConfigDir.resolve("sql").resolve("store.sql");
+
+                try(Statement statement = connection.createStatement()) {
+
+                    Files.lines(sqlFile).forEach(line -> {
+                        try {
+                            statement.addBatch(line);
+                        } catch (SQLException sqlException) {
+                            throw new RuntimeException(sqlException);
+                        }
+                    });
+                    statement.executeBatch();
+                }
+
+                try(ResultSet count = connection.createStatement()
+                    .executeQuery("SELECT COUNT(*) FROM store")) {
+                    assertThat(count.next()).isTrue();
+                    assertThat(count.getLong(1)).isEqualTo(Files.lines(sqlFile).count());
+                }
+            }
+        }
 
         tesseraJdbcOptions = mock(TesseraJdbcOptions.class);
         when(tesseraJdbcOptions.getAction()).thenReturn("drop-and-create");
@@ -102,8 +162,8 @@ public class MigrateDataCommandTest {
 
         migrateDataCommand = new MigrateDataCommand(inboundDbHelper, tesseraJdbcOptions, orionKeyHelper);
 
+        MigrationInfoFactory.create(inboundDbHelper);
 
-        this.migrationInfo = MigrationInfoFactory.create(inboundDbHelper);
 
     }
 
@@ -125,13 +185,79 @@ public class MigrateDataCommandTest {
         assertThat(result.get(PayloadType.ENCRYPTED_PAYLOAD)).isEqualTo(migrationInfo.getTransactionCount());
         assertThat(result.get(PayloadType.PRIVACY_GROUP_PAYLOAD)).isEqualTo(migrationInfo.getPrivacyGroupCount());
 
+        JdbcDataSource tesseraDataSource = new JdbcDataSource();
+        tesseraDataSource.setURL(tesseraJdbcUrl);
+        tesseraDataSource.setUser("junit");
+        tesseraDataSource.setPassword("junit");
 
+        if (!testConfig.getPrivacyGroupFixtures().isEmpty()) {
+            try(Connection connection = tesseraDataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT DATA FROM PRIVACY_GROUP WHERE ID = ?")
+            ) {
+
+                for(PrivacyGroupFixture fixture : testConfig.getPrivacyGroupFixtures()) {
+                    PrivacyGroup.Id id = PrivacyGroup.Id.fromBase64String(fixture.getId());
+                    statement.setBytes(1, id.getBytes());
+                    try(ResultSet resultSet = statement.executeQuery()) {
+                        assertThat(resultSet.next()).isTrue();
+
+                        byte[] payload = resultSet.getBytes(1);
+
+                        PrivacyGroup privacyGroup = PrivacyGroupUtil.create().decode(payload);
+
+                        assertThat(privacyGroup.getId().getBase64()).isEqualTo(fixture.getId());
+                        assertThat(privacyGroup.getType().name()).isEqualTo(fixture.getType());
+
+                        List<String> membersBase64 = privacyGroup.getMembers().stream()
+                            .map(PublicKey::encodeToBase64)
+                            .collect(Collectors.toList());
+                        assertThat(membersBase64).isEqualTo(fixture.getMembers());
+                    }
+                }
+            }
+        }
+
+        if (!testConfig.getEncryptedTransactionFixtures().isEmpty()) {
+            try(Connection connection = tesseraDataSource.getConnection();
+                PreparedStatement statement = connection.prepareStatement("SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?")
+            ) {
+
+                for(EncryptedTransactionFixture fixture : testConfig.getEncryptedTransactionFixtures()) {
+                    byte[] hash = Base64.getDecoder().decode(fixture.getId());
+                    String expected = fixture.getPayload();
+                    statement.setBytes(1,hash);
+                    try(ResultSet resultSet = statement.executeQuery()) {
+                        assertThat(resultSet.next()).isTrue();
+
+                        byte[] payload = resultSet.getBytes(1);
+
+                        EncodedPayload encodedPayload = PayloadEncoder.create().decode(payload);
+                        PublicKey encryptionKey = orionKeyHelper.getKeyPairs().stream().findFirst()
+                            .map(Box.KeyPair::publicKey)
+                            .map(Box.PublicKey::bytesArray)
+                            .map(PublicKey::from)
+                            .get();
+
+                        Enclave enclave = TesseraEnclaveFactory.createEnclave(orionKeyHelper);
+
+                        byte[] unencryptedTransaction = enclave.unencryptTransaction(encodedPayload,encryptionKey);
+
+                        assertThat(unencryptedTransaction).isEqualTo(Base64.getDecoder().decode(expected));
+                        assertThat(encodedPayload.getPrivacyGroupId()).isPresent();
+                        assertThat(encodedPayload.getPrivacyGroupId().get().getBase64())
+                            .isEqualTo(fixture.getPrivacyGroupId());
+                        assertThat(encodedPayload.getSenderKey().encodeToBase64())
+                            .isEqualTo(fixture.getSender());
+                    }
+                }
+            }
+        }
     }
 
 
     @Parameterized.Parameters(name = "{0}")
-    public static List<Path> configs() throws IOException {
-        return Files.list(Paths.get("samples"))
+    public static List<TestConfig> configs() throws IOException {
+        List<TestConfig> levelDbConfigs = Files.list(Paths.get("samples"))
             .filter(Files::isDirectory)
             .flatMap(d -> {
                 try {
@@ -139,12 +265,149 @@ public class MigrateDataCommandTest {
                 } catch (IOException ioException) {
                     throw new UncheckedIOException(ioException);
                 }
-            })
+            }).map(p -> new TestConfig(OrionDbType.LEVELDB,p, Collections.emptyList(), Collections.emptyList()))
             .collect(Collectors.toUnmodifiableList());
+
+
+        List<TestConfig> postgresConfigs = Files.list(Paths.get("pgsamples"))
+            .filter(Files::isDirectory)
+            .flatMap(d -> {
+                try {
+                    return Files.list(d).filter(Files::isDirectory);
+                } catch (IOException ioException) {
+                    throw new UncheckedIOException(ioException);
+                }
+            }).map(p -> new TestConfig(OrionDbType.POSTGRES,p,
+                List.of(
+                    new PrivacyGroupFixture(
+                        "67NmE7/94nuomQiZv/g19BzyhhX84kwJo3lr5+n43xI=",
+                        "LEGACY",
+                        List.of("KkOjNLmCI6r+mICrC6l+XuEDjFEzQllaMQMpWLl4y1s=","qaBVuA+nG7Yt+kru6CGI2VMxOBAK7b1KNmiJuInHtwc=","GGilEkXLaQ9yhhtbpBT03Me9iYa7U/mWXxrJhnbl1XY=")
+                    )
+                ),
+                List.of(
+                    new EncryptedTransactionFixture(
+                        "Tg+L+iUtsIKkaph25HCyCKpv+sYoK75dEhc7dLWAOQ0=",
+                        "GGilEkXLaQ9yhhtbpBT03Me9iYa7U/mWXxrJhnbl1XY=",
+                        "K1FKTUdZQ0RMY2JBZ0lDNUFhNWdnR0JBVWpTQUZXRUFFRmRnQUlEOVcxQmdRRkZoQVk0NEE0QmhBWTZET1lHQkFXQkFVbUFnZ1JBVllRQXpWMkFBZ1AxYmdRR1FnSUJSa0dBZ0FaQ1NrWkJRVUZDQVlBQ0JrRlZRZjRXK29SMkd6dnNXVTNUZzl5ZTZ6eUhjTDA2b0ZrazVnZXozTGMreUVxUVFnV0JBVVlDQ2dWSmdJQUdSVUZCZ1FGR0FrUU9Rb1ZCZy9ZQmhBSkZnQURsZ0FQUCtZSUJnUUZJMGdCVmdEMWRnQUlEOVcxQmdCRFlRWURKWFlBQTFZT0FjZ0dOZy9rZXhGR0EzVjRCamJVem1QQlJnWWxkYllBQ0EvVnRnWUdBRWdEWURZQ0NCRUJWZ1MxZGdBSUQ5VzRFQmtJQ0FOWkJnSUFHUWtwR1FVRkJRWUg1V1d3QmJZR2hndjFaYllFQlJnSUtCVW1BZ0FaRlFVR0JBVVlDUkE1RHpXNEJnQUlHUVZWQi9oYjZoSFliTyt4WlRkT0QzSjdyUElkd3ZUcWdXU1RtQjdQY3R6N0lTcEJDQllFQlJnSUtCVW1BZ0FaRlFVR0JBVVlDUkE1Q2hVRlpiWUFDQVZKQlFrRmIrb21WaWVucHlNVmdnZHpXakxhcDJjRm5kSXc3bmNZNjM4Si96WEtpNlZDU2JVK29jTGhLNWo0VmtjMjlzWTBNQUJSRUFNZ0FBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQmdnL25vSlh6K2RXM0x4NTJ0UW9LVXFGYjdiMG5vVjEvRlUxcG85YjhZMS9rTGtLdG9GUGYvMXN6cW95NzV5YUwxYVhmTE1uVTVWMGlmaE5VYVBiM2wwSHZVTmhHb0Job3BSSkZ5MmtQY29ZYlc2UVU5TnpIdlltR3UxUDVsbDhheVlaMjVkVjI0YUFxUTZNMHVZSWpxdjZZZ0tzTHFYNWU0UU9NVVROQ1dWb3hBeWxZdVhqTFc0cHlaWE4wY21samRHVms=",
+                        "OGD/4dkDZWb4VqgDfElovjYMDAcSiRUiB6fLtFRmugU="
+                    )
+                )))
+            .collect(Collectors.toUnmodifiableList());
+
+        List<TestConfig> configs = new ArrayList<>(levelDbConfigs);
+        if(Boolean.valueOf(System.getProperty("postgres.tests","false"))) {
+            configs.addAll(postgresConfigs);
+        }
+
+        return List.copyOf(configs);
+    }
+
+    static class TestConfig {
+        private OrionDbType orionDbType;
+
+        private Path configDirPath;
+
+        private List<PrivacyGroupFixture> privacyGroupFixtures;
+
+        private List<EncryptedTransactionFixture> encryptedTransactionFixtures;
+
+        TestConfig(OrionDbType orionDbType,
+                          Path configDirPath,
+                          List<PrivacyGroupFixture> privacyGroupFixtures,
+                          List<EncryptedTransactionFixture> encryptedTransactionFixtures) {
+            this.orionDbType = orionDbType;
+            this.configDirPath = configDirPath;
+            this.privacyGroupFixtures = privacyGroupFixtures;
+            this.encryptedTransactionFixtures = encryptedTransactionFixtures;
+        }
+
+        public OrionDbType getOrionDbType() {
+            return orionDbType;
+        }
+
+        public Path getConfigDirPath() {
+            return configDirPath;
+        }
+
+        public List<PrivacyGroupFixture> getPrivacyGroupFixtures() {
+            return privacyGroupFixtures;
+        }
+
+        public List<EncryptedTransactionFixture> getEncryptedTransactionFixtures() {
+            return encryptedTransactionFixtures;
+        }
+
+        @Override
+        public String toString() {
+            return "TestConfig{" +
+                "orionDbType=" + orionDbType +
+                ", configDirPath=" + configDirPath +
+                '}';
+        }
+    }
+
+    static class PrivacyGroupFixture {
+
+        private String id;
+        private String type;
+        private List<String> members;
+
+        PrivacyGroupFixture(String id, String type, List<String> members) {
+            this.id = id;
+            this.type = type;
+            this.members = members;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public List<String> getMembers() {
+            return members;
+        }
+    }
+
+    static class EncryptedTransactionFixture {
+        private String id;
+        private String sender;
+        private String payload;
+        private String privacyGroupId;
+
+        EncryptedTransactionFixture(String id, String sender, String payload, String privacyGroupId) {
+            this.id = id;
+            this.sender = sender;
+            this.payload = payload;
+            this.privacyGroupId = privacyGroupId;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getSender() {
+            return sender;
+        }
+
+        public String getPayload() {
+            return payload;
+        }
+
+        public String getPrivacyGroupId() {
+            return privacyGroupId;
+        }
     }
 
 
-
+    enum OrionDbType {
+        LEVELDB,
+        POSTGRES,
+        ORACLE
+    }
 
 
 

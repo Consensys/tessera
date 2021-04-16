@@ -6,6 +6,7 @@ import org.iq80.leveldb.DBIterator;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.Base64;
 import java.util.Map;
 
 public interface LevelDbToJdbcUtil {
@@ -30,7 +31,7 @@ public interface LevelDbToJdbcUtil {
                 byte[] key = entry.getKey();
                 byte[] value = entry.getValue();
 
-                statement.setString(1,new String(key));
+                statement.setString(1, Base64.getEncoder().encodeToString(key));
                 statement.setBytes(2,value);
 
                 statement.execute();
