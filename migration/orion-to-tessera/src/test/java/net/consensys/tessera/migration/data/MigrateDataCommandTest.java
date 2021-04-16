@@ -78,8 +78,6 @@ public class MigrateDataCommandTest {
 
     private TestConfig testConfig;
 
-    private Enclave enclave;
-
     public MigrateDataCommandTest(TestConfig testConfig) {
         this.testConfig = testConfig;
     }
@@ -172,7 +170,7 @@ public class MigrateDataCommandTest {
 
         MigrationInfoFactory.create(inboundDbHelper);
 
-        enclave = createEnclave(orionKeyHelper);
+
     }
 
     @After
@@ -245,6 +243,8 @@ public class MigrateDataCommandTest {
                             .map(Box.PublicKey::bytesArray)
                             .map(PublicKey::from)
                             .get();
+
+                        Enclave enclave = createEnclave(orionKeyHelper);
 
                         byte[] unencryptedTransaction = enclave.unencryptTransaction(encodedPayload,encryptionKey);
 
