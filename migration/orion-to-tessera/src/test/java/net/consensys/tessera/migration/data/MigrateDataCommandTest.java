@@ -2,13 +2,21 @@ package net.consensys.tessera.migration.data;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
-import com.quorum.tessera.config.*;
-import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.KeyConfiguration;
+import com.quorum.tessera.config.KeyData;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveFactory;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyGroup;
+import com.quorum.tessera.enclave.PrivacyGroupUtil;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.io.IOCallback;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import net.consensys.tessera.migration.MigrateCommandTest;
 import net.consensys.tessera.migration.OrionKeyHelper;
 import org.apache.commons.io.FileUtils;
 import org.apache.tuweni.crypto.sodium.Box;
@@ -30,8 +38,18 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.*;
-import java.util.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -294,7 +312,7 @@ public class MigrateDataCommandTest {
 
         private List<EncryptedTransactionFixture> encryptedTransactionFixtures;
 
-        public TestConfig(OrionDbType orionDbType,
+        TestConfig(OrionDbType orionDbType,
                           Path configDirPath,
                           List<PrivacyGroupFixture> privacyGroupFixtures,
                           List<EncryptedTransactionFixture> encryptedTransactionFixtures) {
@@ -327,7 +345,7 @@ public class MigrateDataCommandTest {
         private String type;
         private List<String> members;
 
-        public PrivacyGroupFixture(String id, String type, List<String> members) {
+        PrivacyGroupFixture(String id, String type, List<String> members) {
             this.id = id;
             this.type = type;
             this.members = members;
@@ -352,7 +370,7 @@ public class MigrateDataCommandTest {
         private String payload;
         private String privacyGroupId;
 
-        public EncryptedTransactionFixture(String id, String sender, String payload, String privacyGroupId) {
+        EncryptedTransactionFixture(String id, String sender, String payload, String privacyGroupId) {
             this.id = id;
             this.sender = sender;
             this.payload = payload;
