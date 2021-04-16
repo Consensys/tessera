@@ -8,6 +8,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -47,13 +48,14 @@ public class JdbcDataProducer implements DataProducer {
                     .withTotalEventCount((long) migrationInfo.getRowCount())
                     .withPayloadData(value)
                     .withPayloadType(payloadType)
-                    .withKey(key.getBytes());
+                    .withKey(Base64.getDecoder().decode(key));
 
                 if(payloadType == PayloadType.ENCRYPTED_PAYLOAD) {
                     byte[] privacyGroupId = findPrivacyGroupId(value).get();
+                    byte[] privacyGroupIdToFind = Base64.getEncoder().encode(privacyGroupId);
 
                     try(PreparedStatement preparedStatement = connection.prepareStatement("SELECT VALUE FROM STORE WHERE KEY = ?")) {
-                        preparedStatement.setString(1,new String(privacyGroupId));
+                        preparedStatement.setString(1,new String(privacyGroupIdToFind));
                         try(ResultSet rs = preparedStatement.executeQuery()) {
                             if(rs.next()) {
                                 byte[] privacyGroupData = rs.getBytes(1);
