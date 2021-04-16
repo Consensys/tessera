@@ -157,7 +157,7 @@ test {
 
         if(project.hasProperty("runPostgresTests")) {
             systemProperty("postgres.tests","true")
-            systemProperty("postgres.jdbc.url","jdbc:postgresql://postgres:5432/postgres")
+            systemProperty("postgres.jdbc.url","jdbc:postgresql://localhost:5432/postgres")
             systemProperty("postgres.jdbc.user","postgres")
             systemProperty("postgres.jdbc.password","postgres")
         }
