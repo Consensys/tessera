@@ -117,14 +117,14 @@ jobs:
           restore-keys: |
             ${{ env.GRADLE_CACHE_KEY }}
       - uses: actions/setup-java@v1
-        with:
-          java-version: 11
       - env:
         POSTGRES_HOST: postgres
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
         POSTGRES_DB: orion
         POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        with:
+          java-version: 11
       - run: ./gradlew :migration:orion-to-tessera:test -P runPostgresTests --info
       - uses: actions/upload-artifact@v1
         if: always()
