@@ -73,27 +73,6 @@ jobs:
 
   orion-migration-test:
     runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/cache@v1
-        with:
-          path: ~/.gradle/caches
-          key: ${{ env.GRADLE_CACHE_KEY }}
-          restore-keys: |
-            ${{ env.GRADLE_CACHE_KEY }}
-      - uses: actions/setup-java@v1
-        with:
-          java-version: 11
-      - run: ./gradlew :migration:orion-to-tessera:test -P downloadOrionMigrationSamples --info
-      - uses: actions/upload-artifact@v1
-        if: always()
-        with:
-            name: orion_migration_test-report
-            path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
-
-  orion-postres-migration-test:
-    runs-on: ubuntu-latest
     services:
       postgres:
         image: postgres:11
@@ -108,6 +87,7 @@ jobs:
           --health-retries 5
         ports:
           - 5432/tcp
+    needs: [build]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v1
@@ -119,7 +99,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew :migration:orion-to-tessera:test -P runPostgresTests --info
+      - run: ./gradlew :migration:orion-to-tessera:test -P downloadOrionMigrationSamples -P runPostgresTests --info
         env:
           POSTGRES_HOST: localhost
           POSTGRES_USER: postgres
@@ -129,8 +109,8 @@ jobs:
       - uses: actions/upload-artifact@v1
         if: always()
         with:
-          name: orion_migration_test-report
-          path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
+            name: orion_migration_test-report
+            path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
 
   itest:
     runs-on: ubuntu-latest
