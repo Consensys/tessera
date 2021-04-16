@@ -9,7 +9,13 @@ public class Main {
         MigrateCommand migrateCommand = new MigrateCommand();
 
         CommandLine commandLine = new CommandLine(migrateCommand)
-            .setCaseInsensitiveEnumValuesAllowed(true);
+            .setCaseInsensitiveEnumValuesAllowed(true)
+            .setStopAtUnmatched(false)
+            .setCommandName("orion-to-tessera/bin/migrate")
+            .setParameterExceptionHandler((ex, strings) -> {
+                System.out.println(ex.getMessage());
+                return 1;
+            }).setUnmatchedArgumentsAllowed(true);
 
         commandLine.registerConverter(OrionKeyHelper.class, new OrionKeyHelperConvertor());
 

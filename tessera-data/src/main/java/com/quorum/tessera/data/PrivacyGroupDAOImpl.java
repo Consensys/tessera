@@ -71,11 +71,16 @@ public class PrivacyGroupDAOImpl implements PrivacyGroupDAO {
     public Optional<PrivacyGroupEntity> retrieve(byte[] id) {
         return entityManagerTemplate.execute(
                 entityManager ->
-                        entityManager
-                                .createNamedQuery("PrivacyGroup.FindById", PrivacyGroupEntity.class)
-                                .setParameter("id", id)
-                                .getResultStream()
-                                .findAny());
+                            entityManager
+                                    .createNamedQuery("PrivacyGroup.FindById", PrivacyGroupEntity.class)
+                                    .setParameter("id", id)
+                                    .getResultStream()
+                                    .findAny());
+    }
+
+    @Override
+    public PrivacyGroupEntity retrieveOrSave(PrivacyGroupEntity entity) {
+        return entityManagerTemplate.retrieveOrSave(() -> retrieve(entity.getId()).orElse(null), () -> entity);
     }
 
     @Override
