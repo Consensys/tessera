@@ -10,6 +10,11 @@ import javax.persistence.Persistence;
 import javax.persistence.PersistenceException;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
@@ -62,7 +67,7 @@ public class PrivacyGroupDAOTest {
             privacyGroupDAO.save(privacyGroup);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "ID");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ID");
 
             assertThat(ex)
                     .isInstanceOf(PersistenceException.class)
@@ -80,7 +85,7 @@ public class PrivacyGroupDAOTest {
             privacyGroupDAO.save(privacyGroup);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "DATA");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "DATA");
 
             assertThat(ex)
                     .isInstanceOf(PersistenceException.class)
@@ -101,7 +106,7 @@ public class PrivacyGroupDAOTest {
         } catch (PersistenceException ex) {
             assertThat(ex)
                     .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+                    .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
         }
     }
 
@@ -287,6 +292,81 @@ public class PrivacyGroupDAOTest {
         assertThat(result).isNull();
 
         verify(callback).call();
+    }
+
+    @Test
+    public void retrieveOrSave() {
+        final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findByLookupId("lookup".getBytes());
+        assertThat(shouldBeEmpty).isEmpty();
+
+        final PrivacyGroupEntity entity =
+                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+        privacyGroupDAO.retrieveOrSave(entity);
+
+        Optional<PrivacyGroupEntity> retrieved = privacyGroupDAO.retrieve("id".getBytes());
+        assertThat(retrieved).isPresent();
+    }
+
+    @Test
+    public void retrieveOrSaveExistedEntity() {
+
+        final PrivacyGroupEntity entity =
+                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+        privacyGroupDAO.save(entity);
+
+        final Optional<PrivacyGroupEntity> existed = privacyGroupDAO.retrieve("id".getBytes());
+
+        assertThat(existed).isPresent();
+
+        privacyGroupDAO.retrieveOrSave(entity);
+    }
+
+    @Test
+    public void concurrentSavesExceptionIgnoredIfCausedByDuplicate() throws InterruptedException {
+
+        final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findByLookupId("lookup".getBytes());
+        assertThat(shouldBeEmpty).isEmpty();
+
+        ExecutorService executor = Executors.newCachedThreadPool();
+
+        final PrivacyGroupEntity entity =
+                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+        final Callable<PrivacyGroupEntity> create = () -> privacyGroupDAO.retrieveOrSave(entity);
+        List<Callable<PrivacyGroupEntity>> callables =
+                Stream.generate(() -> create).limit(3).collect(Collectors.toList());
+
+        executor.invokeAll(callables).stream()
+                .map(
+                        future -> {
+                            try {
+                                return future.get();
+                            } catch (Exception e) {
+                                throw new IllegalStateException(e);
+                            }
+                        })
+                .forEach(System.out::println);
+    }
+
+    @Test(expected = PersistenceException.class)
+    public void retrieveOrSaveValidError() {
+        final PrivacyGroupEntity entity = new PrivacyGroupEntity(null, "lookup".getBytes(), "data".getBytes());
+        privacyGroupDAO.retrieveOrSave(entity);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void retrieveOrSaveThrows() {
+
+        EntityManagerTemplate template = new EntityManagerTemplate(entityManagerFactory);
+
+        Supplier<PrivacyGroupEntity> mockRetriever = mock(Supplier.class);
+        when(mockRetriever.get()).thenReturn(null);
+
+        Supplier<PrivacyGroupEntity> mockFactory = mock(Supplier.class);
+        when(mockFactory.get()).thenThrow(new IllegalStateException("OUCH"));
+
+        template.retrieveOrSave(mockRetriever, mockFactory);
     }
 
     @Parameterized.Parameters(name = "DB {0}")

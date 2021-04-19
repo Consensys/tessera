@@ -70,6 +70,48 @@ jobs:
       with:
         java-version: 11
     - run: ./gradlew test -x dependencyCheckAnalyze  -x :tests:acceptance-test:test --info
+
+  orion-migration-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: orion
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432/tcp
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
+          restore-keys: |
+            ${{ env.GRADLE_CACHE_KEY }}
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew :migration:orion-to-tessera:test -P downloadOrionMigrationSamples -P runPostgresTests --info
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: orion
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+      - uses: actions/upload-artifact@v1
+        if: always()
+        with:
+            name: orion_migration_test-report
+            path: /home/runner/work/tessera/tessera/migration/orion-to-tessera/build/reports
+
   itest:
     runs-on: ubuntu-latest
     needs: [build]
@@ -155,7 +197,7 @@ jobs:
       - uses: docker/build-push-action@v1
         with:
           repository: quorumengineering/tessera
-          tags: latest
+          tags: develop
           push: false
           dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: JAR_FILE=tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar

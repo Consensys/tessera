@@ -117,6 +117,29 @@ public class PrivacyGroupResourceTest {
     }
 
     @Test
+    public void testCreatePrivacyGroupMinimal() {
+        String member1 = Base64Codec.create().encodeToString("member1".getBytes());
+        String member2 = Base64Codec.create().encodeToString("member2".getBytes());
+        PrivacyGroupRequest request = new PrivacyGroupRequest();
+        request.setAddresses(new String[] {member1, member2});
+        request.setFrom(member1);
+        when(privacyGroupManager.createPrivacyGroup(any(), any(), any(), anyList(), any(byte[].class)))
+            .thenReturn(mockResult);
+
+        final Response response =
+            jersey.target("createPrivacyGroup").request().post(Entity.entity(request, MediaType.APPLICATION_JSON));
+
+        assertThat(response).isNotNull();
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        ArgumentCaptor<String> strArgCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(privacyGroupManager).createPrivacyGroup(strArgCaptor.capture(), strArgCaptor.capture(), any(), any(), any(byte[].class));
+
+        assertThat(strArgCaptor.getAllValues()).contains("");
+    }
+
+    @Test
     public void testFindPrivacyGroup() {
 
         PrivacyGroupSearchRequest req = new PrivacyGroupSearchRequest();

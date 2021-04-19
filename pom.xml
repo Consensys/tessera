@@ -41,7 +41,7 @@
 
     <properties>
         <jersey.version>2.27</jersey.version>
-        <jetty.version>9.4.35.v20201120</jetty.version>
+        <jetty.version>9.4.39.v20210325</jetty.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -1155,6 +1155,12 @@
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
                 <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr353</artifactId>
+                 <version>${jackson.version}</version>
             </dependency>
 
             <dependency>

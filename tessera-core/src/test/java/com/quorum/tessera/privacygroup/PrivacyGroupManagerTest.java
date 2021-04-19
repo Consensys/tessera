@@ -131,7 +131,7 @@ public class PrivacyGroupManagerTest {
 
         // Verify entity being saved has the correct values
         ArgumentCaptor<PrivacyGroupEntity> argCaptor = ArgumentCaptor.forClass(PrivacyGroupEntity.class);
-        verify(privacyGroupDAO).save(argCaptor.capture());
+        verify(privacyGroupDAO).retrieveOrSave(argCaptor.capture());
         PrivacyGroupEntity savedEntity = argCaptor.getValue();
         assertThat(savedEntity).isNotNull();
         assertThat(savedEntity.getId()).isEqualTo("generatedId".getBytes());
@@ -148,7 +148,7 @@ public class PrivacyGroupManagerTest {
         assertThat(privacyGroup.getType()).isEqualTo(PrivacyGroup.Type.LEGACY);
         assertThat(privacyGroup.getState()).isEqualTo(PrivacyGroup.State.ACTIVE);
 
-        verify(privacyGroupDAO).retrieve("generatedId".getBytes());
+        verify(privacyGroupDAO).retrieveOrSave(any());
     }
 
     @Test
@@ -164,7 +164,7 @@ public class PrivacyGroupManagerTest {
 
         assertThat(privacyGroup).isNotNull();
 
-        verify(privacyGroupDAO).retrieve("generatedId".getBytes());
+        verify(privacyGroupDAO).retrieveOrSave(any());
     }
 
     @Test

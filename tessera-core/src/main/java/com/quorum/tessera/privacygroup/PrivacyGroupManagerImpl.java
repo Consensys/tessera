@@ -103,14 +103,10 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
                         .withState(PrivacyGroup.State.ACTIVE)
                         .build();
 
-        if (privacyGroupDAO.retrieve(groupIdBytes).isPresent()) {
-            return created;
-        }
-
         final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
         final byte[] encodedData = privacyGroupUtil.encode(created);
 
-        privacyGroupDAO.save(new PrivacyGroupEntity(groupIdBytes, lookupId, encodedData));
+        privacyGroupDAO.retrieveOrSave(new PrivacyGroupEntity(groupIdBytes, lookupId, encodedData));
 
         return created;
     }

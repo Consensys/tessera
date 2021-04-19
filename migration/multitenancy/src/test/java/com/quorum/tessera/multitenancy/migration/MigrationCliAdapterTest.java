@@ -35,12 +35,12 @@ public class MigrationCliAdapterTest {
                         new MessageHash("encryptedTransactionHash".getBytes()), "sampleencodedpayload".getBytes());
 
         final Config primaryConfig = new Config();
-        final JdbcConfig jdbc1 = new JdbcConfig("sa", "", "jdbc:h2:./target/h2/tessera1");
+        final JdbcConfig jdbc1 = new JdbcConfig("sa", "", "jdbc:h2:mem:tessera1");
         jdbc1.setAutoCreateTables(true);
         primaryConfig.setJdbcConfig(jdbc1);
 
         final Config secondaryConfig = new Config();
-        final JdbcConfig jdbc2 = new JdbcConfig("sa", "", "jdbc:h2:./target/h2/tessera2");
+        final JdbcConfig jdbc2 = new JdbcConfig("sa", "", "jdbc:h2:mem:tessera2");
         jdbc2.setAutoCreateTables(true);
         secondaryConfig.setJdbcConfig(jdbc2);
 
