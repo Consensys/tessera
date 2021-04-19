@@ -11,7 +11,7 @@
     <parent>
         <groupId>net.consensys.quorum.tessera</groupId>
         <artifactId>tessera</artifactId>
-        <version>21.1.1-SNAPSHOT</version>
+        <version>21.1.1</version>
     </parent>
 
 

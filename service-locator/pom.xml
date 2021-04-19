@@ -9,7 +9,7 @@
     <parent>
         <artifactId>tessera</artifactId>
         <groupId>net.consensys.quorum.tessera</groupId>
-        <version>21.1.1-SNAPSHOT</version>
+        <version>21.1.1</version>
     </parent>
 
     <modules>
