@@ -51,7 +51,7 @@ allprojects {
                 compile "org.hibernate:hibernate-validator:6.0.2.Final"
                 compile "com.moandjiezana.toml:toml4j:0.7.2"
                 compile "commons-codec:commons-codec:1.6"
-                compile "commons-io:commons-io:2.6"
+                compile "commons-io:commons-io:2.8.0"
                 compile "org.bouncycastle:bcpkix-jdk15on:1.61"
                 compile "org.xerial:sqlite-jdbc:3.23.1"
                 compile "com.h2database:h2:1.4.200"

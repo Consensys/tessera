@@ -17,7 +17,7 @@ dependencies {
     compile project(':ddls')
     compile project(':cli:cli-api')
     compile 'commons-codec:commons-codec:1.6'
-    compile 'commons-io:commons-io:2.6'
+    compile 'commons-io:commons-io:2.8.0'
     compile 'org.bouncycastle:bcpkix-jdk15on'
     runtimeOnly 'org.xerial:sqlite-jdbc:3.23.1'
     runtimeOnly 'com.h2database:h2:1.4.200'
