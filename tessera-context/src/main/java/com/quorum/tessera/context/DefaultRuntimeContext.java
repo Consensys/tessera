@@ -34,22 +34,19 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     private final boolean orionMode;
 
-    private final boolean multiplePrivateStates;
-
     protected DefaultRuntimeContext(
-            List<KeyPair> keys,
-            KeyEncryptor keyEncryptor,
-            List<PublicKey> alwaysSendTo,
-            List<URI> peers,
-            Client p2pClient,
-            boolean remoteKeyValidation,
-            boolean enhancedPrivacy,
-            URI p2pServerUri,
-            boolean disablePeerDiscovery,
-            boolean useWhiteList,
-            boolean recoveryMode,
-            boolean orionMode,
-            boolean multiplePrivateStates) {
+        List<KeyPair> keys,
+        KeyEncryptor keyEncryptor,
+        List<PublicKey> alwaysSendTo,
+        List<URI> peers,
+        Client p2pClient,
+        boolean remoteKeyValidation,
+        boolean enhancedPrivacy,
+        URI p2pServerUri,
+        boolean disablePeerDiscovery,
+        boolean useWhiteList,
+        boolean recoveryMode,
+        boolean orionMode) {
         this.keys = List.copyOf(keys);
         this.keyEncryptor = keyEncryptor;
         this.alwaysSendTo = List.copyOf(alwaysSendTo);
@@ -62,7 +59,6 @@ class DefaultRuntimeContext implements RuntimeContext {
         this.useWhiteList = useWhiteList;
         this.recoveryMode = recoveryMode;
         this.orionMode = orionMode;
-        this.multiplePrivateStates = multiplePrivateStates;
     }
 
     public List<KeyPair> getKeys() {
@@ -119,39 +115,32 @@ class DefaultRuntimeContext implements RuntimeContext {
     }
 
     @Override
-    public boolean isMultiplePrivateStates() {
-        return multiplePrivateStates;
-    }
-
-    @Override
     public String toString() {
         return "DefaultRuntimeContext{"
-                + "keys="
-                + keys
-                + ", keyEncryptor="
-                + keyEncryptor
-                + ", alwaysSendTo="
-                + alwaysSendTo
-                + ", peers="
-                + peers
-                + ", p2pClient="
-                + p2pClient
-                + ", remoteKeyValidation="
-                + remoteKeyValidation
-                + ", enhancedPrivacy="
-                + enhancedPrivacy
-                + ", p2pServerUri="
-                + p2pServerUri
-                + ", disablePeerDiscovery="
-                + disablePeerDiscovery
-                + ", useWhiteList="
-                + useWhiteList
-                + ", recoveryMode="
-                + recoveryMode
-                + ", orionMode="
-                + orionMode
-                + ", multiplePrivateStates="
-                + multiplePrivateStates
-                + '}';
+            + "keys="
+            + keys
+            + ", keyEncryptor="
+            + keyEncryptor
+            + ", alwaysSendTo="
+            + alwaysSendTo
+            + ", peers="
+            + peers
+            + ", p2pClient="
+            + p2pClient
+            + ", remoteKeyValidation="
+            + remoteKeyValidation
+            + ", enhancedPrivacy="
+            + enhancedPrivacy
+            + ", p2pServerUri="
+            + p2pServerUri
+            + ", disablePeerDiscovery="
+            + disablePeerDiscovery
+            + ", useWhiteList="
+            + useWhiteList
+            + ", recoveryMode="
+            + recoveryMode
+            + ", orionMode="
+            + orionMode
+            + '}';
     }
 }

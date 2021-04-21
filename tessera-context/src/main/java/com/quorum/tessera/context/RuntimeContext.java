@@ -36,8 +36,6 @@ public interface RuntimeContext {
 
     boolean isOrionMode();
 
-    boolean isMultiplePrivateStates();
-
     default Set<PublicKey> getPublicKeys() {
         return getKeys().stream().map(KeyPair::getPublicKey).collect(Collectors.toSet());
     }

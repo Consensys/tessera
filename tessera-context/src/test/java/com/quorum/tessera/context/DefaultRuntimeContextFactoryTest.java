@@ -60,15 +60,15 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         FeatureToggles featureToggles = mock(FeatureToggles.class);
         when(confg.getFeatures()).thenReturn(featureToggles);
 
+        when(confg.getClientMode()).thenReturn(ClientMode.ORION);
+
         RuntimeContext result = runtimeContextFactory.create(confg);
 
         assertThat(result).isNotNull();
         assertThat(result.isRecoveryMode()).isFalse();
         assertThat(result.isEnhancedPrivacy()).isFalse();
 
-        assertThat(result.isOrionMode()).isFalse();
-
-        assertThat(result.isMultiplePrivateStates()).isFalse();
+        assertThat(result.isOrionMode()).isTrue();
 
         verify(contextHolder).getContext();
         verify(contextHolder).setContext(any(RuntimeContext.class));
@@ -224,83 +224,6 @@ public class DefaultRuntimeContextFactoryTest extends ContextTestCase {
         RuntimeContext result = runtimeContextFactory.create(mock(Config.class));
         verify(contextHolder).getContext();
         assertThat(result).isSameAs(runtimeContext);
-    }
-
-    @Test
-    public void createMinimalOrionMode() {
-
-        when(contextHolder.getContext()).thenReturn(Optional.empty());
-
-        Config config = mock(Config.class);
-        EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
-        when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
-
-        when(config.getEncryptor()).thenReturn(encryptorConfig);
-
-        when(config.getKeys()).thenReturn(mock(KeyConfiguration.class));
-
-        ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getApp()).thenReturn(AppType.P2P);
-        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
-        when(config.getP2PServerConfig()).thenReturn(serverConfig);
-        when(serverConfig.getServerUri()).thenReturn(URI.create("http://bogus"));
-        when(serverConfig.getBindingUri()).thenReturn(URI.create("http://bogus"));
-        when(serverConfig.getProperties()).thenReturn(Collections.emptyMap());
-
-        when(config.getServerConfigs()).thenReturn(List.of(serverConfig));
-        when(config.getFeatures()).thenReturn(mock(FeatureToggles.class));
-
-        when(config.getClientMode()).thenReturn(ClientMode.ORION);
-
-        RuntimeContext result = runtimeContextFactory.create(config);
-
-        assertThat(result).isNotNull();
-        assertThat(result.isRecoveryMode()).isFalse();
-        assertThat(result.isEnhancedPrivacy()).isFalse();
-
-        assertThat(result.isOrionMode()).isTrue();
-
-        verify(contextHolder).getContext();
-        verify(contextHolder).setContext(any(RuntimeContext.class));
-    }
-
-    @Test
-    public void createMinimalMultiplePrivateStates() {
-
-        when(contextHolder.getContext()).thenReturn(Optional.empty());
-
-        Config config = mock(Config.class);
-        EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
-        when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
-
-        when(config.getEncryptor()).thenReturn(encryptorConfig);
-
-        when(config.getKeys()).thenReturn(mock(KeyConfiguration.class));
-
-        ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getApp()).thenReturn(AppType.P2P);
-        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
-        when(config.getP2PServerConfig()).thenReturn(serverConfig);
-        when(serverConfig.getServerUri()).thenReturn(URI.create("http://bogus"));
-        when(serverConfig.getBindingUri()).thenReturn(URI.create("http://bogus"));
-        when(serverConfig.getProperties()).thenReturn(Collections.emptyMap());
-
-        when(config.getServerConfigs()).thenReturn(List.of(serverConfig));
-
-        FeatureToggles features = mock(FeatureToggles.class);
-        when(features.isEnableMultiplePrivateStates()).thenReturn(true);
-        when(config.getFeatures()).thenReturn(features);
-
-        RuntimeContext result = runtimeContextFactory.create(config);
-
-        assertThat(result).isNotNull();
-        assertThat(result.isRecoveryMode()).isFalse();
-        assertThat(result.isEnhancedPrivacy()).isFalse();
-
-        assertThat(result.isMultiplePrivateStates()).isTrue();
-
-        verify(contextHolder).getContext();
-        verify(contextHolder).setContext(any(RuntimeContext.class));
     }
 
     @Test
