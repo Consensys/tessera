@@ -14,6 +14,9 @@ public class FeatureToggles {
     @XmlElement(defaultValue = "false")
     private boolean enablePrivacyEnhancements;
 
+    @XmlElement(defaultValue = "false")
+    private boolean enableMultiplePrivateStates;
+
     public FeatureToggles() {}
 
     public boolean isEnableRemoteKeyValidation() {
@@ -32,6 +35,14 @@ public class FeatureToggles {
         this.enablePrivacyEnhancements = enablePrivacyEnhancements;
     }
 
+    public boolean isEnableMultiplePrivateStates() {
+        return enableMultiplePrivateStates;
+    }
+
+    public void setEnableMultiplePrivateStates(boolean enableMultiplePrivateStates) {
+        this.enableMultiplePrivateStates = enableMultiplePrivateStates;
+    }
+
     @Override
     public boolean equals(final Object o) {
         if (!(o instanceof FeatureToggles)) {
@@ -40,11 +51,13 @@ public class FeatureToggles {
 
         final FeatureToggles that = (FeatureToggles) o;
         return isEnableRemoteKeyValidation() == that.isEnableRemoteKeyValidation()
-                && isEnablePrivacyEnhancements() == that.isEnablePrivacyEnhancements();
+                && isEnablePrivacyEnhancements() == that.isEnablePrivacyEnhancements()
+                && isEnableMultiplePrivateStates() == that.isEnableMultiplePrivateStates();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(isEnableRemoteKeyValidation(), isEnablePrivacyEnhancements());
+        return Objects.hash(
+                isEnableRemoteKeyValidation(), isEnablePrivacyEnhancements(), isEnableMultiplePrivateStates());
     }
 }

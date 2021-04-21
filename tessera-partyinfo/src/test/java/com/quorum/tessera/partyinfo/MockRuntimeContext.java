@@ -93,6 +93,11 @@ public class MockRuntimeContext implements RuntimeContext, RuntimeContextFactory
         return orionMode;
     }
 
+    @Override
+    public boolean isMultiplePrivateStates() {
+        return false;
+    }
+
     public MockRuntimeContext setKeys(List<KeyPair> keys) {
         this.keys = keys;
         return this;
