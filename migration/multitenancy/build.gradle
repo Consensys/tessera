@@ -13,7 +13,7 @@ dependencies {
 }
 
 group = 'net.consensys.quorum.tessera'
-version = '20.10.2-SNAPSHOT'
+version = '21.4.0-SNAPSHOT'
 description = 'multitenancy'
 
 shadowJar {
