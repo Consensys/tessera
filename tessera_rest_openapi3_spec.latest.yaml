@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-30009863
+  version: latest-0f644519
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -423,6 +423,48 @@ paths:
             application/vnd.tessera-2.1+json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
+  /retrievePrivacyGroup:
+    post:
+      tags:
+        - quorum-to-tessera
+      summary: /retrievePrivacyGroup
+      description: retrieve privacy group from a privacy group id
+      operationId: retrievePrivacyGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupRetrieveRequest"
+      responses:
+        "200":
+          description: A privacy group object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
+        "404":
+          description: privacy group not found
+  /deletePrivacyGroup:
+    post:
+      tags:
+        - quorum-to-tessera
+      summary: /deletePrivacyGroup
+      description: mark a privacy group as deleted
+      operationId: deletePrivacyGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupDeleteRequest"
+      responses:
+        "200":
+          description: id of the deleted privacy group
+          content:
+            application/json:
+              schema:
+                type: string
+        "404":
+          description: privacy group not found
   /findPrivacyGroup:
     post:
       tags:
@@ -445,27 +487,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
-  /deletePrivacyGroup:
-    post:
-      tags:
-        - quorum-to-tessera
-      summary: /deletePrivacyGroup
-      description: mark a privacy group as deleted
-      operationId: deletePrivacyGroup
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupDeleteRequest"
-      responses:
-        "200":
-          description: id of the deleted privacy group
-          content:
-            application/json:
-              schema:
-                type: string
-        "404":
-          description: privacy group not found
   /createPrivacyGroup:
     post:
       tags:
@@ -488,27 +509,6 @@ paths:
                 $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
         "403":
           description: privacy group not supported on remote member
-  /retrievePrivacyGroup:
-    post:
-      tags:
-        - quorum-to-tessera
-      summary: /retrievePrivacyGroup
-      description: retrieve privacy group from a privacy group id
-      operationId: retrievePrivacyGroup
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupRetrieveRequest"
-      responses:
-        "200":
-          description: A privacy group object
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
-        "404":
-          description: privacy group not found
   /sendraw:
     post:
       tags:
@@ -1177,17 +1177,17 @@ components:
           type: string
           description: privacy group id of the transaction
           format: base64
-    com.quorum.tessera.api.PrivacyGroupSearchRequest:
+    com.quorum.tessera.api.PrivacyGroupRetrieveRequest:
       required:
-        - addresses
+        - privacyGroupId
       type: object
       properties:
-        addresses:
-          type: array
-          description: public keys of the members of the privacy group
-          items:
-            type: string
-            format: base64
+        privacyGroupId:
+          maxLength: 2147483647
+          minLength: 1
+          type: string
+          description: id identifying the privacy group to retrieve
+          format: base64
     com.quorum.tessera.api.PrivacyGroupResponse:
       type: object
       properties:
@@ -1228,6 +1228,17 @@ components:
           type: string
           description: public key identifying the sender of the request
           format: base64
+    com.quorum.tessera.api.PrivacyGroupSearchRequest:
+      required:
+        - addresses
+      type: object
+      properties:
+        addresses:
+          type: array
+          description: public keys of the members of the privacy group
+          items:
+            type: string
+            format: base64
     com.quorum.tessera.api.PrivacyGroupRequest:
       type: object
       properties:
@@ -1247,17 +1258,6 @@ components:
         description:
           type: string
           description: description of the privacy group
-    com.quorum.tessera.api.PrivacyGroupRetrieveRequest:
-      required:
-        - privacyGroupId
-      type: object
-      properties:
-        privacyGroupId:
-          maxLength: 2147483647
-          minLength: 1
-          type: string
-          description: id identifying the privacy group to retrieve
-          format: base64
     com.quorum.tessera.api.DeleteRequest:
       required:
         - key
