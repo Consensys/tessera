@@ -1,13 +1,13 @@
 package com.quorum.tessera.privacygroup;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.ResidentGroup;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,45 +22,28 @@ public class ResidentGroupHandlerImpl implements ResidentGroupHandler {
     @Override
     public void onCreate(Config config) {
 
-        final List<PrivacyGroup> configured =
+        final List<PrivacyGroup> configuredResidentGroups =
                 Stream.ofNullable(config.getResidentGroups())
                         .flatMap(Collection::stream)
-                        .map(
-                                rg -> {
-                                    final List<PublicKey> members =
-                                            rg.getMembers().stream()
-                                                    .map(Base64.getDecoder()::decode)
-                                                    .map(PublicKey::from)
-                                                    .collect(Collectors.toList());
-                                    return PrivacyGroup.Builder.buildResidentGroup(
-                                            rg.getName(), rg.getDescription(), members);
-                                })
+                        .map(convertToPrivacyGroup)
                         .collect(Collectors.toUnmodifiableList());
 
-        final Set<PublicKey> residentList =
-                configured.stream()
+        final Set<PublicKey> configuredResidentKeys =
+                configuredResidentGroups.stream()
                         .map(PrivacyGroup::getMembers)
                         .flatMap(List::stream)
                         .collect(Collectors.toUnmodifiableSet());
 
         final Set<PublicKey> managedKeys = privacyGroupManager.getManagedKeys();
 
-        if (!managedKeys.containsAll(residentList)) {
+        if (!managedKeys.containsAll(configuredResidentKeys)) {
             throw new PrivacyViolationException("Keys configured in resident groups need to be locally managed");
         }
 
-        final List<PublicKey> homelessKeys =
-                managedKeys.stream()
-                        .filter(Predicate.not(residentList::contains))
-                        .collect(Collectors.toUnmodifiableList());
-        final PrivacyGroup defaultPrivateGroup =
-                PrivacyGroup.Builder.buildResidentGroup("private", "Default private resident group", homelessKeys);
-
         final List<PrivacyGroup> existing = privacyGroupManager.findPrivacyGroupByType(PrivacyGroup.Type.RESIDENT);
 
-        final List<PrivacyGroup> allResidentGroups = new ArrayList<>(configured);
+        final List<PrivacyGroup> allResidentGroups = new ArrayList<>(configuredResidentGroups);
         allResidentGroups.addAll(existing);
-        allResidentGroups.add(defaultPrivateGroup);
 
         final List<PrivacyGroup> merged =
                 allResidentGroups.stream()
@@ -92,10 +75,18 @@ public class ResidentGroupHandlerImpl implements ResidentGroupHandler {
             throw new PrivacyViolationException("A local owned key cannot belong to more than one resident group");
         }
 
+        final Set<PublicKey> mergedResidentKeys =
+                merged.stream()
+                        .map(PrivacyGroup::getMembers)
+                        .flatMap(List::stream)
+                        .collect(Collectors.toUnmodifiableSet());
+
+        if (!mergedResidentKeys.containsAll(managedKeys)) {
+            throw new PrivacyViolationException("Every managed key must belong to a resident group");
+        }
+
         final List<PrivacyGroup.Id> configuredGroupId =
-                Stream.concat(configured.stream(), Stream.of(defaultPrivateGroup))
-                        .map(PrivacyGroup::getId)
-                        .collect(Collectors.toList());
+                configuredResidentGroups.stream().map(PrivacyGroup::getId).collect(Collectors.toList());
 
         merged.stream()
                 .filter(pg -> configuredGroupId.contains(pg.getId()))
@@ -105,4 +96,14 @@ public class ResidentGroupHandlerImpl implements ResidentGroupHandler {
                                 privacyGroupManager.saveResidentGroup(
                                         toPersist.getName(), toPersist.getDescription(), toPersist.getMembers()));
     }
+
+    private Function<ResidentGroup, PrivacyGroup> convertToPrivacyGroup =
+            group -> {
+                final List<PublicKey> members =
+                        group.getMembers().stream()
+                                .map(Base64.getDecoder()::decode)
+                                .map(PublicKey::from)
+                                .collect(Collectors.toList());
+                return PrivacyGroup.Builder.buildResidentGroup(group.getName(), group.getDescription(), members);
+            };
 }
