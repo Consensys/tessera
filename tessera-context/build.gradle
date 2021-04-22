@@ -3,7 +3,6 @@ plugins {
 }
 
 group 'net.consensys.quorum.tessera'
-version '0.11-SNAPSHOT'
 
 dependencies {
     compile project(':encryption:encryption-api')
