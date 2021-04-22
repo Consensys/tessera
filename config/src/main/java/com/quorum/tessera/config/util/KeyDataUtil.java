@@ -21,6 +21,9 @@ public class KeyDataUtil {
     private KeyDataUtil() {}
 
     public static Class<? extends ConfigKeyPair> getKeyPairTypeFor(KeyData keyData) {
+
+        Objects.requireNonNull(keyData,"KeyData is required");
+
         if (isDirect(keyData)) {
             return DirectKeyPair.class;
         }
