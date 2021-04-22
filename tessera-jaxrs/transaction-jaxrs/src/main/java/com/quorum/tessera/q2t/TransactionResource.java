@@ -339,6 +339,61 @@ public class TransactionResource {
         return Response.status(Status.OK).entity(encodedTransactionHash).location(location).build();
     }
 
+    @Operation(
+            summary = "/receive",
+            operationId = "getDecryptedPayloadJson",
+            description = "get payload from database, decrypt, and return")
+    @ApiResponse(
+            responseCode = "200",
+            description = "decrypted payload",
+            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
+    @GET
+    @Path("/receive")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    public Response receive(@Valid final ReceiveRequest request) {
+
+        LOGGER.debug("Received receive request");
+
+        Base64.Decoder decoder = Base64.getDecoder();
+
+        MessageHash transactionHash =
+                Optional.of(request).map(ReceiveRequest::getKey).map(decoder::decode).map(MessageHash::new).get();
+
+        PublicKey recipient =
+                Optional.of(request)
+                        .map(ReceiveRequest::getTo)
+                        .filter(Predicate.not(String::isEmpty))
+                        .filter(Objects::nonNull)
+                        .map(decoder::decode)
+                        .map(PublicKey::from)
+                        .orElse(null);
+
+        com.quorum.tessera.transaction.ReceiveRequest receiveRequest =
+                com.quorum.tessera.transaction.ReceiveRequest.Builder.create()
+                        .withTransactionHash(transactionHash)
+                        .withRecipient(recipient)
+                        .withRaw(request.isRaw())
+                        .build();
+
+        com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(receiveRequest);
+
+        ReceiveResponse receiveResponse = new ReceiveResponse();
+        receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
+        receiveResponse.setPayload(response.getUnencryptedTransactionData());
+        Optional.ofNullable(response.getExecHash()).map(String::new).ifPresent(receiveResponse::setExecHash);
+
+        String[] affectedTransactions =
+                response.getAffectedTransactions().stream()
+                        .map(MessageHash::getHashBytes)
+                        .map(Base64.getEncoder()::encodeToString)
+                        .toArray(String[]::new);
+
+        receiveResponse.setAffectedContractTransactions(affectedTransactions);
+
+        return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
+    }
+
     // hide this operation from swagger generation; the /transaction/{hash} operation is overloaded and must be
     // documented in a single place
     @Hidden
