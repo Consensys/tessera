@@ -1,14 +1,14 @@
 # Build
-FROM maven:3.6.3-jdk-11 as builder
+FROM adoptopenjdk/openjdk11:alpine as builder
 
-#do not use root as there are test cases validating file accessibility
-USER nobody:nogroup
-ADD --chown=nobody:nogroup . /tessera
-RUN cd /tessera && mvn clean -Dmaven.repo.local=/tessera/.m2/repository -DskipTests -Denforcer.skip=true package
+COPY . /tessera
+RUN cd /tessera && ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
+RUN cp /tessera/tessera-dist/build/distributions/tessera-*.tar /tessera/tessera-dist/build/distributions/tessera.tar
+RUN mkdir /tessera-extracted && tar xvf /tessera/tessera-dist/build/distributions/tessera.tar -C /tessera-extracted --strip-components 1
 
 # Create docker image with only distribution jar
 FROM adoptopenjdk/openjdk11:alpine
 
-COPY --from=builder /tessera/tessera-dist/tessera-app/target/*-app.jar /tessera/tessera-app.jar
+COPY --from=builder /tessera-extracted /tessera-dist
 
-ENTRYPOINT ["java", "-jar", "/tessera/tessera-app.jar"]
+ENTRYPOINT ["/tessera-dist/bin/tessera"]

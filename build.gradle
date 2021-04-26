@@ -176,7 +176,6 @@ subprojects {
 //        exclude group: 'javax.ws.rs'
         exclude group: "javax.activation"
 
-
         resolutionStrategy.capabilitiesResolution.all {
             selectHighestVersion()
         }
@@ -239,6 +238,7 @@ subprojects {
         dependencies{
             checkstyle "com.puppycrawl.tools:checkstyle:8.39"
             checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
+            implementation "com.google.guava:guava:30.1.1-jre"
         }
     }
 
