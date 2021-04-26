@@ -358,7 +358,7 @@ public interface OverrideUtil {
         }
 
         if (type.isEnum()) {
-            return (T) Enum.valueOf(type.asSubclass(Enum.class), value);
+            return (T) Enum.valueOf(type.asSubclass(Enum.class), value.toUpperCase());
         }
 
         if (byte[].class.isAssignableFrom(type)) {

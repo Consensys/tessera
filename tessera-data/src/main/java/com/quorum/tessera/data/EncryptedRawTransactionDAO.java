@@ -1,5 +1,6 @@
 package com.quorum.tessera.data;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 
@@ -36,6 +37,22 @@ public interface EncryptedRawTransactionDAO {
      * @return true if data store is up and running ok, else false
      */
     boolean upcheck();
+
+    /**
+     * Retrieve the total transaction count.
+     *
+     * @return the transaction count
+     */
+    long transactionCount();
+
+    /**
+     * Retrieves a list of transactions stored in the database
+     *
+     * @param offset the start offset
+     * @param maxResult the maximum number of records to return
+     * @return The list of requested rows from the database
+     */
+    List<EncryptedRawTransaction> retrieveTransactions(int offset, int maxResult);
 
     static EncryptedRawTransactionDAO create() {
         return ServiceLoader.load(EncryptedRawTransactionDAO.class).findFirst().get();

@@ -6,6 +6,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import java.util.List;
 import java.util.Optional;
 
 /** A JPA implementation of {@link EncryptedTransactionDAO} */
@@ -79,6 +82,32 @@ public class EncryptedRawTransactionDAOImpl implements EncryptedRawTransactionDA
         } catch (Exception e) {
             return false;
         }
+    }
+
+    @Override
+    public long transactionCount() {
+        upcheck();
+        return entityManagerTemplate.execute(
+                entityManager -> {
+                    CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+
+                    CriteriaQuery<Long> countQuery = criteriaBuilder.createQuery(Long.class);
+                    countQuery.select(criteriaBuilder.count(countQuery.from(EncryptedRawTransaction.class)));
+
+                    return entityManager.createQuery(countQuery).getSingleResult();
+                });
+    }
+
+    @Override
+    public List<EncryptedRawTransaction> retrieveTransactions(int offset, int maxResult) {
+        LOGGER.debug("Fetching batch(offset:{}, maxResult:{}) of EncryptedRawTransaction entries", offset, maxResult);
+        return entityManagerTemplate.execute(
+                entityManager ->
+                        entityManager
+                                .createNamedQuery("EncryptedRawTransaction.FindAll", EncryptedRawTransaction.class)
+                                .setFirstResult(offset)
+                                .setMaxResults(maxResult)
+                                .getResultList());
     }
 
     private String toHexString(byte[] val) {

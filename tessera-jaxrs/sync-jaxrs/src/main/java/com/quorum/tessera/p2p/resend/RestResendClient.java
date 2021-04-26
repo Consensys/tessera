@@ -26,5 +26,4 @@ class RestResendClient implements ResendClient {
             return Response.Status.OK.getStatusCode() == response.getStatus();
         }
     }
-
 }

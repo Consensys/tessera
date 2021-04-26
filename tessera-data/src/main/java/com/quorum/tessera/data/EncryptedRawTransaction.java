@@ -13,9 +13,10 @@ import java.util.Objects;
     @NamedQuery(
             name = "EncryptedRawTransaction.DeleteByHash",
             query = "delete from EncryptedRawTransaction where hash.hashBytes = :hash"),
+    @NamedQuery(name = "EncryptedRawTransaction.Upcheck", query = "select count(c) from EncryptedRawTransaction c"),
     @NamedQuery(
-            name = "EncryptedRawTransaction.Upcheck",
-            query = "select count(c) from EncryptedRawTransaction c")
+            name = "EncryptedRawTransaction.FindAll",
+            query = "select ert from EncryptedRawTransaction ert order by ert.timestamp, ert.hash"),
 })
 @Entity
 @Table(name = "ENCRYPTED_RAW_TRANSACTION")
