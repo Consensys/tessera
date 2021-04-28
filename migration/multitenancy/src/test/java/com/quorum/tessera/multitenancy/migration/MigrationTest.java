@@ -179,20 +179,37 @@ public class MigrationTest {
         secondaryEntityManager.createQuery("select e from EncryptedTransaction e", EncryptedTransaction.class)
             .getResultStream()
             .forEach(e -> {
-                assertThat(primaryEntityManager.find(EncryptedTransaction.class, e.getHash())).isNotNull();
+                EncryptedTransaction copiedEncryptedTransaction = primaryEntityManager.find(EncryptedTransaction.class, e.getHash());
+                assertThat(copiedEncryptedTransaction).isNotNull();
+                assertThat(copiedEncryptedTransaction.getEncodedPayload()).isEqualTo(e.getEncodedPayload());
             });
 
         secondaryEntityManager.createQuery("select e from EncryptedRawTransaction e", EncryptedRawTransaction.class)
             .getResultStream()
             .forEach(e -> {
-                assertThat(primaryEntityManager.find(EncryptedRawTransaction.class, e.getHash())).isNotNull();
+                EncryptedRawTransaction copiedEncryptedRawTransaction = primaryEntityManager.find(EncryptedRawTransaction.class, e.getHash());
+                assertThat(copiedEncryptedRawTransaction).isNotNull();
+                assertThat(copiedEncryptedRawTransaction.getEncryptedKey()).isEqualTo(e.getEncryptedKey());
+                assertThat(copiedEncryptedRawTransaction.getEncryptedPayload()).isEqualTo(e.getEncryptedPayload());
+                assertThat(copiedEncryptedRawTransaction.getSender()).isEqualTo(e.getSender());
+                assertThat(copiedEncryptedRawTransaction.getNonce()).isEqualTo(e.getNonce());
             });
 
         secondaryEntityManager.getTransaction().rollback();
         primaryEntityManager.getTransaction().rollback();
 
-        assertThat(commandLine.execute(args.toArray(String[]::new))).isZero();
+        assertThat(commandLine.execute(args.toArray(String[]::new)))
+            .describedAs("Rerunning should throw no errors as there are exist checks before insert")
+            .isZero();
 
+        primaryEntityManager.createQuery("select count(e) from EncryptedTransaction e", Long.class)
+            .getResultStream().findFirst()
+            .ifPresent(count -> assertThat(count).isEqualTo(encryptedTransactionCount));
+
+
+        secondaryEntityManager.createQuery("select count(e) from EncryptedRawTransaction e", Long.class)
+            .getResultStream().findFirst()
+            .ifPresent(count -> assertThat(count).isEqualTo(encryptedRawTransactionCount));
     }
 
     static EncryptedTransaction generateEncryptedTransaction() {
