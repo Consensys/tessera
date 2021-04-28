@@ -52,7 +52,6 @@ jobs:
       - run: mvn package -pl \!tests/acceptance-test
       - uses: codecov/codecov-action@v1
         with:
-          token: ${{secrets.CODECOV_TOKEN}}
           flags: unittests
           fail_ci_if_error: true
       - uses: homoluctus/slatify@v2.1.2
