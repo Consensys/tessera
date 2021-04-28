@@ -61,14 +61,14 @@ jobs:
         run: |
           tar xfvz docker-image/quorum-pr.tar.gz
           docker load --input quorum-pr.tar
-          docker tag quorumengineering/quorum:pr quorumengineering/quorum:latest
+          docker tag quorumengineering/quorum:pr quorumengineering/quorum:develop
           echo "::set-output name=outputDir::${{ runner.temp }}"
       - name: "Get Tessera Docker image"
         id: setupTessera
         run: |
           tar xfvz docker-image/tessera-pe.tar.gz
           docker load --input tessera-pe.tar
-          docker tag quorumengineering/tessera:pe quorumengineering/tessera:latest
+          docker tag quorumengineering/tessera:pe quorumengineering/tessera:develop
       - name: "Get QAT Docker image"
         id: setupQAT
         run: |
@@ -81,8 +81,8 @@ jobs:
             --network host \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v ${{ steps.setup.outputs.outputDir }}:${{ steps.setup.outputs.outputDir  }} \
-            -e TF_VAR_quorum_docker_image='{ name = "quorumengineering/quorum:latest", local = true }' \
-            -e TF_VAR_tessera_docker_image='{ name = "quorumengineering/tessera:latest", local = true }' \
+            -e TF_VAR_quorum_docker_image='{ name = "quorumengineering/quorum:develop", local = true }' \
+            -e TF_VAR_tessera_docker_image='{ name = "quorumengineering/tessera:develop", local = true }' \
             -e TF_VAR_privacy_enhancements='{ block = 0, enabled = true }' \
             quorumengineering/quorum-acceptance-tests:pe test \
               -Pauto \
