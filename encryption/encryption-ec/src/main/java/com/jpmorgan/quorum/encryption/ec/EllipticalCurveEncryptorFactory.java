@@ -13,8 +13,10 @@ public class EllipticalCurveEncryptorFactory implements EncryptorFactory {
         return "EC";
     }
 
+
     @Override
     public Encryptor create(Map<String, String> properties) {
+
         final Map<String, String> props = Optional.ofNullable(properties).orElse(Collections.emptyMap());
         String symmetricCipher = props.getOrDefault("symmetricCipher", "AES/GCM/NoPadding");
         String ellipticCurve = props.getOrDefault("ellipticCurve", "secp256r1");

@@ -8,6 +8,7 @@ import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.Nonce;
 import org.bouncycastle.jcajce.provider.digest.SHA3;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +42,11 @@ public class EllipticalCurveEncryptor implements Encryptor {
     public EllipticalCurveEncryptor(final String symmetricCipher, final String ellipticCurve) {
         this(symmetricCipher, ellipticCurve, 24, 32);
     }
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
 
     public EllipticalCurveEncryptor(final String symmetricCipher, final String ellipticCurve, int nonceLength, int sharedKeyLength) {
         this.nonceLength = nonceLength;
