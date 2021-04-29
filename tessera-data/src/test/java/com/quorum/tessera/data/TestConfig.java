@@ -6,29 +6,29 @@ public enum TestConfig {
             "jdbc:hsqldb:mem:test",
             "integrity constraint violation: NOT NULL check constraint",
             "unique constraint or index violation"),
-    SQLITE("jdbc:sqlite:", "NOT NULL constraint failed", "UNIQUE constraint failed");
+    SQLITE("jdbc:sqlite:file::memory:?cache=shared", "NOT NULL constraint failed", "UNIQUE constraint failed");
 
     private String url;
 
-    private String requiredFieldColumTemplate;
+    private String requiredFieldColumnTemplate;
 
-    private String uniqueContraintViolationMessage;
+    private String uniqueConstraintViolationMessage;
 
-    TestConfig(String url, String requiredFieldColumTemplate, String uniqueContraintViolationMessage) {
+    TestConfig(String url, String requiredFieldColumnTemplate, String uniqueConstraintViolationMessage) {
         this.url = url;
-        this.requiredFieldColumTemplate = requiredFieldColumTemplate;
-        this.uniqueContraintViolationMessage = uniqueContraintViolationMessage;
+        this.requiredFieldColumnTemplate = requiredFieldColumnTemplate;
+        this.uniqueConstraintViolationMessage = uniqueConstraintViolationMessage;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public String getRequiredFieldColumTemplate() {
-        return requiredFieldColumTemplate;
+    public String getRequiredFieldColumnTemplate() {
+        return requiredFieldColumnTemplate;
     }
 
-    public String getUniqueContraintViolationMessage() {
-        return uniqueContraintViolationMessage;
+    public String getUniqueConstraintViolationMessage() {
+        return uniqueConstraintViolationMessage;
     }
 }

@@ -4,7 +4,7 @@
 ![Docker Pulls](https://img.shields.io/docker/pulls/quorumengineering/tessera)
 
 
-# <img src="https://raw.githubusercontent.com/jpmorganchase/tessera/master/TesseraLogo.png" width="150" height="150"/>
+# <img src="https://raw.githubusercontent.com/consensys/tessera/master/tessera-logo.png" width="150" height="36"/>
 
 > __Important: Release 0.9 Feature__ <br/>Tessera now supports [remote enclaves](https://docs.tessera.consensys.net/HowTo/Configure/Enclave/#remote-enclave-setup) for increased security.
 

@@ -1,5 +1,6 @@
 package com.quorum.tessera.api;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 
@@ -19,6 +20,7 @@ public class PrivacyGroupRequest {
     @Schema(description = "description of the privacy group", type = "string")
     private String description;
 
+    @Hidden
     private String seed;
 
     public PrivacyGroupRequest() {}

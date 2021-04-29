@@ -53,6 +53,14 @@ public interface PrivacyGroupDAO {
     Optional<PrivacyGroupEntity> retrieve(byte[] id);
 
     /**
+     * Retrieve privacy group entity from database based on id If not already exists will persist entity to database
+     *
+     * @param entity
+     * @return persisted or retrieved entity
+     */
+    PrivacyGroupEntity retrieveOrSave(PrivacyGroupEntity entity);
+
+    /**
      * Retrieve matching privacy groups based on its lookup id
      *
      * @param lookupId The lookup id used to find privacy groups

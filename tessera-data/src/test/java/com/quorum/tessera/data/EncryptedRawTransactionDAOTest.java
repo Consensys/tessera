@@ -8,10 +8,12 @@ import org.junit.runners.Parameterized;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @RunWith(Parameterized.class)
 public class EncryptedRawTransactionDAOTest {
@@ -65,7 +67,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "ENCRYPTED_PAYLOAD");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCRYPTED_PAYLOAD");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("ENCRYPTED_PAYLOAD");
         }
     }
@@ -83,7 +85,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "HASH");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "HASH");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("HASH");
         }
     }
@@ -101,7 +103,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "NONCE");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "NONCE");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("NONCE");
         }
     }
@@ -119,7 +121,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "ENCRYPTED_KEY");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCRYPTED_KEY");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("ENCRYPTED_KEY");
         }
     }
@@ -137,7 +139,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(encryptedRawTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "SENDER");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "SENDER");
             assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("SENDER");
         }
     }
@@ -164,7 +166,7 @@ public class EncryptedRawTransactionDAOTest {
             encryptedRawTransactionDAO.save(duplicateTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            assertThat(ex).hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+            assertThat(ex).hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
         }
     }
 
@@ -228,6 +230,36 @@ public class EncryptedRawTransactionDAOTest {
     }
 
     @Test
+    public void fetchingAllTransactionsReturnsAll() {
+
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        final List<EncryptedRawTransaction> payloads =
+                IntStream.range(0, 50)
+                        .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+                        .map(MessageHash::new)
+                        .map(
+                                hash ->
+                                        new EncryptedRawTransaction(
+                                                hash,
+                                                "payload".getBytes(),
+                                                "key".getBytes(),
+                                                "nonce".getBytes(),
+                                                "sender".getBytes()))
+                        .peek(entityManager::persist)
+                        .collect(Collectors.toList());
+
+        entityManager.getTransaction().commit();
+
+        final List<EncryptedRawTransaction> retrievedList =
+                encryptedRawTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
+
+        assertThat(encryptedRawTransactionDAO.transactionCount()).isEqualTo(payloads.size());
+        assertThat(retrievedList).hasSameSizeAs(payloads);
+        assertThat(retrievedList).hasSameElementsAs(payloads);
+    }
+
+    @Test
     public void retrieveByHashFindsTransactionThatIsPresent() {
         // put a transaction in the database
         MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
@@ -280,6 +312,8 @@ public class EncryptedRawTransactionDAOTest {
         assertThat(retrieved.getTimestamp()).isNotZero();
     }
 
+
+
     @Test
     public void upcheckReturnsTrue() {
         assertThat(encryptedRawTransactionDAO.upcheck());
@@ -297,7 +331,7 @@ public class EncryptedRawTransactionDAOTest {
         when(mockEntityManagerCallback.execute(mockEntityManager)).thenThrow(RuntimeException.class);
 
         EncryptedRawTransactionDAO encryptedRawTransactionDAO =
-            new EncryptedRawTransactionDAOImpl(mockEntityManagerFactory);
+                new EncryptedRawTransactionDAOImpl(mockEntityManagerFactory);
 
         assertThat(encryptedRawTransactionDAO.upcheck()).isFalse();
     }
@@ -320,9 +354,11 @@ public class EncryptedRawTransactionDAOTest {
 
         }
     }
+
     @Parameterized.Parameters(name = "DB {0}")
     public static Collection<TestConfig> connectionDetails() {
 
         return List.of(TestConfig.values());
     }
+
 }

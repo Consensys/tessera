@@ -1,0 +1,18 @@
+{
+  "name": "update-api-doc",
+  "version": "1.0.0",
+  "description": "Update API Github Action",
+  "main": "index.js",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0",
+    "@octokit/rest": "^18.0.15",
+    "yaml": "^1.10.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nicolas Massart",
+  "license": "Apache-2.0"
+}

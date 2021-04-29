@@ -26,7 +26,8 @@ import static suite.SocketType.HTTP;
     P2PRestAppIT.class,
     TransactionForwardingIT.class,
     CucumberRestIT.class,
-    CucumberRawIT.class
+    CucumberRawIT.class,
+    OpenApiIT.class
 })
 @ProcessConfig(
     dbType = DBType.H2,

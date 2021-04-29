@@ -1,0 +1,83 @@
+{
+    "useWhiteList": false,
+    "jdbc": {
+        "username": "scott",
+        "password": "tiger",
+        "url": "foo:bar"
+    },
+    "serverConfigs": [
+        {
+            "app": "ThirdParty",
+            "enabled": true,
+            "serverAddress": "http://localhost:8090",
+            "communicationType": "REST"
+        },
+        {
+            "app": "Q2T",
+            "enabled": true,
+            "serverAddress": "unix:/tmp/test.ipc",
+            "communicationType": "REST"
+        },
+        {
+            "app": "P2P",
+            "enabled": true,
+            "serverAddress": "http://localhost:8091",
+            "sslConfig": {
+                "tls": "OFF",
+                "generateKeyStoreIfNotExisted": "false",
+                "serverKeyStore": "./ssl/server1-keystore",
+                "serverKeyStorePassword": "quorum",
+                "serverTrustStore": "./ssl/server-truststore",
+                "serverTrustStorePassword": "quorum",
+                "serverTrustMode": "CA",
+                "clientKeyStore": "./ssl/client1-keystore",
+                "clientKeyStorePassword": "quorum",
+                "clientTrustStore": "./ssl/client-truststore",
+                "clientTrustStorePassword": "quorum",
+                "clientTrustMode": "CA",
+                "knownClientsFile": "./ssl/knownClients1",
+                "knownServersFile": "./ssl/knownServers1"
+            },
+            "communicationType": "REST"
+        }
+    ],
+    "peer": [
+        {
+            "url": "http://bogus1.com"
+        },
+        {
+            "url": "http://bogus2.com"
+        }
+    ],
+    "keys": {
+        "passwords": [
+            "q"
+        ],
+        "keyData": [
+            {
+                "config": {
+                    "data": {
+                        "aopts": {
+                            "variant": "id",
+                            "memory": 1024,
+                            "iterations": 1,
+                            "parallelism": 1
+                        },
+                        "snonce": "dwixVoY+pOI2FMuu4k0jLqN/naQiTzWe",
+                        "asalt": "JoPVq9G6NdOb+Ugv+HnUeA==",
+                        "sbox": "6Jd/MXn29fk6jcrFYGPb75l7sDJae06I3Y1Op+bZSZqlYXsMpa/8lLE29H0sX3yw"
+                    },
+                    "type": "argon2sbox"
+                },
+                "publicKey": "UFVCTElDX0tFWQ=="
+            }
+        ]
+    },
+    "alwaysSendTo": [],
+    "unixSocketFile": "${unixSocketPath}",
+    "features" : {
+        "enableRemoteKeyValidation" : "true",
+        "enablePrivacyEnhancements" : "true"
+    },
+    "mode" : "orion"
+}

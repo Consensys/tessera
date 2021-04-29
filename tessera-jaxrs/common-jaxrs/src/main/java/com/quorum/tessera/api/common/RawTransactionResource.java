@@ -4,6 +4,7 @@ import com.quorum.tessera.api.StoreRawRequest;
 import com.quorum.tessera.api.StoreRawResponse;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,8 +12,6 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -23,14 +22,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import java.util.Objects;
 
+import static com.quorum.tessera.version.MultiTenancyVersion.MIME_TYPE_JSON_2_1;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /** Provides endpoints for dealing with raw transactions */
 @Tags({@Tag(name = "quorum-to-tessera"), @Tag(name = "third-party")})
 @Path("/")
 public class RawTransactionResource {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RawTransactionResource.class);
 
     public static final String ENDPOINT_STORE_RAW = "storeraw";
 
@@ -44,15 +42,8 @@ public class RawTransactionResource {
         this.transactionManager = Objects.requireNonNull(transactionManager);
     }
 
-    @Operation(
-            summary = "/storeraw",
-            operationId = "encryptAndStore",
-            description = "encrypts a payload and stores result in the \"raw\" database")
-    @ApiResponse(
-            responseCode = "200",
-            description = "hash of encrypted payload",
-            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = StoreRawResponse.class)))
-    @ApiResponse(responseCode = "404", description = "'from' key in request body not found")
+    // hide this operation from swagger generation; the /storeraw operation is overloaded and must be documented in a single place
+    @Hidden
     @POST
     @Path(ENDPOINT_STORE_RAW)
     @Consumes(APPLICATION_JSON)
@@ -62,22 +53,56 @@ public class RawTransactionResource {
                     @NotNull
                     @Valid
                     final StoreRawRequest request) {
+        final StoreRawResponse storeRawResponse = this.forwardRequest(request);
+        return Response.ok().type(APPLICATION_JSON).entity(storeRawResponse).build();
+    }
 
-        PublicKey sender =
-                request.getFrom()
-                        .filter(Objects::nonNull)
-                        .map(PublicKey::from)
-                        .orElseGet(transactionManager::defaultPublicKey);
+    // path /storeraw is overloaded (application/json and application/vnd.tessera-2.1+json); swagger annotations cannot handle situations like this so this operation documents both
+    @Operation(
+            summary = "/storeraw",
+            operationId = "encryptAndStoreVersion",
+            description = "encrypts a payload and stores result in the \"raw\" database",
+            requestBody =
+                @RequestBody(
+                    required = true,
+                    content = {
+                        @Content(
+                            mediaType = APPLICATION_JSON,
+                            schema = @Schema(implementation = StoreRawRequest.class)),
+                        @Content(
+                            mediaType = MIME_TYPE_JSON_2_1,
+                            schema = @Schema(implementation = StoreRawRequest.class))}))
+    @ApiResponse(
+            responseCode = "200",
+            description = "hash of encrypted payload",
+            content = {
+                @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = StoreRawResponse.class)),
+                @Content(mediaType = MIME_TYPE_JSON_2_1, schema = @Schema(implementation = StoreRawResponse.class))
+            })
+    @ApiResponse(responseCode = "404", description = "'from' key in request body not found")
+    @POST
+    @Path(ENDPOINT_STORE_RAW)
+    @Consumes(MIME_TYPE_JSON_2_1)
+    @Produces(MIME_TYPE_JSON_2_1)
+    public Response storeVersion21(@NotNull @Valid final StoreRawRequest request) {
+        final StoreRawResponse storeRawResponse = this.forwardRequest(request);
+        return Response.ok().type(MIME_TYPE_JSON_2_1).entity(storeRawResponse).build();
+    }
 
-        com.quorum.tessera.transaction.StoreRawRequest storeRawRequest =
+    private StoreRawResponse forwardRequest(final StoreRawRequest request) {
+        final PublicKey sender = request.getFrom().map(PublicKey::from).orElseGet(transactionManager::defaultPublicKey);
+
+        final com.quorum.tessera.transaction.StoreRawRequest storeRawRequest =
                 com.quorum.tessera.transaction.StoreRawRequest.Builder.create()
                         .withSender(sender)
                         .withPayload(request.getPayload())
                         .build();
 
         final com.quorum.tessera.transaction.StoreRawResponse response = transactionManager.store(storeRawRequest);
-        StoreRawResponse storeRawResponse = new StoreRawResponse();
+
+        final StoreRawResponse storeRawResponse = new StoreRawResponse();
         storeRawResponse.setKey(response.getHash().getHashBytes());
-        return Response.ok().type(APPLICATION_JSON).entity(storeRawResponse).build();
+
+        return storeRawResponse;
     }
 }

@@ -66,7 +66,7 @@ public class EncryptedTransactionDAOTest {
             encryptedTransactionDAO.save(encryptedTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "ENCODED_PAYLOAD");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCODED_PAYLOAD");
 
             assertThat(ex)
                     .isInstanceOf(PersistenceException.class)
@@ -85,7 +85,7 @@ public class EncryptedTransactionDAOTest {
             encryptedTransactionDAO.save(encryptedTransaction);
             failBecauseExceptionWasNotThrown(PersistenceException.class);
         } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumTemplate(), "HASH");
+            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "HASH");
 
             assertThat(ex)
                     .isInstanceOf(PersistenceException.class)
@@ -146,7 +146,7 @@ public class EncryptedTransactionDAOTest {
         } catch (PersistenceException ex) {
             assertThat(ex)
                     .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+                    .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
         }
     }
 
@@ -404,7 +404,7 @@ public class EncryptedTransactionDAOTest {
         } catch (PersistenceException ex) {
             assertThat(ex)
                     .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(testConfig.getUniqueContraintViolationMessage());
+                    .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
             assertThat(count.get()).isEqualTo(0);
         }
     }

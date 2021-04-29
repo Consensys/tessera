@@ -190,18 +190,13 @@ public class EnclaveApplicationTest {
     }
 
     @Test
-    public void defaultContstructor() throws Exception {
+    public void defaultConstructor() throws Exception {
 
-        EnclaveServer enclaveServer = mock(EnclaveServer.class);
-
-        try(var mockedStaticEnclaveServer = mockStatic(EnclaveServer.class)) {
-            mockedStaticEnclaveServer.when(EnclaveServer::create).thenReturn(enclaveServer);
-
-            EnclaveApplication enclaveApplication = new EnclaveApplication();
-            assertThat(enclaveApplication).isNotNull();
-            mockedStaticEnclaveServer.verify(EnclaveServer::create);
-            mockedStaticEnclaveServer.verifyNoMoreInteractions();
+        try(var enclaveMockedStatic = mockStatic(EnclaveServer.class)) {
+            enclaveMockedStatic.when(EnclaveServer::create).thenReturn(mock(EnclaveServer.class));
+            new EnclaveApplication();
+            enclaveMockedStatic.verify(EnclaveServer::create);
+            enclaveMockedStatic.verifyNoMoreInteractions();
         }
-
     }
 }

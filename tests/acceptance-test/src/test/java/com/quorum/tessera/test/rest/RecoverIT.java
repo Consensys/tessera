@@ -28,6 +28,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +42,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 
 public class RecoverIT {
 
@@ -188,9 +190,13 @@ public class RecoverIT {
 
         NodeExecManager nodeExecManager = new NodeExecManager(execManager.getConfigDescriptor());
 
+        LOGGER.debug("starting {} in normal mode", nodeAlias);
+
         nodeExecManager.start();
 
         partyInfoSync();
+
+        LOGGER.debug("{} is now synced with all parties", nodeAlias);
 
         executors.replace(nodeAlias, nodeExecManager);
     }

@@ -97,8 +97,9 @@ test {
             "**/RestSuiteHttpH2.class",
             "**/RecoverIT.class",
             "**/RestSuiteHttpH2RemoteEnclave.class",
-            "**/SendWithRemoteEnclaveReconnectIT.class"
-         //   "**/CucumberWhitelistIT.class"
+            "**/SendWithRemoteEnclaveReconnectIT.class",
+            "**/CucumberWhitelistIT.class",
+            "**/CucumberVersionCliIT.class"
     )
 
     if (project.hasProperty('excludeTests')) {
