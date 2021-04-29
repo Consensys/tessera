@@ -57,7 +57,7 @@ dependencies {
     testImplementation "org.bouncycastle:bcprov-jdk15on"
 
 
-    testRuntime "org.eclipse.persistence:org.eclipse.persistence.moxy"
+    testRuntimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
 
     implementation "org.glassfish:jakarta.json"
 

@@ -5,7 +5,7 @@ plugins {
     id "com.github.ben-manes.versions" version "0.8"
     id "checkstyle"
     id "org.javamodularity.moduleplugin" version "1.7.0"
-    id "org.kordamp.gradle.jdeps" version "0.11.0"
+    id "org.kordamp.gradle.jdeps" version "0.12.0"
 }
 
 ext {
@@ -337,6 +337,8 @@ subprojects {
         withSourcesJar()
     }
 
+
+
     javadoc {
         failOnError false
         if(JavaVersion.current().isJava9Compatible()) {
@@ -448,6 +450,8 @@ subprojects {
     test {
         exclude "**/*IT.class"
     }
+
+
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
     check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification

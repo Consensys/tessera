@@ -15,7 +15,7 @@ dependencies {
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
     implementation "jakarta.validation:jakarta.validation-api"
-    testCompile project(":tests:test-util")
+    testImplementation project(":tests:test-util")
     runtimeOnly "org.hibernate.validator:hibernate-validator"
 
     testImplementation "org.glassfish:jakarta.json"

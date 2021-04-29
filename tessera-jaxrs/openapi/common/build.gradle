@@ -4,5 +4,5 @@ plugins {
 
 dependencies {
     compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
-    testCompile "io.swagger.core.v3:swagger-core:$swaggerVersion"
+    testImplementation "io.swagger.core.v3:swagger-core:$swaggerVersion"
 }

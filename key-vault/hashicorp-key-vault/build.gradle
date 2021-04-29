@@ -27,15 +27,14 @@ dependencies {
     }
     implementation "com.squareup.okhttp3:okhttp:3.12.3"
 
-    implementation "org.springframework:spring-orm:"+ springVersion
-    testCompile "org.springframework:spring-test:"+ springVersion
-    implementation("org.springframework:spring-core:"+ springVersion) {
+    implementation "org.springframework:spring-orm:$springVersion"
+    testImplementation "org.springframework:spring-test:$springVersion"
+    implementation("org.springframework:spring-core:$springVersion") {
         exclude group: "org.springframework", module: "spring-jcl"
     }
-    implementation "org.springframework:spring-beans:"+ springVersion
-    implementation "org.springframework:spring-context:"+ springVersion
-    implementation "org.springframework:spring-orm:"+ springVersion
-    implementation "org.springframework:spring-web:"+ springVersion
+    implementation "org.springframework:spring-beans:$springVersion"
+    implementation "org.springframework:spring-context:$springVersion"
+    implementation "org.springframework:spring-web:$springVersion"
 
     runtimeOnly "org.slf4j:jcl-over-slf4j"
 

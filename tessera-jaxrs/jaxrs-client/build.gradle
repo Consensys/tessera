@@ -8,7 +8,9 @@ dependencies {
     implementation project(":security")
     implementation project(":tessera-context")
     implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-    runtime project(":server:jaxrs-client-unixsocket")
+
+
+    runtimeOnly project(":server:jaxrs-client-unixsocket")
     implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
 
