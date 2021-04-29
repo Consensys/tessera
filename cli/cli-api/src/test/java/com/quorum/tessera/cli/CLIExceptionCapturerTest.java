@@ -1,5 +1,6 @@
 package com.quorum.tessera.cli;
 
+import org.junit.Before;
 import org.junit.Test;
 import picocli.CommandLine;
 
@@ -10,41 +11,63 @@ import static org.mockito.Mockito.*;
 
 public class CLIExceptionCapturerTest {
 
-    private CLIExceptionCapturer capturer = new CLIExceptionCapturer();
+    private CLIExceptionCapturer capturer;
+
+    @Before
+    public void setUp() {
+        this.capturer = new CLIExceptionCapturer();
+    }
 
     @Test
-    public void exceptionIsRetrievableAfterInvocation() {
+    public void captureExecutionException() {
+        final CommandLine cmd = mock(CommandLine.class);
+
         final Exception testException = new Exception();
 
-        final int exitCode = capturer.handleExecutionException(testException, null, null);
+        final int exitCode = capturer.handleExecutionException(testException, cmd, null);
 
         assertThat(exitCode).isEqualTo(0);
         assertThat(capturer.getThrown()).isSameAs(testException);
+        verifyNoInteractions(cmd);
     }
 
     @Test
-    public void exceptionWithCauseRetrievable() {
-        final Exception cause = new Exception();
-        final CommandLine.ParameterException ex =
-                new CommandLine.ParameterException(mock(CommandLine.class), "", cause);
-
-        capturer.handleParseException(ex, new String[0]);
-
-        assertThat(capturer.getThrown()).isSameAs(cause);
-    }
-
-    @Test
-    public void exceptionWithoutCausePrintsUsage() {
+    public void cliExecutionExceptionPrintsUsage() {
         final CommandLine cmd = mock(CommandLine.class);
-        final PrintWriter writer = mock(PrintWriter.class);
-        when(cmd.getErr()).thenReturn(writer);
+        final PrintWriter pw = mock(PrintWriter.class);
+        when(cmd.getErr()).thenReturn(pw);
 
-        final CommandLine.ParameterException ex = new CommandLine.ParameterException(cmd, "test-message", null);
+        final Exception testException = new CliException("some error");
 
-        capturer.handleParseException(ex, new String[0]);
+        final int exitCode = capturer.handleExecutionException(testException, cmd, null);
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(capturer.getThrown()).isSameAs(testException);
 
         verify(cmd).getErr();
-        verify(cmd).usage(writer);
-        verify(writer).println("test-message");
+        verify(cmd).usage(pw);
     }
+
+    @Test
+    public void captureAndWrapParseExceptionPrintUsage() {
+        final CommandLine cmd = mock(CommandLine.class);
+        final PrintWriter pw = mock(PrintWriter.class);
+        when(cmd.getErr()).thenReturn(pw);
+
+        final Exception cause = new Exception();
+        final CommandLine.ParameterException ex =
+                new CommandLine.ParameterException(cmd, "some error", cause);
+
+        final int exitCode = capturer.handleParseException(ex, new String[0]);
+
+        final Exception captured = capturer.getThrown();
+
+        assertThat(exitCode).isEqualTo(0);
+        assertThat(captured).isExactlyInstanceOf(CliException.class);
+        assertThat(captured).hasMessage("some error");
+
+        verify(cmd).getErr();
+        verify(cmd).usage(pw);
+    }
+
 }

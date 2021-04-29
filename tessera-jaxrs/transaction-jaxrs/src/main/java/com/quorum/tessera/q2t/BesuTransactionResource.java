@@ -142,11 +142,14 @@ public class BesuTransactionResource {
     @Operation(
             summary = "/receive",
             operationId = "getDecryptedPayloadJson",
-            description = "get payload from database, decrypt, and return")
+            description = "get payload from database, decrypt, and return. This endpoint is only to be used by Besu")
     @ApiResponse(
             responseCode = "200",
             description = "decrypted payload",
-            content = @Content(schema = @Schema(implementation = ReceiveResponse.class)))
+            content = {
+                @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = BesuReceiveResponse.class)),
+                @Content(mediaType = ORION, schema = @Schema(implementation = BesuReceiveResponse.class))
+            })
     @POST
     @Path("/receive")
     @Consumes({APPLICATION_JSON, ORION})

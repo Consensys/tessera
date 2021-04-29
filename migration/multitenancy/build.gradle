@@ -1,0 +1,41 @@
+plugins {
+    id "java-library"
+    id "application"
+}
+
+dependencies {
+    implementation project(":encryption:encryption-api")
+    implementation project(":config")
+    implementation project(":enclave:enclave-api")
+    implementation project(":tessera-data")
+    implementation project(":cli:cli-api")
+    implementation project(":tessera-data")
+    implementation "info.picocli:picocli"
+
+    api "jakarta.persistence:jakarta.persistence-api"
+    implementation("org.eclipse.persistence:org.eclipse.persistence.moxy") {
+        exclude group: "jakarta.json", module: "jakarta.json-api"
+    }
+
+    testImplementation "com.h2database:h2"
+}
+
+application {
+    applicationName = "multitenancy"
+    mainClass = "com.quorum.tessera.multitenancy.migration.Main"
+    mainModule = "tessera.migration.multitenancy.main"
+
+    applicationDefaultJvmArgs = [
+            "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+            "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+            "-Dtessera.cli.type=MULTITENANCY_MIGRATION"
+    ]
+    startScripts.enabled = true
+}
+
+modularity.disableEffectiveArgumentsAdjustment()
+
+configurations.all {
+    exclude module: "jakarta.persistence"
+    exclude module: "jakarta.activation"
+}

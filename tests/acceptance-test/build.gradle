@@ -95,10 +95,11 @@ test {
             "**/RestSuiteUnixH2.class",
             "**/RestSuiteHttpSqllite.class",
             "**/RestSuiteHttpH2.class",
-            //"**/RecoverIT.class",
+            "**/RecoverIT.class",
             "**/RestSuiteHttpH2RemoteEnclave.class",
-            "**/SendWithRemoteEnclaveReconnectIT.class"
-         //   "**/CucumberWhitelistIT.class"
+            "**/SendWithRemoteEnclaveReconnectIT.class",
+            "**/CucumberWhitelistIT.class",
+            "**/CucumberVersionCliIT.class"
     )
 
     if (project.hasProperty('excludeTests')) {

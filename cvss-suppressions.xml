@@ -8,4 +8,12 @@
     <suppress>
         <cpe>cpe:/a:checkstyle:checkstyle:1.37.1</cpe>
     </suppress>
+    <suppress>
+        <cpe>cpe:2.3:a:google:guava:1.0.1:*:*:*:*:*:*:*</cpe>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
+    <suppress>
+        <cpe>cpe:/a:org.jacoco:org.jacoco.report</cpe>
+        <cve>CVE-2021-21275</cve>
+    </suppress>
 </suppressions>

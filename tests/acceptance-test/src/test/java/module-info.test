@@ -22,4 +22,6 @@
 --add-opens
     tessera.tests.acceptance.test.main/transaction.whitelist=io.cucumber.core,io.cucumber.java8
 
+--add-opens
+    tessera.tests.acceptance.test.main/com.quorum.tessera.test.cli.version=io.cucumber.core,io.cucumber.java8
 

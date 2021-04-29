@@ -18,6 +18,4 @@ module tessera.tests.acceptance.test.main {
     requires jdk.httpserver;
     requires java.net.http;
 
-
-
 }

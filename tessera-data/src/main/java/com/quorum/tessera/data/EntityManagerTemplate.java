@@ -6,7 +6,10 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceException;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 public class EntityManagerTemplate {
 
@@ -38,5 +41,29 @@ public class EntityManagerTemplate {
         } finally {
             entityManager.close();
         }
+    }
+
+    public <T> T retrieveOrSave(Supplier<T> retriever, Supplier<T> factory) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        EntityTransaction transaction = entityManager.getTransaction();
+
+        return Optional.ofNullable(retriever.get())
+                .orElseGet(
+                        () -> {
+                            try {
+                                transaction.begin();
+                                T result = factory.get();
+                                entityManager.persist(result);
+                                transaction.commit();
+                                return result;
+                            } catch (PersistenceException ex) {
+                                return Optional.ofNullable(retriever.get()).orElseThrow(() -> ex);
+                            } catch (Throwable throwable) {
+                                if (transaction.isActive()) transaction.rollback();
+                                throw throwable;
+                            } finally {
+                                entityManager.close();
+                            }
+                        });
     }
 }
