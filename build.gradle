@@ -291,7 +291,7 @@ subprojects {
                 }
 
                 excludes = [
-                        "com.quorum.tessera.data.migration.Main",
+                        "com.quorum.tessera.multitenancy.migration.Main",
                         "com.quorum.tessera.passwords.ConsolePasswordReader",
                         "com.quorum.tessera.passwords.PasswordReaderFactory",
                         "com.quorum.tessera.enclave.rest.Main",
