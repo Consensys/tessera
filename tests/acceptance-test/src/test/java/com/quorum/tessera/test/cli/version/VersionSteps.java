@@ -44,7 +44,7 @@ public class VersionSteps implements En {
 
                     ExecArgsBuilder argsBuilder =
                         new ExecArgsBuilder()
-                            .withStartScriptOrJarFile(startScript)
+                            .withStartScript(startScript)
                             .withArg("tessera")
                             .withArg(subcmd);
 

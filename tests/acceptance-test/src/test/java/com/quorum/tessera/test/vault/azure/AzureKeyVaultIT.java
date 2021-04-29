@@ -155,7 +155,7 @@ public class AzureKeyVaultIT {
                 getClass().getResource("/vault/tessera-azure-config.json"), params);
 
         List<String> args = new ExecArgsBuilder()
-            .withStartScriptOrJarFile(startScript)
+            .withStartScript(startScript)
             .withClassPathItem(distDirectory)
             .withArg("-configfile", tempTesseraConfig.toString())
             .withArg("-pidfile", pid.toAbsolutePath().toString())

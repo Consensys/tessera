@@ -23,17 +23,14 @@ public class AzureKeyVaultService implements KeyVaultService<AzureSetSecretData,
 
     @Override
     public String getSecret(AzureGetSecretData azureGetSecretData) {
-        KeyVaultSecret secret;
-
+        final KeyVaultSecret secret;
         try {
-
-            LOGGER.info("SecretName : {} , SecretVersion: {}",azureGetSecretData.getSecretName(),azureGetSecretData.getSecretVersion());
+            LOGGER.debug("SecretName : {} , SecretVersion: {}",azureGetSecretData.getSecretName(),azureGetSecretData.getSecretVersion());
             secret = secretClient.getSecret(azureGetSecretData.getSecretName(), azureGetSecretData.getSecretVersion());
-            LOGGER.info("secret.id {}",secret.getId());
+            LOGGER.debug("secret.id {}",secret.getId());
         } catch (ResourceNotFoundException e) {
             throw new VaultSecretNotFoundException("Azure Key Vault secret " + azureGetSecretData.getSecretName() + " was not found in vault " + secretClient.getVaultUrl());
         }
-
         return secret.getValue();
     }
 

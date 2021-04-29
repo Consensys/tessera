@@ -51,7 +51,7 @@ public class NodeExecManager implements ExecManager {
 
         ExecArgsBuilder argsBuilder =
             new ExecArgsBuilder()
-                .withStartScriptOrJarFile(startScript)
+                .withStartScript(startScript)
                 .withPidFile(pid)
                 .withConfigFile(configDescriptor.getPath());
         // .withArg("-jdbc.autoCreateTables", "true");

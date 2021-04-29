@@ -29,7 +29,7 @@ public class Utils {
         List<String> args =
             new ExecArgsBuilder()
                 .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
-                .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+                .withStartScript(Paths.get(jarPath))
                 .withConfigFile(party.getConfigFilePath())
                 .build();
 
@@ -94,7 +94,7 @@ public class Utils {
         List<String> args =
             new ExecArgsBuilder()
                 .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
-                .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+                .withStartScript(Paths.get(jarPath))
                 .withConfigFile(party.getConfigFilePath())
                 .withSubcommands("admin", "addpeer")
                 .withArg(url)

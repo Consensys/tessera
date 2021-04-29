@@ -440,7 +440,7 @@ public class HashicorpStepDefs implements En {
                     .map(Paths::get).get().resolve("*");
 
                 final List<String> args = new ExecArgsBuilder()
-                    .withStartScriptOrExecutableJarFile(startScript)
+                    .withStartScript(startScript)
                     .withClassPathItem(distDirectory)
                     .withArg("--debug")
                     .build();
@@ -472,7 +472,7 @@ public class HashicorpStepDefs implements En {
                     .map(Paths::get).get().resolve("*");
 
                 final List<String> args = new ExecArgsBuilder()
-                    .withStartScriptOrExecutableJarFile(startScript)
+                    .withStartScript(startScript)
                     .withClassPathItem(distDirectory)
                     .withArg("--debug")
                     .build();

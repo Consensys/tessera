@@ -60,7 +60,7 @@ public class EnclaveExecManager implements ExecManager {
                 .withPidFile(pid)
                 .withJvmArg("-Dnode.number=" + nodeId)
                 .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
-                .withStartScriptOrExecutableJarFile(enclaveServerJar)
+                .withStartScript(enclaveServerJar)
                 .withConfigFile(configDescriptor.getEnclavePath())
                 .build();
 

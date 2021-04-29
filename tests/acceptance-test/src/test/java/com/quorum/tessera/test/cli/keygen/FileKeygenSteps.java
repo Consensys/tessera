@@ -62,7 +62,7 @@ public class FileKeygenSteps implements En {
                 final Path startScript = Paths.get(appPath);
 
                 this.args = new ExecArgsBuilder()
-                    .withStartScriptOrJarFile(startScript)
+                    .withStartScript(startScript)
                     .withArg("-keygen")
                     .withArg("--encryptor.type","NACL")
                     .build();

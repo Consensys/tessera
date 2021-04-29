@@ -156,7 +156,7 @@ public class AwsKeyVaultIT {
                 getClass().getResource("/vault/tessera-aws-config.json"), params);
 
         List<String> args = new ExecArgsBuilder()
-            .withStartScriptOrJarFile(startScript)
+            .withStartScript(startScript)
             .withClassPathItem(distDirectory)
             .withArg("-configfile", tempTesseraConfig.toString())
             .withArg("-pidfile", pid.toAbsolutePath().toString())
@@ -230,7 +230,7 @@ public class AwsKeyVaultIT {
         List<String> nodesToGenerateKeysFor = List.of("nodeA","nodeB","nodeC");
 
         final List<String> args = new ExecArgsBuilder()
-            .withStartScriptOrJarFile(startScript)
+            .withStartScript(startScript)
             .withClassPathItem(distDirectory)
             .withArg("-keygen")
             .withArg("-keygenvaulttype","AWS")

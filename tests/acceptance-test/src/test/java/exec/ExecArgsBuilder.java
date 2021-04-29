@@ -1,26 +1,16 @@
 package exec;
 
-import com.quorum.tessera.config.Config;
-
-import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ExecArgsBuilder {
-
-    private Config config;
 
     private Path configFile;
 
     private List<String> subcommands;
 
     private Path pidFile;
-
-    private Class mainClass;
-
-    private Path executableJarFile;
 
     private Path startScript;
 
@@ -40,44 +30,12 @@ public class ExecArgsBuilder {
         return this;
     }
 
-    public ExecArgsBuilder withConfig(Config config) {
-        this.config = config;
-        return this;
-    }
-
     public ExecArgsBuilder withConfigFile(Path configFile) {
         this.configFile = configFile;
         return this;
     }
 
-    public ExecArgsBuilder withMainClass(Class mainClass) {
-        this.mainClass = mainClass;
-        return this;
-    }
-
-    public ExecArgsBuilder withStartScriptOrJarFile(Path file) {
-        if (file.toFile().getName().toLowerCase().endsWith(".jar")) {
-            return withClassPathItem(file);
-        } else {
-            return withStartScript(file);
-        }
-    }
-
-    public ExecArgsBuilder withStartScriptOrExecutableJarFile(Path file) {
-        if (file.toFile().getName().toLowerCase().endsWith(".jar")) {
-            return withExecutableJarFile(file);
-        } else {
-            return withStartScript(file);
-        }
-    }
-
-    // TODO(cjh) delete if not distributing as an executable jar file
-    private ExecArgsBuilder withExecutableJarFile(Path executableJarFile) {
-        this.executableJarFile = executableJarFile;
-        return this;
-    }
-
-    private ExecArgsBuilder withStartScript(Path startScript) {
+    public ExecArgsBuilder withStartScript(Path startScript) {
         this.startScript = startScript;
         return this;
     }
@@ -110,16 +68,6 @@ public class ExecArgsBuilder {
 
         final List<String> tokens = new ArrayList<>();
         tokens.add(startScript.toAbsolutePath().toString());
-
-        if (!classpathItems.isEmpty()) {
-            final String classpathStr =
-                classpathItems.stream()
-                    .map(Path::toAbsolutePath)
-                    .map(Path::toString)
-                    .collect(Collectors.joining(File.pathSeparator));
-            tokens.add("-classpath");
-            tokens.add(classpathStr);
-        }
 
         if (Objects.nonNull(subcommands)) {
             tokens.addAll(subcommands);

@@ -90,7 +90,7 @@ test {
     include(
             "**/P2pTestSuite.class",
             "**/CucumberFileKeyGenerationIT.class",
-            "**/AwsKeyVaultIT.class",
+             "**/AwsKeyVaultIT.class",
             "**/RestSuiteHttpHSQL.class",
             "**/RestSuiteUnixH2.class",
             "**/RestSuiteHttpSqllite.class",
@@ -111,10 +111,6 @@ test {
 
 }
 
-
-
-
-
 task copyTesseraIntoAzureDist(type: Copy) {
     def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
     def tesseraDir = file("${buildDir}/unpacked/dist/${tesseraName}")
@@ -124,7 +120,6 @@ task copyTesseraIntoAzureDist(type: Copy) {
     from tesseraDir into outputDir
 
 }
-
 
 task copyTesseraIntoAwsDist(type: Copy) {
     def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
@@ -142,7 +137,6 @@ task copyTesseraIntoHashicorpDist(type: Copy) {
     def outputDir = file("${buildDir}/unpacked/dist/${distname}")
 
     from tesseraDir into outputDir
-
 }
 
 task unzipAzureKeyVault(type: Copy) {
@@ -150,7 +144,6 @@ task unzipAzureKeyVault(type: Copy) {
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
     into outputDir
-
 }
 
 task unzipAwsKeyVault(type: Copy) {
@@ -171,16 +164,13 @@ task unzipTessera(type: Copy) {
     def zipFile = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
-
     into outputDir
-
 }
 
 task unzipEnclave(type: Copy) {
     def zipFile = file(project(":enclave:enclave-jaxrs").distZip.outputs.files.getFiles()[0])
     def outputDir = file("${buildDir}/unpacked/dist")
     from zipTree(zipFile)
-
     into outputDir
 }
 
@@ -193,7 +183,6 @@ task unzipDdl(type:Copy) {
 
 
 task copyJdbcJars {
-
 
     doLast {
         def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
@@ -215,7 +204,6 @@ task copyJdbcJars {
             }
         }
     }
-
 }
 
 

@@ -340,7 +340,7 @@ public class AzureStepDefs implements En {
                     .map(Paths::get).get();
 
                 ExecArgsBuilder execArgsBuilder = new ExecArgsBuilder()
-                    .withStartScriptOrExecutableJarFile(startScript)
+                    .withStartScript(startScript)
                     .withArg("-configfile", tempTesseraConfig.toString())
                     .withArg("-pidfile", pid.toAbsolutePath().toString())
                     .withArg("-jdbc.autoCreateTables", "true")
@@ -453,7 +453,7 @@ public class AzureStepDefs implements En {
                 Path startScript = Paths.get(System.getProperty("keyvault.azure.dist"));
 
                 final List<String> args = new ExecArgsBuilder()
-                    .withStartScriptOrJarFile(startScript)
+                    .withStartScript(startScript)
                     .withArg("--debug")
                     .build();
 

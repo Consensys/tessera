@@ -98,7 +98,7 @@ public class WhitelistSteps implements En {
                     final Path startScript = Paths.get(appPath);
                     List<String> cmd =
                         new ExecArgsBuilder()
-                            .withStartScriptOrJarFile(startScript)
+                            .withStartScript(startScript)
                             .withConfigFile(configFile)
                             .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
                             .withJvmArg("-Dnode.number=whitelist")

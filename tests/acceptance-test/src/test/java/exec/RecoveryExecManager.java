@@ -48,7 +48,7 @@ public class RecoveryExecManager implements ExecManager {
         ExecArgsBuilder argsBuilder =
             new ExecArgsBuilder()
                 .withArg("--recover")
-                .withStartScriptOrJarFile(nodeServerJar)
+                .withStartScript(nodeServerJar)
                 .withPidFile(pid)
                 .withConfigFile(configDescriptor.getPath());
 
