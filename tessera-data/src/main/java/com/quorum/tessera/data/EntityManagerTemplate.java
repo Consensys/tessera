@@ -15,7 +15,7 @@ public class EntityManagerTemplate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EntityManagerTemplate.class);
 
-    private EntityManagerFactory entityManagerFactory;
+    private final EntityManagerFactory entityManagerFactory;
 
     public EntityManagerTemplate(EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);
@@ -44,12 +44,12 @@ public class EntityManagerTemplate {
     }
 
     public <T> T retrieveOrSave(Supplier<T> retriever, Supplier<T> factory) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
 
         return Optional.ofNullable(retriever.get())
                 .orElseGet(
                         () -> {
+                            EntityManager entityManager = entityManagerFactory.createEntityManager();
+                            EntityTransaction transaction = entityManager.getTransaction();
                             try {
                                 transaction.begin();
                                 T result = factory.get();
