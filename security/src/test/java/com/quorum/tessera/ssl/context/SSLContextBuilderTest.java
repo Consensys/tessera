@@ -2,6 +2,7 @@ package com.quorum.tessera.ssl.context;
 
 import com.quorum.tessera.ssl.trust.CompositeTrustManager;
 import com.quorum.tessera.ssl.util.TlsUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -40,6 +41,10 @@ public class SSLContextBuilderTest {
     private static final String LOCALHOST = "localhost";
 
     private SSLContextBuilder sslContextBuilder;
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @Before
     public void setUp()
