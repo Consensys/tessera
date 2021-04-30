@@ -153,6 +153,7 @@ public class ConfigBuilder {
         jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeId, nodeNumber));
         jdbcConfig.setUsername("sa");
         jdbcConfig.setPassword("");
+        jdbcConfig.setAutoCreateTables(true);
         config.setJdbcConfig(jdbcConfig);
 
         ServerConfig q2tServerConfig = new ServerConfig();

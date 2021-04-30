@@ -7,6 +7,7 @@ import java.util.Base64;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class PrivacyGroupUtilTest {
 
@@ -107,5 +108,30 @@ public class PrivacyGroupUtilTest {
         assertThat(decoded.getMembers()).isEmpty();
         assertThat(decoded.getType()).isEqualTo(PrivacyGroup.Type.LEGACY);
         assertThat(decoded.getState()).isEqualTo(PrivacyGroup.State.DELETED);
+    }
+
+    @Test
+    public void testEncodeDecodeResidentGroup() {
+
+        final PrivacyGroup.Id groupId = mock(PrivacyGroup.Id.class);
+
+        final PrivacyGroup privacyGroup =
+            PrivacyGroup.Builder.create()
+                .withPrivacyGroupId(groupId)
+                .withMembers(List.of())
+                .withName("ResidentGroup")
+                .withType(PrivacyGroup.Type.RESIDENT)
+                .withState(PrivacyGroup.State.ACTIVE)
+                .build();
+
+        final byte[] encoded = privacyGroupUtil.encode(privacyGroup);
+
+        final PrivacyGroup decoded = privacyGroupUtil.decode(encoded);
+
+        assertThat(decoded.getId()).isEqualTo(PrivacyGroup.Id.fromBytes("ResidentGroup".getBytes()));
+        assertThat(decoded.getName()).isEqualTo("ResidentGroup");
+        assertThat(decoded.getMembers()).isEmpty();
+        assertThat(decoded.getType()).isEqualTo(PrivacyGroup.Type.RESIDENT);
+        assertThat(decoded.getState()).isEqualTo(PrivacyGroup.State.ACTIVE);
     }
 }

@@ -66,4 +66,6 @@ public interface PrivacyGroupDAO {
      * @return A list of privacy group entities
      */
     List<PrivacyGroupEntity> findByLookupId(byte[] lookupId);
+
+    List<PrivacyGroupEntity> findAll();
 }

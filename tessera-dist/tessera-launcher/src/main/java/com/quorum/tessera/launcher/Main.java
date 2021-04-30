@@ -11,6 +11,7 @@ import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.context.RuntimeContextFactory;
 import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.privacygroup.ResidentGroupHandler;
 import com.quorum.tessera.service.locator.ServiceLocator;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
@@ -50,26 +51,31 @@ public class Main {
             }
 
             final Config config =
-                cliResult
-                    .getConfig()
-                    .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
+                    cliResult
+                            .getConfig()
+                            .orElseThrow(() -> new NoSuchElementException("No config found. Tessera will not run."));
 
-            //Start legacy spring profile stuff
-            final String springProfileWarning = "Warn: Spring profiles will not be supported in future. To start in recover mode use 'tessera recover'";
-            if(System.getProperties().containsKey("spring.profiles.active")) {
+            // Start legacy spring profile stuff
+            final String springProfileWarning =
+                    "Warn: Spring profiles will not be supported in future. To start in recover mode use 'tessera recover'";
+            if (System.getProperties().containsKey("spring.profiles.active")) {
                 System.out.println(springProfileWarning);
                 config.setRecoveryMode(System.getProperty("spring.profiles.active").contains("enable-sync-poller"));
-            } else if(System.getenv().containsKey("SPRING_PROFILES_ACTIVE")) {
+            } else if (System.getenv().containsKey("SPRING_PROFILES_ACTIVE")) {
                 System.out.println(springProfileWarning);
                 config.setRecoveryMode(System.getenv("SPRING_PROFILES_ACTIVE").contains("enable-sync-poller"));
             }
 
-            //Start end spring profile stuff
+            // Start end spring profile stuff
 
             final RuntimeContext runtimeContext = RuntimeContextFactory.newFactory().create(config);
 
             com.quorum.tessera.enclave.EnclaveFactory.create().create(config);
             Discovery.getInstance().onCreate();
+
+            if (runtimeContext.isMultiplePrivateStates()) {
+                ResidentGroupHandler.create(config).onCreate(config);
+            }
 
             LOGGER.debug("Creating service locator");
             ServiceLocator serviceLocator = ServiceLocator.create();
@@ -90,10 +96,10 @@ public class Main {
         } catch (final ConstraintViolationException ex) {
             for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
                 System.err.println(
-                    "ERROR: Config validation issue: "
-                        + violation.getPropertyPath()
-                        + " "
-                        + violation.getMessage());
+                        "ERROR: Config validation issue: "
+                                + violation.getPropertyPath()
+                                + " "
+                                + violation.getMessage());
             }
             System.exit(1);
         } catch (final ConfigException ex) {

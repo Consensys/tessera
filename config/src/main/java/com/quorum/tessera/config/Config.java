@@ -68,6 +68,8 @@ public class Config extends ConfigItem {
     @XmlElement(name = "mode")
     private ClientMode clientMode = ClientMode.TESSERA;
 
+    @XmlElement private List<ResidentGroup> residentGroups;
+
     @Deprecated
     public Config(
             final JdbcConfig jdbcConfig,
@@ -231,5 +233,13 @@ public class Config extends ConfigItem {
 
     public void setClientMode(ClientMode clientMode) {
         this.clientMode = clientMode;
+    }
+
+    public List<ResidentGroup> getResidentGroups() {
+        return residentGroups;
+    }
+
+    public void setResidentGroups(List<ResidentGroup> residentGroups) {
+        this.residentGroups = residentGroups;
     }
 }

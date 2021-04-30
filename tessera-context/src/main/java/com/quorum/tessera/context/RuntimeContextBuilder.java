@@ -40,6 +40,8 @@ public class RuntimeContextBuilder {
 
     private boolean orionMode;
 
+    private boolean multiplePrivateStates;
+
     private RuntimeContextBuilder() {}
 
     public static RuntimeContextBuilder create() {
@@ -106,6 +108,11 @@ public class RuntimeContextBuilder {
         return this;
     }
 
+    public RuntimeContextBuilder withMultiplePrivateStates(boolean multiplePrivateStates) {
+        this.multiplePrivateStates = multiplePrivateStates;
+        return this;
+    }
+
     public RuntimeContext build() {
 
         LOGGER.debug("Building {}", this);
@@ -115,19 +122,20 @@ public class RuntimeContextBuilder {
         Objects.requireNonNull(p2pClient, "No p2pClient provided. ");
 
         RuntimeContext instance =
-            new DefaultRuntimeContext(
-                keys,
-                keyEncryptor,
-                alwaysSendTo,
-                peers,
-                p2pClient,
-                remoteKeyValidation,
-                enhancedPrivacy,
-                p2pServerUri,
-                disablePeerDiscovery,
-                useWhiteList,
-                recoveryMode,
-                orionMode);
+                new DefaultRuntimeContext(
+                        keys,
+                        keyEncryptor,
+                        alwaysSendTo,
+                        peers,
+                        p2pClient,
+                        remoteKeyValidation,
+                        enhancedPrivacy,
+                        p2pServerUri,
+                        disablePeerDiscovery,
+                        useWhiteList,
+                        recoveryMode,
+                        orionMode,
+                        multiplePrivateStates);
         LOGGER.debug("Built {}", this);
         return instance;
     }

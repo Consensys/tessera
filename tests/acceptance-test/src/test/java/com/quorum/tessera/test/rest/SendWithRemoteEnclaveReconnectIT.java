@@ -86,6 +86,7 @@ public class SendWithRemoteEnclaveReconnectIT {
         jdbcConfig.setUrl("jdbc:h2:mem:junit");
         jdbcConfig.setUsername("sa");
         jdbcConfig.setPassword("");
+        jdbcConfig.setAutoCreateTables(true);
         nodeConfig.setJdbcConfig(jdbcConfig);
 
         ServerConfig p2pServerConfig = new ServerConfig();
@@ -107,7 +108,6 @@ public class SendWithRemoteEnclaveReconnectIT {
         enclaveServerConfig.setCommunicationType(CommunicationType.REST);
 
         nodeConfig.setServerConfigs(Arrays.asList(p2pServerConfig, q2tServerConfig, enclaveServerConfig));
-
 
         KeyData keyPair = new KeyData();
         keyPair.setPublicKey("/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=");
