@@ -1,5 +1,6 @@
 package com.quorum.tessera.ssl.util;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.Test;
 
@@ -19,6 +20,10 @@ public class TlsUtilsTest {
     private static final char[] PASSWORD = "quorum".toCharArray();
 
     private static final String ALIAS = "tessera";
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @Test
     public void testGenerateKeys()
