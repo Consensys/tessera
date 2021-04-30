@@ -10,9 +10,13 @@ import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
+
+import java.security.Security;
 import java.util.Base64;
 import static junit.framework.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +28,9 @@ private static final Logger LOGGER = LoggerFactory.getLogger(EllipticalCurveEncr
     private final EncryptorFactory facadeFactory = new EllipticalCurveEncryptorFactory();
     
     private final EllipticalCurveEncryptor encryptor = (EllipticalCurveEncryptor) facadeFactory.create();
-
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
     @Test
     public void computeSharedKey() {
         KeyPair keyPair1 = encryptor.generateNewKeys();
