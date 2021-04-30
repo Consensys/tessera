@@ -6,9 +6,11 @@ import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 
+import java.security.Security;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,6 +19,9 @@ import static org.mockito.Mockito.*;
 
 public class KeyGeneratorFactoryTest {
 
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @Test
     public void fileKeyGeneratorWhenKeyVaultConfigNotProvided() {

@@ -4,6 +4,7 @@ module tessera.key.generation.main {
     requires tessera.encryption.encryption.api.main;
     requires tessera.key.vault.key.vault.api.main;
     requires tessera.shared.main;
+    requires org.bouncycastle.provider;
 
     exports com.quorum.tessera.key.generation;
 

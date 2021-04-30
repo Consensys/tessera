@@ -6,6 +6,8 @@ module tessera.enclave.enclave.api.main {
     requires tessera.shared.main;
     requires org.bouncycastle.provider;
     requires org.slf4j;
+    requires tuweni.bytes;
+    requires tuweni.rlp;
 
     exports com.quorum.tessera.enclave;
 

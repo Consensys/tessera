@@ -11,7 +11,7 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
-<p>>Quick and dirty sequence generator for staging data.
+<p>Quick and dirty sequence generator for staging data.
 Cannot be used for non staging use cass as  sequence only lives for
 duration of process.</p>
 

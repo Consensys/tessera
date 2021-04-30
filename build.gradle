@@ -140,7 +140,7 @@ allprojects {
 
                 implementation "net.java.dev.jna:jna:5.6.0"
 
-                //TODO: Review if these can be ditched
+                //Used in enclave-api
                 implementation "org.apache.tuweni:tuweni-rlp:1.1.0"
                 implementation "org.apache.tuweni:tuweni-bytes:1.1.0"
             }
@@ -175,6 +175,8 @@ subprojects {
 //        exclude group: 'javax.servlet'
 //        exclude group: 'javax.ws.rs'
         exclude group: "javax.activation"
+        exclude module: "jakarta.persistence"
+        exclude module: "jakarta.activation"
 
         resolutionStrategy.capabilitiesResolution.all {
             selectHighestVersion()

@@ -11,6 +11,8 @@ open module tessera.tessera.data.main {
     requires java.sql;
     requires com.zaxxer.hikari;
     requires java.validation;
+    requires tessera.eclipselink.utils.main;
+
 //    opens com.quorum.tessera.data to org.eclipse.persistence.core;
 //    opens com.quorum.tessera.data.staging to org.eclipse.persistence.core;
 
@@ -38,6 +40,5 @@ open module tessera.tessera.data.main {
 
     provides com.quorum.tessera.data.DataSourceFactory with
         com.quorum.tessera.data.DataSourceFactoryProvider;
-
 
 }
