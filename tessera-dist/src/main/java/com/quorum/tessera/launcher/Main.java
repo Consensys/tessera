@@ -2,7 +2,6 @@ package com.quorum.tessera.launcher;
 
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
-import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.ConfigFactory;
@@ -14,12 +13,14 @@ import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.json.JsonException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import java.security.Security;
 import java.util.*;
 
 /** The main entry point for the application. This just starts up the application in the embedded container. */
@@ -28,9 +29,8 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static void main(final String... args) throws Exception {
-        System.setProperty(CliType.CLI_TYPE_KEY, CliType.CONFIG.name());
-        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+
+        Security.addProvider(new BouncyCastleProvider());
 
         try {
 

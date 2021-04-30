@@ -1,6 +1,5 @@
 package com.quorum.tessera.ssl.context;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -20,7 +19,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -57,9 +55,6 @@ final class SSLKeyStoreLoader {
 
     private static final Base64.Decoder decoder = Base64.getMimeDecoder();
 
-    static {
-        Security.addProvider(new BouncyCastleProvider());
-    }
 
     private SSLKeyStoreLoader() {}
 

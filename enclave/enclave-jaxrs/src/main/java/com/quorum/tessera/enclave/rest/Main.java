@@ -11,10 +11,12 @@ import com.quorum.tessera.enclave.EnclaveServer;
 import com.quorum.tessera.enclave.server.EnclaveCliAdapter;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
+import java.security.Security;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -23,9 +25,7 @@ public class Main {
     private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     public static void main(String... args) throws Exception {
-        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-
+        Security.addProvider(new BouncyCastleProvider());
         final CommandLine commandLine = new CommandLine(new EnclaveCliAdapter());
         commandLine
                 .registerConverter(Config.class, new ConfigConverter())

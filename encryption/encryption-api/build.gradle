@@ -5,5 +5,5 @@ plugins {
 
 dependencies {
     implementation project(":shared")
-    implementation "org.bouncycastle:bcpkix-jdk15on"
+    testImplementation "org.bouncycastle:bcpkix-jdk15on"
 }

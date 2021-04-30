@@ -14,6 +14,7 @@ module tessera.enclave.enclave.jaxrs.main {
     requires tessera.server.server.api.main;
     requires tessera.shared.main;
     requires tessera.tessera.jaxrs.jaxrs.client.main;
+    requires org.bouncycastle.provider;
 
     opens com.quorum.tessera.enclave.rest to org.eclipse.persistence.moxy,org.eclipse.persistence.core;
 

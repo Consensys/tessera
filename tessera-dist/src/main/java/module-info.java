@@ -20,6 +20,7 @@ module tessera.tessera.dist.main {
     requires java.json;
 
     requires tessera.server.jaxrs.client.unixsocket.main;
+    requires org.bouncycastle.provider;
 
 //    requires tessera.encryption.encryption.jnacl.main;
 //    requires tessera.encryption.encryption.api.main;

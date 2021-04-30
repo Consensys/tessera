@@ -10,6 +10,8 @@ application {
     applicationDefaultJvmArgs = [
             "-Dtessera.cli.type=CONFIG",
             "-Djnr.ffi.asm.enabled=false",
+            "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+            "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory"
 
  //           "--add-opens", "java.base/jdk.internal.misc=io.netty.common,ALL-UNNAMED",
  //           "--add-exports", "java.base/jdk.internal.misc=io.netty.common,ALL-UNNAMED",

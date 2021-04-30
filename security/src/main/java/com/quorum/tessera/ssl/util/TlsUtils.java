@@ -8,7 +8,6 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -36,8 +35,6 @@ public interface TlsUtils {
     String LOCALHOST = "localhost";
     String LOCALHOST_IP = "127.0.0.1";
     String LOCALHOST_IP_2 = "0.0.0.0";
-
-    Provider provider = new BouncyCastleProvider();
 
     default void generateKeyStoreWithSelfSignedCertificate(String address, Path privateKeyFile, char[] password)
             throws NoSuchAlgorithmException, IOException, OperatorCreationException, CertificateException,
@@ -79,7 +76,7 @@ public interface TlsUtils {
         X509CertificateHolder certHolder = builder.build(contentSigner);
         X509Certificate certificate =
                 new JcaX509CertificateConverter()
-                    .setProvider(provider)
+                    .setProvider("BC")
                     .getCertificate(certHolder);
 
         certificate.verify(publicKey);
@@ -94,7 +91,6 @@ public interface TlsUtils {
     }
 
     static TlsUtils create() {
-        Security.addProvider(new BouncyCastleProvider());
         return new TlsUtils() {};
     }
 }
