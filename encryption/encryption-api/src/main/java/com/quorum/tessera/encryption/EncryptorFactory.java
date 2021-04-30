@@ -1,11 +1,13 @@
 package com.quorum.tessera.encryption;
 
+import java.security.Security;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.stream.Collectors;
-
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 /** * A factory for providing the implementation of the {@link Encryptor} with all its dependencies set up */
 public interface EncryptorFactory {
 
@@ -22,13 +24,19 @@ public interface EncryptorFactory {
 
     String getType();
 
+
+
     /**
      * Retrieves the implementation of the factory from the service loader
      *
      * @return the factory implementation that will provide instances of that implementations {@link Encryptor}
      */
     static EncryptorFactory newFactory(String type) {
-
+        if(Arrays.stream(Security.getProviders())
+            .filter(p -> BouncyCastleProvider.class.isInstance(p))
+            .findFirst().isEmpty()) {
+            Security.addProvider(new BouncyCastleProvider());
+        }
         return ServiceLoader.load(EncryptorFactory.class)
             .stream()
             .map(ServiceLoader.Provider::get)
