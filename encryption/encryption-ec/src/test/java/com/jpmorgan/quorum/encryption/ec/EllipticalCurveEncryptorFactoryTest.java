@@ -1,15 +1,22 @@
 package com.jpmorgan.quorum.encryption.ec;
 
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.encryption.Encryptor;
 
+import java.security.Security;
+
 public class EllipticalCurveEncryptorFactoryTest {
 
     private EllipticalCurveEncryptorFactory encryptorFactory;
+
+    static {
+        Security.addProvider(new BouncyCastleProvider());
+    }
 
     @Before
     public void setUp() {
