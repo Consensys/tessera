@@ -1,4 +1,5 @@
 plugins {
+    id "java-library"
     id "application"
 }
 
@@ -31,15 +32,15 @@ dependencies {
     implementation project(":key-vault:key-vault-api")
 
  //   compile "io.netty:netty:"+ nettyVersion
-    implementation "io.netty:netty-handler:"+ nettyVersion
-    implementation "io.netty:netty-common:"+ nettyVersion
-    implementation "io.netty:netty-buffer:"+ nettyVersion
-    implementation "io.netty:netty-transport:"+ nettyVersion
-    implementation "io.netty:netty-codec:"+ nettyVersion
-    implementation "io.netty:netty-codec-http:"+ nettyVersion
-    implementation "io.netty:netty-codec-http2:"+ nettyVersion
-    implementation "io.netty:netty-transport-native-unix-common:"+ nettyVersion
-    implementation "io.netty:netty-transport-native-epoll:"+ nettyVersion +":linux-x86_64"
+    implementation "io.netty:netty-handler:$nettyVersion"
+    implementation "io.netty:netty-common:$nettyVersion"
+    implementation "io.netty:netty-buffer:$nettyVersion"
+    implementation "io.netty:netty-transport:$nettyVersion"
+    implementation "io.netty:netty-codec:$nettyVersion"
+    implementation "io.netty:netty-codec-http:$nettyVersion"
+    implementation "io.netty:netty-codec-http2:$nettyVersion"
+    implementation "io.netty:netty-transport-native-unix-common:$nettyVersion"
+    implementation "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64"
 
     runtimeOnly "org.slf4j:jcl-over-slf4j"
 
