@@ -32,9 +32,8 @@ public interface EncryptorFactory {
      * @return the factory implementation that will provide instances of that implementations {@link Encryptor}
      */
     static EncryptorFactory newFactory(String type) {
-        if(Arrays.stream(Security.getProviders())
-            .filter(p -> BouncyCastleProvider.class.isInstance(p))
-            .findFirst().isEmpty()) {
+        if(!Arrays.stream(Security.getProviders())
+            .anyMatch(p -> BouncyCastleProvider.class.isInstance(p))) {
             Security.addProvider(new BouncyCastleProvider());
         }
         return ServiceLoader.load(EncryptorFactory.class)
