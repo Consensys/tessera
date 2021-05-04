@@ -4,6 +4,7 @@ plugins {
 }
 
 def nettyVersion = "4.1.46.Final"
+def jacksonVersion = "2.12.3";
 
 dependencyCheck {
     failBuildOnCVSS = 11
@@ -42,8 +43,20 @@ dependencies {
     implementation "io.netty:netty-transport-native-unix-common:$nettyVersion"
     implementation "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64"
 
+    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
     runtimeOnly "org.slf4j:jcl-over-slf4j"
 
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact distZip
+            artifact distTar
+        }
+    }
 }
 
 

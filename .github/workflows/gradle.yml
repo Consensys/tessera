@@ -1,6 +1,12 @@
 name: Tessera Gradle Build
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 
 env:

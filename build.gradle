@@ -353,8 +353,8 @@ subprojects {
         publications {
 
             mavenJava(MavenPublication) {
-
                 from components.java
+
                 afterEvaluate {
                     // artifactId = jar.archiveBaseName
                 }

@@ -39,3 +39,12 @@ configurations.all {
     exclude module: "jakarta.persistence"
     exclude module: "jakarta.activation"
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact distZip
+            artifact distTar
+        }
+    }
+}

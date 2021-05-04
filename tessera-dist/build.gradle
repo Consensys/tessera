@@ -94,5 +94,15 @@ dependencyCheck {
     failBuildOnCVSS = 0
 }
 
+publishing {
 
+    publications {
+
+        mavenJava(MavenPublication) {
+            artifact distZip
+            artifact distTar
+        }
+
+    }
+}
 

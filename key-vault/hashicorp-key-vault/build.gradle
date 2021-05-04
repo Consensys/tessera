@@ -39,3 +39,12 @@ dependencies {
     runtimeOnly "org.slf4j:jcl-over-slf4j"
 
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact distZip
+            artifact distTar
+        }
+    }
+}

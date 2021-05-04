@@ -78,3 +78,12 @@ distZip {
 distTar {
     exclude("**/asm-*.jar")
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact distZip
+            artifact distTar
+        }
+    }
+}

@@ -41,3 +41,12 @@ dependencies {
     }
 
 }
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact distZip
+            artifact distTar
+        }
+    }
+}
