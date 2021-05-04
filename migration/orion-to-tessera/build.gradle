@@ -206,7 +206,17 @@ test {
 }
 
 
+publishing {
 
+    publications {
+
+        mavenJava(MavenPublication) {
+            artifact distZip
+            artifact distTar
+        }
+
+    }
+}
 
 
 //modularity.disableEffectiveArgumentsAdjustment()
