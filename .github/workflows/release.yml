@@ -34,8 +34,6 @@ jobs:
         run: |
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-#          mvn --settings .maven.xml -DskipTests -Darguments="-DskipTests" -DworkingDirectory=release-checkout release:perform
-          echo 'publish to central'
           ./gradlew publishToMavenLocal -PossrhUsername=$SONATYPE_USERNAME -PossrhPassword=$SONATYPE_PASSWORD
 
 #      - name: Save tessera dist
