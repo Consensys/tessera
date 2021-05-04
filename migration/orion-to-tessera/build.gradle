@@ -5,7 +5,7 @@ plugins {
 }
 
 group "net.consensys.quorum.tessera"
-version "1.0-SNAPSHOT"
+version "21.1.1"
 
 repositories {
     mavenCentral()

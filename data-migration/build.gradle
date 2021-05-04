@@ -54,3 +54,11 @@ jar {
 
 processResources.dependsOn unzipDdl
 build.dependsOn shadowJar
+
+publishing {
+    publications {
+        shadow(MavenPublication) { publication ->
+            project.shadow.component(publication)
+        }
+    }
+}
