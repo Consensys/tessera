@@ -32,7 +32,7 @@ jobs:
         run: |
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          ./gradlew -DworkingDirectory=release-checkout clean publishToMavenLocal -PossrhUsername=$SONATYPE_USERNAME -PossrhPassword=$SONATYPE_PASSWORD --info
+          ./gradlew -DworkingDirectory=release-checkout publish -PossrhUsername=$SONATYPE_USERNAME -PossrhPassword=$SONATYPE_PASSWORD --info
       - name: Save tessera-app.jar
         uses: actions/upload-artifact@v2
         with:
