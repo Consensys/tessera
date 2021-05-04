@@ -37,7 +37,7 @@ public class ResidentGroupHandlerImpl implements ResidentGroupHandler {
             .filter(Predicate.not(managedKeys::contains))
             .findFirst()
             .ifPresent(key -> {
-                throw new PrivacyViolationException("Key " + key + " configured in resident groups need to be locally managed");
+                throw new PrivacyViolationException("Key " + key + " configured in resident groups must be locally managed");
             });
 
         final List<PrivacyGroup> existing = privacyGroupManager.findPrivacyGroupByType(PrivacyGroup.Type.RESIDENT);

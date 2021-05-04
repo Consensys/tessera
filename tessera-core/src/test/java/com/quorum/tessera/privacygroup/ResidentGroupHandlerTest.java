@@ -291,7 +291,7 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(config))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("Key PublicKey[bTE=] configured in resident groups need to be locally managed");
+                .hasMessageContaining("Key PublicKey[bTE=] configured in resident groups must be locally managed");
 
         verify(privacyGroupManager).getManagedKeys();
     }
