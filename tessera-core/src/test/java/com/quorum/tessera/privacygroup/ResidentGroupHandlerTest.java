@@ -172,7 +172,8 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(config))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("Key cannot belong to more than one resident group");
+                .hasMessageContaining("Key cannot belong to more than one resident group")
+                .hasMessageContaining("PublicKey[bTE=]");
 
         verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
         verify(privacyGroupManager).getManagedKeys();
