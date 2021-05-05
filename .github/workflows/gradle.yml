@@ -223,7 +223,7 @@ jobs:
           mkdir -p vault/bin && pushd $_
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
-          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:build --tests RunHashicorpIT,RunAzureIT,RunAwsIT -PhashicorpTest=true
+          ./gradlew :tests:acceptance-test:test --tests RunHashicorpIT,RunAzureIT,RunAwsIT -PhashicorpTest=true
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
