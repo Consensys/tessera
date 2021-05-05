@@ -78,11 +78,9 @@ test {
             '**/CucumberVersionCliIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',
-            '**/RunAzureIT.class'
+            '**/RunAzureIT.class',
+            '**/RunHashicorpIT.class'
     )
-    if(project.hasProperty('hashicorpTest')) {
-        include '**/RunHashicorpIT.class'
-    }
 
     if (project.hasProperty('excludeTests')) {
         def tokens = project.property('excludeTests').split(",")
