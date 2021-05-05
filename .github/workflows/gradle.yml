@@ -214,16 +214,15 @@ jobs:
           java-version: 11
       - uses: actions/cache@v1
         with:
-          path: ~/.m2/repository
-          key: ${{env.MAVEN_REPO_CACHE_KEY}}
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
           restore-keys: |
-            ${{env.MAVEN_REPO_CACHE_KEY}}
+            ${{ env.GRADLE_CACHE_KEY }}
       - run: |
           wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
           mkdir -p vault/bin && pushd $_
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
-          ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:build --tests RunHashicorpIT,RunAzureIT,RunAwsIT -PhashicorpTest=true
       - uses: actions/upload-artifact@v1
         if: failure()
