@@ -40,9 +40,6 @@ dependencies {
 
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
-project.logger.lifecycle('sourceSets.main.compileClasspath')
-sourceSets.main.compileClasspath.each { project.logger.lifecycle("${it}") }
-
 resolve {
     classpath = sourceSets.main.runtimeClasspath
     outputDir = file(generatedResources)
