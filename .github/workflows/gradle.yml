@@ -224,7 +224,7 @@ jobs:
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
-          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:build --tests RunHashicorpIT,RunAzureIT,RunAwsIT
+          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:build --tests RunHashicorpIT,RunAzureIT,RunAwsIT -PhashicorpTest=true
       - uses: actions/upload-artifact@v1
         if: failure()
         with:

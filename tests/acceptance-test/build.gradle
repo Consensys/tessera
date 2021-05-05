@@ -80,6 +80,9 @@ test {
             '**/RunAwsIT.class',
             '**/RunAzureIT.class'
     )
+    if(project.hasProperty('hashicorpTest')) {
+        include '**/RunHashicorpIT.class'
+    }
 
     if (project.hasProperty('excludeTests')) {
         def tokens = project.property('excludeTests').split(",")
