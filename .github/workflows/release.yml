@@ -33,11 +33,10 @@ jobs:
           git config user.name "quorumbot"
           export now=`date +%Y%m%d%H%M%S`
           git checkout -b "release-$now"
-      - name: Release Prepare
-        run: |
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          gpg --list-keys
+          PUBKEY = `gpg --list-keys -a info@goquorum.com|head -2|tail -1|xargs`
+          echo $PUBKEY
 #./gradlew -DworkingDirectory=release-checkout publish -PossrhUsername=$SONATYPE_USERNAME -PossrhPassword=$SONATYPE_PASSWORD --info
 #      - name: Save tessera-app.jar
 #        uses: actions/upload-artifact@v2
