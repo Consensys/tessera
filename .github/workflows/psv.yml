@@ -1,8 +1,5 @@
 name: PSV Acceptance tests
-on:
-  pull_request:
-    branches:
-      - never
+on: pull_request
 
 jobs:
   docker-build:
