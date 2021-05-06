@@ -30,13 +30,13 @@ jobs:
           java-version: 11
       - name: Release
         run: |
-
           git config user.name "quorumbot"
 
           tagversion=`cat version.txt | cut -d'-' -f1`
-          echo "$tagversion" > version.txt
 
           git tag -a $tagversion -m "Release tessera $tagversion"
+          echo "$tagversion" > version.txt
+          git commit -m "Change to release version $tagversion"
           git push --tags
 
 //          export now=`date +%Y%m%d%H%M%S`

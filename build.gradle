@@ -396,7 +396,7 @@ tasks.register('incrementProjectVersion') {
 
         def newVersion = "$majorVersion.$minorVersion.$newPatchVersion-SNAPSHOT"
 
-        rootProject.file("version.txt").write(newVersion)
+        versionFile.write(newVersion)
     }
 }
 
