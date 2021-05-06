@@ -35,7 +35,7 @@ jobs:
           git checkout -b "release-$now"
           tagversion=`cat version.txt | cut -d'-' -f1`
           echo "$tagversion" > version.txt
-          git commit version.txt -m "Change to release version $tagversion" -a
+          git commit -m "Change to release version $tagversion" -a version.txt
 # git tag -a $tagversion -m "Release tessera $tagversion"
 # git push --tags
 
