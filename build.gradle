@@ -383,7 +383,22 @@ subprojects {
 
 }
 
+tasks.register('incrementProjectVersion') {
+    doLast {
+        def versionFile = rootProject.file("version.txt")
 
+        def currentVersion = versionFile.text.trim().replaceAll("-SNAPSHOT", "")
+        def tokens = currentVersion.split("\\.")
+        def majorVersion = tokens[0]
+        def minorVersion = tokens[1]
+        def patchVersion = tokens[2]
+        def newPatchVersion = Integer.parseInt(patchVersion) + 1
+
+        def newVersion = "$majorVersion.$minorVersion.$newPatchVersion-SNAPSHOT"
+
+        rootProject.file("version.txt").write(newVersion)
+    }
+}
 
 
 
