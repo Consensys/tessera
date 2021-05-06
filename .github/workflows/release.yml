@@ -47,7 +47,7 @@ jobs:
           ./gradlew incrementProjectVersion --info
           git add version.txt
           git commit -m "Change version to next development version"
-          git push
+          git push --set-upstream origin release-$now
 #      - name: Save tessera-app.jar
 #        uses: actions/upload-artifact@v2
 #        with:
