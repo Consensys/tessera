@@ -7,10 +7,10 @@ name: Tessera Release Build
 on:
   push:
     branches:
-      - master
+      - remove_maven
   pull_request:
     branches:
-      - master
+      - never
 
 env:
   SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -40,7 +40,8 @@ jobs:
         run: |
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          ./gradlew -DworkingDirectory=release-checkout publish -PossrhUsername=$SONATYPE_USERNAME -PossrhPassword=$SONATYPE_PASSWORD --info
+          gpg --list-keys
+#./gradlew -DworkingDirectory=release-checkout publish -PossrhUsername=$SONATYPE_USERNAME -PossrhPassword=$SONATYPE_PASSWORD --info
 #      - name: Save tessera-app.jar
 #        uses: actions/upload-artifact@v2
 #        with:

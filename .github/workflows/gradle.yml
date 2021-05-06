@@ -3,10 +3,10 @@ name: Tessera Gradle Build
 on:
   push:
     branches:
-      - master
+      - never
   pull_request:
     branches:
-      - master
+      - never
 
 env:
   GRADLE_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
