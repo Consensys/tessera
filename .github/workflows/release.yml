@@ -28,15 +28,12 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Create release branch
+      - name: Release
         run: |
           git config user.name "quorumbot"
           export now=`date +%Y%m%d%H%M%S`
           git checkout -b "release-$now"
       - name: Release Prepare
-        run: |
-          ./gradlew build -x test --info
-      - name: Release Perform
         run: |
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
