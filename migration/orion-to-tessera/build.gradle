@@ -4,13 +4,6 @@ plugins {
   //  id "org.javamodularity.moduleplugin" version "1.7.0"
 }
 
-group "net.consensys.quorum.tessera"
-version "21.1.1"
-
-repositories {
-    mavenCentral()
-}
-
 application {
     applicationName = "migrate"
     mainClassName = "net.consensys.tessera.migration.Main"
@@ -23,7 +16,6 @@ application {
     ]
     startScripts.enabled = true
 }
-task allDeps(type: DependencyReportTask) {}
 
 repositories {
     mavenCentral()
