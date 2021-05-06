@@ -37,8 +37,8 @@ jobs:
           echo "$tagversion" > version.txt
           git add version.txt
           git commit -m "Change to release version $tagversion"
-# git tag -a $tagversion -m "Release tessera $tagversion"
-# git push --tags
+          git tag -a $tagversion -m "Release tessera $tagversion"
+          git push --tags
 
 #          echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
 #          echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
