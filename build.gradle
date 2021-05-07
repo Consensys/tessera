@@ -54,7 +54,7 @@ allprojects {
                 compile "com.moandjiezana.toml:toml4j:0.7.2"
                 compile "commons-codec:commons-codec:1.6"
                 compile "commons-io:commons-io:2.8.0"
-                compile "org.bouncycastle:bcpkix-jdk15on:1.61"
+                compile "org.bouncycastle:bcpkix-jdk15on:1.68"
                 compile "org.xerial:sqlite-jdbc:3.23.1"
                 compile "com.h2database:h2:1.4.200"
                 compile "com.mockrunner:mockrunner-jdbc:2.0.1"
@@ -91,7 +91,7 @@ allprojects {
                 compile "io.swagger.core.v3:swagger-annotations:$swaggerVersion"
 
                 compile "javax.transaction:javax.transaction-api:1.3"
-                compile "org.bouncycastle:bcpkix-jdk15on:1.61"
+                compile "org.bouncycastle:bcpkix-jdk15on:1.68"
 
                 compile 'org.apache.tuweni:tuweni-rlp:1.1.0'
                 compile 'org.apache.tuweni:tuweni-bytes:1.1.0'
@@ -104,7 +104,7 @@ allprojects {
                 compile "org.springframework:spring-orm:"+ springVersion
 
                 compile "javax.inject:javax.inject:1"
-                compile "org.bouncycastle:bcprov-jdk15on:1.61"
+                compile "org.bouncycastle:bcprov-jdk15on:1.68"
                 compile "com.h2database:h2:1.4.200"
                 compile "com.zaxxer:HikariCP:3.2.0"
                 compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipseLinkVersion
