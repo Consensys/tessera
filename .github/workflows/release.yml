@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: tessera-app
-          path: /home/runner/work/tessera/tessera/tessera-dist/tessera-app/target/tessera-app-*-app.jar
+          path: tessera-dist/tessera-app/target/tessera-app-*-app.jar
       - name: Determine tag name
         id: tag
         run: |
