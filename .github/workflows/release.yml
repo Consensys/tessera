@@ -1,12 +1,9 @@
 name: Tessera Release Build
 
-#on:
-#  repository_dispatch:
-#    types: [release]
 on:
-  push:
-    branches:
-      - remove_maven
+  repository_dispatch:
+    types: [release]
+
 env:
   SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
   SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
