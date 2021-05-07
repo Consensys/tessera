@@ -47,11 +47,11 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: tessera-app
-          path: tessera-dist/tessera-app/target/tessera-app-*-app.jar
+          path: tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar
       - name: Determine tag name
         id: tag
         run: |
-          DIST=$(ls tessera-dist/tessera-app/target/tessera-app-*-app.jar)
+          DIST=$(ls tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar)
           FULL_VER=$(echo $DIST | sed -e 's/^.*tessera-app-\(.*\)-app.jar$/\1/g')
           MINOR_VER=$(echo $DIST | sed -e 's/^.*tessera-app-\([[:digit:]]*\.[[:digit:]]*\).*-app.jar$/\1/g')
           echo $DIST $FULL_VER $MINOR_VER
@@ -66,5 +66,5 @@ jobs:
           tags: ${{ steps.tag.outputs.full-ver }}, ${{ steps.tag.outputs.minor-ver }}, latest
           add_git_labels: true
           dockerfile: release-checkout/.github/workflows/noBuild.Dockerfile
-          path: release-checkout/tessera-dist/tessera-app/target
+          path: tessera-dist/tessera-app/build/libs
           build_args: JAR_FILE=tessera-app-${{ steps.tag.outputs.full-ver }}-app.jar
