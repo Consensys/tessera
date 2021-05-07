@@ -38,7 +38,7 @@ jobs:
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
           export pubkey=`gpg --list-keys -a info@goquorum.com|head -2|tail -1|xargs`
-          ./gradlew -DworkingDirectory=release-checkout publish -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
+          ./gradlew publish -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
           ./gradlew incrementProjectVersion --info
           git add version.txt
           git commit -m "Change version to next development version"
@@ -47,11 +47,11 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: tessera-app
-          path: release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar
+          path: /home/runner/work/tessera/tessera/tessera-dist/tessera-app/target/tessera-app-*-app.jar
       - name: Determine tag name
         id: tag
         run: |
-          DIST=$(ls release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar)
+          DIST=$(ls tessera-dist/tessera-app/target/tessera-app-*-app.jar)
           FULL_VER=$(echo $DIST | sed -e 's/^.*tessera-app-\(.*\)-app.jar$/\1/g')
           MINOR_VER=$(echo $DIST | sed -e 's/^.*tessera-app-\([[:digit:]]*\.[[:digit:]]*\).*-app.jar$/\1/g')
           echo $DIST $FULL_VER $MINOR_VER
