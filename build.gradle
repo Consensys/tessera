@@ -294,74 +294,26 @@ subprojects {
 
             mavenJava(MavenPublication) {
                 from components.java
-
-//                pom {
-////                    groupId = 'net.consensys.quorum.tessera'
-////                    url = 'https://github.com/ConsenSys/tessera'
-////                    licenses {
-////                        license {
-////                            name = 'The Apache License, Version 2.0'
-////                            url = 'LICENSE'
-////                        }
-////                    }
-////                    developers {
-////                        developer {
-////                            id = 'melowe'
-////                            name = 'Mark Lowe'
-////                            email = 'melowe.quorum@gmail.com'
-////                        }
-////                        developer {
-////                            id = 'prd-fox'
-////                            name = 'Peter Fox'
-////                            email = 'peter.rd.fox@gmail.com'
-////                        }
-////                        developer {
-////                            id = 'namtruong'
-////                            name = 'Nam Truong'
-////                            email = 'nam.p.truong@gmail.com'
-////                        }
-////                        developer {
-////                            id = 'SatpalSandhu61'
-////                            name = 'Satpal Sandhu'
-////                            email = 'quorum@satpal.co.uk'
-////                        }
-////                        developer {
-////                            id = 'chrishounsom'
-////                            name = 'Chris Hounsom'
-////                            email = 'chrishounsom@icloud.com'
-////                        }
-////                        developer {
-////                            id = 'nicolae-leonte-go'
-////                            name = 'Nicolae Leonte'
-////                            email = 'nicolae.leonte.go@gmail.com'
-////                        }
-////
-////                    }
-////
-//                    scm {
-//                        connection = 'scm:git:https://github.com/ConsenSys/tessera.git'
-//                        developerConnection = 'scm:git:https://github.com/ConsenSys/tessera.git'
-//                        url = 'https://github.com/ConsenSys/tessera'
-//                        tag = 'HEAD'
-//                    }
-////
-//                    repositories {
-//                        maven {
-//                            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'//"$buildDir/repos/releases"
-//                            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots' //"$buildDir/repos/snapshots"
-//                            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-//
-//
-//                            credentials {
-//                                if(project.hasProperty("ossrhUsername") && project.hasProperty("ossrhPassword")) {
-//                                    username = property('ossrhUsername')
-//                                    password = property('ossrhPassword')
-//                                }
-//                            }
-//
-//                        }
-//                    }
+//                if (project.tasks.findByName("shadowJar") != null) {
+//                    artifact tasks.shadowJar
 //                }
+                pom {
+                    groupId = 'net.consensys.quorum.tessera'
+                    url = 'https://github.com/ConsenSys/tessera'
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'LICENSE'
+                        }
+                    }
+
+                    scm {
+                        connection = 'scm:git:https://github.com/ConsenSys/tessera.git'
+                        developerConnection = 'scm:git:https://github.com/ConsenSys/tessera.git'
+                        url = 'https://github.com/ConsenSys/tessera'
+                        tag = 'HEAD'
+                    }
+                }
             }
         }
     }
@@ -371,7 +323,7 @@ subprojects {
 
     signing {
         useGpgCmd()
-        sign publishing.publications.mavenJava
+        sign publishing.publications
     }
 
     tasks.withType(JavaCompile) {
