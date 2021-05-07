@@ -65,6 +65,6 @@ jobs:
           repository: ${{ secrets.DOCKER_REPO }}
           tags: ${{ steps.tag.outputs.full-ver }}, ${{ steps.tag.outputs.minor-ver }}, latest
           add_git_labels: true
-          dockerfile: release-checkout/.github/workflows/noBuild.Dockerfile
+          dockerfile: .github/workflows/noBuild.Dockerfile
           path: tessera-dist/tessera-app/build/libs
           build_args: JAR_FILE=tessera-app-${{ steps.tag.outputs.full-ver }}-app.jar
