@@ -1,7 +1,7 @@
 import java.time.Duration
 
 plugins {
-    id "org.owasp.dependencycheck" version "5.3.2"
+    id "org.owasp.dependencycheck" version "6.1.6"
     id 'jacoco'
     id 'com.diffplug.gradle.spotless' version '3.25.0'
     id 'com.github.ben-manes.versions' version '0.8'
@@ -66,7 +66,7 @@ allprojects {
                 compile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.27"
                 compile "org.springframework:spring-test:5.1.2.RELEASE"
                 compile "javax.ws.rs:javax.ws.rs-api:2.1"
-                compile "org.cryptacular:cryptacular:1.2.2"
+                compile "org.cryptacular:cryptacular:1.2.4"
                 compile "eu.neilalexander:jnacl:1.0.0"
                 compile "javax.ws.rs:javax.ws.rs-api:2.1"
                 compile "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
