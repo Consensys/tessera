@@ -308,7 +308,39 @@ subprojects {
                             url = 'https://github.com/ConsenSys/tessera/blob/master/LICENSE'
                         }
                     }
+                    developers {
+                        developer {
+                            id = 'melowe'
+                            name = 'Mark Lowe'
+                            email = 'melowe.quorum@gmail.com'
+                        }
+                        developer {
+                            id = 'prd-fox'
+                            name = 'Peter Fox'
+                            email = 'peter.rd.fox@gmail.com'
+                        }
+                        developer {
+                            id = 'namtruong'
+                            name = 'Nam Truong'
+                            email = 'nam.p.truong@gmail.com'
+                        }
+                        developer {
+                            id = 'SatpalSandhu61'
+                            name = 'Satpal Sandhu'
+                            email = 'quorum@satpal.co.uk'
+                        }
+                        developer {
+                            id = 'chrishounsom'
+                            name = 'Chris Hounsom'
+                            email = 'chrishounsom@icloud.com'
+                        }
+                        developer {
+                            id = 'nicolae-leonte-go'
+                            name = 'Nicolae Leonte'
+                            email = 'nicolae.leonte.go@gmail.com'
+                        }
 
+                    }
                     scm {
                         connection = 'scm:git:https://github.com/ConsenSys/tessera.git'
                         developerConnection = 'scm:git:https://github.com/ConsenSys/tessera.git'
