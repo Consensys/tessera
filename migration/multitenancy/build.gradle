@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.johnrengelman.shadow'
 }
 
 dependencies {
@@ -28,11 +28,3 @@ jar {
 }
 
 build.dependsOn shadowJar
-
-publishing {
-    publications {
-        shadow(MavenPublication) { publication ->
-            project.shadow.component(publication)
-        }
-    }
-}

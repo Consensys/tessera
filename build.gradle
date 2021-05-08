@@ -7,6 +7,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.8'
     id 'checkstyle'
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 ext {
@@ -292,18 +293,19 @@ subprojects {
 
         publications {
 
-            mavenJava(MavenPublication) {
+
+            mavenJava(MavenPublication) {publication ->
                 from components.java
-//                if (project.tasks.findByName("shadowJar") != null) {
-//                    artifact tasks.shadowJar
-//                }
+
                 pom {
                     groupId = 'net.consensys.quorum.tessera'
                     url = 'https://github.com/ConsenSys/tessera'
+                    name = publication.artifactId
+                    description = 'Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for Quorum.'
                     licenses {
                         license {
                             name = 'The Apache License, Version 2.0'
-                            url = 'LICENSE'
+                            url = 'https://github.com/ConsenSys/tessera/blob/master/LICENSE'
                         }
                     }
 
