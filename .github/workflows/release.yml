@@ -23,7 +23,7 @@ jobs:
       - name: Release
         run: |
           git config user.name "quorumbot"
-          export now=`date +%Y%m%d%H%M%S`
+          now=`date +%Y%m%d%H%M%S`
           git checkout -b "release-$now"
           tagversion=`cat version.txt | cut -d'-' -f1`
           echo "$tagversion" > version.txt
@@ -34,7 +34,7 @@ jobs:
 
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          export pubkey=`gpg --list-keys -a info@goquorum.com|head -2|tail -1|xargs`
+          pubkey=`gpg --list-keys -a info@goquorum.com|head -2|tail -1|xargs`
           ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
           ./gradlew incrementProjectVersion --info
           git add version.txt
