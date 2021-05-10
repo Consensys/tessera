@@ -1,8 +1,13 @@
 name: Tessera Release Build
 
+#on:
+#  repository_dispatch:
+#    types: [release]
+
 on:
-  repository_dispatch:
-    types: [release]
+  push:
+    branches:
+      - master
 
 env:
   SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -35,7 +40,7 @@ jobs:
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
           export pubkey=`gpg --list-keys -a info@goquorum.com|head -2|tail -1|xargs`
-          ./gradlew publish -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
+          ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
           ./gradlew incrementProjectVersion --info
           git add version.txt
           git commit -m "Change version to next development version"
