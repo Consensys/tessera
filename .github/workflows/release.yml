@@ -7,7 +7,7 @@ name: Tessera Release Build
 on:
   push:
     branches:
-      - master
+      - remove_maven
 
 env:
   SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
