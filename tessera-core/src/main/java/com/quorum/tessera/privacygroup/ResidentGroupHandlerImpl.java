@@ -8,6 +8,7 @@ import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,23 +23,22 @@ public class ResidentGroupHandlerImpl implements ResidentGroupHandler {
     @Override
     public void onCreate(Config config) {
 
+        final Set<PublicKey> managedKeys = privacyGroupManager.getManagedKeys();
+
         final List<PrivacyGroup> configuredResidentGroups =
                 Stream.ofNullable(config.getResidentGroups())
                         .flatMap(Collection::stream)
                         .map(convertToPrivacyGroup)
                         .collect(Collectors.toUnmodifiableList());
 
-        final Set<PublicKey> configuredResidentKeys =
-                configuredResidentGroups.stream()
-                        .map(PrivacyGroup::getMembers)
-                        .flatMap(List::stream)
-                        .collect(Collectors.toUnmodifiableSet());
-
-        final Set<PublicKey> managedKeys = privacyGroupManager.getManagedKeys();
-
-        if (!managedKeys.containsAll(configuredResidentKeys)) {
-            throw new PrivacyViolationException("Keys configured in resident groups need to be locally managed");
-        }
+        configuredResidentGroups.stream()
+            .map(PrivacyGroup::getMembers)
+            .flatMap(List::stream)
+            .filter(Predicate.not(managedKeys::contains))
+            .findFirst()
+            .ifPresent(key -> {
+                throw new PrivacyViolationException("Key " + key + " configured in resident groups must be locally managed");
+            });
 
         final List<PrivacyGroup> existing = privacyGroupManager.findPrivacyGroupByType(PrivacyGroup.Type.RESIDENT);
 
@@ -72,7 +72,8 @@ public class ResidentGroupHandlerImpl implements ResidentGroupHandler {
                     .distinct()
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } catch (IllegalStateException ex) {
-            throw new PrivacyViolationException("A local owned key cannot belong to more than one resident group");
+                throw new PrivacyViolationException("Key cannot belong to more than one resident group." +
+                    "Cause: " + ex.getMessage());
         }
 
         final Set<PublicKey> mergedResidentKeys =
@@ -81,9 +82,11 @@ public class ResidentGroupHandlerImpl implements ResidentGroupHandler {
                         .flatMap(List::stream)
                         .collect(Collectors.toUnmodifiableSet());
 
-        if (!mergedResidentKeys.containsAll(managedKeys)) {
-            throw new PrivacyViolationException("Every managed key must belong to a resident group");
-        }
+        managedKeys.stream().filter(Predicate.not(mergedResidentKeys::contains))
+            .findAny()
+            .ifPresent(key -> {
+                throw new PrivacyViolationException(key + " must belong to a resident group");
+            });
 
         final List<PrivacyGroup.Id> configuredGroupId =
                 configuredResidentGroups.stream().map(PrivacyGroup::getId).collect(Collectors.toList());

@@ -45,7 +45,7 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(mock(Config.class)))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("Every managed key must belong to a resident group");
+                .hasMessageContaining("must belong to a resident group");
 
         verify(privacyGroupManager).getManagedKeys();
         verify(privacyGroupManager).findPrivacyGroupByType(PrivacyGroup.Type.RESIDENT);
@@ -120,7 +120,7 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(config))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("Every managed key must belong to a resident group");
+                .hasMessageContaining("PublicKey[bTM=] must belong to a resident group");
 
         verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
         verify(privacyGroupManager).getManagedKeys();
@@ -148,7 +148,7 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(config))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("Every managed key must belong to a resident group");
+                .hasMessageContaining("PublicKey[bTM=] must belong to a resident group");
 
         verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
         verify(privacyGroupManager).getManagedKeys();
@@ -172,7 +172,8 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(config))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("A local owned key cannot belong to more than one resident group");
+                .hasMessageContaining("Key cannot belong to more than one resident group")
+                .hasMessageContaining("PublicKey[bTE=]");
 
         verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
         verify(privacyGroupManager).getManagedKeys();
@@ -203,7 +204,7 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(config))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("A local owned key cannot belong to more than one resident group");
+                .hasMessageContaining("Key cannot belong to more than one resident group");
 
         verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
         verify(privacyGroupManager).getManagedKeys();
@@ -267,7 +268,7 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(config))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("A local owned key cannot belong to more than one resident group");
+                .hasMessageContaining("Key cannot belong to more than one resident group");
 
         verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
         verify(privacyGroupManager).getManagedKeys();
@@ -290,7 +291,7 @@ public class ResidentGroupHandlerTest {
 
         assertThatThrownBy(() -> residentGroupHandler.onCreate(config))
                 .isInstanceOf(PrivacyViolationException.class)
-                .hasMessageContaining("Keys configured in resident groups need to be locally managed");
+                .hasMessageContaining("Key PublicKey[bTE=] configured in resident groups must be locally managed");
 
         verify(privacyGroupManager).getManagedKeys();
     }
