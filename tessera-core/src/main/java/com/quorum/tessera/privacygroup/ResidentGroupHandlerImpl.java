@@ -73,7 +73,7 @@ public class ResidentGroupHandlerImpl implements ResidentGroupHandler {
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
         } catch (IllegalStateException ex) {
                 throw new PrivacyViolationException("Key cannot belong to more than one resident group." +
-                    "Please see cause for more info. " + ex);
+                    "Cause: " + ex.getMessage());
         }
 
         final Set<PublicKey> mergedResidentKeys =
