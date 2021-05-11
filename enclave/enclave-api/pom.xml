@@ -41,11 +41,13 @@
         <dependency>
             <groupId>org.apache.tuweni</groupId>
             <artifactId>tuweni-bytes</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.tuweni</groupId>
             <artifactId>tuweni-rlp</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

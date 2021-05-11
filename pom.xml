@@ -822,12 +822,14 @@
                 <groupId>org.apache.tuweni</groupId>
                 <artifactId>tuweni-bytes</artifactId>
                 <version>${tuweni.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.tuweni</groupId>
                 <artifactId>tuweni-rlp</artifactId>
                 <version>${tuweni.version}</version>
+                <scope>test</scope>
             </dependency>
 
             <dependency>
