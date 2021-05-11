@@ -20,41 +20,44 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Create release branch
+      - name: Release
+        id: release
         run: |
           git config user.name "quorumbot"
-          export now=`date +%Y%m%d%H%M%S`
+          now=`date +%Y%m%d%H%M%S`
           git checkout -b "release-$now"
-      - name: Release Prepare
-        run: |
-          mvn --settings .maven.xml release:prepare -DskipTests -Darguments="-DskipTests"
-      - name: Release Perform
-        run: |
+          tagversion=`cat version.txt | cut -d'-' -f1`
+          echo "$tagversion" > version.txt
+          git add version.txt
+          git commit -m "Change to release version $tagversion"
+          git tag -a $tagversion -m "Release tessera $tagversion"
+          git push --tags
+
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
           echo $GPG_OWNERTRUST | base64 --decode | gpg --import-ownertrust
-          mvn --settings .maven.xml -DskipTests -Darguments="-DskipTests" -DworkingDirectory=release-checkout release:perform
+          pubkey=`gpg --list-keys -a info@goquorum.com|head -2|tail -1|xargs`
+          ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PsonatypeUsername=$SONATYPE_USERNAME -PsonatypePassword=$SONATYPE_PASSWORD -Psigning.gnupg.keyName=$pubkey --info
+          ./gradlew incrementProjectVersion --info
+          git add version.txt
+          git commit -m "Change version to next development version"
+          git push --set-upstream origin release-$now
+
+          minor_version=${tagversion%.*}
+          echo ::set-output name=full-ver::$tagversion
+          echo ::set-output name=minor-ver::$minor_version
       - name: Save tessera-app.jar
         uses: actions/upload-artifact@v2
         with:
           name: tessera-app
-          path: release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar
-      - name: Determine tag name
-        id: tag
-        run: |
-          DIST=$(ls release-checkout/tessera-dist/tessera-app/target/tessera-app-*-app.jar)
-          FULL_VER=$(echo $DIST | sed -e 's/^.*tessera-app-\(.*\)-app.jar$/\1/g')
-          MINOR_VER=$(echo $DIST | sed -e 's/^.*tessera-app-\([[:digit:]]*\.[[:digit:]]*\).*-app.jar$/\1/g')
-          echo $DIST $FULL_VER $MINOR_VER
-          echo ::set-output name=full-ver::$FULL_VER
-          echo ::set-output name=minor-ver::$MINOR_VER
+          path: tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar
       - name: Push Docker image
         uses: docker/build-push-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
           repository: ${{ secrets.DOCKER_REPO }}
-          tags: ${{ steps.tag.outputs.full-ver }}, ${{ steps.tag.outputs.minor-ver }}, latest
+          tags: ${{ steps.release.outputs.full-ver }}, ${{ steps.release.outputs.minor-ver }}, latest
           add_git_labels: true
-          dockerfile: release-checkout/.github/workflows/noBuild.Dockerfile
-          path: release-checkout/tessera-dist/tessera-app/target
+          dockerfile: .github/workflows/noBuild.Dockerfile
+          path: tessera-dist/tessera-app/build/libs
           build_args: JAR_FILE=tessera-app-${{ steps.tag.outputs.full-ver }}-app.jar

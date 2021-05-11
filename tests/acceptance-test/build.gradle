@@ -78,7 +78,8 @@ test {
             '**/CucumberVersionCliIT.class',
             '**/P2pTestSuite.class',
             '**/RunAwsIT.class',
-            '**/RunAzureIT.class'
+            '**/RunAzureIT.class',
+            '**/RunHashicorpIT.class'
     )
 
     if (project.hasProperty('excludeTests')) {

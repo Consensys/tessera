@@ -1,10 +1,13 @@
+import java.time.Duration
+
 plugins {
-    id "org.owasp.dependencycheck" version "5.3.2"
+    id "org.owasp.dependencycheck" version "6.1.6"
     id 'jacoco'
     id 'com.diffplug.gradle.spotless' version '3.25.0'
     id 'com.github.ben-manes.versions' version '0.8'
     id 'checkstyle'
-
+    id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 ext {
@@ -18,7 +21,7 @@ ext {
 allprojects {
     group = 'net.consensys.quorum.tessera'
     //version = '0.11-SNAPSHOT'
-
+    project.version = rootProject.file("version.txt").text.trim()
 
     plugins.withType(JavaPlugin).whenPluginAdded {
 
@@ -52,7 +55,7 @@ allprojects {
                 compile "com.moandjiezana.toml:toml4j:0.7.2"
                 compile "commons-codec:commons-codec:1.6"
                 compile "commons-io:commons-io:2.8.0"
-                compile "org.bouncycastle:bcpkix-jdk15on:1.61"
+                compile "org.bouncycastle:bcpkix-jdk15on:1.68"
                 compile "org.xerial:sqlite-jdbc:3.23.1"
                 compile "com.h2database:h2:1.4.200"
                 compile "com.mockrunner:mockrunner-jdbc:2.0.1"
@@ -64,7 +67,7 @@ allprojects {
                 compile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.27"
                 compile "org.springframework:spring-test:5.1.2.RELEASE"
                 compile "javax.ws.rs:javax.ws.rs-api:2.1"
-                compile "org.cryptacular:cryptacular:1.2.2"
+                compile "org.cryptacular:cryptacular:1.2.4"
                 compile "eu.neilalexander:jnacl:1.0.0"
                 compile "javax.ws.rs:javax.ws.rs-api:2.1"
                 compile "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
@@ -89,7 +92,7 @@ allprojects {
                 compile "io.swagger.core.v3:swagger-annotations:$swaggerVersion"
 
                 compile "javax.transaction:javax.transaction-api:1.3"
-                compile "org.bouncycastle:bcpkix-jdk15on:1.61"
+                compile "org.bouncycastle:bcpkix-jdk15on:1.68"
 
                 testCompile 'org.apache.tuweni:tuweni-rlp:1.1.0'
                 testCompile 'org.apache.tuweni:tuweni-bytes:1.1.0'
@@ -102,7 +105,7 @@ allprojects {
                 compile "org.springframework:spring-orm:"+ springVersion
 
                 compile "javax.inject:javax.inject:1"
-                compile "org.bouncycastle:bcprov-jdk15on:1.61"
+                compile "org.bouncycastle:bcprov-jdk15on:1.68"
                 compile "com.h2database:h2:1.4.200"
                 compile "com.zaxxer:HikariCP:3.2.0"
                 compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipseLinkVersion
@@ -127,6 +130,14 @@ allprojects {
     }
 }
 
+
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
+    clientTimeout = Duration.ofMinutes(10)
+}
+
 subprojects {
 
     apply plugin: 'java'
@@ -136,12 +147,15 @@ subprojects {
     apply plugin: 'checkstyle'
     apply plugin: 'org.owasp.dependencycheck'
 
+
     repositories {
         mavenLocal()
         maven {
             url = 'https://repo.maven.apache.org/maven2'
         }
     }
+
+
 
     dependencies {
 
@@ -279,21 +293,19 @@ subprojects {
 
         publications {
 
-            mavenJava(MavenPublication) {
 
+            mavenJava(MavenPublication) {publication ->
                 from components.java
-                afterEvaluate {
-                    // artifactId = jar.archiveBaseName
-                }
 
                 pom {
                     groupId = 'net.consensys.quorum.tessera'
-//                    description = 'A concise description of my library'
                     url = 'https://github.com/ConsenSys/tessera'
+                    name = publication.artifactId
+                    description = 'Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for Quorum.'
                     licenses {
                         license {
                             name = 'The Apache License, Version 2.0'
-                            url = 'LICENSE'
+                            url = 'https://github.com/ConsenSys/tessera/blob/master/LICENSE'
                         }
                     }
                     developers {
@@ -329,32 +341,11 @@ subprojects {
                         }
 
                     }
-
                     scm {
                         connection = 'scm:git:https://github.com/ConsenSys/tessera.git'
                         developerConnection = 'scm:git:https://github.com/ConsenSys/tessera.git'
                         url = 'https://github.com/ConsenSys/tessera'
                         tag = 'HEAD'
-                    }
-
-                    repositories {
-                        maven {
-
-                            //https://oss.sonatype.org/service/local/staging/deploy/maven2
-                            // change URLs to point to your repos, e.g. http://my.org/repo
-                            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2'//"$buildDir/repos/releases"
-                            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots' //"$buildDir/repos/snapshots"
-                            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-
-                            credentials {
-                                if(project.hasProperty("ossrhUsername") && project.hasProperty("ossrhPassword")) {
-                                    username = property('ossrhUsername')
-                                    password = property('ossrhPassword')
-                                }
-                            }
-
-                        }
                     }
                 }
             }
@@ -366,7 +357,7 @@ subprojects {
 
     signing {
         useGpgCmd()
-        sign publishing.publications.mavenJava
+        sign publishing.publications
     }
 
     tasks.withType(JavaCompile) {
@@ -383,7 +374,22 @@ subprojects {
 
 }
 
+tasks.register('incrementProjectVersion') {
+    doLast {
+        def versionFile = rootProject.file("version.txt")
 
+        def currentVersion = versionFile.text.trim().replaceAll("-SNAPSHOT", "")
+        def tokens = currentVersion.split("\\.")
+        def majorVersion = tokens[0]
+        def minorVersion = tokens[1]
+        def patchVersion = tokens[2]
+        def newPatchVersion = Integer.parseInt(patchVersion) + 1
+
+        def newVersion = "$majorVersion.$minorVersion.$newPatchVersion-SNAPSHOT"
+
+        versionFile.write(newVersion)
+    }
+}
 
 
 
