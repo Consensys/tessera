@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-7b53f1f6
+  version: latest-3ac12a8b
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -98,23 +98,6 @@ paths:
                 Database unavailable:
                   description: Database unavailable
                   value: Database unavailable
-  /version/distribution:
-    get:
-      tags:
-        - quorum-to-tessera
-        - peer-to-peer
-        - third-party
-      summary: /version/distribution
-      description: Tessera distribution version
-      operationId: getDistributionVersion
-      responses:
-        "200":
-          description: Tessera distribution version
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: 20.10.1
   /version:
     get:
       tags:
@@ -154,6 +137,23 @@ paths:
               example:
                 - "1.0"
                 - "2.0"
+  /version/distribution:
+    get:
+      tags:
+        - quorum-to-tessera
+        - peer-to-peer
+        - third-party
+      summary: /version/distribution
+      description: Tessera distribution version
+      operationId: getDistributionVersion
+      responses:
+        "200":
+          description: Tessera distribution version
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: 20.10.1
   /partyinfo:
     get:
       tags:
@@ -270,6 +270,35 @@ paths:
       responses:
         "200":
           description: batch successfully stored
+  /push:
+    post:
+      tags:
+        - peer-to-peer
+      summary: /push
+      description: store encoded payload to the server's database
+      operationId: pushPayload
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: array
+              description: encoded payload
+              items:
+                type: string
+                description: encoded payload
+                format: byte
+      responses:
+        "201":
+          description: hash of encoded payload
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: hash of encrypted payload
+                format: base64
+        "403":
+          description: server is in recovery mode and encoded payload is not a Standard
+            Private transaction
   /resendBatch:
     post:
       tags:
@@ -316,35 +345,6 @@ paths:
                   description: empty if request was for ALL; else the encoded INDIVIDUAL
                     transaction
                   format: byte
-  /push:
-    post:
-      tags:
-        - peer-to-peer
-      summary: /push
-      description: store encoded payload to the server's database
-      operationId: pushPayload
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: array
-              description: encoded payload
-              items:
-                type: string
-                description: encoded payload
-                format: byte
-      responses:
-        "201":
-          description: hash of encoded payload
-          content:
-            text/plain:
-              schema:
-                type: string
-                description: hash of encrypted payload
-                format: base64
-        "403":
-          description: server is in recovery mode and encoded payload is not a Standard
-            Private transaction
   /receive:
     post:
       tags:
@@ -423,6 +423,22 @@ paths:
             application/vnd.tessera-2.1+json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
+  "/groups/{type}":
+    get:
+      tags:
+        - quorum-to-tessera
+      operationId: getPrivacyGroups
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        default:
+          description: default response
+          content:
+            application/json: {}
   /createPrivacyGroup:
     post:
       tags:
@@ -445,27 +461,6 @@ paths:
                 $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
         "403":
           description: privacy group not supported on remote member
-  /deletePrivacyGroup:
-    post:
-      tags:
-        - quorum-to-tessera
-      summary: /deletePrivacyGroup
-      description: mark a privacy group as deleted
-      operationId: deletePrivacyGroup
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupDeleteRequest"
-      responses:
-        "200":
-          description: id of the deleted privacy group
-          content:
-            application/json:
-              schema:
-                type: string
-        "404":
-          description: privacy group not found
   /retrievePrivacyGroup:
     post:
       tags:
@@ -509,22 +504,27 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
-  "/groups/{type}":
-    get:
+  /deletePrivacyGroup:
+    post:
       tags:
         - quorum-to-tessera
-      operationId: getPrivacyGroups
-      parameters:
-        - name: type
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: /deletePrivacyGroup
+      description: mark a privacy group as deleted
+      operationId: deletePrivacyGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupDeleteRequest"
       responses:
-        default:
-          description: default response
+        "200":
+          description: id of the deleted privacy group
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: string
+        "404":
+          description: privacy group not found
   /sendraw:
     post:
       tags:
@@ -624,93 +624,6 @@ paths:
                 type: string
               example: Delete successful
       deprecated: true
-  "/transaction/{hash}/isSender":
-    get:
-      tags:
-        - quorum-to-tessera
-      summary: /transaction/{hash}/isSender
-      description: check if the server was the sender of a transaction
-      operationId: isSender
-      parameters:
-        - name: hash
-          in: path
-          description: hash indicating encrypted payload to check sender for
-          required: true
-          schema:
-            type: string
-            format: base64
-      responses:
-        "200":
-          description: is server the sender
-          content:
-            text/plain:
-              schema:
-                type: boolean
-  /sendsignedtx:
-    post:
-      tags:
-        - quorum-to-tessera
-      summary: /sendsignedtx
-      description: re-wraps a pre-stored & pre-encrypted payload, stores result in
-        database, and publishes result to recipients
-      operationId: sendStored
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.SendSignedRequest"
-          application/vnd.tessera-2.1+json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.SendSignedRequest"
-          application/octet-stream:
-            schema:
-              type: array
-              items:
-                type: string
-                description: hash of pre-stored payload
-                format: base64
-      responses:
-        "200":
-          description: hash of rewrapped payload (for application/octet-stream requests)
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                description: hash of rewrapped payload
-                format: base64
-        "201":
-          description: hash of rewrapped payload
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
-            application/vnd.tessera-2.1+json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
-  "/transaction/{hash}/participants":
-    get:
-      tags:
-        - quorum-to-tessera
-      summary: /transaction/{hash}/participants
-      description: get list of recipient public keys for a transaction
-      operationId: getRecipients
-      parameters:
-        - name: hash
-          in: path
-          description: hash indicating encrypted payload to get recipients for
-          required: true
-          schema:
-            type: string
-            format: base64
-      responses:
-        "200":
-          description: comma-separated list of recipients
-          content:
-            text/plain:
-              schema:
-                type: string
-                description: comma-separated list of recipients
-              example: ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=
   "/transaction/{hash}":
     get:
       tags:
@@ -772,6 +685,93 @@ paths:
       responses:
         "204":
           description: delete successful
+  "/transaction/{hash}/isSender":
+    get:
+      tags:
+        - quorum-to-tessera
+      summary: /transaction/{hash}/isSender
+      description: check if the server was the sender of a transaction
+      operationId: isSender
+      parameters:
+        - name: hash
+          in: path
+          description: hash indicating encrypted payload to check sender for
+          required: true
+          schema:
+            type: string
+            format: base64
+      responses:
+        "200":
+          description: is server the sender
+          content:
+            text/plain:
+              schema:
+                type: boolean
+  "/transaction/{hash}/participants":
+    get:
+      tags:
+        - quorum-to-tessera
+      summary: /transaction/{hash}/participants
+      description: get list of recipient public keys for a transaction
+      operationId: getRecipients
+      parameters:
+        - name: hash
+          in: path
+          description: hash indicating encrypted payload to get recipients for
+          required: true
+          schema:
+            type: string
+            format: base64
+      responses:
+        "200":
+          description: comma-separated list of recipients
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: comma-separated list of recipients
+              example: ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=
+  /sendsignedtx:
+    post:
+      tags:
+        - quorum-to-tessera
+      summary: /sendsignedtx
+      description: re-wraps a pre-stored & pre-encrypted payload, stores result in
+        database, and publishes result to recipients
+      operationId: sendStored
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.SendSignedRequest"
+          application/vnd.tessera-2.1+json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.SendSignedRequest"
+          application/octet-stream:
+            schema:
+              type: array
+              items:
+                type: string
+                description: hash of pre-stored payload
+                format: base64
+      responses:
+        "200":
+          description: hash of rewrapped payload (for application/octet-stream requests)
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                description: hash of rewrapped payload
+                format: base64
+        "201":
+          description: hash of rewrapped payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
+            application/vnd.tessera-2.1+json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
   /send:
     post:
       tags:
@@ -1237,21 +1237,6 @@ components:
           items:
             type: string
             format: base64
-    com.quorum.tessera.api.PrivacyGroupDeleteRequest:
-      required:
-        - privacyGroupId
-      type: object
-      properties:
-        privacyGroupId:
-          maxLength: 2147483647
-          minLength: 1
-          type: string
-          description: id identifying the privacy group to delete
-          format: base64
-        from:
-          type: string
-          description: public key identifying the sender of the request
-          format: base64
     com.quorum.tessera.api.PrivacyGroupRetrieveRequest:
       required:
         - privacyGroupId
@@ -1274,6 +1259,21 @@ components:
           items:
             type: string
             format: base64
+    com.quorum.tessera.api.PrivacyGroupDeleteRequest:
+      required:
+        - privacyGroupId
+      type: object
+      properties:
+        privacyGroupId:
+          maxLength: 2147483647
+          minLength: 1
+          type: string
+          description: id identifying the privacy group to delete
+          format: base64
+        from:
+          type: string
+          description: public key identifying the sender of the request
+          format: base64
     com.quorum.tessera.api.DeleteRequest:
       required:
         - key
