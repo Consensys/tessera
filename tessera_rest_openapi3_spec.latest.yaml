@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-fa7b943f
+  version: latest-7ff65a75
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -445,6 +445,27 @@ paths:
                 $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
         "403":
           description: privacy group not supported on remote member
+  /retrievePrivacyGroup:
+    post:
+      tags:
+        - quorum-to-tessera
+      summary: /retrievePrivacyGroup
+      description: retrieve privacy group from a privacy group id
+      operationId: retrievePrivacyGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupRetrieveRequest"
+      responses:
+        "200":
+          description: A privacy group object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
+        "404":
+          description: privacy group not found
   /findPrivacyGroup:
     post:
       tags:
@@ -467,27 +488,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
-  /retrievePrivacyGroup:
-    post:
-      tags:
-        - quorum-to-tessera
-      summary: /retrievePrivacyGroup
-      description: retrieve privacy group from a privacy group id
-      operationId: retrievePrivacyGroup
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupRetrieveRequest"
-      responses:
-        "200":
-          description: A privacy group object
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
-        "404":
-          description: privacy group not found
   /deletePrivacyGroup:
     post:
       tags:
@@ -1237,17 +1237,6 @@ components:
           items:
             type: string
             format: base64
-    com.quorum.tessera.api.PrivacyGroupSearchRequest:
-      required:
-        - addresses
-      type: object
-      properties:
-        addresses:
-          type: array
-          description: public keys of the members of the privacy group
-          items:
-            type: string
-            format: base64
     com.quorum.tessera.api.PrivacyGroupRetrieveRequest:
       required:
         - privacyGroupId
@@ -1259,6 +1248,17 @@ components:
           type: string
           description: id identifying the privacy group to retrieve
           format: base64
+    com.quorum.tessera.api.PrivacyGroupSearchRequest:
+      required:
+        - addresses
+      type: object
+      properties:
+        addresses:
+          type: array
+          description: public keys of the members of the privacy group
+          items:
+            type: string
+            format: base64
     com.quorum.tessera.api.PrivacyGroupDeleteRequest:
       required:
         - privacyGroupId
