@@ -94,8 +94,8 @@ allprojects {
                 compile "javax.transaction:javax.transaction-api:1.3"
                 compile "org.bouncycastle:bcpkix-jdk15on:1.68"
 
-                compile 'org.apache.tuweni:tuweni-rlp:1.1.0'
-                compile 'org.apache.tuweni:tuweni-bytes:1.1.0'
+                testCompile 'org.apache.tuweni:tuweni-rlp:1.1.0'
+                testCompile 'org.apache.tuweni:tuweni-bytes:1.1.0'
 
                 compile "org.springframework:spring-orm:"+ springVersion
                 compile "org.springframework:spring-test:"+ springVersion
