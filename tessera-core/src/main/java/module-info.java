@@ -49,6 +49,9 @@ module tessera.tessera.core.main {
     provides com.quorum.tessera.privacygroup.PrivacyGroupManager with
         com.quorum.tessera.privacygroup.PrivacyGroupManagerProvider;
 
+    provides com.quorum.tessera.privacygroup.ResidentGroupHandler with
+        com.quorum.tessera.privacygroup.ResidentGroupHandlerProvider;
+
 
 
 }

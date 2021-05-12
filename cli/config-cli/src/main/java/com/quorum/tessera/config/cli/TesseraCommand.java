@@ -19,14 +19,14 @@ import java.util.*;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(
-    name = "tessera",
-    header = "Tessera - Privacy Manager for Quorum%n",
-    descriptionHeading = "%nDescription: ",
-    description = "Start a Tessera node.  Subcommands exist to manage Tessera encryption keys%n",
-    parameterListHeading = "Parameters:%n",
-    commandListHeading = "%nCommands:%n",
-    optionListHeading = "Options:%n",
-    abbreviateSynopsis = true)
+        name = "tessera",
+        header = "Tessera - Privacy Manager for Quorum%n",
+        descriptionHeading = "%nDescription: ",
+        description = "Start a Tessera node.  Subcommands exist to manage Tessera encryption keys%n",
+        parameterListHeading = "Parameters:%n",
+        commandListHeading = "%nCommands:%n",
+        optionListHeading = "Options:%n",
+        abbreviateSynopsis = true)
 public class TesseraCommand implements Callable<CliResult> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TesseraCommand.class);
@@ -48,21 +48,21 @@ public class TesseraCommand implements Callable<CliResult> {
     }
 
     @CommandLine.Option(
-        names = {"--configfile", "-configfile"},
-        description = "Path to node configuration file")
+            names = {"--configfile", "-configfile"},
+            description = "Path to node configuration file")
     public Config config;
 
     @CommandLine.Mixin
     private final PidFileMixin pidFileMixin = new PidFileMixin();
 
     @CommandLine.Option(
-        names = {"-o", "--override"},
+            names = {"-o", "--override"},
         description = "Override a value in the configuration. Can be used multiple times.")
     private final Map<String, String> overrides = new LinkedHashMap<>();
 
     @CommandLine.Option(
-        names = {"-r", "--recover"},
-        description = "Start Tessera in recovery mode")
+            names = {"-r", "--recover"},
+            description = "Start Tessera in recovery mode")
     private boolean recover;
 
     @CommandLine.Mixin public DebugOptions debugOptions;

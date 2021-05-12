@@ -12,7 +12,6 @@ import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Set;
@@ -54,7 +53,6 @@ public class LegacyResendWorkflowFactoryTest {
         assertThat(wfFactory.create().getPublishedMessageCount()).isEqualTo(0);
     }
 
-    @Ignore
     @Test
     public void successForAllStagesReturnsTrue() {
         final byte[] encodedPayloadAsBytes = "to decode".getBytes();

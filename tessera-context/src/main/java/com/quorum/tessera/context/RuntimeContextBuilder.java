@@ -1,5 +1,6 @@
 package com.quorum.tessera.context;
 
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.encryption.PublicKey;
 import org.slf4j.Logger;
@@ -34,6 +35,10 @@ public class RuntimeContextBuilder {
     private boolean useWhiteList;
 
     private boolean recoveryMode;
+
+    private ClientMode clientMode;
+
+    private boolean multiplePrivateStates;
 
     private RuntimeContextBuilder() {}
 
@@ -96,6 +101,16 @@ public class RuntimeContextBuilder {
         return this;
     }
 
+    public RuntimeContextBuilder withClientMode(ClientMode clientMode) {
+        this.clientMode = clientMode;
+        return this;
+    }
+
+    public RuntimeContextBuilder withMultiplePrivateStates(boolean multiplePrivateStates) {
+        this.multiplePrivateStates = multiplePrivateStates;
+        return this;
+    }
+
     public RuntimeContext build() {
 
         LOGGER.debug("Building {}", this);
@@ -116,7 +131,9 @@ public class RuntimeContextBuilder {
                         p2pServerUri,
                         disablePeerDiscovery,
                         useWhiteList,
-                        recoveryMode);
+                        recoveryMode,
+                        clientMode == ClientMode.ORION,
+                        multiplePrivateStates);
         LOGGER.debug("Built {}", this);
         return instance;
     }

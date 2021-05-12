@@ -170,6 +170,33 @@ public class PrivacyGroupManagerTest {
     }
 
     @Test
+    public void testCreateResidentGroup() {
+        when(privacyGroupUtil.generateLookupId(anyList())).thenReturn("lookup".getBytes());
+        when(privacyGroupUtil.encode(any())).thenReturn("encoded".getBytes());
+        when(privacyGroupDAO.retrieve("generatedId".getBytes())).thenReturn(Optional.empty());
+
+        final PrivacyGroup privacyGroup = privacyGroupManager.saveResidentGroup("name", "desc", List.of(localKey));
+
+        // Verify entity being saved has the correct values
+        ArgumentCaptor<PrivacyGroupEntity> argCaptor = ArgumentCaptor.forClass(PrivacyGroupEntity.class);
+        verify(privacyGroupDAO).update(argCaptor.capture());
+        PrivacyGroupEntity savedEntity = argCaptor.getValue();
+        assertThat(savedEntity).isNotNull();
+        assertThat(savedEntity.getId()).isEqualTo("name".getBytes());
+        assertThat(savedEntity.getLookupId()).isEqualTo("lookup".getBytes());
+        assertThat(savedEntity.getData()).isEqualTo("encoded".getBytes());
+
+        // Verify generated privacy group has the correct values
+        assertThat(privacyGroup).isNotNull();
+        assertThat(privacyGroup.getId().getBytes()).isEqualTo("name".getBytes());
+        assertThat(privacyGroup.getName()).isEqualTo("name");
+        assertThat(privacyGroup.getDescription()).isEqualTo("desc");
+        assertThat(privacyGroup.getMembers()).containsExactly(localKey);
+        assertThat(privacyGroup.getType()).isEqualTo(PrivacyGroup.Type.RESIDENT);
+        assertThat(privacyGroup.getState()).isEqualTo(PrivacyGroup.State.ACTIVE);
+    }
+
+    @Test
     public void testFindPrivacyGroup() {
 
         final PrivacyGroupEntity et1 = mock(PrivacyGroupEntity.class);
@@ -259,6 +286,41 @@ public class PrivacyGroupManagerTest {
         }
 
         verify(privacyGroupDAO).retrieve("id".getBytes());
+    }
+
+    @Test
+    public void findPrivacyGroupByType() {
+
+        final PrivacyGroupEntity mockResult1 = mock(PrivacyGroupEntity.class);
+        final PrivacyGroup mockPrivacyGroup1 = mock(PrivacyGroup.class);
+        when(mockPrivacyGroup1.getState()).thenReturn(PrivacyGroup.State.ACTIVE);
+        when(mockPrivacyGroup1.getType()).thenReturn(PrivacyGroup.Type.RESIDENT);
+        when(mockResult1.getData()).thenReturn("data1".getBytes());
+
+        final PrivacyGroupEntity mockResult2 = mock(PrivacyGroupEntity.class);
+        final PrivacyGroup mockPrivacyGroup2 = mock(PrivacyGroup.class);
+        when(mockPrivacyGroup2.getState()).thenReturn(PrivacyGroup.State.DELETED);
+        when(mockPrivacyGroup2.getType()).thenReturn(PrivacyGroup.Type.RESIDENT);
+        when(mockResult2.getData()).thenReturn("data2".getBytes());
+
+        final PrivacyGroupEntity mockResult3 = mock(PrivacyGroupEntity.class);
+        final PrivacyGroup mockPrivacyGroup3 = mock(PrivacyGroup.class);
+        when(mockPrivacyGroup3.getState()).thenReturn(PrivacyGroup.State.ACTIVE);
+        when(mockPrivacyGroup3.getType()).thenReturn(PrivacyGroup.Type.PANTHEON);
+        when(mockResult3.getData()).thenReturn("data3".getBytes());
+
+        when(privacyGroupUtil.decode("data1".getBytes())).thenReturn(mockPrivacyGroup1);
+        when(privacyGroupUtil.decode("data2".getBytes())).thenReturn(mockPrivacyGroup2);
+        when(privacyGroupUtil.decode("data3".getBytes())).thenReturn(mockPrivacyGroup3);
+
+        when(privacyGroupDAO.findAll()).thenReturn(List.of(mockResult1, mockResult2, mockResult3));
+
+        final List<PrivacyGroup> result = privacyGroupManager.findPrivacyGroupByType(PrivacyGroup.Type.RESIDENT);
+
+        assertThat(result).isNotNull();
+        assertThat(result).containsExactly(mockPrivacyGroup1);
+
+        verify(privacyGroupDAO).findAll();
     }
 
     @Test
@@ -431,6 +493,12 @@ public class PrivacyGroupManagerTest {
     public void defaultPublicKey() {
         privacyGroupManager.defaultPublicKey();
         verify(enclave).defaultPublicKey();
+    }
+
+    @Test
+    public void managedKeys() {
+        privacyGroupManager.getManagedKeys();
+        verify(enclave).getPublicKeys();
     }
 
     @Test

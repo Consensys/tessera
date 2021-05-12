@@ -12,7 +12,10 @@ public class ApiObjectTest {
 
     @Test
     public void testAccessorsForApiObjects() {
-        Validator validator = ValidatorBuilder.create().with(new GetterTester()).with(new SetterTester()).build();
+        Validator validator = ValidatorBuilder.create()
+            .with(new GetterTester())
+            .with(new SetterTester())
+            .build();
 
         validator.validate(
                 "com.quorum.tessera.api");

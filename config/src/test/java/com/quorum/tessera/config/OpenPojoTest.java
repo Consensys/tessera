@@ -37,7 +37,8 @@ public class OpenPojoTest {
                 FeatureToggles.class,
                 InfluxConfig.class,
                 ArgonOptions.class,
-                Peer.class);
+                Peer.class,
+            ResidentGroup.class);
 
         for(Class type : classes) {
            PojoClass pojoClass = PojoClassFactory.getPojoClass(type);

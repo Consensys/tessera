@@ -32,6 +32,10 @@ class DefaultRuntimeContext implements RuntimeContext {
 
     private final boolean recoveryMode;
 
+    private final boolean orionMode;
+
+    private final boolean multiplePrivateStates;
+
     protected DefaultRuntimeContext(
             Set<PublicKey> keys,
             KeyEncryptor keyEncryptor,
@@ -43,8 +47,10 @@ class DefaultRuntimeContext implements RuntimeContext {
             URI p2pServerUri,
             boolean disablePeerDiscovery,
             boolean useWhiteList,
-            boolean recoveryMode) {
-        this.keys = keys;
+            boolean recoveryMode,
+            boolean orionMode,
+            boolean multiplePrivateStates) {
+        this.keys = Set.copyOf(keys);
         this.keyEncryptor = keyEncryptor;
         this.alwaysSendTo = List.copyOf(alwaysSendTo);
         this.peers = List.copyOf(peers);
@@ -55,6 +61,8 @@ class DefaultRuntimeContext implements RuntimeContext {
         this.disablePeerDiscovery = disablePeerDiscovery;
         this.useWhiteList = useWhiteList;
         this.recoveryMode = recoveryMode;
+        this.orionMode = orionMode;
+        this.multiplePrivateStates = multiplePrivateStates;
     }
 
     public Set<PublicKey> getKeys() {
@@ -100,17 +108,29 @@ class DefaultRuntimeContext implements RuntimeContext {
         return useWhiteList;
     }
 
+    @Override
     public boolean isRecoveryMode() {
         return recoveryMode;
     }
 
     @Override
     public Set<PublicKey> getPublicKeys() {
-        return Set.copyOf(getKeys());
+        return Set.copyOf(this.keys);
     }
+
+    @Override
+    public boolean isOrionMode() {
+        return orionMode;
+    }
+
+    @Override
+    public boolean isMultiplePrivateStates() {
+        return multiplePrivateStates;
+    }
+
     @Override
     public String toString() {
-        return "RuntimeContext{"
+        return "DefaultRuntimeContext{"
                 + "keys="
                 + keys
                 + ", keyEncryptor="
@@ -133,6 +153,10 @@ class DefaultRuntimeContext implements RuntimeContext {
                 + useWhiteList
                 + ", recoveryMode="
                 + recoveryMode
+                + ", orionMode="
+                + orionMode
+                + ", multiplePrivateStates="
+                + multiplePrivateStates
                 + '}';
     }
 }

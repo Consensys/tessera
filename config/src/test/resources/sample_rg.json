@@ -1,0 +1,21 @@
+{
+    "residentGroups" :
+    [
+        {
+            "description": "Privacy groups to support the creation of groups by privateFor and privateFrom",
+            "members": [
+                "B687sgdtqsem2qEXO8h8UqvW1Mb3yKo7id5hPFLwCmY=",
+                "arhIcNa+MuYXZabmzJD5B33F3dZgqb0hEbM3FZsylSg="
+            ],
+            "name": "legacy"
+        },
+        {
+            "description": "test",
+            "members": [
+                "arhIcNa+MuYXZabmzJD5B33F3dZgqb0hEbM3FZsylSg=",
+                "B687sgdtqsem2qEXO8h8UqvW1Mb3yKo7id5hPFLwCmY="
+            ],
+            "name": "web3js-eea"
+        }
+    ]
+}

@@ -9,7 +9,8 @@ import java.util.Arrays;
     @NamedQuery(name = "PrivacyGroup.FindById", query = "SELECT pg FROM PrivacyGroupEntity pg WHERE pg.id = :id"),
     @NamedQuery(
             name = "PrivacyGroup.FindByLookupId",
-            query = "select pg from PrivacyGroupEntity pg WHERE pg.lookupId = :lookupId")
+            query = "select pg from PrivacyGroupEntity pg WHERE pg.lookupId = :lookupId"),
+    @NamedQuery(name = "PrivacyGroup.FindAll", query = "select pg from PrivacyGroupEntity pg")
 })
 @Entity
 @Table(

@@ -43,7 +43,7 @@ public class DefaultRuntimeContextTest {
             true,
             true,
             mock(URI.class),
-            true,true,true
+            true,true,true,true,true
         );
 
         assertThat(instance).isNotNull();
@@ -67,7 +67,7 @@ public class DefaultRuntimeContextTest {
             true,
             true,
             mock(URI.class),
-            true,true,true
+            true,true,true,true,true
         );
 
         assertThat(instance.getPublicKeys()).containsExactly(publicKey);

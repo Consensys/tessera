@@ -1,6 +1,7 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.*;
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
@@ -14,16 +15,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import javax.json.Json;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -43,19 +40,22 @@ public class PrivacyGroupResource {
     }
 
     @Operation(
-        summary = "/createPrivacyGroup",
-        operationId = "createPrivacyGroup",
-        description = "creates a privacy group, stores data in database, and distribute to members",
-        requestBody =
-            @RequestBody(
-                content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupRequest.class))
-            )
-    )
+            summary = "/createPrivacyGroup",
+            operationId = "createPrivacyGroup",
+            description = "creates a privacy group, stores data in database, and distribute to members",
+            requestBody =
+                    @RequestBody(
+                            content =
+                                    @Content(
+                                            mediaType = APPLICATION_JSON,
+                                            schema = @Schema(implementation = PrivacyGroupRequest.class))))
     @ApiResponse(
-        responseCode = "200",
-        description = "created privacy group",
-        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupResponse.class))
-    )
+            responseCode = "200",
+            description = "created privacy group",
+            content =
+                    @Content(
+                            mediaType = APPLICATION_JSON,
+                            schema = @Schema(implementation = PrivacyGroupResponse.class)))
     @ApiResponse(responseCode = "403", description = "privacy group not supported on remote member")
     @POST
     @Path("createPrivacyGroup")
@@ -70,7 +70,8 @@ public class PrivacyGroupResource {
                         .orElseGet(privacyGroupManager::defaultPublicKey);
 
         final List<PublicKey> members =
-                Arrays.stream(request.getAddresses())
+                Stream.ofNullable(request.getAddresses())
+                        .flatMap(Arrays::stream)
                         .map(Base64.getDecoder()::decode)
                         .map(PublicKey::from)
                         .collect(Collectors.toList());
@@ -78,27 +79,33 @@ public class PrivacyGroupResource {
         final byte[] randomSeed =
                 Optional.ofNullable(request.getSeed()).map(Base64.getDecoder()::decode).orElseGet(generateRandomSeed);
 
+        final String name = Optional.ofNullable(request.getName()).orElse("");
+        final String description = Optional.ofNullable(request.getDescription()).orElse("");
+
         final PrivacyGroup created =
-                privacyGroupManager.createPrivacyGroup(
-                        request.getName(), request.getDescription(), from, members, randomSeed);
+                privacyGroupManager.createPrivacyGroup(name, description, from, members, randomSeed);
 
         return Response.status(Response.Status.OK).entity(toResponseObject(created)).build();
     }
 
     @Operation(
-        summary = "/findPrivacyGroup",
-        operationId = "findPrivacyGroup",
-        description = "find all the privacy groups that contain the specified members",
-        requestBody =
-        @RequestBody(
-            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupSearchRequest.class))
-        )
-    )
+            summary = "/findPrivacyGroup",
+            operationId = "findPrivacyGroup",
+            description = "find all the privacy groups that contain the specified members",
+            requestBody =
+                    @RequestBody(
+                            content =
+                                    @Content(
+                                            mediaType = APPLICATION_JSON,
+                                            schema = @Schema(implementation = PrivacyGroupSearchRequest.class))))
     @ApiResponse(
-        responseCode = "200",
-        description = "An array of privacy group objects for all privacy groups containing only the specified members",
-        content = @Content(mediaType = APPLICATION_JSON, array = @ArraySchema(schema = @Schema(implementation = PrivacyGroupResponse.class)))
-    )
+            responseCode = "200",
+            description =
+                    "An array of privacy group objects for all privacy groups containing only the specified members",
+            content =
+                    @Content(
+                            mediaType = APPLICATION_JSON,
+                            array = @ArraySchema(schema = @Schema(implementation = PrivacyGroupResponse.class))))
     @POST
     @Path("findPrivacyGroup")
     @Consumes(APPLICATION_JSON)
@@ -120,19 +127,22 @@ public class PrivacyGroupResource {
     }
 
     @Operation(
-        summary = "/retrievePrivacyGroup",
-        operationId = "retrievePrivacyGroup",
-        description = "retrieve privacy group from a privacy group id",
-        requestBody =
-        @RequestBody(
-            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupRetrieveRequest.class))
-        )
-    )
+            summary = "/retrievePrivacyGroup",
+            operationId = "retrievePrivacyGroup",
+            description = "retrieve privacy group from a privacy group id",
+            requestBody =
+                    @RequestBody(
+                            content =
+                                    @Content(
+                                            mediaType = APPLICATION_JSON,
+                                            schema = @Schema(implementation = PrivacyGroupRetrieveRequest.class))))
     @ApiResponse(
-        responseCode = "200",
-        description = "A privacy group object",
-        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupResponse.class))
-    )
+            responseCode = "200",
+            description = "A privacy group object",
+            content =
+                    @Content(
+                            mediaType = APPLICATION_JSON,
+                            schema = @Schema(implementation = PrivacyGroupResponse.class)))
     @ApiResponse(responseCode = "404", description = "privacy group not found")
     @POST
     @Path("retrievePrivacyGroup")
@@ -148,19 +158,19 @@ public class PrivacyGroupResource {
     }
 
     @Operation(
-        summary = "/deletePrivacyGroup",
-        operationId = "deletePrivacyGroup",
-        description = "mark a privacy group as deleted",
-        requestBody =
-        @RequestBody(
-            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = PrivacyGroupDeleteRequest.class))
-        )
-    )
+            summary = "/deletePrivacyGroup",
+            operationId = "deletePrivacyGroup",
+            description = "mark a privacy group as deleted",
+            requestBody =
+                    @RequestBody(
+                            content =
+                                    @Content(
+                                            mediaType = APPLICATION_JSON,
+                                            schema = @Schema(implementation = PrivacyGroupDeleteRequest.class))))
     @ApiResponse(
-        responseCode = "200",
-        description = "id of the deleted privacy group",
-        content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))
-    )
+            responseCode = "200",
+            description = "id of the deleted privacy group",
+            content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class)))
     @ApiResponse(responseCode = "404", description = "privacy group not found")
     @POST
     @Path("deletePrivacyGroup")
@@ -179,18 +189,33 @@ public class PrivacyGroupResource {
         final PrivacyGroup privacyGroup = privacyGroupManager.deletePrivacyGroup(from, privacyGroupId);
 
         // Have to output in this format to match what is expected from Besu
-
-        final String output = Optional.of(privacyGroup)
-            .map(PrivacyGroup::getId)
-            .map(PrivacyGroup.Id::getBytes)
-            .map(Base64.getEncoder()::encodeToString)
-            .map(s -> {
-                return Json.createArrayBuilder().add(s).build();
-            })
-            .map(j -> j.getJsonString(0))
-            .map(Objects::toString).get();
+        final String output =
+                Json.createArrayBuilder().add(privacyGroup.getId().getBase64()).build().getJsonString(0).toString();
 
         return Response.ok().entity(output).build();
+    }
+
+    @GET
+    @Path("groups/{type}")
+    @Produces(APPLICATION_JSON)
+    public Response getPrivacyGroups(@PathParam("type") String type) {
+
+        final PrivacyGroup.Type queryType = PrivacyGroup.Type.valueOf(type.toUpperCase());
+
+        final RuntimeContext runtimeContext = RuntimeContext.getInstance();
+
+        if (queryType == PrivacyGroup.Type.RESIDENT && !runtimeContext.isMultiplePrivateStates()) {
+            return Response.status(Response.Status.SERVICE_UNAVAILABLE)
+                    .entity("Multiple private state feature is not available on this privacy manager")
+                    .build();
+        }
+
+        final List<PrivacyGroup> privacyGroups = privacyGroupManager.findPrivacyGroupByType(queryType);
+
+        final PrivacyGroupResponse[] results =
+                privacyGroups.stream().map(this::toResponseObject).toArray(PrivacyGroupResponse[]::new);
+
+        return Response.status(Response.Status.OK).type(APPLICATION_JSON).entity(results).build();
     }
 
     PrivacyGroupResponse toResponseObject(final PrivacyGroup privacyGroup) {

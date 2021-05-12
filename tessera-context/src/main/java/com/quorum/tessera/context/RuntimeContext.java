@@ -36,6 +36,10 @@ public interface RuntimeContext {
 
     Set<PublicKey> getPublicKeys();
 
+    boolean isOrionMode();
+
+    boolean isMultiplePrivateStates();
+
     static RuntimeContext getInstance() {
         return ServiceLoaderUtil.loadSingle(ServiceLoader.load(RuntimeContext.class));
     }

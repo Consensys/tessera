@@ -112,6 +112,19 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     }
 
     @Override
+    public PrivacyGroup saveResidentGroup(String name, String description, List<PublicKey> members) {
+
+        final PrivacyGroup privacyGroup = PrivacyGroup.Builder.buildResidentGroup(name, description, members);
+
+        final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
+        final byte[] encodedData = privacyGroupUtil.encode(privacyGroup);
+
+        privacyGroupDAO.update(new PrivacyGroupEntity(name.getBytes(), lookupId, encodedData));
+
+        return privacyGroup;
+    }
+
+    @Override
     public List<PrivacyGroup> findPrivacyGroup(List<PublicKey> members) {
 
         final byte[] lookupId = privacyGroupUtil.generateLookupId(members);
@@ -120,6 +133,15 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
                 .map(PrivacyGroupEntity::getData)
                 .map(privacyGroupUtil::decode)
                 .filter(pg -> pg.getState() == PrivacyGroup.State.ACTIVE)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    @Override
+    public List<PrivacyGroup> findPrivacyGroupByType(PrivacyGroup.Type type) {
+        return privacyGroupDAO.findAll().stream()
+                .map(PrivacyGroupEntity::getData)
+                .map(privacyGroupUtil::decode)
+                .filter(pg -> pg.getState() == PrivacyGroup.State.ACTIVE && pg.getType() == type)
                 .collect(Collectors.toUnmodifiableList());
     }
 
@@ -189,5 +211,10 @@ public class PrivacyGroupManagerImpl implements PrivacyGroupManager {
     @Override
     public PublicKey defaultPublicKey() {
         return enclave.defaultPublicKey();
+    }
+
+    @Override
+    public Set<PublicKey> getManagedKeys() {
+        return enclave.getPublicKeys();
     }
 }

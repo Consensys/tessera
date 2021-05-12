@@ -8,6 +8,8 @@ import com.quorum.tessera.enclave.Enclave;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -22,7 +24,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
+@RunWith(Parameterized.class)
 public class RuntimeContextProviderTest {
+
+    private ClientMode clientMode;
+
+    public RuntimeContextProviderTest(ClientMode clientMode) {
+        this.clientMode = clientMode;
+    }
 
     @Before
     @After
@@ -30,8 +39,6 @@ public class RuntimeContextProviderTest {
         RuntimeContextHolder.INSTANCE.setContext(null);
         assertThat(RuntimeContextHolder.INSTANCE.getContext()).isNotPresent();
     }
-
-
 
     @Test
     public void provides() {
@@ -153,7 +160,7 @@ public class RuntimeContextProviderTest {
 
 
 
-    static Config createMockConfig() {
+    Config createMockConfig() {
         Config confg = mock(Config.class);
         EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
         when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
@@ -176,12 +183,19 @@ public class RuntimeContextProviderTest {
 
         FeatureToggles featureToggles = mock(FeatureToggles.class);
         when(confg.getFeatures()).thenReturn(featureToggles);
+        when(featureToggles.isEnableMultiplePrivateStates()).thenReturn(false);
+        when(confg.getClientMode()).thenReturn(clientMode);
         return confg;
     }
 
     @Test
     public void defaultConstructorForCoverage() {
         assertThat(new RuntimeContextProvider()).isNotNull();
+    }
+
+    @Parameterized.Parameters(name = "ClientMode: {0}")
+    public static List<ClientMode> configs() {
+        return List.of(ClientMode.values());
     }
 
 }

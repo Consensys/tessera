@@ -99,6 +99,8 @@ public class RuntimeContextProvider {
                 .withAlwaysSendTo(alwaysSendTo)
                 .withUseWhiteList(config.isUseWhiteList())
                 .withRecoveryMode(config.isRecoveryMode())
+                .withMultiplePrivateStates(config.getFeatures().isEnableMultiplePrivateStates())
+                .withClientMode(config.getClientMode())
                 .build();
 
         contextHolder.setContext(context);

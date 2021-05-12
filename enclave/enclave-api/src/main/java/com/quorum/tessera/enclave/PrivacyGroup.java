@@ -75,7 +75,8 @@ public interface PrivacyGroup {
 
     enum Type {
         LEGACY,
-        PANTHEON
+        PANTHEON,
+        RESIDENT
     }
 
     enum State {
@@ -155,6 +156,16 @@ public interface PrivacyGroup {
             this.type = privacyGroup.getType();
             this.state = privacyGroup.getState();
             return this;
+        }
+
+        public static PrivacyGroup buildResidentGroup(String name, String desc, List<PublicKey> members) {
+            return create().withPrivacyGroupId(name.getBytes())
+                    .withName(name)
+                    .withDescription(desc)
+                    .withMembers(members)
+                    .withState(State.ACTIVE)
+                    .withType(Type.RESIDENT)
+                    .build();
         }
 
         public PrivacyGroup build() {

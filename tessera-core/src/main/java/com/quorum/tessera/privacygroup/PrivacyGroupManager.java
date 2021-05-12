@@ -7,6 +7,7 @@ import com.quorum.tessera.privacygroup.exception.*;
 
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 public interface PrivacyGroupManager {
 
@@ -20,7 +21,7 @@ public interface PrivacyGroupManager {
      * @return Created privacy group object
      */
     PrivacyGroup createPrivacyGroup(
-        String name, String description, PublicKey from, List<PublicKey> members, byte[] seed);
+            String name, String description, PublicKey from, List<PublicKey> members, byte[] seed);
 
     /**
      * Create a legacy privacy group to support EEA Transactions
@@ -31,12 +32,30 @@ public interface PrivacyGroupManager {
     PrivacyGroup createLegacyPrivacyGroup(PublicKey from, List<PublicKey> members);
 
     /**
+     * Create a resident privacy group to manage local keys
+     *
+     * @param name
+     * @param description
+     * @param members
+     * @return Created privacy group objects
+     */
+    PrivacyGroup saveResidentGroup(String name, String description, List<PublicKey> members);
+
+    /**
      * Find the privacy groups in database based on its members
      *
      * @param members List of members public keys
      * @return A list of privacy groups associated with requested members
      */
     List<PrivacyGroup> findPrivacyGroup(List<PublicKey> members);
+
+    /**
+     * Find the privacy groups in database based on its type
+     *
+     * @param privacyGroupType
+     * @return A list of privacy groups
+     */
+    List<PrivacyGroup> findPrivacyGroupByType(PrivacyGroup.Type privacyGroupType);
 
     /**
      * Retrieve the privacy group from database based on privacy group id. Throws an {@link
@@ -66,6 +85,8 @@ public interface PrivacyGroupManager {
      * @return the public key that has been assigned as the default
      */
     PublicKey defaultPublicKey();
+
+    Set<PublicKey> getManagedKeys();
 
     static PrivacyGroupManager create() {
         return ServiceLoader.load(PrivacyGroupManager.class).findFirst().get();

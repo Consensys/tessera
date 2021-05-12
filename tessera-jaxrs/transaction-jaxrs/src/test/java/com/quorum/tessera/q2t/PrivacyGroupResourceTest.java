@@ -1,6 +1,7 @@
 package com.quorum.tessera.q2t;
 
 import com.quorum.tessera.api.*;
+import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
@@ -164,5 +165,92 @@ public class PrivacyGroupResourceTest {
         assertThat(out).isEqualTo("\"aWQ=\"");
 
         verify(privacyGroupManager).deletePrivacyGroup(PublicKey.from("member1".getBytes()), mockResult.getId());
+    }
+
+    @Test
+    public void testGetGroups() {
+
+        final RuntimeContext runtimeContext = mock(RuntimeContext.class);
+        when(runtimeContext.isMultiplePrivateStates()).thenReturn(true);
+
+        when(privacyGroupManager.findPrivacyGroupByType(PrivacyGroup.Type.RESIDENT)).thenReturn(List.of(mockResult));
+
+        try(var runtimeContextMockedStatic = mockStatic(RuntimeContext.class)) {
+            runtimeContextMockedStatic.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
+
+
+            final Response response = privacyGroupResource.getPrivacyGroups("resident");
+
+            assertThat(response).isNotNull();
+            assertThat(response.getStatus()).isEqualTo(200);
+
+            PrivacyGroupResponse result = ((PrivacyGroupResponse[]) response.getEntity())[0];
+            assertThat(result.getName()).isEqualTo(mockResult.getName());
+            assertThat(result.getDescription()).isEqualTo(mockResult.getDescription());
+            assertThat(result.getPrivacyGroupId()).isEqualTo(mockResult.getId().getBase64());
+            assertThat(result.getType()).isEqualTo(mockResult.getType().name());
+
+            runtimeContextMockedStatic.verify(RuntimeContext::getInstance);
+            runtimeContextMockedStatic.verifyNoMoreInteractions();
+
+
+        }
+        verify(runtimeContext).isMultiplePrivateStates();
+        verifyNoMoreInteractions(runtimeContext);
+        verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
+
+
+    }
+
+    @Test
+    public void testGetGroupsMPSDisabled() {
+
+        RuntimeContext runtimeContext = mock(RuntimeContext.class);
+        when(runtimeContext.isMultiplePrivateStates()).thenReturn(false);
+
+
+        try(var runtimeContextMockedStatic = mockStatic(RuntimeContext.class)) {
+            runtimeContextMockedStatic.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
+            final Response response = privacyGroupResource.getPrivacyGroups("resident");
+
+            assertThat(response).isNotNull();
+            assertThat(response.getStatus()).isEqualTo(503);
+            assertThat(response.getEntity())
+                .isEqualTo("Multiple private state feature is not available on this privacy manager");
+
+            runtimeContextMockedStatic.verify(RuntimeContext::getInstance);
+            runtimeContextMockedStatic.verifyNoMoreInteractions();
+        }
+
+        verify(runtimeContext).isMultiplePrivateStates();
+        verifyNoMoreInteractions(runtimeContext);
+    }
+
+    @Test
+    public void testGetNoGroupsFound() {
+
+        RuntimeContext runtimeContext = mock(RuntimeContext.class);
+
+        try(var runtimeContextMockedStatic = mockStatic(RuntimeContext.class)) {
+            runtimeContextMockedStatic.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
+
+            final Response response = privacyGroupResource.getPrivacyGroups("legacy");
+
+            assertThat(response).isNotNull();
+            assertThat(response.getStatus()).isEqualTo(200);
+            PrivacyGroupResponse[] responses = (PrivacyGroupResponse[]) response.getEntity();
+
+            assertThat(responses.length).isEqualTo(0);
+            runtimeContextMockedStatic.verify(RuntimeContext::getInstance);
+            runtimeContextMockedStatic.verifyNoMoreInteractions();
+        }
+        verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.LEGACY));
+        verifyNoMoreInteractions(runtimeContext);
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetGroupNotValid() {
+        privacyGroupResource.getPrivacyGroups("bogus");
     }
 }

@@ -1,12 +1,13 @@
 package com.quorum.tessera.enclave;
 
+import com.quorum.tessera.enclave.internal.RlpEncodeUtil;
 import com.quorum.tessera.encryption.PublicKey;
-import org.apache.tuweni.bytes.Bytes;
-import org.apache.tuweni.rlp.RLP;
 import org.bouncycastle.jcajce.provider.digest.Keccak;
+import org.bouncycastle.util.encoders.Hex;
 
 import java.nio.ByteBuffer;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public interface PrivacyGroupUtil extends BinaryEncoder {
@@ -15,7 +16,7 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
     This bytes is added to the list of addresses to generate id for querying purpose.
     The matches the same value being used in Orion to maintain backward compatibility
      */
-    byte[] BYTES = Bytes.fromHexString("5375ba871e5c3d0f1d055b5da0ac02ea035bed38").toArrayUnsafe();
+    byte[] BYTES = Hex.decode("5375ba871e5c3d0f1d055b5da0ac02ea035bed38");
 
     default byte[] generateId(final List<PublicKey> addresses, final byte[] seed) {
 
@@ -28,8 +29,7 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
 
         Optional.ofNullable(seed).ifPresent(sortedKeys::add);
 
-        final byte[] rlpEncoded =
-                RLP.encodeList(listWriter -> sortedKeys.forEach(listWriter::writeByteArray)).toArray();
+        final byte[] rlpEncoded = RlpEncodeUtil.encodeList(sortedKeys);
 
         return new Keccak.Digest256().digest(rlpEncoded);
     }
@@ -101,9 +101,13 @@ public interface PrivacyGroupUtil extends BinaryEncoder {
         final byte[] state = new byte[Math.toIntExact(stateSize)];
         buffer.get(state);
 
-        final byte[] groupId;
-        if (pgType == PrivacyGroup.Type.LEGACY) groupId = generateId(memberKeys);
-        else groupId = generateId(memberKeys, seed);
+        final Map<PrivacyGroup.Type, Supplier<byte[]>> groupIdFromType =
+                Map.of(
+                        PrivacyGroup.Type.LEGACY, () -> generateId(memberKeys),
+                        PrivacyGroup.Type.RESIDENT, () -> name,
+                        PrivacyGroup.Type.PANTHEON, () -> generateId(memberKeys, seed));
+
+        final byte[] groupId = groupIdFromType.get(pgType).get();
 
         return PrivacyGroup.Builder.create()
                 .withPrivacyGroupId(PrivacyGroup.Id.fromBytes(groupId))

@@ -68,6 +68,8 @@ public interface PrivacyGroupDAO {
      */
     List<PrivacyGroupEntity> findByLookupId(byte[] lookupId);
 
+    List<PrivacyGroupEntity> findAll();
+
     static PrivacyGroupDAO create() {
         return ServiceLoader.load(PrivacyGroupDAO.class).findFirst().get();
     }

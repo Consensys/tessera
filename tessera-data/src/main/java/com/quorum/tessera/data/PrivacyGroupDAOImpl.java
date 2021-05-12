@@ -93,4 +93,10 @@ public class PrivacyGroupDAOImpl implements PrivacyGroupDAO {
                                 .getResultStream()
                                 .collect(Collectors.toList()));
     }
+
+    @Override
+    public List<PrivacyGroupEntity> findAll() {
+        return entityManagerTemplate.execute(
+                em -> em.createNamedQuery("PrivacyGroup.FindAll", PrivacyGroupEntity.class).getResultList());
+    }
 }

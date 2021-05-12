@@ -15,7 +15,6 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 @RunWith(Parameterized.class)
 public class EncryptedTransactionDAOTest {
@@ -453,4 +452,6 @@ public class EncryptedTransactionDAOTest {
     public static Collection<TestConfig> connectionDetails() {
         return List.of(TestConfig.values());
     }
+
+
 }

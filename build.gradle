@@ -1,9 +1,12 @@
+import java.time.Duration
+
 plugins {
     id "org.owasp.dependencycheck" version "6.0.3"
     id "jacoco"
     id "com.diffplug.spotless" version "5.8.2"
     id "com.github.ben-manes.versions" version "0.8"
     id "checkstyle"
+    id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
     id "org.javamodularity.moduleplugin" version "1.7.0"
     id "org.kordamp.gradle.jdeps" version "0.12.0"
 }
@@ -140,14 +143,19 @@ allprojects {
 
                 implementation "net.java.dev.jna:jna:5.6.0"
 
-                //Used in enclave-api
-                implementation "org.apache.tuweni:tuweni-rlp:1.1.0"
-                implementation "org.apache.tuweni:tuweni-bytes:1.1.0"
+                testImplementation "org.apache.tuweni:tuweni-rlp:1.1.0"
+                testImplementation "org.apache.tuweni:tuweni-bytes:1.1.0"
             }
         }
     }
+}
 
 
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
+    clientTimeout = Duration.ofMinutes(10)
 }
 
 subprojects {
@@ -159,6 +167,7 @@ subprojects {
     apply plugin: "checkstyle"
     apply plugin: "org.owasp.dependencycheck"
     apply plugin: "org.javamodularity.moduleplugin"
+
 
     repositories {
         mavenLocal()
@@ -213,6 +222,8 @@ subprojects {
 
 
 
+
+
     dependencies {
 
         implementation "org.slf4j:slf4j-api"
@@ -248,6 +259,7 @@ subprojects {
         failBuildOnCVSS = 0
         suppressionFile = project.getRootProject().file("cvss-suppressions.xml")
       //  analyzedTypes = ["zip"]
+        suppressionFile = 'cvss-suppressions.xml'
     }
 
     jacoco {
@@ -352,21 +364,19 @@ subprojects {
 
         publications {
 
-            mavenJava(MavenPublication) {
+
+            mavenJava(MavenPublication) {publication ->
                 from components.java
 
-                afterEvaluate {
-                    // artifactId = jar.archiveBaseName
-                }
-
                 pom {
-                    groupId = "net.consensys.quorum.tessera"
-//                    description = "A concise description of my library"
-                    url = "https://github.com/ConsenSys/tessera"
+                    groupId = 'net.consensys.quorum.tessera'
+                    url = 'https://github.com/ConsenSys/tessera'
+                    name = publication.artifactId
+                    description = 'Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for Quorum.'
                     licenses {
                         license {
-                            name = "The Apache License, Version 2.0"
-                            url = "LICENSE"
+                            name = 'The Apache License, Version 2.0'
+                            url = 'https://github.com/ConsenSys/tessera/blob/master/LICENSE'
                         }
                     }
                     developers {
@@ -401,32 +411,11 @@ subprojects {
                             email = "nicolae.leonte.go@gmail.com"
                         }
                     }
-
                     scm {
-                        connection = "scm:git:https://github.com/ConsenSys/tessera.git"
-                        developerConnection = "scm:git:https://github.com/ConsenSys/tessera.git"
-                        url = "https://github.com/ConsenSys/tessera"
-                        tag = "HEAD"
-                    }
-
-                    repositories {
-                        maven {
-
-                            //https://oss.sonatype.org/service/local/staging/deploy/maven2
-                            // change URLs to point to your repos, e.g. http://my.org/repo
-                            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2" //"$buildDir/repos/releases"
-                            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots" //"$buildDir/repos/snapshots"
-                            url = project.version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
-
-
-                            credentials {
-                                if(project.hasProperty("ossrhUsername") && project.hasProperty("ossrhPassword")) {
-                                    username = property("ossrhUsername")
-                                    password = property("ossrhPassword")
-                                }
-                            }
-
-                        }
+                        connection = 'scm:git:https://github.com/ConsenSys/tessera.git'
+                        developerConnection = 'scm:git:https://github.com/ConsenSys/tessera.git'
+                        url = 'https://github.com/ConsenSys/tessera'
+                        tag = 'HEAD'
                     }
                 }
             }
@@ -438,7 +427,7 @@ subprojects {
 
     signing {
         useGpgCmd()
-        sign publishing.publications.mavenJava
+        sign publishing.publications
     }
 
     tasks.withType(JavaCompile) {
@@ -448,6 +437,7 @@ subprojects {
     tasks.withType(GenerateModuleMetadata) {
         enabled = false
     }
+
 
     test {
         exclude "**/*IT.class"
@@ -460,7 +450,22 @@ subprojects {
 
 }
 
+tasks.register('incrementProjectVersion') {
+    doLast {
+        def versionFile = rootProject.file("version.txt")
 
+        def currentVersion = versionFile.text.trim().replaceAll("-SNAPSHOT", "")
+        def tokens = currentVersion.split("\\.")
+        def majorVersion = tokens[0]
+        def minorVersion = tokens[1]
+        def patchVersion = tokens[2]
+        def newPatchVersion = Integer.parseInt(patchVersion) + 1
+
+        def newVersion = "$majorVersion.$minorVersion.$newPatchVersion-SNAPSHOT"
+
+        versionFile.write(newVersion)
+    }
+}
 
 
 

@@ -10,7 +10,7 @@ dependencies {
     implementation "org.bouncycastle:bcpkix-jdk15on"
     implementation "org.slf4j:slf4j-api"
 
-    //TODO: Lets work see if we really need these
-    implementation "org.apache.tuweni:tuweni-rlp"
-    implementation "org.apache.tuweni:tuweni-bytes"
+
+    testImplementation "org.apache.tuweni:tuweni-rlp"
+    testImplementation "org.apache.tuweni:tuweni-bytes"
 }
