@@ -1,5 +1,5 @@
 # Build
-FROM maven:3.6.3-jdk-11 as builder
+FROM adoptopenjdk/openjdk11:alpine as builder
 
 #do not use root as there are test cases validating file accessibility
 ADD --chown=nobody:nogroup . /tessera
