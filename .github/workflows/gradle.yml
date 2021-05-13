@@ -84,6 +84,11 @@ jobs:
       with:
        name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+     - uses: actions/upload-artifact@v1
+       if: failure()
+       with:
+         name: itest-logs
+         path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
 
   vaultTests:
     runs-on: ubuntu-latest
@@ -105,6 +110,11 @@ jobs:
         with:
           name: vault-itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: vault-itest-logs
+          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
 
   recovery_itest:
     runs-on: ubuntu-latest
@@ -122,6 +132,11 @@ jobs:
         with:
           name: recovery_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: recovery-itest-logs
+          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
 
   atest:
     runs-on: ubuntu-latest
