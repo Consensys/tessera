@@ -1,10 +1,11 @@
 package com.quorum.tessera.config.constraints;
 
-import java.lang.annotation.Documented;
 import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
-import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.Target;
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -16,17 +17,16 @@ import javax.validation.Payload;
 @Repeatable(value = ValidBase64.List.class)
 public @interface ValidBase64 {
 
-    String message() default "{ValidBase64.message}";
+  String message() default "{ValidBase64.message}";
 
-    Class<?>[] groups() default {};
+  Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default {};
+  Class<? extends Payload>[] payload() default {};
 
-    @Target(value = {METHOD, FIELD, ANNOTATION_TYPE, PARAMETER, TYPE_USE})
-    @Retention(value = RUNTIME)
-    @Documented
-    @interface List {
-        ValidBase64[] value();
-    }
-
+  @Target(value = {METHOD, FIELD, ANNOTATION_TYPE, PARAMETER, TYPE_USE})
+  @Retention(value = RUNTIME)
+  @Documented
+  @interface List {
+    ValidBase64[] value();
+  }
 }

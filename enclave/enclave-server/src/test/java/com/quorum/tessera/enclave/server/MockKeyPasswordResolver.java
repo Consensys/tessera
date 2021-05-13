@@ -5,14 +5,14 @@ import com.quorum.tessera.config.Config;
 
 public class MockKeyPasswordResolver implements KeyPasswordResolver {
 
-    private static Config seen;
+  private static Config seen;
 
-    @Override
-    public void resolveKeyPasswords(final Config config) {
-        seen = config;
-    }
+  @Override
+  public void resolveKeyPasswords(final Config config) {
+    seen = config;
+  }
 
-    public static Config getSeen() {
-        return seen;
-    }
+  public static Config getSeen() {
+    return seen;
+  }
 }

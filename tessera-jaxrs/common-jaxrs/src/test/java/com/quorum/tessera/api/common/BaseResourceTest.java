@@ -1,20 +1,18 @@
 package com.quorum.tessera.api.common;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import javax.ws.rs.core.Response;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class BaseResourceTest {
 
-    @Test
-    public void get() {
-        BaseResource baseResource = new BaseResource();
-        Response response = baseResource.get();
+  @Test
+  public void get() {
+    BaseResource baseResource = new BaseResource();
+    Response response = baseResource.get();
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        assertThat(response.getEntity()).isNull();
-    }
-
+    assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    assertThat(response.getEntity()).isNull();
+  }
 }

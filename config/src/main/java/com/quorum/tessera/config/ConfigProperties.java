@@ -10,17 +10,15 @@ import javax.xml.bind.annotation.XmlAnyElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ConfigProperties {
 
-    @XmlAnyElement
-    private List<JAXBElement<String>> properties = new ArrayList<>();
+  @XmlAnyElement private List<JAXBElement<String>> properties = new ArrayList<>();
 
-    public ConfigProperties() {
-    }
+  public ConfigProperties() {}
 
-    public List<JAXBElement<String>> getProperties() {
-        return properties;
-    }
+  public List<JAXBElement<String>> getProperties() {
+    return properties;
+  }
 
-    public void setProperties(List<JAXBElement<String>> properties) {
-        this.properties = properties;
-    }
+  public void setProperties(List<JAXBElement<String>> properties) {
+    this.properties = properties;
+  }
 }

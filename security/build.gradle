@@ -1,9 +1,9 @@
 
 dependencies {
-    compile project(':config')
-    compile project(':shared')
-    implementation "org.bouncycastle:bcpkix-jdk15on"
-    implementation "org.cryptacular:cryptacular"
+  compile project(':config')
+  compile project(':shared')
+  implementation "org.bouncycastle:bcpkix-jdk15on"
+  implementation "org.cryptacular:cryptacular"
 }
 
 description = 'security'

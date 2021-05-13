@@ -1,12 +1,12 @@
 plugins {
-    id 'java'
+  id 'java'
 }
 
 
 dependencies {
-    testCompile "org.mockito:mockito-core"
-    testCompile 'junit:junit'
-    compile 'org.eclipse.persistence:org.eclipse.persistence.jpa'
-    compile 'org.eclipse.persistence:org.eclipse.persistence.extension'
-    testRuntime 'com.h2database:h2'
+  testCompile "org.mockito:mockito-core"
+  testCompile 'junit:junit'
+  compile 'org.eclipse.persistence:org.eclipse.persistence.jpa'
+  compile 'org.eclipse.persistence:org.eclipse.persistence.extension'
+  testRuntime 'com.h2database:h2'
 }

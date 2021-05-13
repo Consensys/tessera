@@ -7,57 +7,57 @@ import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
 import com.quorum.tessera.threading.CancellableCountDownLatch;
 import com.quorum.tessera.threading.CancellableCountDownLatchFactory;
 import com.quorum.tessera.threading.ExecutorFactory;
+import java.util.List;
+import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.concurrent.Executor;
-
 public class AsyncBatchPrivacyGroupPublisher implements BatchPrivacyGroupPublisher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AsyncBatchPrivacyGroupPublisher.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(AsyncBatchPrivacyGroupPublisher.class);
 
-    private final Executor executor;
+  private final Executor executor;
 
-    private final CancellableCountDownLatchFactory countDownLatchFactory;
+  private final CancellableCountDownLatchFactory countDownLatchFactory;
 
-    private final PrivacyGroupPublisher publisher;
+  private final PrivacyGroupPublisher publisher;
 
-    public AsyncBatchPrivacyGroupPublisher(
-            ExecutorFactory executorFactory,
-            CancellableCountDownLatchFactory countDownLatchFactory,
-            PrivacyGroupPublisher publisher) {
-        this.executor = executorFactory.createCachedThreadPool();
-        this.countDownLatchFactory = countDownLatchFactory;
-        this.publisher = publisher;
+  public AsyncBatchPrivacyGroupPublisher(
+      ExecutorFactory executorFactory,
+      CancellableCountDownLatchFactory countDownLatchFactory,
+      PrivacyGroupPublisher publisher) {
+    this.executor = executorFactory.createCachedThreadPool();
+    this.countDownLatchFactory = countDownLatchFactory;
+    this.publisher = publisher;
+  }
+
+  @Override
+  public void publishPrivacyGroup(byte[] data, List<PublicKey> recipientKeys) {
+
+    if (recipientKeys.size() == 0) {
+      return;
     }
 
-    @Override
-    public void publishPrivacyGroup(byte[] data, List<PublicKey> recipientKeys) {
+    final CancellableCountDownLatch latch = countDownLatchFactory.create(recipientKeys.size());
 
-        if (recipientKeys.size() == 0) {
-            return;
-        }
+    recipientKeys.forEach(
+        key ->
+            executor.execute(
+                () -> {
+                  try {
+                    publisher.publishPrivacyGroup(data, key);
+                    latch.countDown();
+                  } catch (RuntimeException e) {
+                    LOGGER.info("Unable to publish privacy group: {}", e.getMessage());
+                    latch.cancelWithException(e);
+                  }
+                }));
 
-        final CancellableCountDownLatch latch = countDownLatchFactory.create(recipientKeys.size());
-
-        recipientKeys.forEach(
-                key ->
-                        executor.execute(
-                                () -> {
-                                    try {
-                                        publisher.publishPrivacyGroup(data, key);
-                                        latch.countDown();
-                                    } catch (RuntimeException e) {
-                                        LOGGER.info("Unable to publish privacy group: {}", e.getMessage());
-                                        latch.cancelWithException(e);
-                                    }
-                                }));
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            throw new PrivacyGroupPublishException(e.getMessage());
-        }
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      throw new PrivacyGroupPublishException(e.getMessage());
     }
+  }
 }

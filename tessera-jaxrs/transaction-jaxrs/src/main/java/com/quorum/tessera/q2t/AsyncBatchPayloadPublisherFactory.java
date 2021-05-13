@@ -9,11 +9,12 @@ import com.quorum.tessera.transaction.publish.PayloadPublisher;
 
 public class AsyncBatchPayloadPublisherFactory implements BatchPayloadPublisherFactory {
 
-    @Override
-    public BatchPayloadPublisher create(PayloadPublisher publisher) {
-        ExecutorFactory executorFactory = new ExecutorFactory();
-        CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
-        PayloadEncoder encoder = PayloadEncoder.create();
-        return new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, publisher, encoder);
-    }
+  @Override
+  public BatchPayloadPublisher create(PayloadPublisher publisher) {
+    ExecutorFactory executorFactory = new ExecutorFactory();
+    CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
+    PayloadEncoder encoder = PayloadEncoder.create();
+    return new AsyncBatchPayloadPublisher(
+        executorFactory, countDownLatchFactory, publisher, encoder);
+  }
 }

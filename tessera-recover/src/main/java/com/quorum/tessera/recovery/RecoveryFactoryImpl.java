@@ -11,19 +11,24 @@ import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
 
 public class RecoveryFactoryImpl implements RecoveryFactory {
-    @Override
-    public Recovery create(Config config) {
+  @Override
+  public Recovery create(Config config) {
 
-        BatchTransactionRequester transactionRequester =
-                BatchTransactionRequesterFactory.newFactory().createBatchTransactionRequester(config);
+    BatchTransactionRequester transactionRequester =
+        BatchTransactionRequesterFactory.newFactory().createBatchTransactionRequester(config);
 
-        StagingEntityDAO stagingEntityDAO = EntityManagerDAOFactory.newFactory(config).createStagingEntityDAO();
+    StagingEntityDAO stagingEntityDAO =
+        EntityManagerDAOFactory.newFactory(config).createStagingEntityDAO();
 
-        TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
+    TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
 
-        PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-        return new RecoveryImpl(
-                stagingEntityDAO, Discovery.getInstance(), transactionRequester, transactionManager, payloadEncoder);
-    }
+    return new RecoveryImpl(
+        stagingEntityDAO,
+        Discovery.getInstance(),
+        transactionRequester,
+        transactionManager,
+        payloadEncoder);
+  }
 }

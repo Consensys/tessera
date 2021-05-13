@@ -7,14 +7,14 @@ import com.quorum.tessera.recovery.resend.ResendBatchPublisherFactory;
 
 public class RestResendBatchPublisherFactory implements ResendBatchPublisherFactory {
 
-    @Override
-    public ResendBatchPublisher create(Config config) {
-        RecoveryClient client = RecoveryClientFactory.newFactory(config).create(config);
-        return new RestResendBatchPublisher(client);
-    }
+  @Override
+  public ResendBatchPublisher create(Config config) {
+    RecoveryClient client = RecoveryClientFactory.newFactory(config).create(config);
+    return new RestResendBatchPublisher(client);
+  }
 
-    @Override
-    public CommunicationType communicationType() {
-        return CommunicationType.REST;
-    }
+  @Override
+  public CommunicationType communicationType() {
+    return CommunicationType.REST;
+  }
 }

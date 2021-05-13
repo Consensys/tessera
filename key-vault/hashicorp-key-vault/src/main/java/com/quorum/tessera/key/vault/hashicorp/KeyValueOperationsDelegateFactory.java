@@ -6,16 +6,16 @@ import org.springframework.vault.core.VaultVersionedKeyValueTemplate;
 
 class KeyValueOperationsDelegateFactory {
 
-    private final VaultOperations vaultOperations;
+  private final VaultOperations vaultOperations;
 
-    KeyValueOperationsDelegateFactory(VaultOperations vaultOperations) {
-        this.vaultOperations = vaultOperations;
-    }
+  KeyValueOperationsDelegateFactory(VaultOperations vaultOperations) {
+    this.vaultOperations = vaultOperations;
+  }
 
-    KeyValueOperationsDelegate create(String secretEngineName) {
-        VaultVersionedKeyValueOperations keyValueOperations = new VaultVersionedKeyValueTemplate(vaultOperations, secretEngineName);
+  KeyValueOperationsDelegate create(String secretEngineName) {
+    VaultVersionedKeyValueOperations keyValueOperations =
+        new VaultVersionedKeyValueTemplate(vaultOperations, secretEngineName);
 
-        return new KeyValueOperationsDelegate(keyValueOperations);
-    }
-
+    return new KeyValueOperationsDelegate(keyValueOperations);
+  }
 }

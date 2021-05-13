@@ -6,12 +6,11 @@ import com.quorum.tessera.transaction.TransactionManager;
 
 public interface ServiceFactory {
 
-    TransactionManager transactionManager();
+  TransactionManager transactionManager();
 
-    Config config();
+  Config config();
 
-    static ServiceFactory create() {
-        return ServiceLoaderUtil.load(ServiceFactory.class)
-            .orElse(new ServiceFactoryImpl());
-    }
+  static ServiceFactory create() {
+    return ServiceLoaderUtil.load(ServiceFactory.class).orElse(new ServiceFactoryImpl());
+  }
 }

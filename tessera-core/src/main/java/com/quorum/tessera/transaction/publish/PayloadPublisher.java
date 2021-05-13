@@ -6,11 +6,11 @@ import com.quorum.tessera.encryption.PublicKey;
 /** Publishes messages from one node to another */
 public interface PayloadPublisher {
 
-    /**
-     * Publishes an EncodedPayload to the recipient identified by the provided key
-     *
-     * @param payload the payload object to be pushed
-     * @param recipientKey the public key identifying the target node
-     */
-    void publishPayload(EncodedPayload payload, PublicKey recipientKey);
+  /**
+   * Publishes an EncodedPayload to the recipient identified by the provided key
+   *
+   * @param payload the payload object to be pushed
+   * @param recipientKey the public key identifying the target node
+   */
+  void publishPayload(EncodedPayload payload, PublicKey recipientKey);
 }

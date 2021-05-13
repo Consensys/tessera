@@ -6,8 +6,8 @@ import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 
 public class MockLegacyResendManager implements LegacyResendManager {
 
-    @Override
-    public ResendResponse resend(final ResendRequest request) {
-        return null;
-    }
+  @Override
+  public ResendResponse resend(final ResendRequest request) {
+    return null;
+  }
 }

@@ -5,17 +5,16 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisherFactory;
-
 import javax.ws.rs.client.Client;
 
 public class RestPrivacyGroupPublisherFactory implements PrivacyGroupPublisherFactory {
 
-    @Override
-    public PrivacyGroupPublisher create(Config config) {
+  @Override
+  public PrivacyGroupPublisher create(Config config) {
 
-        Discovery discovery = Discovery.getInstance();
-        Client client = new ClientFactory().buildFrom(config.getP2PServerConfig());
+    Discovery discovery = Discovery.getInstance();
+    Client client = new ClientFactory().buildFrom(config.getP2PServerConfig());
 
-        return new RestPrivacyGroupPublisher(discovery, client);
-    }
+    return new RestPrivacyGroupPublisher(discovery, client);
+  }
 }

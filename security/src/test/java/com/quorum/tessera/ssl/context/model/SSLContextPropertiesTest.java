@@ -10,18 +10,17 @@ import org.junit.Test;
 
 public class SSLContextPropertiesTest {
 
-    @Test
-    public void executeOpenPojoValidationsNoSetter() {
+  @Test
+  public void executeOpenPojoValidationsNoSetter() {
 
-        final Validator pojoValidator = ValidatorBuilder.create()
+    final Validator pojoValidator =
+        ValidatorBuilder.create()
             .with(new GetterMustExistRule())
             .with(new GetterTester())
             .with(new EqualsAndHashCodeMatchRule())
             .with(new NoPublicFieldsExceptStaticFinalRule())
             .build();
 
-        pojoValidator.validateRecursively("com.quorum.tessera.ssl.context.model");
-
-    }
-
+    pojoValidator.validateRecursively("com.quorum.tessera.ssl.context.model");
+  }
 }

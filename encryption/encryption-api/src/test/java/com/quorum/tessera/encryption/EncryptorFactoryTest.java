@@ -1,34 +1,34 @@
 package com.quorum.tessera.encryption;
 
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import org.junit.Before;
+import org.junit.Test;
+
 public class EncryptorFactoryTest {
 
-    private EncryptorFactory encryptorFactory;
+  private EncryptorFactory encryptorFactory;
 
-    @Before
-    public void onSetUp() {
-        this.encryptorFactory = EncryptorFactory.newFactory("MOCK");
+  @Before
+  public void onSetUp() {
+    this.encryptorFactory = EncryptorFactory.newFactory("MOCK");
 
-        assertThat(this.encryptorFactory).isExactlyInstanceOf(MockEncryptorFactory.class);
-    }
+    assertThat(this.encryptorFactory).isExactlyInstanceOf(MockEncryptorFactory.class);
+  }
 
-    @Test
-    public void create() {
-        final Encryptor result = this.encryptorFactory.create();
+  @Test
+  public void create() {
+    final Encryptor result = this.encryptorFactory.create();
 
-        assertThat(result).isNotNull().isSameAs(MockEncryptor.INSTANCE);
-    }
+    assertThat(result).isNotNull().isSameAs(MockEncryptor.INSTANCE);
+  }
 
-    @Test
-    public void exceptionIfServiceNotFound() {
-        Throwable ex = catchThrowable(() -> EncryptorFactory.newFactory("NOTAVAILABLE"));
+  @Test
+  public void exceptionIfServiceNotFound() {
+    Throwable ex = catchThrowable(() -> EncryptorFactory.newFactory("NOTAVAILABLE"));
 
-        assertThat(ex).isExactlyInstanceOf(EncryptorFactoryNotFoundException.class);
-        assertThat(ex).hasMessageContaining("NOTAVAILABLE");
-    }
+    assertThat(ex).isExactlyInstanceOf(EncryptorFactoryNotFoundException.class);
+    assertThat(ex).hasMessageContaining("NOTAVAILABLE");
+  }
 }

@@ -4,7 +4,7 @@ import com.quorum.tessera.exception.TesseraException;
 
 public class PrivacyViolationException extends TesseraException {
 
-    public PrivacyViolationException(String message) {
-        super(message);
-    }
+  public PrivacyViolationException(String message) {
+    super(message);
+  }
 }

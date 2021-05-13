@@ -6,15 +6,15 @@ import com.quorum.tessera.config.Config;
 
 public interface ResendClientFactory {
 
-    ResendClient create(Config config);
+  ResendClient create(Config config);
 
-    CommunicationType communicationType();
+  CommunicationType communicationType();
 
-    static ResendClientFactory newFactory(Config config) {
-        // TODO: return the stream and let the caller deal with it
-        return ServiceLoaderUtil.loadAll(ResendClientFactory.class)
-                .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
-                .findFirst()
-                .get();
-    }
+  static ResendClientFactory newFactory(Config config) {
+    // TODO: return the stream and let the caller deal with it
+    return ServiceLoaderUtil.loadAll(ResendClientFactory.class)
+        .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
+        .findFirst()
+        .get();
+  }
 }

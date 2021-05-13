@@ -4,9 +4,9 @@ import java.util.List;
 
 public interface PushBatchRequest {
 
-    List<byte[]> getEncodedPayloads();
+  List<byte[]> getEncodedPayloads();
 
-    static PushBatchRequest from(List<byte[]> encodedPayloads) {
-        return () -> encodedPayloads;
-    }
+  static PushBatchRequest from(List<byte[]> encodedPayloads) {
+    return () -> encodedPayloads;
+  }
 }

@@ -1,45 +1,39 @@
 package com.quorum.tessera.discovery;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.net.URI;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
-import java.net.URI;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class NodeUriTest {
 
-    @Test
-    public void createNormalisesStringValue() {
+  @Test
+  public void createNormalisesStringValue() {
 
-        String stringValue = "http://ilovesparrows.com";
+    String stringValue = "http://ilovesparrows.com";
 
-        NodeUri nodeUri = NodeUri.create(stringValue);
+    NodeUri nodeUri = NodeUri.create(stringValue);
 
-        assertThat(nodeUri).isNotNull();
-        assertThat(nodeUri.asString()).startsWith(stringValue).endsWith("/");
+    assertThat(nodeUri).isNotNull();
+    assertThat(nodeUri.asString()).startsWith(stringValue).endsWith("/");
+  }
 
-    }
+  @Test
+  public void createNormalisesUriValue() {
+    String stringValue = "http://ilovesparrows.com";
+    URI uriValue = URI.create(stringValue);
 
-    @Test
-    public void createNormalisesUriValue() {
-        String stringValue = "http://ilovesparrows.com";
-        URI uriValue = URI.create(stringValue);
+    NodeUri nodeUri = NodeUri.create(uriValue);
 
-        NodeUri nodeUri = NodeUri.create(uriValue);
+    assertThat(nodeUri).isNotNull();
+    assertThat(nodeUri.asString()).startsWith(stringValue).endsWith("/");
+    assertThat(nodeUri.toString()).isNotNull();
+    assertThat(nodeUri.asURI()).isEqualTo(URI.create(stringValue.concat("/")));
+  }
 
-        assertThat(nodeUri).isNotNull();
-        assertThat(nodeUri.asString()).startsWith(stringValue).endsWith("/");
-        assertThat(nodeUri.toString()).isNotNull();
-        assertThat(nodeUri.asURI()).isEqualTo(URI.create(stringValue.concat("/")));
-    }
-
-    @Test
-    public void hashCodeAndEquals() {
-        EqualsVerifier.forClass(NodeUri.class)
-            .usingGetClass()
-            .withNonnullFields("value")
-            .verify();
-
-    }
+  @Test
+  public void hashCodeAndEquals() {
+    EqualsVerifier.forClass(NodeUri.class).usingGetClass().withNonnullFields("value").verify();
+  }
 }

@@ -1,33 +1,30 @@
 
 
 dependencies {
-    compileOnly "javax.ws.rs:javax.ws.rs-api"
-    implementation 'org.glassfish:javax.json:1.1.2'
-    compile 'javax.validation:validation-api'
-    compile project(':shared')
-    compile project(':argon2')
-    compile project(':encryption:encryption-api')
-    compile 'org.apache.commons:commons-lang3'
-    compile 'org.jasypt:jasypt'
-    runtimeOnly 'org.glassfish:javax.el'
-    runtimeOnly project(':encryption:encryption-jnacl')
-    testCompile project(':tests:test-util')
-    testCompile 'org.hibernate:hibernate-validator'
-    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
-
+  compileOnly "javax.ws.rs:javax.ws.rs-api"
+  implementation 'org.glassfish:javax.json:1.1.2'
+  compile 'javax.validation:validation-api'
+  compile project(':shared')
+  compile project(':argon2')
+  compile project(':encryption:encryption-api')
+  compile 'org.apache.commons:commons-lang3'
+  compile 'org.jasypt:jasypt'
+  runtimeOnly 'org.glassfish:javax.el'
+  runtimeOnly project(':encryption:encryption-jnacl')
+  testCompile project(':tests:test-util')
+  testCompile 'org.hibernate:hibernate-validator'
+  runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
 }
 
 description = 'config'
 
 jar {
 
-    manifest {
-        attributes(
-                "Implementation-Title": project.name,
-                "Implementation-Version": version,
-                "Specification-Version": String.valueOf(version)
-        )
-    }
-
+  manifest {
+    attributes(
+      "Implementation-Title": project.name,
+      "Implementation-Version": version,
+      "Specification-Version": String.valueOf(version)
+      )
+  }
 }
-

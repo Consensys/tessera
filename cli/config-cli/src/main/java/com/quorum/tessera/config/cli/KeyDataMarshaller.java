@@ -7,12 +7,11 @@ import com.quorum.tessera.config.util.KeyDataUtil;
 
 public interface KeyDataMarshaller {
 
-    default KeyData marshal(ConfigKeyPair keyPair) {
-       return KeyDataUtil.marshal(keyPair);
-    }
+  default KeyData marshal(ConfigKeyPair keyPair) {
+    return KeyDataUtil.marshal(keyPair);
+  }
 
-    static KeyDataMarshaller create() {
-        return ServiceLoaderUtil.load(KeyDataMarshaller.class).orElse(new KeyDataMarshaller() {});
-    }
-
+  static KeyDataMarshaller create() {
+    return ServiceLoaderUtil.load(KeyDataMarshaller.class).orElse(new KeyDataMarshaller() {});
+  }
 }

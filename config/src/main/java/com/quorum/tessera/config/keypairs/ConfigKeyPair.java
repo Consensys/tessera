@@ -2,11 +2,11 @@ package com.quorum.tessera.config.keypairs;
 
 public interface ConfigKeyPair {
 
-    String getPublicKey();
+  String getPublicKey();
 
-    String getPrivateKey();
+  String getPrivateKey();
 
-    void withPassword(char[] password);
+  void withPassword(char[] password);
 
-    char[] getPassword();
+  char[] getPassword();
 }

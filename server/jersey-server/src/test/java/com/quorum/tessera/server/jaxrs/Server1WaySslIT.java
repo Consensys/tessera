@@ -1,17 +1,10 @@
 package com.quorum.tessera.server.jaxrs;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.server.JerseyServer;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -19,69 +12,78 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.ws.rs.ProcessingException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class Server1WaySslIT {
 
-    private final URI serverUri = URI.create("https://localhost:8080");
+  private final URI serverUri = URI.create("https://localhost:8080");
 
-    private JerseyServer server;
+  private JerseyServer server;
 
-    @Before
-    public void onSetUp() throws Exception {
+  @Before
+  public void onSetUp() throws Exception {
 
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setCommunicationType(CommunicationType.REST);
-        serverConfig.setServerAddress("https://localhost:8080");
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setCommunicationType(CommunicationType.REST);
+    serverConfig.setServerAddress("https://localhost:8080");
 
-        SslConfig sslConfig = new SslConfig();
-        sslConfig.setTls(SslAuthenticationMode.STRICT);
-        sslConfig.setSslConfigType(SslConfigType.SERVER_ONLY);
-        sslConfig.setServerKeyStore(
-                Path.of(getClass().getResource("/certificates/server-localhost-with-san.jks").getPath()));
-        sslConfig.setServerKeyStorePassword("testtest".toCharArray());
-        sslConfig.setServerTrustMode(SslTrustMode.CA);
-        sslConfig.setServerTrustStore(Path.of(getClass().getResource("/certificates/truststore.jks").getPath()));
-        sslConfig.setServerTrustStorePassword("testtest".toCharArray());
-        sslConfig.setClientAuth(false);
+    SslConfig sslConfig = new SslConfig();
+    sslConfig.setTls(SslAuthenticationMode.STRICT);
+    sslConfig.setSslConfigType(SslConfigType.SERVER_ONLY);
+    sslConfig.setServerKeyStore(
+        Path.of(getClass().getResource("/certificates/server-localhost-with-san.jks").getPath()));
+    sslConfig.setServerKeyStorePassword("testtest".toCharArray());
+    sslConfig.setServerTrustMode(SslTrustMode.CA);
+    sslConfig.setServerTrustStore(
+        Path.of(getClass().getResource("/certificates/truststore.jks").getPath()));
+    sslConfig.setServerTrustStorePassword("testtest".toCharArray());
+    sslConfig.setClientAuth(false);
 
-        serverConfig.setSslConfig(sslConfig);
+    serverConfig.setSslConfig(sslConfig);
 
-        JaxbUtil.marshalWithNoValidation(serverConfig, System.out);
+    JaxbUtil.marshalWithNoValidation(serverConfig, System.out);
 
-        Application sample = new SampleApplication();
-        server = new JerseyServer(serverConfig, sample);
+    Application sample = new SampleApplication();
+    server = new JerseyServer(serverConfig, sample);
 
-        server.start();
-    }
+    server.start();
+  }
 
-    @After
-    public void onTearDown() {
-        server.stop();
-    }
+  @After
+  public void onTearDown() {
+    server.stop();
+  }
 
-    @Test(expected = ProcessingException.class)
-    public void pingWillFail() {
+  @Test(expected = ProcessingException.class)
+  public void pingWillFail() {
 
-        Response result = ClientBuilder.newClient().target(serverUri).path("ping").request().get();
+    Response result = ClientBuilder.newClient().target(serverUri).path("ping").request().get();
 
-        assertThat(result.getStatus()).isEqualTo(200);
-        assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
-    }
+    assertThat(result.getStatus()).isEqualTo(200);
+    assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
+  }
 
-    @Test
-    public void clientOnlyNeedToTrustServer()
-            throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+  @Test
+  public void clientOnlyNeedToTrustServer()
+      throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
 
-        final Path trustStorePath = Path.of(getClass().getResource("/certificates/truststore.jks").getPath());
-        final KeyStore trustStore = KeyStore.getInstance(trustStorePath.toFile(), "testtest".toCharArray());
+    final Path trustStorePath =
+        Path.of(getClass().getResource("/certificates/truststore.jks").getPath());
+    final KeyStore trustStore =
+        KeyStore.getInstance(trustStorePath.toFile(), "testtest".toCharArray());
 
-        final Client client = ClientBuilder.newBuilder().trustStore(trustStore).build();
+    final Client client = ClientBuilder.newBuilder().trustStore(trustStore).build();
 
-        final Response result = client.target(serverUri).path("ping").request().get();
+    final Response result = client.target(serverUri).path("ping").request().get();
 
-        assertThat(result.getStatus()).isEqualTo(200);
-        assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
-    }
+    assertThat(result.getStatus()).isEqualTo(200);
+    assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
+  }
 }

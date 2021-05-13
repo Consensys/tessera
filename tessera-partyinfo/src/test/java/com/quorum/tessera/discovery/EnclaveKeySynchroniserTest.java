@@ -1,113 +1,111 @@
 package com.quorum.tessera.discovery;
 
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.MockContextHolder;
+import java.net.URI;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static org.mockito.Mockito.*;
-
 public class EnclaveKeySynchroniserTest {
 
-    private EnclaveKeySynchroniser enclaveKeySynchroniser;
+  private EnclaveKeySynchroniser enclaveKeySynchroniser;
 
-    private Enclave enclave;
+  private Enclave enclave;
 
-    private NetworkStore networkStore;
+  private NetworkStore networkStore;
 
-    private RuntimeContext runtimeContext;
+  private RuntimeContext runtimeContext;
 
-    @Before
-    public void onSetUp() {
-        this.enclave = mock(Enclave.class);
-        this.networkStore = mock(NetworkStore.class);
-        this.enclaveKeySynchroniser = new EnclaveKeySynchroniserImpl(enclave,networkStore);
-        this.runtimeContext = RuntimeContext.getInstance();
-    }
+  @Before
+  public void onSetUp() {
+    this.enclave = mock(Enclave.class);
+    this.networkStore = mock(NetworkStore.class);
+    this.enclaveKeySynchroniser = new EnclaveKeySynchroniserImpl(enclave, networkStore);
+    this.runtimeContext = RuntimeContext.getInstance();
+  }
 
-    @After
-    public void onTearDown() {
-        verifyNoMoreInteractions(enclave,networkStore,runtimeContext);
-        MockContextHolder.reset();
-    }
+  @After
+  public void onTearDown() {
+    verifyNoMoreInteractions(enclave, networkStore, runtimeContext);
+    MockContextHolder.reset();
+  }
 
-    @Test
-    public void syncKeysNoChanges() {
-        URI uri = URI.create("http://somedomain.com/");
-        when(runtimeContext.getP2pServerUri()).thenReturn(uri);
+  @Test
+  public void syncKeysNoChanges() {
+    URI uri = URI.create("http://somedomain.com/");
+    when(runtimeContext.getP2pServerUri()).thenReturn(uri);
 
-        NodeUri nodeUri = NodeUri.create(uri);
+    NodeUri nodeUri = NodeUri.create(uri);
 
-        Set<PublicKey> keys = Set.of(mock(PublicKey.class));
-        ActiveNode activeNode = mock(ActiveNode.class);
-        when(activeNode.getKeys()).thenReturn(keys);
-        when(activeNode.getUri()).thenReturn(nodeUri);
+    Set<PublicKey> keys = Set.of(mock(PublicKey.class));
+    ActiveNode activeNode = mock(ActiveNode.class);
+    when(activeNode.getKeys()).thenReturn(keys);
+    when(activeNode.getUri()).thenReturn(nodeUri);
 
-        when(networkStore.getActiveNodes()).thenReturn(Stream.of(activeNode));
-        when(enclave.getPublicKeys()).thenReturn(keys);
+    when(networkStore.getActiveNodes()).thenReturn(Stream.of(activeNode));
+    when(enclave.getPublicKeys()).thenReturn(keys);
 
-        enclaveKeySynchroniser.syncKeys();
+    enclaveKeySynchroniser.syncKeys();
 
-        verify(runtimeContext).getP2pServerUri();
-        verify(networkStore).getActiveNodes();
-        verify(enclave).getPublicKeys();
-    }
+    verify(runtimeContext).getP2pServerUri();
+    verify(networkStore).getActiveNodes();
+    verify(enclave).getPublicKeys();
+  }
 
-    @Test
-    public void syncWithChanges() {
+  @Test
+  public void syncWithChanges() {
 
-        URI uri = URI.create("http://somedomain.com/");
-        when(runtimeContext.getP2pServerUri()).thenReturn(uri);
+    URI uri = URI.create("http://somedomain.com/");
+    when(runtimeContext.getP2pServerUri()).thenReturn(uri);
 
-        NodeUri nodeUri = NodeUri.create(uri);
+    NodeUri nodeUri = NodeUri.create(uri);
 
-        Set<PublicKey> newKeys = Set.of(mock(PublicKey.class));
-        ActiveNode activeNode = mock(ActiveNode.class);
-        when(activeNode.getUri()).thenReturn(nodeUri);
-        when(activeNode.getKeys()).thenReturn(newKeys);
+    Set<PublicKey> newKeys = Set.of(mock(PublicKey.class));
+    ActiveNode activeNode = mock(ActiveNode.class);
+    when(activeNode.getUri()).thenReturn(nodeUri);
+    when(activeNode.getKeys()).thenReturn(newKeys);
 
-        when(networkStore.getActiveNodes()).thenReturn(Stream.of(activeNode));
-        when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
+    when(networkStore.getActiveNodes()).thenReturn(Stream.of(activeNode));
+    when(enclave.getPublicKeys()).thenReturn(Set.of(mock(PublicKey.class)));
 
-        enclaveKeySynchroniser.syncKeys();
+    enclaveKeySynchroniser.syncKeys();
 
-        verify(runtimeContext).getP2pServerUri();
-        verify(networkStore).getActiveNodes();
-        verify(enclave).getPublicKeys();
-        verify(networkStore).store(any(ActiveNode.class));
-    }
+    verify(runtimeContext).getP2pServerUri();
+    verify(networkStore).getActiveNodes();
+    verify(enclave).getPublicKeys();
+    verify(networkStore).store(any(ActiveNode.class));
+  }
 
-    @Test
-    public void syncWithKeysWithoutAnyActiveNodes() {
+  @Test
+  public void syncWithKeysWithoutAnyActiveNodes() {
 
-        final URI uri = URI.create("http://somedomain.com/");
-        when(runtimeContext.getP2pServerUri()).thenReturn(uri);
-        when(networkStore.getActiveNodes()).thenReturn(Stream.of());
+    final URI uri = URI.create("http://somedomain.com/");
+    when(runtimeContext.getP2pServerUri()).thenReturn(uri);
+    when(networkStore.getActiveNodes()).thenReturn(Stream.of());
 
-        enclaveKeySynchroniser.syncKeys();
+    enclaveKeySynchroniser.syncKeys();
 
-        verify(runtimeContext).getP2pServerUri();
-        verify(networkStore).getActiveNodes();
-    }
+    verify(runtimeContext).getP2pServerUri();
+    verify(networkStore).getActiveNodes();
+  }
 
+  @Test
+  public void runInvokesSyncWithKeysWithoutAnyActiveNodes() {
 
-    @Test
-    public void runInvokesSyncWithKeysWithoutAnyActiveNodes() {
+    final URI uri = URI.create("http://somedomain.com/");
+    when(runtimeContext.getP2pServerUri()).thenReturn(uri);
+    when(networkStore.getActiveNodes()).thenReturn(Stream.of());
 
-        final URI uri = URI.create("http://somedomain.com/");
-        when(runtimeContext.getP2pServerUri()).thenReturn(uri);
-        when(networkStore.getActiveNodes()).thenReturn(Stream.of());
+    enclaveKeySynchroniser.run();
 
-        enclaveKeySynchroniser.run();
-
-        verify(runtimeContext).getP2pServerUri();
-        verify(networkStore).getActiveNodes();
-    }
+    verify(runtimeContext).getP2pServerUri();
+    verify(networkStore).getActiveNodes();
+  }
 }

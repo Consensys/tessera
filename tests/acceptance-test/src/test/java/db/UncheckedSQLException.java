@@ -4,8 +4,7 @@ import java.sql.SQLException;
 
 public class UncheckedSQLException extends RuntimeException {
 
-    public UncheckedSQLException(final SQLException cause) {
-        super(cause);
-    }
-
+  public UncheckedSQLException(final SQLException cause) {
+    super(cause);
+  }
 }

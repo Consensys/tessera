@@ -5,8 +5,5 @@ import cucumber.api.CucumberOptions;
 @CucumberOptions(
     glue = "transaction.rest",
     tags = "@rest",
-    plugin = {"json:target/cucumber/rest.json"}
-)
-public class CucumberRestIT extends CucumberTestCase {
-
-}
+    plugin = {"json:target/cucumber/rest.json"})
+public class CucumberRestIT extends CucumberTestCase {}

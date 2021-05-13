@@ -11,73 +11,74 @@ import org.slf4j.LoggerFactory;
 
 public class ExecUtils {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExecUtils.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ExecUtils.class);
 
-    public static Process start(List<String> cmd, ExecutorService executorService, Map<String, String> env)
-            throws IOException {
+  public static Process start(
+      List<String> cmd, ExecutorService executorService, Map<String, String> env)
+      throws IOException {
 
-        LOGGER.info("Executing {}", String.join(" ", cmd));
+    LOGGER.info("Executing {}", String.join(" ", cmd));
 
-        ProcessBuilder processBuilder = new ProcessBuilder(cmd);
-        if (env != null) {
-            processBuilder.environment().putAll(env);
-        }
-        processBuilder.redirectErrorStream(true);
-        Process process = processBuilder.start();
-
-        executorService.submit(
-                () -> {
-                    try (BufferedReader reader =
-                            Stream.of(process.getInputStream())
-                                    .map(InputStreamReader::new)
-                                    .map(BufferedReader::new)
-                                    .findAny()
-                                    .get()) {
-
-                        String line = null;
-                        while ((line = reader.readLine()) != null) {
-                            LOGGER.debug("Exec : {}", line);
-                        }
-                    }
-                    return null;
-                });
-
-        executorService.submit(
-                () -> {
-                    try {
-                        int exitCode = process.waitFor();
-                        LOGGER.info("Exec exit code: {}", exitCode);
-                    } catch (InterruptedException ex) {
-                        LOGGER.warn(ex.getMessage());
-                    }
-                });
-
-        return process;
+    ProcessBuilder processBuilder = new ProcessBuilder(cmd);
+    if (env != null) {
+      processBuilder.environment().putAll(env);
     }
+    processBuilder.redirectErrorStream(true);
+    Process process = processBuilder.start();
 
-    public static void kill(String pid) {
+    executorService.submit(
+        () -> {
+          try (BufferedReader reader =
+              Stream.of(process.getInputStream())
+                  .map(InputStreamReader::new)
+                  .map(BufferedReader::new)
+                  .findAny()
+                  .get()) {
 
-        Optional<ProcessHandle> optionalProcessHandle = ProcessHandle.of(Long.valueOf(pid));
-        try {
-            ProcessHandle processHandle = optionalProcessHandle.get();
-            LOGGER.debug("Killing process, pid: {}", processHandle.pid());
-            processHandle.destroy();
-
-            for (int i = 0; i < 10; i++) {
-                if (processHandle.isAlive()) {
-                    LOGGER.debug("Waiting for process to exit, pid: {}", processHandle.pid());
-                    try {
-                        Thread.sleep(100L);
-                    } catch (InterruptedException ex) {
-                    }
-                } else {
-                    LOGGER.debug("Process successfully killed, pid: {}", processHandle.pid());
-                    return;
-                }
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+              LOGGER.debug("Exec : {}", line);
             }
-        } catch (NoSuchElementException e) {
-            LOGGER.debug("No such process, pid: {}", pid);
+          }
+          return null;
+        });
+
+    executorService.submit(
+        () -> {
+          try {
+            int exitCode = process.waitFor();
+            LOGGER.info("Exec exit code: {}", exitCode);
+          } catch (InterruptedException ex) {
+            LOGGER.warn(ex.getMessage());
+          }
+        });
+
+    return process;
+  }
+
+  public static void kill(String pid) {
+
+    Optional<ProcessHandle> optionalProcessHandle = ProcessHandle.of(Long.valueOf(pid));
+    try {
+      ProcessHandle processHandle = optionalProcessHandle.get();
+      LOGGER.debug("Killing process, pid: {}", processHandle.pid());
+      processHandle.destroy();
+
+      for (int i = 0; i < 10; i++) {
+        if (processHandle.isAlive()) {
+          LOGGER.debug("Waiting for process to exit, pid: {}", processHandle.pid());
+          try {
+            Thread.sleep(100L);
+          } catch (InterruptedException ex) {
+          }
+        } else {
+          LOGGER.debug("Process successfully killed, pid: {}", processHandle.pid());
+          return;
         }
-        LOGGER.warn("Process did not exit yet, pid: {}", pid);
+      }
+    } catch (NoSuchElementException e) {
+      LOGGER.debug("No such process, pid: {}", pid);
     }
+    LOGGER.warn("Process did not exit yet, pid: {}", pid);
+  }
 }

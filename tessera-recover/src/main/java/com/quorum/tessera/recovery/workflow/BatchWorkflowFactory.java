@@ -8,24 +8,24 @@ import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 
 public interface BatchWorkflowFactory {
 
-    BatchWorkflow create();
+  BatchWorkflow create();
 
-    static BatchWorkflowFactory newFactory(
-            Enclave enclave,
-            PayloadEncoder payloadEncoder,
-            Discovery discovery,
-            ResendBatchPublisher resendBatchPublisher,
-            long transactionCount) {
-        return ServiceLoaderUtil.load(BatchWorkflowFactory.class)
-                .orElse(
-                        new BatchWorkflowFactoryImpl() {
-                            {
-                                setEnclave(enclave);
-                                setDiscovery(discovery);
-                                setPayloadEncoder(payloadEncoder);
-                                setResendBatchPublisher(resendBatchPublisher);
-                                setTransactionCount(transactionCount);
-                            }
-                        });
-    }
+  static BatchWorkflowFactory newFactory(
+      Enclave enclave,
+      PayloadEncoder payloadEncoder,
+      Discovery discovery,
+      ResendBatchPublisher resendBatchPublisher,
+      long transactionCount) {
+    return ServiceLoaderUtil.load(BatchWorkflowFactory.class)
+        .orElse(
+            new BatchWorkflowFactoryImpl() {
+              {
+                setEnclave(enclave);
+                setDiscovery(discovery);
+                setPayloadEncoder(payloadEncoder);
+                setResendBatchPublisher(resendBatchPublisher);
+                setTransactionCount(transactionCount);
+              }
+            });
+  }
 }

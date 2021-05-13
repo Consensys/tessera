@@ -6,19 +6,19 @@ import com.quorum.tessera.config.Config;
 
 public interface PayloadPublisherFactory {
 
-    PayloadPublisher create(Config config);
+  PayloadPublisher create(Config config);
 
-    CommunicationType communicationType();
+  CommunicationType communicationType();
 
-    static PayloadPublisherFactory newFactory(Config config) {
-        final CommunicationType commType = config.getP2PServerConfig().getCommunicationType();
+  static PayloadPublisherFactory newFactory(Config config) {
+    final CommunicationType commType = config.getP2PServerConfig().getCommunicationType();
 
-        return ServiceLoaderUtil.loadAll(PayloadPublisherFactory.class)
-                .filter(f -> f.communicationType() == commType)
-                .findAny()
-                .orElseThrow(
-                        () ->
-                                new UnsupportedOperationException(
-                                        "Unable to create a PayloadPublisherFactory for " + commType));
-    }
+    return ServiceLoaderUtil.loadAll(PayloadPublisherFactory.class)
+        .filter(f -> f.communicationType() == commType)
+        .findAny()
+        .orElseThrow(
+            () ->
+                new UnsupportedOperationException(
+                    "Unable to create a PayloadPublisherFactory for " + commType));
+  }
 }

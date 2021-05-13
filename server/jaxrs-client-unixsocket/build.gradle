@@ -1,16 +1,16 @@
 dependencies {
-    implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
-    implementation 'org.eclipse.jetty:jetty-unixsocket:$jettyVersion'
-    implementation 'org.glassfish.jersey.core:jersey-client:2.27'
-    implementation 'org.eclipse.jetty:jetty-client:$jettyVersion'
-    runtimeOnly project(':shared')
-    implementation project(':server:server-api')
-    testImplementation project(':config')
-    testImplementation project(':server:jersey-server')
+  implementation 'javax.ws.rs:javax.ws.rs-api:2.1'
+  implementation 'org.eclipse.jetty:jetty-unixsocket:$jettyVersion'
+  implementation 'org.glassfish.jersey.core:jersey-client:2.27'
+  implementation 'org.eclipse.jetty:jetty-client:$jettyVersion'
+  runtimeOnly project(':shared')
+  implementation project(':server:server-api')
+  testImplementation project(':config')
+  testImplementation project(':server:jersey-server')
 }
 
 description = 'jaxrs-client-unixsocket'
 
 jacocoTestCoverageVerification {
-    enabled false
+  enabled false
 }

@@ -2,7 +2,7 @@ package com.quorum.tessera.test.rest;
 
 public interface RawHeaderName {
 
-    String SENDER = "c11n-from";
+  String SENDER = "c11n-from";
 
-    String RECIPIENTS = "c11n-to";
+  String RECIPIENTS = "c11n-to";
 }

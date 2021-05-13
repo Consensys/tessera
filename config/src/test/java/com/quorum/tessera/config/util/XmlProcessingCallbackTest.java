@@ -1,42 +1,45 @@
 package com.quorum.tessera.config.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.config.ConfigException;
 import java.io.IOException;
 import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
 public class XmlProcessingCallbackTest {
 
-    @Test
-    public void execute() {
-        XmlProcessingCallback<String> callback = () -> "HELLO";
-        assertThat(XmlProcessingCallback.execute(callback)).isEqualTo("HELLO");
+  @Test
+  public void execute() {
+    XmlProcessingCallback<String> callback = () -> "HELLO";
+    assertThat(XmlProcessingCallback.execute(callback)).isEqualTo("HELLO");
+  }
 
-    }
-
-    @Test(expected = ConfigException.class)
-    public void executeThrowsIOException() {
-        XmlProcessingCallback callback = () -> {
-            throw new IOException();
+  @Test(expected = ConfigException.class)
+  public void executeThrowsIOException() {
+    XmlProcessingCallback callback =
+        () -> {
+          throw new IOException();
         };
-        XmlProcessingCallback.execute(callback);
-    }
+    XmlProcessingCallback.execute(callback);
+  }
 
-    @Test(expected = ConfigException.class)
-    public void executeThrowsJAXBException() {
-        XmlProcessingCallback callback = () -> {
-            throw new JAXBException("");
+  @Test(expected = ConfigException.class)
+  public void executeThrowsJAXBException() {
+    XmlProcessingCallback callback =
+        () -> {
+          throw new JAXBException("");
         };
-        XmlProcessingCallback.execute(callback);
-    }
+    XmlProcessingCallback.execute(callback);
+  }
 
-    @Test(expected = ConfigException.class)
-    public void executeThrowsTransformerException() {
-        XmlProcessingCallback callback = () -> {
-            throw new TransformerException("");
+  @Test(expected = ConfigException.class)
+  public void executeThrowsTransformerException() {
+    XmlProcessingCallback callback =
+        () -> {
+          throw new TransformerException("");
         };
-        XmlProcessingCallback.execute(callback);
-    }
+    XmlProcessingCallback.execute(callback);
+  }
 }

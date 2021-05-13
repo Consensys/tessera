@@ -8,19 +8,21 @@ import java.util.Optional;
 
 public class EllipticalCurveEncryptorFactory implements EncryptorFactory {
 
-    @Override
-    public String getType() {
-        return "EC";
-    }
+  @Override
+  public String getType() {
+    return "EC";
+  }
 
-    @Override
-    public Encryptor create(Map<String, String> properties) {
-        final Map<String, String> props = Optional.ofNullable(properties).orElse(Collections.emptyMap());
-        String symmetricCipher = props.getOrDefault("symmetricCipher", "AES/GCM/NoPadding");
-        String ellipticCurve = props.getOrDefault("ellipticCurve", "secp256r1");
-        int nonceLength = Integer.parseInt(props.getOrDefault("nonceLength", "24"));
-        int sharedKeyLength = Integer.parseInt(props.getOrDefault("sharedKeyLength", "32"));
+  @Override
+  public Encryptor create(Map<String, String> properties) {
+    final Map<String, String> props =
+        Optional.ofNullable(properties).orElse(Collections.emptyMap());
+    String symmetricCipher = props.getOrDefault("symmetricCipher", "AES/GCM/NoPadding");
+    String ellipticCurve = props.getOrDefault("ellipticCurve", "secp256r1");
+    int nonceLength = Integer.parseInt(props.getOrDefault("nonceLength", "24"));
+    int sharedKeyLength = Integer.parseInt(props.getOrDefault("sharedKeyLength", "32"));
 
-        return new EllipticalCurveEncryptor(symmetricCipher, ellipticCurve, nonceLength, sharedKeyLength);
-    }
+    return new EllipticalCurveEncryptor(
+        symmetricCipher, ellipticCurve, nonceLength, sharedKeyLength);
+  }
 }

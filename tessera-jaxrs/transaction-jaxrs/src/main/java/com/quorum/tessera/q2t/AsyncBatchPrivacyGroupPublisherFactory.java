@@ -8,11 +8,11 @@ import com.quorum.tessera.threading.ExecutorFactory;
 
 public class AsyncBatchPrivacyGroupPublisherFactory implements BatchPrivacyGroupPublisherFactory {
 
-    @Override
-    public BatchPrivacyGroupPublisher create(PrivacyGroupPublisher publisher) {
-        ExecutorFactory executorFactory = new ExecutorFactory();
-        CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
+  @Override
+  public BatchPrivacyGroupPublisher create(PrivacyGroupPublisher publisher) {
+    ExecutorFactory executorFactory = new ExecutorFactory();
+    CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
 
-        return new AsyncBatchPrivacyGroupPublisher(executorFactory, countDownLatchFactory, publisher);
-    }
+    return new AsyncBatchPrivacyGroupPublisher(executorFactory, countDownLatchFactory, publisher);
+  }
 }

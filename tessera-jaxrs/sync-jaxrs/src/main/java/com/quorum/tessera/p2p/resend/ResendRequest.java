@@ -3,8 +3,8 @@ package com.quorum.tessera.p2p.resend;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * Model representation of a JSON body on incoming HTTP requests. Used when a request is received to resend existing
- * transactions. Contains:
+ * Model representation of a JSON body on incoming HTTP requests. Used when a request is received to
+ * resend existing transactions. Contains:
  *
  * <ul>
  *   <li>the public key who is a recipient
@@ -14,36 +14,39 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class ResendRequest {
 
-    @Schema(required = true)
-    private ResendRequestType type;
+  @Schema(required = true)
+  private ResendRequestType type;
 
-    @Schema(description = "resend transactions involving this public key", required = true, format = "base64")
-    private String publicKey;
+  @Schema(
+      description = "resend transactions involving this public key",
+      required = true,
+      format = "base64")
+  private String publicKey;
 
-    @Schema(description = "hash of encoded transaction (INDIVIDUAL only)", format = "base64")
-    private String key;
+  @Schema(description = "hash of encoded transaction (INDIVIDUAL only)", format = "base64")
+  private String key;
 
-    public ResendRequestType getType() {
-        return type;
-    }
+  public ResendRequestType getType() {
+    return type;
+  }
 
-    public void setType(final ResendRequestType type) {
-        this.type = type;
-    }
+  public void setType(final ResendRequestType type) {
+    this.type = type;
+  }
 
-    public String getPublicKey() {
-        return publicKey;
-    }
+  public String getPublicKey() {
+    return publicKey;
+  }
 
-    public void setPublicKey(final String publicKey) {
-        this.publicKey = publicKey;
-    }
+  public void setPublicKey(final String publicKey) {
+    this.publicKey = publicKey;
+  }
 
-    public String getKey() {
-        return key;
-    }
+  public String getKey() {
+    return key;
+  }
 
-    public void setKey(final String key) {
-        this.key = key;
-    }
+  public void setKey(final String key) {
+    this.key = key;
+  }
 }

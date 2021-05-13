@@ -1,19 +1,17 @@
 package com.quorum.tessera.io;
 
-import org.junit.Test;
-
 import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
+import org.junit.Test;
 
 public class UriCallbackTest {
 
-    @Test(expected = UncheckedIOException.class)
-    public void executeThrowsURISyntaxException() {
+  @Test(expected = UncheckedIOException.class)
+  public void executeThrowsURISyntaxException() {
 
-        UriCallback.execute(() -> {
-            throw new URISyntaxException("", "");
+    UriCallback.execute(
+        () -> {
+          throw new URISyntaxException("", "");
         });
-
-    }
-
+  }
 }

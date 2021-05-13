@@ -1,58 +1,57 @@
 package com.quorum.tessera.config.util.jaxb;
 
-import com.quorum.tessera.jaxb.JaxbCallback;
 import com.quorum.tessera.config.util.JaxbUtil;
-
+import com.quorum.tessera.jaxb.JaxbCallback;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 
 public class MarshallerBuilder {
 
-    private MarshallerBuilder() {}
+  private MarshallerBuilder() {}
 
-    public static MarshallerBuilder create() {
-        return new MarshallerBuilder();
-    }
+  public static MarshallerBuilder create() {
+    return new MarshallerBuilder();
+  }
 
-    private boolean beanvalidation = true;
+  private boolean beanvalidation = true;
 
-    private MediaType mediaType = MediaType.JSON;
+  private MediaType mediaType = MediaType.JSON;
 
-    public MarshallerBuilder withoutBeanValidation() {
-        this.beanvalidation = false;
-        return this;
-    }
+  public MarshallerBuilder withoutBeanValidation() {
+    this.beanvalidation = false;
+    return this;
+  }
 
-    public MarshallerBuilder withXmlMediaType() {
-        this.mediaType = MediaType.XML;
-        return this;
-    }
+  public MarshallerBuilder withXmlMediaType() {
+    this.mediaType = MediaType.XML;
+    return this;
+  }
 
-    public Marshaller build() {
+  public Marshaller build() {
 
-        return JaxbCallback.execute(
-                () -> {
-                    JAXBContext jAXBContext = JAXBContext.newInstance(JaxbUtil.JAXB_CLASSES);
+    return JaxbCallback.execute(
+        () -> {
+          JAXBContext jAXBContext = JAXBContext.newInstance(JaxbUtil.JAXB_CLASSES);
 
-                    Marshaller marshaller = jAXBContext.createMarshaller();
-                    if (!beanvalidation) {
-                        Enum enu =
-                                Enum.valueOf(
-                                        Class.class.cast(
-                                                marshaller.getProperty("eclipselink.beanvalidation.mode").getClass()),
-                                        "NONE");
+          Marshaller marshaller = jAXBContext.createMarshaller();
+          if (!beanvalidation) {
+            Enum enu =
+                Enum.valueOf(
+                    Class.class.cast(
+                        marshaller.getProperty("eclipselink.beanvalidation.mode").getClass()),
+                    "NONE");
 
-                        marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
-                    }
+            marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
+          }
 
-                    marshaller.setProperty("eclipselink.media-type", mediaType.getValue());
-                    marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+          marshaller.setProperty("eclipselink.media-type", mediaType.getValue());
+          marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-                    if (mediaType == MediaType.JSON) {
-                        marshaller.setProperty("eclipselink.json.include-root", false);
-                        marshaller.setProperty("eclipselink.json.reduce-any-arrays", true);
-                    }
-                    return marshaller;
-                });
-    }
+          if (mediaType == MediaType.JSON) {
+            marshaller.setProperty("eclipselink.json.include-root", false);
+            marshaller.setProperty("eclipselink.json.reduce-any-arrays", true);
+          }
+          return marshaller;
+        });
+  }
 }

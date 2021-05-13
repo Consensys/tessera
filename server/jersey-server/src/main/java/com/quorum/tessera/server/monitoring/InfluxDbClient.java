@@ -4,7 +4,9 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
-
+import java.lang.management.ManagementFactory;
+import java.net.URI;
+import java.util.List;
 import javax.management.MBeanServer;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.Client;
@@ -13,53 +15,54 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.lang.management.ManagementFactory;
-import java.net.URI;
-import java.util.List;
 
 public class InfluxDbClient {
 
-    private final URI tesseraAppUri;
+  private final URI tesseraAppUri;
 
-    private final InfluxConfig influxConfig;
+  private final InfluxConfig influxConfig;
 
-    private final AppType appType;
+  private final AppType appType;
 
-    private final MBeanServer mbs;
+  private final MBeanServer mbs;
 
-    public InfluxDbClient(URI tesseraAppUri, InfluxConfig influxConfig, AppType appType) {
-        this.tesseraAppUri = tesseraAppUri;
-        this.influxConfig = influxConfig;
-        this.appType = appType;
+  public InfluxDbClient(URI tesseraAppUri, InfluxConfig influxConfig, AppType appType) {
+    this.tesseraAppUri = tesseraAppUri;
+    this.influxConfig = influxConfig;
+    this.appType = appType;
 
-        this.mbs = ManagementFactory.getPlatformMBeanServer();
+    this.mbs = ManagementFactory.getPlatformMBeanServer();
+  }
+
+  public Response postMetrics() {
+    MetricsEnquirer metricsEnquirer = new MetricsEnquirer(mbs);
+    List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(appType);
+
+    InfluxDbProtocolFormatter formatter = new InfluxDbProtocolFormatter();
+    String formattedMetrics = formatter.format(metrics, tesseraAppUri, appType);
+
+    ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+
+    if (influxConfig.isSsl()) {
+      final SSLContextFactory sslContextFactory = ClientSSLContextFactory.create();
+      final SSLContext sslContext =
+          sslContextFactory.from(
+              influxConfig.getServerUri().toString(), influxConfig.getSslConfig());
+
+      clientBuilder.sslContext(sslContext);
     }
 
-    public Response postMetrics() {
-        MetricsEnquirer metricsEnquirer = new MetricsEnquirer(mbs);
-        List<MBeanMetric> metrics = metricsEnquirer.getMBeanMetrics(appType);
+    Client client = clientBuilder.build();
 
-        InfluxDbProtocolFormatter formatter = new InfluxDbProtocolFormatter();
-        String formattedMetrics = formatter.format(metrics, tesseraAppUri, appType);
+    WebTarget influxTarget =
+        client
+            .target(influxConfig.getServerUri())
+            .path("write")
+            .queryParam("db", influxConfig.getDbName());
 
-        ClientBuilder clientBuilder = ClientBuilder.newBuilder();
-
-        if (influxConfig.isSsl()) {
-            final SSLContextFactory sslContextFactory = ClientSSLContextFactory.create();
-            final SSLContext sslContext =
-                    sslContextFactory.from(influxConfig.getServerUri().toString(), influxConfig.getSslConfig());
-
-            clientBuilder.sslContext(sslContext);
-        }
-
-        Client client = clientBuilder.build();
-
-        WebTarget influxTarget =
-                client.target(influxConfig.getServerUri()).path("write").queryParam("db", influxConfig.getDbName());
-
-        return influxTarget
-                .request(MediaType.TEXT_PLAIN)
-                .accept(MediaType.TEXT_PLAIN)
-                .post(Entity.text(formattedMetrics));
-    }
+    return influxTarget
+        .request(MediaType.TEXT_PLAIN)
+        .accept(MediaType.TEXT_PLAIN)
+        .post(Entity.text(formattedMetrics));
+  }
 }

@@ -1,65 +1,63 @@
 package com.quorum.tessera.config.constraints;
 
-import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.validation.ConstraintValidatorContext;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
+import javax.validation.ConstraintValidatorContext;
+import org.junit.Before;
+import org.junit.Test;
+
 public class AzureVaultKeyPairValidatorTest {
 
-    private AzureVaultKeyPairValidator validator;
+  private AzureVaultKeyPairValidator validator;
 
-    private AzureVaultKeyPair keyPair;
+  private AzureVaultKeyPair keyPair;
 
-    private ConstraintValidatorContext cvc;
+  private ConstraintValidatorContext cvc;
 
-    @Before
-    public void setUp() {
-        this.validator = new AzureVaultKeyPairValidator();
-        this.keyPair = mock(AzureVaultKeyPair.class);
-        this.cvc = mock(ConstraintValidatorContext.class);
-    }
+  @Before
+  public void setUp() {
+    this.validator = new AzureVaultKeyPairValidator();
+    this.keyPair = mock(AzureVaultKeyPair.class);
+    this.cvc = mock(ConstraintValidatorContext.class);
+  }
 
-    @Test
-    public void nullKeyPairIsValid() {
-        assertThat(validator.isValid(null, cvc)).isTrue();
-    }
+  @Test
+  public void nullKeyPairIsValid() {
+    assertThat(validator.isValid(null, cvc)).isTrue();
+  }
 
-    @Test
-    public void publicAndPrivateKeyVersionsNotSetIsValid() {
-        when(keyPair.getPublicKeyVersion()).thenReturn(null);
-        when(keyPair.getPrivateKeyVersion()).thenReturn(null);
+  @Test
+  public void publicAndPrivateKeyVersionsNotSetIsValid() {
+    when(keyPair.getPublicKeyVersion()).thenReturn(null);
+    when(keyPair.getPrivateKeyVersion()).thenReturn(null);
 
-        assertThat(validator.isValid(keyPair, cvc)).isTrue();
-    }
+    assertThat(validator.isValid(keyPair, cvc)).isTrue();
+  }
 
-    @Test
-    public void publicAndPrivateKeyVersionsAreSetIsValid() {
-        when(keyPair.getPublicKeyVersion()).thenReturn("pubVer");
-        when(keyPair.getPrivateKeyVersion()).thenReturn("privVer");
+  @Test
+  public void publicAndPrivateKeyVersionsAreSetIsValid() {
+    when(keyPair.getPublicKeyVersion()).thenReturn("pubVer");
+    when(keyPair.getPrivateKeyVersion()).thenReturn("privVer");
 
-        assertThat(validator.isValid(keyPair, cvc)).isTrue();
-    }
+    assertThat(validator.isValid(keyPair, cvc)).isTrue();
+  }
 
-    @Test
-    public void onlyPublicKeyVersionSetIsNotValid() {
-        when(keyPair.getPublicKeyVersion()).thenReturn("pubVer");
-        when(keyPair.getPrivateKeyVersion()).thenReturn(null);
+  @Test
+  public void onlyPublicKeyVersionSetIsNotValid() {
+    when(keyPair.getPublicKeyVersion()).thenReturn("pubVer");
+    when(keyPair.getPrivateKeyVersion()).thenReturn(null);
 
-        assertThat(validator.isValid(keyPair, cvc)).isFalse();
-    }
+    assertThat(validator.isValid(keyPair, cvc)).isFalse();
+  }
 
-    @Test
-    public void onlyPrivateKeyVersionSetIsNotValid() {
-        when(keyPair.getPublicKeyVersion()).thenReturn(null);
-        when(keyPair.getPrivateKeyVersion()).thenReturn("privVer");
+  @Test
+  public void onlyPrivateKeyVersionSetIsNotValid() {
+    when(keyPair.getPublicKeyVersion()).thenReturn(null);
+    when(keyPair.getPrivateKeyVersion()).thenReturn("privVer");
 
-        assertThat(validator.isValid(keyPair, cvc)).isFalse();
-    }
-
+    assertThat(validator.isValid(keyPair, cvc)).isFalse();
+  }
 }

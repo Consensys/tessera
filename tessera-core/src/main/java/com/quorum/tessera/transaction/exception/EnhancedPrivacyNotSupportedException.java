@@ -4,7 +4,7 @@ import com.quorum.tessera.exception.TesseraException;
 
 public class EnhancedPrivacyNotSupportedException extends TesseraException {
 
-    public EnhancedPrivacyNotSupportedException(String message) {
-        super(message);
-    }
+  public EnhancedPrivacyNotSupportedException(String message) {
+    super(message);
+  }
 }

@@ -6,15 +6,15 @@ import com.quorum.tessera.config.Config;
 
 public interface RecoveryClientFactory {
 
-    RecoveryClient create(Config config);
+  RecoveryClient create(Config config);
 
-    CommunicationType communicationType();
+  CommunicationType communicationType();
 
-    static RecoveryClientFactory newFactory(Config config) {
-        // TODO: return the stream and let the caller deal with it
-        return ServiceLoaderUtil.loadAll(RecoveryClientFactory.class)
-                .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
-                .findFirst()
-                .get();
-    }
+  static RecoveryClientFactory newFactory(Config config) {
+    // TODO: return the stream and let the caller deal with it
+    return ServiceLoaderUtil.loadAll(RecoveryClientFactory.class)
+        .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
+        .findFirst()
+        .get();
+  }
 }

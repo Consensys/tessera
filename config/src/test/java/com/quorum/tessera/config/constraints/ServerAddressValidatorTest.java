@@ -1,118 +1,110 @@
 package com.quorum.tessera.config.constraints;
 
-import javax.validation.ConstraintValidatorContext;
 import static org.assertj.core.api.Assertions.assertThat;
-import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import javax.validation.ConstraintValidatorContext;
+import org.junit.Test;
+
 public class ServerAddressValidatorTest {
 
-    @Test
-    public void valid() {
+  @Test
+  public void valid() {
 
-        ServerAddressValidator validator
-                = new ServerAddressValidator();
+    ServerAddressValidator validator = new ServerAddressValidator();
 
-        ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
-        when(validServerAddress.supportedSchemes()).thenReturn(new String[]{"http"});
+    ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
+    when(validServerAddress.supportedSchemes()).thenReturn(new String[] {"http"});
 
-        validator.initialize(validServerAddress);
+    validator.initialize(validServerAddress);
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        assertThat(validator.isValid("https://www.ilovesparraws.com:80/somepatth", context)).isFalse();
-        assertThat(validator.isValid("http://www.ilovesparraws.com:80/somepatth", context)).isTrue();
-    }
+    assertThat(validator.isValid("https://www.ilovesparraws.com:80/somepatth", context)).isFalse();
+    assertThat(validator.isValid("http://www.ilovesparraws.com:80/somepatth", context)).isTrue();
+  }
 
-    @Test
-    public void dontAllowZeroIpWhenNotBindingAddress() {
+  @Test
+  public void dontAllowZeroIpWhenNotBindingAddress() {
 
-        ServerAddressValidator validator
-                = new ServerAddressValidator();
+    ServerAddressValidator validator = new ServerAddressValidator();
 
-        ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
+    ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
 
-        when(validServerAddress.isBindingAddress()).thenReturn(false);
-        when(validServerAddress.supportedSchemes()).thenReturn(new String[]{"http"});
+    when(validServerAddress.isBindingAddress()).thenReturn(false);
+    when(validServerAddress.supportedSchemes()).thenReturn(new String[] {"http"});
 
-        validator.initialize(validServerAddress);
+    validator.initialize(validServerAddress);
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        assertThat(validator.isValid("http://0.0.0.0:80", context)).isFalse();
+    assertThat(validator.isValid("http://0.0.0.0:80", context)).isFalse();
+  }
 
-    }
+  @Test
+  public void dontAllowZeroIpWhenBindingAddress() {
 
-    @Test
-    public void dontAllowZeroIpWhenBindingAddress() {
+    ServerAddressValidator validator = new ServerAddressValidator();
 
-        ServerAddressValidator validator
-                = new ServerAddressValidator();
+    ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
 
-        ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
+    when(validServerAddress.isBindingAddress()).thenReturn(true);
+    when(validServerAddress.supportedSchemes()).thenReturn(new String[] {"http"});
 
-        when(validServerAddress.isBindingAddress()).thenReturn(true);
-        when(validServerAddress.supportedSchemes()).thenReturn(new String[]{"http"});
+    validator.initialize(validServerAddress);
 
-        validator.initialize(validServerAddress);
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    assertThat(validator.isValid("http://0.0.0.0:80", context)).isTrue();
+  }
 
-        assertThat(validator.isValid("http://0.0.0.0:80", context)).isTrue();
+  @Test
+  public void nullValueIsIgnored() {
 
-    }
+    ServerAddressValidator validator = new ServerAddressValidator();
 
-    @Test
-    public void nullValueIsIgnored() {
+    ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
 
-        ServerAddressValidator validator = new ServerAddressValidator();
+    when(validServerAddress.isBindingAddress()).thenReturn(true);
+    when(validServerAddress.supportedSchemes()).thenReturn(new String[] {"http"});
 
-        ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
+    validator.initialize(validServerAddress);
 
-        when(validServerAddress.isBindingAddress()).thenReturn(true);
-        when(validServerAddress.supportedSchemes()).thenReturn(new String[]{"http"});
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        validator.initialize(validServerAddress);
+    assertThat(validator.isValid(null, context)).isTrue();
+  }
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+  @Test
+  public void unixSchemStypeIntCheckedForZeroIp() {
 
-        assertThat(validator.isValid(null, context)).isTrue();
+    ServerAddressValidator validator = new ServerAddressValidator();
 
-    }
+    ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
 
-    @Test
-    public void unixSchemStypeIntCheckedForZeroIp() {
+    when(validServerAddress.isBindingAddress()).thenReturn(false);
+    when(validServerAddress.supportedSchemes()).thenReturn(new String[] {"unix"});
 
-        ServerAddressValidator validator = new ServerAddressValidator();
+    validator.initialize(validServerAddress);
 
-        ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        when(validServerAddress.isBindingAddress()).thenReturn(false);
-        when(validServerAddress.supportedSchemes()).thenReturn(new String[]{"unix"});
+    assertThat(validator.isValid("unix:/bogus", context)).isTrue();
+  }
 
-        validator.initialize(validServerAddress);
+  @Test
+  public void httpPortIsRequired() {
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    ServerAddressValidator validator = new ServerAddressValidator();
 
-        assertThat(validator.isValid("unix:/bogus", context)).isTrue();
+    ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
+    when(validServerAddress.supportedSchemes()).thenReturn(new String[] {"http"});
 
-    }
+    validator.initialize(validServerAddress);
 
-    @Test
-    public void httpPortIsRequired() {
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        ServerAddressValidator validator
-                = new ServerAddressValidator();
-
-        ValidServerAddress validServerAddress = mock(ValidServerAddress.class);
-        when(validServerAddress.supportedSchemes()).thenReturn(new String[]{"http"});
-
-        validator.initialize(validServerAddress);
-
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
-
-        assertThat(validator.isValid("http://www.ilovesparraws.com", context)).isFalse();
-    }
-
+    assertThat(validator.isValid("http://www.ilovesparraws.com", context)).isFalse();
+  }
 }

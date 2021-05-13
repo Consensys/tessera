@@ -5,12 +5,9 @@ import com.quorum.tessera.config.Config;
 
 public interface RecoveryFactory {
 
-    Recovery create(Config config);
+  Recovery create(Config config);
 
-    static RecoveryFactory newFactory() {
-        return ServiceLoaderUtil.load(RecoveryFactory.class)
-            .orElse(new RecoveryFactoryImpl());
-
-    }
-
+  static RecoveryFactory newFactory() {
+    return ServiceLoaderUtil.load(RecoveryFactory.class).orElse(new RecoveryFactoryImpl());
+  }
 }

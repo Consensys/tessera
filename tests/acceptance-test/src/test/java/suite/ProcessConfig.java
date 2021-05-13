@@ -4,35 +4,34 @@ import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
-
 import java.lang.annotation.*;
 
 /**
- * Sets the runtime properties of the nodes used during the test This allows the same tests to run with different node
- * configurations.
+ * Sets the runtime properties of the nodes used during the test This allows the same tests to run
+ * with different node configurations.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Inherited
 public @interface ProcessConfig {
 
-    DBType dbType();
+  DBType dbType();
 
-    CommunicationType communicationType();
+  CommunicationType communicationType();
 
-    String p2pCommunicationType() default "NONE";
+  String p2pCommunicationType() default "NONE";
 
-    SocketType socketType();
+  SocketType socketType();
 
-    EnclaveType enclaveType() default EnclaveType.LOCAL;
+  EnclaveType enclaveType() default EnclaveType.LOCAL;
 
-    boolean admin() default false;
+  boolean admin() default false;
 
-    String prefix() default "";
+  String prefix() default "";
 
-    boolean p2pSsl() default false;
+  boolean p2pSsl() default false;
 
-    EncryptorType encryptorType();
+  EncryptorType encryptorType();
 
-    ClientMode clientMode() default ClientMode.TESSERA;
+  ClientMode clientMode() default ClientMode.TESSERA;
 }

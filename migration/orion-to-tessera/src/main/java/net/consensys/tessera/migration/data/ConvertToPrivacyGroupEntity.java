@@ -7,65 +7,67 @@ import com.quorum.tessera.data.PrivacyGroupEntity;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyGroupUtil;
 import com.quorum.tessera.encryption.PublicKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.json.JsonObject;
-import javax.json.JsonString;
 import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConvertToPrivacyGroupEntity implements EventHandler<OrionDataEvent> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConvertToPrivacyGroupEntity.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ConvertToPrivacyGroupEntity.class);
 
-    private Disruptor<TesseraDataEvent> tesseraDataEventDisruptor;
+  private Disruptor<TesseraDataEvent> tesseraDataEventDisruptor;
 
-    private ObjectMapper cborObjectMapper = JacksonObjectMapperFactory.create();
+  private ObjectMapper cborObjectMapper = JacksonObjectMapperFactory.create();
 
-    public ConvertToPrivacyGroupEntity(Disruptor<TesseraDataEvent> tesseraDataEventDisruptor) {
-        this.tesseraDataEventDisruptor = Objects.requireNonNull(tesseraDataEventDisruptor);
+  public ConvertToPrivacyGroupEntity(Disruptor<TesseraDataEvent> tesseraDataEventDisruptor) {
+    this.tesseraDataEventDisruptor = Objects.requireNonNull(tesseraDataEventDisruptor);
+  }
+
+  @Override
+  public void onEvent(OrionDataEvent event, long sequence, boolean endOfBatch) throws Exception {
+
+    if (event.getPayloadType() != PayloadType.PRIVACY_GROUP_PAYLOAD) {
+      LOGGER.debug("Ignoring event {}", event);
+      return;
     }
 
-    @Override
-    public void onEvent(OrionDataEvent event,long sequence,boolean endOfBatch) throws Exception {
+    PrivacyGroup.Id privacyGroupId = PrivacyGroup.Id.fromBase64String(new String(event.getKey()));
 
-        if(event.getPayloadType() != PayloadType.PRIVACY_GROUP_PAYLOAD) {
-            LOGGER.debug("Ignoring event {}",event);
-            return;
-        }
+    JsonObject jsonObject = cborObjectMapper.readValue(event.getPayloadData(), JsonObject.class);
 
-        PrivacyGroup.Id privacyGroupId = PrivacyGroup.Id.fromBase64String(new String(event.getKey()));
-
-        JsonObject jsonObject = cborObjectMapper.readValue(event.getPayloadData(),JsonObject.class);
-
-        List<PublicKey> members = jsonObject.getJsonArray("addresses")
-            .stream()
+    List<PublicKey> members =
+        jsonObject.getJsonArray("addresses").stream()
             .map(JsonString.class::cast)
             .map(JsonString::getString)
             .map(Base64.getDecoder()::decode)
             .map(PublicKey::from)
             .collect(Collectors.toList());
 
-        String description = jsonObject.getString("description");
-        String name = jsonObject.getString("name");
-        PrivacyGroup.State state = PrivacyGroup.State.valueOf(jsonObject.getString("state"));
-        PrivacyGroup.Type type = PrivacyGroup.Type.valueOf(jsonObject.getString("type"));
+    String description = jsonObject.getString("description");
+    String name = jsonObject.getString("name");
+    PrivacyGroup.State state = PrivacyGroup.State.valueOf(jsonObject.getString("state"));
+    PrivacyGroup.Type type = PrivacyGroup.Type.valueOf(jsonObject.getString("type"));
 
-        if(type == PrivacyGroup.Type.PANTHEON && !jsonObject.containsKey("randomSeed")) {
-            throw new UnsupportedOperationException("No randomSeed element defined for PANTHEON group type");
-        }
+    if (type == PrivacyGroup.Type.PANTHEON && !jsonObject.containsKey("randomSeed")) {
+      throw new UnsupportedOperationException(
+          "No randomSeed element defined for PANTHEON group type");
+    }
 
-        byte[] seed = Optional.of(jsonObject)
+    byte[] seed =
+        Optional.of(jsonObject)
             .filter(j -> j.containsKey("randomSeed"))
             .map(j -> j.getString("randomSeed"))
             .map(Base64.getDecoder()::decode)
             .orElse(new byte[0]);
 
-        PrivacyGroup privacyGroup = PrivacyGroup.Builder.create()
+    PrivacyGroup privacyGroup =
+        PrivacyGroup.Builder.create()
             .withPrivacyGroupId(privacyGroupId)
             .withDescription(description)
             .withName(name)
@@ -75,18 +77,17 @@ public class ConvertToPrivacyGroupEntity implements EventHandler<OrionDataEvent>
             .withSeed(seed)
             .build();
 
-        PrivacyGroupUtil privacyGroupUtil = PrivacyGroupUtil.create();
-        byte[] privacyGroupData = privacyGroupUtil.encode(privacyGroup);
-        byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
+    PrivacyGroupUtil privacyGroupUtil = PrivacyGroupUtil.create();
+    byte[] privacyGroupData = privacyGroupUtil.encode(privacyGroup);
+    byte[] lookupId = privacyGroupUtil.generateLookupId(privacyGroup.getMembers());
 
-        PrivacyGroupEntity privacyGroupEntity = new PrivacyGroupEntity();
-        privacyGroupEntity.setData(privacyGroupData);
-        privacyGroupEntity.setLookupId(lookupId);
-        privacyGroupEntity.setId(privacyGroup.getId().getBytes());
+    PrivacyGroupEntity privacyGroupEntity = new PrivacyGroupEntity();
+    privacyGroupEntity.setData(privacyGroupData);
+    privacyGroupEntity.setLookupId(lookupId);
+    privacyGroupEntity.setId(privacyGroup.getId().getBytes());
 
-        tesseraDataEventDisruptor.publishEvent(new TesseraDataEvent<>(privacyGroupEntity));
+    tesseraDataEventDisruptor.publishEvent(new TesseraDataEvent<>(privacyGroupEntity));
 
-        LOGGER.debug("Published {}", privacyGroupEntity);
-
-    }
+    LOGGER.debug("Published {}", privacyGroupEntity);
+  }
 }

@@ -1,343 +1,352 @@
 package com.quorum.tessera.data;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import javax.persistence.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import javax.persistence.*;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 @RunWith(Parameterized.class)
 public class EncryptedRawTransactionDAOTest {
 
-    private EntityManagerFactory entityManagerFactory;
+  private EntityManagerFactory entityManagerFactory;
 
-    private EncryptedRawTransactionDAO encryptedRawTransactionDAO;
+  private EncryptedRawTransactionDAO encryptedRawTransactionDAO;
 
-    private TestConfig testConfig;
+  private TestConfig testConfig;
 
-    public EncryptedRawTransactionDAOTest(TestConfig testConfig) {
-        this.testConfig = testConfig;
+  public EncryptedRawTransactionDAOTest(TestConfig testConfig) {
+    this.testConfig = testConfig;
+  }
+
+  @Before
+  public void onSetUp() {
+
+    Map properties = new HashMap();
+    properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
+    properties.put("javax.persistence.jdbc.user", "junit");
+    properties.put("javax.persistence.jdbc.password", "");
+    properties.put(
+        "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+    properties.put("eclipselink.logging.level", "FINE");
+    properties.put("eclipselink.logging.parameters", "true");
+    properties.put("eclipselink.logging.level.sql", "FINE");
+    properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+
+    entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
+
+    encryptedRawTransactionDAO = new EncryptedRawTransactionDAOImpl(entityManagerFactory);
+  }
+
+  @After
+  public void onTearDown() {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    entityManager.createQuery("delete from EncryptedRawTransaction").executeUpdate();
+    entityManager.getTransaction().commit();
+  }
+
+  @Test
+  public void saveDoesntAllowNullEncyptedPayload() {
+
+    EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setHash(new MessageHash(new byte[] {5}));
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
+
+    try {
+      encryptedRawTransactionDAO.save(encryptedRawTransaction);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      String expectedMessage =
+          String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCRYPTED_PAYLOAD");
+      assertThat(ex)
+          .hasMessageContaining(expectedMessage)
+          .hasMessageContaining("ENCRYPTED_PAYLOAD");
     }
+  }
 
-    @Before
-    public void onSetUp() {
+  @Test
+  public void saveDoesntAllowNullHash() {
 
-        Map properties = new HashMap();
-        properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
-        properties.put("javax.persistence.jdbc.user", "junit");
-        properties.put("javax.persistence.jdbc.password", "");
-        properties.put("eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
-        properties.put("eclipselink.logging.level", "FINE");
-        properties.put("eclipselink.logging.parameters", "true");
-        properties.put("eclipselink.logging.level.sql", "FINE");
-        properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+    EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
 
-        entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
-
-        encryptedRawTransactionDAO = new EncryptedRawTransactionDAOImpl(entityManagerFactory);
+    try {
+      encryptedRawTransactionDAO.save(encryptedRawTransaction);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "HASH");
+      assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("HASH");
     }
+  }
 
-    @After
-    public void onTearDown() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        entityManager.createQuery("delete from EncryptedRawTransaction").executeUpdate();
-        entityManager.getTransaction().commit();
+  @Test
+  public void saveDoesntAllowNullNonce() {
+
+    EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setHash(new MessageHash(new byte[] {5}));
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
+
+    try {
+      encryptedRawTransactionDAO.save(encryptedRawTransaction);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "NONCE");
+      assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("NONCE");
     }
+  }
 
-    @Test
-    public void saveDoesntAllowNullEncyptedPayload() {
+  @Test
+  public void saveDoesntAllowNullEncryptedKey() {
 
-        EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setHash(new MessageHash(new byte[] {5}));
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
+    EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setHash(new MessageHash(new byte[] {5}));
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
 
-        try {
-            encryptedRawTransactionDAO.save(encryptedRawTransaction);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCRYPTED_PAYLOAD");
-            assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("ENCRYPTED_PAYLOAD");
-        }
+    try {
+      encryptedRawTransactionDAO.save(encryptedRawTransaction);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      String expectedMessage =
+          String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCRYPTED_KEY");
+      assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("ENCRYPTED_KEY");
     }
+  }
 
-    @Test
-    public void saveDoesntAllowNullHash() {
+  @Test
+  public void saveDoesntAllowNullSender() {
 
-        EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
+    EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setHash(new MessageHash(new byte[] {5}));
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
 
-        try {
-            encryptedRawTransactionDAO.save(encryptedRawTransaction);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "HASH");
-            assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("HASH");
-        }
+    try {
+      encryptedRawTransactionDAO.save(encryptedRawTransaction);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "SENDER");
+      assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("SENDER");
     }
+  }
 
-    @Test
-    public void saveDoesntAllowNullNonce() {
+  @Test
+  public void cannotPersistMultipleOfSameHash() {
 
-        EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setHash(new MessageHash(new byte[] {5}));
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
+    final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setHash(new MessageHash(new byte[] {1}));
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
-        try {
-            encryptedRawTransactionDAO.save(encryptedRawTransaction);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "NONCE");
-            assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("NONCE");
-        }
+    final EncryptedRawTransaction duplicateTransaction = new EncryptedRawTransaction();
+    duplicateTransaction.setEncryptedPayload(new byte[] {6});
+    duplicateTransaction.setHash(new MessageHash(new byte[] {1}));
+    duplicateTransaction.setEncryptedKey("key".getBytes());
+    duplicateTransaction.setNonce("nonce".getBytes());
+    duplicateTransaction.setSender("from".getBytes());
+
+    try {
+      encryptedRawTransactionDAO.save(duplicateTransaction);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      assertThat(ex).hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
     }
+  }
 
-    @Test
-    public void saveDoesntAllowNullEncryptedKey() {
+  @Test
+  public void validEncryptedRawTransactionCanBePersisted() {
 
-        EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setHash(new MessageHash(new byte[] {5}));
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
+    MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
-        try {
-            encryptedRawTransactionDAO.save(encryptedRawTransaction);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCRYPTED_KEY");
-            assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("ENCRYPTED_KEY");
-        }
-    }
+    final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setHash(messageHash);
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
-    @Test
-    public void saveDoesntAllowNullSender() {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
 
-        EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setHash(new MessageHash(new byte[] {5}));
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    final EncryptedRawTransaction retrieved =
+        entityManager.find(EncryptedRawTransaction.class, messageHash);
 
-        try {
-            encryptedRawTransactionDAO.save(encryptedRawTransaction);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "SENDER");
-            assertThat(ex).hasMessageContaining(expectedMessage).hasMessageContaining("SENDER");
-        }
-    }
+    assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedRawTransaction);
+  }
 
-    @Test
-    public void cannotPersistMultipleOfSameHash() {
+  @Test
+  public void deleteTransactionRemovesFromDatabaseAndReturnsTrue() {
 
-        final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setHash(new MessageHash(new byte[] {1}));
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
-        encryptedRawTransactionDAO.save(encryptedRawTransaction);
+    // put a transaction in the database
+    MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
-        final EncryptedRawTransaction duplicateTransaction = new EncryptedRawTransaction();
-        duplicateTransaction.setEncryptedPayload(new byte[] {6});
-        duplicateTransaction.setHash(new MessageHash(new byte[] {1}));
-        duplicateTransaction.setEncryptedKey("key".getBytes());
-        duplicateTransaction.setNonce("nonce".getBytes());
-        duplicateTransaction.setSender("from".getBytes());
+    final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setHash(messageHash);
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
 
-        try {
-            encryptedRawTransactionDAO.save(duplicateTransaction);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            assertThat(ex).hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
-        }
-    }
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    entityManager.persist(encryptedRawTransaction);
+    entityManager.getTransaction().commit();
 
-    @Test
-    public void validEncryptedRawTransactionCanBePersisted() {
+    Query countQuery =
+        entityManager.createQuery(
+            "select count(t) from EncryptedRawTransaction t where t.hash = :hash");
 
-        MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+    Long result = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
 
-        final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setHash(messageHash);
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
-        encryptedRawTransactionDAO.save(encryptedRawTransaction);
+    assertThat(result).isEqualTo(1L);
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
+    // delete the transaction
+    encryptedRawTransactionDAO.delete(messageHash);
 
-        final EncryptedRawTransaction retrieved = entityManager.find(EncryptedRawTransaction.class, messageHash);
+    Long result2 = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
 
-        assertThat(retrieved).isNotNull().isEqualToComparingFieldByField(encryptedRawTransaction);
-    }
+    assertThat(result2).isZero();
+  }
 
-    @Test
-    public void deleteTransactionRemovesFromDatabaseAndReturnsTrue() {
+  @Test(expected = EntityNotFoundException.class)
+  public void deleteThrowsEntityNotFoundExceptionForNonExistentHash() {
+    // delete the transaction
+    encryptedRawTransactionDAO.delete(new MessageHash(UUID.randomUUID().toString().getBytes()));
+  }
 
-        // put a transaction in the database
-        MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+  @Test
+  public void fetchingAllTransactionsReturnsAll() {
 
-        final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setHash(messageHash);
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    final List<EncryptedRawTransaction> payloads =
+        IntStream.range(0, 50)
+            .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+            .map(MessageHash::new)
+            .map(
+                hash ->
+                    new EncryptedRawTransaction(
+                        hash,
+                        "payload".getBytes(),
+                        "key".getBytes(),
+                        "nonce".getBytes(),
+                        "sender".getBytes()))
+            .peek(entityManager::persist)
+            .collect(Collectors.toList());
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        entityManager.persist(encryptedRawTransaction);
-        entityManager.getTransaction().commit();
+    entityManager.getTransaction().commit();
 
-        Query countQuery =
-                entityManager.createQuery("select count(t) from EncryptedRawTransaction t where t.hash = :hash");
+    final List<EncryptedRawTransaction> retrievedList =
+        encryptedRawTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
 
-        Long result = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
+    assertThat(encryptedRawTransactionDAO.transactionCount()).isEqualTo(payloads.size());
+    assertThat(retrievedList).hasSameSizeAs(payloads);
+    assertThat(retrievedList).hasSameElementsAs(payloads);
+  }
 
-        assertThat(result).isEqualTo(1L);
+  @Test
+  public void retrieveByHashFindsTransactionThatIsPresent() {
+    // put a transaction in the database
+    MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
-        // delete the transaction
-        encryptedRawTransactionDAO.delete(messageHash);
+    final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setHash(messageHash);
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
 
-        Long result2 = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    entityManager.persist(encryptedRawTransaction);
+    entityManager.getTransaction().commit();
 
-        assertThat(result2).isZero();
-    }
+    final Optional<EncryptedRawTransaction> retrieved =
+        encryptedRawTransactionDAO.retrieveByHash(messageHash);
 
-    @Test(expected = EntityNotFoundException.class)
-    public void deleteThrowsEntityNotFoundExceptionForNonExistentHash() {
-        // delete the transaction
-        encryptedRawTransactionDAO.delete(new MessageHash(UUID.randomUUID().toString().getBytes()));
-    }
+    assertThat(retrieved).isPresent();
+    assertThat(retrieved.get()).isEqualToComparingFieldByField(encryptedRawTransaction);
+  }
 
-    @Test
-    public void fetchingAllTransactionsReturnsAll() {
+  @Test
+  public void retrieveByHashReturnsEmptyOptionalWhenNotPresent() {
+    final MessageHash searchHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        final List<EncryptedRawTransaction> payloads =
-                IntStream.range(0, 50)
-                        .mapToObj(i -> UUID.randomUUID().toString().getBytes())
-                        .map(MessageHash::new)
-                        .map(
-                                hash ->
-                                        new EncryptedRawTransaction(
-                                                hash,
-                                                "payload".getBytes(),
-                                                "key".getBytes(),
-                                                "nonce".getBytes(),
-                                                "sender".getBytes()))
-                        .peek(entityManager::persist)
-                        .collect(Collectors.toList());
+    final Optional<EncryptedRawTransaction> retrieved =
+        encryptedRawTransactionDAO.retrieveByHash(searchHash);
 
-        entityManager.getTransaction().commit();
+    assertThat(retrieved.isPresent()).isFalse();
+  }
 
-        final List<EncryptedRawTransaction> retrievedList =
-                encryptedRawTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
+  @Test
+  public void persistAddsTimestampToEntity() {
 
-        assertThat(encryptedRawTransactionDAO.transactionCount()).isEqualTo(payloads.size());
-        assertThat(retrievedList).hasSameSizeAs(payloads);
-        assertThat(retrievedList).hasSameElementsAs(payloads);
-    }
+    final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
-    @Test
-    public void retrieveByHashFindsTransactionThatIsPresent() {
-        // put a transaction in the database
-        MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+    final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
+    encryptedRawTransaction.setHash(messageHash);
+    encryptedRawTransaction.setEncryptedKey("key".getBytes());
+    encryptedRawTransaction.setNonce("nonce".getBytes());
+    encryptedRawTransaction.setSender("from".getBytes());
 
-        final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setHash(messageHash);
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        entityManager.persist(encryptedRawTransaction);
-        entityManager.getTransaction().commit();
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    final EncryptedRawTransaction retrieved =
+        entityManager.find(EncryptedRawTransaction.class, messageHash);
 
-        final Optional<EncryptedRawTransaction> retrieved = encryptedRawTransactionDAO.retrieveByHash(messageHash);
+    assertThat(retrieved).isNotNull();
+    assertThat(retrieved.getTimestamp()).isNotZero();
+  }
 
-        assertThat(retrieved).isPresent();
-        assertThat(retrieved.get()).isEqualToComparingFieldByField(encryptedRawTransaction);
-    }
+  @Parameterized.Parameters(name = "DB {0}")
+  public static Collection<TestConfig> connectionDetails() {
 
-    @Test
-    public void retrieveByHashReturnsEmptyOptionalWhenNotPresent() {
-        final MessageHash searchHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+    return List.of(TestConfig.values());
+  }
 
-        final Optional<EncryptedRawTransaction> retrieved = encryptedRawTransactionDAO.retrieveByHash(searchHash);
+  @Test
+  public void upcheckReturnsTrue() {
+    assertThat(encryptedRawTransactionDAO.upcheck());
+  }
 
-        assertThat(retrieved.isPresent()).isFalse();
-    }
+  @Test
+  public void upcheckFailDueToDB() {
+    EntityManagerFactory mockEntityManagerFactory = mock(EntityManagerFactory.class);
+    EntityManager mockEntityManager = mock(EntityManager.class);
+    EntityTransaction mockEntityTransaction = mock(EntityTransaction.class);
+    EntityManagerCallback mockEntityManagerCallback = mock(EntityManagerCallback.class);
 
-    @Test
-    public void persistAddsTimestampToEntity() {
+    when(mockEntityManagerFactory.createEntityManager()).thenReturn(mockEntityManager);
+    when(mockEntityManager.getTransaction()).thenReturn(mockEntityTransaction);
+    when(mockEntityManagerCallback.execute(mockEntityManager)).thenThrow(RuntimeException.class);
 
-        final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
+    EncryptedRawTransactionDAO encryptedRawTransactionDAO =
+        new EncryptedRawTransactionDAOImpl(mockEntityManagerFactory);
 
-        final EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
-        encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
-        encryptedRawTransaction.setHash(messageHash);
-        encryptedRawTransaction.setEncryptedKey("key".getBytes());
-        encryptedRawTransaction.setNonce("nonce".getBytes());
-        encryptedRawTransaction.setSender("from".getBytes());
-
-        encryptedRawTransactionDAO.save(encryptedRawTransaction);
-
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final EncryptedRawTransaction retrieved = entityManager.find(EncryptedRawTransaction.class, messageHash);
-
-        assertThat(retrieved).isNotNull();
-        assertThat(retrieved.getTimestamp()).isNotZero();
-    }
-
-    @Parameterized.Parameters(name = "DB {0}")
-    public static Collection<TestConfig> connectionDetails() {
-
-        return List.of(TestConfig.values());
-    }
-
-    @Test
-    public void upcheckReturnsTrue() {
-        assertThat(encryptedRawTransactionDAO.upcheck());
-    }
-
-    @Test
-    public void upcheckFailDueToDB() {
-        EntityManagerFactory mockEntityManagerFactory = mock(EntityManagerFactory.class);
-        EntityManager mockEntityManager = mock(EntityManager.class);
-        EntityTransaction mockEntityTransaction = mock(EntityTransaction.class);
-        EntityManagerCallback mockEntityManagerCallback = mock(EntityManagerCallback.class);
-
-        when(mockEntityManagerFactory.createEntityManager()).thenReturn(mockEntityManager);
-        when(mockEntityManager.getTransaction()).thenReturn(mockEntityTransaction);
-        when(mockEntityManagerCallback.execute(mockEntityManager)).thenThrow(RuntimeException.class);
-
-        EncryptedRawTransactionDAO encryptedRawTransactionDAO =
-                new EncryptedRawTransactionDAOImpl(mockEntityManagerFactory);
-
-        assertThat(encryptedRawTransactionDAO.upcheck()).isFalse();
-    }
+    assertThat(encryptedRawTransactionDAO.upcheck()).isFalse();
+  }
 }

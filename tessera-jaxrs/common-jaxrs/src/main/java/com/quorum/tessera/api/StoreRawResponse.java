@@ -1,7 +1,6 @@
 package com.quorum.tessera.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.xml.bind.annotation.XmlInlineBinaryData;
 
 /**
@@ -11,21 +10,21 @@ import javax.xml.bind.annotation.XmlInlineBinaryData;
  */
 public class StoreRawResponse {
 
-    @Schema(type = "string", format = "base64", description = "hash of encrypted payload")
-    @XmlInlineBinaryData
-    private byte[] key;
+  @Schema(type = "string", format = "base64", description = "hash of encrypted payload")
+  @XmlInlineBinaryData
+  private byte[] key;
 
-    public StoreRawResponse(byte[] key) {
-        this.key = key;
-    }
+  public StoreRawResponse(byte[] key) {
+    this.key = key;
+  }
 
-    public StoreRawResponse() {}
+  public StoreRawResponse() {}
 
-    public byte[] getKey() {
-        return key;
-    }
+  public byte[] getKey() {
+    return key;
+  }
 
-    public void setKey(byte[] key) {
-        this.key = key;
-    }
+  public void setKey(byte[] key) {
+    this.key = key;
+  }
 }

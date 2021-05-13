@@ -1,5 +1,5 @@
 
 
 dependencies {
-    compile project(':service-locator:service-locator-api')
+  compile project(':service-locator:service-locator-api')
 }

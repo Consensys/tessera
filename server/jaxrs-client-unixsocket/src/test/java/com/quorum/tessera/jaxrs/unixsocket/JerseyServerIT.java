@@ -1,125 +1,126 @@
 package com.quorum.tessera.jaxrs.unixsocket;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.server.JerseyServer;
-import org.glassfish.jersey.client.ClientConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
+import java.net.URI;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.URI;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.glassfish.jersey.client.ClientConfig;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class JerseyServerIT {
 
-    private URI unixfile = URI.create("unix:/tmp/bogus.sock");
+  private URI unixfile = URI.create("unix:/tmp/bogus.sock");
 
-    private JerseyServer server;
+  private JerseyServer server;
 
-    @Before
-    public void onSetUp() throws Exception {
+  @Before
+  public void onSetUp() throws Exception {
 
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setCommunicationType(CommunicationType.REST);
+    ServerConfig serverConfig = new ServerConfig();
+    serverConfig.setCommunicationType(CommunicationType.REST);
 
-        serverConfig.setServerAddress(unixfile.toString());
-        Application sample = new SampleApplication();
+    serverConfig.setServerAddress(unixfile.toString());
+    Application sample = new SampleApplication();
 
-        server = new JerseyServer(serverConfig, sample);
+    server = new JerseyServer(serverConfig, sample);
 
-        server.start();
-    }
+    server.start();
+  }
 
-    @After
-    public void onTearDown() {
-        server.stop();
-    }
+  @After
+  public void onTearDown() {
+    server.stop();
+  }
 
-    @Test
-    public void ping() {
+  @Test
+  public void ping() {
 
-        Response result = newClient(unixfile).target(URI.create("http://localhost:88")).path("ping").request().get();
+    Response result =
+        newClient(unixfile).target(URI.create("http://localhost:88")).path("ping").request().get();
 
-        assertThat(result.getStatus()).isEqualTo(200);
-        assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
-    }
+    assertThat(result.getStatus()).isEqualTo(200);
+    assertThat(result.readEntity(String.class)).isEqualTo("HEllow");
+  }
 
-    @Test
-    public void create() {
+  @Test
+  public void create() {
 
-        SamplePayload payload = new SamplePayload();
-        payload.setValue("Hellow");
+    SamplePayload payload = new SamplePayload();
+    payload.setValue("Hellow");
 
-        Response result =
-            newClient(unixfile)
-                .target(unixfile)
-                .path("create")
-                .request()
-                .post(Entity.entity(payload, MediaType.APPLICATION_JSON));
+    Response result =
+        newClient(unixfile)
+            .target(unixfile)
+            .path("create")
+            .request()
+            .post(Entity.entity(payload, MediaType.APPLICATION_JSON));
 
-        assertThat(result.getStatus()).isEqualTo(201);
-        assertThat(result.getLocation()).isNotNull();
+    assertThat(result.getStatus()).isEqualTo(201);
+    assertThat(result.getLocation()).isNotNull();
 
-        Response result2 = newClient(unixfile).target(result.getLocation()).request(MediaType.APPLICATION_JSON).get();
+    Response result2 =
+        newClient(unixfile).target(result.getLocation()).request(MediaType.APPLICATION_JSON).get();
 
-        SamplePayload p = result2.readEntity(SamplePayload.class);
-        assertThat(p).isNotNull();
-        assertThat(p.getValue()).isEqualTo("Hellow");
+    SamplePayload p = result2.readEntity(SamplePayload.class);
+    assertThat(p).isNotNull();
+    assertThat(p.getValue()).isEqualTo("Hellow");
 
-        Response result3 = newClient(unixfile).target(unixfile).path(p.getId()).request().delete();
+    Response result3 = newClient(unixfile).target(unixfile).path(p.getId()).request().delete();
 
-        assertThat(result3.getStatus()).isEqualTo(200);
-        SamplePayload deleted = result3.readEntity(SamplePayload.class);
-        assertThat(deleted.getValue()).isEqualTo("Hellow");
-    }
+    assertThat(result3.getStatus()).isEqualTo(200);
+    SamplePayload deleted = result3.readEntity(SamplePayload.class);
+    assertThat(deleted.getValue()).isEqualTo("Hellow");
+  }
 
-    @Test
-    public void raw() {
+  @Test
+  public void raw() {
 
-        ClientConfig config = new ClientConfig();
-        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
-        Response result =
-            newClient(unixfile)
-                .target(unixfile)
-                .path("sendraw")
-                .request()
-                .header("c11n-from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-                .header("c11n-to", "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
-                .post(Entity.entity("PAYLOAD".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
+    ClientConfig config = new ClientConfig();
+    config.connectorProvider(new JerseyUnixSocketConnectorProvider());
+    Response result =
+        newClient(unixfile)
+            .target(unixfile)
+            .path("sendraw")
+            .request()
+            .header("c11n-from", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+            .header("c11n-to", "yGcjkFyZklTTXrn8+WIkYwicA2EGBn9wZFkctAad4X0=")
+            .post(Entity.entity("PAYLOAD".getBytes(), MediaType.APPLICATION_OCTET_STREAM_TYPE));
 
-        assertThat(result.getStatus()).isEqualTo(201);
-    }
+    assertThat(result.getStatus()).isEqualTo(201);
+  }
 
-    @Test
-    public void param() {
-        // URL.setURLStreamHandlerFactory(new UnixSocketURLStreamHandlerFactory());
-        ClientConfig config = new ClientConfig();
-        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
+  @Test
+  public void param() {
+    // URL.setURLStreamHandlerFactory(new UnixSocketURLStreamHandlerFactory());
+    ClientConfig config = new ClientConfig();
+    config.connectorProvider(new JerseyUnixSocketConnectorProvider());
 
-        Response result =
-            newClient(unixfile)
-                .target(unixfile)
-                .path("param")
-                .queryParam("queryParam", "QueryParamValue")
-                .request()
-                .header("headerParam", "HeaderParamValue")
-                .get();
+    Response result =
+        newClient(unixfile)
+            .target(unixfile)
+            .path("param")
+            .queryParam("queryParam", "QueryParamValue")
+            .request()
+            .header("headerParam", "HeaderParamValue")
+            .get();
 
-        assertThat(result.getStatus()).isEqualTo(200);
-    }
+    assertThat(result.getStatus()).isEqualTo(200);
+  }
 
-    private static Client newClient(URI unixfile) {
-        ClientConfig config = new ClientConfig();
-        config.connectorProvider(new JerseyUnixSocketConnectorProvider());
+  private static Client newClient(URI unixfile) {
+    ClientConfig config = new ClientConfig();
+    config.connectorProvider(new JerseyUnixSocketConnectorProvider());
 
-        return ClientBuilder.newClient(config).property("unixfile", unixfile);
-    }
+    return ClientBuilder.newClient(config).property("unixfile", unixfile);
+  }
 }

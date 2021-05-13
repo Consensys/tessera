@@ -1,55 +1,52 @@
 package com.quorum.tessera.config.util;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.JdbcConfig;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ConfigFileStoreTest {
 
-    private ConfigFileStore configFileStore;
+  private ConfigFileStore configFileStore;
 
-    private Path path;
+  private Path path;
 
-    @Before
-    public void onSetUp() throws Exception {
-        this.path = Files.createTempFile(UUID.randomUUID().toString(), ".junit");
+  @Before
+  public void onSetUp() throws Exception {
+    this.path = Files.createTempFile(UUID.randomUUID().toString(), ".junit");
 
-        final URL sampleConfig = getClass().getResource("/sample.json");
-        try (InputStream in = sampleConfig.openStream()) {
-            Config initialConfig = JaxbUtil.unmarshal(in, Config.class);
-            JaxbUtil.marshalWithNoValidation(initialConfig, Files.newOutputStream(path));
-        }
-
-        configFileStore = ConfigFileStore.create(path);
+    final URL sampleConfig = getClass().getResource("/sample.json");
+    try (InputStream in = sampleConfig.openStream()) {
+      Config initialConfig = JaxbUtil.unmarshal(in, Config.class);
+      JaxbUtil.marshalWithNoValidation(initialConfig, Files.newOutputStream(path));
     }
 
-    @Test
-    public void getReturnsSameInstance() {
-        assertThat(ConfigFileStore.get()).isSameAs(configFileStore);
-    }
-    
-    @Test
-    public void save() throws IOException {
-        
-        Config config = new Config();
-        config.setJdbcConfig(new JdbcConfig());
-        config.getJdbcConfig().setUsername("JUNIT");
-        configFileStore.save(config);
+    configFileStore = ConfigFileStore.create(path);
+  }
 
-        Config result = JaxbUtil.unmarshal(Files.newInputStream(path), Config.class);
-        
-        assertThat(result.getJdbcConfig().getUsername()).isEqualTo("JUNIT");
-        
-    }
+  @Test
+  public void getReturnsSameInstance() {
+    assertThat(ConfigFileStore.get()).isSameAs(configFileStore);
+  }
 
+  @Test
+  public void save() throws IOException {
+
+    Config config = new Config();
+    config.setJdbcConfig(new JdbcConfig());
+    config.getJdbcConfig().setUsername("JUNIT");
+    configFileStore.save(config);
+
+    Config result = JaxbUtil.unmarshal(Files.newInputStream(path), Config.class);
+
+    assertThat(result.getJdbcConfig().getUsername()).isEqualTo("JUNIT");
+  }
 }

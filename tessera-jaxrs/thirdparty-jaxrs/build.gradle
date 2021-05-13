@@ -1,46 +1,48 @@
 plugins {
-    id 'io.swagger.core.v3.swagger-gradle-plugin' version "$swaggerVersion"
+  id 'io.swagger.core.v3.swagger-gradle-plugin' version "$swaggerVersion"
 }
 
 dependencies {
-    compile project(':config')
-    compile project(':tessera-core')
-    compile project(':tessera-partyinfo')
-    compile project(':encryption:encryption-api')
-    compile project(':tessera-jaxrs:common-jaxrs')
-    implementation project(':tessera-jaxrs:partyinfo-model')
-    compile 'io.swagger.core.v3:swagger-annotations'
-    compile 'javax.ws.rs:javax.ws.rs-api'
-    compile 'org.glassfish:javax.json'
+  compile project(':config')
+  compile project(':tessera-core')
+  compile project(':tessera-partyinfo')
+  compile project(':encryption:encryption-api')
+  compile project(':tessera-jaxrs:common-jaxrs')
+  implementation project(':tessera-jaxrs:partyinfo-model')
+  compile 'io.swagger.core.v3:swagger-annotations'
+  compile 'javax.ws.rs:javax.ws.rs-api'
+  compile 'org.glassfish:javax.json'
 
-    testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
-    testRuntimeOnly "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
-    testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-json-processing'
-    testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-moxy'
-    testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2:2.27"
+  testCompile "org.glassfish.jersey.test-framework:jersey-test-framework-core"
+  testRuntimeOnly "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
+  testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-json-processing'
+  testRuntimeOnly 'org.glassfish.jersey.media:jersey-media-moxy'
+  testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2:2.27"
 
-    compile project(':service-locator:service-locator-api')
-    runtimeOnly project(':service-locator:service-locator-spring')
-    testImplementation project(':test-utils:mock-service-locator')
+  compile project(':service-locator:service-locator-api')
+  runtimeOnly project(':service-locator:service-locator-spring')
+  testImplementation project(':test-utils:mock-service-locator')
 }
 
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
 resolve {
-    classpath = sourceSets.main.runtimeClasspath
-    outputDir = file(generatedResources)
-    outputFileName = 'openapi.thirdparty'
-    outputFormat = 'JSONANDYAML'
-    prettyPrint = 'TRUE'
-    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-thirdparty.yaml")
-    resourcePackages = [
-            'com.quorum.tessera.api.common',
-            'com.quorum.tessera.p2p',
-            'com.quorum.tessera.thirdparty',
-            'com.quorum.tessera.q2t'
-    ]
-    modelConverterClasses = ['com.quorum.tessera.openapi.FullyQualifiedNameResolver']
-    filterClass = 'com.quorum.tessera.openapi.ThirdPartyOperationsFilter'
+  classpath = sourceSets.main.runtimeClasspath
+  outputDir = file(generatedResources)
+  outputFileName = 'openapi.thirdparty'
+  outputFormat = 'JSONANDYAML'
+  prettyPrint = 'TRUE'
+  openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-thirdparty.yaml")
+  resourcePackages = [
+    'com.quorum.tessera.api.common',
+    'com.quorum.tessera.p2p',
+    'com.quorum.tessera.thirdparty',
+    'com.quorum.tessera.q2t'
+  ]
+  modelConverterClasses = [
+    'com.quorum.tessera.openapi.FullyQualifiedNameResolver'
+  ]
+  filterClass = 'com.quorum.tessera.openapi.ThirdPartyOperationsFilter'
 }
 
 sourceSets.main.output.dir(generatedResources)

@@ -10,20 +10,20 @@ import org.junit.Test;
 
 public class OpenPojoEntityTest {
 
-    @Test
-    public void executeOpenPojoValidationsWithSetter() {
+  @Test
+  public void executeOpenPojoValidationsWithSetter() {
 
-        final Validator pojoValidator =
-                ValidatorBuilder.create()
-                        .with(new GetterMustExistRule())
-                        .with(new SetterMustExistRule())
-                        .with(new SetterTester())
-                        .with(new GetterTester())
-                        .with(new EqualsAndHashCodeMatchRule())
-                        .with(new NoPrimitivesRule())
-                        .with(new NoPublicFieldsExceptStaticFinalRule())
-                        .build();
+    final Validator pojoValidator =
+        ValidatorBuilder.create()
+            .with(new GetterMustExistRule())
+            .with(new SetterMustExistRule())
+            .with(new SetterTester())
+            .with(new GetterTester())
+            .with(new EqualsAndHashCodeMatchRule())
+            .with(new NoPrimitivesRule())
+            .with(new NoPublicFieldsExceptStaticFinalRule())
+            .build();
 
-        pojoValidator.validate(PojoClassFactory.getPojoClass(MessageHash.class));
-    }
+    pojoValidator.validate(PojoClassFactory.getPojoClass(MessageHash.class));
+  }
 }

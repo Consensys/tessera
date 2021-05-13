@@ -5,14 +5,13 @@ import java.util.stream.Stream;
 
 public interface NetworkStore {
 
-    NetworkStore store(ActiveNode activeNode);
+  NetworkStore store(ActiveNode activeNode);
 
-    NetworkStore remove(NodeUri nodeUri);
+  NetworkStore remove(NodeUri nodeUri);
 
-    Stream<ActiveNode> getActiveNodes();
+  Stream<ActiveNode> getActiveNodes();
 
-    static NetworkStore getInstance() {
-        return ServiceLoader.load(NetworkStore.class).findFirst().get();
-    }
-
+  static NetworkStore getInstance() {
+    return ServiceLoader.load(NetworkStore.class).findFirst().get();
+  }
 }

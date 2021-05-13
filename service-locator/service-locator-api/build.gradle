@@ -3,7 +3,7 @@
  */
 
 dependencies {
-    implementation project(':shared')
+  implementation project(':shared')
 }
 
 description = 'service-locator-api'

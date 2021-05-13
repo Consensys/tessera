@@ -1,70 +1,66 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
-    id 'java'
+  id 'com.github.johnrengelman.shadow'
+  id 'java'
 }
 
 dependencyCheck {
-    failBuildOnCVSS = 11
+  failBuildOnCVSS = 11
 }
 
 dependencies {
-    compile project(':tessera-dist:tessera-launcher')
-    compile project(':key-vault:azure-key-vault')
-    compile project(':key-vault:hashicorp-key-vault')
-    compile project(':key-vault:aws-key-vault')
+  compile project(':tessera-dist:tessera-launcher')
+  compile project(':key-vault:azure-key-vault')
+  compile project(':key-vault:hashicorp-key-vault')
+  compile project(':key-vault:aws-key-vault')
 
-    compile "com.h2database:h2"
-    compile project(':config')
-    compile project(':argon2')
-    compile project(':encryption:encryption-api')
-    compile project(':security')
-    compile project(':server:server-api')
-    compile project(':service-locator:service-locator-api')
-    compile project(':tessera-core')
-    compile project(':cli:cli-api')
-    compile project(':cli:config-cli')
-    runtimeOnly project(':tessera-jaxrs:sync-jaxrs')
-    runtimeOnly project(':tessera-jaxrs:transaction-jaxrs')
-    runtimeOnly project(':tessera-jaxrs:thirdparty-jaxrs')
-    compile project(':enclave:enclave-jaxrs')
-    compile project(':service-locator:service-locator-spring')
-    compile 'org.slf4j:jcl-over-slf4j:1.7.5'
-    compile 'org.slf4j:jul-to-slf4j:1.7.5'
-    compile project(':server:jersey-server')
-    compile 'org.glassfish.jersey.media:jersey-media-json-processing:2.27'
-    compile project(':encryption:encryption-jnacl')
+  compile "com.h2database:h2"
+  compile project(':config')
+  compile project(':argon2')
+  compile project(':encryption:encryption-api')
+  compile project(':security')
+  compile project(':server:server-api')
+  compile project(':service-locator:service-locator-api')
+  compile project(':tessera-core')
+  compile project(':cli:cli-api')
+  compile project(':cli:config-cli')
+  runtimeOnly project(':tessera-jaxrs:sync-jaxrs')
+  runtimeOnly project(':tessera-jaxrs:transaction-jaxrs')
+  runtimeOnly project(':tessera-jaxrs:thirdparty-jaxrs')
+  compile project(':enclave:enclave-jaxrs')
+  compile project(':service-locator:service-locator-spring')
+  compile 'org.slf4j:jcl-over-slf4j:1.7.5'
+  compile 'org.slf4j:jul-to-slf4j:1.7.5'
+  compile project(':server:jersey-server')
+  compile 'org.glassfish.jersey.media:jersey-media-json-processing:2.27'
+  compile project(':encryption:encryption-jnacl')
 
-    compile "org.bouncycastle:bcpkix-jdk15on"
-
+  compile "org.bouncycastle:bcpkix-jdk15on"
 }
 
 import com.github.jengelman.gradle.plugins.shadow.transformers.*
 shadowJar {
-    classifier = 'app'
+  classifier = 'app'
 
-    mergeServiceFiles()
-    append 'META-INF/spring.handlers'
-    append 'META-INF/spring.schemas'
-    append 'META-INF/spring.tooling'
-    transform(PropertiesFileTransformer) {
-        paths = ['META-INF/spring.factories' ]
-        mergeStrategy = "append"
-    }
-    manifest {
-        inheritFrom project.tasks.jar.manifest
-    }
-
+  mergeServiceFiles()
+  append 'META-INF/spring.handlers'
+  append 'META-INF/spring.schemas'
+  append 'META-INF/spring.tooling'
+  transform(PropertiesFileTransformer) {
+    paths = ['META-INF/spring.factories']
+    mergeStrategy = "append"
+  }
+  manifest {
+    inheritFrom project.tasks.jar.manifest
+  }
 }
 
 jar {
-    manifest {
-        attributes 'Tessera-Version': version,
-                "Implementation-Version": version,
-                'Specification-Version' : String.valueOf(version),
-                'Main-Class' : 'com.quorum.tessera.launcher.Main'
-
-    }
+  manifest {
+    attributes 'Tessera-Version': version,
+    "Implementation-Version": version,
+    'Specification-Version' : String.valueOf(version),
+    'Main-Class' : 'com.quorum.tessera.launcher.Main'
+  }
 }
 
 build.dependsOn shadowJar
-

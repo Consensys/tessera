@@ -8,8 +8,5 @@ import org.junit.runner.RunWith;
 @CucumberOptions(
     features = "classpath:features/transaction.feature",
     monochrome = true,
-    plugin = {"progress"}
-)
-public abstract class CucumberTestCase {
-    
-}
+    plugin = {"progress"})
+public abstract class CucumberTestCase {}

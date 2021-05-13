@@ -1,5 +1,12 @@
 package com.quorum.tessera.recovery.workflow;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalMatchers.gt;
+import static org.mockito.AdditionalMatchers.lt;
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.JdbcConfig;
@@ -16,262 +23,267 @@ import com.quorum.tessera.recovery.resend.*;
 import com.quorum.tessera.service.Service;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.util.Base64Codec;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.mockito.AdditionalMatchers.gt;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
-import static java.util.Collections.emptyMap;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.AdditionalMatchers.lt;
-import static org.mockito.Mockito.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class BatchResendManagerTest {
 
-    private PayloadEncoder payloadEncoder;
+  private PayloadEncoder payloadEncoder;
 
-    private Enclave enclave;
+  private Enclave enclave;
 
-    private TransactionManager resendStoreDelegate;
+  private TransactionManager resendStoreDelegate;
 
-    private StagingEntityDAO stagingEntityDAO;
+  private StagingEntityDAO stagingEntityDAO;
 
-    private EncryptedTransactionDAO encryptedTransactionDAO;
+  private EncryptedTransactionDAO encryptedTransactionDAO;
 
-    private Discovery discovery;
+  private Discovery discovery;
 
-    private BatchResendManager manager;
+  private BatchResendManager manager;
 
-    private ResendBatchPublisher resendBatchPublisher;
+  private ResendBatchPublisher resendBatchPublisher;
 
-    private static final String KEY_STRING = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
+  private static final String KEY_STRING = "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=";
 
-    private final PublicKey publicKey = PublicKey.from(Base64Codec.create().decode(KEY_STRING));
+  private final PublicKey publicKey = PublicKey.from(Base64Codec.create().decode(KEY_STRING));
 
-    @Before
-    public void init() {
-        payloadEncoder = mock(PayloadEncoder.class);
-        enclave = mock(Enclave.class);
-        resendStoreDelegate = mock(TransactionManager.class);
-        stagingEntityDAO = mock(StagingEntityDAO.class);
-        encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
-        discovery = mock(Discovery.class);
-        resendBatchPublisher = mock(ResendBatchPublisher.class);
+  @Before
+  public void init() {
+    payloadEncoder = mock(PayloadEncoder.class);
+    enclave = mock(Enclave.class);
+    resendStoreDelegate = mock(TransactionManager.class);
+    stagingEntityDAO = mock(StagingEntityDAO.class);
+    encryptedTransactionDAO = mock(EncryptedTransactionDAO.class);
+    discovery = mock(Discovery.class);
+    resendBatchPublisher = mock(ResendBatchPublisher.class);
 
-        manager =
-                new BatchResendManagerImpl(
-                        payloadEncoder,
-                        Base64Codec.create(),
-                        enclave,
-                        stagingEntityDAO,
-                        encryptedTransactionDAO,
-                        discovery,
-                        resendBatchPublisher,
-                        5);
+    manager =
+        new BatchResendManagerImpl(
+            payloadEncoder,
+            Base64Codec.create(),
+            enclave,
+            stagingEntityDAO,
+            encryptedTransactionDAO,
+            discovery,
+            resendBatchPublisher,
+            5);
 
-        when(enclave.status()).thenReturn(Service.Status.STARTED);
+    when(enclave.status()).thenReturn(Service.Status.STARTED);
 
-        final PublicKey publicKey =
-                PublicKey.from(Base64Codec.create().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="));
-        when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
+    final PublicKey publicKey =
+        PublicKey.from(Base64Codec.create().decode("BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo="));
+    when(enclave.getPublicKeys()).thenReturn(Collections.singleton(publicKey));
 
-        MockBatchWorkflowFactory.resendBatchPublisher = resendBatchPublisher;
-    }
+    MockBatchWorkflowFactory.resendBatchPublisher = resendBatchPublisher;
+  }
 
-    @After
-    public void tearDown() {
-        verifyNoMoreInteractions(payloadEncoder);
-        verifyNoMoreInteractions(enclave);
-        verifyNoMoreInteractions(resendStoreDelegate);
-        verifyNoMoreInteractions(stagingEntityDAO);
-        verifyNoMoreInteractions(encryptedTransactionDAO);
-        verifyNoMoreInteractions(discovery);
-        verifyNoMoreInteractions(resendBatchPublisher);
-        MockBatchWorkflowFactory.reset();
-    }
+  @After
+  public void tearDown() {
+    verifyNoMoreInteractions(payloadEncoder);
+    verifyNoMoreInteractions(enclave);
+    verifyNoMoreInteractions(resendStoreDelegate);
+    verifyNoMoreInteractions(stagingEntityDAO);
+    verifyNoMoreInteractions(encryptedTransactionDAO);
+    verifyNoMoreInteractions(discovery);
+    verifyNoMoreInteractions(resendBatchPublisher);
+    MockBatchWorkflowFactory.reset();
+  }
 
-    @Test
-    public void resendBatch() {
+  @Test
+  public void resendBatch() {
 
-        final ResendBatchRequest request =
-                ResendBatchRequest.Builder.create().withBatchSize(3).withPublicKey(KEY_STRING).build();
+    final ResendBatchRequest request =
+        ResendBatchRequest.Builder.create().withBatchSize(3).withPublicKey(KEY_STRING).build();
 
-        List<EncryptedTransaction> transactions =
-                IntStream.range(0, 5)
-                        .mapToObj(i -> mock(EncryptedTransaction.class))
-                        .collect(Collectors.toUnmodifiableList());
+    List<EncryptedTransaction> transactions =
+        IntStream.range(0, 5)
+            .mapToObj(i -> mock(EncryptedTransaction.class))
+            .collect(Collectors.toUnmodifiableList());
 
-        when(encryptedTransactionDAO.transactionCount()).thenReturn(101L);
-        MockBatchWorkflowFactory.transactionCount = 101L;
+    when(encryptedTransactionDAO.transactionCount()).thenReturn(101L);
+    MockBatchWorkflowFactory.transactionCount = 101L;
 
-        when(encryptedTransactionDAO.retrieveTransactions(lt(100), anyInt())).thenReturn(transactions);
-        when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
-                .thenReturn(singletonList(mock(EncryptedTransaction.class)));
+    when(encryptedTransactionDAO.retrieveTransactions(lt(100), anyInt())).thenReturn(transactions);
+    when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
+        .thenReturn(singletonList(mock(EncryptedTransaction.class)));
 
-        final EncodedPayload toPublish = mock(EncodedPayload.class);
-        final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
-        batchWorkflow.setSinglePayloadToPublish(toPublish);
+    final EncodedPayload toPublish = mock(EncodedPayload.class);
+    final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow =
+        MockBatchWorkflowFactory.getWorkflow();
+    batchWorkflow.setSinglePayloadToPublish(toPublish);
 
-        final ResendBatchResponse result = manager.resendBatch(request);
+    final ResendBatchResponse result = manager.resendBatch(request);
 
-        assertThat(MockBatchWorkflowFactory.getExecuteInvocationCounter()).isEqualTo(101);
-        assertThat(batchWorkflow.getPublishedMessageCount()).isEqualTo(101);
+    assertThat(MockBatchWorkflowFactory.getExecuteInvocationCounter()).isEqualTo(101);
+    assertThat(batchWorkflow.getPublishedMessageCount()).isEqualTo(101);
 
-        assertThat(result.getTotal()).isEqualTo(101L);
+    assertThat(result.getTotal()).isEqualTo(101L);
 
-        verify(encryptedTransactionDAO, times(21)).retrieveTransactions(anyInt(), anyInt());
-        verify(encryptedTransactionDAO).transactionCount();
-        verify(resendBatchPublisher, times(34)).publishBatch(any(), any());
-    }
+    verify(encryptedTransactionDAO, times(21)).retrieveTransactions(anyInt(), anyInt());
+    verify(encryptedTransactionDAO).transactionCount();
+    verify(resendBatchPublisher, times(34)).publishBatch(any(), any());
+  }
 
-    @Test
-    public void useMaxResultsWhenBatchSizeNotProvided() {
-        final EncodedPayload toPublish = mock(EncodedPayload.class);
+  @Test
+  public void useMaxResultsWhenBatchSizeNotProvided() {
+    final EncodedPayload toPublish = mock(EncodedPayload.class);
 
-        final ResendBatchRequest request = ResendBatchRequest.Builder.create().withPublicKey(KEY_STRING).build();
+    final ResendBatchRequest request =
+        ResendBatchRequest.Builder.create().withPublicKey(KEY_STRING).build();
 
-        List<EncryptedTransaction> transactions =
-                IntStream.range(0, 5)
-                        .mapToObj(i -> mock(EncryptedTransaction.class))
-                        .collect(Collectors.toUnmodifiableList());
+    List<EncryptedTransaction> transactions =
+        IntStream.range(0, 5)
+            .mapToObj(i -> mock(EncryptedTransaction.class))
+            .collect(Collectors.toUnmodifiableList());
 
-        when(encryptedTransactionDAO.transactionCount()).thenReturn(101L);
-        MockBatchWorkflowFactory.transactionCount = 101L;
+    when(encryptedTransactionDAO.transactionCount()).thenReturn(101L);
+    MockBatchWorkflowFactory.transactionCount = 101L;
+
+    when(encryptedTransactionDAO.retrieveTransactions(lt(100), anyInt())).thenReturn(transactions);
+    when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
+        .thenReturn(singletonList(mock(EncryptedTransaction.class)));
 
-        when(encryptedTransactionDAO.retrieveTransactions(lt(100), anyInt())).thenReturn(transactions);
-        when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
-                .thenReturn(singletonList(mock(EncryptedTransaction.class)));
+    final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow =
+        MockBatchWorkflowFactory.getWorkflow();
+    batchWorkflow.setSinglePayloadToPublish(toPublish);
 
-        final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
-        batchWorkflow.setSinglePayloadToPublish(toPublish);
+    final ResendBatchResponse result = manager.resendBatch(request);
 
-        final ResendBatchResponse result = manager.resendBatch(request);
+    assertThat(MockBatchWorkflowFactory.getExecuteInvocationCounter()).isEqualTo(101);
+    assertThat(batchWorkflow.getPublishedMessageCount()).isEqualTo(101);
 
-        assertThat(MockBatchWorkflowFactory.getExecuteInvocationCounter()).isEqualTo(101);
-        assertThat(batchWorkflow.getPublishedMessageCount()).isEqualTo(101);
+    assertThat(result.getTotal()).isEqualTo(101L);
 
-        assertThat(result.getTotal()).isEqualTo(101L);
+    verify(encryptedTransactionDAO, times(21)).retrieveTransactions(anyInt(), anyInt());
+    verify(encryptedTransactionDAO).transactionCount();
+    verify(resendBatchPublisher, times(21)).publishBatch(any(), any());
+  }
 
-        verify(encryptedTransactionDAO, times(21)).retrieveTransactions(anyInt(), anyInt());
-        verify(encryptedTransactionDAO).transactionCount();
-        verify(resendBatchPublisher, times(21)).publishBatch(any(), any());
-    }
+  @Test
+  public void useMaxResultsAlsoWhenBatchSizeTooLarge() {
+
+    final ResendBatchRequest request =
+        ResendBatchRequest.Builder.create()
+            .withBatchSize(10000000)
+            .withPublicKey(KEY_STRING)
+            .build();
 
-    @Test
-    public void useMaxResultsAlsoWhenBatchSizeTooLarge() {
+    List<EncryptedTransaction> transactions =
+        IntStream.range(0, 5)
+            .mapToObj(i -> mock(EncryptedTransaction.class))
+            .collect(Collectors.toUnmodifiableList());
 
-        final ResendBatchRequest request =
-                ResendBatchRequest.Builder.create().withBatchSize(10000000).withPublicKey(KEY_STRING).build();
+    when(encryptedTransactionDAO.transactionCount()).thenReturn(101L);
+    MockBatchWorkflowFactory.transactionCount = 101L;
 
-        List<EncryptedTransaction> transactions =
-                IntStream.range(0, 5)
-                        .mapToObj(i -> mock(EncryptedTransaction.class))
-                        .collect(Collectors.toUnmodifiableList());
+    when(encryptedTransactionDAO.retrieveTransactions(lt(100), anyInt())).thenReturn(transactions);
+    when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
+        .thenReturn(singletonList(mock(EncryptedTransaction.class)));
 
-        when(encryptedTransactionDAO.transactionCount()).thenReturn(101L);
-        MockBatchWorkflowFactory.transactionCount = 101L;
+    final EncodedPayload toPublish = mock(EncodedPayload.class);
+    final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow =
+        MockBatchWorkflowFactory.getWorkflow();
+    batchWorkflow.setSinglePayloadToPublish(toPublish);
 
-        when(encryptedTransactionDAO.retrieveTransactions(lt(100), anyInt())).thenReturn(transactions);
-        when(encryptedTransactionDAO.retrieveTransactions(gt(99), anyInt()))
-                .thenReturn(singletonList(mock(EncryptedTransaction.class)));
+    final ResendBatchResponse result = manager.resendBatch(request);
 
-        final EncodedPayload toPublish = mock(EncodedPayload.class);
-        final MockBatchWorkflowFactory.SimpleBatchWorkflow batchWorkflow = MockBatchWorkflowFactory.getWorkflow();
-        batchWorkflow.setSinglePayloadToPublish(toPublish);
+    assertThat(MockBatchWorkflowFactory.getExecuteInvocationCounter()).isEqualTo(101);
+    assertThat(batchWorkflow.getPublishedMessageCount()).isEqualTo(101);
 
-        final ResendBatchResponse result = manager.resendBatch(request);
+    assertThat(result.getTotal()).isEqualTo(101L);
 
-        assertThat(MockBatchWorkflowFactory.getExecuteInvocationCounter()).isEqualTo(101);
-        assertThat(batchWorkflow.getPublishedMessageCount()).isEqualTo(101);
+    verify(encryptedTransactionDAO, times(21)).retrieveTransactions(anyInt(), anyInt());
+    verify(encryptedTransactionDAO).transactionCount();
+    verify(resendBatchPublisher, times(21)).publishBatch(any(), any());
+  }
 
-        assertThat(result.getTotal()).isEqualTo(101L);
+  @Test
+  public void createWithMinimalConstructor() {
+    assertThat(
+            new BatchResendManagerImpl(
+                enclave,
+                stagingEntityDAO,
+                encryptedTransactionDAO,
+                discovery,
+                resendBatchPublisher,
+                1))
+        .isNotNull();
+  }
 
-        verify(encryptedTransactionDAO, times(21)).retrieveTransactions(anyInt(), anyInt());
-        verify(encryptedTransactionDAO).transactionCount();
-        verify(resendBatchPublisher, times(21)).publishBatch(any(), any());
-    }
+  @Test
+  public void calculateBatchCount() {
+    long numberOfRecords = 10;
+    long maxResults = 3;
 
-    @Test
-    public void createWithMinimalConstructor() {
-        assertThat(
-                        new BatchResendManagerImpl(
-                                enclave, stagingEntityDAO, encryptedTransactionDAO, discovery, resendBatchPublisher, 1))
-                .isNotNull();
-    }
+    int batchCount = BatchResendManagerImpl.calculateBatchCount(maxResults, numberOfRecords);
 
-    @Test
-    public void calculateBatchCount() {
-        long numberOfRecords = 10;
-        long maxResults = 3;
+    assertThat(batchCount).isEqualTo(4);
+  }
 
-        int batchCount = BatchResendManagerImpl.calculateBatchCount(maxResults, numberOfRecords);
+  @Test
+  public void calculateBatchCountTotalLowerThanBatchSizeIsSingleBatch() {
+    long numberOfRecords = 100;
+    long maxResults = 10;
 
-        assertThat(batchCount).isEqualTo(4);
-    }
+    int batchCount = BatchResendManagerImpl.calculateBatchCount(maxResults, numberOfRecords);
 
-    @Test
-    public void calculateBatchCountTotalLowerThanBatchSizeIsSingleBatch() {
-        long numberOfRecords = 100;
-        long maxResults = 10;
+    assertThat(batchCount).isEqualTo(10);
+  }
 
-        int batchCount = BatchResendManagerImpl.calculateBatchCount(maxResults, numberOfRecords);
+  @Test
+  public void createBatchResendManager() {
+    Config config = mock(Config.class);
+    JdbcConfig jdbcConfig = mock(JdbcConfig.class);
+    when(jdbcConfig.getUsername()).thenReturn("junit");
+    when(jdbcConfig.getPassword()).thenReturn("");
+    when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:test");
+    when(config.getJdbcConfig()).thenReturn(jdbcConfig);
 
-        assertThat(batchCount).isEqualTo(10);
-    }
+    ServerConfig serverConfig = mock(ServerConfig.class);
+    when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
 
-    @Test
-    public void createBatchResendManager() {
-        Config config = mock(Config.class);
-        JdbcConfig jdbcConfig = mock(JdbcConfig.class);
-        when(jdbcConfig.getUsername()).thenReturn("junit");
-        when(jdbcConfig.getPassword()).thenReturn("");
-        when(jdbcConfig.getUrl()).thenReturn("jdbc:h2:mem:test");
-        when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+    when(config.getP2PServerConfig()).thenReturn(serverConfig);
 
-        ServerConfig serverConfig = mock(ServerConfig.class);
-        when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
+    BatchResendManager result = BatchResendManager.create(config);
 
-        when(config.getP2PServerConfig()).thenReturn(serverConfig);
+    assertThat(result).isNotNull();
+  }
 
-        BatchResendManager result = BatchResendManager.create(config);
+  @Test
+  public void testStoreResendBatchMultipleVersions() {
 
-        assertThat(result).isNotNull();
-    }
+    final EncodedPayload encodedPayload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(publicKey)
+            .withCipherText("cipherText".getBytes())
+            .withCipherTextNonce(new Nonce("nonce".getBytes()))
+            .withRecipientBoxes(singletonList("box".getBytes()))
+            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+            .withRecipientKeys(singletonList(PublicKey.from("receiverKey".getBytes())))
+            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withAffectedContractTransactions(emptyMap())
+            .withExecHash(new byte[0])
+            .build();
 
-    @Test
-    public void testStoreResendBatchMultipleVersions() {
+    final byte[] raw = new PayloadEncoderImpl().encode(encodedPayload);
 
-        final EncodedPayload encodedPayload =
-                EncodedPayload.Builder.create()
-                        .withSenderKey(publicKey)
-                        .withCipherText("cipherText".getBytes())
-                        .withCipherTextNonce(new Nonce("nonce".getBytes()))
-                        .withRecipientBoxes(singletonList("box".getBytes()))
-                        .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-                        .withRecipientKeys(singletonList(PublicKey.from("receiverKey".getBytes())))
-                        .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-                        .withAffectedContractTransactions(emptyMap())
-                        .withExecHash(new byte[0])
-                        .build();
+    PushBatchRequest request = PushBatchRequest.from(List.of(raw));
 
-        final byte[] raw = new PayloadEncoderImpl().encode(encodedPayload);
+    StagingTransaction existing = new StagingTransaction();
 
-        PushBatchRequest request = PushBatchRequest.from(List.of(raw));
+    when(stagingEntityDAO.retrieveByHash(any())).thenReturn(Optional.of(existing));
+    when(stagingEntityDAO.update(any(StagingTransaction.class)))
+        .thenReturn(new StagingTransaction());
 
-        StagingTransaction existing = new StagingTransaction();
+    manager.storeResendBatch(request);
 
-        when(stagingEntityDAO.retrieveByHash(any())).thenReturn(Optional.of(existing));
-        when(stagingEntityDAO.update(any(StagingTransaction.class))).thenReturn(new StagingTransaction());
-
-        manager.storeResendBatch(request);
-
-        verify(stagingEntityDAO).save(any(StagingTransaction.class));
-    }
+    verify(stagingEntityDAO).save(any(StagingTransaction.class));
+  }
 }

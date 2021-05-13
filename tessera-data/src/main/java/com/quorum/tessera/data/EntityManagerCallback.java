@@ -5,5 +5,5 @@ import javax.persistence.PersistenceException;
 
 public interface EntityManagerCallback<T> {
 
-    T execute(EntityManager entityManager) throws PersistenceException;
+  T execute(EntityManager entityManager) throws PersistenceException;
 }

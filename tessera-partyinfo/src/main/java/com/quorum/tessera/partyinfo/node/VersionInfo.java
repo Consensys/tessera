@@ -4,9 +4,9 @@ import java.util.Set;
 
 public interface VersionInfo {
 
-    Set<String> supportedApiVersions();
+  Set<String> supportedApiVersions();
 
-    static VersionInfo from(Set<String> versions) {
-        return () -> versions;
-    }
+  static VersionInfo from(Set<String> versions) {
+    return () -> versions;
+  }
 }

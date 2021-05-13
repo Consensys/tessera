@@ -6,17 +6,16 @@ import org.slf4j.LoggerFactory;
 @FunctionalInterface
 public interface ReflectCallback<T> {
 
-    Logger LOGGER = LoggerFactory.getLogger(ReflectCallback.class);
+  Logger LOGGER = LoggerFactory.getLogger(ReflectCallback.class);
 
-    T doExecute() throws ReflectiveOperationException;
+  T doExecute() throws ReflectiveOperationException;
 
-    static <T> T execute(ReflectCallback<T> callback) {
-        try {
-            return callback.doExecute();
-        } catch (ReflectiveOperationException ex) {
-            LOGGER.error(null, ex);
-            throw new ReflectException(ex);
-        }
+  static <T> T execute(ReflectCallback<T> callback) {
+    try {
+      return callback.doExecute();
+    } catch (ReflectiveOperationException ex) {
+      LOGGER.error(null, ex);
+      throw new ReflectException(ex);
     }
-
+  }
 }

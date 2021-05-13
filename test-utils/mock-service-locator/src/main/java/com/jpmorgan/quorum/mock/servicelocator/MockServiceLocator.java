@@ -8,18 +8,18 @@ import java.util.Set;
 @Default
 public class MockServiceLocator implements com.quorum.tessera.service.locator.ServiceLocator {
 
-    private static Set<Object> services = Collections.EMPTY_SET;
+  private static Set<Object> services = Collections.EMPTY_SET;
 
-    public void setServices(Set<Object> s) {
-        services = s;
-    }
+  public void setServices(Set<Object> s) {
+    services = s;
+  }
 
-    @Override
-    public Set<Object> getServices() {
-        return services;
-    }
+  @Override
+  public Set<Object> getServices() {
+    return services;
+  }
 
-    public static MockServiceLocator createMockServiceLocator() {
-        return MockServiceLocator.class.cast(ServiceLocator.create());
-    }
+  public static MockServiceLocator createMockServiceLocator() {
+    return MockServiceLocator.class.cast(ServiceLocator.create());
+  }
 }

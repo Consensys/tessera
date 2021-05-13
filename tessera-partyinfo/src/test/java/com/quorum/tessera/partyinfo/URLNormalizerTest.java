@@ -1,30 +1,28 @@
 package com.quorum.tessera.partyinfo;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.*;
 
+import org.junit.Test;
 
 public class URLNormalizerTest {
 
-    @Test
-    public void testTrailingSlash() {
+  @Test
+  public void testTrailingSlash() {
 
-        final String url1 = "http://someurl:8080";
-        final String url2 = "http://someurl:8080/";
+    final String url1 = "http://someurl:8080";
+    final String url2 = "http://someurl:8080/";
 
-        assertThat(URLNormalizer.create().normalize(url1))
-            .isEqualTo(URLNormalizer.create().normalize(url2));
+    assertThat(URLNormalizer.create().normalize(url1))
+        .isEqualTo(URLNormalizer.create().normalize(url2));
+  }
 
-    }
+  @Test
+  public void testInvalidUrl() {
+    final String invalid = "!@£%$^";
 
-    @Test
-    public void testInvalidUrl() {
-        final String invalid = "!@£%$^";
+    Throwable ex = catchThrowable(() -> URLNormalizer.create().normalize(invalid));
 
-        Throwable ex = catchThrowable(() -> URLNormalizer.create().normalize(invalid));
-
-        assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
-        assertThat(ex).hasMessage("Invalid URL " + invalid);
-    }
+    assertThat(ex).isExactlyInstanceOf(RuntimeException.class);
+    assertThat(ex).hasMessage("Invalid URL " + invalid);
+  }
 }

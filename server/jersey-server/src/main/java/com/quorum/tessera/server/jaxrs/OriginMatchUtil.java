@@ -7,28 +7,28 @@ import java.util.stream.Collectors;
 
 public class OriginMatchUtil {
 
-    private final List<String> tokens;
+  private final List<String> tokens;
 
-    private final Predicate<String> wildcardMatch = s -> s.equals("*");
+  private final Predicate<String> wildcardMatch = s -> s.equals("*");
 
-    public OriginMatchUtil(List<String> tokens) {
-        this.tokens = tokens.stream()
+  public OriginMatchUtil(List<String> tokens) {
+    this.tokens =
+        tokens.stream()
             .map(String::toLowerCase)
             .map(s -> ("\\Q" + s + "\\E"))
             .map(s -> s.replace("*", "\\E.*\\Q"))
             .collect(Collectors.toList());
+  }
+
+  public boolean matches(String origin) {
+
+    if (Objects.isNull(origin) || Objects.equals("", origin)) {
+      return false;
     }
 
-    public boolean matches(String origin) {
-        
-        if(Objects.isNull(origin) || Objects.equals("", origin)) {
-            return false;
-        }
+    Predicate<String> subdomainMatch = s -> origin.toLowerCase().matches(s);
+    Predicate<String> matchingCritera = wildcardMatch.or(subdomainMatch);
 
-        Predicate<String> subdomainMatch = s -> origin.toLowerCase().matches(s);
-        Predicate<String> matchingCritera = wildcardMatch.or(subdomainMatch);
-
-        return tokens.stream().anyMatch(matchingCritera);
-    }
-
+    return tokens.stream().anyMatch(matchingCritera);
+  }
 }

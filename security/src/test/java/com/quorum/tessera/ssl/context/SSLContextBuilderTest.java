@@ -1,17 +1,12 @@
 package com.quorum.tessera.ssl.context;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.ssl.trust.CompositeTrustManager;
 import com.quorum.tessera.ssl.trust.TrustAllManager;
 import com.quorum.tessera.ssl.trust.TrustOnFirstUseManager;
 import com.quorum.tessera.ssl.trust.WhiteListTrustManager;
 import com.quorum.tessera.ssl.util.TlsUtils;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -21,176 +16,186 @@ import java.security.*;
 import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.net.ssl.SSLContext;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class SSLContextBuilderTest {
 
-    @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
+  @Rule public TemporaryFolder tmpDir = new TemporaryFolder();
 
-    private Path keyStoreFile;
+  private Path keyStoreFile;
 
-    private Path knownHostFile;
+  private Path knownHostFile;
 
-    private Path key;
+  private Path key;
 
-    private Path certificate;
+  private Path certificate;
 
-    private List<Path> trustedCertificates;
+  private List<Path> trustedCertificates;
 
-    private static final char[] PASSWORD = "quorum".toCharArray();
+  private static final char[] PASSWORD = "quorum".toCharArray();
 
-    private static final String LOCALHOST = "localhost";
+  private static final String LOCALHOST = "localhost";
 
-    private SSLContextBuilder sslContextBuilder;
+  private SSLContextBuilder sslContextBuilder;
 
-    @Before
-    public void setUp()
-            throws NoSuchAlgorithmException, OperatorCreationException, InvalidKeyException, IOException,
-                    KeyStoreException, SignatureException, NoSuchProviderException, CertificateException,
-                    URISyntaxException {
-        keyStoreFile = Paths.get(tmpDir.getRoot().getPath(), "keystore");
-        knownHostFile = Paths.get(tmpDir.getRoot().getPath(), "knownHosts");
-        key = Paths.get(getClass().getResource("/key.pem").toURI());
-        certificate = Paths.get(getClass().getResource("/cert.pem").toURI());
-        trustedCertificates = Arrays.asList(certificate);
-        sslContextBuilder = SSLContextBuilder.createBuilder(LOCALHOST, keyStoreFile, PASSWORD, keyStoreFile, PASSWORD);
-        TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(LOCALHOST, keyStoreFile, PASSWORD);
-    }
+  @Before
+  public void setUp()
+      throws NoSuchAlgorithmException, OperatorCreationException, InvalidKeyException, IOException,
+          KeyStoreException, SignatureException, NoSuchProviderException, CertificateException,
+          URISyntaxException {
+    keyStoreFile = Paths.get(tmpDir.getRoot().getPath(), "keystore");
+    knownHostFile = Paths.get(tmpDir.getRoot().getPath(), "knownHosts");
+    key = Paths.get(getClass().getResource("/key.pem").toURI());
+    certificate = Paths.get(getClass().getResource("/cert.pem").toURI());
+    trustedCertificates = Arrays.asList(certificate);
+    sslContextBuilder =
+        SSLContextBuilder.createBuilder(LOCALHOST, keyStoreFile, PASSWORD, keyStoreFile, PASSWORD);
+    TlsUtils.create().generateKeyStoreWithSelfSignedCertificate(LOCALHOST, keyStoreFile, PASSWORD);
+  }
 
-    @Test
-    public void testBuildForTrustOnFirstUse() throws GeneralSecurityException, IOException, OperatorCreationException {
+  @Test
+  public void testBuildForTrustOnFirstUse()
+      throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        final SSLContext sslContext = sslContextBuilder.forTrustOnFirstUse(knownHostFile).build();
+    final SSLContext sslContext = sslContextBuilder.forTrustOnFirstUse(knownHostFile).build();
 
-        assertThat(sslContext)
-                .isNotNull()
-                .extracting("contextSpi")
-                .isNotNull()
-                .extracting("trustManager")
-                .isNotNull()
-                .extracting("tm")
-                .isNotNull()
-                .hasAtLeastOneElementOfType(TrustOnFirstUseManager.class);
-    }
+    assertThat(sslContext)
+        .isNotNull()
+        .extracting("contextSpi")
+        .isNotNull()
+        .extracting("trustManager")
+        .isNotNull()
+        .extracting("tm")
+        .isNotNull()
+        .hasAtLeastOneElementOfType(TrustOnFirstUseManager.class);
+  }
 
-    @Test
-    public void testBuildForWhiteList() throws GeneralSecurityException, IOException, OperatorCreationException {
+  @Test
+  public void testBuildForWhiteList()
+      throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        final SSLContext sslContext = sslContextBuilder.forWhiteList(knownHostFile).build();
+    final SSLContext sslContext = sslContextBuilder.forWhiteList(knownHostFile).build();
 
-        assertThat(sslContext)
-                .isNotNull()
-                .extracting("contextSpi")
-                .isNotNull()
-                .extracting("trustManager")
-                .isNotNull()
-                .extracting("tm")
-                .isNotNull()
-                .hasAtLeastOneElementOfType(WhiteListTrustManager.class);
-    }
+    assertThat(sslContext)
+        .isNotNull()
+        .extracting("contextSpi")
+        .isNotNull()
+        .extracting("trustManager")
+        .isNotNull()
+        .extracting("tm")
+        .isNotNull()
+        .hasAtLeastOneElementOfType(WhiteListTrustManager.class);
+  }
 
-    @Test
-    public void testBuildForCASignedCertificates()
-            throws GeneralSecurityException, IOException, OperatorCreationException {
+  @Test
+  public void testBuildForCASignedCertificates()
+      throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        final SSLContext sslContext = sslContextBuilder.forCASignedCertificates().build();
+    final SSLContext sslContext = sslContextBuilder.forCASignedCertificates().build();
 
-        assertThat(sslContext)
-                .isNotNull()
-                .extracting("contextSpi")
-                .isNotNull()
-                .extracting("trustManager")
-                .isNotNull()
-                .extracting("trustedCerts")
-                .isNotNull()
-                .hasSize(1);
+    assertThat(sslContext)
+        .isNotNull()
+        .extracting("contextSpi")
+        .isNotNull()
+        .extracting("trustManager")
+        .isNotNull()
+        .extracting("trustedCerts")
+        .isNotNull()
+        .hasSize(1);
 
-        assertThat(sslContext)
-                .extracting("contextSpi")
-                .extracting("keyManager")
-                .isNotNull()
-                .extracting("credentialsMap")
-                .isNotNull()
-                .hasSize(1);
-    }
+    assertThat(sslContext)
+        .extracting("contextSpi")
+        .extracting("keyManager")
+        .isNotNull()
+        .extracting("credentialsMap")
+        .isNotNull()
+        .hasSize(1);
+  }
 
-    @Test
-    public void testBuildForAllCertificates() throws GeneralSecurityException, IOException, OperatorCreationException {
+  @Test
+  public void testBuildForAllCertificates()
+      throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        final SSLContext sslContext = sslContextBuilder.forAllCertificates().build();
+    final SSLContext sslContext = sslContextBuilder.forAllCertificates().build();
 
-        assertThat(sslContext)
-                .isNotNull()
-                .extracting("contextSpi")
-                .isNotNull()
-                .extracting("trustManager")
-                .isNotNull()
-                .extracting("tm")
-                .isNotNull()
-                .hasAtLeastOneElementOfType(TrustAllManager.class);
-    }
+    assertThat(sslContext)
+        .isNotNull()
+        .extracting("contextSpi")
+        .isNotNull()
+        .extracting("trustManager")
+        .isNotNull()
+        .extracting("tm")
+        .isNotNull()
+        .hasAtLeastOneElementOfType(TrustAllManager.class);
+  }
 
-    @Test
-    public void testBuildForCAOrTOFU() throws GeneralSecurityException, IOException, OperatorCreationException {
-        final SSLContext sslContext = sslContextBuilder.forCAOrTOFU(knownHostFile).build();
+  @Test
+  public void testBuildForCAOrTOFU()
+      throws GeneralSecurityException, IOException, OperatorCreationException {
+    final SSLContext sslContext = sslContextBuilder.forCAOrTOFU(knownHostFile).build();
 
-        assertThat(sslContext)
-                .isNotNull()
-                .extracting("contextSpi")
-                .isNotNull()
-                .extracting("trustManager")
-                .isNotNull()
-                .extracting("tm")
-                .isNotNull()
-                .first()
-                .isInstanceOf(CompositeTrustManager.class)
-                .extracting("trustManagers")
-                .isNotNull();
-    }
+    assertThat(sslContext)
+        .isNotNull()
+        .extracting("contextSpi")
+        .isNotNull()
+        .extracting("trustManager")
+        .isNotNull()
+        .extracting("tm")
+        .isNotNull()
+        .first()
+        .isInstanceOf(CompositeTrustManager.class)
+        .extracting("trustManagers")
+        .isNotNull();
+  }
 
-    @Test
-    public void testKeyStoreNotExistedThenGenerated()
-            throws GeneralSecurityException, IOException, OperatorCreationException {
+  @Test
+  public void testKeyStoreNotExistedThenGenerated()
+      throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        final Path nonExistedFile = Paths.get(tmpDir.getRoot().getPath(), "somefile");
+    final Path nonExistedFile = Paths.get(tmpDir.getRoot().getPath(), "somefile");
 
-        assertThat(Files.exists(nonExistedFile)).isFalse();
+    assertThat(Files.exists(nonExistedFile)).isFalse();
 
-        SSLContextBuilder otherContextBuilder =
-                SSLContextBuilder.createBuilder(
-                        LOCALHOST, nonExistedFile, "password".toCharArray(), keyStoreFile, PASSWORD);
+    SSLContextBuilder otherContextBuilder =
+        SSLContextBuilder.createBuilder(
+            LOCALHOST, nonExistedFile, "password".toCharArray(), keyStoreFile, PASSWORD);
 
-        assertThat(otherContextBuilder.forCASignedCertificates().build()).isNotNull();
+    assertThat(otherContextBuilder.forCASignedCertificates().build()).isNotNull();
 
-        assertThat(Files.exists(nonExistedFile)).isTrue();
-    }
+    assertThat(Files.exists(nonExistedFile)).isTrue();
+  }
 
-    @Test
-    public void testBuildUsingPemFiles() throws IOException, GeneralSecurityException, OperatorCreationException {
+  @Test
+  public void testBuildUsingPemFiles()
+      throws IOException, GeneralSecurityException, OperatorCreationException {
 
-        SSLContext context =
-                SSLContextBuilder.createBuilder(LOCALHOST, null, null, null, null)
-                        .fromPemFiles(key, certificate, trustedCertificates)
-                        .forCASignedCertificates()
-                        .build();
+    SSLContext context =
+        SSLContextBuilder.createBuilder(LOCALHOST, null, null, null, null)
+            .fromPemFiles(key, certificate, trustedCertificates)
+            .forCASignedCertificates()
+            .build();
 
-        assertThat(context)
-                .isNotNull()
-                .extracting("contextSpi")
-                .isNotNull()
-                .extracting("trustManager")
-                .isNotNull()
-                .extracting("trustedCerts")
-                .isNotNull()
-                .hasSize(1);
+    assertThat(context)
+        .isNotNull()
+        .extracting("contextSpi")
+        .isNotNull()
+        .extracting("trustManager")
+        .isNotNull()
+        .extracting("trustedCerts")
+        .isNotNull()
+        .hasSize(1);
 
-        assertThat(context)
-                .extracting("contextSpi")
-                .extracting("keyManager")
-                .isNotNull()
-                .extracting("credentialsMap")
-                .isNotNull()
-                .hasSize(1);
-    }
+    assertThat(context)
+        .extracting("contextSpi")
+        .extracting("keyManager")
+        .isNotNull()
+        .extracting("credentialsMap")
+        .isNotNull()
+        .hasSize(1);
+  }
 }

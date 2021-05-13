@@ -1,64 +1,62 @@
 package com.quorum.tessera.config.adapters;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 public class PathAdapterTest {
 
-    private PathAdapter pathAdapter;
+  private PathAdapter pathAdapter;
 
-    public PathAdapterTest() {
-    }
+  public PathAdapterTest() {}
 
-    @Before
-    public void setUp() {
-        pathAdapter = new PathAdapter();
-    }
+  @Before
+  public void setUp() {
+    pathAdapter = new PathAdapter();
+  }
 
-    @After
-    public void tearDown() {
-        pathAdapter = null;
-    }
+  @After
+  public void tearDown() {
+    pathAdapter = null;
+  }
 
-    @Test
-    public void marshal() {
+  @Test
+  public void marshal() {
 
-        String value = "/somepath/to";
+    String value = "/somepath/to";
 
-        Path path = Paths.get(value, "someplace");
-        String result = pathAdapter.marshal(path);
+    Path path = Paths.get(value, "someplace");
+    String result = pathAdapter.marshal(path);
 
-        assertThat(result).isEqualTo("/somepath/to/someplace");
-    }
-    
-    @Test
-    public void marshalNull() {
+    assertThat(result).isEqualTo("/somepath/to/someplace");
+  }
 
-        String result = pathAdapter.marshal(null);
-        assertThat(result).isNull();
-    }
-    
-    @Test
-    public void unmarshal() {
+  @Test
+  public void marshalNull() {
 
-        String value = "/somepath/to/someplace";
+    String result = pathAdapter.marshal(null);
+    assertThat(result).isNull();
+  }
 
-        Path result = pathAdapter.unmarshal(value);
+  @Test
+  public void unmarshal() {
 
-        assertThat(result).isEqualTo(Paths.get(value));
-    }
-    
-    @Test
-    public void unmarshalNull() {
+    String value = "/somepath/to/someplace";
 
-        Path result = pathAdapter.unmarshal(null);
+    Path result = pathAdapter.unmarshal(value);
 
-        assertThat(result).isNull();
-    }
+    assertThat(result).isEqualTo(Paths.get(value));
+  }
+
+  @Test
+  public void unmarshalNull() {
+
+    Path result = pathAdapter.unmarshal(null);
+
+    assertThat(result).isNull();
+  }
 }

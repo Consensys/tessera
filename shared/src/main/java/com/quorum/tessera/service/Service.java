@@ -2,14 +2,14 @@ package com.quorum.tessera.service;
 
 public interface Service {
 
-    enum Status {
-        STARTED, STOPPED
-    }
+  enum Status {
+    STARTED,
+    STOPPED
+  }
 
-    void start();
+  void start();
 
-    void stop();
+  void stop();
 
-    Status status();
-
+  Status status();
 }
