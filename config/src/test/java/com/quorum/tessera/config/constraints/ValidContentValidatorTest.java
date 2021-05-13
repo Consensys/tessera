@@ -1,140 +1,133 @@
 package com.quorum.tessera.config.constraints;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
 import javax.validation.ConstraintValidatorContext;
-import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ValidContentValidatorTest {
 
-    @Test
-    public void ignoreNullPath() {
-        ValidContentValidator validator = new ValidContentValidator();
-        ValidContent validContent = mock(ValidContent.class);
-        validator.initialize(validContent);
+  @Test
+  public void ignoreNullPath() {
+    ValidContentValidator validator = new ValidContentValidator();
+    ValidContent validContent = mock(ValidContent.class);
+    validator.initialize(validContent);
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        assertThat(validator.isValid(null, context)).isTrue();
+    assertThat(validator.isValid(null, context)).isTrue();
+  }
 
-    }
+  @Test
+  public void ignoreNonExistPath() {
+    ValidContentValidator validator = new ValidContentValidator();
+    ValidContent validContent = mock(ValidContent.class);
+    validator.initialize(validContent);
 
-    @Test
-    public void ignoreNonExistPath() {
-        ValidContentValidator validator = new ValidContentValidator();
-        ValidContent validContent = mock(ValidContent.class);
-        validator.initialize(validContent);
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    Path path = Paths.get(UUID.randomUUID().toString());
 
-        Path path = Paths.get(UUID.randomUUID().toString());
+    assertThat(path).doesNotExist();
 
-        assertThat(path).doesNotExist();
+    assertThat(validator.isValid(path, context)).isTrue();
+  }
 
-        assertThat(validator.isValid(path, context)).isTrue();
+  @Test
+  public void defaultValuesIgnoreEmptyFile() throws Exception {
+    ValidContentValidator validator = new ValidContentValidator();
+    ValidContent validContent = mock(ValidContent.class);
 
-    }
+    validator.initialize(validContent);
 
-    @Test
-    public void defaultValuesIgnoreEmptyFile() throws Exception {
-        ValidContentValidator validator = new ValidContentValidator();
-        ValidContent validContent = mock(ValidContent.class);
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        validator.initialize(validContent);
+    Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    assertThat(path).exists();
 
-        Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
+    assertThat(validator.isValid(path, context)).isTrue();
+  }
 
-        assertThat(path).exists();
+  @Test
+  public void expectSingleLineButFileIsEmpty() throws Exception {
+    ValidContentValidator validator = new ValidContentValidator();
+    ValidContent validContent = mock(ValidContent.class);
+    when(validContent.minLines()).thenReturn(1);
+    when(validContent.maxLines()).thenReturn(1);
 
-        assertThat(validator.isValid(path, context)).isTrue();
+    validator.initialize(validContent);
 
-    }
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-    @Test
-    public void expectSingleLineButFileIsEmpty() throws Exception {
-        ValidContentValidator validator = new ValidContentValidator();
-        ValidContent validContent = mock(ValidContent.class);
-        when(validContent.minLines()).thenReturn(1);
-        when(validContent.maxLines()).thenReturn(1);
+    Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
 
-        validator.initialize(validContent);
+    assertThat(path).exists();
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    assertThat(validator.isValid(path, context)).isFalse();
+  }
 
-        Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
+  @Test
+  public void expectSingleLineFileIsValid() throws Exception {
+    ValidContentValidator validator = new ValidContentValidator();
+    ValidContent validContent = mock(ValidContent.class);
+    when(validContent.minLines()).thenReturn(1);
+    when(validContent.maxLines()).thenReturn(1);
 
-        assertThat(path).exists();
+    validator.initialize(validContent);
 
-        assertThat(validator.isValid(path, context)).isFalse();
+    ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-    }
+    Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
+    Files.write(path, "SOMEDATA".getBytes());
 
-    @Test
-    public void expectSingleLineFileIsValid() throws Exception {
-        ValidContentValidator validator = new ValidContentValidator();
-        ValidContent validContent = mock(ValidContent.class);
-        when(validContent.minLines()).thenReturn(1);
-        when(validContent.maxLines()).thenReturn(1);
+    assertThat(path).exists();
 
-        validator.initialize(validContent);
+    assertThat(validator.isValid(path, context)).isTrue();
+  }
 
-        ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+  @Test
+  public void tooManyLines() throws Exception {
+    ValidContentValidator validator = new ValidContentValidator();
+    ValidContent validContent = mock(ValidContent.class);
+    when(validContent.minLines()).thenReturn(1);
+    when(validContent.maxLines()).thenReturn(1);
 
-        Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Files.write(path, "SOMEDATA".getBytes());
+    validator.initialize(validContent);
 
-        assertThat(path).exists();
+    final ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        assertThat(validator.isValid(path, context)).isTrue();
+    Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
+    Files.write(path, Arrays.asList("SOMEDATA", "SOMEMOREDATA"));
 
-    }
+    assertThat(path).exists();
 
-    @Test
-    public void tooManyLines() throws Exception {
-        ValidContentValidator validator = new ValidContentValidator();
-        ValidContent validContent = mock(ValidContent.class);
-        when(validContent.minLines()).thenReturn(1);
-        when(validContent.maxLines()).thenReturn(1);
+    assertThat(validator.isValid(path, context)).isFalse();
+  }
 
-        validator.initialize(validContent);
+  @Test
+  public void emptyLine() throws Exception {
+    ValidContentValidator validator = new ValidContentValidator();
+    ValidContent validContent = mock(ValidContent.class);
+    when(validContent.minLines()).thenReturn(1);
+    when(validContent.maxLines()).thenReturn(1);
 
-        final ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
+    validator.initialize(validContent);
 
-        Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Files.write(path, Arrays.asList("SOMEDATA","SOMEMOREDATA"));
-        
-        assertThat(path).exists();
+    final ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
 
-        assertThat(validator.isValid(path, context)).isFalse();
+    Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
+    Files.write(path, Arrays.asList(""));
 
-    }
-    
-    @Test
-    public void emptyLine() throws Exception {
-        ValidContentValidator validator = new ValidContentValidator();
-        ValidContent validContent = mock(ValidContent.class);
-        when(validContent.minLines()).thenReturn(1);
-        when(validContent.maxLines()).thenReturn(1);
+    assertThat(path).exists();
 
-        validator.initialize(validContent);
-
-        final ConstraintValidatorContext context = mock(ConstraintValidatorContext.class);
-
-        Path path = Files.createTempFile(UUID.randomUUID().toString(), "");
-        Files.write(path, Arrays.asList(""));
-        
-        assertThat(path).exists();
-
-        assertThat(validator.isValid(path, context)).isFalse();
-
-    }
-
+    assertThat(validator.isValid(path, context)).isFalse();
+  }
 }

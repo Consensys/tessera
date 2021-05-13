@@ -4,8 +4,8 @@ import com.quorum.tessera.api.common.AbstractApiResource;
 
 public class P2PApiResource extends AbstractApiResource {
 
-    @Override
-    public String getOpenApiDocName() {
-        return "openapi.p2p";
-    }
+  @Override
+  public String getOpenApiDocName() {
+    return "openapi.p2p";
+  }
 }

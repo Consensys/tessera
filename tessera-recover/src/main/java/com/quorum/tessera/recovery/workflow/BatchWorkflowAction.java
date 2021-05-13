@@ -2,6 +2,5 @@ package com.quorum.tessera.recovery.workflow;
 
 public interface BatchWorkflowAction {
 
-    boolean execute(BatchWorkflowContext context);
-
+  boolean execute(BatchWorkflowContext context);
 }

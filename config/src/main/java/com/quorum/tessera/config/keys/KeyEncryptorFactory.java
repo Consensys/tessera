@@ -4,9 +4,9 @@ import com.quorum.tessera.config.EncryptorConfig;
 
 public interface KeyEncryptorFactory {
 
-    static KeyEncryptorFactory newFactory() {
-        return new KeyEncryptorFactoryImpl();
-    }
+  static KeyEncryptorFactory newFactory() {
+    return new KeyEncryptorFactoryImpl();
+  }
 
-    KeyEncryptor create(EncryptorConfig encryptorConfig);
+  KeyEncryptor create(EncryptorConfig encryptorConfig);
 }

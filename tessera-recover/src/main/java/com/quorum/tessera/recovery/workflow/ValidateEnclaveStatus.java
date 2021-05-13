@@ -6,17 +6,17 @@ import com.quorum.tessera.service.Service;
 
 public class ValidateEnclaveStatus implements BatchWorkflowAction {
 
-    private Enclave enclave;
+  private Enclave enclave;
 
-    public ValidateEnclaveStatus(Enclave enclave) {
-        this.enclave = enclave;
-    }
+  public ValidateEnclaveStatus(Enclave enclave) {
+    this.enclave = enclave;
+  }
 
-    @Override
-    public boolean execute(BatchWorkflowContext context) {
-        if (enclave.status() == Service.Status.STOPPED) {
-            throw new EnclaveNotAvailableException();
-        }
-        return true;
+  @Override
+  public boolean execute(BatchWorkflowContext context) {
+    if (enclave.status() == Service.Status.STOPPED) {
+      throw new EnclaveNotAvailableException();
     }
+    return true;
+  }
 }

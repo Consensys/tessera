@@ -5,7 +5,7 @@ import com.quorum.tessera.config.vault.data.SetSecretData;
 
 public interface KeyVaultService<T extends SetSecretData, U extends GetSecretData> {
 
-    String getSecret(U getSecretData);
+  String getSecret(U getSecretData);
 
-    Object setSecret(T setSecretData);
+  Object setSecret(T setSecretData);
 }

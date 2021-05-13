@@ -9,19 +9,19 @@ import org.slf4j.LoggerFactory;
 
 public class KaliumFactory implements EncryptorFactory {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(KaliumFactory.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(KaliumFactory.class);
 
-    @Override
-    public Encryptor create(Map<String, String> properties) {
-        LOGGER.debug("Creating a Kalium implementation of NaclFacadeFactory");
+  @Override
+  public Encryptor create(Map<String, String> properties) {
+    LOGGER.debug("Creating a Kalium implementation of NaclFacadeFactory");
 
-        final NaCl.Sodium sodium = NaCl.sodium();
+    final NaCl.Sodium sodium = NaCl.sodium();
 
-        return new Kalium(sodium);
-    }
+    return new Kalium(sodium);
+  }
 
-    @Override
-    public String getType() {
-        return "NACL";
-    }
+  @Override
+  public String getType() {
+    return "NACL";
+  }
 }

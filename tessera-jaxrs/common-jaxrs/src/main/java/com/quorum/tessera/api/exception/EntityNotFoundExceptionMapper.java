@@ -1,24 +1,26 @@
 package com.quorum.tessera.api.exception;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Provider
 public class EntityNotFoundExceptionMapper implements ExceptionMapper<EntityNotFoundException> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EntityNotFoundExceptionMapper.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EntityNotFoundExceptionMapper.class);
 
-    @Override
-    public Response toResponse(final EntityNotFoundException ex) {
-        LOGGER.warn("Entity not found: {}", ex.getMessage());
-        LOGGER.debug(null, ex);
+  @Override
+  public Response toResponse(final EntityNotFoundException ex) {
+    LOGGER.warn("Entity not found: {}", ex.getMessage());
+    LOGGER.debug(null, ex);
 
-        return Response.status(Response.Status.NOT_FOUND).entity(ex.getMessage()).type(MediaType.TEXT_PLAIN).build();
-    }
+    return Response.status(Response.Status.NOT_FOUND)
+        .entity(ex.getMessage())
+        .type(MediaType.TEXT_PLAIN)
+        .build();
+  }
 }

@@ -6,21 +6,21 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 
 public class DecodePayloadHandler implements BatchWorkflowAction {
 
-    private PayloadEncoder encoder;
+  private PayloadEncoder encoder;
 
-    public DecodePayloadHandler(PayloadEncoder encoder) {
-        this.encoder = encoder;
-    }
+  public DecodePayloadHandler(PayloadEncoder encoder) {
+    this.encoder = encoder;
+  }
 
-    @Override
-    public boolean execute(BatchWorkflowContext event) {
+  @Override
+  public boolean execute(BatchWorkflowContext event) {
 
-        EncryptedTransaction encryptedTransaction = event.getEncryptedTransaction();
+    EncryptedTransaction encryptedTransaction = event.getEncryptedTransaction();
 
-        EncodedPayload encodedPayload = encoder.decode(encryptedTransaction.getEncodedPayload());
+    EncodedPayload encodedPayload = encoder.decode(encryptedTransaction.getEncodedPayload());
 
-        event.setEncodedPayload(encodedPayload);
+    event.setEncodedPayload(encodedPayload);
 
-        return true;
-    }
+    return true;
+  }
 }

@@ -1,108 +1,108 @@
 package com.quorum.tessera.data.staging;
 
 import com.quorum.tessera.data.EntityManagerTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import java.util.List;
-import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * A JPA implementation of {@link StagingEntityDAO}
- */
+/** A JPA implementation of {@link StagingEntityDAO} */
 public class StagingEntityDAOImpl implements StagingEntityDAO {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StagingEntityDAOImpl.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(StagingEntityDAOImpl.class);
 
-    private EntityManagerTemplate entityManagerTemplate;
+  private EntityManagerTemplate entityManagerTemplate;
 
-    public StagingEntityDAOImpl(EntityManagerFactory entityManagerFactory) {
-        this.entityManagerTemplate = new EntityManagerTemplate(entityManagerFactory);
-    }
+  public StagingEntityDAOImpl(EntityManagerFactory entityManagerFactory) {
+    this.entityManagerTemplate = new EntityManagerTemplate(entityManagerFactory);
+  }
 
-    @Override
-    public StagingTransaction save(final StagingTransaction entity) {
-        return entityManagerTemplate.execute(entityManager -> {
-            entityManager.persist(entity);
+  @Override
+  public StagingTransaction save(final StagingTransaction entity) {
+    return entityManagerTemplate.execute(
+        entityManager -> {
+          entityManager.persist(entity);
 
-            LOGGER.debug("Persisting StagingTransaction entity with hash {} ", entity.getHash());
+          LOGGER.debug("Persisting StagingTransaction entity with hash {} ", entity.getHash());
 
-            return entity;
+          return entity;
         });
-    }
+  }
 
-    @Override
-    public StagingTransaction update(StagingTransaction entity) {
+  @Override
+  public StagingTransaction update(StagingTransaction entity) {
 
-        return entityManagerTemplate.execute(entityManager -> {
-            entityManager.merge(entity);
+    return entityManagerTemplate.execute(
+        entityManager -> {
+          entityManager.merge(entity);
 
-            LOGGER.debug("Merging StagingTransaction entity with hash {}", entity.getHash());
+          LOGGER.debug("Merging StagingTransaction entity with hash {}", entity.getHash());
 
-            return entity;
+          return entity;
         });
-    }
+  }
 
-    @Override
-    public Optional<StagingTransaction> retrieveByHash(final String hash) {
-        return entityManagerTemplate.execute(entityManager -> {
-            LOGGER.debug("Retrieving payload with hash {}", hash);
+  @Override
+  public Optional<StagingTransaction> retrieveByHash(final String hash) {
+    return entityManagerTemplate.execute(
+        entityManager -> {
+          LOGGER.debug("Retrieving payload with hash {}", hash);
 
-            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
-            CriteriaQuery<StagingTransaction> query = criteriaBuilder.createQuery(StagingTransaction.class);
-            Root<StagingTransaction> root = query.from(StagingTransaction.class);
-            query.select(root)
-                .where(
-                    criteriaBuilder.equal(root.get("hash"), hash)
-                );
-            return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
+          CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+          CriteriaQuery<StagingTransaction> query =
+              criteriaBuilder.createQuery(StagingTransaction.class);
+          Root<StagingTransaction> root = query.from(StagingTransaction.class);
+          query.select(root).where(criteriaBuilder.equal(root.get("hash"), hash));
+          return Optional.ofNullable(entityManager.createQuery(query).getSingleResult());
         });
-    }
+  }
 
-    @Override
-    public List<StagingTransaction> retrieveTransactionBatchOrderByStageAndHash(int offset, int maxResults) {
-        LOGGER.debug(
-            "Fetching batch (offset:{},maxResults:{}) of StagingTransaction database rows order by stage and hash",
-            offset,
-            maxResults);
+  @Override
+  public List<StagingTransaction> retrieveTransactionBatchOrderByStageAndHash(
+      int offset, int maxResults) {
+    LOGGER.debug(
+        "Fetching batch (offset:{},maxResults:{}) of StagingTransaction database rows order by stage and hash",
+        offset,
+        maxResults);
 
-        return entityManagerTemplate.execute(em -> em
-            .createNamedQuery("StagingTransaction.findAllOrderByStage", StagingTransaction.class)
-            .setFirstResult(offset)
-            .setMaxResults(maxResults)
-            .getResultList());
-    }
+    return entityManagerTemplate.execute(
+        em ->
+            em.createNamedQuery("StagingTransaction.findAllOrderByStage", StagingTransaction.class)
+                .setFirstResult(offset)
+                .setMaxResults(maxResults)
+                .getResultList());
+  }
 
-    @Override
-    public long countAll() {
-        return entityManagerTemplate.execute(em ->
-            em.createNamedQuery("StagingTransaction.countAll", Long.class).getSingleResult()
-        );
-    }
+  @Override
+  public long countAll() {
+    return entityManagerTemplate.execute(
+        em -> em.createNamedQuery("StagingTransaction.countAll", Long.class).getSingleResult());
+  }
 
-    @Override
-    public long countStaged() {
-        return entityManagerTemplate.execute(em ->
-            em.createNamedQuery("StagingTransaction.countStaged", Long.class).getSingleResult()
-        );
-    }
+  @Override
+  public long countStaged() {
+    return entityManagerTemplate.execute(
+        em -> em.createNamedQuery("StagingTransaction.countStaged", Long.class).getSingleResult());
+  }
 
-    @Override
-    public int updateStageForBatch(int batchSize, long validationStage) {
+  @Override
+  public int updateStageForBatch(int batchSize, long validationStage) {
 
-        return entityManagerTemplate.execute(
-            entityManager -> {
-                List<StagingTransaction> resultList = entityManager.createNamedQuery("StagingTransaction.stagingQuery", StagingTransaction.class)
-                    .setMaxResults(batchSize)
-                    .getResultList();
+    return entityManagerTemplate.execute(
+        entityManager -> {
+          List<StagingTransaction> resultList =
+              entityManager
+                  .createNamedQuery("StagingTransaction.stagingQuery", StagingTransaction.class)
+                  .setMaxResults(batchSize)
+                  .getResultList();
 
-                resultList.forEach(st -> st.setValidationStage(validationStage));
+          resultList.forEach(st -> st.setValidationStage(validationStage));
 
-                return resultList.size();
-            });
-    }
+          return resultList.size();
+        });
+  }
 }

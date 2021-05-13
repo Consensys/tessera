@@ -1,8 +1,6 @@
-![Build Status](https://github.com/jpmorganchase/tessera/workflows/Java%20CI%20with%20Maven/badge.svg)
+![Build Status](https://github.com/consensys/tessera/actions/workflows/gradle.yml/badge.svg)
 [![codecov](https://codecov.io/gh/ConsenSys/tessera/branch/master/graph/badge.svg?token=XMRVPC5FLQ)](https://codecov.io/gh/ConsenSys/tessera)
-![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/quorumengineering/tessera)
 ![Docker Pulls](https://img.shields.io/docker/pulls/quorumengineering/tessera)
-
 
 # <img src="https://raw.githubusercontent.com/consensys/tessera/master/tessera-logo.png" width="150" height="36"/>
 
@@ -38,37 +36,44 @@ Each Tessera node:
     | 0.10.2 and earlier | [Pre-built release JARs](https://github.com/consensys/tessera/releases) |        8        |
     |                    | Building from source                                                        |     8 or 11     |
 
-- [Maven](https://maven.apache.org) (if building from source)
 - [libsodium](https://download.libsodium.org/doc/installation/) (if using kalium as the NaCl implementation)
 
 ## Building Tessera from source
 To build and install Tessera:
 1. Clone this repo
-1. Build using Maven (see below)
+1. Build using the included Gradle Wrapper file
+    ```
+    ./gradlew build   
+    ```
 
 
 ### Selecting an NaCl Implementation
-Tessera can use either the [jnacl](https://github.com/neilalexander/jnacl) or [kalium](https://github.com/abstractj/kalium) NaCl cryptography implementations.  The implementation to be used is specified when building the project:
+Tessera can use either the [jnacl](https://github.com/neilalexander/jnacl) or [kalium](https://github.com/abstractj/kalium) NaCl cryptography implementations.
 
 #### jnacl (default)
 
-`mvn install`
+No additional steps required. 
 
 #### kalium
 
-Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium), then run
+Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium).  Add the `net.consensys.quorum.tessera:encryption-kalium` jar to the classpath when running Tessera:
 
-`mvn install -P kalium`
-
+```
+java -jar /path/to/encryption-kalium-<version>.jar:/path/to/tessera-app-<version>.jar com.quorum.tessera.launcher.Main
+```
 
 ## Running Tessera
-`java -jar tessera-dist/tessera-app/target/tessera-app-${version}-app.jar -configfile /path/to/config.json`
+```
+java -jar tessera-dist/tessera-app/build/libs/tessera-app-${version}-app.jar -configfile /path/to/config.json
+```
 
 > See the [`tessera-dist` README](tessera-dist) for info on the different distributions available.
 
 Once Tessera has been configured and built, you may want to copy the .jar to another location, create an alias and add it to your PATH:
 
-`alias tessera="java -jar /path/to/tessera-app-${version}-app.jar"`
+```
+alias tessera="java -jar /path/to/tessera-app-${version}-app.jar"`
+```
 
 You will then be able to more concisely use the Tessera CLI commands, such as:
 

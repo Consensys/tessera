@@ -2,8 +2,7 @@ package com.quorum.tessera.server.monitoring;
 
 public interface MBeanMetric {
 
-    String getName();
+  String getName();
 
-    String getValue();
-
+  String getValue();
 }

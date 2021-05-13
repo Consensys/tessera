@@ -9,8 +9,5 @@ import org.junit.runner.RunWith;
     features = "build/resources/test/features/whitelist.feature",
     glue = "transaction.whitelist",
     tags = "@rest",
-    plugin = {"progress"}
-)
-public class CucumberWhitelistIT {
-
-}
+    plugin = {"progress"})
+public class CucumberWhitelistIT {}

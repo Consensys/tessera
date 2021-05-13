@@ -5,17 +5,17 @@ import org.slf4j.LoggerFactory;
 
 public class InfluxDbPublisher implements Runnable {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(InfluxDbPublisher.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(InfluxDbPublisher.class);
 
-    private final InfluxDbClient client;
+  private final InfluxDbClient client;
 
-    public InfluxDbPublisher(InfluxDbClient client) {
-        this.client = client;
-    }
+  public InfluxDbPublisher(InfluxDbClient client) {
+    this.client = client;
+  }
 
-    @Override
-    public void run() {
-        LOGGER.info("InfluxDbPublisher executed...");
-        client.postMetrics();
-    }
+  @Override
+  public void run() {
+    LOGGER.info("InfluxDbPublisher executed...");
+    client.postMetrics();
+  }
 }

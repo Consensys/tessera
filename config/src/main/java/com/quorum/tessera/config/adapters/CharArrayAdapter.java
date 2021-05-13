@@ -3,13 +3,13 @@ package com.quorum.tessera.config.adapters;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class CharArrayAdapter extends XmlAdapter<String, char[]> {
-    @Override
-    public char[] unmarshal(String s) {
-        return s == null ? null : s.toCharArray();
-    }
+  @Override
+  public char[] unmarshal(String s) {
+    return s == null ? null : s.toCharArray();
+  }
 
-    @Override
-    public String marshal(char[] chars) {
-        return chars == null ? null : String.valueOf(chars);
-    }
+  @Override
+  public String marshal(char[] chars) {
+    return chars == null ? null : String.valueOf(chars);
+  }
 }

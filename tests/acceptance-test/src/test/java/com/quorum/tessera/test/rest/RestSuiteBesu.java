@@ -12,9 +12,9 @@ import suite.TestSuite;
 @RunWith(TestSuite.class)
 @TestSuite.SuiteClasses({PrivacyGroupIT.class, SendReceiveBesuIT.class})
 @ProcessConfig(
-        communicationType = CommunicationType.REST,
-        dbType = DBType.H2,
-        socketType = SocketType.HTTP,
-        encryptorType = EncryptorType.NACL,
-        clientMode = ClientMode.ORION)
+    communicationType = CommunicationType.REST,
+    dbType = DBType.H2,
+    socketType = SocketType.HTTP,
+    encryptorType = EncryptorType.NACL,
+    clientMode = ClientMode.ORION)
 public class RestSuiteBesu extends RestSuite {}

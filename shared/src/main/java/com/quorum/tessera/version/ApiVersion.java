@@ -7,16 +7,14 @@ import java.util.stream.Collectors;
 
 public interface ApiVersion {
 
-    String getVersion();
+  String getVersion();
 
-    static List<String> versions() {
-        return ServiceLoader.load(ApiVersion.class)
-            .stream()
-            .map(ServiceLoader.Provider::get)
-            .map(ApiVersion::getVersion)
-            .filter(Objects::nonNull)
-            .sorted()
-            .collect(Collectors.toUnmodifiableList());
-    }
-
+  static List<String> versions() {
+    return ServiceLoader.load(ApiVersion.class).stream()
+        .map(ServiceLoader.Provider::get)
+        .map(ApiVersion::getVersion)
+        .filter(Objects::nonNull)
+        .sorted()
+        .collect(Collectors.toUnmodifiableList());
+  }
 }

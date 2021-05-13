@@ -2,15 +2,14 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.*;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -19,227 +18,230 @@ import java.util.List;
 @HasKeysOrRemoteEnclave
 public class Config extends ConfigItem {
 
-    @XmlAttribute private String version = Version.getVersion();
+  @XmlAttribute private String version = Version.getVersion();
 
-    @NotNull
-    @Valid
-    @XmlElement(name = "jdbc", required = true)
-    private JdbcConfig jdbcConfig;
+  @NotNull
+  @Valid
+  @XmlElement(name = "jdbc", required = true)
+  private JdbcConfig jdbcConfig;
 
-    @Valid
-    @XmlElement(name = "serverConfigs", required = true)
-    private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
+  @Valid
+  @XmlElement(name = "serverConfigs", required = true)
+  private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
 
-    @NotNull
-    @Valid
-    @XmlElement(name = "peer", required = true)
-    private List<Peer> peers;
+  @NotNull
+  @Valid
+  @XmlElement(name = "peer", required = true)
+  private List<Peer> peers;
 
-    @Valid
-    @XmlElement(required = true)
-    @ValidKeyConfiguration
-    @MatchingKeyVaultConfigsForKeyData
-    @NoDuplicateKeyVaultConfigs
-    private KeyConfiguration keys;
+  @Valid
+  @XmlElement(required = true)
+  @ValidKeyConfiguration
+  @MatchingKeyVaultConfigsForKeyData
+  @NoDuplicateKeyVaultConfigs
+  private KeyConfiguration keys;
 
-    @NotNull
-    @XmlElement(name = "alwaysSendTo")
-    private List<@ValidBase64 String> alwaysSendTo = new ArrayList<>();
+  @NotNull
+  @XmlElement(name = "alwaysSendTo")
+  private List<@ValidBase64 String> alwaysSendTo = new ArrayList<>();
 
-    @ValidPath(checkCanCreate = true)
-    @XmlElement(required = true, type = String.class)
-    @XmlJavaTypeAdapter(PathAdapter.class)
-    private Path unixSocketFile;
+  @ValidPath(checkCanCreate = true)
+  @XmlElement(required = true, type = String.class)
+  @XmlJavaTypeAdapter(PathAdapter.class)
+  private Path unixSocketFile;
 
-    @XmlAttribute private boolean useWhiteList;
+  @XmlAttribute private boolean useWhiteList;
 
-    @XmlAttribute private boolean disablePeerDiscovery;
+  @XmlAttribute private boolean disablePeerDiscovery;
 
-    @XmlAttribute private boolean bootstrapNode;
+  @XmlAttribute private boolean bootstrapNode;
 
-    @XmlElement private DeprecatedServerConfig server;
+  @XmlElement private DeprecatedServerConfig server;
 
-    @XmlElement private FeatureToggles features = new FeatureToggles();
+  @XmlElement private FeatureToggles features = new FeatureToggles();
 
-    @XmlElement private EncryptorConfig encryptor;
+  @XmlElement private EncryptorConfig encryptor;
 
-    @XmlTransient private boolean recoveryMode;
+  @XmlTransient private boolean recoveryMode;
 
-    @XmlElement(name = "mode")
-    private ClientMode clientMode = ClientMode.TESSERA;
+  @XmlElement(name = "mode")
+  private ClientMode clientMode = ClientMode.TESSERA;
 
-    @XmlElement private List<ResidentGroup> residentGroups;
+  @XmlElement private List<ResidentGroup> residentGroups;
 
-    @Deprecated
-    public Config(
-            final JdbcConfig jdbcConfig,
-            final List<ServerConfig> serverConfigs,
-            final List<Peer> peers,
-            final KeyConfiguration keyConfiguration,
-            final List<String> alwaysSendTo,
-            final Path unixSocketFile,
-            final boolean useWhiteList,
-            final boolean disablePeerDiscovery) {
-        this.jdbcConfig = jdbcConfig;
-        this.serverConfigs = serverConfigs;
-        this.peers = peers;
-        this.keys = keyConfiguration;
-        this.alwaysSendTo = alwaysSendTo;
-        this.unixSocketFile = unixSocketFile;
-        this.useWhiteList = useWhiteList;
-        this.disablePeerDiscovery = disablePeerDiscovery;
+  @Deprecated
+  public Config(
+      final JdbcConfig jdbcConfig,
+      final List<ServerConfig> serverConfigs,
+      final List<Peer> peers,
+      final KeyConfiguration keyConfiguration,
+      final List<String> alwaysSendTo,
+      final Path unixSocketFile,
+      final boolean useWhiteList,
+      final boolean disablePeerDiscovery) {
+    this.jdbcConfig = jdbcConfig;
+    this.serverConfigs = serverConfigs;
+    this.peers = peers;
+    this.keys = keyConfiguration;
+    this.alwaysSendTo = alwaysSendTo;
+    this.unixSocketFile = unixSocketFile;
+    this.useWhiteList = useWhiteList;
+    this.disablePeerDiscovery = disablePeerDiscovery;
+  }
+
+  public Config() {}
+
+  public JdbcConfig getJdbcConfig() {
+    return this.jdbcConfig;
+  }
+
+  // TODO: Shouldn't need to lazily recalculate on a getter
+  public List<ServerConfig> getServerConfigs() {
+    if (null != this.serverConfigs) {
+      return this.serverConfigs;
     }
+    return DeprecatedServerConfig.from(server, unixSocketFile);
+  }
 
-    public Config() {}
+  public boolean isServerConfigsNull() {
+    return null == this.serverConfigs;
+  }
 
-    public JdbcConfig getJdbcConfig() {
-        return this.jdbcConfig;
+  @Deprecated
+  public Path getUnixSocketFile() {
+    return unixSocketFile;
+  }
+
+  public List<Peer> getPeers() {
+    if (peers == null) {
+      return null;
     }
+    return Collections.unmodifiableList(peers);
+  }
 
-    // TODO: Shouldn't need to lazily recalculate on a getter
-    public List<ServerConfig> getServerConfigs() {
-        if (null != this.serverConfigs) {
-            return this.serverConfigs;
-        }
-        return DeprecatedServerConfig.from(server, unixSocketFile);
-    }
+  public KeyConfiguration getKeys() {
+    return this.keys;
+  }
 
-    public boolean isServerConfigsNull() {
-        return null == this.serverConfigs;
-    }
+  public List<String> getAlwaysSendTo() {
+    return this.alwaysSendTo;
+  }
 
-    @Deprecated
-    public Path getUnixSocketFile() {
-        return unixSocketFile;
-    }
+  public boolean isUseWhiteList() {
+    return this.useWhiteList;
+  }
 
-    public List<Peer> getPeers() {
-        if (peers == null) {
-            return null;
-        }
-        return Collections.unmodifiableList(peers);
-    }
+  public boolean isDisablePeerDiscovery() {
+    return disablePeerDiscovery;
+  }
 
-    public KeyConfiguration getKeys() {
-        return this.keys;
-    }
+  public boolean isBootstrapNode() {
+    return this.bootstrapNode;
+  }
 
-    public List<String> getAlwaysSendTo() {
-        return this.alwaysSendTo;
+  public void addPeer(Peer peer) {
+    if (peers == null) {
+      this.peers = new ArrayList<>();
     }
+    this.peers.add(peer);
+  }
 
-    public boolean isUseWhiteList() {
-        return this.useWhiteList;
-    }
+  public ServerConfig getP2PServerConfig() {
+    // TODO need to revisit
+    return getServerConfigs().stream()
+        .filter(sc -> sc.getApp() == AppType.P2P)
+        .findFirst()
+        .orElse(null);
+  }
 
-    public boolean isDisablePeerDiscovery() {
-        return disablePeerDiscovery;
-    }
+  @Deprecated
+  public DeprecatedServerConfig getServer() {
+    return server;
+  }
 
-    public boolean isBootstrapNode() {
-        return this.bootstrapNode;
-    }
+  @Deprecated
+  public void setServer(DeprecatedServerConfig server) {
+    this.server = server;
+  }
 
-    public void addPeer(Peer peer) {
-        if (peers == null) {
-            this.peers = new ArrayList<>();
-        }
-        this.peers.add(peer);
-    }
+  public void setJdbcConfig(JdbcConfig jdbcConfig) {
+    this.jdbcConfig = jdbcConfig;
+  }
 
-    public ServerConfig getP2PServerConfig() {
-        // TODO need to revisit
-        return getServerConfigs().stream().filter(sc -> sc.getApp() == AppType.P2P).findFirst().orElse(null);
-    }
+  public void setServerConfigs(List<ServerConfig> serverConfigs) {
+    this.serverConfigs = serverConfigs;
+  }
 
-    @Deprecated
-    public DeprecatedServerConfig getServer() {
-        return server;
-    }
+  public void setPeers(List<Peer> peers) {
+    this.peers = peers;
+  }
 
-    @Deprecated
-    public void setServer(DeprecatedServerConfig server) {
-        this.server = server;
-    }
+  public void setKeys(KeyConfiguration keys) {
+    this.keys = keys;
+  }
 
-    public void setJdbcConfig(JdbcConfig jdbcConfig) {
-        this.jdbcConfig = jdbcConfig;
-    }
+  public void setAlwaysSendTo(List<String> alwaysSendTo) {
+    this.alwaysSendTo = alwaysSendTo;
+  }
 
-    public void setServerConfigs(List<ServerConfig> serverConfigs) {
-        this.serverConfigs = serverConfigs;
-    }
+  @Deprecated
+  public void setUnixSocketFile(Path unixSocketFile) {
+    this.unixSocketFile = unixSocketFile;
+  }
 
-    public void setPeers(List<Peer> peers) {
-        this.peers = peers;
-    }
+  public void setUseWhiteList(boolean useWhiteList) {
+    this.useWhiteList = useWhiteList;
+  }
 
-    public void setKeys(KeyConfiguration keys) {
-        this.keys = keys;
-    }
+  public void setDisablePeerDiscovery(boolean disablePeerDiscovery) {
+    this.disablePeerDiscovery = disablePeerDiscovery;
+  }
 
-    public void setAlwaysSendTo(List<String> alwaysSendTo) {
-        this.alwaysSendTo = alwaysSendTo;
-    }
+  public void setBootstrapNode(boolean bootstrapNode) {
+    this.bootstrapNode = bootstrapNode;
+  }
 
-    @Deprecated
-    public void setUnixSocketFile(Path unixSocketFile) {
-        this.unixSocketFile = unixSocketFile;
-    }
+  public String getVersion() {
+    return version;
+  }
 
-    public void setUseWhiteList(boolean useWhiteList) {
-        this.useWhiteList = useWhiteList;
-    }
+  public FeatureToggles getFeatures() {
+    return features;
+  }
 
-    public void setDisablePeerDiscovery(boolean disablePeerDiscovery) {
-        this.disablePeerDiscovery = disablePeerDiscovery;
-    }
+  public void setFeatures(final FeatureToggles features) {
+    this.features = features;
+  }
 
-    public void setBootstrapNode(boolean bootstrapNode) {
-        this.bootstrapNode = bootstrapNode;
-    }
+  public EncryptorConfig getEncryptor() {
+    return encryptor;
+  }
 
-    public String getVersion() {
-        return version;
-    }
+  public void setEncryptor(EncryptorConfig encryptor) {
+    this.encryptor = encryptor;
+  }
 
-    public FeatureToggles getFeatures() {
-        return features;
-    }
+  public boolean isRecoveryMode() {
+    return recoveryMode;
+  }
 
-    public void setFeatures(final FeatureToggles features) {
-        this.features = features;
-    }
+  public void setRecoveryMode(boolean recoveryMode) {
+    this.recoveryMode = recoveryMode;
+  }
 
-    public EncryptorConfig getEncryptor() {
-        return encryptor;
-    }
+  public ClientMode getClientMode() {
+    return clientMode;
+  }
 
-    public void setEncryptor(EncryptorConfig encryptor) {
-        this.encryptor = encryptor;
-    }
+  public void setClientMode(ClientMode clientMode) {
+    this.clientMode = clientMode;
+  }
 
-    public boolean isRecoveryMode() {
-        return recoveryMode;
-    }
+  public List<ResidentGroup> getResidentGroups() {
+    return residentGroups;
+  }
 
-    public void setRecoveryMode(boolean recoveryMode) {
-        this.recoveryMode = recoveryMode;
-    }
-
-    public ClientMode getClientMode() {
-        return clientMode;
-    }
-
-    public void setClientMode(ClientMode clientMode) {
-        this.clientMode = clientMode;
-    }
-
-    public List<ResidentGroup> getResidentGroups() {
-        return residentGroups;
-    }
-
-    public void setResidentGroups(List<ResidentGroup> residentGroups) {
-        this.residentGroups = residentGroups;
-    }
+  public void setResidentGroups(List<ResidentGroup> residentGroups) {
+    this.residentGroups = residentGroups;
+  }
 }

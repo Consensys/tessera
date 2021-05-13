@@ -6,18 +6,17 @@ import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
 
 public enum KeyVaultType {
-    AZURE(AzureVaultKeyPair.class),
-    HASHICORP(HashicorpVaultKeyPair.class),
-    AWS(AWSKeyPair.class);
+  AZURE(AzureVaultKeyPair.class),
+  HASHICORP(HashicorpVaultKeyPair.class),
+  AWS(AWSKeyPair.class);
 
-    private Class<? extends ConfigKeyPair> keyPairType;
+  private Class<? extends ConfigKeyPair> keyPairType;
 
-    KeyVaultType(Class<? extends ConfigKeyPair> keyPairType) {
-        this.keyPairType = keyPairType;
-    }
+  KeyVaultType(Class<? extends ConfigKeyPair> keyPairType) {
+    this.keyPairType = keyPairType;
+  }
 
-    public Class<? extends ConfigKeyPair> getKeyPairType() {
-        return keyPairType;
-    }
-
+  public Class<? extends ConfigKeyPair> getKeyPairType() {
+    return keyPairType;
+  }
 }
