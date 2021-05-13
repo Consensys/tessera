@@ -103,8 +103,8 @@ allprojects {
 
         implementation "io.swagger.core.v3:swagger-annotations:$swaggerVersion"
 
-        implementation "org.bouncycastle:bcpkix-jdk15on:1.64"
-        implementation "org.bouncycastle:bcprov-jdk15on:1.64"
+        implementation "org.bouncycastle:bcpkix-jdk15on:1.68"
+        implementation "org.bouncycastle:bcprov-jdk15on:1.68"
 
         implementation "com.h2database:h2:1.4.200"
         implementation "com.zaxxer:HikariCP:3.2.0"
