@@ -1,12 +1,12 @@
 plugins {
-    id "java-library"
+  id "java-library"
 }
 
 dependencies {
-    implementation project(":encryption:encryption-api")
-    implementation project(":config")
-    implementation project(":shared")
-    implementation project(":key-vault:key-vault-api")
-    implementation "org.bouncycastle:bcprov-jdk15on"
-    testRuntimeOnly project(":encryption:encryption-ec")
+  implementation project(":encryption:encryption-api")
+  implementation project(":config")
+  implementation project(":shared")
+  implementation project(":key-vault:key-vault-api")
+  implementation "org.bouncycastle:bcprov-jdk15on"
+  testRuntimeOnly project(":encryption:encryption-ec")
 }

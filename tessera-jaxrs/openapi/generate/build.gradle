@@ -1,36 +1,38 @@
 plugins {
-    id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
+  id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
 }
 
 dependencies {
-    compileOnly project(":tessera-jaxrs:common-jaxrs")
-    compileOnly project(":tessera-jaxrs:sync-jaxrs")
-    compileOnly project(":tessera-jaxrs:transaction-jaxrs")
-    compileOnly project(":tessera-jaxrs:thirdparty-jaxrs")
-    compileOnly project(":tessera-jaxrs:openapi:common")
-    compileOnly project(":tessera-core")
-    compileOnly project(":tessera-partyinfo")
-    compileOnly project(":enclave:enclave-api")
-    compileOnly project(":shared")
-    compileOnly project(":tessera-jaxrs:partyinfo-model")
-    compileOnly project(":encryption:encryption-api")
-    compileOnly project(":config")
-    compileOnly project(":tessera-recover")
+  compileOnly project(":tessera-jaxrs:common-jaxrs")
+  compileOnly project(":tessera-jaxrs:sync-jaxrs")
+  compileOnly project(":tessera-jaxrs:transaction-jaxrs")
+  compileOnly project(":tessera-jaxrs:thirdparty-jaxrs")
+  compileOnly project(":tessera-jaxrs:openapi:common")
+  compileOnly project(":tessera-core")
+  compileOnly project(":tessera-partyinfo")
+  compileOnly project(":enclave:enclave-api")
+  compileOnly project(":shared")
+  compileOnly project(":tessera-jaxrs:partyinfo-model")
+  compileOnly project(":encryption:encryption-api")
+  compileOnly project(":config")
+  compileOnly project(":tessera-recover")
 
-    compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
-    compileOnly "org.glassfish:jakarta.json"
+  compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
+  compileOnly "org.glassfish:jakarta.json"
 }
 
 resolve {
-    classpath = sourceSets.main.compileClasspath
-    outputDir = file("${project.buildDir}/generated-resources/openapi")
-    outputFormat = 'JSONANDYAML'
-    prettyPrint = 'TRUE'
-    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base.yaml")
-    modelConverterClasses = ['com.quorum.tessera.openapi.FullyQualifiedNameResolver']
+  classpath = sourceSets.main.compileClasspath
+  outputDir = file("${project.buildDir}/generated-resources/openapi")
+  outputFormat = 'JSONANDYAML'
+  prettyPrint = 'TRUE'
+  openApiFile = file("${project.projectDir}/src/main/resources/openapi-base.yaml")
+  modelConverterClasses = [
+    'com.quorum.tessera.openapi.FullyQualifiedNameResolver'
+  ]
 }
 
 // exists to have a self-documenting task name when called from CI/CD
 task generateOpenApiDoc {
-    dependsOn resolve
+  dependsOn resolve
 }

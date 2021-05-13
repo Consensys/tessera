@@ -1,22 +1,19 @@
 plugins {
-    id "java-library"
+  id "java-library"
 }
 
 
 dependencies {
 
-    implementation project(":encryption:encryption-api")
-    implementation project(":shared")
-    implementation project(":config")
-    implementation project(":key-vault:key-vault-api")
-    implementation project(":enclave:enclave-api")
-    implementation project(":security")
+  implementation project(":encryption:encryption-api")
+  implementation project(":shared")
+  implementation project(":config")
+  implementation project(":key-vault:key-vault-api")
+  implementation project(":enclave:enclave-api")
+  implementation project(":security")
 
-    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-    implementation "jakarta.validation:jakarta.validation-api"
-    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
-    runtimeOnly "org.hibernate.validator:hibernate-validator"
+  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation "jakarta.validation:jakarta.validation-api"
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+  runtimeOnly "org.hibernate.validator:hibernate-validator"
 }
-
-
-

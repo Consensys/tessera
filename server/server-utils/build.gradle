@@ -1,11 +1,11 @@
 plugins {
-    id "java-library"
+  id "java-library"
 }
 
 dependencies {
-    implementation project(":config")
-    implementation project(":security")
-    implementation project(":tessera-context")
-    implementation "org.eclipse.jetty:jetty-unixsocket"
-    implementation "org.eclipse.jetty:jetty-server"
+  implementation project(":config")
+  implementation project(":security")
+  implementation project(":tessera-context")
+  implementation "org.eclipse.jetty:jetty-unixsocket"
+  implementation "org.eclipse.jetty:jetty-server"
 }
