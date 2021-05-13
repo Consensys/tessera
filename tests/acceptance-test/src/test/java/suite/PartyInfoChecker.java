@@ -6,12 +6,12 @@ import org.slf4j.LoggerFactory;
 
 public interface PartyInfoChecker {
 
-    Logger LOGGER = LoggerFactory.getLogger(PartyInfoChecker.class);
+  Logger LOGGER = LoggerFactory.getLogger(PartyInfoChecker.class);
 
-    boolean hasSynced();
+  boolean hasSynced();
 
-    static PartyInfoChecker create(CommunicationType communicationType) {
-        LOGGER.info("Creating checker for {}", communicationType);
-        return new RestPartyInfoChecker();
-    }
+  static PartyInfoChecker create(CommunicationType communicationType) {
+    LOGGER.info("Creating checker for {}", communicationType);
+    return new RestPartyInfoChecker();
+  }
 }

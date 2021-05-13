@@ -6,6 +6,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        features = "classpath:features/vault/azure.feature",
-        plugin = {"pretty"})
+    features = "classpath:features/vault/azure.feature",
+    plugin = {"pretty"})
 public class RunAzureIT {}

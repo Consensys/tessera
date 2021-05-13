@@ -1,5 +1,7 @@
 package com.quorum.tessera.test.rest;
 
+import static org.assertj.core.api.Assertions.*;
+
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.config.CommunicationType;
@@ -14,16 +16,6 @@ import db.UncheckedSQLException;
 import exec.ExecManager;
 import exec.NodeExecManager;
 import exec.RecoveryExecManager;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import suite.*;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,241 +27,256 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import static org.assertj.core.api.Assertions.*;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import suite.*;
 
 public class RecoverIT {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RecoverIT.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RecoverIT.class);
 
-    private Map<NodeAlias, ExecManager> executors;
+  private Map<NodeAlias, ExecManager> executors;
 
-    private SetupDatabase setupDatabase;
+  private SetupDatabase setupDatabase;
 
-    private PartyHelper partyHelper;
+  private PartyHelper partyHelper;
 
-    private Party sender;
+  private Party sender;
 
-    private List<Party> recipients;
+  private List<Party> recipients;
 
-    @Before
-    public void startNetwork() throws Exception {
-        final ExecutionContext executionContext =
-                ExecutionContext.Builder.create()
-                        .with(CommunicationType.REST)
-                        .with(DBType.H2)
-                        .with(SocketType.HTTP)
-                        .with(EnclaveType.LOCAL)
-                        .with(EncryptorType.NACL)
-                        .prefix(RecoverIT.class.getSimpleName().toLowerCase())
-                        .createAndSetupContext();
+  @Before
+  public void startNetwork() throws Exception {
+    final ExecutionContext executionContext =
+        ExecutionContext.Builder.create()
+            .with(CommunicationType.REST)
+            .with(DBType.H2)
+            .with(SocketType.HTTP)
+            .with(EnclaveType.LOCAL)
+            .with(EncryptorType.NACL)
+            .prefix(RecoverIT.class.getSimpleName().toLowerCase())
+            .createAndSetupContext();
 
-        partyHelper = PartyHelper.create();
-        sender = partyHelper.findByAlias(NodeAlias.A);
-        recipients =
-                partyHelper
-                        .getParties()
-                        .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
-                        .collect(Collectors.toList());
+    partyHelper = PartyHelper.create();
+    sender = partyHelper.findByAlias(NodeAlias.A);
+    recipients =
+        partyHelper
+            .getParties()
+            .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
+            .collect(Collectors.toList());
 
-        String nodeId = NodeId.generate(executionContext);
-        DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
-        databaseServer.start();
+    String nodeId = NodeId.generate(executionContext);
+    DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
+    databaseServer.start();
 
-        setupDatabase = new SetupDatabase(executionContext);
-        setupDatabase.setUp();
+    setupDatabase = new SetupDatabase(executionContext);
+    setupDatabase.setUp();
 
-        this.executors =
-                executionContext.getConfigs().stream()
-                        .map(NodeExecManager::new)
-                        .collect(Collectors.toMap(e -> e.getConfigDescriptor().getAlias(), e -> e));
+    this.executors =
+        executionContext.getConfigs().stream()
+            .map(NodeExecManager::new)
+            .collect(Collectors.toMap(e -> e.getConfigDescriptor().getAlias(), e -> e));
 
-        executors.values().forEach(ExecManager::start);
+    executors.values().forEach(ExecManager::start);
 
-        LOGGER.debug("nodes started");
+    LOGGER.debug("nodes started");
 
-        partyInfoSync();
+    partyInfoSync();
 
-        LOGGER.debug("nodes synced");
+    LOGGER.debug("nodes synced");
 
-        sendTransactions();
+    sendTransactions();
 
-        LOGGER.debug("transactions sent");
+    LOGGER.debug("transactions sent");
 
-        Arrays.stream(NodeAlias.values())
-                .forEach(
-                        a -> {
-                            long count = doCount(a);
-                            if (a == NodeAlias.D) {
-                                assertThat(count).describedAs(a + " should have 100 ").isEqualTo(100L);
-                            } else {
-                                assertThat(count).describedAs(a + " should have 500 ").isEqualTo(500L);
-                            }
-                        });
-        LOGGER.debug("transactions checked");
+    Arrays.stream(NodeAlias.values())
+        .forEach(
+            a -> {
+              long count = doCount(a);
+              if (a == NodeAlias.D) {
+                assertThat(count).describedAs(a + " should have 100 ").isEqualTo(100L);
+              } else {
+                assertThat(count).describedAs(a + " should have 500 ").isEqualTo(500L);
+              }
+            });
+    LOGGER.debug("transactions checked");
+  }
+
+  @After
+  public void stopNetwork() throws Exception {
+    setupDatabase.dropAll();
+    ExecutionContext.destroyContext();
+    executors.values().forEach(ExecManager::stop);
+  }
+
+  void sendTransactions() {
+
+    final List<String> recipientList =
+        recipients.stream().map(Party::getPublicKey).collect(Collectors.toList());
+
+    final List<String> privacyRecipients =
+        recipients.stream()
+            .filter(r -> r != partyHelper.findByAlias(NodeAlias.D))
+            .map(Party::getPublicKey)
+            .collect(Collectors.toList());
+
+    // Creating SP Contract
+    final String spOriginalHash =
+        sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[0], recipientList);
+    for (int i = 0; i < 99; i++) {
+      sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[] {spOriginalHash}, recipientList);
     }
 
-    @After
-    public void stopNetwork() throws Exception {
-        setupDatabase.dropAll();
-        ExecutionContext.destroyContext();
-        executors.values().forEach(ExecManager::stop);
+    // Creating PP Contract
+    final String ppOriginalHash =
+        sendTransaction(PrivacyMode.PARTY_PROTECTION, new String[0], privacyRecipients);
+    for (int i = 0; i < 199; i++) {
+      sendTransaction(
+          PrivacyMode.PARTY_PROTECTION, new String[] {ppOriginalHash}, privacyRecipients);
     }
 
-    void sendTransactions() {
+    // Creating PSV Contract
+    final String psvOriginalHash =
+        sendTransaction(PrivacyMode.PRIVATE_STATE_VALIDATION, new String[0], privacyRecipients);
+    for (int i = 0; i < 199; i++) {
+      sendTransaction(
+          PrivacyMode.PRIVATE_STATE_VALIDATION, new String[] {psvOriginalHash}, privacyRecipients);
+    }
+  }
 
-        final List<String> recipientList = recipients.stream().map(Party::getPublicKey).collect(Collectors.toList());
+  @Test
+  public void recoverNodes() throws Exception {
 
-        final List<String> privacyRecipients =
-                recipients.stream()
-                        .filter(r -> r != partyHelper.findByAlias(NodeAlias.D))
-                        .map(Party::getPublicKey)
-                        .collect(Collectors.toList());
+    List<NodeAlias> aliases = Arrays.asList(NodeAlias.values());
+    Collections.shuffle(aliases);
 
-        // Creating SP Contract
-        final String spOriginalHash = sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[0], recipientList);
-        for (int i = 0; i < 99; i++) {
-            sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[] {spOriginalHash}, recipientList);
+    for (NodeAlias nodeAlias : aliases) {
+      recoverNode(nodeAlias);
+    }
+  }
+
+  private void recoverNode(NodeAlias nodeAlias) throws Exception {
+
+    LOGGER.debug("testing recovery of {}", nodeAlias);
+
+    ExecManager execManager = executors.get(nodeAlias);
+    execManager.stop();
+    setupDatabase.drop(nodeAlias);
+    setupDatabase.setUp(nodeAlias);
+
+    LOGGER.debug("stopped {} and dropped DB", nodeAlias);
+
+    assertThat(doCount(nodeAlias)).isZero();
+
+    RecoveryExecManager recoveryExecManager =
+        new RecoveryExecManager(execManager.getConfigDescriptor());
+
+    LOGGER.debug("starting {} in recovery mode", nodeAlias);
+
+    Process process = recoveryExecManager.start();
+
+    process.waitFor();
+
+    LOGGER.debug("{}'s recovery finished", nodeAlias);
+
+    if (nodeAlias == NodeAlias.D) {
+      assertThat(doCount(nodeAlias)).isEqualTo(100);
+    } else {
+      assertThat(doCount(nodeAlias)).isEqualTo(500);
+    }
+    LOGGER.debug("{}'s transactions fully recovered", nodeAlias);
+
+    recoveryExecManager.stop();
+
+    NodeExecManager nodeExecManager = new NodeExecManager(execManager.getConfigDescriptor());
+
+    LOGGER.debug("starting {} in normal mode", nodeAlias);
+
+    nodeExecManager.start();
+
+    LOGGER.debug("waiting for {} to sync with all parties", nodeAlias);
+
+    partyInfoSync();
+
+    LOGGER.debug("{} is now synced with all parties", nodeAlias);
+
+    executors.replace(nodeAlias, nodeExecManager);
+  }
+
+  private long doCount(NodeAlias nodeAlias) {
+    Party party = partyHelper.findByAlias(nodeAlias);
+    Connection connection = party.getDatabaseConnection();
+
+    try (connection) {
+
+      PreparedStatement preparedStatement =
+          connection.prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION");
+
+      try (preparedStatement) {
+        ResultSet resultSet = preparedStatement.executeQuery();
+        try (resultSet) {
+          assertThat(resultSet.next()).isTrue();
+          return resultSet.getLong(1);
         }
+      }
+    } catch (SQLException ex) {
+      throw new UncheckedSQLException(ex);
+    }
+  }
 
-        // Creating PP Contract
-        final String ppOriginalHash = sendTransaction(PrivacyMode.PARTY_PROTECTION, new String[0], privacyRecipients);
-        for (int i = 0; i < 199; i++) {
-            sendTransaction(PrivacyMode.PARTY_PROTECTION, new String[] {ppOriginalHash}, privacyRecipients);
-        }
+  private String sendTransaction(
+      PrivacyMode privacyMode, String[] affectedHash, List<String> recipients) {
 
-        // Creating PSV Contract
-        final String psvOriginalHash =
-            sendTransaction(PrivacyMode.PRIVATE_STATE_VALIDATION, new String[0], privacyRecipients);
-        for (int i = 0; i < 199; i++) {
-            sendTransaction(PrivacyMode.PRIVATE_STATE_VALIDATION, new String[] {psvOriginalHash}, privacyRecipients);
-        }
+    Party sender = partyHelper.findByAlias(NodeAlias.A);
+
+    SendRequest sendRequest = new SendRequest();
+    sendRequest.setPayload(new RestUtils().createTransactionData());
+    sendRequest.setFrom(sender.getPublicKey());
+    sendRequest.setTo(recipients.toArray(new String[recipients.size()]));
+    sendRequest.setPrivacyFlag(privacyMode.getPrivacyFlag());
+    sendRequest.setAffectedContractTransactions(affectedHash);
+    if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
+      sendRequest.setExecHash("execHash");
     }
 
-    @Test
-    public void recoverNodes() throws Exception {
+    Response response =
+        sender
+            .getRestClientWebTarget()
+            .path("send")
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
-        List<NodeAlias> aliases = Arrays.asList(NodeAlias.values());
-        Collections.shuffle(aliases);
+    assertThat(response.getStatus()).isEqualTo(201);
+    final SendResponse result = response.readEntity(SendResponse.class);
 
-        for (NodeAlias nodeAlias : aliases) {
-            recoverNode(nodeAlias);
-        }
+    return result.getKey();
+  }
 
-    }
+  private void partyInfoSync() throws InterruptedException {
+    PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(CommunicationType.REST);
 
-    private void recoverNode(NodeAlias nodeAlias) throws Exception {
-
-        LOGGER.debug("testing recovery of {}", nodeAlias);
-
-        ExecManager execManager = executors.get(nodeAlias);
-        execManager.stop();
-        setupDatabase.drop(nodeAlias);
-        setupDatabase.setUp(nodeAlias);
-
-        LOGGER.debug("stopped {} and dropped DB", nodeAlias);
-
-        assertThat(doCount(nodeAlias)).isZero();
-
-        RecoveryExecManager recoveryExecManager = new RecoveryExecManager(execManager.getConfigDescriptor());
-
-        LOGGER.debug("starting {} in recovery mode", nodeAlias);
-
-        Process process = recoveryExecManager.start();
-
-        process.waitFor();
-
-        LOGGER.debug("{}'s recovery finished", nodeAlias);
-
-        if (nodeAlias == NodeAlias.D) {
-            assertThat(doCount(nodeAlias)).isEqualTo(100);
-        } else {
-            assertThat(doCount(nodeAlias)).isEqualTo(500);
-        }
-        LOGGER.debug("{}'s transactions fully recovered", nodeAlias);
-
-        recoveryExecManager.stop();
-
-        NodeExecManager nodeExecManager = new NodeExecManager(execManager.getConfigDescriptor());
-
-        LOGGER.debug("starting {} in normal mode", nodeAlias);
-
-        nodeExecManager.start();
-
-        LOGGER.debug("waiting for {} to sync with all parties", nodeAlias);
-
-        partyInfoSync();
-
-        LOGGER.debug("{} is now synced with all parties", nodeAlias);
-
-        executors.replace(nodeAlias, nodeExecManager);
-    }
-
-    private long doCount(NodeAlias nodeAlias) {
-        Party party = partyHelper.findByAlias(nodeAlias);
-        Connection connection = party.getDatabaseConnection();
-
-        try (connection) {
-
-            PreparedStatement preparedStatement =
-                    connection.prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION");
-
-            try (preparedStatement) {
-                ResultSet resultSet = preparedStatement.executeQuery();
-                try (resultSet) {
-                    assertThat(resultSet.next()).isTrue();
-                    return resultSet.getLong(1);
-                }
+    final CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
+    ExecutorService executorService = Executors.newSingleThreadExecutor();
+    executorService.submit(
+        () -> {
+          while (!partyInfoChecker.hasSynced()) {
+            try {
+              Thread.sleep(1000L);
+            } catch (InterruptedException ex) {
             }
-        } catch (SQLException ex) {
-            throw new UncheckedSQLException(ex);
-        }
+          }
+          partyInfoSyncLatch.countDown();
+        });
+
+    if (!partyInfoSyncLatch.await(10, TimeUnit.MINUTES)) {
+      fail("Unable to sync party info");
     }
-
-    private String sendTransaction(PrivacyMode privacyMode, String[] affectedHash, List<String> recipients) {
-
-        Party sender = partyHelper.findByAlias(NodeAlias.A);
-
-        SendRequest sendRequest = new SendRequest();
-        sendRequest.setPayload(new RestUtils().createTransactionData());
-        sendRequest.setFrom(sender.getPublicKey());
-        sendRequest.setTo(recipients.toArray(new String[recipients.size()]));
-        sendRequest.setPrivacyFlag(privacyMode.getPrivacyFlag());
-        sendRequest.setAffectedContractTransactions(affectedHash);
-        if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
-            sendRequest.setExecHash("execHash");
-        }
-
-        Response response =
-                sender.getRestClientWebTarget()
-                        .path("send")
-                        .request()
-                        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
-
-        assertThat(response.getStatus()).isEqualTo(201);
-        final SendResponse result = response.readEntity(SendResponse.class);
-
-        return result.getKey();
-    }
-
-    private void partyInfoSync() throws InterruptedException {
-        PartyInfoChecker partyInfoChecker = PartyInfoChecker.create(CommunicationType.REST);
-
-        final CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.submit(
-                () -> {
-                    while (!partyInfoChecker.hasSynced()) {
-                        try {
-                            Thread.sleep(1000L);
-                        } catch (InterruptedException ex) {
-                        }
-                    }
-                    partyInfoSyncLatch.countDown();
-                });
-
-        if (!partyInfoSyncLatch.await(10, TimeUnit.MINUTES)) {
-            fail("Unable to sync party info");
-        }
-        executorService.shutdown();
-    }
+    executorService.shutdown();
+  }
 }

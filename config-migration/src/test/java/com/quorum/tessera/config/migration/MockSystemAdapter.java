@@ -2,44 +2,42 @@ package com.quorum.tessera.config.migration;
 
 import com.quorum.tessera.io.NoopSystemAdapter;
 import com.quorum.tessera.io.SystemAdapter;
-
 import java.io.PrintStream;
 
 public class MockSystemAdapter implements SystemAdapter {
 
-    private PrintStream outPrintStream;
-    
-    private PrintStream errPrintStream;
+  private PrintStream outPrintStream;
 
-    public MockSystemAdapter(NoopSystemAdapter defualtInstance) {
-        this(defualtInstance.out(),defualtInstance.err());
-    }
+  private PrintStream errPrintStream;
 
-    public MockSystemAdapter() {
-        this(new NoopSystemAdapter());
-    }
+  public MockSystemAdapter(NoopSystemAdapter defualtInstance) {
+    this(defualtInstance.out(), defualtInstance.err());
+  }
 
-    public MockSystemAdapter(PrintStream outPrintStream, PrintStream errPrintStream) {
-        this.outPrintStream = outPrintStream;
-        this.errPrintStream = errPrintStream;
-    }
+  public MockSystemAdapter() {
+    this(new NoopSystemAdapter());
+  }
 
-    public void setOutPrintStream(PrintStream outPrintStream) {
-        this.outPrintStream = outPrintStream;
-    }
+  public MockSystemAdapter(PrintStream outPrintStream, PrintStream errPrintStream) {
+    this.outPrintStream = outPrintStream;
+    this.errPrintStream = errPrintStream;
+  }
 
-    public void setErrPrintStream(PrintStream errPrintStream) {
-        this.errPrintStream = errPrintStream;
-    }
-    
-    @Override
-    public PrintStream out() {
-        return outPrintStream;
-    }
+  public void setOutPrintStream(PrintStream outPrintStream) {
+    this.outPrintStream = outPrintStream;
+  }
 
-    @Override
-    public PrintStream err() {
-        return errPrintStream;
-    }
+  public void setErrPrintStream(PrintStream errPrintStream) {
+    this.errPrintStream = errPrintStream;
+  }
 
+  @Override
+  public PrintStream out() {
+    return outPrintStream;
+  }
+
+  @Override
+  public PrintStream err() {
+    return errPrintStream;
+  }
 }

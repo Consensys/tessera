@@ -4,7 +4,7 @@ import com.quorum.tessera.exception.TesseraException;
 
 public class PrivacyGroupNotSupportedException extends TesseraException {
 
-    public PrivacyGroupNotSupportedException(String message) {
-        super(message);
-    }
+  public PrivacyGroupNotSupportedException(String message) {
+    super(message);
+  }
 }

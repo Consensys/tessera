@@ -12,9 +12,9 @@ import suite.TestSuite;
 
 @RunWith(TestSuite.class)
 @ProcessConfig(
-        communicationType = CommunicationType.REST,
-        dbType = DBType.H2,
-        socketType = SocketType.UNIX,
-        encryptorType = EncryptorType.NACL)
+    communicationType = CommunicationType.REST,
+    dbType = DBType.H2,
+    socketType = SocketType.UNIX,
+    encryptorType = EncryptorType.NACL)
 @TestSuite.SuiteClasses({CucumberRestIT.class, CucumberRawIT.class})
 public class RestSuiteUnixH2 {}

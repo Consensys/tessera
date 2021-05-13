@@ -6,20 +6,19 @@ import org.junit.Test;
 
 public class EncryptorExceptionTest {
 
-    @Test
-    public void createInstance() {
-        final String message = "HELLOW";
-        final EncryptorException exception = new EncryptorException(message);
+  @Test
+  public void createInstance() {
+    final String message = "HELLOW";
+    final EncryptorException exception = new EncryptorException(message);
 
-        assertThat(exception).hasNoCause().hasMessage(message);
-    }
+    assertThat(exception).hasNoCause().hasMessage(message);
+  }
 
-    @Test
-    public void createInstanceWithNullMessage() {
-        final EncryptorException exception = new EncryptorException(null);
+  @Test
+  public void createInstanceWithNullMessage() {
+    final EncryptorException exception = new EncryptorException(null);
 
-        assertThat(exception).hasNoCause();
-        assertThat(exception.getMessage()).isNull();
-    }
-
+    assertThat(exception).hasNoCause();
+    assertThat(exception.getMessage()).isNull();
+  }
 }

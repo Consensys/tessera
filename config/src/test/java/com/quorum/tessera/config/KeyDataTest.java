@@ -4,8 +4,8 @@ import org.junit.Test;
 
 public class KeyDataTest {
 
-    @Test
-    public void doStuff() {
-        KeyData keyData = new KeyData();
-    }
+  @Test
+  public void doStuff() {
+    KeyData keyData = new KeyData();
+  }
 }

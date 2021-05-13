@@ -3,140 +3,139 @@ package com.quorum.tessera.context;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PublicKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.ws.rs.client.Client;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.ws.rs.client.Client;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RuntimeContextBuilder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeContextBuilder.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(RuntimeContextBuilder.class);
 
-    private List<KeyPair> keys = new ArrayList<>();
+  private List<KeyPair> keys = new ArrayList<>();
 
-    private KeyEncryptor keyEncryptor;
+  private KeyEncryptor keyEncryptor;
 
-    private List<PublicKey> alwaysSendTo = new ArrayList<>();
+  private List<PublicKey> alwaysSendTo = new ArrayList<>();
 
-    private List<URI> peers = new ArrayList<>();
+  private List<URI> peers = new ArrayList<>();
 
-    private Client p2pClient;
+  private Client p2pClient;
 
-    private URI p2pServerUri;
+  private URI p2pServerUri;
 
-    private boolean remoteKeyValidation;
+  private boolean remoteKeyValidation;
 
-    private boolean enhancedPrivacy;
+  private boolean enhancedPrivacy;
 
-    private boolean disablePeerDiscovery;
+  private boolean disablePeerDiscovery;
 
-    private boolean useWhiteList;
+  private boolean useWhiteList;
 
-    private boolean recoveryMode;
+  private boolean recoveryMode;
 
-    private boolean orionMode;
+  private boolean orionMode;
 
-    private boolean multiplePrivateStates;
+  private boolean multiplePrivateStates;
 
-    private RuntimeContextBuilder() {}
+  private RuntimeContextBuilder() {}
 
-    public static RuntimeContextBuilder create() {
-        return new RuntimeContextBuilder();
-    }
+  public static RuntimeContextBuilder create() {
+    return new RuntimeContextBuilder();
+  }
 
-    public RuntimeContextBuilder withP2pServerUri(URI p2pServerUri) {
-        this.p2pServerUri = p2pServerUri;
-        return this;
-    }
+  public RuntimeContextBuilder withP2pServerUri(URI p2pServerUri) {
+    this.p2pServerUri = p2pServerUri;
+    return this;
+  }
 
-    public RuntimeContextBuilder withKeys(List<KeyPair> keys) {
-        this.keys.addAll(keys);
-        return this;
-    }
+  public RuntimeContextBuilder withKeys(List<KeyPair> keys) {
+    this.keys.addAll(keys);
+    return this;
+  }
 
-    public RuntimeContextBuilder withKeyEncryptor(KeyEncryptor keyEncryptor) {
-        this.keyEncryptor = keyEncryptor;
-        return this;
-    }
+  public RuntimeContextBuilder withKeyEncryptor(KeyEncryptor keyEncryptor) {
+    this.keyEncryptor = keyEncryptor;
+    return this;
+  }
 
-    public RuntimeContextBuilder withPeers(List<URI> peers) {
-        this.peers.addAll(peers);
-        return this;
-    }
+  public RuntimeContextBuilder withPeers(List<URI> peers) {
+    this.peers.addAll(peers);
+    return this;
+  }
 
-    public RuntimeContextBuilder withAlwaysSendTo(List<PublicKey> alwaysSendTo) {
-        this.alwaysSendTo.addAll(alwaysSendTo);
-        return this;
-    }
+  public RuntimeContextBuilder withAlwaysSendTo(List<PublicKey> alwaysSendTo) {
+    this.alwaysSendTo.addAll(alwaysSendTo);
+    return this;
+  }
 
-    public RuntimeContextBuilder withP2pClient(Client p2pClient) {
-        this.p2pClient = p2pClient;
-        return this;
-    }
+  public RuntimeContextBuilder withP2pClient(Client p2pClient) {
+    this.p2pClient = p2pClient;
+    return this;
+  }
 
-    public RuntimeContextBuilder withRemoteKeyValidation(boolean remoteKeyValidation) {
-        this.remoteKeyValidation = remoteKeyValidation;
-        return this;
-    }
+  public RuntimeContextBuilder withRemoteKeyValidation(boolean remoteKeyValidation) {
+    this.remoteKeyValidation = remoteKeyValidation;
+    return this;
+  }
 
-    public RuntimeContextBuilder withEnhancedPrivacy(boolean enhancedPrivacy) {
-        this.enhancedPrivacy = enhancedPrivacy;
-        return this;
-    }
+  public RuntimeContextBuilder withEnhancedPrivacy(boolean enhancedPrivacy) {
+    this.enhancedPrivacy = enhancedPrivacy;
+    return this;
+  }
 
-    public RuntimeContextBuilder withDisablePeerDiscovery(boolean disablePeerDiscovery) {
-        this.disablePeerDiscovery = disablePeerDiscovery;
-        return this;
-    }
+  public RuntimeContextBuilder withDisablePeerDiscovery(boolean disablePeerDiscovery) {
+    this.disablePeerDiscovery = disablePeerDiscovery;
+    return this;
+  }
 
-    public RuntimeContextBuilder withUseWhiteList(boolean useWhiteList) {
-        this.useWhiteList = useWhiteList;
-        return this;
-    }
+  public RuntimeContextBuilder withUseWhiteList(boolean useWhiteList) {
+    this.useWhiteList = useWhiteList;
+    return this;
+  }
 
-    public RuntimeContextBuilder withRecoveryMode(boolean recoveryMode) {
-        this.recoveryMode = recoveryMode;
-        return this;
-    }
+  public RuntimeContextBuilder withRecoveryMode(boolean recoveryMode) {
+    this.recoveryMode = recoveryMode;
+    return this;
+  }
 
-    public RuntimeContextBuilder withOrionMode(boolean orionMode) {
-        this.orionMode = orionMode;
-        return this;
-    }
+  public RuntimeContextBuilder withOrionMode(boolean orionMode) {
+    this.orionMode = orionMode;
+    return this;
+  }
 
-    public RuntimeContextBuilder withMultiplePrivateStates(boolean multiplePrivateStates) {
-        this.multiplePrivateStates = multiplePrivateStates;
-        return this;
-    }
+  public RuntimeContextBuilder withMultiplePrivateStates(boolean multiplePrivateStates) {
+    this.multiplePrivateStates = multiplePrivateStates;
+    return this;
+  }
 
-    public RuntimeContext build() {
+  public RuntimeContext build() {
 
-        LOGGER.debug("Building {}", this);
+    LOGGER.debug("Building {}", this);
 
-        Objects.requireNonNull(p2pServerUri, "No p2pServerUri provided. ");
-        Objects.requireNonNull(keyEncryptor, "No key encryptor provided. ");
-        Objects.requireNonNull(p2pClient, "No p2pClient provided. ");
+    Objects.requireNonNull(p2pServerUri, "No p2pServerUri provided. ");
+    Objects.requireNonNull(keyEncryptor, "No key encryptor provided. ");
+    Objects.requireNonNull(p2pClient, "No p2pClient provided. ");
 
-        RuntimeContext instance =
-                new DefaultRuntimeContext(
-                        keys,
-                        keyEncryptor,
-                        alwaysSendTo,
-                        peers,
-                        p2pClient,
-                        remoteKeyValidation,
-                        enhancedPrivacy,
-                        p2pServerUri,
-                        disablePeerDiscovery,
-                        useWhiteList,
-                        recoveryMode,
-                        orionMode,
-                        multiplePrivateStates);
-        LOGGER.debug("Built {}", this);
-        return instance;
-    }
+    RuntimeContext instance =
+        new DefaultRuntimeContext(
+            keys,
+            keyEncryptor,
+            alwaysSendTo,
+            peers,
+            p2pClient,
+            remoteKeyValidation,
+            enhancedPrivacy,
+            p2pServerUri,
+            disablePeerDiscovery,
+            useWhiteList,
+            recoveryMode,
+            orionMode,
+            multiplePrivateStates);
+    LOGGER.debug("Built {}", this);
+    return instance;
+  }
 }

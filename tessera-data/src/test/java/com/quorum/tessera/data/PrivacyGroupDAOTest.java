@@ -1,13 +1,9 @@
 package com.quorum.tessera.data;
 
-import org.junit.*;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
+import static org.mockito.Mockito.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -15,362 +11,373 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.mockito.Mockito.*;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class PrivacyGroupDAOTest {
 
-    private EntityManagerFactory entityManagerFactory;
+  private EntityManagerFactory entityManagerFactory;
 
-    private PrivacyGroupDAO privacyGroupDAO;
+  private PrivacyGroupDAO privacyGroupDAO;
 
-    private TestConfig testConfig;
+  private TestConfig testConfig;
 
-    public PrivacyGroupDAOTest(TestConfig testConfig) {
-        this.testConfig = testConfig;
+  public PrivacyGroupDAOTest(TestConfig testConfig) {
+    this.testConfig = testConfig;
+  }
+
+  @Before
+  public void onSetUp() {
+
+    Map properties = new HashMap();
+    properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
+    properties.put("javax.persistence.jdbc.user", "junit");
+    properties.put("javax.persistence.jdbc.password", "");
+    properties.put(
+        "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+    properties.put("eclipselink.logging.level", "FINE");
+    properties.put("eclipselink.logging.parameters", "true");
+    properties.put("eclipselink.logging.level.sql", "FINE");
+    properties.put("eclipselink.cache.shared.default", "false");
+    properties.put("javax.persistence.schema-generation.database.action", "create");
+
+    entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
+    privacyGroupDAO = new PrivacyGroupDAOImpl(entityManagerFactory);
+  }
+
+  @After
+  public void onTearDown() {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    entityManager.getTransaction().begin();
+    entityManager.createQuery("delete from PrivacyGroupEntity ").executeUpdate();
+    entityManager.getTransaction().commit();
+  }
+
+  @Test
+  public void saveDoesNotAllowNullId() {
+    PrivacyGroupEntity privacyGroup = new PrivacyGroupEntity();
+
+    try {
+      privacyGroupDAO.save(privacyGroup);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ID");
+
+      assertThat(ex)
+          .isInstanceOf(PersistenceException.class)
+          .hasMessageContaining(expectedMessage)
+          .hasMessageContaining("ID");
+    }
+  }
+
+  @Test
+  public void saveDoesNotAllowNullData() {
+    PrivacyGroupEntity privacyGroup = new PrivacyGroupEntity();
+    privacyGroup.setId("id".getBytes());
+
+    try {
+      privacyGroupDAO.save(privacyGroup);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "DATA");
+
+      assertThat(ex)
+          .isInstanceOf(PersistenceException.class)
+          .hasMessageContaining(expectedMessage)
+          .hasMessageContaining("DATA");
+    }
+  }
+
+  @Test
+  public void saveDuplicateIdThrowException() {
+    PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+    privacyGroupDAO.save(entity);
+
+    try {
+      privacyGroupDAO.save(entity);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      assertThat(ex)
+          .isInstanceOf(PersistenceException.class)
+          .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
+    }
+  }
+
+  @Test
+  public void saveAndRetrieve() {
+    PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+    privacyGroupDAO.save(entity);
+
+    Optional<PrivacyGroupEntity> retrieved = privacyGroupDAO.retrieve("id".getBytes());
+
+    assertThat(retrieved).isPresent();
+    assertThat(retrieved.get().getId()).isEqualTo("id".getBytes());
+    assertThat(retrieved.get().getLookupId()).isEqualTo("lookup".getBytes());
+    assertThat(retrieved.get().getData()).isEqualTo("data".getBytes());
+  }
+
+  @Test
+  public void saveAndUpdate() {
+    PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+    privacyGroupDAO.save(entity);
+
+    entity.setData("newData".getBytes());
+
+    privacyGroupDAO.update(entity);
+
+    Optional<PrivacyGroupEntity> retrieved = privacyGroupDAO.retrieve("id".getBytes());
+
+    assertThat(retrieved).isPresent();
+    assertThat(retrieved.get().getId()).isEqualTo("id".getBytes());
+    assertThat(retrieved.get().getLookupId()).isEqualTo("lookup".getBytes());
+    assertThat(retrieved.get().getData()).isEqualTo("newData".getBytes());
+  }
+
+  @Test
+  public void saveAndFindByLookupId() {
+    final List<PrivacyGroupEntity> shouldBeEmpty =
+        privacyGroupDAO.findByLookupId("lookup".getBytes());
+    assertThat(shouldBeEmpty).isEmpty();
+
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id1".getBytes(), "lookup".getBytes(), "data".getBytes());
+    privacyGroupDAO.save(entity);
+    final PrivacyGroupEntity another =
+        new PrivacyGroupEntity("id2".getBytes(), "lookup".getBytes(), "data".getBytes());
+    privacyGroupDAO.save(another);
+
+    final List<PrivacyGroupEntity> pgs = privacyGroupDAO.findByLookupId("lookup".getBytes());
+    assertThat(pgs).isNotEmpty();
+    assertThat(pgs).containsExactlyInAnyOrder(entity, another);
+  }
+
+  @Test
+  public void saveAndFindAll() {
+    final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findAll();
+    assertThat(shouldBeEmpty).isEmpty();
+
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id1".getBytes(), "lookup".getBytes(), "data".getBytes());
+    privacyGroupDAO.save(entity);
+    final PrivacyGroupEntity another =
+        new PrivacyGroupEntity("id2".getBytes(), "lookup".getBytes(), "data".getBytes());
+    privacyGroupDAO.save(another);
+
+    final List<PrivacyGroupEntity> pgs = privacyGroupDAO.findAll();
+    assertThat(pgs).isNotEmpty();
+    assertThat(pgs).containsExactlyInAnyOrder(entity, another);
+  }
+
+  @Test
+  public void savePrivacyGroupWithCallback() throws Exception {
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+    Callable<Void> callback = mock(Callable.class);
+
+    privacyGroupDAO.save(entity, callback);
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+    assertThat(result).isNotNull();
+
+    verify(callback).call();
+  }
+
+  @Test
+  public void savePrivacyGroupWithCallbackException() throws Exception {
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+    Callable<Void> callback = mock(Callable.class);
+    when(callback.call()).thenThrow(new Exception("OUCH"));
+
+    try {
+      privacyGroupDAO.save(entity, callback);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      assertThat(ex).isNotNull().hasMessageContaining("OUCH");
     }
 
-    @Before
-    public void onSetUp() {
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+    assertThat(result).isNull();
 
-        Map properties = new HashMap();
-        properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
-        properties.put("javax.persistence.jdbc.user", "junit");
-        properties.put("javax.persistence.jdbc.password", "");
-        properties.put("eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
-        properties.put("eclipselink.logging.level", "FINE");
-        properties.put("eclipselink.logging.parameters", "true");
-        properties.put("eclipselink.logging.level.sql", "FINE");
-        properties.put("eclipselink.cache.shared.default", "false");
-        properties.put("javax.persistence.schema-generation.database.action", "create");
+    verify(callback).call();
+  }
 
-        entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
-        privacyGroupDAO = new PrivacyGroupDAOImpl(entityManagerFactory);
+  @Test
+  public void savePrivacyGroupWithRuntimeException() throws Exception {
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+    Callable<Void> callback = mock(Callable.class);
+    when(callback.call()).thenThrow(new RuntimeException("OUCH"));
+
+    try {
+      privacyGroupDAO.save(entity, callback);
+      failBecauseExceptionWasNotThrown(RuntimeException.class);
+    } catch (RuntimeException ex) {
+      assertThat(ex).isNotNull().hasMessageContaining("OUCH");
     }
 
-    @After
-    public void onTearDown() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        entityManager.createQuery("delete from PrivacyGroupEntity ").executeUpdate();
-        entityManager.getTransaction().commit();
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+    assertThat(result).isNull();
+
+    verify(callback).call();
+  }
+
+  @Test
+  public void updatePrivacyGroupWithCallback() throws Exception {
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+    Callable<Void> callback = mock(Callable.class);
+
+    privacyGroupDAO.update(entity, callback);
+
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+    assertThat(result).isNotNull();
+
+    verify(callback).call();
+  }
+
+  @Test
+  public void updatePrivacyGroupWithCallbackException() throws Exception {
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+    Callable<Void> callback = mock(Callable.class);
+    when(callback.call()).thenThrow(new Exception("OUCH"));
+
+    try {
+      privacyGroupDAO.update(entity, callback);
+      failBecauseExceptionWasNotThrown(PersistenceException.class);
+    } catch (PersistenceException ex) {
+      assertThat(ex).isNotNull().hasMessageContaining("OUCH");
     }
 
-    @Test
-    public void saveDoesNotAllowNullId() {
-        PrivacyGroupEntity privacyGroup = new PrivacyGroupEntity();
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+    assertThat(result).isNull();
 
-        try {
-            privacyGroupDAO.save(privacyGroup);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "ID");
+    verify(callback).call();
+  }
 
-            assertThat(ex)
-                    .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(expectedMessage)
-                    .hasMessageContaining("ID");
-        }
+  @Test
+  public void updatePrivacyGroupWithRuntimeException() throws Exception {
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+
+    Callable<Void> callback = mock(Callable.class);
+    when(callback.call()).thenThrow(new RuntimeException("OUCH"));
+
+    try {
+      privacyGroupDAO.update(entity, callback);
+      failBecauseExceptionWasNotThrown(RuntimeException.class);
+    } catch (RuntimeException ex) {
+      assertThat(ex).isNotNull().hasMessageContaining("OUCH");
     }
 
-    @Test
-    public void saveDoesNotAllowNullData() {
-        PrivacyGroupEntity privacyGroup = new PrivacyGroupEntity();
-        privacyGroup.setId("id".getBytes());
-
-        try {
-            privacyGroupDAO.save(privacyGroup);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "DATA");
-
-            assertThat(ex)
-                    .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(expectedMessage)
-                    .hasMessageContaining("DATA");
-        }
-    }
-
-    @Test
-    public void saveDuplicateIdThrowException() {
-        PrivacyGroupEntity entity = new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
-
-        privacyGroupDAO.save(entity);
-
-        try {
-            privacyGroupDAO.save(entity);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            assertThat(ex)
-                    .isInstanceOf(PersistenceException.class)
-                    .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
-        }
-    }
-
-    @Test
-    public void saveAndRetrieve() {
-        PrivacyGroupEntity entity = new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
-        privacyGroupDAO.save(entity);
-
-        Optional<PrivacyGroupEntity> retrieved = privacyGroupDAO.retrieve("id".getBytes());
-
-        assertThat(retrieved).isPresent();
-        assertThat(retrieved.get().getId()).isEqualTo("id".getBytes());
-        assertThat(retrieved.get().getLookupId()).isEqualTo("lookup".getBytes());
-        assertThat(retrieved.get().getData()).isEqualTo("data".getBytes());
-    }
-
-    @Test
-    public void saveAndUpdate() {
-        PrivacyGroupEntity entity = new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
-        privacyGroupDAO.save(entity);
-
-        entity.setData("newData".getBytes());
-
-        privacyGroupDAO.update(entity);
-
-        Optional<PrivacyGroupEntity> retrieved = privacyGroupDAO.retrieve("id".getBytes());
-
-        assertThat(retrieved).isPresent();
-        assertThat(retrieved.get().getId()).isEqualTo("id".getBytes());
-        assertThat(retrieved.get().getLookupId()).isEqualTo("lookup".getBytes());
-        assertThat(retrieved.get().getData()).isEqualTo("newData".getBytes());
-    }
-
-    @Test
-    public void saveAndFindByLookupId() {
-        final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findByLookupId("lookup".getBytes());
-        assertThat(shouldBeEmpty).isEmpty();
-
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id1".getBytes(), "lookup".getBytes(), "data".getBytes());
-        privacyGroupDAO.save(entity);
-        final PrivacyGroupEntity another =
-                new PrivacyGroupEntity("id2".getBytes(), "lookup".getBytes(), "data".getBytes());
-        privacyGroupDAO.save(another);
-
-        final List<PrivacyGroupEntity> pgs = privacyGroupDAO.findByLookupId("lookup".getBytes());
-        assertThat(pgs).isNotEmpty();
-        assertThat(pgs).containsExactlyInAnyOrder(entity, another);
-    }
-
-    @Test
-    public void saveAndFindAll() {
-        final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findAll();
-        assertThat(shouldBeEmpty).isEmpty();
-
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id1".getBytes(), "lookup".getBytes(), "data".getBytes());
-        privacyGroupDAO.save(entity);
-        final PrivacyGroupEntity another =
-                new PrivacyGroupEntity("id2".getBytes(), "lookup".getBytes(), "data".getBytes());
-        privacyGroupDAO.save(another);
-
-        final List<PrivacyGroupEntity> pgs = privacyGroupDAO.findAll();
-        assertThat(pgs).isNotEmpty();
-        assertThat(pgs).containsExactlyInAnyOrder(entity, another);
-    }
-
-    @Test
-    public void savePrivacyGroupWithCallback() throws Exception {
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
+    assertThat(result).isNull();
 
-        Callable<Void> callback = mock(Callable.class);
+    verify(callback).call();
+  }
 
-        privacyGroupDAO.save(entity, callback);
+  @Test
+  public void retrieveOrSave() {
+    final List<PrivacyGroupEntity> shouldBeEmpty =
+        privacyGroupDAO.findByLookupId("lookup".getBytes());
+    assertThat(shouldBeEmpty).isEmpty();
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
-        assertThat(result).isNotNull();
-
-        verify(callback).call();
-    }
-
-    @Test
-    public void savePrivacyGroupWithCallbackException() throws Exception {
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
 
-        Callable<Void> callback = mock(Callable.class);
-        when(callback.call()).thenThrow(new Exception("OUCH"));
-
-        try {
-            privacyGroupDAO.save(entity, callback);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
-        }
+    privacyGroupDAO.retrieveOrSave(entity);
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
-        assertThat(result).isNull();
+    Optional<PrivacyGroupEntity> retrieved = privacyGroupDAO.retrieve("id".getBytes());
+    assertThat(retrieved).isPresent();
+  }
 
-        verify(callback).call();
-    }
+  @Test
+  public void retrieveOrSaveExistedEntity() {
 
-    @Test
-    public void savePrivacyGroupWithRuntimeException() throws Exception {
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+    privacyGroupDAO.save(entity);
 
-        Callable<Void> callback = mock(Callable.class);
-        when(callback.call()).thenThrow(new RuntimeException("OUCH"));
+    final Optional<PrivacyGroupEntity> existed = privacyGroupDAO.retrieve("id".getBytes());
 
-        try {
-            privacyGroupDAO.save(entity, callback);
-            failBecauseExceptionWasNotThrown(RuntimeException.class);
-        } catch (RuntimeException ex) {
-            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
-        }
+    assertThat(existed).isPresent();
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
-        assertThat(result).isNull();
+    privacyGroupDAO.retrieveOrSave(entity);
+  }
 
-        verify(callback).call();
-    }
+  @Test
+  public void concurrentSavesExceptionIgnoredIfCausedByDuplicate() throws InterruptedException {
 
-    @Test
-    public void updatePrivacyGroupWithCallback() throws Exception {
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+    final List<PrivacyGroupEntity> shouldBeEmpty =
+        privacyGroupDAO.findByLookupId("lookup".getBytes());
+    assertThat(shouldBeEmpty).isEmpty();
 
-        Callable<Void> callback = mock(Callable.class);
+    ExecutorService executor = Executors.newCachedThreadPool();
 
-        privacyGroupDAO.update(entity, callback);
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
-        assertThat(result).isNotNull();
+    final Callable<PrivacyGroupEntity> create = () -> privacyGroupDAO.retrieveOrSave(entity);
+    List<Callable<PrivacyGroupEntity>> callables =
+        Stream.generate(() -> create).limit(3).collect(Collectors.toList());
 
-        verify(callback).call();
-    }
+    executor.invokeAll(callables).stream()
+        .map(
+            future -> {
+              try {
+                return future.get();
+              } catch (Exception e) {
+                throw new IllegalStateException(e);
+              }
+            })
+        .forEach(System.out::println);
+  }
 
-    @Test
-    public void updatePrivacyGroupWithCallbackException() throws Exception {
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+  @Test(expected = PersistenceException.class)
+  public void retrieveOrSaveValidError() {
+    final PrivacyGroupEntity entity =
+        new PrivacyGroupEntity(null, "lookup".getBytes(), "data".getBytes());
+    privacyGroupDAO.retrieveOrSave(entity);
+  }
 
-        Callable<Void> callback = mock(Callable.class);
-        when(callback.call()).thenThrow(new Exception("OUCH"));
+  @Test(expected = IllegalStateException.class)
+  public void retrieveOrSaveThrows() {
 
-        try {
-            privacyGroupDAO.update(entity, callback);
-            failBecauseExceptionWasNotThrown(PersistenceException.class);
-        } catch (PersistenceException ex) {
-            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
-        }
+    EntityManagerTemplate template = new EntityManagerTemplate(entityManagerFactory);
 
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
-        assertThat(result).isNull();
+    Supplier<PrivacyGroupEntity> mockRetriever = mock(Supplier.class);
+    when(mockRetriever.get()).thenReturn(null);
 
-        verify(callback).call();
-    }
+    Supplier<PrivacyGroupEntity> mockFactory = mock(Supplier.class);
+    when(mockFactory.get()).thenThrow(new IllegalStateException("OUCH"));
 
-    @Test
-    public void updatePrivacyGroupWithRuntimeException() throws Exception {
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
+    template.retrieveOrSave(mockRetriever, mockFactory);
+  }
 
-        Callable<Void> callback = mock(Callable.class);
-        when(callback.call()).thenThrow(new RuntimeException("OUCH"));
-
-        try {
-            privacyGroupDAO.update(entity, callback);
-            failBecauseExceptionWasNotThrown(RuntimeException.class);
-        } catch (RuntimeException ex) {
-            assertThat(ex).isNotNull().hasMessageContaining("OUCH");
-        }
-
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        final PrivacyGroupEntity result = entityManager.find(PrivacyGroupEntity.class, "id".getBytes());
-        assertThat(result).isNull();
-
-        verify(callback).call();
-    }
-
-    @Test
-    public void retrieveOrSave() {
-        final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findByLookupId("lookup".getBytes());
-        assertThat(shouldBeEmpty).isEmpty();
-
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
-
-        privacyGroupDAO.retrieveOrSave(entity);
-
-        Optional<PrivacyGroupEntity> retrieved = privacyGroupDAO.retrieve("id".getBytes());
-        assertThat(retrieved).isPresent();
-    }
-
-    @Test
-    public void retrieveOrSaveExistedEntity() {
-
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
-        privacyGroupDAO.save(entity);
-
-        final Optional<PrivacyGroupEntity> existed = privacyGroupDAO.retrieve("id".getBytes());
-
-        assertThat(existed).isPresent();
-
-        privacyGroupDAO.retrieveOrSave(entity);
-    }
-
-    @Test
-    public void concurrentSavesExceptionIgnoredIfCausedByDuplicate() throws InterruptedException {
-
-        final List<PrivacyGroupEntity> shouldBeEmpty = privacyGroupDAO.findByLookupId("lookup".getBytes());
-        assertThat(shouldBeEmpty).isEmpty();
-
-        ExecutorService executor = Executors.newCachedThreadPool();
-
-        final PrivacyGroupEntity entity =
-                new PrivacyGroupEntity("id".getBytes(), "lookup".getBytes(), "data".getBytes());
-
-        final Callable<PrivacyGroupEntity> create = () -> privacyGroupDAO.retrieveOrSave(entity);
-        List<Callable<PrivacyGroupEntity>> callables =
-                Stream.generate(() -> create).limit(3).collect(Collectors.toList());
-
-        executor.invokeAll(callables).stream()
-                .map(
-                        future -> {
-                            try {
-                                return future.get();
-                            } catch (Exception e) {
-                                throw new IllegalStateException(e);
-                            }
-                        })
-                .forEach(System.out::println);
-    }
-
-    @Test(expected = PersistenceException.class)
-    public void retrieveOrSaveValidError() {
-        final PrivacyGroupEntity entity = new PrivacyGroupEntity(null, "lookup".getBytes(), "data".getBytes());
-        privacyGroupDAO.retrieveOrSave(entity);
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void retrieveOrSaveThrows() {
-
-        EntityManagerTemplate template = new EntityManagerTemplate(entityManagerFactory);
-
-        Supplier<PrivacyGroupEntity> mockRetriever = mock(Supplier.class);
-        when(mockRetriever.get()).thenReturn(null);
-
-        Supplier<PrivacyGroupEntity> mockFactory = mock(Supplier.class);
-        when(mockFactory.get()).thenThrow(new IllegalStateException("OUCH"));
-
-        template.retrieveOrSave(mockRetriever, mockFactory);
-    }
-
-    @Parameterized.Parameters(name = "DB {0}")
-    public static Collection<TestConfig> connectionDetails() {
-        return List.of(TestConfig.values());
-    }
+  @Parameterized.Parameters(name = "DB {0}")
+  public static Collection<TestConfig> connectionDetails() {
+    return List.of(TestConfig.values());
+  }
 }

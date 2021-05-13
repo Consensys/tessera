@@ -4,5 +4,5 @@ import com.quorum.tessera.encryption.PublicKey;
 
 public interface PrivacyGroupPublisher {
 
-    void publishPrivacyGroup(byte[] data, PublicKey recipients);
+  void publishPrivacyGroup(byte[] data, PublicKey recipients);
 }

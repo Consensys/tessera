@@ -4,30 +4,30 @@ import com.quorum.tessera.enclave.EncodedPayload;
 
 public interface ResendResponse {
 
-    EncodedPayload getPayload();
+  EncodedPayload getPayload();
 
-    class Builder {
+  class Builder {
 
-        private EncodedPayload payload;
+    private EncodedPayload payload;
 
-        private Builder() {}
+    private Builder() {}
 
-        public static Builder create() {
-            return new Builder();
-        }
-
-        public Builder withPayload(EncodedPayload payload) {
-            this.payload = payload;
-            return this;
-        }
-
-        public ResendResponse build() {
-            return new ResendResponse() {
-                @Override
-                public EncodedPayload getPayload() {
-                    return payload;
-                }
-            };
-        }
+    public static Builder create() {
+      return new Builder();
     }
+
+    public Builder withPayload(EncodedPayload payload) {
+      this.payload = payload;
+      return this;
+    }
+
+    public ResendResponse build() {
+      return new ResendResponse() {
+        @Override
+        public EncodedPayload getPayload() {
+          return payload;
+        }
+      };
+    }
+  }
 }

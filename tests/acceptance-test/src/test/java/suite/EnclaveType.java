@@ -1,5 +1,6 @@
 package suite;
 
 public enum EnclaveType {
-    LOCAL, REMOTE
+  LOCAL,
+  REMOTE
 }

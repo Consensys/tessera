@@ -10,30 +10,24 @@ import javax.xml.bind.annotation.XmlAttribute;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AzureKeyVaultConfig extends ConfigItem implements KeyVaultConfig {
 
-    @Valid
-    @NotNull
-    @XmlAttribute
-    private String url;
+  @Valid @NotNull @XmlAttribute private String url;
 
-    public AzureKeyVaultConfig(String url) {
-        this.url = url;
-    }
+  public AzureKeyVaultConfig(String url) {
+    this.url = url;
+  }
 
-    public AzureKeyVaultConfig() {
-    }
+  public AzureKeyVaultConfig() {}
 
-    public String getUrl() {
-        return this.url;
-    }
+  public String getUrl() {
+    return this.url;
+  }
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
-    @Override
-    public KeyVaultType getKeyVaultType() {
-        return KeyVaultType.AZURE;
-    }
-
-
+  @Override
+  public KeyVaultType getKeyVaultType() {
+    return KeyVaultType.AZURE;
+  }
 }

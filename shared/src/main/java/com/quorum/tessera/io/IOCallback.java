@@ -1,10 +1,9 @@
 package com.quorum.tessera.io;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Callback and template function to uncheck IO exceptions
@@ -14,17 +13,16 @@ import java.io.UncheckedIOException;
 @FunctionalInterface
 public interface IOCallback<T> {
 
-    Logger LOGGER = LoggerFactory.getLogger(IOCallback.class);
+  Logger LOGGER = LoggerFactory.getLogger(IOCallback.class);
 
-    T doExecute() throws IOException;
+  T doExecute() throws IOException;
 
-    static <T> T execute(IOCallback<T> callback) {
-        try {
-            return callback.doExecute();
-        } catch (final IOException ex) {
-            LOGGER.debug(null, ex);
-            throw new UncheckedIOException(ex);
-        }
+  static <T> T execute(IOCallback<T> callback) {
+    try {
+      return callback.doExecute();
+    } catch (final IOException ex) {
+      LOGGER.debug(null, ex);
+      throw new UncheckedIOException(ex);
     }
-
+  }
 }

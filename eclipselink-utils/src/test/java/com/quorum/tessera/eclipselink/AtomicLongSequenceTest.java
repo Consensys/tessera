@@ -1,105 +1,96 @@
 package com.quorum.tessera.eclipselink;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+import java.util.HashMap;
+import java.util.Map;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import org.eclipse.persistence.sessions.DatabaseLogin;
 import org.eclipse.persistence.sessions.Session;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 public class AtomicLongSequenceTest {
 
-    private EntityManagerFactory entityManagerFactory;
+  private EntityManagerFactory entityManagerFactory;
 
-    @Before
-    public void init() throws Exception {
+  @Before
+  public void init() throws Exception {
 
-        Map properties = new HashMap();
-        properties.put("javax.persistence.jdbc.url","jdbc:h2:mem:test");
-        properties.put("javax.persistence.jdbc.user","junit");
-        properties.put("javax.persistence.jdbc.password","");
-        properties.put("eclipselink.logging.logger","org.eclipse.persistence.logging.slf4j.SLF4JLogger");
-        properties.put("eclipselink.logging.level","FINE");
-        properties.put("eclipselink.logging.parameters","true");
-        properties.put("eclipselink.logging.level.sql","FINE");
-        properties.put("javax.persistence.schema-generation.database.action","drop-and-create");
-        properties.put("eclipselink.cache.shared.default","false");
-        properties.put("eclipselink.session.customizer", AtomicLongSequence.class.getName());
+    Map properties = new HashMap();
+    properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:test");
+    properties.put("javax.persistence.jdbc.user", "junit");
+    properties.put("javax.persistence.jdbc.password", "");
+    properties.put(
+        "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+    properties.put("eclipselink.logging.level", "FINE");
+    properties.put("eclipselink.logging.parameters", "true");
+    properties.put("eclipselink.logging.level.sql", "FINE");
+    properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+    properties.put("eclipselink.cache.shared.default", "false");
+    properties.put("eclipselink.session.customizer", AtomicLongSequence.class.getName());
 
-        entityManagerFactory = Persistence.createEntityManagerFactory("mypu",properties);
+    entityManagerFactory = Persistence.createEntityManagerFactory("mypu", properties);
+  }
 
-    }
+  @After
+  public void onTearDown() {}
 
-    @After
-    public void onTearDown() {
+  @Test
+  public void saveEntity() {
+    SomeEntity someEntity = new SomeEntity();
+    EntityManager entityManager = entityManagerFactory.createEntityManager();
+    entityManager.persist(someEntity);
 
+    assertThat(someEntity.getId()).isNotNull();
 
-    }
+    SomeEntity anotherEntity = new SomeEntity();
+    entityManager.persist(anotherEntity);
+    assertThat(anotherEntity.getId()).isNotNull().isNotEqualTo(someEntity.getId());
+  }
 
-    @Test
-    public void saveEntity() {
-        SomeEntity someEntity = new SomeEntity();
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        entityManager.persist(someEntity);
+  @Test(expected = UnsupportedOperationException.class)
+  public void getGeneratedVectorIsNotSupported() {
+    AtomicLongSequence atomicLongSequence = new AtomicLongSequence();
+    atomicLongSequence.getGeneratedVector(null, null, new String(), 0);
+  }
 
-        assertThat(someEntity.getId()).isNotNull();
+  @Test
+  public void onDisconnectDoesNothing() {
+    AtomicLongSequence atomicLongSequence = spy(new AtomicLongSequence());
+    atomicLongSequence.onDisconnect();
+    verify(atomicLongSequence).onDisconnect();
+    verifyNoMoreInteractions(atomicLongSequence);
+  }
 
-        SomeEntity anotherEntity = new SomeEntity();
-        entityManager.persist(anotherEntity);
-        assertThat(anotherEntity.getId()).isNotNull().isNotEqualTo(someEntity.getId());
+  @Test
+  public void customisedWithNullDbLogin() throws Exception {
+    Session session = mock(Session.class);
 
-    }
+    AtomicLongSequence atomicLongSequence = new AtomicLongSequence();
+    atomicLongSequence.customize(session);
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void getGeneratedVectorIsNotSupported() {
-        AtomicLongSequence atomicLongSequence = new AtomicLongSequence();
-        atomicLongSequence.getGeneratedVector(null,null,new String(),0);
-    }
+    verify(session).getLogin();
+    verifyNoMoreInteractions(session);
+  }
 
-    @Test
-    public void onDisconnectDoesNothing() {
-        AtomicLongSequence atomicLongSequence = spy(new AtomicLongSequence());
-        atomicLongSequence.onDisconnect();
-        verify(atomicLongSequence).onDisconnect();
-        verifyNoMoreInteractions(atomicLongSequence);
-    }
+  @Test
+  public void customisedWithDbLogin() throws Exception {
 
-    @Test
-    public void customisedWithNullDbLogin() throws Exception {
-        Session session = mock(Session.class);
+    Session session = mock(Session.class);
+    DatabaseLogin databaseLogin = mock(DatabaseLogin.class);
+    when(session.getLogin()).thenReturn(databaseLogin);
 
-        AtomicLongSequence atomicLongSequence = new AtomicLongSequence();
-        atomicLongSequence.customize(session);
+    AtomicLongSequence atomicLongSequence = new AtomicLongSequence();
+    atomicLongSequence.customize(session);
 
-        verify(session).getLogin();
-        verifyNoMoreInteractions(session);
+    verify(databaseLogin).addSequence(atomicLongSequence);
 
-    }
-
-    @Test
-    public void customisedWithDbLogin() throws Exception {
-
-        Session session = mock(Session.class);
-        DatabaseLogin databaseLogin = mock(DatabaseLogin.class);
-        when(session.getLogin()).thenReturn(databaseLogin);
-
-        AtomicLongSequence atomicLongSequence = new AtomicLongSequence();
-        atomicLongSequence.customize(session);
-
-        verify(databaseLogin).addSequence(atomicLongSequence);
-
-        verify(session).getLogin();
-        verifyNoMoreInteractions(session,databaseLogin);
-
-    }
-
-
+    verify(session).getLogin();
+    verifyNoMoreInteractions(session, databaseLogin);
+  }
 }

@@ -6,6 +6,6 @@ import java.sql.SQLException;
 
 public interface DataExporter {
 
-    void export(StoreLoader loader, Path output, String username, String password) throws IOException, SQLException;
-
+  void export(StoreLoader loader, Path output, String username, String password)
+      throws IOException, SQLException;
 }

@@ -13,47 +13,47 @@ import software.amazon.awssdk.services.secretsmanager.model.InvalidRequestExcept
 import software.amazon.awssdk.services.secretsmanager.model.ResourceNotFoundException;
 
 public class AWSKeyVaultService implements KeyVaultService<AWSSetSecretData, AWSGetSecretData> {
-    private final SecretsManagerClient secretsManager;
+  private final SecretsManagerClient secretsManager;
 
-    AWSKeyVaultService(SecretsManagerClient secretsManager) {
-        this.secretsManager = secretsManager;
+  AWSKeyVaultService(SecretsManagerClient secretsManager) {
+    this.secretsManager = secretsManager;
+  }
+
+  @Override
+  public String getSecret(AWSGetSecretData getSecretData) {
+    GetSecretValueRequest getSecretValueRequest =
+        GetSecretValueRequest.builder().secretId(getSecretData.getSecretName()).build();
+    GetSecretValueResponse secretValueResponse;
+
+    try {
+      secretValueResponse = secretsManager.getSecretValue(getSecretValueRequest);
+    } catch (ResourceNotFoundException e) {
+      throw new VaultSecretNotFoundException(
+          "The requested secret '"
+              + getSecretData.getSecretName()
+              + "' was not found in AWS Secrets Manager");
+    } catch (InvalidRequestException | InvalidParameterException e) {
+      throw new AWSSecretsManagerException(e);
     }
 
-    @Override
-    public String getSecret(AWSGetSecretData getSecretData) {
-        GetSecretValueRequest getSecretValueRequest =
-                GetSecretValueRequest.builder()
-                        .secretId(getSecretData.getSecretName())
-                        .build();
-        GetSecretValueResponse secretValueResponse;
-
-        try {
-            secretValueResponse = secretsManager.getSecretValue(getSecretValueRequest);
-        } catch (ResourceNotFoundException e) {
-            throw new VaultSecretNotFoundException(
-                    "The requested secret '"
-                            + getSecretData.getSecretName()
-                            + "' was not found in AWS Secrets Manager");
-        } catch (InvalidRequestException | InvalidParameterException e) {
-            throw new AWSSecretsManagerException(e);
-        }
-
-        if (secretValueResponse != null && secretValueResponse.secretString() != null) {
-            return secretValueResponse.secretString();
-        }
-
-        throw new VaultSecretNotFoundException(
-                "The requested secret '" + getSecretData.getSecretName() + "' was not found in AWS Secrets Manager");
+    if (secretValueResponse != null && secretValueResponse.secretString() != null) {
+      return secretValueResponse.secretString();
     }
 
-    @Override
-    public Object setSecret(AWSSetSecretData setSecretData) {
-        CreateSecretRequest createSecretRequest =
-                CreateSecretRequest.builder()
-                        .name(setSecretData.getSecretName())
-                        .secretString(setSecretData.getSecret())
-                        .build();
+    throw new VaultSecretNotFoundException(
+        "The requested secret '"
+            + getSecretData.getSecretName()
+            + "' was not found in AWS Secrets Manager");
+  }
 
-        return secretsManager.createSecret(createSecretRequest);
-    }
+  @Override
+  public Object setSecret(AWSSetSecretData setSecretData) {
+    CreateSecretRequest createSecretRequest =
+        CreateSecretRequest.builder()
+            .name(setSecretData.getSecretName())
+            .secretString(setSecretData.getSecret())
+            .build();
+
+    return secretsManager.createSecret(createSecretRequest);
+  }
 }

@@ -1,12 +1,5 @@
 package com.quorum.tessera.ssl.context;
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.security.auth.x500.X500Principal;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -32,167 +25,177 @@ import java.util.Base64;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.security.auth.x500.X500Principal;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 final class SSLKeyStoreLoader {
 
-    private static final Pattern PRIVATE_KEY_PATTERN =
-            Pattern.compile(
-                    "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+"
-                            + "([a-z0-9+/=\\r\\n]+)"
-                            + "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",
-                    2);
+  private static final Pattern PRIVATE_KEY_PATTERN =
+      Pattern.compile(
+          "-+BEGIN\\s+.*PRIVATE\\s+KEY[^-]*-+(?:\\s|\\r|\\n)+"
+              + "([a-z0-9+/=\\r\\n]+)"
+              + "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+",
+          2);
 
-    private static final Pattern CERTIFICATE_PATTERN =
-            Pattern.compile(
-                    "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+"
-                            + "([a-z0-9+/=\\r\\n]+)"
-                            + "-+END\\s+.*CERTIFICATE[^-]*-+",
-                    2);
+  private static final Pattern CERTIFICATE_PATTERN =
+      Pattern.compile(
+          "-+BEGIN\\s+.*CERTIFICATE[^-]*-+(?:\\s|\\r|\\n)+"
+              + "([a-z0-9+/=\\r\\n]+)"
+              + "-+END\\s+.*CERTIFICATE[^-]*-+",
+          2);
 
-    private static final String KEYSTORE_TYPE = "JKS";
+  private static final String KEYSTORE_TYPE = "JKS";
 
-    private static final String ALIAS = "tessera-node";
+  private static final String ALIAS = "tessera-node";
 
-    private static final char[] EMPTY_PASSWORD = "".toCharArray();
+  private static final char[] EMPTY_PASSWORD = "".toCharArray();
 
-    private static final Base64.Decoder decoder = Base64.getMimeDecoder();
+  private static final Base64.Decoder decoder = Base64.getMimeDecoder();
 
-    static {
-        Security.addProvider(new BouncyCastleProvider());
+  static {
+    Security.addProvider(new BouncyCastleProvider());
+  }
+
+  private SSLKeyStoreLoader() {}
+
+  static KeyManager[] fromJksKeyStore(Path keyStoreFile, char[] keyStorePassword)
+      throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException,
+          UnrecoverableKeyException {
+
+    final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
+
+    try (InputStream in = Files.newInputStream(keyStoreFile)) {
+      keyStore.load(in, keyStorePassword);
     }
 
-    private SSLKeyStoreLoader() {}
+    final KeyManagerFactory keyManagerFactory =
+        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+    keyManagerFactory.init(keyStore, keyStorePassword);
 
-    static KeyManager[] fromJksKeyStore(Path keyStoreFile, char[] keyStorePassword)
-            throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException,
-                    UnrecoverableKeyException {
+    return keyManagerFactory.getKeyManagers();
+  }
 
-        final KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
+  static KeyManager[] fromPemKeyFile(Path key, Path certificate)
+      throws IOException, GeneralSecurityException {
 
-        try (InputStream in = Files.newInputStream(keyStoreFile)) {
-            keyStore.load(in, keyStorePassword);
-        }
+    final PKCS8EncodedKeySpec encodedKeySpec = getEncodedKeySpec(key);
 
-        final KeyManagerFactory keyManagerFactory =
-                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, keyStorePassword);
+    final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+    final PrivateKey privateKey = keyFactory.generatePrivate(encodedKeySpec);
 
-        return keyManagerFactory.getKeyManagers();
+    final List<X509Certificate> certificates = getCertificates(certificate);
+
+    KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
+    keyStore.load(null, null);
+    keyStore.setKeyEntry(
+        ALIAS, privateKey, EMPTY_PASSWORD, certificates.stream().toArray(Certificate[]::new));
+
+    final KeyManagerFactory keyManagerFactory =
+        KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+    keyManagerFactory.init(keyStore, EMPTY_PASSWORD);
+
+    return keyManagerFactory.getKeyManagers();
+  }
+
+  static TrustManager[] fromJksTrustStore(Path trustStoreFile, char[] trustStorePassword)
+      throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
+    final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
+
+    try (InputStream in = Files.newInputStream(trustStoreFile)) {
+      trustStore.load(in, trustStorePassword);
     }
 
-    static KeyManager[] fromPemKeyFile(Path key, Path certificate) throws IOException, GeneralSecurityException {
+    final TrustManagerFactory trustManagerFactory =
+        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    trustManagerFactory.init(trustStore);
 
-        final PKCS8EncodedKeySpec encodedKeySpec = getEncodedKeySpec(key);
+    return trustManagerFactory.getTrustManagers();
+  }
 
-        final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        final PrivateKey privateKey = keyFactory.generatePrivate(encodedKeySpec);
+  static TrustManager[] fromPemCertificatesFile(List<Path> trustedCertificates)
+      throws GeneralSecurityException, IOException {
+    final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
+    trustStore.load(null, null);
 
-        final List<X509Certificate> certificates = getCertificates(certificate);
+    List<X509Certificate> certificates = new ArrayList<>();
 
-        KeyStore keyStore = KeyStore.getInstance(KEYSTORE_TYPE);
-        keyStore.load(null, null);
-        keyStore.setKeyEntry(ALIAS, privateKey, EMPTY_PASSWORD, certificates.stream().toArray(Certificate[]::new));
-
-        final KeyManagerFactory keyManagerFactory =
-                KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keyManagerFactory.init(keyStore, EMPTY_PASSWORD);
-
-        return keyManagerFactory.getKeyManagers();
+    for (Path path : trustedCertificates) {
+      certificates.addAll(getCertificates(path));
     }
 
-    static TrustManager[] fromJksTrustStore(Path trustStoreFile, char[] trustStorePassword)
-            throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException {
-        final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
-
-        try (InputStream in = Files.newInputStream(trustStoreFile)) {
-            trustStore.load(in, trustStorePassword);
-        }
-
-        final TrustManagerFactory trustManagerFactory =
-                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(trustStore);
-
-        return trustManagerFactory.getTrustManagers();
+    for (X509Certificate certificate : certificates) {
+      X500Principal principal = certificate.getSubjectX500Principal();
+      trustStore.setCertificateEntry(principal.getName("RFC2253"), certificate);
     }
 
-    static TrustManager[] fromPemCertificatesFile(List<Path> trustedCertificates)
-            throws GeneralSecurityException, IOException {
-        final KeyStore trustStore = KeyStore.getInstance(KEYSTORE_TYPE);
-        trustStore.load(null, null);
+    final TrustManagerFactory trustManagerFactory =
+        TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+    trustManagerFactory.init(trustStore);
 
-        List<X509Certificate> certificates = new ArrayList<>();
+    return trustManagerFactory.getTrustManagers();
+  }
 
-        for (Path path : trustedCertificates) {
-            certificates.addAll(getCertificates(path));
-        }
+  private static PKCS8EncodedKeySpec getEncodedKeySpec(Path keyFile)
+      throws IOException, GeneralSecurityException {
 
-        for (X509Certificate certificate : certificates) {
-            X500Principal principal = certificate.getSubjectX500Principal();
-            trustStore.setCertificateEntry(principal.getName("RFC2253"), certificate);
-        }
+    final String keyFileContent = readPemFile(keyFile);
 
-        final TrustManagerFactory trustManagerFactory =
-                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trustManagerFactory.init(trustStore);
+    final Matcher matcher = PRIVATE_KEY_PATTERN.matcher(keyFileContent);
 
-        return trustManagerFactory.getTrustManagers();
+    if (!matcher.find()) {
+      throw new KeyStoreException("NO PRIVATE KEY FOUND IN FILE " + keyFile);
     }
 
-    private static PKCS8EncodedKeySpec getEncodedKeySpec(Path keyFile) throws IOException, GeneralSecurityException {
+    final byte[] encodedKey = decoder.decode(matcher.group(1));
 
-        final String keyFileContent = readPemFile(keyFile);
+    return new PKCS8EncodedKeySpec(encodedKey);
+  }
 
-        final Matcher matcher = PRIVATE_KEY_PATTERN.matcher(keyFileContent);
+  private static List<X509Certificate> getCertificates(Path certificateFile)
+      throws IOException, GeneralSecurityException {
 
-        if (!matcher.find()) {
-            throw new KeyStoreException("NO PRIVATE KEY FOUND IN FILE " + keyFile);
-        }
+    final String certFileContent = readPemFile(certificateFile);
 
-        final byte[] encodedKey = decoder.decode(matcher.group(1));
+    final Matcher matcher = CERTIFICATE_PATTERN.matcher(certFileContent);
 
-        return new PKCS8EncodedKeySpec(encodedKey);
+    List<X509Certificate> certificates = new ArrayList<>();
+
+    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+
+    int start = 0;
+    while (matcher.find(start)) {
+      byte[] buffer = decoder.decode(matcher.group(1));
+      final X509Certificate certificate =
+          (X509Certificate)
+              certificateFactory.generateCertificate(new ByteArrayInputStream(buffer));
+      certificates.add(certificate);
+      start = matcher.end();
     }
 
-    private static List<X509Certificate> getCertificates(Path certificateFile)
-            throws IOException, GeneralSecurityException {
-
-        final String certFileContent = readPemFile(certificateFile);
-
-        final Matcher matcher = CERTIFICATE_PATTERN.matcher(certFileContent);
-
-        List<X509Certificate> certificates = new ArrayList<>();
-
-        CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-
-        int start = 0;
-        while (matcher.find(start)) {
-            byte[] buffer = decoder.decode(matcher.group(1));
-            final X509Certificate certificate =
-                    (X509Certificate) certificateFactory.generateCertificate(new ByteArrayInputStream(buffer));
-            certificates.add(certificate);
-            start = matcher.end();
-        }
-
-        if (certificates.isEmpty()) {
-            throw new CertificateException("NO CERTIFICATE FOUND IN FILE");
-        }
-
-        return certificates;
+    if (certificates.isEmpty()) {
+      throw new CertificateException("NO CERTIFICATE FOUND IN FILE");
     }
 
-    private static String readPemFile(Path file) throws IOException {
+    return certificates;
+  }
 
-        try (BufferedReader reader = Files.newBufferedReader(file)) {
+  private static String readPemFile(Path file) throws IOException {
 
-            StringBuilder fileContent = new StringBuilder();
-            CharBuffer charBuffer = CharBuffer.allocate(4096);
+    try (BufferedReader reader = Files.newBufferedReader(file)) {
 
-            while (reader.read(charBuffer) != -1) {
-                charBuffer.flip();
-                fileContent.append(charBuffer);
-                charBuffer.clear();
-            }
-            return fileContent.toString();
-        }
+      StringBuilder fileContent = new StringBuilder();
+      CharBuffer charBuffer = CharBuffer.allocate(4096);
+
+      while (reader.read(charBuffer) != -1) {
+        charBuffer.flip();
+        fileContent.append(charBuffer);
+        charBuffer.clear();
+      }
+      return fileContent.toString();
     }
+  }
 }

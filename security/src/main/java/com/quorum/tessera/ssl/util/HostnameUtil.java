@@ -5,15 +5,15 @@ import java.net.UnknownHostException;
 
 public interface HostnameUtil {
 
-    default String getHostName() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostName();
-    }
+  default String getHostName() throws UnknownHostException {
+    return InetAddress.getLocalHost().getHostName();
+  }
 
-    default String getHostIpAddress() throws UnknownHostException {
-        return InetAddress.getLocalHost().getHostAddress();
-    }
+  default String getHostIpAddress() throws UnknownHostException {
+    return InetAddress.getLocalHost().getHostAddress();
+  }
 
-    static HostnameUtil create(){
-        return new HostnameUtil() {};
-    }
+  static HostnameUtil create() {
+    return new HostnameUtil() {};
+  }
 }

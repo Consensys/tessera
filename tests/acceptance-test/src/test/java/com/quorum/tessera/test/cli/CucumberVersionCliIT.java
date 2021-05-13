@@ -6,8 +6,8 @@ import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
 @CucumberOptions(
-        glue = "com.quorum.tessera.test.cli.version",
-        features = "classpath:features/cli/version.feature",
-        monochrome = true,
-        plugin = {"progress"})
+    glue = "com.quorum.tessera.test.cli.version",
+    features = "classpath:features/cli/version.feature",
+    monochrome = true,
+    plugin = {"progress"})
 public class CucumberVersionCliIT {}

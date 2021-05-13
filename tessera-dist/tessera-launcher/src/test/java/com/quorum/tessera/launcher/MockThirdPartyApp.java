@@ -6,13 +6,13 @@ import com.quorum.tessera.config.apps.TesseraApp;
 
 public class MockThirdPartyApp implements TesseraApp {
 
-    @Override
-    public CommunicationType getCommunicationType() {
-        return CommunicationType.REST;
-    }
+  @Override
+  public CommunicationType getCommunicationType() {
+    return CommunicationType.REST;
+  }
 
-    @Override
-    public AppType getAppType() {
-        return AppType.THIRD_PARTY;
-    }
+  @Override
+  public AppType getAppType() {
+    return AppType.THIRD_PARTY;
+  }
 }

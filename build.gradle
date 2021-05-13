@@ -5,7 +5,6 @@ plugins {
     id 'jacoco'
     id 'com.diffplug.gradle.spotless' version '3.25.0'
     id 'com.github.ben-manes.versions' version '0.8'
-    id 'checkstyle'
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
@@ -144,9 +143,7 @@ subprojects {
     apply plugin: 'com.diffplug.gradle.spotless'
     apply plugin: 'maven-publish'
     apply plugin: 'jacoco'
-    apply plugin: 'checkstyle'
     apply plugin: 'org.owasp.dependencycheck'
-
 
     repositories {
         mavenLocal()
@@ -154,8 +151,6 @@ subprojects {
             url = 'https://repo.maven.apache.org/maven2'
         }
     }
-
-
 
     dependencies {
 
@@ -176,14 +171,6 @@ subprojects {
         systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
         systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
     }
-    checkstyle {
-        configFile project.getRootProject().file('checkstyle.xml')
-        configProperties.put('checkstyle.suppressions.file',project.getRootProject().file('checkstyle-suppressions.xml'))
-        dependencies{
-            checkstyle "com.puppycrawl.tools:checkstyle:8.38"
-            checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
-        }
-    }
 
     dependencyCheck {
         failBuildOnCVSS = 0
@@ -196,18 +183,24 @@ subprojects {
 
     spotless {
 
-        lineEndings = 'unix'
+        lineEndings = "unix"
 
         java {
-            target fileTree('**/*.java')
-            // indentWithSpaces(4)
+            // target fileTree("**/*.java")
+
+            target fileTree('.') {
+                include "**/src/main/java/**/*.java"
+                include "**/src/test/java/**/*.java"
+            }
             removeUnusedImports()
-            // googleJavaFormat().aosp()
+            googleJavaFormat("1.7")
+            trimTrailingWhitespace()
+            endWithNewline()
         }
         groovyGradle {
-            target '*.gradle'
-            indentWithSpaces(4)
-            paddedCell()
+            target "*.gradle"
+            greclipse().configFile(rootProject.file("gradle/formatter.properties"))
+            endWithNewline()
         }
     }
     jacocoTestReport {
@@ -370,7 +363,7 @@ subprojects {
 
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
-    check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification
+    check.dependsOn spotlessCheck, jacocoTestCoverageVerification
 
 }
 

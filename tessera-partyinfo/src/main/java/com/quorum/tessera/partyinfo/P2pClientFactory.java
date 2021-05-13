@@ -8,15 +8,15 @@ import com.quorum.tessera.config.Config;
 // TODO: Remove the p2p clint and related factories.
 public interface P2pClientFactory {
 
-    P2pClient create(Config config);
+  P2pClient create(Config config);
 
-    CommunicationType communicationType();
+  CommunicationType communicationType();
 
-    static P2pClientFactory newFactory(Config config) {
-        // TODO: return the stream and let the caller deal with it
-        return ServiceLoaderUtil.loadAll(P2pClientFactory.class)
-                .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
-                .findFirst()
-                .get();
-    }
+  static P2pClientFactory newFactory(Config config) {
+    // TODO: return the stream and let the caller deal with it
+    return ServiceLoaderUtil.loadAll(P2pClientFactory.class)
+        .filter(c -> c.communicationType() == config.getP2PServerConfig().getCommunicationType())
+        .findFirst()
+        .get();
+  }
 }

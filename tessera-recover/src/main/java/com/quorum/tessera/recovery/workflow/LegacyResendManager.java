@@ -15,23 +15,25 @@ import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
 
 public interface LegacyResendManager {
 
-    ResendResponse resend(ResendRequest request);
+  ResendResponse resend(ResendRequest request);
 
-    static LegacyResendManager create(final Config config) {
-        return ServiceLoaderUtil.load(LegacyResendManager.class)
-            .orElseGet(
-                () -> {
-                    final Discovery discovery = Discovery.getInstance();
-                    final Enclave enclave = EnclaveFactory.create().create(config);
-                    final EntityManagerDAOFactory entityManagerDAOFactory = EntityManagerDAOFactory.newFactory(config);
-                    final EncryptedTransactionDAO txDao = entityManagerDAOFactory.createEncryptedTransactionDAO();
-                    final PayloadEncoder encoder = PayloadEncoder.create();
-                    final PayloadPublisher publisher = PayloadPublisherFactory.newFactory(config).create(config);
-                    final int maxResults = 100;
+  static LegacyResendManager create(final Config config) {
+    return ServiceLoaderUtil.load(LegacyResendManager.class)
+        .orElseGet(
+            () -> {
+              final Discovery discovery = Discovery.getInstance();
+              final Enclave enclave = EnclaveFactory.create().create(config);
+              final EntityManagerDAOFactory entityManagerDAOFactory =
+                  EntityManagerDAOFactory.newFactory(config);
+              final EncryptedTransactionDAO txDao =
+                  entityManagerDAOFactory.createEncryptedTransactionDAO();
+              final PayloadEncoder encoder = PayloadEncoder.create();
+              final PayloadPublisher publisher =
+                  PayloadPublisherFactory.newFactory(config).create(config);
+              final int maxResults = 100;
 
-                    return new LegacyResendManagerImpl(enclave, txDao, maxResults, encoder, publisher, discovery);
-                }
-            );
-    }
-
+              return new LegacyResendManagerImpl(
+                  enclave, txDao, maxResults, encoder, publisher, discovery);
+            });
+  }
 }

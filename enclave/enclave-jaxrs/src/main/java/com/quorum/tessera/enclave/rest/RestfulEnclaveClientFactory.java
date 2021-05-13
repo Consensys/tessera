@@ -12,28 +12,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RestfulEnclaveClientFactory implements EnclaveClientFactory<RestfulEnclaveClient> {
-    
-    private static final Logger LOGGER = LoggerFactory.getLogger(RestfulEnclaveClientFactory.class);
-    
-    @Override
-    public RestfulEnclaveClient create(Config config) {
-        LOGGER.debug("Creating RestfulEnclaveClient with {}",config);
-        Optional<ServerConfig> enclaveServerConfig = config.getServerConfigs().stream()
-                .filter(sc -> sc.getApp() == AppType.ENCLAVE)
-                .filter(sc -> sc.getCommunicationType() == CommunicationType.REST)
-                .findAny();
 
-        final ClientFactory clientFactory = new ClientFactory();
+  private static final Logger LOGGER = LoggerFactory.getLogger(RestfulEnclaveClientFactory.class);
 
-        LOGGER.debug("Creating server context from config");
-        ServerConfig serverConfig = enclaveServerConfig.get();
-        LOGGER.debug("Created server context from config");
+  @Override
+  public RestfulEnclaveClient create(Config config) {
+    LOGGER.debug("Creating RestfulEnclaveClient with {}", config);
+    Optional<ServerConfig> enclaveServerConfig =
+        config.getServerConfigs().stream()
+            .filter(sc -> sc.getApp() == AppType.ENCLAVE)
+            .filter(sc -> sc.getCommunicationType() == CommunicationType.REST)
+            .findAny();
 
-        Client client = clientFactory.buildFrom(serverConfig);
-        LOGGER.info("Creating remoted enclave for {}", serverConfig.getServerUri());
-        return new RestfulEnclaveClient(client, serverConfig.getServerUri());
-    }
-    
-    
-    
+    final ClientFactory clientFactory = new ClientFactory();
+
+    LOGGER.debug("Creating server context from config");
+    ServerConfig serverConfig = enclaveServerConfig.get();
+    LOGGER.debug("Created server context from config");
+
+    Client client = clientFactory.buildFrom(serverConfig);
+    LOGGER.info("Creating remoted enclave for {}", serverConfig.getServerUri());
+    return new RestfulEnclaveClient(client, serverConfig.getServerUri());
+  }
 }

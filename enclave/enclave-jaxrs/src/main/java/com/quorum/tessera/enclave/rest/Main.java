@@ -10,72 +10,72 @@ import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.server.EnclaveCliAdapter;
 import com.quorum.tessera.server.TesseraServer;
 import com.quorum.tessera.server.TesseraServerFactory;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
 
-import java.util.Collections;
-import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
-
 public class Main {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-    public static void main(String... args) throws Exception {
-        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+  public static void main(String... args) throws Exception {
+    System.setProperty(
+        "javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+    System.setProperty(
+        "javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
-        final CommandLine commandLine = new CommandLine(new EnclaveCliAdapter());
-        commandLine
-                .registerConverter(Config.class, new ConfigConverter())
-                .setSeparator(" ")
-                .setCaseInsensitiveEnumValuesAllowed(true);
+    final CommandLine commandLine = new CommandLine(new EnclaveCliAdapter());
+    commandLine
+        .registerConverter(Config.class, new ConfigConverter())
+        .setSeparator(" ")
+        .setCaseInsensitiveEnumValuesAllowed(true);
 
-        commandLine.execute(args);
-        final CliResult cliResult = commandLine.getExecutionResult();
+    commandLine.execute(args);
+    final CliResult cliResult = commandLine.getExecutionResult();
 
-        if (Objects.isNull(cliResult)) {
-            System.exit(1);
-        }
-
-        if (cliResult.getConfig().isEmpty()) {
-            System.exit(cliResult.getStatus());
-        }
-
-        final TesseraServerFactory restServerFactory = TesseraServerFactory.create(CommunicationType.REST);
-
-        final Config config = cliResult.getConfig().get();
-
-        final Enclave enclave = EnclaveFactory.createServer(config);
-
-        final EnclaveResource enclaveResource = new EnclaveResource(enclave);
-
-        final EnclaveApplication application = new EnclaveApplication(enclaveResource);
-
-        final ServerConfig serverConfig = config.getServerConfigs()
-                                                .stream()
-                                                .findFirst()
-                                                .get();
-
-        final TesseraServer server = restServerFactory.createServer(serverConfig, Collections.singleton(application));
-        server.start();
-
-        CountDownLatch latch = new CountDownLatch(1);
-
-        Runtime.getRuntime()
-                .addShutdownHook(
-                        new Thread(
-                                () -> {
-                                    try {
-                                        server.stop();
-                                    } catch (Exception ex) {
-                                        LOGGER.error(null, ex);
-                                    } finally {
-
-                                    }
-                                }));
-
-        latch.await();
+    if (Objects.isNull(cliResult)) {
+      System.exit(1);
     }
+
+    if (cliResult.getConfig().isEmpty()) {
+      System.exit(cliResult.getStatus());
+    }
+
+    final TesseraServerFactory restServerFactory =
+        TesseraServerFactory.create(CommunicationType.REST);
+
+    final Config config = cliResult.getConfig().get();
+
+    final Enclave enclave = EnclaveFactory.createServer(config);
+
+    final EnclaveResource enclaveResource = new EnclaveResource(enclave);
+
+    final EnclaveApplication application = new EnclaveApplication(enclaveResource);
+
+    final ServerConfig serverConfig = config.getServerConfigs().stream().findFirst().get();
+
+    final TesseraServer server =
+        restServerFactory.createServer(serverConfig, Collections.singleton(application));
+    server.start();
+
+    CountDownLatch latch = new CountDownLatch(1);
+
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  try {
+                    server.stop();
+                  } catch (Exception ex) {
+                    LOGGER.error(null, ex);
+                  } finally {
+
+                  }
+                }));
+
+    latch.await();
+  }
 }

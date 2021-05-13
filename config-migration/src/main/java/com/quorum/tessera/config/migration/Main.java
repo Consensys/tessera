@@ -8,24 +8,26 @@ import picocli.CommandLine;
 
 public class Main {
 
-    public static void main(String... args) {
-        System.setProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        System.setProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
-        System.setProperty(CliType.CLI_TYPE_KEY, CliType.CONFIG_MIGRATION.name());
-        try {
-            final CommandLine commandLine = new CommandLine(new LegacyCliAdapter());
-            commandLine
-                    .registerConverter(Config.class, new ConfigConverter())
-                    .setSeparator(" ")
-                    .setCaseInsensitiveEnumValuesAllowed(true);
+  public static void main(String... args) {
+    System.setProperty(
+        "javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+    System.setProperty(
+        "javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+    System.setProperty(CliType.CLI_TYPE_KEY, CliType.CONFIG_MIGRATION.name());
+    try {
+      final CommandLine commandLine = new CommandLine(new LegacyCliAdapter());
+      commandLine
+          .registerConverter(Config.class, new ConfigConverter())
+          .setSeparator(" ")
+          .setCaseInsensitiveEnumValuesAllowed(true);
 
-            commandLine.execute(args);
-            final CliResult cliResult = commandLine.getExecutionResult();
+      commandLine.execute(args);
+      final CliResult cliResult = commandLine.getExecutionResult();
 
-            System.exit(cliResult.getStatus());
-        } catch (final Exception ex) {
-            System.err.println(ex.toString());
-            System.exit(1);
-        }
+      System.exit(cliResult.getStatus());
+    } catch (final Exception ex) {
+      System.err.println(ex.toString());
+      System.exit(1);
     }
+  }
 }

@@ -8,33 +8,34 @@ import org.slf4j.LoggerFactory;
 
 public class EncryptedStringResolver {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedStringResolver.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedStringResolver.class);
 
-    private final PBEStringCleanablePasswordEncryptor encryptor;
+  private final PBEStringCleanablePasswordEncryptor encryptor;
 
-    private boolean isPasswordSet;
+  private boolean isPasswordSet;
 
-    public EncryptedStringResolver() {
-        this.encryptor = new StandardPBEStringEncryptor();
+  public EncryptedStringResolver() {
+    this.encryptor = new StandardPBEStringEncryptor();
+  }
+
+  public String resolve(final String textToDecrypt) {
+
+    if (PropertyValueEncryptionUtils.isEncryptedValue(textToDecrypt)) {
+
+      if (!isPasswordSet) {
+        encryptor.setPasswordCharArray(
+            ConfigSecretReader.readSecretFromFile()
+                .orElseGet(ConfigSecretReader::readSecretFromConsole));
+        isPasswordSet = true;
+      }
+
+      return PropertyValueEncryptionUtils.decrypt(textToDecrypt, encryptor);
     }
 
-    public String resolve(final String textToDecrypt) {
+    LOGGER.warn(
+        "Some sensitive values are being given as unencrypted plain text in config. "
+            + "Please note this is NOT recommended for production environment.");
 
-        if (PropertyValueEncryptionUtils.isEncryptedValue(textToDecrypt)) {
-
-            if (!isPasswordSet) {
-                encryptor.setPasswordCharArray(
-                        ConfigSecretReader.readSecretFromFile().orElseGet(ConfigSecretReader::readSecretFromConsole));
-                isPasswordSet = true;
-            }
-
-            return PropertyValueEncryptionUtils.decrypt(textToDecrypt, encryptor);
-        }
-
-        LOGGER.warn(
-                "Some sensitive values are being given as unencrypted plain text in config. "
-                        + "Please note this is NOT recommended for production environment.");
-
-        return textToDecrypt;
-    }
+    return textToDecrypt;
+  }
 }

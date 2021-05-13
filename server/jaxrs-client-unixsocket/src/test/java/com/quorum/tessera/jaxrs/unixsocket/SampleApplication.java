@@ -6,9 +6,8 @@ import javax.ws.rs.core.Application;
 
 public class SampleApplication extends Application {
 
-    @Override
-    public Set<Object> getSingletons() {
-        return Collections.singleton(new SampleResource());
-    }
-
+  @Override
+  public Set<Object> getSingletons() {
+    return Collections.singleton(new SampleResource());
+  }
 }

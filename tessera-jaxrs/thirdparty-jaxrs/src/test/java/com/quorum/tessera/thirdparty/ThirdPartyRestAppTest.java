@@ -1,9 +1,15 @@
 package com.quorum.tessera.thirdparty;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.service.locator.ServiceLocator;
+import java.util.HashSet;
+import java.util.Set;
+import javax.ws.rs.core.Application;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
@@ -11,60 +17,53 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.ws.rs.core.Application;
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-
 public class ThirdPartyRestAppTest {
 
-    private JerseyTest jersey;
+  private JerseyTest jersey;
 
-    private MockServiceLocator serviceLocator;
+  private MockServiceLocator serviceLocator;
 
-    private ThirdPartyRestApp thirdParty;
+  private ThirdPartyRestApp thirdParty;
 
-    @Before
-    public void setUp() throws Exception {
-        serviceLocator = (MockServiceLocator) ServiceLocator.create();
+  @Before
+  public void setUp() throws Exception {
+    serviceLocator = (MockServiceLocator) ServiceLocator.create();
 
-        Set services = new HashSet();
-        services.add(mock(Config.class));
+    Set services = new HashSet();
+    services.add(mock(Config.class));
 
-        serviceLocator.setServices(services);
+    serviceLocator.setServices(services);
 
-        thirdParty = new ThirdPartyRestApp();
+    thirdParty = new ThirdPartyRestApp();
 
-        jersey =
-                new JerseyTest() {
-                    @Override
-                    protected Application configure() {
-                        enable(TestProperties.LOG_TRAFFIC);
-                        enable(TestProperties.DUMP_ENTITY);
-                        ResourceConfig jerseyconfig = ResourceConfig.forApplication(thirdParty);
-                        return jerseyconfig;
-                    }
-                };
-        jersey.setUp();
-    }
+    jersey =
+        new JerseyTest() {
+          @Override
+          protected Application configure() {
+            enable(TestProperties.LOG_TRAFFIC);
+            enable(TestProperties.DUMP_ENTITY);
+            ResourceConfig jerseyconfig = ResourceConfig.forApplication(thirdParty);
+            return jerseyconfig;
+          }
+        };
+    jersey.setUp();
+  }
 
-    @After
-    public void tearDown() throws Exception {
-        jersey.tearDown();
-    }
+  @After
+  public void tearDown() throws Exception {
+    jersey.tearDown();
+  }
 
-    @Test
-    public void getSingletons() {
+  @Test
+  public void getSingletons() {
 
-        Set<Object> results = thirdParty.getSingletons();
+    Set<Object> results = thirdParty.getSingletons();
 
-        assertThat(results).hasSize(4);
-    }
+    assertThat(results).hasSize(4);
+  }
 
-    @Test
-    public void appType() {
-        assertThat(thirdParty.getAppType()).isEqualTo(AppType.THIRD_PARTY);
-    }
+  @Test
+  public void appType() {
+    assertThat(thirdParty.getAppType()).isEqualTo(AppType.THIRD_PARTY);
+  }
 }

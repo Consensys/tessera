@@ -5,8 +5,7 @@ import java.util.concurrent.Executors;
 
 public class ExecutorFactory {
 
-    public Executor createCachedThreadPool() {
-        return Executors.newCachedThreadPool();
-    }
-
+  public Executor createCachedThreadPool() {
+    return Executors.newCachedThreadPool();
+  }
 }

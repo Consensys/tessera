@@ -5,7 +5,7 @@ import com.quorum.tessera.config.CommunicationType;
 
 public interface TesseraApp {
 
-    CommunicationType getCommunicationType();
+  CommunicationType getCommunicationType();
 
-    AppType getAppType();
+  AppType getAppType();
 }

@@ -4,32 +4,31 @@ import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
-
 import java.util.List;
 
 public interface TransactionManager {
 
-    SendResponse send(SendRequest sendRequest);
+  SendResponse send(SendRequest sendRequest);
 
-    SendResponse sendSignedTransaction(SendSignedRequest sendRequest);
+  SendResponse sendSignedTransaction(SendSignedRequest sendRequest);
 
-    void delete(MessageHash messageHash);
+  void delete(MessageHash messageHash);
 
-    MessageHash storePayload(EncodedPayload transactionPayload);
+  MessageHash storePayload(EncodedPayload transactionPayload);
 
-    ReceiveResponse receive(ReceiveRequest request);
+  ReceiveResponse receive(ReceiveRequest request);
 
-    StoreRawResponse store(StoreRawRequest storeRequest);
+  StoreRawResponse store(StoreRawRequest storeRequest);
 
-    boolean upcheck();
+  boolean upcheck();
 
-    boolean isSender(MessageHash transactionHash);
+  boolean isSender(MessageHash transactionHash);
 
-    List<PublicKey> getParticipants(MessageHash transactionHash);
+  List<PublicKey> getParticipants(MessageHash transactionHash);
 
-    /**
-     * @see Enclave#defaultPublicKey()
-     * @return
-     */
-    PublicKey defaultPublicKey();
+  /**
+   * @see Enclave#defaultPublicKey()
+   * @return
+   */
+  PublicKey defaultPublicKey();
 }

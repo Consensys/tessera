@@ -4,10 +4,9 @@ import com.quorum.tessera.ServiceLoaderUtil;
 
 public interface BatchPayloadPublisherFactory {
 
-    BatchPayloadPublisher create(PayloadPublisher publisher);
+  BatchPayloadPublisher create(PayloadPublisher publisher);
 
-    static BatchPayloadPublisherFactory newFactory() {
-        return ServiceLoaderUtil.load(BatchPayloadPublisherFactory.class).get();
-    }
-
+  static BatchPayloadPublisherFactory newFactory() {
+    return ServiceLoaderUtil.load(BatchPayloadPublisherFactory.class).get();
+  }
 }

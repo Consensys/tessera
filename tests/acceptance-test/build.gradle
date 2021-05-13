@@ -2,132 +2,131 @@
 
 dependencies {
 
-    testCompile project(':tessera-core')
-    testCompile project(':security')
-    testCompile project(':tessera-partyinfo')
-    testCompile project(':tessera-dist:tessera-launcher')
+  testCompile project(':tessera-core')
+  testCompile project(':security')
+  testCompile project(':tessera-partyinfo')
+  testCompile project(':tessera-dist:tessera-launcher')
 
-    testCompile project(path: ':tessera-dist:tessera-app', configuration: 'shadow')
-    testCompile project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
-    testCompile project(path: ':config-migration', configuration: 'shadow')
+  testCompile project(path: ':tessera-dist:tessera-app', configuration: 'shadow')
+  testCompile project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
+  testCompile project(path: ':config-migration', configuration: 'shadow')
 
-    testCompile project(':enclave:enclave-api')
-    testCompile project(':encryption:encryption-api')
-    testCompile project(':tessera-jaxrs:common-jaxrs')
-    testCompile project(':tessera-jaxrs:jaxrs-client')
-    testCompile project(':shared')
-    testCompile project(':config')
-    testCompile project(':tests:test-util')
+  testCompile project(':enclave:enclave-api')
+  testCompile project(':encryption:encryption-api')
+  testCompile project(':tessera-jaxrs:common-jaxrs')
+  testCompile project(':tessera-jaxrs:jaxrs-client')
+  testCompile project(':shared')
+  testCompile project(':config')
+  testCompile project(':tests:test-util')
 
-    testCompile project(':ddls')
+  testCompile project(':ddls')
 
-    testCompile "org.slf4j:slf4j-api:1.7.5"
-    testRuntimeOnly "ch.qos.logback:logback-classic:1.2.3"
-    testRuntimeOnly "ch.qos.logback:logback-core:1.2.3"
-    testRuntimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
-    testRuntimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
+  testCompile "org.slf4j:slf4j-api:1.7.5"
+  testRuntimeOnly "ch.qos.logback:logback-classic:1.2.3"
+  testRuntimeOnly "ch.qos.logback:logback-core:1.2.3"
+  testRuntimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
+  testRuntimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
 
-    testCompile 'io.cucumber:cucumber-junit:4.0.1'
-    testCompile 'io.cucumber:cucumber-java8:4.0.1'
+  testCompile 'io.cucumber:cucumber-junit:4.0.1'
+  testCompile 'io.cucumber:cucumber-java8:4.0.1'
 
-    testCompile 'org.xerial:sqlite-jdbc:3.23.1'
-    testCompile 'org.hsqldb:hsqldb:2.4.1'
-    testCompile 'com.github.tomakehurst:wiremock-jre8:2.26.3'
-    testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
-    testCompile 'org.assertj:assertj-core:3.9.1'
-    testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
-    testCompile 'com.github.jnr:jnr-unixsocket:0.25'
-    testCompile 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
-    testCompile 'org.yaml:snakeyaml:1.27'
+  testCompile 'org.xerial:sqlite-jdbc:3.23.1'
+  testCompile 'org.hsqldb:hsqldb:2.4.1'
+  testCompile 'com.github.tomakehurst:wiremock-jre8:2.26.3'
+  testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
+  testCompile 'org.assertj:assertj-core:3.9.1'
+  testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
+  testCompile 'com.github.jnr:jnr-unixsocket:0.25'
+  testCompile 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
+  testCompile 'org.yaml:snakeyaml:1.27'
 }
 
 sourceSets {
-        test {
-            java {
-                srcDir 'src/test/java'
-            }
-            resources {
-                srcDir 'src/test/resources'
-            }
-        }
+  test {
+    java {
+      srcDir 'src/test/java'
+    }
+    resources {
+      srcDir 'src/test/resources'
+    }
+  }
 }
 
 
 
 test {
 
-    systemProperty 'application.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('tessera-app')}
-    systemProperty 'config-migration-app.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('config-migration')}
-    systemProperty 'enclave.jaxrs.server.jar',project.configurations.testCompileClasspath.find { it.name.startsWith('enclave-jaxrs') }
-    systemProperty 'jdbc.hsql.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
-    systemProperty 'jdbc.sqlite.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
-    systemProperty 'jdbc.dir',"${buildDir}/ext"
+  systemProperty 'application.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('tessera-app')}
+  systemProperty 'config-migration-app.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('config-migration')}
+  systemProperty 'enclave.jaxrs.server.jar',project.configurations.testCompileClasspath.find { it.name.startsWith('enclave-jaxrs') }
+  systemProperty 'jdbc.hsql.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
+  systemProperty 'jdbc.sqlite.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
+  systemProperty 'jdbc.dir',"${buildDir}/ext"
 
-    include(
-            '**/RecoverIT.class',
-           '**/RestSuiteHttpH2RemoteEnclave.class',
-            '**/RestSuiteHttpHSQL.class',
-            '**/RestSuiteUnixH2.class',
-            '**/RestSuiteHttpSqllite.class',
-            '**/RestSuiteHttpH2.class',
-            '**/SendWithRemoteEnclaveReconnectIT.class',
-            '**/RestSuiteHttpqlite.class',
-            '**/CucumberWhitelistIT.class',
-            '**/ConfigMigrationIT.class',
-            '**/CucumberFileKeyGenerationIT.class',
-            '**/CucumberVersionCliIT.class',
-            '**/P2pTestSuite.class',
-            '**/RunAwsIT.class',
-            '**/RunAzureIT.class',
-            '**/RunHashicorpIT.class'
+  include(
+    '**/RecoverIT.class',
+    '**/RestSuiteHttpH2RemoteEnclave.class',
+    '**/RestSuiteHttpHSQL.class',
+    '**/RestSuiteUnixH2.class',
+    '**/RestSuiteHttpSqllite.class',
+    '**/RestSuiteHttpH2.class',
+    '**/SendWithRemoteEnclaveReconnectIT.class',
+    '**/RestSuiteHttpqlite.class',
+    '**/CucumberWhitelistIT.class',
+    '**/ConfigMigrationIT.class',
+    '**/CucumberFileKeyGenerationIT.class',
+    '**/CucumberVersionCliIT.class',
+    '**/P2pTestSuite.class',
+    '**/RunAwsIT.class',
+    '**/RunAzureIT.class',
+    '**/RunHashicorpIT.class'
     )
 
-    if (project.hasProperty('excludeTests')) {
-        def tokens = project.property('excludeTests').split(",")
-        tokens.each {v ->
-            exclude "**/"+ v +".class";
-        }
+  if (project.hasProperty('excludeTests')) {
+    def tokens = project.property('excludeTests').split(",")
+    tokens.each {v ->
+      exclude "**/"+ v +".class";
     }
+  }
 }
 
 
 
 task unzipDdl(type:Copy) {
-    def zipFile = file(project(':ddls').jar.outputs.files.getFiles()[0])
-    def outputDir = file("${buildDir}/resources/test/ddls")
-    from zipTree(zipFile)
-    into outputDir
+  def zipFile = file(project(':ddls').jar.outputs.files.getFiles()[0])
+  def outputDir = file("${buildDir}/resources/test/ddls")
+  from zipTree(zipFile)
+  into outputDir
 }
 
 task copyJdbcJars(type:Copy) {
 
-    def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
-    def sqliteJar = project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite")}
+  def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
+  def sqliteJar = project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite")}
 
-    def outputDir = file("${buildDir}/ext")
-    from hsqldbJar
-    into outputDir
+  def outputDir = file("${buildDir}/ext")
+  from hsqldbJar
+  into outputDir
 
-    from sqliteJar
-    into outputDir
+  from sqliteJar
+  into outputDir
 }
 
 clean {
 
 
-    def buildDir = file('build')
-    def targetDir = file('target')
-    delete targetDir
-    delete buildDir
+  def buildDir = file('build')
+  def targetDir = file('target')
+  delete targetDir
+  delete buildDir
 }
 
 
 task list(dependsOn: configurations.compileClasspath) {
-    doLast {
-        println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
-    }
+  doLast {
+    println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
+  }
 }
 
 
 test.dependsOn clean,copyJdbcJars,unzipDdl
-

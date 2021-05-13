@@ -5,9 +5,9 @@ import com.quorum.tessera.config.Config;
 
 public interface BatchPrivacyGroupPublisherFactory {
 
-    BatchPrivacyGroupPublisher create(PrivacyGroupPublisher privacyGroupPublisher);
+  BatchPrivacyGroupPublisher create(PrivacyGroupPublisher privacyGroupPublisher);
 
-    static BatchPrivacyGroupPublisherFactory newFactory(Config config) {
-        return ServiceLoaderUtil.loadAll(BatchPrivacyGroupPublisherFactory.class).findAny().get();
-    }
+  static BatchPrivacyGroupPublisherFactory newFactory(Config config) {
+    return ServiceLoaderUtil.loadAll(BatchPrivacyGroupPublisherFactory.class).findAny().get();
+  }
 }

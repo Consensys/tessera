@@ -1,85 +1,81 @@
 package com.quorum.tessera.discovery;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.partyinfo.MockContextHolder;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
+import java.net.URI;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.net.URI;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 public class DiscoveryFactoryTest {
 
-    private RuntimeContext runtimeContext;
+  private RuntimeContext runtimeContext;
 
-    @Before
-    public void beforeTest() {
-        MockContextHolder.reset();
-        runtimeContext = RuntimeContext.getInstance();
-    }
+  @Before
+  public void beforeTest() {
+    MockContextHolder.reset();
+    runtimeContext = RuntimeContext.getInstance();
+  }
 
-    @After
-    public void afterTest() {
-        MockContextHolder.reset();
-        verifyNoMoreInteractions(runtimeContext);
-    }
+  @After
+  public void afterTest() {
+    MockContextHolder.reset();
+    verifyNoMoreInteractions(runtimeContext);
+  }
 
-    @Test
-    public void provideAutoDiscovery() {
+  @Test
+  public void provideAutoDiscovery() {
 
-        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(false);
+    when(runtimeContext.isDisablePeerDiscovery()).thenReturn(false);
 
-        Discovery discovery = DiscoveryFactory.provider();
+    Discovery discovery = DiscoveryFactory.provider();
 
-        assertThat(discovery).isNotNull().isExactlyInstanceOf(AutoDiscovery.class);
+    assertThat(discovery).isNotNull().isExactlyInstanceOf(AutoDiscovery.class);
 
-        verify(runtimeContext).isDisablePeerDiscovery();
-    }
+    verify(runtimeContext).isDisablePeerDiscovery();
+  }
 
-    @Test
-    public void provideDisabledAutoDiscovery() {
+  @Test
+  public void provideDisabledAutoDiscovery() {
 
-        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
+    when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
 
-        Discovery discovery = DiscoveryFactory.provider();
+    Discovery discovery = DiscoveryFactory.provider();
 
-        assertThat(discovery).isNotNull().isExactlyInstanceOf(DisabledAutoDiscovery.class);
+    assertThat(discovery).isNotNull().isExactlyInstanceOf(DisabledAutoDiscovery.class);
 
-        verify(runtimeContext).isDisablePeerDiscovery();
-        verify(runtimeContext).getPeers();
-    }
+    verify(runtimeContext).isDisablePeerDiscovery();
+    verify(runtimeContext).getPeers();
+  }
 
+  @Test
+  public void testCallsToDelegate() {
+    Discovery discovery = mock(Discovery.class);
+    DiscoveryFactory discoveryFactory = new DiscoveryFactory(discovery);
 
-    @Test
-    public void testCallsToDelegate() {
-        Discovery discovery = mock(Discovery.class);
-        DiscoveryFactory discoveryFactory = new DiscoveryFactory(discovery);
+    discoveryFactory.onCreate();
+    verify(discovery).onCreate();
 
-        discoveryFactory.onCreate();
-        verify(discovery).onCreate();
+    NodeInfo nodeInfo = mock(NodeInfo.class);
+    discoveryFactory.onUpdate(nodeInfo);
+    verify(discovery).onUpdate(nodeInfo);
 
-        NodeInfo nodeInfo = mock(NodeInfo.class);
-        discoveryFactory.onUpdate(nodeInfo);
-        verify(discovery).onUpdate(nodeInfo);
+    URI uri = URI.create("http://stankirsch.com");
+    discoveryFactory.onDisconnect(uri);
+    verify(discovery).onDisconnect(uri);
 
-        URI uri = URI.create("http://stankirsch.com");
-        discoveryFactory.onDisconnect(uri);
-        verify(discovery).onDisconnect(uri);
+    verifyNoMoreInteractions(discovery);
+  }
 
-        verifyNoMoreInteractions(discovery);
-    }
+  @Test
+  public void defaultConstructor() {
+    DiscoveryFactory discoveryFactory = new DiscoveryFactory();
+    assertThat(discoveryFactory).isNotNull();
 
-    @Test
-    public void defaultConstructor() {
-        DiscoveryFactory discoveryFactory = new DiscoveryFactory();
-        assertThat(discoveryFactory).isNotNull();
-
-        verify(runtimeContext).isDisablePeerDiscovery();
-
-    }
-
+    verify(runtimeContext).isDisablePeerDiscovery();
+  }
 }

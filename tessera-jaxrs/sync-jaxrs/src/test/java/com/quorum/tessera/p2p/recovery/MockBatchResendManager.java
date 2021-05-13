@@ -7,11 +7,11 @@ import com.quorum.tessera.recovery.workflow.BatchResendManager;
 
 public class MockBatchResendManager implements BatchResendManager {
 
-    @Override
-    public ResendBatchResponse resendBatch(ResendBatchRequest request) {
-        return null;
-    }
+  @Override
+  public ResendBatchResponse resendBatch(ResendBatchRequest request) {
+    return null;
+  }
 
-    @Override
-    public void storeResendBatch(PushBatchRequest resendPushBatchRequest) {}
+  @Override
+  public void storeResendBatch(PushBatchRequest resendPushBatchRequest) {}
 }

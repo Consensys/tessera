@@ -1,20 +1,18 @@
 
 dependencies {
 
-    compile 'javax.transaction:javax.transaction-api'
-    compile project(':encryption:encryption-api')
-    compile project(':shared')
-    compile project(':config')
-    compile project(':enclave:enclave-api')
-    compile project(':tessera-context')
+  compile 'javax.transaction:javax.transaction-api'
+  compile project(':encryption:encryption-api')
+  compile project(':shared')
+  compile project(':config')
+  compile project(':enclave:enclave-api')
+  compile project(':tessera-context')
 
-    compile 'io.swagger.core.v3:swagger-annotations'
-    compile project(':tessera-data')
-    compile 'org.apache.commons:commons-lang3'
+  compile 'io.swagger.core.v3:swagger-annotations'
+  compile project(':tessera-data')
+  compile 'org.apache.commons:commons-lang3'
 
-    compile project(':service-locator:service-locator-api')
-    runtimeOnly project(':service-locator:service-locator-spring')
-    testImplementation project(':test-utils:mock-service-locator')
+  compile project(':service-locator:service-locator-api')
+  runtimeOnly project(':service-locator:service-locator-spring')
+  testImplementation project(':test-utils:mock-service-locator')
 }
-
-

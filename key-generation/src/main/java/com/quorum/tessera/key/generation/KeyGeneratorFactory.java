@@ -6,9 +6,10 @@ import com.quorum.tessera.config.KeyVaultConfig;
 
 public interface KeyGeneratorFactory {
 
-    KeyGenerator create(KeyVaultConfig keyVaultConfig, EncryptorConfig encryptorConfig);
+  KeyGenerator create(KeyVaultConfig keyVaultConfig, EncryptorConfig encryptorConfig);
 
-    static KeyGeneratorFactory newFactory() {
-        return ServiceLoaderUtil.load(KeyGeneratorFactory.class).orElse(new DefaultKeyGeneratorFactory());
-    }
+  static KeyGeneratorFactory newFactory() {
+    return ServiceLoaderUtil.load(KeyGeneratorFactory.class)
+        .orElse(new DefaultKeyGeneratorFactory());
+  }
 }

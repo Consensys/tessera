@@ -1,17 +1,17 @@
 plugins {
-    id 'java'
+  id 'java'
 }
 
 group 'net.consensys.quorum.tessera'
 
 dependencies {
-    compile project(':encryption:encryption-api')
-    compile project(':config')
-    compile project(':key-vault:key-vault-api')
-    compile project(':enclave:enclave-api')
-    compile project(':security')
-//   testCompile project(':server:server-api')
-    compile "javax.ws.rs:javax.ws.rs-api"
-    runtimeOnly "org.hibernate:hibernate-validator"
-    testCompile group: 'junit', name: 'junit', version: '4.13.1'
+  compile project(':encryption:encryption-api')
+  compile project(':config')
+  compile project(':key-vault:key-vault-api')
+  compile project(':enclave:enclave-api')
+  compile project(':security')
+  //   testCompile project(':server:server-api')
+  compile "javax.ws.rs:javax.ws.rs-api"
+  runtimeOnly "org.hibernate:hibernate-validator"
+  testCompile group: 'junit', name: 'junit', version: '4.13.1'
 }

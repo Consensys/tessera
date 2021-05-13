@@ -1,10 +1,10 @@
 
 dependencies {
-    compile project(':config')
-    compile project(':cli:cli-api')
-    compile project(':cli:config-cli')
-    compile project(':server:server-api')
-    compile project(':tessera-jaxrs:common-jaxrs')
-    compile project(':tessera-recover')
-    compile 'org.glassfish:javax.json'
+  compile project(':config')
+  compile project(':cli:cli-api')
+  compile project(':cli:config-cli')
+  compile project(':server:server-api')
+  compile project(':tessera-jaxrs:common-jaxrs')
+  compile project(':tessera-recover')
+  compile 'org.glassfish:javax.json'
 }

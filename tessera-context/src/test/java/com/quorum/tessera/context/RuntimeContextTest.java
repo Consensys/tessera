@@ -1,53 +1,53 @@
 package com.quorum.tessera.context;
 
-import com.quorum.tessera.config.keys.KeyEncryptor;
-import org.junit.Test;
-import javax.ws.rs.client.Client;
-import java.net.URI;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
+import com.quorum.tessera.config.keys.KeyEncryptor;
+import java.net.URI;
+import javax.ws.rs.client.Client;
+import org.junit.Test;
+
 public class RuntimeContextTest extends ContextTestCase {
 
-    @Test
-    public void createMinimal() {
+  @Test
+  public void createMinimal() {
 
-        final KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
-        final Client client = mock(Client.class);
-        final URI uri = URI.create("http://bogus");
+    final KeyEncryptor keyEncryptor = mock(KeyEncryptor.class);
+    final Client client = mock(Client.class);
+    final URI uri = URI.create("http://bogus");
 
-        final RuntimeContext runtimeContext =
-            RuntimeContextBuilder.create()
-                .withKeyEncryptor(keyEncryptor)
-                .withP2pClient(client)
-                .withP2pServerUri(uri)
-                .build();
+    final RuntimeContext runtimeContext =
+        RuntimeContextBuilder.create()
+            .withKeyEncryptor(keyEncryptor)
+            .withP2pClient(client)
+            .withP2pServerUri(uri)
+            .build();
 
-        assertThat(runtimeContext).isNotNull();
-        assertThat(runtimeContext.getP2pServerUri()).isSameAs(uri);
-        assertThat(runtimeContext.getKeyEncryptor()).isSameAs(keyEncryptor);
-        assertThat(runtimeContext.getP2pClient()).isSameAs(client);
-        assertThat(runtimeContext.getAlwaysSendTo()).isEmpty();
-        assertThat(runtimeContext.getKeys()).isEmpty();
-        assertThat(runtimeContext.getPublicKeys()).isEmpty();
-        assertThat(runtimeContext.getPeers()).isEmpty();
-        assertThat(runtimeContext.isRemoteKeyValidation()).isFalse();
-        assertThat(runtimeContext.isEnhancedPrivacy()).isFalse();
-        assertThat(runtimeContext.isUseWhiteList()).isFalse();
-        assertThat(runtimeContext.isRecoveryMode()).isFalse();
+    assertThat(runtimeContext).isNotNull();
+    assertThat(runtimeContext.getP2pServerUri()).isSameAs(uri);
+    assertThat(runtimeContext.getKeyEncryptor()).isSameAs(keyEncryptor);
+    assertThat(runtimeContext.getP2pClient()).isSameAs(client);
+    assertThat(runtimeContext.getAlwaysSendTo()).isEmpty();
+    assertThat(runtimeContext.getKeys()).isEmpty();
+    assertThat(runtimeContext.getPublicKeys()).isEmpty();
+    assertThat(runtimeContext.getPeers()).isEmpty();
+    assertThat(runtimeContext.isRemoteKeyValidation()).isFalse();
+    assertThat(runtimeContext.isEnhancedPrivacy()).isFalse();
+    assertThat(runtimeContext.isUseWhiteList()).isFalse();
+    assertThat(runtimeContext.isRecoveryMode()).isFalse();
 
-        assertThat(runtimeContext.isDisablePeerDiscovery()).isFalse();
+    assertThat(runtimeContext.isDisablePeerDiscovery()).isFalse();
 
-        assertThat(runtimeContext.isOrionMode()).isFalse();
+    assertThat(runtimeContext.isOrionMode()).isFalse();
 
-        assertThat(runtimeContext.toString()).isNotEmpty();
-    }
+    assertThat(runtimeContext.toString()).isNotEmpty();
+  }
 
-    @Test
-    public void getInstance() {
-        RuntimeContext runtimeContext = mock(RuntimeContext.class);
-        DefaultContextHolder.INSTANCE.setContext(runtimeContext);
-        assertThat(runtimeContext).isSameAs(RuntimeContext.getInstance());
-    }
+  @Test
+  public void getInstance() {
+    RuntimeContext runtimeContext = mock(RuntimeContext.class);
+    DefaultContextHolder.INSTANCE.setContext(runtimeContext);
+    assertThat(runtimeContext).isSameAs(RuntimeContext.getInstance());
+  }
 }

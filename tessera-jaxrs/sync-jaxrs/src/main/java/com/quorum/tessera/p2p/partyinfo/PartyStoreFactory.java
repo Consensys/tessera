@@ -5,32 +5,32 @@ import java.util.Set;
 
 public class PartyStoreFactory implements PartyStore {
 
-    public static PartyStore provider() {
-        return SimplePartyStore.INSTANCE;
-    }
+  public static PartyStore provider() {
+    return SimplePartyStore.INSTANCE;
+  }
 
-    private final PartyStore delegate;
+  private final PartyStore delegate;
 
-    public PartyStoreFactory() {
-        this(provider());
-    }
+  public PartyStoreFactory() {
+    this(provider());
+  }
 
-    protected PartyStoreFactory(PartyStore delegate) {
-        this.delegate = delegate;
-    }
+  protected PartyStoreFactory(PartyStore delegate) {
+    this.delegate = delegate;
+  }
 
-    @Override
-    public Set<URI> getParties() {
-        return delegate.getParties();
-    }
+  @Override
+  public Set<URI> getParties() {
+    return delegate.getParties();
+  }
 
-    @Override
-    public PartyStore store(URI party) {
-        return delegate.store(party);
-    }
+  @Override
+  public PartyStore store(URI party) {
+    return delegate.store(party);
+  }
 
-    @Override
-    public PartyStore remove(URI party) {
-        return delegate.remove(party);
-    }
+  @Override
+  public PartyStore remove(URI party) {
+    return delegate.remove(party);
+  }
 }

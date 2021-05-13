@@ -7,20 +7,21 @@ import com.quorum.tessera.encryption.EncryptorFactory;
 
 public class KeyEncryptorFactoryImpl implements KeyEncryptorFactory {
 
-    private final Argon2 argon2;
+  private final Argon2 argon2;
 
-    public KeyEncryptorFactoryImpl() {
-        this(Argon2.create());
-    }
+  public KeyEncryptorFactoryImpl() {
+    this(Argon2.create());
+  }
 
-    protected KeyEncryptorFactoryImpl(Argon2 argon2) {
-        this.argon2 = argon2;
-    }
+  protected KeyEncryptorFactoryImpl(Argon2 argon2) {
+    this.argon2 = argon2;
+  }
 
-    @Override
-    public KeyEncryptor create(EncryptorConfig encryptorConfig) {
-        Encryptor encryptor =
-                EncryptorFactory.newFactory(encryptorConfig.getType().name()).create(encryptorConfig.getProperties());
-        return new KeyEncryptorImpl(argon2, encryptor);
-    }
+  @Override
+  public KeyEncryptor create(EncryptorConfig encryptorConfig) {
+    Encryptor encryptor =
+        EncryptorFactory.newFactory(encryptorConfig.getType().name())
+            .create(encryptorConfig.getProperties());
+    return new KeyEncryptorImpl(argon2, encryptor);
+  }
 }

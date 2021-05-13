@@ -11,16 +11,18 @@ import org.junit.Test;
 
 public class OpenPojoTest {
 
-    @Test
-    public void test() {
+  @Test
+  public void test() {
 
-        final Validator validator = ValidatorBuilder.create()
+    final Validator validator =
+        ValidatorBuilder.create()
             .with(new GetterMustExistRule())
             .with(new SetterMustExistRule())
             .with(new SetterTester())
             .with(new GetterTester())
             .build();
 
-        validator.validate(PojoClassFactory.getPojoClasses(GetPublicKeysResponse.class.getPackage().getName()));
-    }
+    validator.validate(
+        PojoClassFactory.getPojoClasses(GetPublicKeysResponse.class.getPackage().getName()));
+  }
 }

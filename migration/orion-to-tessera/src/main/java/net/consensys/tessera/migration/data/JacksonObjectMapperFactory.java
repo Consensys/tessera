@@ -10,17 +10,15 @@ import com.fasterxml.jackson.datatype.jsr353.JSR353Module;
 
 public interface JacksonObjectMapperFactory {
 
+  static JsonFactory createFactory() {
+    return new CBORFactory();
+  }
 
-    static JsonFactory createFactory() {
-        return new CBORFactory();
-    }
-
-    static ObjectMapper create() {
-        return JsonMapper.builder(createFactory())
-            .addModule(new Jdk8Module())
-            .addModule(new JSR353Module())
-            .serializationInclusion(JsonInclude.Include.NON_NULL)
-            .build();
-    }
-
+  static ObjectMapper create() {
+    return JsonMapper.builder(createFactory())
+        .addModule(new Jdk8Module())
+        .addModule(new JSR353Module())
+        .serializationInclusion(JsonInclude.Include.NON_NULL)
+        .build();
+  }
 }

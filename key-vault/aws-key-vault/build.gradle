@@ -2,24 +2,24 @@
 def nettyVersion = "4.1.46.Final"
 
 dependencyCheck {
-    failBuildOnCVSS = 11
+  failBuildOnCVSS = 11
 }
 
 dependencies {
-    compile project(':config')
-    compile 'software.amazon.awssdk:secretsmanager:2.10.25'
-    compile project(':key-vault:key-vault-api')
-    compile 'com.typesafe.netty:netty-reactive-streams:2.0.4'
-    compile 'com.typesafe.netty:netty-reactive-streams-http:2.0.4'
+  compile project(':config')
+  compile 'software.amazon.awssdk:secretsmanager:2.10.25'
+  compile project(':key-vault:key-vault-api')
+  compile 'com.typesafe.netty:netty-reactive-streams:2.0.4'
+  compile 'com.typesafe.netty:netty-reactive-streams-http:2.0.4'
 
- //   compile 'io.netty:netty:'+ nettyVersion
-    compile 'io.netty:netty-handler:'+ nettyVersion
-    compile 'io.netty:netty-common:'+ nettyVersion
-    compile 'io.netty:netty-buffer:'+ nettyVersion
-    compile 'io.netty:netty-transport:'+ nettyVersion
-    compile 'io.netty:netty-codec:'+ nettyVersion
-    compile 'io.netty:netty-codec-http:'+ nettyVersion
-    compile 'io.netty:netty-codec-http2:'+ nettyVersion
-    compile 'io.netty:netty-transport-native-unix-common:'+ nettyVersion
-    compile 'io.netty:netty-transport-native-epoll:'+ nettyVersion +':linux-x86_64'
+  //   compile 'io.netty:netty:'+ nettyVersion
+  compile 'io.netty:netty-handler:'+ nettyVersion
+  compile 'io.netty:netty-common:'+ nettyVersion
+  compile 'io.netty:netty-buffer:'+ nettyVersion
+  compile 'io.netty:netty-transport:'+ nettyVersion
+  compile 'io.netty:netty-codec:'+ nettyVersion
+  compile 'io.netty:netty-codec-http:'+ nettyVersion
+  compile 'io.netty:netty-codec-http2:'+ nettyVersion
+  compile 'io.netty:netty-transport-native-unix-common:'+ nettyVersion
+  compile 'io.netty:netty-transport-native-epoll:'+ nettyVersion +':linux-x86_64'
 }

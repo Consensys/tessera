@@ -8,10 +8,10 @@ import com.quorum.tessera.recovery.resend.BatchTransactionRequesterFactory;
 
 public class RestBatchTransactionRequesterFactory implements BatchTransactionRequesterFactory {
 
-    @Override
-    public BatchTransactionRequester createBatchTransactionRequester(Config config) {
-        Enclave enclave = EnclaveFactory.create().create(config);
-        RecoveryClient recoveryClient = RecoveryClientFactory.newFactory(config).create(config);
-        return new RestBatchTransactionRequester(enclave, recoveryClient, 100);
-    }
+  @Override
+  public BatchTransactionRequester createBatchTransactionRequester(Config config) {
+    Enclave enclave = EnclaveFactory.create().create(config);
+    RecoveryClient recoveryClient = RecoveryClientFactory.newFactory(config).create(config);
+    return new RestBatchTransactionRequester(enclave, recoveryClient, 100);
+  }
 }

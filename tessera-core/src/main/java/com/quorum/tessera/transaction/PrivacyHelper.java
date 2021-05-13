@@ -11,17 +11,19 @@ import java.util.Set;
 
 public interface PrivacyHelper {
 
+  List<AffectedTransaction> findAffectedContractTransactionsFromSendRequest(
+      Set<MessageHash> affectedHashes);
 
-    List<AffectedTransaction> findAffectedContractTransactionsFromSendRequest(Set<MessageHash> affectedHashes);
+  List<AffectedTransaction> findAffectedContractTransactionsFromPayload(EncodedPayload payload);
 
-    List<AffectedTransaction> findAffectedContractTransactionsFromPayload(EncodedPayload payload);
+  boolean validateSendRequest(
+      PrivacyMode privacyMode,
+      List<PublicKey> recipientList,
+      List<AffectedTransaction> affectedTransactions);
 
-    boolean validateSendRequest(
-            PrivacyMode privacyMode, List<PublicKey> recipientList, List<AffectedTransaction> affectedTransactions);
+  boolean validatePayload(
+      TxHash txHash, EncodedPayload encodedPayload, List<AffectedTransaction> affectedTransactions);
 
-    boolean validatePayload(
-            TxHash txHash, EncodedPayload encodedPayload, List<AffectedTransaction> affectedTransactions);
-
-    EncodedPayload sanitisePrivacyPayload(
-            TxHash txHash, EncodedPayload encodedPayload, Set<TxHash> invalidSecurityHashes);
+  EncodedPayload sanitisePrivacyPayload(
+      TxHash txHash, EncodedPayload encodedPayload, Set<TxHash> invalidSecurityHashes);
 }

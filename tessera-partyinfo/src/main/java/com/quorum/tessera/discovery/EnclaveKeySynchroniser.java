@@ -2,10 +2,9 @@ package com.quorum.tessera.discovery;
 
 public interface EnclaveKeySynchroniser extends Runnable {
 
-    void syncKeys();
+  void syncKeys();
 
-    default void run() {
-        syncKeys();
-    }
-
+  default void run() {
+    syncKeys();
+  }
 }

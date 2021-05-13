@@ -10,10 +10,10 @@ import com.quorum.tessera.config.Config;
  */
 public interface EnclaveClientFactory<T extends EnclaveClient> {
 
-    T create(Config config);
+  T create(Config config);
 
-    static EnclaveClientFactory create() {
-        // TODO: return the stream and let the caller deal with it
-        return ServiceLoaderUtil.loadAll(EnclaveClientFactory.class).findAny().get();
-    }
+  static EnclaveClientFactory create() {
+    // TODO: return the stream and let the caller deal with it
+    return ServiceLoaderUtil.loadAll(EnclaveClientFactory.class).findAny().get();
+  }
 }

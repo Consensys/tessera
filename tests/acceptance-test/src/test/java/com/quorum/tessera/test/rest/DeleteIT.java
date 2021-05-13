@@ -1,84 +1,83 @@
 package com.quorum.tessera.test.rest;
 
-import com.quorum.tessera.api.SendResponse;
-import org.junit.Test;
-
-import javax.ws.rs.core.Response;
-import java.net.URLEncoder;
-import java.util.Base64;
-import com.quorum.tessera.test.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import com.quorum.tessera.api.SendResponse;
+import com.quorum.tessera.test.*;
+import java.net.URLEncoder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Base64;
 import java.util.Collections;
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
 
 public class DeleteIT {
 
-    private static final String COUNT_ALL = "select count(*) from ENCRYPTED_TRANSACTION where hash = ?";
+  private static final String COUNT_ALL =
+      "select count(*) from ENCRYPTED_TRANSACTION where hash = ?";
 
-    private final PartyHelper partyHelper = PartyHelper.create();
+  private final PartyHelper partyHelper = PartyHelper.create();
 
-    @Test
-    public void deleteTransactionThatExists() throws Exception {
-        //setup (sending in a tx)
+  @Test
+  public void deleteTransactionThatExists() throws Exception {
+    // setup (sending in a tx)
 
-        Party sender = partyHelper.getParties().findAny().get();
+    Party sender = partyHelper.getParties().findAny().get();
 
-        Party recipient = partyHelper.getParties()
-                .filter(p -> !p.getPublicKey().equals(sender.getPublicKey()))
-                .findAny().get();
+    Party recipient =
+        partyHelper
+            .getParties()
+            .filter(p -> !p.getPublicKey().equals(sender.getPublicKey()))
+            .findAny()
+            .get();
 
-        RestUtils utils = new RestUtils();
-        byte[] txnData = utils.createTransactionData();
+    RestUtils utils = new RestUtils();
+    byte[] txnData = utils.createTransactionData();
 
-        Response response = utils.send(sender, txnData, Collections.singleton(recipient));
-        assertThat(response.getStatus()).isEqualTo(201);
+    Response response = utils.send(sender, txnData, Collections.singleton(recipient));
+    assertThat(response.getStatus()).isEqualTo(201);
 
-        final SendResponse sendResponse = response.readEntity(SendResponse.class);
+    final SendResponse sendResponse = response.readEntity(SendResponse.class);
 
-        final String encodedHash = URLEncoder.encode(sendResponse.getKey(), UTF_8.toString());
+    final String encodedHash = URLEncoder.encode(sendResponse.getKey(), UTF_8.toString());
 
-        try(PreparedStatement statement = sender.getDatabaseConnection().prepareStatement(COUNT_ALL)) {
-            statement.setBytes(1, Base64.getDecoder().decode(sendResponse.getKey()));
-            try(ResultSet rs = statement.executeQuery()) {
-                assertThat(rs.next()).isTrue();
-                assertThat(rs.getLong(1)).isEqualTo(1);
-            }
-        }
-
-        //delete it
-        final Response resp = sender.getRestClientWebTarget()
-                .path("transaction")
-                .path(encodedHash)
-                .request()
-                .delete();
-
-        //validate result
-        assertThat(resp).isNotNull();
-        assertThat(resp.getStatus()).isEqualTo(204);
-
+    try (PreparedStatement statement = sender.getDatabaseConnection().prepareStatement(COUNT_ALL)) {
+      statement.setBytes(1, Base64.getDecoder().decode(sendResponse.getKey()));
+      try (ResultSet rs = statement.executeQuery()) {
+        assertThat(rs.next()).isTrue();
+        assertThat(rs.getLong(1)).isEqualTo(1);
+      }
     }
 
-    @Test
-    public void deleteTransactionThatDoesntExist() {
+    // delete it
+    final Response resp =
+        sender.getRestClientWebTarget().path("transaction").path(encodedHash).request().delete();
 
-        final String madeupHash = Base64.getUrlEncoder().encodeToString("madeup".getBytes());
+    // validate result
+    assertThat(resp).isNotNull();
+    assertThat(resp.getStatus()).isEqualTo(204);
+  }
 
+  @Test
+  public void deleteTransactionThatDoesntExist() {
 
-        Party party = partyHelper.getParties().findAny().get();
+    final String madeupHash = Base64.getUrlEncoder().encodeToString("madeup".getBytes());
 
-        final Response response = party.getRestClientWebTarget()
-                .path("transaction")
-                .path(madeupHash)
-                .request()
-                .buildDelete()
-                .invoke();
+    Party party = partyHelper.getParties().findAny().get();
 
-        //validate result
-        assertThat(response).isNotNull();
-        assertThat(response.getStatus()).isEqualTo(404);
+    final Response response =
+        party
+            .getRestClientWebTarget()
+            .path("transaction")
+            .path(madeupHash)
+            .request()
+            .buildDelete()
+            .invoke();
 
-    }
-
+    // validate result
+    assertThat(response).isNotNull();
+    assertThat(response.getStatus()).isEqualTo(404);
+  }
 }

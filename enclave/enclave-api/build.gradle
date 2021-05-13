@@ -1,10 +1,10 @@
 
 dependencies {
-    compile project(':config')
-    compile project(':encryption:encryption-api')
-    compile project(':shared')
-    compile project(':key-vault:key-vault-api')
-    compile 'org.bouncycastle:bcpkix-jdk15on'
-    testCompile 'org.apache.tuweni:tuweni-rlp'
-    testCompile 'org.apache.tuweni:tuweni-bytes'
+  compile project(':config')
+  compile project(':encryption:encryption-api')
+  compile project(':shared')
+  compile project(':key-vault:key-vault-api')
+  compile 'org.bouncycastle:bcpkix-jdk15on'
+  testCompile 'org.apache.tuweni:tuweni-rlp'
+  testCompile 'org.apache.tuweni:tuweni-bytes'
 }

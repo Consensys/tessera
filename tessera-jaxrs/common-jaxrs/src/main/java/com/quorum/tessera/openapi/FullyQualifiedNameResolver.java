@@ -6,12 +6,12 @@ import io.swagger.v3.core.jackson.TypeNameResolver;
 
 public class FullyQualifiedNameResolver extends ModelResolver {
 
-    public FullyQualifiedNameResolver() {
-        this(new ObjectMapper());
-    }
+  public FullyQualifiedNameResolver() {
+    this(new ObjectMapper());
+  }
 
-    public FullyQualifiedNameResolver(ObjectMapper mapper) {
-        super(mapper, TypeNameResolver.std);
-        TypeNameResolver.std.setUseFqn(true);
-    }
+  public FullyQualifiedNameResolver(ObjectMapper mapper) {
+    super(mapper, TypeNameResolver.std);
+    TypeNameResolver.std.setUseFqn(true);
+  }
 }

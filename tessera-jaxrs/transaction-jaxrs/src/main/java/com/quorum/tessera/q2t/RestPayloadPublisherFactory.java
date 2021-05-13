@@ -6,23 +6,22 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisherFactory;
-
 import javax.ws.rs.client.Client;
 
 public class RestPayloadPublisherFactory implements PayloadPublisherFactory {
 
-    @Override
-    public PayloadPublisher create(Config config) {
+  @Override
+  public PayloadPublisher create(Config config) {
 
-        Discovery partyInfoService = Discovery.getInstance();
+    Discovery partyInfoService = Discovery.getInstance();
 
-        ClientFactory clientFactory = new ClientFactory();
-        Client client = clientFactory.buildFrom(config.getP2PServerConfig());
-        return new RestPayloadPublisher(client, partyInfoService);
-    }
+    ClientFactory clientFactory = new ClientFactory();
+    Client client = clientFactory.buildFrom(config.getP2PServerConfig());
+    return new RestPayloadPublisher(client, partyInfoService);
+  }
 
-    @Override
-    public CommunicationType communicationType() {
-        return CommunicationType.REST;
-    }
+  @Override
+  public CommunicationType communicationType() {
+    return CommunicationType.REST;
+  }
 }

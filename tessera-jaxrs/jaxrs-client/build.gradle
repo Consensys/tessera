@@ -1,12 +1,12 @@
 dependencies {
-    compile project(':shared')
-    compile project(':config')
-    compile project(':security')
-    compile project(':tessera-context')
-    compile 'javax.ws.rs:javax.ws.rs-api'
-    compile project(':server:jaxrs-client-unixsocket')
+  compile project(':shared')
+  compile project(':config')
+  compile project(':security')
+  compile project(':tessera-context')
+  compile 'javax.ws.rs:javax.ws.rs-api'
+  compile project(':server:jaxrs-client-unixsocket')
 
-    testImplementation "org.eclipse.jetty:jetty-unixsocket"
-    testImplementation "org.glassfish.jersey.core:jersey-client"
-    testImplementation "org.eclipse.jetty:jetty-client"
+  testImplementation "org.eclipse.jetty:jetty-unixsocket"
+  testImplementation "org.glassfish.jersey.core:jersey-client"
+  testImplementation "org.eclipse.jetty:jetty-client"
 }

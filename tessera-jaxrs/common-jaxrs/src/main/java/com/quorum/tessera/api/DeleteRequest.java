@@ -1,7 +1,6 @@
 package com.quorum.tessera.api;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -12,16 +11,18 @@ import javax.validation.constraints.Size;
  */
 public class DeleteRequest {
 
-    @Schema(description = "hash indicating encrypted payload to delete from database", format = "base64")
-    @Size(min = 1)
-    @NotNull
-    private String key;
+  @Schema(
+      description = "hash indicating encrypted payload to delete from database",
+      format = "base64")
+  @Size(min = 1)
+  @NotNull
+  private String key;
 
-    public String getKey() {
-        return key;
-    }
+  public String getKey() {
+    return key;
+  }
 
-    public void setKey(final String key) {
-        this.key = key;
-    }
+  public void setKey(final String key) {
+    this.key = key;
+  }
 }
