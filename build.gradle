@@ -1,389 +1,389 @@
 import java.time.Duration
 
 plugins {
-    id "org.owasp.dependencycheck" version "6.1.6"
-    id 'jacoco'
-    id 'com.diffplug.gradle.spotless' version '3.25.0'
-    id 'com.github.ben-manes.versions' version '0.8'
-    id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
-    id 'com.github.johnrengelman.shadow' version '6.1.0'
+  id "org.owasp.dependencycheck" version "6.1.6"
+  id 'jacoco'
+  id 'com.diffplug.gradle.spotless' version '3.25.0'
+  id 'com.github.ben-manes.versions' version '0.8'
+  id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
+  id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
 
 ext {
-    jettyVersion = "9.4.39.v20210325"
-    springVersion = "5.2.9.RELEASE"
-    eclipseLinkVersion = "2.7.7"
-    swaggerVersion = "2.1.5"
+  jettyVersion = "9.4.39.v20210325"
+  springVersion = "5.2.9.RELEASE"
+  eclipseLinkVersion = "2.7.7"
+  swaggerVersion = "2.1.5"
 }
 
 
 allprojects {
-    group = 'net.consensys.quorum.tessera'
-    //version = '0.11-SNAPSHOT'
-    project.version = rootProject.file("version.txt").text.trim()
+  group = 'net.consensys.quorum.tessera'
+  //version = '0.11-SNAPSHOT'
+  project.version = rootProject.file("version.txt").text.trim()
 
-    plugins.withType(JavaPlugin).whenPluginAdded {
+  plugins.withType(JavaPlugin).whenPluginAdded {
 
-        dependencies {
-            constraints {
+    dependencies {
+      constraints {
 
-                compile "org.slf4j:slf4j-api:1.7.5"
-                runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
-                runtimeOnly "ch.qos.logback:logback-core:1.2.3"
-                runtimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
-                runtimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
-                runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy:"+ eclipseLinkVersion
+        compile "org.slf4j:slf4j-api:1.7.5"
+        runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
+        runtimeOnly "ch.qos.logback:logback-core:1.2.3"
+        runtimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
+        runtimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
+        runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy:"+ eclipseLinkVersion
 
-                testCompile "junit:junit:4.13.1"
-                testCompile "org.assertj:assertj-core:3.9.1"
-                testCompile "org.mockito:mockito-core:3.4.4"
-                testCompile "com.openpojo:openpojo:0.8.10"
-                testCompile "com.github.stefanbirkner:system-rules:1.18.0"
-                testCompile "nl.jqno.equalsverifier:equalsverifier:3.4.1"
-                compile "com.github.jnr:jnr-unixsocket:0.28"
-                compile "de.mkammerer:argon2-jvm:2.5"
-                compile "javax.validation:validation-api:2.0.1.Final"
-                compile "javax.ws.rs:javax.ws.rs-api:2.1"
-                compile "info.picocli:picocli:4.6.1"
-                compile "org.apache.commons:commons-lang3:3.7"
-                compile "commons-cli:commons-cli:1.4"
-                compile "org.glassfish:javax.json:1.1.2"
-                compile "org.jasypt:jasypt:1.9.3"
-                compile "org.glassfish:javax.el:3.0.1-b10"
-                compile "org.hibernate:hibernate-validator:6.0.2.Final"
-                compile "com.moandjiezana.toml:toml4j:0.7.2"
-                compile "commons-codec:commons-codec:1.6"
-                compile "commons-io:commons-io:2.8.0"
-                compile "org.bouncycastle:bcpkix-jdk15on:1.68"
-                compile "org.xerial:sqlite-jdbc:3.23.1"
-                compile "com.h2database:h2:1.4.200"
-                compile "com.mockrunner:mockrunner-jdbc:2.0.1"
-                compile "org.glassfish.jersey.inject:jersey-hk2:2.27"
-                compile "org.glassfish.jersey.media:jersey-media-json-processing:2.27"
-                compile "org.glassfish.jersey.media:jersey-media-moxy:2.27"
-                compile "com.sun.mail:javax.mail:1.6.2"
-                compile "org.glassfish.jersey.test-framework:jersey-test-framework-core:2.27"
-                compile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.27"
-                compile "org.springframework:spring-test:5.1.2.RELEASE"
-                compile "javax.ws.rs:javax.ws.rs-api:2.1"
-                compile "org.cryptacular:cryptacular:1.2.4"
-                compile "eu.neilalexander:jnacl:1.0.0"
-                compile "javax.ws.rs:javax.ws.rs-api:2.1"
-                compile "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
-                compile "org.glassfish.jersey.core:jersey-client:2.27"
-                compile "org.eclipse.jetty:jetty-client:$jettyVersion"
-                compile "org.glassfish.jersey.media:jersey-media-moxy:2.27"
-                compile "org.glassfish.jersey.core:jersey-server:2.27"
-                compile "org.glassfish.jersey.ext:jersey-bean-validation:2.27"
+        testCompile "junit:junit:4.13.1"
+        testCompile "org.assertj:assertj-core:3.9.1"
+        testCompile "org.mockito:mockito-core:3.4.4"
+        testCompile "com.openpojo:openpojo:0.8.10"
+        testCompile "com.github.stefanbirkner:system-rules:1.18.0"
+        testCompile "nl.jqno.equalsverifier:equalsverifier:3.4.1"
+        compile "com.github.jnr:jnr-unixsocket:0.28"
+        compile "de.mkammerer:argon2-jvm:2.5"
+        compile "javax.validation:validation-api:2.0.1.Final"
+        compile "javax.ws.rs:javax.ws.rs-api:2.1"
+        compile "info.picocli:picocli:4.6.1"
+        compile "org.apache.commons:commons-lang3:3.7"
+        compile "commons-cli:commons-cli:1.4"
+        compile "org.glassfish:javax.json:1.1.2"
+        compile "org.jasypt:jasypt:1.9.3"
+        compile "org.glassfish:javax.el:3.0.1-b10"
+        compile "org.hibernate:hibernate-validator:6.0.2.Final"
+        compile "com.moandjiezana.toml:toml4j:0.7.2"
+        compile "commons-codec:commons-codec:1.6"
+        compile "commons-io:commons-io:2.8.0"
+        compile "org.bouncycastle:bcpkix-jdk15on:1.68"
+        compile "org.xerial:sqlite-jdbc:3.23.1"
+        compile "com.h2database:h2:1.4.200"
+        compile "com.mockrunner:mockrunner-jdbc:2.0.1"
+        compile "org.glassfish.jersey.inject:jersey-hk2:2.27"
+        compile "org.glassfish.jersey.media:jersey-media-json-processing:2.27"
+        compile "org.glassfish.jersey.media:jersey-media-moxy:2.27"
+        compile "com.sun.mail:javax.mail:1.6.2"
+        compile "org.glassfish.jersey.test-framework:jersey-test-framework-core:2.27"
+        compile "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.27"
+        compile "org.springframework:spring-test:5.1.2.RELEASE"
+        compile "javax.ws.rs:javax.ws.rs-api:2.1"
+        compile "org.cryptacular:cryptacular:1.2.4"
+        compile "eu.neilalexander:jnacl:1.0.0"
+        compile "javax.ws.rs:javax.ws.rs-api:2.1"
+        compile "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
+        compile "org.glassfish.jersey.core:jersey-client:2.27"
+        compile "org.eclipse.jetty:jetty-client:$jettyVersion"
+        compile "org.glassfish.jersey.media:jersey-media-moxy:2.27"
+        compile "org.glassfish.jersey.core:jersey-server:2.27"
+        compile "org.glassfish.jersey.ext:jersey-bean-validation:2.27"
 
-                compile "org.glassfish.jersey.containers:jersey-container-servlet-core:2.27"
-                compile "javax.servlet:javax.servlet-api:4.0.1"
-                compile "com.sun.mail:javax.mail:1.6.2"
+        compile "org.glassfish.jersey.containers:jersey-container-servlet-core:2.27"
+        compile "javax.servlet:javax.servlet-api:4.0.1"
+        compile "com.sun.mail:javax.mail:1.6.2"
 
-                compile "org.eclipse.jetty:jetty-servlet:$jettyVersion"
-                compile "org.glassfish.jersey.inject:jersey-hk2:2.27"
-                compile "org.glassfish.jersey.core:jersey-common:2.27"
-                compile "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
-                compile "org.eclipse.jetty:jetty-server:$jettyVersion"
-                compile "org.eclipse.jetty:jetty-jndi:$jettyVersion"
-                compile "org.eclipse.jetty:jetty-plus:$jettyVersion"
+        compile "org.eclipse.jetty:jetty-servlet:$jettyVersion"
+        compile "org.glassfish.jersey.inject:jersey-hk2:2.27"
+        compile "org.glassfish.jersey.core:jersey-common:2.27"
+        compile "org.eclipse.jetty:jetty-unixsocket:$jettyVersion"
+        compile "org.eclipse.jetty:jetty-server:$jettyVersion"
+        compile "org.eclipse.jetty:jetty-jndi:$jettyVersion"
+        compile "org.eclipse.jetty:jetty-plus:$jettyVersion"
 
-                compile "io.swagger.core.v3:swagger-annotations:$swaggerVersion"
+        compile "io.swagger.core.v3:swagger-annotations:$swaggerVersion"
 
-                compile "javax.transaction:javax.transaction-api:1.3"
-                compile "org.bouncycastle:bcpkix-jdk15on:1.68"
+        compile "javax.transaction:javax.transaction-api:1.3"
+        compile "org.bouncycastle:bcpkix-jdk15on:1.68"
 
-                testCompile 'org.apache.tuweni:tuweni-rlp:1.1.0'
-                testCompile 'org.apache.tuweni:tuweni-bytes:1.1.0'
+        testCompile 'org.apache.tuweni:tuweni-rlp:1.1.0'
+        testCompile 'org.apache.tuweni:tuweni-bytes:1.1.0'
 
-                compile "org.springframework:spring-orm:"+ springVersion
-                compile "org.springframework:spring-test:"+ springVersion
-                compile "org.springframework:spring-core:"+ springVersion
-                compile "org.springframework:spring-beans:"+ springVersion
-                compile "org.springframework:spring-context:"+ springVersion
-                compile "org.springframework:spring-orm:"+ springVersion
+        compile "org.springframework:spring-orm:"+ springVersion
+        compile "org.springframework:spring-test:"+ springVersion
+        compile "org.springframework:spring-core:"+ springVersion
+        compile "org.springframework:spring-beans:"+ springVersion
+        compile "org.springframework:spring-context:"+ springVersion
+        compile "org.springframework:spring-orm:"+ springVersion
 
-                compile "javax.inject:javax.inject:1"
-                compile "org.bouncycastle:bcprov-jdk15on:1.68"
-                compile "com.h2database:h2:1.4.200"
-                compile "com.zaxxer:HikariCP:3.2.0"
-                compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipseLinkVersion
-                compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipseLinkVersion
-                compile "org.hsqldb:hsqldb:2.4.1"
-                compile "org.xerial:sqlite-jdbc:3.23.1"
-                compile "javax.persistence:javax.persistence-api:2.2"
-                compile "javax.inject:javax.inject:1"
-                compile "javax:javaee-api:7.0"
+        compile "javax.inject:javax.inject:1"
+        compile "org.bouncycastle:bcprov-jdk15on:1.68"
+        compile "com.h2database:h2:1.4.200"
+        compile "com.zaxxer:HikariCP:3.2.0"
+        compile "org.eclipse.persistence:org.eclipse.persistence.jpa:"+ eclipseLinkVersion
+        compile "org.eclipse.persistence:org.eclipse.persistence.extension:"+ eclipseLinkVersion
+        compile "org.hsqldb:hsqldb:2.4.1"
+        compile "org.xerial:sqlite-jdbc:3.23.1"
+        compile "javax.persistence:javax.persistence-api:2.2"
+        compile "javax.inject:javax.inject:1"
+        compile "javax:javaee-api:7.0"
 
-                compile "javax.xml.bind:jaxb-api:2.3.0"
-                compile "org.glassfish.jaxb:jaxb-runtime:2.3.0"
-                compile "javax.activation:javax.activation-api:1.2.0"
-                compile "javax.annotation:javax.annotation-api:1.3.2"
+        compile "javax.xml.bind:jaxb-api:2.3.0"
+        compile "org.glassfish.jaxb:jaxb-runtime:2.3.0"
+        compile "javax.activation:javax.activation-api:1.2.0"
+        compile "javax.annotation:javax.annotation-api:1.3.2"
 
-                compile "org.glassfish:jsonp-jaxrs:1.1.6"
+        compile "org.glassfish:jsonp-jaxrs:1.1.6"
 
-                implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
-                implementation 'com.squareup.retrofit2:adapter-rxjava:2.5.0'
-            }
-        }
+        implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+        implementation 'com.squareup.retrofit2:adapter-rxjava:2.5.0'
+      }
     }
+  }
 }
 
 
 nexusPublishing {
-    repositories {
-        sonatype()
-    }
-    clientTimeout = Duration.ofMinutes(10)
+  repositories {
+    sonatype()
+  }
+  clientTimeout = Duration.ofMinutes(10)
 }
 
 subprojects {
 
-    apply plugin: 'java'
-    apply plugin: 'com.diffplug.gradle.spotless'
-    apply plugin: 'maven-publish'
-    apply plugin: 'jacoco'
-    apply plugin: 'org.owasp.dependencycheck'
+  apply plugin: 'java'
+  apply plugin: 'com.diffplug.gradle.spotless'
+  apply plugin: 'maven-publish'
+  apply plugin: 'jacoco'
+  apply plugin: 'org.owasp.dependencycheck'
 
-    repositories {
-        mavenLocal()
-        maven {
-            url = 'https://repo.maven.apache.org/maven2'
-        }
+  repositories {
+    mavenLocal()
+    maven {
+      url = 'https://repo.maven.apache.org/maven2'
     }
+  }
 
-    dependencies {
+  dependencies {
 
-        compile 'org.slf4j:slf4j-api'
-        runtimeOnly 'ch.qos.logback:logback-classic'
-        runtimeOnly 'ch.qos.logback:logback-core'
-        runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
+    compile 'org.slf4j:slf4j-api'
+    runtimeOnly 'ch.qos.logback:logback-classic'
+    runtimeOnly 'ch.qos.logback:logback-core'
+    runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
 
-        testCompile 'junit:junit'
-        testCompile 'org.assertj:assertj-core'
-        testCompile 'org.mockito:mockito-core'
-        testCompile 'com.openpojo:openpojo'
-        testCompile 'com.github.stefanbirkner:system-rules'
-        testCompile 'nl.jqno.equalsverifier:equalsverifier'
-    }
+    testCompile 'junit:junit'
+    testCompile 'org.assertj:assertj-core'
+    testCompile 'org.mockito:mockito-core'
+    testCompile 'com.openpojo:openpojo'
+    testCompile 'com.github.stefanbirkner:system-rules'
+    testCompile 'nl.jqno.equalsverifier:equalsverifier'
+  }
 
-    test {
-        systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
-        systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
-    }
+  test {
+    systemProperty("javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
+    systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
+  }
 
-    dependencyCheck {
-        failBuildOnCVSS = 0
-        suppressionFile = 'cvss-suppressions.xml'
-    }
+  dependencyCheck {
+    failBuildOnCVSS = 0
+    suppressionFile = 'cvss-suppressions.xml'
+  }
 
-    jacoco {
-        toolVersion = "0.8.6"
-    }
+  jacoco {
+    toolVersion = "0.8.6"
+  }
 
-    spotless {
+  spotless {
 
-        lineEndings = "unix"
-
-        java {
-            // target fileTree("**/*.java")
-
-            target fileTree('.') {
-                include "**/src/main/java/**/*.java"
-                include "**/src/test/java/**/*.java"
-            }
-            removeUnusedImports()
-            googleJavaFormat("1.7")
-            trimTrailingWhitespace()
-            endWithNewline()
-        }
-        groovyGradle {
-            target "*.gradle"
-            greclipse().configFile(rootProject.file("gradle/formatter.properties"))
-            endWithNewline()
-        }
-    }
-    jacocoTestReport {
-        reports {
-            xml.enabled false
-            csv.enabled false
-            html.enabled true
-        }
-
-    }
-    jacocoTestCoverageVerification {
-
-
-        violationRules {
-            rule {
-                element = 'CLASS'
-                limit {
-                    counter = 'LINE'
-                    value = 'COVEREDRATIO'
-                    minimum = 1.0
-                }
-                limit {
-                    counter = 'INSTRUCTION'
-                    value = 'COVEREDRATIO'
-                    minimum = 1.0
-                }
-
-                excludes = [
-                        'com.quorum.tessera.launcher.Launcher',
-                        'com.quorum.tessera.launcher.Launcher.*',
-                        'com.quorum.tessera.launcher.Main',
-                        'com.quorum.tessera.multitenancy.migration.Main',
-                        'com.quorum.tessera.config.migration.Main',
-                        'com.quorum.tessera.data.migration.Main',
-                        'com.quorum.tessera.passwords.ConsolePasswordReader',
-                        'com.quorum.tessera.passwords.PasswordReaderFactory',
-                        'com.quorum.tessera.enclave.rest.Main',
-                        'com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate',
-                        'com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory'
-                ]
-            }
-
-        }
-    }
-
-
-
-    sourceSets {
-        main {
-            java {
-                srcDir 'src/main/java'
-            }
-            resources {
-                srcDir 'src/main/resources'
-            }
-        }
-        test {
-            java {
-                srcDir 'src/test/java'
-
-            }
-            resources {
-                srcDir 'src/test/resources'
-            }
-        }
-    }
-
-    sourceCompatibility = '11'
+    lineEndings = "unix"
 
     java {
-        withJavadocJar()
-        withSourcesJar()
+      // target fileTree("**/*.java")
+
+      target fileTree('.') {
+        include "**/src/main/java/**/*.java"
+        include "**/src/test/java/**/*.java"
+      }
+      removeUnusedImports()
+      googleJavaFormat("1.7")
+      trimTrailingWhitespace()
+      endWithNewline()
+    }
+    groovyGradle {
+      target files(
+        fileTree('.') {
+          include "*.gradle"
+        })
+        .from("$rootDir/build.gradle")
+      greclipse().configFile(rootProject.file("gradle/formatter.properties"))
+      endWithNewline()
+    }
+  }
+  jacocoTestReport {
+    reports {
+      xml.enabled false
+      csv.enabled false
+      html.enabled true
     }
 
-    javadoc {
-        failOnError false
-        if(JavaVersion.current().isJava9Compatible()) {
-            options.addBooleanOption('html5', true)
+  }
+  jacocoTestCoverageVerification {
+
+
+    violationRules {
+      rule {
+        element = 'CLASS'
+        limit {
+          counter = 'LINE'
+          value = 'COVEREDRATIO'
+          minimum = 1.0
         }
+        limit {
+          counter = 'INSTRUCTION'
+          value = 'COVEREDRATIO'
+          minimum = 1.0
+        }
+
+        excludes = [
+          'com.quorum.tessera.launcher.Launcher',
+          'com.quorum.tessera.launcher.Launcher.*',
+          'com.quorum.tessera.launcher.Main',
+          'com.quorum.tessera.multitenancy.migration.Main',
+          'com.quorum.tessera.config.migration.Main',
+          'com.quorum.tessera.data.migration.Main',
+          'com.quorum.tessera.passwords.ConsolePasswordReader',
+          'com.quorum.tessera.passwords.PasswordReaderFactory',
+          'com.quorum.tessera.enclave.rest.Main',
+          'com.quorum.tessera.key.vault.azure.AzureKeyVaultClientDelegate',
+          'com.quorum.tessera.key.vault.hashicorp.KeyValueOperationsDelegateFactory'
+        ]
+      }
+
     }
-
-    publishing {
-
-        publications {
+  }
 
 
-            mavenJava(MavenPublication) {publication ->
-                from components.java
 
-                pom {
-                    groupId = 'net.consensys.quorum.tessera'
-                    url = 'https://github.com/ConsenSys/tessera'
-                    name = publication.artifactId
-                    description = 'Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for Quorum.'
-                    licenses {
-                        license {
-                            name = 'The Apache License, Version 2.0'
-                            url = 'https://github.com/ConsenSys/tessera/blob/master/LICENSE'
-                        }
-                    }
-                    developers {
-                        developer {
-                            id = 'melowe'
-                            name = 'Mark Lowe'
-                            email = 'melowe.quorum@gmail.com'
-                        }
-                        developer {
-                            id = 'prd-fox'
-                            name = 'Peter Fox'
-                            email = 'peter.rd.fox@gmail.com'
-                        }
-                        developer {
-                            id = 'namtruong'
-                            name = 'Nam Truong'
-                            email = 'nam.p.truong@gmail.com'
-                        }
-                        developer {
-                            id = 'SatpalSandhu61'
-                            name = 'Satpal Sandhu'
-                            email = 'quorum@satpal.co.uk'
-                        }
-                        developer {
-                            id = 'chrishounsom'
-                            name = 'Chris Hounsom'
-                            email = 'chrishounsom@icloud.com'
-                        }
-                        developer {
-                            id = 'nicolae-leonte-go'
-                            name = 'Nicolae Leonte'
-                            email = 'nicolae.leonte.go@gmail.com'
-                        }
+  sourceSets {
+    main {
+      java {
+        srcDir 'src/main/java'
+      }
+      resources {
+        srcDir 'src/main/resources'
+      }
+    }
+    test {
+      java {
+        srcDir 'src/test/java'
 
-                    }
-                    scm {
-                        connection = 'scm:git:https://github.com/ConsenSys/tessera.git'
-                        developerConnection = 'scm:git:https://github.com/ConsenSys/tessera.git'
-                        url = 'https://github.com/ConsenSys/tessera'
-                        tag = 'HEAD'
-                    }
-                }
+      }
+      resources {
+        srcDir 'src/test/resources'
+      }
+    }
+  }
+
+  sourceCompatibility = '11'
+
+  java {
+    withJavadocJar()
+    withSourcesJar()
+  }
+
+  javadoc {
+    failOnError false
+    if(JavaVersion.current().isJava9Compatible()) {
+      options.addBooleanOption('html5', true)
+    }
+  }
+
+  publishing {
+
+    publications {
+
+
+      mavenJava(MavenPublication) {publication ->
+        from components.java
+
+        pom {
+          groupId = 'net.consensys.quorum.tessera'
+          url = 'https://github.com/ConsenSys/tessera'
+          name = publication.artifactId
+          description = 'Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for Quorum.'
+          licenses {
+            license {
+              name = 'The Apache License, Version 2.0'
+              url = 'https://github.com/ConsenSys/tessera/blob/master/LICENSE'
             }
+          }
+          developers {
+            developer {
+              id = 'melowe'
+              name = 'Mark Lowe'
+              email = 'melowe.quorum@gmail.com'
+            }
+            developer {
+              id = 'prd-fox'
+              name = 'Peter Fox'
+              email = 'peter.rd.fox@gmail.com'
+            }
+            developer {
+              id = 'namtruong'
+              name = 'Nam Truong'
+              email = 'nam.p.truong@gmail.com'
+            }
+            developer {
+              id = 'SatpalSandhu61'
+              name = 'Satpal Sandhu'
+              email = 'quorum@satpal.co.uk'
+            }
+            developer {
+              id = 'chrishounsom'
+              name = 'Chris Hounsom'
+              email = 'chrishounsom@icloud.com'
+            }
+            developer {
+              id = 'nicolae-leonte-go'
+              name = 'Nicolae Leonte'
+              email = 'nicolae.leonte.go@gmail.com'
+            }
+
+          }
+          scm {
+            connection = 'scm:git:https://github.com/ConsenSys/tessera.git'
+            developerConnection = 'scm:git:https://github.com/ConsenSys/tessera.git'
+            url = 'https://github.com/ConsenSys/tessera'
+            tag = 'HEAD'
+          }
         }
+      }
     }
+  }
 
 
-    apply plugin: 'signing'
+  apply plugin: 'signing'
 
-    signing {
-        useGpgCmd()
-        sign publishing.publications
-    }
+  signing {
+    useGpgCmd()
+    sign publishing.publications
+  }
 
-    tasks.withType(JavaCompile) {
-        options.encoding = 'UTF-8'
-    }
+  tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+  }
 
-    tasks.withType(GenerateModuleMetadata) {
-        enabled = false
-    }
+  tasks.withType(GenerateModuleMetadata) {
+    enabled = false
+  }
 
 
-    jacocoTestCoverageVerification.dependsOn jacocoTestReport
-    check.dependsOn spotlessCheck, jacocoTestCoverageVerification
+  jacocoTestCoverageVerification.dependsOn jacocoTestReport
+  check.dependsOn spotlessCheck, jacocoTestCoverageVerification
 
 }
 
 tasks.register('incrementProjectVersion') {
-    doLast {
-        def versionFile = rootProject.file("version.txt")
+  doLast {
+    def versionFile = rootProject.file("version.txt")
 
-        def currentVersion = versionFile.text.trim().replaceAll("-SNAPSHOT", "")
-        def tokens = currentVersion.split("\\.")
-        def majorVersion = tokens[0]
-        def minorVersion = tokens[1]
-        def patchVersion = tokens[2]
-        def newPatchVersion = Integer.parseInt(patchVersion) + 1
+    def currentVersion = versionFile.text.trim().replaceAll("-SNAPSHOT", "")
+    def tokens = currentVersion.split("\\.")
+    def majorVersion = tokens[0]
+    def minorVersion = tokens[1]
+    def patchVersion = tokens[2]
+    def newPatchVersion = Integer.parseInt(patchVersion) + 1
 
-        def newVersion = "$majorVersion.$minorVersion.$newPatchVersion-SNAPSHOT"
+    def newVersion = "$majorVersion.$minorVersion.$newPatchVersion-SNAPSHOT"
 
-        versionFile.write(newVersion)
-    }
+    versionFile.write(newVersion)
+  }
 }
-
-
-
-
