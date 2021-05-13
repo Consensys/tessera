@@ -181,8 +181,8 @@ subprojects {
 
   configurations.all {
 
-//        exclude group: 'javax.servlet'
-//        exclude group: 'javax.ws.rs'
+    //        exclude group: 'javax.servlet'
+    //        exclude group: 'javax.ws.rs'
     exclude group: "javax.activation"
     exclude module: "jakarta.persistence"
     exclude module: "jakarta.activation"
@@ -268,7 +268,11 @@ subprojects {
       endWithNewline()
     }
     groovyGradle {
-      target "*.gradle"
+      target files(
+        fileTree('.') {
+          include "*.gradle"
+        })
+        .from("$rootDir/build.gradle")
       greclipse().configFile(rootProject.file("gradle/formatter.properties"))
       endWithNewline()
     }
@@ -454,7 +458,3 @@ tasks.register('incrementProjectVersion') {
     versionFile.write(newVersion)
   }
 }
-
-
-
-
