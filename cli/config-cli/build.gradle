@@ -1,22 +1,22 @@
 plugins {
-  id "java-library"
+    id "java-library"
 }
 
 dependencies {
-  implementation "info.picocli:picocli"
-  implementation project(":encryption:encryption-api")
-  implementation project(":config")
-  implementation project(":shared")
-  implementation project(":cli:cli-api")
-  implementation project(":key-generation")
+    implementation "info.picocli:picocli"
+    implementation project(":encryption:encryption-api")
+    implementation project(":config")
+    implementation project(":shared")
+    implementation project(":cli:cli-api")
+    implementation project(":key-generation")
 
-  implementation project(":tessera-jaxrs:jaxrs-client")
-  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    implementation project(":tessera-jaxrs:jaxrs-client")
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-  implementation "jakarta.validation:jakarta.validation-api"
-  testImplementation project(":tests:test-util")
-  runtimeOnly "org.hibernate.validator:hibernate-validator"
+    implementation "jakarta.validation:jakarta.validation-api"
+    testImplementation project(":tests:test-util")
+    runtimeOnly "org.hibernate.validator:hibernate-validator"
 
-  testImplementation "org.glassfish:jakarta.json"
+    testImplementation "org.glassfish:jakarta.json"
 }

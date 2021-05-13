@@ -1,32 +1,32 @@
 plugins {
-  id "java-library"
+    id "java-library"
 }
 
 dependencies {
 
-  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-  implementation "org.glassfish:jakarta.json"
-  implementation "jakarta.validation:jakarta.validation-api"
-  implementation project(':shared')
-  implementation project(':argon2')
-  implementation project(':encryption:encryption-api')
-  implementation "org.apache.commons:commons-lang3"
-  implementation "org.jasypt:jasypt"
-  implementation "org.glassfish:jakarta.el"
-  runtimeOnly project(':encryption:encryption-jnacl')
+    implementation "org.glassfish:jakarta.json"
+    implementation "jakarta.validation:jakarta.validation-api"
+    implementation project(':shared')
+    implementation project(':argon2')
+    implementation project(':encryption:encryption-api')
+    implementation "org.apache.commons:commons-lang3"
+    implementation "org.jasypt:jasypt"
+    implementation "org.glassfish:jakarta.el"
+    runtimeOnly project(':encryption:encryption-jnacl')
 
-  testImplementation "org.hibernate.validator:hibernate-validator"
+    testImplementation "org.hibernate.validator:hibernate-validator"
 
-  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
-  runtimeOnly("org.eclipse.persistence:org.eclipse.persistence.moxy") {
-    exclude group: "jakarta.json", module: "jakarta,json-api"
-  }
-  runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    runtimeOnly("org.eclipse.persistence:org.eclipse.persistence.moxy") {
+        exclude group: "jakarta.json", module: "jakarta,json-api"
+    }
+    runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
 
-  testImplementation "nl.jqno.equalsverifier:equalsverifier"
-  //   testImplementation "jakarta.el:jakarta.el-api"
+    testImplementation "nl.jqno.equalsverifier:equalsverifier"
+ //   testImplementation "jakarta.el:jakarta.el-api"
 
 }
 
@@ -34,11 +34,17 @@ description = "config"
 
 jar {
 
-  manifest {
-    attributes(
-      "Implementation-Title": project.name,
-      "Implementation-Version": project.version,
-      "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
-      )
-  }
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
+        )
+    }
+
 }
+
+
+
+
+

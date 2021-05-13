@@ -1,52 +1,52 @@
 plugins {
-  id "application"
+    id "application"
 }
 
 application {
-  startScripts.enabled = false
+    startScripts.enabled = false
 }
 
 dependencyCheck {
-  failBuildOnCVSS = 11
+    failBuildOnCVSS = 11
 }
 
 configurations.all {
-  exclude group: "stax"
-  exclude module: "jakarta.activation"
-  exclude module: "javax.mail"
+    exclude group: "stax"
+    exclude module: "jakarta.activation"
+    exclude module: "javax.mail"
 }
 
 dependencies {
 
-  implementation platform('io.projectreactor:reactor-bom:2020.0.1')
+    implementation platform('io.projectreactor:reactor-bom:2020.0.1')
 
-  // define dependencies without versions
-  implementation 'io.projectreactor.netty:reactor-netty'
-  implementation 'io.projectreactor.netty:reactor-netty-core'
-  implementation 'io.projectreactor.netty:reactor-netty-http'
+    // define dependencies without versions
+    implementation 'io.projectreactor.netty:reactor-netty'
+    implementation 'io.projectreactor.netty:reactor-netty-core'
+    implementation 'io.projectreactor.netty:reactor-netty-http'
 
-  implementation project(":config")
-  implementation project(":key-vault:key-vault-api")
-  implementation "jakarta.annotation:jakarta.annotation-api"
+    implementation project(":config")
+    implementation project(":key-vault:key-vault-api")
+    implementation "jakarta.annotation:jakarta.annotation-api"
 
-  implementation ("com.azure:azure-security-keyvault-secrets:4.2.3") {
-    //  transitive = false
-  }
-  implementation("com.azure:azure-identity:1.2.0") {
+    implementation ("com.azure:azure-security-keyvault-secrets:4.2.3") {
+      //  transitive = false
+    }
+    implementation("com.azure:azure-identity:1.2.0") {
+      //    transitive = false
+    }
+
+    implementation("com.azure:azure-core:1.10.0") {
     //    transitive = false
-  }
-
-  implementation("com.azure:azure-core:1.10.0") {
-    //    transitive = false
-  }
+    }
 
 }
 
 publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      artifact distZip
-      artifact distTar
+    publications {
+        mavenJava(MavenPublication) {
+            artifact distZip
+            artifact distTar
+        }
     }
-  }
 }

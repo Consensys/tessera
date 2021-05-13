@@ -5,6 +5,7 @@ plugins {
     id "jacoco"
     id "com.diffplug.spotless" version "5.8.2"
     id "com.github.ben-manes.versions" version "0.8"
+    id "checkstyle"
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
     id "org.javamodularity.moduleplugin" version "1.7.0"
     id "org.kordamp.gradle.jdeps" version "0.12.0"
@@ -142,7 +143,6 @@ allprojects {
 
                 implementation "net.java.dev.jna:jna:5.6.0"
 
-                //Dependency used to test regression for processing orion payloads
                 testImplementation "org.apache.tuweni:tuweni-rlp:1.1.0"
                 testImplementation "org.apache.tuweni:tuweni-bytes:1.1.0"
             }
@@ -164,6 +164,7 @@ subprojects {
     apply plugin: "com.diffplug.spotless"
     apply plugin: "maven-publish"
     apply plugin: "jacoco"
+    apply plugin: "checkstyle"
     apply plugin: "org.owasp.dependencycheck"
     apply plugin: "org.javamodularity.moduleplugin"
 
@@ -219,6 +220,10 @@ subprojects {
         }
     }
 
+
+
+
+
     dependencies {
 
         implementation "org.slf4j:slf4j-api"
@@ -240,11 +245,21 @@ subprojects {
         systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
     }
 
+    checkstyle {
+        configFile project.getRootProject().file("checkstyle.xml")
+        configProperties.put("checkstyle.suppressions.file",project.getRootProject().file("checkstyle-suppressions.xml"))
+        dependencies{
+            checkstyle "com.puppycrawl.tools:checkstyle:8.39"
+            checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
+            implementation "com.google.guava:guava:30.1.1-jre"
+        }
+    }
 
     dependencyCheck {
         failBuildOnCVSS = 0
         suppressionFile = project.getRootProject().file("cvss-suppressions.xml")
       //  analyzedTypes = ["zip"]
+        suppressionFile = 'cvss-suppressions.xml'
     }
 
     jacoco {
@@ -257,15 +272,14 @@ subprojects {
 
         java {
             target fileTree("**/*.java")
+            // indentWithSpaces(4)
             removeUnusedImports()
-            googleJavaFormat("1.7")
-            trimTrailingWhitespace()
-            endWithNewline()
+            // googleJavaFormat().aosp()
         }
         groovyGradle {
             target "*.gradle"
-            greclipse().configFile(rootProject.file("gradle/formatter.properties"))
-            endWithNewline()
+            indentWithSpaces(4)
+           // paddedCell()
         }
     }
     jacocoTestReport {
@@ -432,7 +446,7 @@ subprojects {
 
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
-    check.dependsOn spotlessCheck, jacocoTestCoverageVerification
+    check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification
 
 }
 

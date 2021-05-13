@@ -1,19 +1,20 @@
 plugins {
-  id "java-library"
+    id "java-library"
 }
 
 dependencies {
 
-  api "jakarta.persistence:jakarta.persistence-api"
-  implementation "org.eclipse.persistence:org.eclipse.persistence.core"
-  implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
-  implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+    api "jakarta.persistence:jakarta.persistence-api"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.core"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
 
-  testImplementation "com.h2database:h2"
-  testImplementation "org.mockito:mockito-inline"
-  testImplementation "junit:junit"
+    testImplementation "com.h2database:h2"
+    testImplementation "org.mockito:mockito-inline"
+    testImplementation "junit:junit"
 
-  testImplementation "org.eclipse.persistence:org.eclipse.persistence.core"
-  testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
-  testImplementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+    testImplementation "org.eclipse.persistence:org.eclipse.persistence.core"
+    testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    testImplementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+
 }

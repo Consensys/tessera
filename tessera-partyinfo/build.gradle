@@ -1,20 +1,21 @@
 plugins {
-  id "java-library"
+    id "java-library"
 }
 
 dependencies {
 
-  implementation "jakarta.transaction:jakarta.transaction-api"
-  implementation project(":encryption:encryption-api")
-  implementation project(":shared")
-  implementation project(":config")
-  implementation project(":enclave:enclave-api")
-  implementation project(":tessera-context")
-  implementation project(":tessera-data")
-  implementation "org.apache.commons:commons-lang3"
-  implementation "org.slf4j:slf4j-api"
-  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    implementation "jakarta.transaction:jakarta.transaction-api"
+    implementation project(":encryption:encryption-api")
+    implementation project(":shared")
+    implementation project(":config")
+    implementation project(":enclave:enclave-api")
+    implementation project(":tessera-context")
+    implementation project(":tessera-data")
+    implementation "org.apache.commons:commons-lang3"
+    implementation "org.slf4j:slf4j-api"
+    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+
 }
 
 //test {

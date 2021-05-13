@@ -1,10 +1,12 @@
 plugins {
-  id "java-library"
+    id "java-library"
 }
 
 dependencies {
-  implementation "de.mkammerer:argon2-jvm"
-  implementation project(":shared")
+    implementation "de.mkammerer:argon2-jvm"
+    implementation project(":shared")
 }
 
 description = "argon2"
+
+

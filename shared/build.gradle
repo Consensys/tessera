@@ -1,21 +1,22 @@
 plugins {
-  id "java-library"
+    id "java-library"
 }
 
 dependencies {
-  //    runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
-  //    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
-  implementation "jakarta.annotation:jakarta.annotation-api"
-  runtimeOnly "jakarta.validation:jakarta.validation-api"
+//    runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
+//    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
+    implementation "jakarta.annotation:jakarta.annotation-api"
+    runtimeOnly "jakarta.validation:jakarta.validation-api"
 }
 
 jar {
 
-  manifest {
-    attributes(
-      "Implementation-Title": project.name,
-      "Implementation-Version": project.version,
-      "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
-      )
-  }
+    manifest {
+        attributes(
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
+        )
+    }
+
 }

@@ -1,27 +1,27 @@
 dependencies {
-  implementation project(":tessera-data")
+    implementation project(":tessera-data")
 
-  implementation "jakarta.persistence:jakarta.persistence-api"
+    implementation "jakarta.persistence:jakarta.persistence-api"
 
-  implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
-  implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
-  implementation "com.h2database:h2"
-  implementation "com.zaxxer:HikariCP"
-  implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
-  implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
-  implementation "org.hsqldb:hsqldb"
-  implementation "org.xerial:sqlite-jdbc"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+    implementation "com.h2database:h2"
+    implementation "com.zaxxer:HikariCP"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+    implementation "org.eclipse.persistence:org.eclipse.persistence.extension"
+    implementation "org.hsqldb:hsqldb"
+    implementation "org.xerial:sqlite-jdbc"
 
-  implementation "jakarta.transaction:jakarta.transaction-api"
+    implementation "jakarta.transaction:jakarta.transaction-api"
 }
 
 
 sourceSets {
-  main {
-    resources {
-      srcDir "create-table"
+    main {
+        resources {
+            srcDir "create-table"
+        }
     }
-  }
 }
 
 //task unpackPre(type:Copy) {

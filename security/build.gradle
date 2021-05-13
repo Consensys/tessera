@@ -1,35 +1,35 @@
 plugins {
-  id "java-library"
+    id "java-library"
 }
 
 dependencies {
-  implementation project(":config")
-  implementation project(":shared")
-  implementation "org.bouncycastle:bcpkix-jdk15on"
-  implementation "org.bouncycastle:bcprov-jdk15on"
+    implementation project(":config")
+    implementation project(":shared")
+    implementation "org.bouncycastle:bcpkix-jdk15on"
+    implementation "org.bouncycastle:bcprov-jdk15on"
 
-  implementation "org.cryptacular:cryptacular"
-  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+    implementation "org.cryptacular:cryptacular"
+    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 }
 
 description = "security"
 
 test {
-  moduleOptions {
-    addOpens = [
-      "java.base/sun.security.ssl" : "org.assertj.core",
-      "java.base/javax.net.ssl" : "org.assertj.core",
-      "java.base/sun.security.x509" : "org.assertj.core",
-      "tessera.security.main/com.quorum.tessera.ssl.context.model" : "openpojo",
-      "tessera.security.main/com.quorum.tessera.ssl.trust" : "org.mockito"
-    ]
-  }
+    moduleOptions {
+        addOpens = [
+                "java.base/sun.security.ssl" : "org.assertj.core",
+                "java.base/javax.net.ssl" : "org.assertj.core",
+                "java.base/sun.security.x509" : "org.assertj.core",
+                "tessera.security.main/com.quorum.tessera.ssl.context.model" : "openpojo",
+                "tessera.security.main/com.quorum.tessera.ssl.trust" : "org.mockito"
+        ]
+    }
 }
 
 compileTestJava {
-  moduleOptions {
-    addReads = [
-      "sun.security.x509": "org.assertj.core"
-    ]
-  }
+    moduleOptions {
+        addReads = [
+                "sun.security.x509": "org.assertj.core"
+        ]
+    }
 }
