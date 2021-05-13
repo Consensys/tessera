@@ -1,15 +1,14 @@
 package com.quorum.tessera.context;
 
 import com.quorum.tessera.config.ServerConfig;
-
-import javax.ws.rs.client.Client;
 import java.util.ServiceLoader;
+import javax.ws.rs.client.Client;
 
 public interface RestClientFactory {
 
-    Client buildFrom(ServerConfig serverContext);
+  Client buildFrom(ServerConfig serverContext);
 
-    static RestClientFactory create() {
-        return ServiceLoader.load(RestClientFactory.class).findFirst().get();
-    }
+  static RestClientFactory create() {
+    return ServiceLoader.load(RestClientFactory.class).findFirst().get();
+  }
 }

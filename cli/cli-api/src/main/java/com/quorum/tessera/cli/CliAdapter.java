@@ -2,8 +2,7 @@ package com.quorum.tessera.cli;
 
 public interface CliAdapter {
 
-    CliType getType();
+  CliType getType();
 
-    CliResult execute(String... args) throws Exception;
-
+  CliResult execute(String... args) throws Exception;
 }

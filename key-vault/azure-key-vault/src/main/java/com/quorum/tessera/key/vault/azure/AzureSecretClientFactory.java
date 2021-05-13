@@ -8,21 +8,21 @@ import com.azure.security.keyvault.secrets.SecretClientBuilder;
 
 class AzureSecretClientFactory {
 
-    private final String url;
+  private final String url;
 
-    private final TokenCredential tokenCredential;
+  private final TokenCredential tokenCredential;
 
-    AzureSecretClientFactory(String url, TokenCredential tokenCredential) {
-        this.url = url;
-        this.tokenCredential = tokenCredential;
-    }
+  AzureSecretClientFactory(String url, TokenCredential tokenCredential) {
+    this.url = url;
+    this.tokenCredential = tokenCredential;
+  }
 
-    SecretClient create() {
+  SecretClient create() {
 
-        return new SecretClientBuilder()
-            .vaultUrl(url)
-            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
-            .credential(tokenCredential)
-            .buildClient();
-    }
+    return new SecretClientBuilder()
+        .vaultUrl(url)
+        .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+        .credential(tokenCredential)
+        .buildClient();
+  }
 }

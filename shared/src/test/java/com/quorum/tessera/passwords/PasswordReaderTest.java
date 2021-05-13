@@ -1,31 +1,31 @@
 package com.quorum.tessera.passwords;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.ByteArrayInputStream;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Test;
 
 public class PasswordReaderTest {
 
+  @Test
+  public void passwordsNotMatchingCausesRetry() {
+    final byte[] systemInBytes =
+        ("TRY1"
+                + System.lineSeparator()
+                + "TRY2"
+                + System.lineSeparator()
+                + "TRY3"
+                + System.lineSeparator()
+                + "TRY3"
+                + System.lineSeparator())
+            .getBytes();
 
+    final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(systemInBytes);
 
-    @Test
-    public void passwordsNotMatchingCausesRetry() {
-        final byte[] systemInBytes = (
-            "TRY1" + System.lineSeparator() +
-            "TRY2" + System.lineSeparator() +
-            "TRY3" + System.lineSeparator() +
-            "TRY3" + System.lineSeparator()
-        ).getBytes();
+    final PasswordReader passwordReader = new InputStreamPasswordReader(byteArrayInputStream);
 
-        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(systemInBytes);
+    final char[] password = passwordReader.requestUserPassword();
 
-        final PasswordReader passwordReader = new InputStreamPasswordReader(byteArrayInputStream);
-
-        final char[] password = passwordReader.requestUserPassword();
-
-        assertThat(String.valueOf(password)).isEqualTo("TRY3");
-    }
-
+    assertThat(String.valueOf(password)).isEqualTo("TRY3");
+  }
 }

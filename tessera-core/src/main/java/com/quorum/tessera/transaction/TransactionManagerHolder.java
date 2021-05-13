@@ -3,16 +3,16 @@ package com.quorum.tessera.transaction;
 import java.util.Optional;
 
 enum TransactionManagerHolder {
-    INSTANCE;
+  INSTANCE;
 
-    private TransactionManager transactionManager;
+  private TransactionManager transactionManager;
 
-    Optional<TransactionManager> getTransactionManager() {
-        return Optional.ofNullable(transactionManager);
-    }
+  Optional<TransactionManager> getTransactionManager() {
+    return Optional.ofNullable(transactionManager);
+  }
 
-    TransactionManager store(TransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-        return transactionManager;
-    }
+  TransactionManager store(TransactionManager transactionManager) {
+    this.transactionManager = transactionManager;
+    return transactionManager;
+  }
 }

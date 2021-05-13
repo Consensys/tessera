@@ -1,14 +1,14 @@
-//package com.quorum.tessera.data;
+// package com.quorum.tessera.data;
 //
-//import com.openpojo.reflection.impl.PojoClassFactory;
-//import com.openpojo.validation.Validator;
-//import com.openpojo.validation.ValidatorBuilder;
-//import com.openpojo.validation.rule.impl.*;
-//import com.openpojo.validation.test.impl.GetterTester;
-//import com.openpojo.validation.test.impl.SetterTester;
-//import org.junit.Test;
+// import com.openpojo.reflection.impl.PojoClassFactory;
+// import com.openpojo.validation.Validator;
+// import com.openpojo.validation.ValidatorBuilder;
+// import com.openpojo.validation.rule.impl.*;
+// import com.openpojo.validation.test.impl.GetterTester;
+// import com.openpojo.validation.test.impl.SetterTester;
+// import org.junit.Test;
 //
-//public class OpenPojoEntityTest {
+// public class OpenPojoEntityTest {
 //
 //    @Test
 //    public void executeOpenPojoValidationsWithSetter() {
@@ -26,4 +26,4 @@
 //
 //        pojoValidator.validate(PojoClassFactory.getPojoClass(MessageHash.class));
 //    }
-//}
+// }

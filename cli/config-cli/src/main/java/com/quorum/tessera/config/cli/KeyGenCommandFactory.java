@@ -8,20 +8,29 @@ import picocli.CommandLine;
 
 public class KeyGenCommandFactory implements CommandLine.IFactory {
 
-    @Override
-    public <K> K create(Class<K> cls) throws Exception {
-        try {
-            if (cls != KeyGenCommand.class) {
-                throw new RuntimeException(
-                        this.getClass().getSimpleName() + " cannot create instance of type " + cls.getSimpleName());
-            }
-            KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.create();
-            ConfigFileUpdaterWriter configFileUpdaterWriter = new ConfigFileUpdaterWriter(FilesDelegate.create());
-            PasswordFileUpdaterWriter passwordFileUpdaterWriter = new PasswordFileUpdaterWriter(FilesDelegate.create());
-            KeyDataMarshaller keyDataMarshaller = KeyDataMarshaller.create();
-            return (K) new KeyGenCommand(keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter,keyDataMarshaller);
-        } catch (Exception e) {
-            return CommandLine.defaultFactory().create(cls); // fallback if missing
-        }
+  @Override
+  public <K> K create(Class<K> cls) throws Exception {
+    try {
+      if (cls != KeyGenCommand.class) {
+        throw new RuntimeException(
+            this.getClass().getSimpleName()
+                + " cannot create instance of type "
+                + cls.getSimpleName());
+      }
+      KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.create();
+      ConfigFileUpdaterWriter configFileUpdaterWriter =
+          new ConfigFileUpdaterWriter(FilesDelegate.create());
+      PasswordFileUpdaterWriter passwordFileUpdaterWriter =
+          new PasswordFileUpdaterWriter(FilesDelegate.create());
+      KeyDataMarshaller keyDataMarshaller = KeyDataMarshaller.create();
+      return (K)
+          new KeyGenCommand(
+              keyGeneratorFactory,
+              configFileUpdaterWriter,
+              passwordFileUpdaterWriter,
+              keyDataMarshaller);
+    } catch (Exception e) {
+      return CommandLine.defaultFactory().create(cls); // fallback if missing
     }
+  }
 }

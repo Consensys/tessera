@@ -5,20 +5,20 @@ import io.swagger.v3.oas.annotations.media.Schema;
 /** Resend batch response. */
 public class ResendBatchResponse {
 
-    @Schema(description = "count of total transactions being resent")
-    private Long total;
+  @Schema(description = "count of total transactions being resent")
+  private Long total;
 
-    public ResendBatchResponse() {}
+  public ResendBatchResponse() {}
 
-    public ResendBatchResponse(Long total) {
-        this.total = total;
-    }
+  public ResendBatchResponse(Long total) {
+    this.total = total;
+  }
 
-    public Long getTotal() {
-        return total;
-    }
+  public Long getTotal() {
+    return total;
+  }
 
-    public void setTotal(Long total) {
-        this.total = total;
-    }
+  public void setTotal(Long total) {
+    this.total = total;
+  }
 }

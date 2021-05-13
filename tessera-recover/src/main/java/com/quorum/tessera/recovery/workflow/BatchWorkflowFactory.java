@@ -4,10 +4,9 @@ import java.util.ServiceLoader;
 
 public interface BatchWorkflowFactory {
 
-    BatchWorkflow create(long transactionCount);
+  BatchWorkflow create(long transactionCount);
 
-    static BatchWorkflowFactory create() {
-        return ServiceLoader.load(BatchWorkflowFactory.class).findFirst().get();
-    }
-
+  static BatchWorkflowFactory create() {
+    return ServiceLoader.load(BatchWorkflowFactory.class).findFirst().get();
+  }
 }

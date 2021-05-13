@@ -1,22 +1,22 @@
 plugins {
-    id "java-library"
+  id "java-library"
 }
 
 dependencies {
-    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
-    implementation "org.eclipse.jetty:jetty-unixsocket"
-    implementation "org.glassfish.jersey.core:jersey-client"
-    implementation "org.eclipse.jetty:jetty-client"
-    runtimeOnly project(":shared")
-    implementation project(":server:server-api")
-    testImplementation project(":config")
-    testImplementation project(":server:jersey-server")
-    testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+  implementation "org.eclipse.jetty:jetty-unixsocket"
+  implementation "org.glassfish.jersey.core:jersey-client"
+  implementation "org.eclipse.jetty:jetty-client"
+  runtimeOnly project(":shared")
+  implementation project(":server:server-api")
+  testImplementation project(":config")
+  testImplementation project(":server:jersey-server")
+  testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
 }
 
 description = "jaxrs-client-unixsocket"
 
 jacocoTestCoverageVerification {
-    enabled false
+  enabled false
 }

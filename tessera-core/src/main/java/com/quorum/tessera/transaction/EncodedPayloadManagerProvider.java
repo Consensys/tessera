@@ -5,21 +5,21 @@ import com.quorum.tessera.enclave.PayloadDigest;
 
 public class EncodedPayloadManagerProvider {
 
-    public static EncodedPayloadManager provider() {
+  public static EncodedPayloadManager provider() {
 
-        EncodedPayloadManagerHolder encodedPayloadManagerHolder = EncodedPayloadManagerHolder.INSTANCE;
-        if(encodedPayloadManagerHolder.getEncodedPayloadManager().isPresent()) {
-            return encodedPayloadManagerHolder.getEncodedPayloadManager().get();
-        }
-
-        Enclave enclave = Enclave.create();
-
-        PrivacyHelper privacyHelper = PrivacyHelper.create();
-        PayloadDigest payloadDigest = PayloadDigest.create();
-
-        EncodedPayloadManager encodedPayloadManager = new EncodedPayloadManagerImpl(enclave,privacyHelper,payloadDigest);
-        encodedPayloadManagerHolder.storeInstance(encodedPayloadManager);
-        return encodedPayloadManager;
+    EncodedPayloadManagerHolder encodedPayloadManagerHolder = EncodedPayloadManagerHolder.INSTANCE;
+    if (encodedPayloadManagerHolder.getEncodedPayloadManager().isPresent()) {
+      return encodedPayloadManagerHolder.getEncodedPayloadManager().get();
     }
 
+    Enclave enclave = Enclave.create();
+
+    PrivacyHelper privacyHelper = PrivacyHelper.create();
+    PayloadDigest payloadDigest = PayloadDigest.create();
+
+    EncodedPayloadManager encodedPayloadManager =
+        new EncodedPayloadManagerImpl(enclave, privacyHelper, payloadDigest);
+    encodedPayloadManagerHolder.storeInstance(encodedPayloadManager);
+    return encodedPayloadManager;
+  }
 }

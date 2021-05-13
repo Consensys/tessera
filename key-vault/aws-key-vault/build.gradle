@@ -1,63 +1,61 @@
 plugins {
-    id "java-library"
-    id "application"
+  id "java-library"
+  id "application"
 }
 
 def nettyVersion = "4.1.46.Final"
 def jacksonVersion = "2.12.3";
 
 dependencyCheck {
-    failBuildOnCVSS = 11
+  failBuildOnCVSS = 11
 }
 
 application {
-    startScripts.enabled = false
+  startScripts.enabled = false
 }
 
 configurations.all {
-    exclude group: "commons-logging"
-    exclude module: "jakarta.activation"
+  exclude group: "commons-logging"
+  exclude module: "jakarta.activation"
+  exclude module: "jackson-bom"
 }
 
 
 dependencies {
-    implementation project(":config")
+  implementation project(":config")
 
-    implementation("software.amazon.awssdk:secretsmanager:2.10.25")
+  implementation("software.amazon.awssdk:secretsmanager:2.10.25")
 
-    implementation("software.amazon.awssdk:apache-client:2.10.25")
+  implementation("software.amazon.awssdk:apache-client:2.10.25")
 
 
-    implementation("org.apache.httpcomponents:httpclient:4.5.9")
+  implementation("org.apache.httpcomponents:httpclient:4.5.9")
 
-    implementation project(":key-vault:key-vault-api")
+  implementation project(":key-vault:key-vault-api")
 
- //   compile "io.netty:netty:"+ nettyVersion
-    implementation "io.netty:netty-handler:$nettyVersion"
-    implementation "io.netty:netty-common:$nettyVersion"
-    implementation "io.netty:netty-buffer:$nettyVersion"
-    implementation "io.netty:netty-transport:$nettyVersion"
-    implementation "io.netty:netty-codec:$nettyVersion"
-    implementation "io.netty:netty-codec-http:$nettyVersion"
-    implementation "io.netty:netty-codec-http2:$nettyVersion"
-    implementation "io.netty:netty-transport-native-unix-common:$nettyVersion"
-    implementation "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64"
+  //   compile "io.netty:netty:"+ nettyVersion
+  implementation "io.netty:netty-handler:$nettyVersion"
+  implementation "io.netty:netty-common:$nettyVersion"
+  implementation "io.netty:netty-buffer:$nettyVersion"
+  implementation "io.netty:netty-transport:$nettyVersion"
+  implementation "io.netty:netty-codec:$nettyVersion"
+  implementation "io.netty:netty-codec-http:$nettyVersion"
+  implementation "io.netty:netty-codec-http2:$nettyVersion"
+  implementation "io.netty:netty-transport-native-unix-common:$nettyVersion"
+  implementation "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64"
 
-    implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
-    runtimeOnly "org.slf4j:jcl-over-slf4j"
+  implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+  implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+  runtimeOnly "org.slf4j:jcl-over-slf4j"
 
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact distZip
-            artifact distTar
-        }
+  publications {
+    mavenJava(MavenPublication) {
+      artifact distZip
+      artifact distTar
     }
+  }
 }
-
-
-

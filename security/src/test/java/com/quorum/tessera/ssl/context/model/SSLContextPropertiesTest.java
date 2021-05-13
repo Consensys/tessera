@@ -12,20 +12,19 @@ import org.junit.Test;
 
 public class SSLContextPropertiesTest {
 
-    @Test
-    public void executeOpenPojoValidationsNoSetter() {
+  @Test
+  public void executeOpenPojoValidationsNoSetter() {
 
-        PojoClass pojoClass = PojoClassFactory.getPojoClass(SSLContextProperties.class);
+    PojoClass pojoClass = PojoClassFactory.getPojoClass(SSLContextProperties.class);
 
-        final Validator pojoValidator = ValidatorBuilder.create()
+    final Validator pojoValidator =
+        ValidatorBuilder.create()
             .with(new GetterMustExistRule())
             .with(new GetterTester())
             .with(new EqualsAndHashCodeMatchRule())
             .with(new NoPublicFieldsExceptStaticFinalRule())
             .build();
 
-        pojoValidator.validate(pojoClass);
-
-    }
-
+    pojoValidator.validate(pojoClass);
+  }
 }

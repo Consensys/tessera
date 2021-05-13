@@ -14,5 +14,4 @@ import suite.TestSuite;
     dbType = DBType.HSQL,
     socketType = SocketType.HTTP,
     encryptorType = EncryptorType.NACL)
-public class RestSuiteHttpHSQL extends RestSuite {
-}
+public class RestSuiteHttpHSQL extends RestSuite {}

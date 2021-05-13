@@ -5,8 +5,7 @@ import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.KeyDataUtil;
 
 public class DefaultKeyDataMarshaller implements KeyDataMarshaller {
-     public KeyData marshal(ConfigKeyPair keyPair) {
-        return KeyDataUtil.marshal(keyPair);
-    }
-
+  public KeyData marshal(ConfigKeyPair keyPair) {
+    return KeyDataUtil.marshal(keyPair);
+  }
 }

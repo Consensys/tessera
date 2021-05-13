@@ -1,56 +1,53 @@
 package com.quorum.tessera.data;
 
-import com.quorum.tessera.config.JdbcConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import javax.sql.DataSource;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.quorum.tessera.config.JdbcConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 public class HikariDataSourceFactoryTest {
 
-    private DataSourceFactory dataSourceFactory;
+  private DataSourceFactory dataSourceFactory;
 
-    @Before
-    public void beforeTest() {
-        dataSourceFactory = HikariDataSourceFactory.INSTANCE;
-    }
+  @Before
+  public void beforeTest() {
+    dataSourceFactory = HikariDataSourceFactory.INSTANCE;
+  }
 
-    @After
-    public void clear() {
-        HikariDataSourceFactory.class.cast(dataSourceFactory).clear();
-    }
+  @After
+  public void clear() {
+    HikariDataSourceFactory.class.cast(dataSourceFactory).clear();
+  }
 
-    @Test
-    public void create() {
+  @Test
+  public void create() {
 
-        String username = "junit";
-        String password = "junitpw";
-        String url = "jdbc:h2:mem:";
+    String username = "junit";
+    String password = "junitpw";
+    String url = "jdbc:h2:mem:";
 
-        JdbcConfig jdbcConfig = mock(JdbcConfig.class);
-        when(jdbcConfig.getUsername()).thenReturn(username);
-        when(jdbcConfig.getPassword()).thenReturn(password);
-        when(jdbcConfig.getUrl()).thenReturn(url);
+    JdbcConfig jdbcConfig = mock(JdbcConfig.class);
+    when(jdbcConfig.getUsername()).thenReturn(username);
+    when(jdbcConfig.getPassword()).thenReturn(password);
+    when(jdbcConfig.getUrl()).thenReturn(url);
 
-        DataSource dataSource = dataSourceFactory.create(jdbcConfig);
+    DataSource dataSource = dataSourceFactory.create(jdbcConfig);
 
-        assertThat(dataSource).isNotNull().isExactlyInstanceOf(HikariDataSource.class);
+    assertThat(dataSource).isNotNull().isExactlyInstanceOf(HikariDataSource.class);
 
-        HikariDataSource hikariDataSource = HikariDataSource.class.cast(dataSource);
-        assertThat(hikariDataSource.getJdbcUrl()).isEqualTo(url);
-        assertThat(hikariDataSource.getUsername()).isEqualTo(username);
-        assertThat(hikariDataSource.getPassword()).isEqualTo(password);
+    HikariDataSource hikariDataSource = HikariDataSource.class.cast(dataSource);
+    assertThat(hikariDataSource.getJdbcUrl()).isEqualTo(url);
+    assertThat(hikariDataSource.getUsername()).isEqualTo(username);
+    assertThat(hikariDataSource.getPassword()).isEqualTo(password);
 
-        assertThat(dataSource)
-            .describedAs("Second call returns same instance")
-            .isSameAs(dataSourceFactory.create(jdbcConfig));
-
-    }
-
+    assertThat(dataSource)
+        .describedAs("Second call returns same instance")
+        .isSameAs(dataSourceFactory.create(jdbcConfig));
+  }
 }

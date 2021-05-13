@@ -26,53 +26,52 @@ import javax.ws.rs.core.UriInfo;
 @Path("/")
 public class SampleResource {
 
-    private final Ping ping;
+  private final Ping ping;
 
-    @Inject
-    public SampleResource(@Named("myBean") Ping ping) {
-        this.ping = Objects.requireNonNull(ping);
-    }
+  @Inject
+  public SampleResource(@Named("myBean") Ping ping) {
+    this.ping = Objects.requireNonNull(ping);
+  }
 
-    private Map<String,SamplePayload> store = new HashMap<>();
-    
-    @Path("ping")
-    @GET
-    public String ping() {
-        System.out.println("PING");
-        return ping.ping();
-    }
+  private Map<String, SamplePayload> store = new HashMap<>();
 
-    @Produces(MediaType.APPLICATION_JSON)
-    @GET
-    @Path("find/{id}")
-    public Response find(@PathParam("id") String id) {
-        System.out.println("FIND "+ id);
-        SamplePayload payload = store.get(id);
-        return Response.ok(payload, MediaType.APPLICATION_JSON).build();
-    }
+  @Path("ping")
+  @GET
+  public String ping() {
+    System.out.println("PING");
+    return ping.ping();
+  }
 
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Path("create")
-    @POST
-    public Response create(SamplePayload payload,@Context UriInfo uriInfo) throws UnsupportedEncodingException {
-        System.out.println("CREATE" + payload);
-        String id = UUID.randomUUID().toString();
-        payload.setId(id);
-        store.put(id, payload);
+  @Produces(MediaType.APPLICATION_JSON)
+  @GET
+  @Path("find/{id}")
+  public Response find(@PathParam("id") String id) {
+    System.out.println("FIND " + id);
+    SamplePayload payload = store.get(id);
+    return Response.ok(payload, MediaType.APPLICATION_JSON).build();
+  }
 
-        URI location = uriInfo.getBaseUriBuilder().path("find").path(URLEncoder.encode(id, "UTF-8")).build();
-        System.out.println("CREATE " + location);
-        return Response.status(Response.Status.CREATED)
-            .location(location).build();
-                
-    }
-    
-    @Path("{id}")
-    @DELETE
-    public Response delete(@PathParam("id") String id) {
-        SamplePayload deleted = store.remove(id);
-        
-        return Response.ok(deleted).build();
-    }
-    
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Path("create")
+  @POST
+  public Response create(SamplePayload payload, @Context UriInfo uriInfo)
+      throws UnsupportedEncodingException {
+    System.out.println("CREATE" + payload);
+    String id = UUID.randomUUID().toString();
+    payload.setId(id);
+    store.put(id, payload);
+
+    URI location =
+        uriInfo.getBaseUriBuilder().path("find").path(URLEncoder.encode(id, "UTF-8")).build();
+    System.out.println("CREATE " + location);
+    return Response.status(Response.Status.CREATED).location(location).build();
+  }
+
+  @Path("{id}")
+  @DELETE
+  public Response delete(@PathParam("id") String id) {
+    SamplePayload deleted = store.remove(id);
+
+    return Response.ok(deleted).build();
+  }
 }

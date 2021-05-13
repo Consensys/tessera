@@ -5,11 +5,11 @@ import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 
 public class ResendBatchPublisherProvider {
 
-    public static ResendBatchPublisher provider() {
+  public static ResendBatchPublisher provider() {
 
-        RecoveryClient client = RecoveryClient.create();
-        PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    RecoveryClient client = RecoveryClient.create();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-        return new RestResendBatchPublisher(payloadEncoder,client);
-    }
+    return new RestResendBatchPublisher(payloadEncoder, client);
+  }
 }

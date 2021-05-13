@@ -8,16 +8,17 @@ import com.quorum.tessera.transaction.TransactionManager;
 
 public class RecoveryProvider {
 
-    public static Recovery provider() {
+  public static Recovery provider() {
 
-        StagingEntityDAO stagingEntityDAO = StagingEntityDAO.create();
-        Discovery discovery = Discovery.create();
-        BatchTransactionRequester batchTransactionRequester = BatchTransactionRequester.create();
+    StagingEntityDAO stagingEntityDAO = StagingEntityDAO.create();
+    Discovery discovery = Discovery.create();
+    BatchTransactionRequester batchTransactionRequester = BatchTransactionRequester.create();
 
-        TransactionManager transactionManager = TransactionManager.create();
+    TransactionManager transactionManager = TransactionManager.create();
 
-        PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create();
 
-        return new RecoveryImpl(stagingEntityDAO,discovery,batchTransactionRequester,transactionManager,payloadEncoder);
-    }
+    return new RecoveryImpl(
+        stagingEntityDAO, discovery, batchTransactionRequester, transactionManager, payloadEncoder);
+  }
 }

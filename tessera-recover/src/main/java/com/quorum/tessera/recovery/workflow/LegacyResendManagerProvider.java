@@ -8,15 +8,20 @@ import com.quorum.tessera.transaction.publish.PayloadPublisher;
 
 public class LegacyResendManagerProvider {
 
-    public static LegacyResendManager provider() {
-        final Enclave enclave = Enclave.create();
-        final EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
-        final int resendFetchSize = 100;
-        final PayloadEncoder payloadEncoder = PayloadEncoder.create();
-        final PayloadPublisher payloadPublisher = PayloadPublisher.create();
-        final Discovery discovery = Discovery.create();
+  public static LegacyResendManager provider() {
+    final Enclave enclave = Enclave.create();
+    final EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
+    final int resendFetchSize = 100;
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    final PayloadPublisher payloadPublisher = PayloadPublisher.create();
+    final Discovery discovery = Discovery.create();
 
-        return new LegacyResendManagerImpl(enclave,encryptedTransactionDAO,resendFetchSize,payloadEncoder,payloadPublisher,discovery);
-    }
-
+    return new LegacyResendManagerImpl(
+        enclave,
+        encryptedTransactionDAO,
+        resendFetchSize,
+        payloadEncoder,
+        payloadPublisher,
+        discovery);
+  }
 }

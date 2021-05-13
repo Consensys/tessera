@@ -3,157 +3,154 @@ package com.quorum.tessera.config;
 import com.quorum.tessera.config.adapters.MapAdapter;
 import com.quorum.tessera.config.constraints.ValidServerAddress;
 import com.quorum.tessera.config.constraints.ValidSsl;
-
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ServerConfig extends ConfigItem {
 
-    @NotNull
-    @XmlElement(required = true)
-    private AppType app;
+  @NotNull
+  @XmlElement(required = true)
+  private AppType app;
 
-    @XmlElement private CommunicationType communicationType = CommunicationType.REST;
+  @XmlElement private CommunicationType communicationType = CommunicationType.REST;
 
-    @Valid @XmlElement @ValidSsl private SslConfig sslConfig;
+  @Valid @XmlElement @ValidSsl private SslConfig sslConfig;
 
-    @Valid @XmlElement private InfluxConfig influxConfig;
+  @Valid @XmlElement private InfluxConfig influxConfig;
 
-    @ValidServerAddress(
-            message = "Binding Address is invalid",
-            isBindingAddress = true,
-            supportedSchemes = {"http", "https"})
-    @XmlElement
-    private String bindingAddress;
+  @ValidServerAddress(
+      message = "Binding Address is invalid",
+      isBindingAddress = true,
+      supportedSchemes = {"http", "https"})
+  @XmlElement
+  private String bindingAddress;
 
-    @ValidServerAddress(message = "Server Address is invalid")
-    @NotNull
-    @XmlElement
-    private String serverAddress;
+  @ValidServerAddress(message = "Server Address is invalid")
+  @NotNull
+  @XmlElement
+  private String serverAddress;
 
-    @XmlElement(name = "cors")
-    private CrossDomainConfig crossDomainConfig;
+  @XmlElement(name = "cors")
+  private CrossDomainConfig crossDomainConfig;
 
-    @XmlJavaTypeAdapter(MapAdapter.class)
-    @XmlElement
-    private Map<String, String> properties = Collections.emptyMap();
+  @XmlJavaTypeAdapter(MapAdapter.class)
+  @XmlElement
+  private Map<String, String> properties = Collections.emptyMap();
 
-    /**
-     * @deprecated USe default constructor and setters
-     */
-    @Deprecated
-    public ServerConfig(
-            final AppType app,
-            final String serverAddress,
-            final CommunicationType communicationType,
-            final SslConfig sslConfig,
-            final InfluxConfig influxConfig,
-            final String bindingAddress) {
-        this.app = app;
-        this.serverAddress = serverAddress;
-        this.communicationType = communicationType;
-        this.sslConfig = sslConfig;
-        this.influxConfig = influxConfig;
-        this.bindingAddress = bindingAddress;
+  /** @deprecated USe default constructor and setters */
+  @Deprecated
+  public ServerConfig(
+      final AppType app,
+      final String serverAddress,
+      final CommunicationType communicationType,
+      final SslConfig sslConfig,
+      final InfluxConfig influxConfig,
+      final String bindingAddress) {
+    this.app = app;
+    this.serverAddress = serverAddress;
+    this.communicationType = communicationType;
+    this.sslConfig = sslConfig;
+    this.influxConfig = influxConfig;
+    this.bindingAddress = bindingAddress;
+  }
+
+  public ServerConfig() {}
+
+  public String getBindingAddress() {
+    return this.bindingAddress == null ? this.serverAddress : this.bindingAddress;
+  }
+
+  public URI getServerUri() {
+    try {
+      return URI.create(serverAddress);
+    } catch (IllegalArgumentException ex) {
+      throw new ConfigException(ex);
     }
+  }
 
-    public ServerConfig() {}
+  public boolean isSsl() {
+    return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;
+  }
 
-    public String getBindingAddress() {
-        return this.bindingAddress == null ? this.serverAddress : this.bindingAddress;
+  public URI getBindingUri() {
+    try {
+      return new URI(this.getBindingAddress());
+    } catch (URISyntaxException ex) {
+      throw new ConfigException(ex);
     }
+  }
 
-    public URI getServerUri() {
-        try {
-            return URI.create(serverAddress);
-        } catch (IllegalArgumentException ex) {
-            throw new ConfigException(ex);
-        }
-    }
+  public AppType getApp() {
+    return app;
+  }
 
-    public boolean isSsl() {
-        return Objects.nonNull(sslConfig) && sslConfig.getTls() == SslAuthenticationMode.STRICT;
-    }
+  public void setApp(AppType app) {
+    this.app = app;
+  }
 
-    public URI getBindingUri() {
-        try {
-            return new URI(this.getBindingAddress());
-        } catch (URISyntaxException ex) {
-            throw new ConfigException(ex);
-        }
-    }
+  public CommunicationType getCommunicationType() {
+    return communicationType;
+  }
 
-    public AppType getApp() {
-        return app;
-    }
+  public void setCommunicationType(CommunicationType communicationType) {
+    this.communicationType = communicationType;
+  }
 
-    public void setApp(AppType app) {
-        this.app = app;
-    }
+  public SslConfig getSslConfig() {
+    return sslConfig;
+  }
 
-    public CommunicationType getCommunicationType() {
-        return communicationType;
-    }
+  public void setSslConfig(SslConfig sslConfig) {
+    this.sslConfig = sslConfig;
+  }
 
-    public void setCommunicationType(CommunicationType communicationType) {
-        this.communicationType = communicationType;
-    }
+  public InfluxConfig getInfluxConfig() {
+    return influxConfig;
+  }
 
-    public SslConfig getSslConfig() {
-        return sslConfig;
-    }
+  public void setInfluxConfig(InfluxConfig influxConfig) {
+    this.influxConfig = influxConfig;
+  }
 
-    public void setSslConfig(SslConfig sslConfig) {
-        this.sslConfig = sslConfig;
-    }
+  public void setBindingAddress(String bindingAddress) {
+    this.bindingAddress = bindingAddress;
+  }
 
-    public InfluxConfig getInfluxConfig() {
-        return influxConfig;
-    }
+  public String getServerAddress() {
+    return serverAddress;
+  }
 
-    public void setInfluxConfig(InfluxConfig influxConfig) {
-        this.influxConfig = influxConfig;
-    }
+  public void setServerAddress(String serverAddress) {
+    this.serverAddress = serverAddress;
+  }
 
-    public void setBindingAddress(String bindingAddress) {
-        this.bindingAddress = bindingAddress;
-    }
+  public boolean isUnixSocket() {
+    return Objects.equals(getServerUri().getScheme(), "unix");
+  }
 
-    public String getServerAddress() {
-        return serverAddress;
-    }
+  public CrossDomainConfig getCrossDomainConfig() {
+    return crossDomainConfig;
+  }
 
-    public void setServerAddress(String serverAddress) {
-        this.serverAddress = serverAddress;
-    }
+  public void setCrossDomainConfig(CrossDomainConfig crossDomainConfig) {
+    this.crossDomainConfig = crossDomainConfig;
+  }
 
-    public boolean isUnixSocket() {
-        return Objects.equals(getServerUri().getScheme(), "unix");
-    }
+  public Map<String, String> getProperties() {
+    return properties;
+  }
 
-    public CrossDomainConfig getCrossDomainConfig() {
-        return crossDomainConfig;
-    }
-
-    public void setCrossDomainConfig(CrossDomainConfig crossDomainConfig) {
-        this.crossDomainConfig = crossDomainConfig;
-    }
-
-    public Map<String, String> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(Map<String, String> properties) {
-        this.properties = properties;
-    }
+  public void setProperties(Map<String, String> properties) {
+    this.properties = properties;
+  }
 }

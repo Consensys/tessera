@@ -1,4 +1,3 @@
 package com.quorum.tessera.serviceloader;
 
-public class MyServiceImpl implements MyService {
-}
+public class MyServiceImpl implements MyService {}

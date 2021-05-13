@@ -3,17 +3,15 @@ package com.quorum.tessera.transaction;
 import java.util.Optional;
 
 enum EncodedPayloadManagerHolder {
+  INSTANCE;
 
-    INSTANCE;
+  private EncodedPayloadManager encodedPayloadManager;
 
-    private EncodedPayloadManager encodedPayloadManager;
+  void storeInstance(EncodedPayloadManager encodedPayloadManager) {
+    this.encodedPayloadManager = encodedPayloadManager;
+  }
 
-    void storeInstance(EncodedPayloadManager encodedPayloadManager) {
-        this.encodedPayloadManager = encodedPayloadManager;
-    }
-
-    Optional<EncodedPayloadManager> getEncodedPayloadManager() {
-        return Optional.ofNullable(encodedPayloadManager);
-    }
-
+  Optional<EncodedPayloadManager> getEncodedPayloadManager() {
+    return Optional.ofNullable(encodedPayloadManager);
+  }
 }

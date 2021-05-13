@@ -9,18 +9,17 @@ import java.util.ServiceLoader;
  */
 public interface TransactionRequester {
 
-    int MAX_ATTEMPTS = 5;
+  int MAX_ATTEMPTS = 5;
 
-    /**
-     * Makes a request to the given node to resend transactions for
-     *
-     * @param url the URL to contact for resending
-     * @return whether all the resend requests for all keys was successful or not
-     */
-    boolean requestAllTransactionsFromNode(String url);
+  /**
+   * Makes a request to the given node to resend transactions for
+   *
+   * @param url the URL to contact for resending
+   * @return whether all the resend requests for all keys was successful or not
+   */
+  boolean requestAllTransactionsFromNode(String url);
 
-    static TransactionRequester create() {
-        return ServiceLoader.load(TransactionRequester.class).findFirst().get();
-    }
-
+  static TransactionRequester create() {
+    return ServiceLoader.load(TransactionRequester.class).findFirst().get();
+  }
 }

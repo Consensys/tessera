@@ -9,18 +9,18 @@ import com.openpojo.validation.rule.impl.NoPrimitivesRule;
 import com.openpojo.validation.rule.impl.SetterMustExistRule;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
-import org.junit.Test;
-
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.Test;
 
 public class OpenPojoTest {
 
-    @Test
-    public void test() {
+  @Test
+  public void test() {
 
-        final Validator validator = ValidatorBuilder.create()
+    final Validator validator =
+        ValidatorBuilder.create()
             .with(new GetterMustExistRule())
             .with(new SetterMustExistRule())
             .with(new SetterTester())
@@ -28,9 +28,11 @@ public class OpenPojoTest {
             .with(new NoPrimitivesRule())
             .build();
 
-        List<PojoClass> pojoClasses = Stream.of(GetPublicKeysResponse.class,Key.class)
-            .map(PojoClassFactory::getPojoClass).collect(Collectors.toList());
+    List<PojoClass> pojoClasses =
+        Stream.of(GetPublicKeysResponse.class, Key.class)
+            .map(PojoClassFactory::getPojoClass)
+            .collect(Collectors.toList());
 
-        validator.validate(pojoClasses);
-    }
+    validator.validate(pojoClasses);
+  }
 }

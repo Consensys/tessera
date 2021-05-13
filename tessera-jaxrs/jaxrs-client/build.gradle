@@ -1,22 +1,21 @@
 plugins {
-    id "java-library"
+  id "java-library"
 }
 
 dependencies {
-    implementation project(":shared")
-    implementation project(":config")
-    implementation project(":security")
-    implementation project(":tessera-context")
-    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation project(":shared")
+  implementation project(":config")
+  implementation project(":security")
+  implementation project(":tessera-context")
+  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
 
 
-    runtimeOnly project(":server:jaxrs-client-unixsocket")
-    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+  runtimeOnly project(":server:jaxrs-client-unixsocket")
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
 
-    testImplementation "org.eclipse.jetty:jetty-unixsocket"
-    testImplementation "org.glassfish.jersey.core:jersey-client"
-    testImplementation "org.eclipse.jetty:jetty-client"
-    testImplementation project(":server:jaxrs-client-unixsocket")
-
+  testImplementation "org.eclipse.jetty:jetty-unixsocket"
+  testImplementation "org.glassfish.jersey.core:jersey-client"
+  testImplementation "org.eclipse.jetty:jetty-client"
+  testImplementation project(":server:jaxrs-client-unixsocket")
 }

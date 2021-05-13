@@ -17,5 +17,4 @@ import suite.TestSuite;
     admin = true,
     encryptorType = EncryptorType.NACL)
 @TestSuite.SuiteClasses({AdminConfigIT.class, CucumberAdminIT.class})
-public class AdminRestSuite {
-}
+public class AdminRestSuite {}

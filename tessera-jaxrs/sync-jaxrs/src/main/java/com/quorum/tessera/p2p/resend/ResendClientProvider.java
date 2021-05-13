@@ -7,29 +7,27 @@ import com.quorum.tessera.config.util.IntervalPropertyHelper;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
-
-import javax.ws.rs.client.Client;
 import java.util.Map;
+import javax.ws.rs.client.Client;
 
 public class ResendClientProvider {
 
-    public static ResendClient provider() {
+  public static ResendClient provider() {
 
-        final Config config = ConfigFactory.create().getConfig();
-        final ServerConfig serverConfig = config.getP2PServerConfig();
+    final Config config = ConfigFactory.create().getConfig();
+    final ServerConfig serverConfig = config.getP2PServerConfig();
 
-        final Map<String, String> properties = serverConfig.getProperties();
+    final Map<String, String> properties = serverConfig.getProperties();
 
-        final String waitTime = new IntervalPropertyHelper(properties).resendWaitTime();
+    final String waitTime = new IntervalPropertyHelper(properties).resendWaitTime();
 
-        final SSLContextFactory clientSSLContextFactory = ClientSSLContextFactory.create();
+    final SSLContextFactory clientSSLContextFactory = ClientSSLContextFactory.create();
 
-        final ClientFactory clientFactory = new ClientFactory(clientSSLContextFactory);
-        final Client client = clientFactory.buildFrom(config.getP2PServerConfig());
+    final ClientFactory clientFactory = new ClientFactory(clientSSLContextFactory);
+    final Client client = clientFactory.buildFrom(config.getP2PServerConfig());
 
-        client.property("jersey.config.client.readTimeout", waitTime);
+    client.property("jersey.config.client.readTimeout", waitTime);
 
-        return new RestResendClient(client);
-    }
-
+    return new RestResendClient(client);
+  }
 }

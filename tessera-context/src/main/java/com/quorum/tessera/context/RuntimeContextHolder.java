@@ -6,19 +6,18 @@ import java.util.Optional;
 RuntimeContextFactory and RuntimeContext instance
  */
 enum RuntimeContextHolder {
-    INSTANCE;
+  INSTANCE;
 
-    private RuntimeContext runtimeContext;
+  private RuntimeContext runtimeContext;
 
-    Optional<RuntimeContext> getContext() {
-        return Optional.ofNullable(runtimeContext);
+  Optional<RuntimeContext> getContext() {
+    return Optional.ofNullable(runtimeContext);
+  }
+
+  void setContext(RuntimeContext runtimeContext) {
+    if (this.runtimeContext != null && runtimeContext != null) {
+      throw new IllegalStateException("RuntimeContext has already been stored");
     }
-
-    void setContext(RuntimeContext runtimeContext) {
-        if (this.runtimeContext != null && runtimeContext != null) {
-            throw new IllegalStateException("RuntimeContext has already been stored");
-        }
-        this.runtimeContext = runtimeContext;
-    }
-
+    this.runtimeContext = runtimeContext;
+  }
 }

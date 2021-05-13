@@ -1,33 +1,34 @@
 package com.quorum.tessera.cli.parsers;
 
-import com.quorum.tessera.config.Config;
-import org.junit.Test;
-
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import com.quorum.tessera.config.Config;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import org.junit.Test;
+
 public class ConfigurationConverterTest {
 
-    private ConfigConverter configConverter = new ConfigConverter();
+  private ConfigConverter configConverter = new ConfigConverter();
 
-    @Test
-    public void configReadFromFile() throws Exception {
-        final Path configFile = Path.of(getClass().getResource("/sample-config.json").toURI());
+  @Test
+  public void configReadFromFile() throws Exception {
+    final Path configFile = Path.of(getClass().getResource("/sample-config.json").toURI());
 
-        final Config result = configConverter.convert(configFile.toString());
+    final Config result = configConverter.convert(configFile.toString());
 
-        assertThat(result).isNotNull();
-    }
+    assertThat(result).isNotNull();
+  }
 
-    @Test
-    public void configfileDoesNotExistThrowsException() {
-        final String path = "does/not/exist.config";
+  @Test
+  public void configfileDoesNotExistThrowsException() {
+    final String path = "does/not/exist.config";
 
-        final Throwable throwable = catchThrowable(() -> configConverter.convert(path));
+    final Throwable throwable = catchThrowable(() -> configConverter.convert(path));
 
-        assertThat(throwable).isInstanceOf(FileNotFoundException.class).hasMessage(path + " not found.");
-    }
+    assertThat(throwable)
+        .isInstanceOf(FileNotFoundException.class)
+        .hasMessage(path + " not found.");
+  }
 }

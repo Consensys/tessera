@@ -1,21 +1,19 @@
 package com.quorum.tessera.recovery;
 
 import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
-
 import java.util.ServiceLoader;
 
 public interface Recovery {
 
-    int recover();
+  int recover();
 
-    RecoveryResult request();
+  RecoveryResult request();
 
-    RecoveryResult stage();
+  RecoveryResult stage();
 
-    RecoveryResult sync();
+  RecoveryResult sync();
 
-    static Recovery create() {
-        return ServiceLoaderUtil.loadSingle(ServiceLoader.load(Recovery.class));
-    }
-
+  static Recovery create() {
+    return ServiceLoaderUtil.loadSingle(ServiceLoader.load(Recovery.class));
+  }
 }

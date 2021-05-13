@@ -1,40 +1,39 @@
 package com.quorum.tessera.q2t;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 public class BatchPrivacyGroupPublisherProviderTest {
 
+  @Test
+  public void provider() {
 
-    @Test
-    public void provider() {
+    PrivacyGroupPublisher privacyGroupPublisher = mock(PrivacyGroupPublisher.class);
 
-        PrivacyGroupPublisher privacyGroupPublisher = mock(PrivacyGroupPublisher.class);
+    BatchPrivacyGroupPublisher result;
+    try (var privacyGroupPublisherMockedStatic = mockStatic(PrivacyGroupPublisher.class)) {
 
-        BatchPrivacyGroupPublisher result;
-        try(var privacyGroupPublisherMockedStatic = mockStatic(PrivacyGroupPublisher.class)) {
+      privacyGroupPublisherMockedStatic
+          .when(PrivacyGroupPublisher::create)
+          .thenReturn(privacyGroupPublisher);
 
-            privacyGroupPublisherMockedStatic.when(PrivacyGroupPublisher::create)
-                .thenReturn(privacyGroupPublisher);
+      result = BatchPrivacyGroupPublisherProvider.provider();
 
-            result = BatchPrivacyGroupPublisherProvider.provider();
-
-            privacyGroupPublisherMockedStatic.verify(PrivacyGroupPublisher::create);
-            privacyGroupPublisherMockedStatic.verifyNoMoreInteractions();
-
-        }
-
-        assertThat(result).isNotNull();
-
-        verifyNoInteractions(privacyGroupPublisher);
+      privacyGroupPublisherMockedStatic.verify(PrivacyGroupPublisher::create);
+      privacyGroupPublisherMockedStatic.verifyNoMoreInteractions();
     }
 
-    @Test
-    public void defaultConstructorForCoverage() {
-        assertThat(new BatchPrivacyGroupPublisherProvider()).isNotNull();
-    }
+    assertThat(result).isNotNull();
+
+    verifyNoInteractions(privacyGroupPublisher);
+  }
+
+  @Test
+  public void defaultConstructorForCoverage() {
+    assertThat(new BatchPrivacyGroupPublisherProvider()).isNotNull();
+  }
 }

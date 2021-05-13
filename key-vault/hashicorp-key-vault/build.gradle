@@ -1,50 +1,49 @@
 plugins {
-    id "application"
+  id "application"
 }
 
 application {
-    startScripts.enabled = false
+  startScripts.enabled = false
 }
 
 dependencyCheck {
-    failBuildOnCVSS = 11
+  failBuildOnCVSS = 11
 }
 
 configurations.all {
-    exclude group: "commons-logging"
-    exclude group: "org.springframework", module: "spring-jcl"
-    exclude group: "org.springframework", module: "spring-aop"
-    exclude module: "jakarta.activation"
+  exclude group: "commons-logging"
+  exclude group: "org.springframework", module: "spring-jcl"
+  exclude group: "org.springframework", module: "spring-aop"
+  exclude module: "jakarta.activation"
 }
 
 def springVersion = "5.2.3.RELEASE"
 dependencies {
-    implementation project(":config")
-    implementation project(":key-vault:key-vault-api")
+  implementation project(":config")
+  implementation project(":key-vault:key-vault-api")
 
-    implementation("org.springframework.vault:spring-vault-core:2.1.5.RELEASE") {
-        exclude group: "org.springframework",module: "spring-core"
-    }
-    implementation "com.squareup.okhttp3:okhttp:3.12.3"
+  implementation("org.springframework.vault:spring-vault-core:2.1.5.RELEASE") {
+    exclude group: "org.springframework",module: "spring-core"
+  }
+  implementation "com.squareup.okhttp3:okhttp:3.12.3"
 
-    implementation "org.springframework:spring-orm:$springVersion"
-    testImplementation "org.springframework:spring-test:$springVersion"
-    implementation("org.springframework:spring-core:$springVersion") {
-        exclude group: "org.springframework", module: "spring-jcl"
-    }
-    implementation "org.springframework:spring-beans:$springVersion"
-    implementation "org.springframework:spring-context:$springVersion"
-    implementation "org.springframework:spring-web:$springVersion"
+  implementation "org.springframework:spring-orm:$springVersion"
+  testImplementation "org.springframework:spring-test:$springVersion"
+  implementation("org.springframework:spring-core:$springVersion") {
+    exclude group: "org.springframework", module: "spring-jcl"
+  }
+  implementation "org.springframework:spring-beans:$springVersion"
+  implementation "org.springframework:spring-context:$springVersion"
+  implementation "org.springframework:spring-web:$springVersion"
 
-    runtimeOnly "org.slf4j:jcl-over-slf4j"
-
+  runtimeOnly "org.slf4j:jcl-over-slf4j"
 }
 
 publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact distZip
-            artifact distTar
-        }
+  publications {
+    mavenJava(MavenPublication) {
+      artifact distZip
+      artifact distTar
     }
+  }
 }

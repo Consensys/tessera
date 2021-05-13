@@ -1,7 +1,7 @@
 package com.quorum.tessera.test.cli;
 
-import io.cucumber.junit.CucumberOptions;
 import io.cucumber.junit.Cucumber;
+import io.cucumber.junit.CucumberOptions;
 import org.junit.runner.RunWith;
 
 @RunWith(Cucumber.class)
@@ -10,5 +10,4 @@ import org.junit.runner.RunWith;
     features = "build/resources/test/features/cli/file_keygen.feature",
     monochrome = true,
     plugin = {"progress"})
-public class CucumberFileKeyGenerationIT {
-}
+public class CucumberFileKeyGenerationIT {}

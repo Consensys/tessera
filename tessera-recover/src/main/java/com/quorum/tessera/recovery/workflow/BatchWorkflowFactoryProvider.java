@@ -7,14 +7,13 @@ import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 
 public class BatchWorkflowFactoryProvider {
 
-    public static BatchWorkflowFactory provider() {
+  public static BatchWorkflowFactory provider() {
 
-        Enclave enclave = Enclave.create();
-        PayloadEncoder payloadEncoder = PayloadEncoder.create();
-        Discovery discovery = Discovery.create();
-        ResendBatchPublisher resendBatchPublisher = ResendBatchPublisher.create();
+    Enclave enclave = Enclave.create();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    Discovery discovery = Discovery.create();
+    ResendBatchPublisher resendBatchPublisher = ResendBatchPublisher.create();
 
-        return new BatchWorkflowFactoryImpl(enclave,payloadEncoder,discovery,resendBatchPublisher);
-    }
-
+    return new BatchWorkflowFactoryImpl(enclave, payloadEncoder, discovery, resendBatchPublisher);
+  }
 }

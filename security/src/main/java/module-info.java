@@ -1,18 +1,20 @@
 module tessera.security.main {
-    //requires java.base;
-    requires java.xml.bind;
+  // requires java.base;
+  requires java.xml.bind;
   //  requires cryptacular;
-    requires org.slf4j;
-    requires tessera.config.main;
-    requires tessera.shared.main;
-    requires org.bouncycastle.pkix;
-    requires org.bouncycastle.provider;
+  requires org.slf4j;
+  requires tessera.config.main;
+  requires tessera.shared.main;
+  requires org.bouncycastle.pkix;
+  requires org.bouncycastle.provider;
 
-    exports com.quorum.tessera.ssl.context;
+  exports com.quorum.tessera.ssl.context;
 
-    uses com.quorum.tessera.ssl.context.ClientSSLContextFactory;
-    uses com.quorum.tessera.ssl.context.ServerSSLContextFactory;
+  uses com.quorum.tessera.ssl.context.ClientSSLContextFactory;
+  uses com.quorum.tessera.ssl.context.ServerSSLContextFactory;
 
-    provides com.quorum.tessera.ssl.context.ClientSSLContextFactory with com.quorum.tessera.ssl.context.ClientSSLContextFactoryImpl;
-    provides com.quorum.tessera.ssl.context.ServerSSLContextFactory with com.quorum.tessera.ssl.context.ServerSSLContextFactoryImpl;
+  provides com.quorum.tessera.ssl.context.ClientSSLContextFactory with
+      com.quorum.tessera.ssl.context.ClientSSLContextFactoryImpl;
+  provides com.quorum.tessera.ssl.context.ServerSSLContextFactory with
+      com.quorum.tessera.ssl.context.ServerSSLContextFactoryImpl;
 }

@@ -7,21 +7,21 @@ import picocli.CommandLine;
 
 public class Main {
 
-    public static void main(String... args) {
-        try {
-            final CommandLine commandLine = new CommandLine(new MigrationCliAdapter());
-            commandLine
-                    .registerConverter(Config.class, new ConfigConverter())
-                    .setSeparator(" ")
-                    .setCaseInsensitiveEnumValuesAllowed(true);
+  public static void main(String... args) {
+    try {
+      final CommandLine commandLine = new CommandLine(new MigrationCliAdapter());
+      commandLine
+          .registerConverter(Config.class, new ConfigConverter())
+          .setSeparator(" ")
+          .setCaseInsensitiveEnumValuesAllowed(true);
 
-            commandLine.execute(args);
-            final CliResult cliResult = commandLine.getExecutionResult();
+      commandLine.execute(args);
+      final CliResult cliResult = commandLine.getExecutionResult();
 
-            System.exit(cliResult.getStatus());
-        } catch (final Exception ex) {
-            System.err.println(ex.toString());
-            System.exit(1);
-        }
+      System.exit(cliResult.getStatus());
+    } catch (final Exception ex) {
+      System.err.println(ex.toString());
+      System.exit(1);
     }
+  }
 }

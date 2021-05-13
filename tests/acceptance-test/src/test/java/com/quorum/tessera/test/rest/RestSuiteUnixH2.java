@@ -17,5 +17,4 @@ import suite.TestSuite;
     socketType = SocketType.UNIX,
     encryptorType = EncryptorType.NACL)
 @TestSuite.SuiteClasses({CucumberRestIT.class, CucumberRawIT.class})
-public class RestSuiteUnixH2 {
-}
+public class RestSuiteUnixH2 {}

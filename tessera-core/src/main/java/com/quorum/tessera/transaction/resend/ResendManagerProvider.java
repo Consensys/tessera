@@ -8,22 +8,21 @@ import org.slf4j.LoggerFactory;
 
 public class ResendManagerProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResendManagerProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ResendManagerProvider.class);
 
-    public static ResendManager provider() {
+  public static ResendManager provider() {
 
-        LOGGER.debug("Creating EncryptedTransactionDAO");
-        final EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
-        LOGGER.debug("Created EncryptedTransactionDAO {}",encryptedTransactionDAO);
+    LOGGER.debug("Creating EncryptedTransactionDAO");
+    final EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
+    LOGGER.debug("Created EncryptedTransactionDAO {}", encryptedTransactionDAO);
 
-        LOGGER.debug("Creating Enclave");
+    LOGGER.debug("Creating Enclave");
 
-        final Enclave enclave = Enclave.create();
-        LOGGER.debug("Created Enclave {}",enclave);
+    final Enclave enclave = Enclave.create();
+    LOGGER.debug("Created Enclave {}", enclave);
 
-        PayloadDigest payloadDigest = PayloadDigest.create();
+    PayloadDigest payloadDigest = PayloadDigest.create();
 
-        return new ResendManagerImpl(encryptedTransactionDAO,enclave,payloadDigest);
-    }
-
+    return new ResendManagerImpl(encryptedTransactionDAO, enclave, payloadDigest);
+  }
 }

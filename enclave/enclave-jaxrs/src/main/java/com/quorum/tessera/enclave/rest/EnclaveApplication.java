@@ -4,40 +4,40 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveServer;
+import java.util.Objects;
+import java.util.Set;
+import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.core.Application;
-import java.util.Objects;
-import java.util.Set;
+public class EnclaveApplication extends Application
+    implements com.quorum.tessera.config.apps.TesseraApp {
 
-public class EnclaveApplication extends Application implements com.quorum.tessera.config.apps.TesseraApp {
+  private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveApplication.class);
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveApplication.class);
+  private final Enclave enclave;
 
-    private final Enclave enclave;
+  public EnclaveApplication() {
+    this(EnclaveServer.create());
+  }
 
-    public EnclaveApplication() {
-        this(EnclaveServer.create());
-    }
+  public EnclaveApplication(Enclave enclave) {
+    LOGGER.debug("Create EnclaveApplication with {}", enclave);
+    this.enclave = Objects.requireNonNull(enclave);
+  }
 
-    public EnclaveApplication(Enclave enclave) {
-        LOGGER.debug("Create EnclaveApplication with {}",enclave);
-        this.enclave = Objects.requireNonNull(enclave);
-    }
+  @Override
+  public Set<Object> getSingletons() {
+    return Set.of(new EnclaveResource(enclave), new DefaultExceptionMapper());
+  }
 
-    @Override
-    public Set<Object> getSingletons() {
-        return Set.of(new EnclaveResource(enclave),new DefaultExceptionMapper());
-    }
+  @Override
+  public AppType getAppType() {
+    return AppType.ENCLAVE;
+  }
 
-    @Override
-    public AppType getAppType() {
-        return AppType.ENCLAVE;
-    }
-
-    @Override
-    public CommunicationType getCommunicationType() {
-        return CommunicationType.REST;
-    }
+  @Override
+  public CommunicationType getCommunicationType() {
+    return CommunicationType.REST;
+  }
 }

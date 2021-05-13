@@ -1,96 +1,97 @@
 package com.quorum.tessera.key.generation;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
 import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
+import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
-import com.quorum.tessera.encryption.Encryptor;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 public class HashicorpVaultKeyGeneratorTest {
 
-    private final String pubStr = "public";
-    private final String privStr = "private";
-    private final PublicKey pub = PublicKey.from(pubStr.getBytes());
-    private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
+  private final String pubStr = "public";
+  private final String privStr = "private";
+  private final PublicKey pub = PublicKey.from(pubStr.getBytes());
+  private final PrivateKey priv = PrivateKey.from(privStr.getBytes());
 
-    private Encryptor encryptor;
+  private Encryptor encryptor;
 
-    private KeyVaultService keyVaultService;
+  private KeyVaultService keyVaultService;
 
-    private HashicorpVaultKeyGenerator hashicorpVaultKeyGenerator;
+  private HashicorpVaultKeyGenerator hashicorpVaultKeyGenerator;
 
-    @Before
-    public void setUp() {
-        this.encryptor = mock(Encryptor.class);
-        this.keyVaultService = mock(KeyVaultService.class);
+  @Before
+  public void setUp() {
+    this.encryptor = mock(Encryptor.class);
+    this.keyVaultService = mock(KeyVaultService.class);
 
-        final KeyPair keyPair = new KeyPair(pub, priv);
-        when(encryptor.generateNewKeys()).thenReturn(keyPair);
+    final KeyPair keyPair = new KeyPair(pub, priv);
+    when(encryptor.generateNewKeys()).thenReturn(keyPair);
 
-        this.hashicorpVaultKeyGenerator = new HashicorpVaultKeyGenerator(encryptor, keyVaultService);
-    }
+    this.hashicorpVaultKeyGenerator = new HashicorpVaultKeyGenerator(encryptor, keyVaultService);
+  }
 
-    @Test(expected = NullPointerException.class)
-    public void nullFilenameThrowsException() {
-        KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
-        when(keyVaultOptions.getSecretEngineName()).thenReturn("secretEngine");
+  @Test(expected = NullPointerException.class)
+  public void nullFilenameThrowsException() {
+    KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
+    when(keyVaultOptions.getSecretEngineName()).thenReturn("secretEngine");
 
-        hashicorpVaultKeyGenerator.generate(null, null, keyVaultOptions);
-    }
+    hashicorpVaultKeyGenerator.generate(null, null, keyVaultOptions);
+  }
 
-    @Test(expected = NullPointerException.class)
-    public void nullKeyVaultOptionsThrowsException() {
-        hashicorpVaultKeyGenerator.generate("filename", null, null);
-    }
+  @Test(expected = NullPointerException.class)
+  public void nullKeyVaultOptionsThrowsException() {
+    hashicorpVaultKeyGenerator.generate("filename", null, null);
+  }
 
-    @Test(expected = NullPointerException.class)
-    public void nullSecretEngineNameThrowsException() {
-        KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
-        when(keyVaultOptions.getSecretEngineName()).thenReturn(null);
+  @Test(expected = NullPointerException.class)
+  public void nullSecretEngineNameThrowsException() {
+    KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
+    when(keyVaultOptions.getSecretEngineName()).thenReturn(null);
 
-        hashicorpVaultKeyGenerator.generate("filename", null, keyVaultOptions);
-    }
+    hashicorpVaultKeyGenerator.generate("filename", null, keyVaultOptions);
+  }
 
-    @Test
-    public void generatedKeyPairIsSavedToSpecifiedPathInVaultWithIds() {
-        String secretEngine = "secretEngine";
-        String filename = "secretName";
+  @Test
+  public void generatedKeyPairIsSavedToSpecifiedPathInVaultWithIds() {
+    String secretEngine = "secretEngine";
+    String filename = "secretName";
 
-        KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
-        when(keyVaultOptions.getSecretEngineName()).thenReturn(secretEngine);
+    KeyVaultOptions keyVaultOptions = mock(KeyVaultOptions.class);
+    when(keyVaultOptions.getSecretEngineName()).thenReturn(secretEngine);
 
-        HashicorpVaultKeyPair result = hashicorpVaultKeyGenerator.generate(filename, null, keyVaultOptions);
+    HashicorpVaultKeyPair result =
+        hashicorpVaultKeyGenerator.generate(filename, null, keyVaultOptions);
 
-        HashicorpVaultKeyPair expected =
-                new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
-        assertThat(result).isEqualToComparingFieldByField(expected);
+    HashicorpVaultKeyPair expected =
+        new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
+    assertThat(result).isEqualToComparingFieldByField(expected);
 
-        final ArgumentCaptor<HashicorpSetSecretData> captor = ArgumentCaptor.forClass(HashicorpSetSecretData.class);
-        verify(keyVaultService).setSecret(captor.capture());
+    final ArgumentCaptor<HashicorpSetSecretData> captor =
+        ArgumentCaptor.forClass(HashicorpSetSecretData.class);
+    verify(keyVaultService).setSecret(captor.capture());
 
-        assertThat(captor.getAllValues()).hasSize(1);
-        HashicorpSetSecretData capturedArg = captor.getValue();
+    assertThat(captor.getAllValues()).hasSize(1);
+    HashicorpSetSecretData capturedArg = captor.getValue();
 
-        Map<String, Object> expectedNameValuePairs = new HashMap<>();
-        expectedNameValuePairs.put("publicKey", pub.encodeToBase64());
-        expectedNameValuePairs.put("privateKey", priv.encodeToBase64());
+    Map<String, Object> expectedNameValuePairs = new HashMap<>();
+    expectedNameValuePairs.put("publicKey", pub.encodeToBase64());
+    expectedNameValuePairs.put("privateKey", priv.encodeToBase64());
 
-        HashicorpSetSecretData expectedData =
-                new HashicorpSetSecretData(secretEngine, filename, expectedNameValuePairs);
+    HashicorpSetSecretData expectedData =
+        new HashicorpSetSecretData(secretEngine, filename, expectedNameValuePairs);
 
-        assertThat(capturedArg).isEqualToComparingFieldByFieldRecursively(expectedData);
+    assertThat(capturedArg).isEqualToComparingFieldByFieldRecursively(expectedData);
 
-        verifyNoMoreInteractions(keyVaultService);
-    }
+    verifyNoMoreInteractions(keyVaultService);
+  }
 }

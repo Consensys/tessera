@@ -1,9 +1,9 @@
 plugins {
-    id "java-library"
+  id "java-library"
 }
 
 dependencies {
-    implementation "org.glassfish:jakarta.el"
+  implementation "org.glassfish:jakarta.el"
 }
 
 //compileJava {

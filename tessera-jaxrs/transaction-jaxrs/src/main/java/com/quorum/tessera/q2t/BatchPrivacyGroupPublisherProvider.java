@@ -7,11 +7,12 @@ import com.quorum.tessera.threading.ExecutorFactory;
 
 public class BatchPrivacyGroupPublisherProvider {
 
-    public static BatchPrivacyGroupPublisher provider() {
-        PrivacyGroupPublisher privacyGroupPublisher = PrivacyGroupPublisher.create();
-        ExecutorFactory executorFactory = new ExecutorFactory();
-        CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
+  public static BatchPrivacyGroupPublisher provider() {
+    PrivacyGroupPublisher privacyGroupPublisher = PrivacyGroupPublisher.create();
+    ExecutorFactory executorFactory = new ExecutorFactory();
+    CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
 
-        return new AsyncBatchPrivacyGroupPublisher(executorFactory, countDownLatchFactory, privacyGroupPublisher);
-    }
+    return new AsyncBatchPrivacyGroupPublisher(
+        executorFactory, countDownLatchFactory, privacyGroupPublisher);
+  }
 }

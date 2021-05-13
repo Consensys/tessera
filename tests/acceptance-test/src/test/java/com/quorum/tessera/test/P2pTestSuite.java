@@ -15,5 +15,4 @@ import suite.TestSuite;
     encryptorType = EncryptorType.NACL,
     prefix = "p2p")
 @TestSuite.SuiteClasses(PeerToPeerIT.class)
-public class P2pTestSuite {
-}
+public class P2pTestSuite {}

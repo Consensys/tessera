@@ -8,17 +8,17 @@ import org.slf4j.LoggerFactory;
 
 public class PrivacyHelperProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrivacyHelperProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(PrivacyHelperProvider.class);
 
-    public static PrivacyHelper provider() {
-        RuntimeContext runtimeContext = RuntimeContext.getInstance();
-        LOGGER.debug("Creating PrivacyHelper");
-        boolean privacyEnabled = runtimeContext.isEnhancedPrivacy();
-        EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
-        PayloadEncoder payloadEncoder = PayloadEncoder.create();
-        PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO,privacyEnabled,payloadEncoder);
-        LOGGER.debug("Created PrivacyHelper {}",privacyHelper);
-        return privacyHelper;
-    }
-
+  public static PrivacyHelper provider() {
+    RuntimeContext runtimeContext = RuntimeContext.getInstance();
+    LOGGER.debug("Creating PrivacyHelper");
+    boolean privacyEnabled = runtimeContext.isEnhancedPrivacy();
+    EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    PrivacyHelper privacyHelper =
+        new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled, payloadEncoder);
+    LOGGER.debug("Created PrivacyHelper {}", privacyHelper);
+    return privacyHelper;
+  }
 }

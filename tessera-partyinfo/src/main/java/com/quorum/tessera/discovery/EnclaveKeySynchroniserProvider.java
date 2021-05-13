@@ -6,16 +6,16 @@ import org.slf4j.LoggerFactory;
 
 public class EnclaveKeySynchroniserProvider {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnclaveKeySynchroniserProvider.class);
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(EnclaveKeySynchroniserProvider.class);
 
-    public static EnclaveKeySynchroniser provider() {
-        LOGGER.debug("Creating Enclave");
-        Enclave enclave = Enclave.create();
-        LOGGER.debug("Created Enclave {}",enclave);
-        LOGGER.debug("Creating NetworkStore");
-        NetworkStore networkStore = NetworkStore.getInstance();
-        LOGGER.debug("Created NetworkStore");
-        return new EnclaveKeySynchroniserImpl(enclave, networkStore);
-    }
-
+  public static EnclaveKeySynchroniser provider() {
+    LOGGER.debug("Creating Enclave");
+    Enclave enclave = Enclave.create();
+    LOGGER.debug("Created Enclave {}", enclave);
+    LOGGER.debug("Creating NetworkStore");
+    NetworkStore networkStore = NetworkStore.getInstance();
+    LOGGER.debug("Created NetworkStore");
+    return new EnclaveKeySynchroniserImpl(enclave, networkStore);
+  }
 }

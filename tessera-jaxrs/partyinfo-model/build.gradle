@@ -1,11 +1,10 @@
 plugins {
-    id "java-library"
+  id "java-library"
 }
 
 dependencies {
-    implementation project(":tessera-partyinfo")
-    implementation project(":encryption:encryption-api")
+  implementation project(":tessera-partyinfo")
+  implementation project(":encryption:encryption-api")
 
-    testImplementation "org.mockito:mockito-inline"
-
+  testImplementation "org.mockito:mockito-inline"
 }

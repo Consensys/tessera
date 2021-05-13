@@ -8,15 +8,12 @@ import com.quorum.tessera.transaction.publish.PayloadPublisher;
 
 public class BatchPayloadPublisherProvider {
 
-    public static BatchPayloadPublisher provider() {
-        ExecutorFactory executorFactory = new ExecutorFactory();
-        CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
-        PayloadEncoder encoder = PayloadEncoder.create();
-        PayloadPublisher payloadPublisher = PayloadPublisher.create();
-        return new AsyncBatchPayloadPublisher(executorFactory, countDownLatchFactory, payloadPublisher, encoder);
-    }
-
+  public static BatchPayloadPublisher provider() {
+    ExecutorFactory executorFactory = new ExecutorFactory();
+    CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
+    PayloadEncoder encoder = PayloadEncoder.create();
+    PayloadPublisher payloadPublisher = PayloadPublisher.create();
+    return new AsyncBatchPayloadPublisher(
+        executorFactory, countDownLatchFactory, payloadPublisher, encoder);
+  }
 }
-
-
-

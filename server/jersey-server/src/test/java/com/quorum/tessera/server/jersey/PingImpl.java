@@ -1,9 +1,9 @@
 package com.quorum.tessera.server.jersey;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
 import java.util.Objects;
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 
@@ -11,30 +11,30 @@ import javax.inject.Singleton;
 @Singleton
 public class PingImpl implements Ping {
 
-    private Pong pong;
+  private Pong pong;
 
-    public PingImpl() {
-        this.pong = null;
-    }
+  public PingImpl() {
+    this.pong = null;
+  }
 
-    @Inject
-    public PingImpl(Pong pong) {
-        this.pong = Objects.requireNonNull(pong);
-        System.out.println("new PingImpl()" + this);
-    }
+  @Inject
+  public PingImpl(Pong pong) {
+    this.pong = Objects.requireNonNull(pong);
+    System.out.println("new PingImpl()" + this);
+  }
 
-    @PostConstruct
-    public void onConstruct() {
-        System.out.println("PingImpl.onConstruct " + this);
-    }
+  @PostConstruct
+  public void onConstruct() {
+    System.out.println("PingImpl.onConstruct " + this);
+  }
 
-    @PreDestroy
-    public void onDestroy() {
-        System.out.println("PingImpl.onDestroy " + this);
-    }
+  @PreDestroy
+  public void onDestroy() {
+    System.out.println("PingImpl.onDestroy " + this);
+  }
 
-    @Override
-    public String ping() {
-        return pong.pong();
-    }
+  @Override
+  public String ping() {
+    return pong.pong();
+  }
 }

@@ -1,7 +1,6 @@
 package com.quorum.tessera.enclave;
 
 import com.quorum.tessera.config.Config;
-
 import java.util.ServiceLoader;
 
 /**
@@ -11,10 +10,10 @@ import java.util.ServiceLoader;
  */
 public interface EnclaveClientFactory<T extends EnclaveClient> {
 
-    T create(Config config);
+  T create(Config config);
 
-    static EnclaveClientFactory create() {
-        // TODO: return the stream and let the caller deal with it
-        return ServiceLoader.load(EnclaveClientFactory.class).findFirst().get();
-    }
+  static EnclaveClientFactory create() {
+    // TODO: return the stream and let the caller deal with it
+    return ServiceLoader.load(EnclaveClientFactory.class).findFirst().get();
+  }
 }

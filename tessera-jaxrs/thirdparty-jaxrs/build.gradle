@@ -1,34 +1,33 @@
 plugins {
-    id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
-    id "java-library"
+  id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
+  id "java-library"
 }
 
 dependencies {
-    implementation project(":config")
-    implementation project(":tessera-core")
-    implementation project(":tessera-partyinfo")
-    implementation project(":encryption:encryption-api")
-    implementation project(":shared")
-    implementation project(":tessera-jaxrs:common-jaxrs")
-    implementation project(':tessera-jaxrs:partyinfo-model')
-    implementation project(":tessera-context")
-    implementation project(":tessera-data")
-    implementation "io.swagger.core.v3:swagger-annotations"
-    implementation "jakarta.ws.rs:jakarta.ws.rs-api"
-    implementation "org.glassfish:jakarta.json"
-    implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+  implementation project(":config")
+  implementation project(":tessera-core")
+  implementation project(":tessera-partyinfo")
+  implementation project(":encryption:encryption-api")
+  implementation project(":shared")
+  implementation project(":tessera-jaxrs:common-jaxrs")
+  implementation project(':tessera-jaxrs:partyinfo-model')
+  implementation project(":tessera-context")
+  implementation project(":tessera-data")
+  implementation "io.swagger.core.v3:swagger-annotations"
+  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation "org.glassfish:jakarta.json"
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-    testImplementation "org.glassfish.jersey.test-framework:jersey-test-framework-core"
-    testRuntimeOnly "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
-    testRuntimeOnly "org.glassfish.jersey.media:jersey-media-json-processing"
-    testRuntimeOnly "org.glassfish.jersey.media:jersey-media-moxy"
-    testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2"
+  testImplementation "org.glassfish.jersey.test-framework:jersey-test-framework-core"
+  testRuntimeOnly "org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2"
+  testRuntimeOnly "org.glassfish.jersey.media:jersey-media-json-processing"
+  testRuntimeOnly "org.glassfish.jersey.media:jersey-media-moxy"
+  testRuntimeOnly "org.glassfish.jersey.inject:jersey-hk2"
 
-    testImplementation project(":tessera-data")
-    testImplementation project(":enclave:enclave-api")
+  testImplementation project(":tessera-data")
+  testImplementation project(":enclave:enclave-api")
 
-    compileOnly project(':tessera-jaxrs:openapi:common')
-
+  compileOnly project(':tessera-jaxrs:openapi:common')
 }
 
 description = "thirdparty-jaxrs"
@@ -37,20 +36,22 @@ description = "thirdparty-jaxrs"
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
 resolve {
-    classpath = sourceSets.main.compileClasspath.plus(sourceSets.main.runtimeClasspath)
-    outputDir = file(generatedResources)
-    outputFileName = 'openapi.thirdparty'
-    outputFormat = 'JSONANDYAML'
-    prettyPrint = 'TRUE'
-    openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-thirdparty.yaml")
-    resourcePackages = [
-            'com.quorum.tessera.api.common',
-            'com.quorum.tessera.p2p',
-            'com.quorum.tessera.thirdparty',
-            'com.quorum.tessera.q2t'
-    ]
-    modelConverterClasses = ['com.quorum.tessera.openapi.FullyQualifiedNameResolver']
-    filterClass = 'com.quorum.tessera.openapi.ThirdPartyOperationsFilter'
+  classpath = sourceSets.main.compileClasspath.plus(sourceSets.main.runtimeClasspath)
+  outputDir = file(generatedResources)
+  outputFileName = 'openapi.thirdparty'
+  outputFormat = 'JSONANDYAML'
+  prettyPrint = 'TRUE'
+  openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-thirdparty.yaml")
+  resourcePackages = [
+    'com.quorum.tessera.api.common',
+    'com.quorum.tessera.p2p',
+    'com.quorum.tessera.thirdparty',
+    'com.quorum.tessera.q2t'
+  ]
+  modelConverterClasses = [
+    'com.quorum.tessera.openapi.FullyQualifiedNameResolver'
+  ]
+  filterClass = 'com.quorum.tessera.openapi.ThirdPartyOperationsFilter'
 }
 
 sourceSets.main.output.dir(generatedResources)
@@ -59,11 +60,11 @@ jar.dependsOn(resolve)
 
 
 jar {
-    manifest {
-        attributes(
-                "Implementation-Title": project.name,
-                "Implementation-Version": project.version,
-                "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
-        )
-    }
+  manifest {
+    attributes(
+      "Implementation-Title": project.name,
+      "Implementation-Version": project.version,
+      "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
+      )
+  }
 }

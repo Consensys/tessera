@@ -2,7 +2,6 @@ package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.JaxbUtil;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -13,36 +12,36 @@ import java.util.stream.Stream;
 
 class JaxbConfigFactory implements ConfigFactory {
 
-    private final KeyEncryptorFactory keyEncryptorFactory;
+  private final KeyEncryptorFactory keyEncryptorFactory;
 
-    private static final EncryptorConfig DEFAULT_ENCRYPTOR_CONFIG = EncryptorConfig.getDefault();
+  private static final EncryptorConfig DEFAULT_ENCRYPTOR_CONFIG = EncryptorConfig.getDefault();
 
-    protected JaxbConfigFactory(KeyEncryptorFactory keyEncryptorFactory) {
-        this.keyEncryptorFactory = keyEncryptorFactory;
-    }
+  protected JaxbConfigFactory(KeyEncryptorFactory keyEncryptorFactory) {
+    this.keyEncryptorFactory = keyEncryptorFactory;
+  }
 
-    @Override
-    public Config create(final InputStream configData) {
+  @Override
+  public Config create(final InputStream configData) {
 
-        byte[] originalData =
-                Stream.of(configData)
-                        .map(InputStreamReader::new)
-                        .map(BufferedReader::new)
-                        .flatMap(BufferedReader::lines)
-                        .collect(Collectors.joining(System.lineSeparator()))
-                        .getBytes();
+    byte[] originalData =
+        Stream.of(configData)
+            .map(InputStreamReader::new)
+            .map(BufferedReader::new)
+            .flatMap(BufferedReader::lines)
+            .collect(Collectors.joining(System.lineSeparator()))
+            .getBytes();
 
-        final Config initialConfig = JaxbUtil.unmarshal(new ByteArrayInputStream(originalData), Config.class);
+    final Config initialConfig =
+        JaxbUtil.unmarshal(new ByteArrayInputStream(originalData), Config.class);
 
-        EncryptorConfig encryptorConfig =
-                Optional.ofNullable(initialConfig.getEncryptor()).orElse(DEFAULT_ENCRYPTOR_CONFIG);
-        // Initialise the key encrypter it will store into holder object.
-        keyEncryptorFactory.create(encryptorConfig);
+    EncryptorConfig encryptorConfig =
+        Optional.ofNullable(initialConfig.getEncryptor()).orElse(DEFAULT_ENCRYPTOR_CONFIG);
+    // Initialise the key encrypter it will store into holder object.
+    keyEncryptorFactory.create(encryptorConfig);
 
-        final Config config = JaxbUtil.unmarshal(new ByteArrayInputStream(originalData), Config.class);
-        config.setEncryptor(encryptorConfig);
+    final Config config = JaxbUtil.unmarshal(new ByteArrayInputStream(originalData), Config.class);
+    config.setEncryptor(encryptorConfig);
 
-        return config;
-    }
-
+    return config;
+  }
 }

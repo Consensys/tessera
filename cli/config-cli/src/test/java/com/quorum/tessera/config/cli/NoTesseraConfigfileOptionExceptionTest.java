@@ -1,14 +1,13 @@
 package com.quorum.tessera.config.cli;
 
-import org.junit.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.Test;
 
 public class NoTesseraConfigfileOptionExceptionTest {
 
-    @Test
-    public void testDefaultConstrcutor() {
-        assertThat(new NoTesseraConfigfileOptionException()).isNotNull();
-    }
-
+  @Test
+  public void testDefaultConstrcutor() {
+    assertThat(new NoTesseraConfigfileOptionException()).isNotNull();
+  }
 }

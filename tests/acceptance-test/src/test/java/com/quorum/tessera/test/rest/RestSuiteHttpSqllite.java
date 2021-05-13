@@ -14,5 +14,4 @@ import suite.TestSuite;
     dbType = DBType.SQLITE,
     socketType = SocketType.HTTP,
     encryptorType = EncryptorType.NACL)
-public class RestSuiteHttpSqllite extends RestSuite {
-}
+public class RestSuiteHttpSqllite extends RestSuite {}

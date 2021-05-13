@@ -1,11 +1,10 @@
 import java.time.Duration
 
 plugins {
-    id "org.owasp.dependencycheck" version "6.0.3"
-    id "jacoco"
-    id "com.diffplug.spotless" version "5.8.2"
-    id "com.github.ben-manes.versions" version "0.8"
-    id "checkstyle"
+    id "org.owasp.dependencycheck" version "6.1.6"
+    id 'jacoco'
+    id 'com.diffplug.gradle.spotless' version '3.25.0'
+    id 'com.github.ben-manes.versions' version '0.8'
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
     id "org.javamodularity.moduleplugin" version "1.7.0"
     id "org.kordamp.gradle.jdeps" version "0.12.0"
@@ -161,10 +160,9 @@ nexusPublishing {
 subprojects {
 
     apply plugin: "java-library"
-    apply plugin: "com.diffplug.spotless"
+    apply plugin: "com.diffplug.gradle.spotless"
     apply plugin: "maven-publish"
     apply plugin: "jacoco"
-    apply plugin: "checkstyle"
     apply plugin: "org.owasp.dependencycheck"
     apply plugin: "org.javamodularity.moduleplugin"
 
@@ -245,21 +243,9 @@ subprojects {
         systemProperty("javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory")
     }
 
-    checkstyle {
-        configFile project.getRootProject().file("checkstyle.xml")
-        configProperties.put("checkstyle.suppressions.file",project.getRootProject().file("checkstyle-suppressions.xml"))
-        dependencies{
-            checkstyle "com.puppycrawl.tools:checkstyle:8.39"
-            checkstyle "com.github.sevntu-checkstyle:sevntu-checks:1.37.1"
-            implementation "com.google.guava:guava:30.1.1-jre"
-        }
-    }
-
     dependencyCheck {
         failBuildOnCVSS = 0
         suppressionFile = project.getRootProject().file("cvss-suppressions.xml")
-      //  analyzedTypes = ["zip"]
-        suppressionFile = 'cvss-suppressions.xml'
     }
 
     jacoco {
@@ -271,15 +257,21 @@ subprojects {
         lineEndings = "unix"
 
         java {
-            target fileTree("**/*.java")
-            // indentWithSpaces(4)
+            // target fileTree("**/*.java")
+
+            target fileTree('.') {
+                include "**/src/main/java/**/*.java"
+                include "**/src/test/java/**/*.java"
+            }
             removeUnusedImports()
-            // googleJavaFormat().aosp()
+            googleJavaFormat("1.7")
+            trimTrailingWhitespace()
+            endWithNewline()
         }
         groovyGradle {
             target "*.gradle"
-            indentWithSpaces(4)
-           // paddedCell()
+            greclipse().configFile(rootProject.file("gradle/formatter.properties"))
+            endWithNewline()
         }
     }
     jacocoTestReport {
@@ -350,8 +342,6 @@ subprojects {
         withJavadocJar()
         withSourcesJar()
     }
-
-
 
     javadoc {
         failOnError false
@@ -446,7 +436,7 @@ subprojects {
 
 
     jacocoTestCoverageVerification.dependsOn jacocoTestReport
-    check.dependsOn checkstyleMain, checkstyleTest, spotlessCheck, jacocoTestCoverageVerification
+    check.dependsOn spotlessCheck, jacocoTestCoverageVerification
 
 }
 

@@ -4,8 +4,7 @@ import java.util.Optional;
 
 public interface EnclaveHolder {
 
-    Optional<Enclave> getEnclave();
+  Optional<Enclave> getEnclave();
 
-    Enclave setEnclave(Enclave enclave);
-
+  Enclave setEnclave(Enclave enclave);
 }

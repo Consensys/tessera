@@ -1,68 +1,63 @@
 package com.quorum.tessera.discovery;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 import com.quorum.tessera.context.RuntimeContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 public class DiscoveryProviderTest {
 
-    private MockedStatic<RuntimeContext> mockedRuntimeContext;
+  private MockedStatic<RuntimeContext> mockedRuntimeContext;
 
-    private RuntimeContext runtimeContext;
+  private RuntimeContext runtimeContext;
 
-    @Before
-    public void beforeTest() {
-        runtimeContext = mock(RuntimeContext.class);
-        mockedRuntimeContext = mockStatic(RuntimeContext.class);
-        mockedRuntimeContext.when(RuntimeContext::getInstance)
-            .thenReturn(runtimeContext);
-    }
+  @Before
+  public void beforeTest() {
+    runtimeContext = mock(RuntimeContext.class);
+    mockedRuntimeContext = mockStatic(RuntimeContext.class);
+    mockedRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
+  }
 
-    @After
-    public void afterTest() {
-        verifyNoMoreInteractions(runtimeContext);
-        mockedRuntimeContext.verifyNoMoreInteractions();
-        mockedRuntimeContext.close();
-    }
+  @After
+  public void afterTest() {
+    verifyNoMoreInteractions(runtimeContext);
+    mockedRuntimeContext.verifyNoMoreInteractions();
+    mockedRuntimeContext.close();
+  }
 
-    @Test
-    public void provideAutoDiscovery() {
+  @Test
+  public void provideAutoDiscovery() {
 
-            when(runtimeContext.isDisablePeerDiscovery()).thenReturn(false);
+    when(runtimeContext.isDisablePeerDiscovery()).thenReturn(false);
 
-            Discovery discovery = DiscoveryProvider.provider();
-            assertThat(discovery).isNotNull().isExactlyInstanceOf(AutoDiscovery.class);
+    Discovery discovery = DiscoveryProvider.provider();
+    assertThat(discovery).isNotNull().isExactlyInstanceOf(AutoDiscovery.class);
 
-            verify(runtimeContext).isDisablePeerDiscovery();
-            mockedRuntimeContext.verify(RuntimeContext::getInstance);
-    }
+    verify(runtimeContext).isDisablePeerDiscovery();
+    mockedRuntimeContext.verify(RuntimeContext::getInstance);
+  }
 
-    @Test
-    public void provideDisabledAutoDiscovery() {
+  @Test
+  public void provideDisabledAutoDiscovery() {
 
-        when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
+    when(runtimeContext.isDisablePeerDiscovery()).thenReturn(true);
 
-        Discovery discovery = DiscoveryProvider.provider();
+    Discovery discovery = DiscoveryProvider.provider();
 
-        assertThat(discovery).isNotNull().isExactlyInstanceOf(DisabledAutoDiscovery.class);
+    assertThat(discovery).isNotNull().isExactlyInstanceOf(DisabledAutoDiscovery.class);
 
-        verify(runtimeContext).isDisablePeerDiscovery();
-        verify(runtimeContext).getPeers();
-        mockedRuntimeContext.verify(RuntimeContext::getInstance);
-    }
+    verify(runtimeContext).isDisablePeerDiscovery();
+    verify(runtimeContext).getPeers();
+    mockedRuntimeContext.verify(RuntimeContext::getInstance);
+  }
 
-
-
-
-    @Test
-    public void defaultConstructor() {
-        DiscoveryProvider discoveryFactory = new DiscoveryProvider();
-        assertThat(discoveryFactory).isNotNull();
-    }
-
+  @Test
+  public void defaultConstructor() {
+    DiscoveryProvider discoveryFactory = new DiscoveryProvider();
+    assertThat(discoveryFactory).isNotNull();
+  }
 }

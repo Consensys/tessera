@@ -1,4 +1,3 @@
-
 /*package com.quorum.tessera.config.cli.keys;
 
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;

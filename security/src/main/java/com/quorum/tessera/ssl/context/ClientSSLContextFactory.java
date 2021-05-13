@@ -4,7 +4,7 @@ import java.util.ServiceLoader;
 
 public interface ClientSSLContextFactory extends SSLContextFactory {
 
-    static SSLContextFactory create() {
-        return ServiceLoader.load(ClientSSLContextFactory.class).findFirst().get();
-    }
+  static SSLContextFactory create() {
+    return ServiceLoader.load(ClientSSLContextFactory.class).findFirst().get();
+  }
 }

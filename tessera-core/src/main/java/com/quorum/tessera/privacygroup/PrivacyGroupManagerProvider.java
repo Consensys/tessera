@@ -6,13 +6,10 @@ import com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher;
 
 public class PrivacyGroupManagerProvider {
 
-    public static PrivacyGroupManager provider() {
-        Enclave enclave = Enclave.create();
-        PrivacyGroupDAO privacyGroupDAO = PrivacyGroupDAO.create();
-        BatchPrivacyGroupPublisher publisher = BatchPrivacyGroupPublisher.create();
-        return new PrivacyGroupManagerImpl(enclave,privacyGroupDAO,publisher);
-
-
-    }
-
+  public static PrivacyGroupManager provider() {
+    Enclave enclave = Enclave.create();
+    PrivacyGroupDAO privacyGroupDAO = PrivacyGroupDAO.create();
+    BatchPrivacyGroupPublisher publisher = BatchPrivacyGroupPublisher.create();
+    return new PrivacyGroupManagerImpl(enclave, privacyGroupDAO, publisher);
+  }
 }

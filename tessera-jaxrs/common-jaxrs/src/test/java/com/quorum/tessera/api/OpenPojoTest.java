@@ -5,15 +5,15 @@ import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.openpojo.validation.test.impl.SetterTester;
-import org.junit.Test;
-
 import java.util.List;
+import org.junit.Test;
 
 public class OpenPojoTest {
 
-    @Test
-    public void testPojos() {
-        List<Class> classesToTest = List.of(
+  @Test
+  public void testPojos() {
+    List<Class> classesToTest =
+        List.of(
             DeleteRequest.class,
             PayloadDecryptRequest.class,
             PayloadEncryptResponse.class,
@@ -29,20 +29,16 @@ public class OpenPojoTest {
             PrivacyGroupRetrieveRequest.class,
             PrivacyGroupDeleteRequest.class,
             PrivacyGroupSearchRequest.class,
-            BesuReceiveResponse.class
-        );
+            BesuReceiveResponse.class);
 
-        final Validator pojoValidator = ValidatorBuilder.create()
-            .with(new GetterTester())
-            .with(new SetterTester())
-            .build();
+    final Validator pojoValidator =
+        ValidatorBuilder.create().with(new GetterTester()).with(new SetterTester()).build();
 
-        classesToTest.stream()
-            .map(PojoClassFactory::getPojoClass)
-            .forEach(p -> {
-                pojoValidator.validate(p);
+    classesToTest.stream()
+        .map(PojoClassFactory::getPojoClass)
+        .forEach(
+            p -> {
+              pojoValidator.validate(p);
             });
-
-    }
-
+  }
 }
