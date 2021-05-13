@@ -84,11 +84,11 @@ jobs:
       with:
        name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
-     - uses: actions/upload-artifact@v1
-       if: failure()
-       with:
-         name: itest-logs
-         path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
+    - uses: actions/upload-artifact@v1
+      if: failure()
+      with:
+       name: itest-logs
+       path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
 
   vaultTests:
     runs-on: ubuntu-latest
