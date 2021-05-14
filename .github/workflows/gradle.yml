@@ -185,6 +185,12 @@ jobs:
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           cp tessera-dist/build/distributions/tessera-*.tar tessera-dist/build/distributions/tessera.tar
           mkdir tessera-extracted && tar xvf tessera-dist/build/distributions/tessera.tar -C tessera-extracted --strip-components 1
+      - name: 'Load custom AccTests Docker Image'
+        run: |
+          acctests_docker_image="prdfox/acctests:jigsaw"
+          docker pull $acctests_docker_image
+          # replacing the acctests image to run
+          docker tag $acctests_docker_image quorumengineering/acctests:latest
       - uses: docker/build-push-action@v1
         with:
           repository: quorumengineering/tessera

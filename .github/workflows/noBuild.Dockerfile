@@ -2,4 +2,6 @@
 
 FROM adoptopenjdk/openjdk11:alpine
 
-ENTRYPOINT ["/tessera-extracted/bin/tessera"]
+COPY tessera-extracted /home/tessera-extracted
+
+ENTRYPOINT ["/home/tessera-extracted/bin/tessera"]
