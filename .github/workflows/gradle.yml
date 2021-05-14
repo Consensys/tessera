@@ -204,7 +204,7 @@ jobs:
         if: always()
         with:
           name: gauge-reports
-          path: /workspace/target/gauge
+          path: /tmp/workspace/target/gauge
       - uses: homoluctus/slatify@v3.0.0
         if: always()
         with:
