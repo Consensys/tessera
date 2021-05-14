@@ -13,6 +13,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,12 +25,6 @@ import suite.EnclaveType;
 import suite.ExecutionContext;
 import suite.NodeAlias;
 import suite.SocketType;
-
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
 
 public class ThirdPartyIT {
 
@@ -138,36 +137,38 @@ public class ThirdPartyIT {
 
   @Test
   public void keys() {
-    ServerConfig thridPty = secondNodeExecManager.getConfigDescriptor().getConfig().getServerConfigs()
-                                                                                  .stream()
-                                                                                  .filter(s -> s.getApp() == AppType.THIRD_PARTY)
-                                                                                  .findFirst()
-                                                                                  .get();
+    ServerConfig thridPty =
+        secondNodeExecManager.getConfigDescriptor().getConfig().getServerConfigs().stream()
+            .filter(s -> s.getApp() == AppType.THIRD_PARTY)
+            .findFirst()
+            .get();
 
     Client client = ClientBuilder.newClient();
-    Response response = client.target(thridPty.getServerUri())
-      .path("keys").request().get();
+    Response response = client.target(thridPty.getServerUri()).path("keys").request().get();
     JsonObject keysJson = response.readEntity(JsonObject.class);
-
 
     assertThat(response).isNotNull();
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(keysJson).isNotNull();
-    assertThat(keysJson.getJsonArray("keys")).hasSize(1)
-      .containsExactly(Json.createObjectBuilder().add("key","/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=").build());
+    assertThat(keysJson.getJsonArray("keys"))
+        .hasSize(1)
+        .containsExactly(
+            Json.createObjectBuilder()
+                .add("key", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .build());
 
-
-    Response partyinfoResponse = client.target(thridPty.getServerUri())
-      .path("partyinfo").path("keys").request().get();
+    Response partyinfoResponse =
+        client.target(thridPty.getServerUri()).path("partyinfo").path("keys").request().get();
 
     JsonObject partyinfokeysJson = partyinfoResponse.readEntity(JsonObject.class);
 
     assertThat(partyinfoResponse).isNotNull();
     assertThat(partyinfoResponse.getStatus()).isEqualTo(200);
-    assertThat(partyinfokeysJson.getJsonArray("keys")).hasSize(1)
-      .containsExactly(Json.createObjectBuilder().add("key","/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=").build());
-
+    assertThat(partyinfokeysJson.getJsonArray("keys"))
+        .hasSize(1)
+        .containsExactly(
+            Json.createObjectBuilder()
+                .add("key", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
+                .build());
   }
-
-
 }
