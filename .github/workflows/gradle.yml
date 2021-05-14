@@ -192,13 +192,14 @@ jobs:
           push: false
           dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: DIST=tessera-extracted
-      - run:
+      - run: |
           docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
-      - uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: acceptance-test-reports
-          path: /tmp/acctests/quorum-acceptance-tests/target/gauge
+          ls -l /tmp/acctests/
+#      - uses: actions/upload-artifact@v1
+#        if: failure()
+#        with:
+#          name: acceptance-test-reports
+#          path: /tmp/acctests/
       - uses: homoluctus/slatify@v3.0.0
         if: always()
         with:
