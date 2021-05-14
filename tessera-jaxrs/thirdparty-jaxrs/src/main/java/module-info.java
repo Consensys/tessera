@@ -11,6 +11,8 @@ module tessera.tessera.jaxrs.thirdparty.jaxrs.main {
   requires tessera.tessera.partyinfo.main;
   requires tessera.tessera.partyinfo.model;
 
+  exports com.quorum.tessera.thirdparty;
+
   provides com.quorum.tessera.config.apps.TesseraApp with
       com.quorum.tessera.thirdparty.ThirdPartyRestApp;
 }
