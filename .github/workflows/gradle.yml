@@ -198,7 +198,7 @@ jobs:
         if: failure()
         with:
           name: acceptance-test-reports
-          path: /tmp/acctests/target/gauge
+          path: /tmp/acctests/quorum-acceptance-tests/target/gauge
       - uses: homoluctus/slatify@v3.0.0
         if: always()
         with:
