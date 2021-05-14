@@ -201,10 +201,15 @@ jobs:
       - run:
           docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
       - uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
-          name: acceptance-test-reports
-          path: /tmp/acctests/
+          name: gauge-reports
+          path: /workspace/target/gauge
+      - uses: actions/upload-artifact@v1
+        if: always()
+        with:
+          name: gauge-summary
+          path: /tmp/acctests/summary.txt
       - uses: homoluctus/slatify@v3.0.0
         if: always()
         with:
