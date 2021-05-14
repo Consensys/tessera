@@ -199,7 +199,7 @@ jobs:
           dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: DIST=tessera-extracted
       - run:
-          docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest -c "mvn --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='estimategas || networks/typical::istanbul' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && cmod -R 775 /tmp/acctests/gauge"
+          docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest -c "mvn --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='estimategas || networks/typical::istanbul' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
       - uses: actions/upload-artifact@v1
         if: always()
         with:
