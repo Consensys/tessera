@@ -47,7 +47,7 @@ jobs:
         name: hashicorp-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
     - uses: homoluctus/slatify@v3.0.0
-      if: failure()
+      if: always()
       with:
         type: ${{job.status}}
         job_name: Build
@@ -194,6 +194,11 @@ jobs:
           build_args: DIST=tessera-extracted
       - run:
           docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: acceptance-test-reports
+          path: /tmp/acctests/target/gauge
       - uses: homoluctus/slatify@v3.0.0
         if: always()
         with:
