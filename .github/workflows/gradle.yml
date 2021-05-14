@@ -199,12 +199,12 @@ jobs:
           dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: DIST=tessera-extracted
       - run:
-          docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
+          docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /workspace:/tmp/workspace -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
       - uses: actions/upload-artifact@v1
         if: always()
         with:
           name: gauge-reports
-          path: /tmp/acctests
+          path: /workspace/target/gauge
       - uses: homoluctus/slatify@v3.0.0
         if: always()
         with:
