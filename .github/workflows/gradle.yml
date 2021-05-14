@@ -46,7 +46,7 @@ jobs:
       with:
         name: hashicorp-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
-    - uses: homoluctus/slatify@v2.1.2
+    - uses: homoluctus/slatify@v3.0.0
       if: failure()
       with:
         type: ${{job.status}}
@@ -62,8 +62,8 @@ jobs:
         distribution: 'adopt'
         java-version: 11
     - run: ./gradlew dependencyCheckAnalyze -x test
-    - uses: homoluctus/slatify@v2.1.2
-      if: failure()
+    - uses: homoluctus/slatify@v3.0.0
+      if: always()
       with:
         type: ${{job.status}}
         job_name: Dependency check
@@ -78,8 +78,8 @@ jobs:
        distribution: 'adopt'
        java-version: 11
     - run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerification --info
-    - uses: homoluctus/slatify@v2.1.2
-      if: failure()
+    - uses: homoluctus/slatify@v3.0.0
+      if: always()
       with:
         type: ${{job.status}}
         job_name: Unit tests
@@ -106,8 +106,8 @@ jobs:
       with:
        name: itest-logs
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-    - uses: homoluctus/slatify@v2.1.2
-      if: failure()
+    - uses: homoluctus/slatify@v3.0.0
+      if: always()
       with:
         type: ${{job.status}}
         job_name: itest
@@ -138,8 +138,8 @@ jobs:
         with:
           name: vault-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-      - uses: homoluctus/slatify@v2.1.2
-        if: failure()
+      - uses: homoluctus/slatify@v3.0.0
+        if: always()
         with:
           type: ${{job.status}}
           job_name: Key vault tests
@@ -166,8 +166,8 @@ jobs:
         with:
           name: recovery-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-      - uses: homoluctus/slatify@v2.1.2
-        if: failure()
+      - uses: homoluctus/slatify@v3.0.0
+        if: always()
         with:
           type: ${{job.status}}
           job_name: Recovery integration tests
@@ -194,8 +194,8 @@ jobs:
           build_args: DIST=tessera-extracted
       - run:
           docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
-      - uses: homoluctus/slatify@v2.1.2
-        if: failure()
+      - uses: homoluctus/slatify@v3.0.0
+        if: always()
         with:
           type: ${{job.status}}
           job_name: Acceptance tests
