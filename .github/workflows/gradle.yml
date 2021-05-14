@@ -204,7 +204,7 @@ jobs:
         if: always()
         with:
           name: gauge-reports
-          path: /workspace/target/gauge
+          path: /tmp/acctests/workspace/target/gauge
       - uses: actions/upload-artifact@v1
         if: always()
         with:
