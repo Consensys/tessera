@@ -50,7 +50,7 @@ allprojects {
         compile "org.glassfish:javax.json:1.1.2"
         compile "org.jasypt:jasypt:1.9.3"
         compile "org.glassfish:javax.el:3.0.1-b10"
-        compile "org.hibernate:hibernate-validator:6.0.2.Final"
+        compile "org.hibernate:hibernate-validator:6.0.22.Final"
         compile "com.moandjiezana.toml:toml4j:0.7.2"
         compile "commons-codec:commons-codec:1.6"
         compile "commons-io:commons-io:2.8.0"
