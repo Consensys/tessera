@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-a79c236d
+  version: latest-65a3f3b5
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -98,6 +98,27 @@ paths:
                 Database unavailable:
                   description: Database unavailable
                   value: Database unavailable
+  /version/api:
+    get:
+      tags:
+        - quorum-to-tessera
+        - peer-to-peer
+        - third-party
+      summary: /version/api
+      description: list currently available API versions
+      operationId: getApiVersions
+      responses:
+        "200":
+          description: list of available API versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+              example:
+                - "1.0"
+                - "2.0"
   /version/distribution:
     get:
       tags:
@@ -133,27 +154,6 @@ paths:
                 type: string
               example: 20.10.1
       deprecated: true
-  /version/api:
-    get:
-      tags:
-        - quorum-to-tessera
-        - peer-to-peer
-        - third-party
-      summary: /version/api
-      description: list currently available API versions
-      operationId: getApiVersions
-      responses:
-        "200":
-          description: list of available API versions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-              example:
-                - "1.0"
-                - "2.0"
   /partyinfo:
     get:
       tags:
@@ -270,6 +270,35 @@ paths:
       responses:
         "200":
           description: batch successfully stored
+  /push:
+    post:
+      tags:
+        - peer-to-peer
+      summary: /push
+      description: store encoded payload to the server's database
+      operationId: pushPayload
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: array
+              description: encoded payload
+              items:
+                type: string
+                description: encoded payload
+                format: byte
+      responses:
+        "201":
+          description: hash of encoded payload
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: hash of encrypted payload
+                format: base64
+        "403":
+          description: server is in recovery mode and encoded payload is not a Standard
+            Private transaction
   /resend:
     post:
       tags:
@@ -316,35 +345,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchResponse"
-  /push:
-    post:
-      tags:
-        - peer-to-peer
-      summary: /push
-      description: store encoded payload to the server's database
-      operationId: pushPayload
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: array
-              description: encoded payload
-              items:
-                type: string
-                description: encoded payload
-                format: byte
-      responses:
-        "201":
-          description: hash of encoded payload
-          content:
-            text/plain:
-              schema:
-                type: string
-                description: hash of encrypted payload
-                format: base64
-        "403":
-          description: server is in recovery mode and encoded payload is not a Standard
-            Private transaction
   /receive:
     post:
       tags:
@@ -423,6 +423,27 @@ paths:
             application/vnd.tessera-2.1+json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
+  /retrievePrivacyGroup:
+    post:
+      tags:
+        - quorum-to-tessera
+      summary: /retrievePrivacyGroup
+      description: retrieve privacy group from a privacy group id
+      operationId: retrievePrivacyGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupRetrieveRequest"
+      responses:
+        "200":
+          description: A privacy group object
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
+        "404":
+          description: privacy group not found
   /createPrivacyGroup:
     post:
       tags:
@@ -504,27 +525,40 @@ paths:
           description: default response
           content:
             application/json: {}
-  /retrievePrivacyGroup:
-    post:
+  /receiveraw:
+    get:
       tags:
         - quorum-to-tessera
-      summary: /retrievePrivacyGroup
-      description: retrieve privacy group from a privacy group id
-      operationId: retrievePrivacyGroup
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupRetrieveRequest"
+      summary: /receiveraw
+      description: get payload from database, decrypt, and return
+      operationId: getDecryptedPayloadOctetStream
+      parameters:
+        - name: c11n-key
+          in: header
+          required: true
+          schema:
+            type: string
+            description: hash indicating encrypted payload to retrieve from database
+            format: base64
+        - name: c11n-to
+          in: header
+          schema:
+            type: string
+            description: (optional) public key of recipient of the encrypted payload; used
+              in decryption; if not provided, decryption is attempted with all
+              known recipient keys in turn
+            format: base64
       responses:
         "200":
-          description: A privacy group object
+          description: decrypted ciphertext payload
           content:
-            application/json:
+            application/octet-stream:
               schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
-        "404":
-          description: privacy group not found
+                type: array
+                items:
+                  type: string
+                  description: decrypted ciphertext payload
+                  format: byte
   /sendraw:
     post:
       tags:
@@ -569,40 +603,6 @@ paths:
                 type: string
                 description: encrypted payload hash
                 format: base64
-  /receiveraw:
-    get:
-      tags:
-        - quorum-to-tessera
-      summary: /receiveraw
-      description: get payload from database, decrypt, and return
-      operationId: getDecryptedPayloadOctetStream
-      parameters:
-        - name: c11n-key
-          in: header
-          required: true
-          schema:
-            type: string
-            description: hash indicating encrypted payload to retrieve from database
-            format: base64
-        - name: c11n-to
-          in: header
-          schema:
-            type: string
-            description: (optional) public key of recipient of the encrypted payload; used
-              in decryption; if not provided, decryption is attempted with all
-              known recipient keys in turn
-            format: base64
-      responses:
-        "200":
-          description: decrypted ciphertext payload
-          content:
-            application/octet-stream:
-              schema:
-                type: array
-                items:
-                  type: string
-                  description: decrypted ciphertext payload
-                  format: byte
   /delete:
     post:
       tags:
@@ -1193,25 +1193,17 @@ components:
           type: string
           description: privacy group id of the transaction
           format: base64
-    com.quorum.tessera.api.PrivacyGroupRequest:
+    com.quorum.tessera.api.PrivacyGroupRetrieveRequest:
+      required:
+        - privacyGroupId
       type: object
       properties:
-        addresses:
-          type: array
-          description: public keys identifying the members of the privacy group
-          items:
-            type: string
-            format: base64
-        from:
+        privacyGroupId:
+          maxLength: 2147483647
+          minLength: 1
           type: string
-          description: public key identifying the sender of the request
+          description: id identifying the privacy group to retrieve
           format: base64
-        name:
-          type: string
-          description: name of the privacy group
-        description:
-          type: string
-          description: description of the privacy group
     com.quorum.tessera.api.PrivacyGroupResponse:
       type: object
       properties:
@@ -1237,6 +1229,25 @@ components:
           items:
             type: string
             format: base64
+    com.quorum.tessera.api.PrivacyGroupRequest:
+      type: object
+      properties:
+        addresses:
+          type: array
+          description: public keys identifying the members of the privacy group
+          items:
+            type: string
+            format: base64
+        from:
+          type: string
+          description: public key identifying the sender of the request
+          format: base64
+        name:
+          type: string
+          description: name of the privacy group
+        description:
+          type: string
+          description: description of the privacy group
     com.quorum.tessera.api.PrivacyGroupSearchRequest:
       required:
         - addresses
@@ -1262,17 +1273,6 @@ components:
         from:
           type: string
           description: public key identifying the sender of the request
-          format: base64
-    com.quorum.tessera.api.PrivacyGroupRetrieveRequest:
-      required:
-        - privacyGroupId
-      type: object
-      properties:
-        privacyGroupId:
-          maxLength: 2147483647
-          minLength: 1
-          type: string
-          description: id identifying the privacy group to retrieve
           format: base64
     com.quorum.tessera.api.DeleteRequest:
       required:
