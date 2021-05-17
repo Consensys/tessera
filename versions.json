@@ -1,6 +1,22 @@
 {
-    "latest":{"spec":"latest","source":"master"},
-    "stable":{"spec":"21.1.0","source":"21.1.0"},
-    "20.10.1":{"spec":"20.10.1","source":"20.10.1"},
-    "21.1.0":{"spec":"21.1.0","source":"21.1.0"}
+ "latest": {
+  "spec": "latest",
+  "source": "master"
+ },
+ "stable": {
+  "spec": "tessera-21.4.0",
+  "source": "tessera-21.4.0"
+ },
+ "20.10.1": {
+  "spec": "20.10.1",
+  "source": "20.10.1"
+ },
+ "21.1.0": {
+  "spec": "21.1.0",
+  "source": "21.1.0"
+ },
+ "tessera-21.4.0": {
+  "spec": "tessera-21.4.0",
+  "source": "tessera-21.4.0"
+ }
 }
