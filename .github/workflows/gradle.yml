@@ -202,7 +202,7 @@ jobs:
           dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: JAR_FILE=tessera-dist/tessera-app/build/libs/tessera-app-*-app.jar
       - run:
-          docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
+          docker run --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests -e TF_VAR_quorum_docker_image='{name=\"quorumengineering/quorum:latest\"}' quorumengineering/acctests:latest test -Pauto -Dtags="!async && (basic || basic-istanbul || networks/typical::istanbul)" -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true
 
   vaultTests:
     runs-on: ubuntu-latest
