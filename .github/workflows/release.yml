@@ -36,10 +36,11 @@ jobs:
           now=`date +%Y%m%d%H%M%S`
           git checkout -b "release-$now"
           tagversion=`cat version.txt | cut -d'-' -f1`
+          tagname="tessera-$tagversion"
           echo "$tagversion" > version.txt
           git add version.txt
           git commit -m "Change to release version $tagversion"
-          git tag -a $tagversion -m "Release tessera $tagversion"
+          git tag -a $tagname -m "Release tessera $tagversion"
           git push --tags
 
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
@@ -69,4 +70,4 @@ jobs:
           add_git_labels: true
           dockerfile: .github/workflows/noBuild.Dockerfile
           path: tessera-dist/tessera-app/build/libs
-          build_args: JAR_FILE=tessera-app-${{ steps.tag.outputs.full-ver }}-app.jar
+          build_args: JAR_FILE=tessera-app-${{ steps.release.outputs.full-ver }}-app.jar

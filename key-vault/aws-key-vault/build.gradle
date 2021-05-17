@@ -1,3 +1,7 @@
+plugins {
+  id 'com.github.johnrengelman.shadow'
+  id 'java'
+}
 
 def nettyVersion = "4.1.46.Final"
 
@@ -23,3 +27,9 @@ dependencies {
   compile 'io.netty:netty-transport-native-unix-common:'+ nettyVersion
   compile 'io.netty:netty-transport-native-epoll:'+ nettyVersion +':linux-x86_64'
 }
+
+shadowJar {
+  classifier = 'all'
+}
+
+build.dependsOn shadowJar
