@@ -13,3 +13,9 @@ dependencies {
   compile 'com.microsoft.azure:adal4j:1.6.3'
   compile project(':key-vault:key-vault-api')
 }
+
+shadowJar {
+  classifier = 'all'
+}
+
+build.dependsOn shadowJar
