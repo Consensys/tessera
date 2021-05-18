@@ -34,7 +34,6 @@ jobs:
         run: |
           git config user.name "quorumbot"
           now=`date +%Y%m%d%H%M%S`
-          git checkout -b "release-$now"
           tagversion=`cat version.txt | cut -d'-' -f1`
           tagname="tessera-$tagversion"
           echo "$tagversion" > version.txt
@@ -50,11 +49,17 @@ jobs:
           ./gradlew incrementProjectVersion --info
           git add version.txt
           git commit -m "Change version to next development version"
-          git push --set-upstream origin release-$now
 
           minor_version=${tagversion%.*}
           echo ::set-output name=full-ver::$tagversion
           echo ::set-output name=minor-ver::$minor_version
+          echo ::set-output name=branch-name::release-$now
+      - name: Create PR to update development version
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: ${{ steps.release.outputs.branch-name }}
+          title: Update development version
+          body: Triggered by release https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       - name: Save tessera-app.jar
         uses: actions/upload-artifact@v2
         with:
