@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-65a3f3b5
+  version: latest-9c9809e0
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -98,6 +98,41 @@ paths:
                 Database unavailable:
                   description: Database unavailable
                   value: Database unavailable
+  /version:
+    get:
+      tags:
+        - quorum-to-tessera
+        - peer-to-peer
+        - third-party
+      summary: /version
+      description: Tessera distribution version
+      operationId: getVersion
+      responses:
+        "200":
+          description: Tessera distribution version
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: 20.10.1
+      deprecated: true
+  /version/distribution:
+    get:
+      tags:
+        - quorum-to-tessera
+        - peer-to-peer
+        - third-party
+      summary: /version/distribution
+      description: Tessera distribution version
+      operationId: getDistributionVersion
+      responses:
+        "200":
+          description: Tessera distribution version
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: 20.10.1
   /version/api:
     get:
       tags:
@@ -119,41 +154,6 @@ paths:
               example:
                 - "1.0"
                 - "2.0"
-  /version/distribution:
-    get:
-      tags:
-        - quorum-to-tessera
-        - peer-to-peer
-        - third-party
-      summary: /version/distribution
-      description: Tessera distribution version
-      operationId: getDistributionVersion
-      responses:
-        "200":
-          description: Tessera distribution version
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: 20.10.1
-  /version:
-    get:
-      tags:
-        - quorum-to-tessera
-        - peer-to-peer
-        - third-party
-      summary: /version
-      description: Tessera distribution version
-      operationId: getVersion
-      responses:
-        "200":
-          description: Tessera distribution version
-          content:
-            text/plain:
-              schema:
-                type: string
-              example: 20.10.1
-      deprecated: true
   /partyinfo:
     get:
       tags:
@@ -270,6 +270,52 @@ paths:
       responses:
         "200":
           description: batch successfully stored
+  /resendBatch:
+    post:
+      tags:
+        - peer-to-peer
+      summary: /resendBatch
+      description: initiate resend of all transactions for a given public key in batches
+      operationId: requestPayloadBatchResend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchRequest"
+        required: true
+      responses:
+        "200":
+          description: count of total transactions being resent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchResponse"
+  /resend:
+    post:
+      tags:
+        - peer-to-peer
+      summary: /resend
+      description: initiate resend of either an INDIVIDUAL transaction or ALL
+        transactions involving a given public key
+      operationId: requestPayloadResend
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.p2p.resend.ResendRequest"
+        required: true
+      responses:
+        "200":
+          description: resent payload
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  type: string
+                  description: empty if request was for ALL; else the encoded INDIVIDUAL
+                    transaction
+                  format: byte
   /push:
     post:
       tags:
@@ -299,52 +345,6 @@ paths:
         "403":
           description: server is in recovery mode and encoded payload is not a Standard
             Private transaction
-  /resend:
-    post:
-      tags:
-        - peer-to-peer
-      summary: /resend
-      description: initiate resend of either an INDIVIDUAL transaction or ALL
-        transactions involving a given public key
-      operationId: requestPayloadResend
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.p2p.resend.ResendRequest"
-        required: true
-      responses:
-        "200":
-          description: resent payload
-          content:
-            text/plain:
-              schema:
-                type: array
-                items:
-                  type: string
-                  description: empty if request was for ALL; else the encoded INDIVIDUAL
-                    transaction
-                  format: byte
-  /resendBatch:
-    post:
-      tags:
-        - peer-to-peer
-      summary: /resendBatch
-      description: initiate resend of all transactions for a given public key in batches
-      operationId: requestPayloadBatchResend
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchRequest"
-        required: true
-      responses:
-        "200":
-          description: count of total transactions being resent
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.p2p.recovery.ResendBatchResponse"
   /receive:
     post:
       tags:
@@ -423,6 +423,27 @@ paths:
             application/vnd.tessera-2.1+json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
+  /deletePrivacyGroup:
+    post:
+      tags:
+        - quorum-to-tessera
+      summary: /deletePrivacyGroup
+      description: mark a privacy group as deleted
+      operationId: deletePrivacyGroup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupDeleteRequest"
+      responses:
+        "200":
+          description: id of the deleted privacy group
+          content:
+            application/json:
+              schema:
+                type: string
+        "404":
+          description: privacy group not found
   /retrievePrivacyGroup:
     post:
       tags:
@@ -444,28 +465,6 @@ paths:
                 $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
         "404":
           description: privacy group not found
-  /createPrivacyGroup:
-    post:
-      tags:
-        - quorum-to-tessera
-      summary: /createPrivacyGroup
-      description: creates a privacy group, stores data in database, and distribute to
-        members
-      operationId: createPrivacyGroup
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupRequest"
-      responses:
-        "200":
-          description: created privacy group
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
-        "403":
-          description: privacy group not supported on remote member
   /findPrivacyGroup:
     post:
       tags:
@@ -488,27 +487,28 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
-  /deletePrivacyGroup:
+  /createPrivacyGroup:
     post:
       tags:
         - quorum-to-tessera
-      summary: /deletePrivacyGroup
-      description: mark a privacy group as deleted
-      operationId: deletePrivacyGroup
+      summary: /createPrivacyGroup
+      description: creates a privacy group, stores data in database, and distribute to
+        members
+      operationId: createPrivacyGroup
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupDeleteRequest"
+              $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupRequest"
       responses:
         "200":
-          description: id of the deleted privacy group
+          description: created privacy group
           content:
             application/json:
               schema:
-                type: string
-        "404":
-          description: privacy group not found
+                $ref: "#/components/schemas/com.quorum.tessera.api.PrivacyGroupResponse"
+        "403":
+          description: privacy group not supported on remote member
   "/groups/{type}":
     get:
       tags:
@@ -646,30 +646,6 @@ paths:
             text/plain:
               schema:
                 type: boolean
-  "/transaction/{hash}/participants":
-    get:
-      tags:
-        - quorum-to-tessera
-      summary: /transaction/{hash}/participants
-      description: get list of recipient public keys for a transaction
-      operationId: getRecipients
-      parameters:
-        - name: hash
-          in: path
-          description: hash indicating encrypted payload to get recipients for
-          required: true
-          schema:
-            type: string
-            format: base64
-      responses:
-        "200":
-          description: comma-separated list of recipients
-          content:
-            text/plain:
-              schema:
-                type: string
-                description: comma-separated list of recipients
-              example: ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=
   /sendsignedtx:
     post:
       tags:
@@ -711,6 +687,30 @@ paths:
             application/vnd.tessera-2.1+json:
               schema:
                 $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
+  "/transaction/{hash}/participants":
+    get:
+      tags:
+        - quorum-to-tessera
+      summary: /transaction/{hash}/participants
+      description: get list of recipient public keys for a transaction
+      operationId: getRecipients
+      parameters:
+        - name: hash
+          in: path
+          description: hash indicating encrypted payload to get recipients for
+          required: true
+          schema:
+            type: string
+            format: base64
+      responses:
+        "200":
+          description: comma-separated list of recipients
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: comma-separated list of recipients
+              example: ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=
   "/transaction/{hash}":
     get:
       tags:
@@ -899,25 +899,6 @@ components:
             type: string
             description: list of encoded payloads
             format: byte
-    com.quorum.tessera.p2p.resend.ResendRequest:
-      required:
-        - publicKey
-        - type
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - ALL
-            - INDIVIDUAL
-        publicKey:
-          type: string
-          description: resend transactions involving this public key
-          format: base64
-        key:
-          type: string
-          description: hash of encoded transaction (INDIVIDUAL only)
-          format: base64
     com.quorum.tessera.p2p.recovery.ResendBatchResponse:
       type: object
       properties:
@@ -938,6 +919,25 @@ components:
           type: integer
           description: default value is used if not provided
           format: int32
+    com.quorum.tessera.p2p.resend.ResendRequest:
+      required:
+        - publicKey
+        - type
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - ALL
+            - INDIVIDUAL
+        publicKey:
+          type: string
+          description: resend transactions involving this public key
+          format: base64
+        key:
+          type: string
+          description: hash of encoded transaction (INDIVIDUAL only)
+          format: base64
     com.quorum.tessera.api.BesuReceiveResponse:
       type: object
       properties:
@@ -1193,6 +1193,21 @@ components:
           type: string
           description: privacy group id of the transaction
           format: base64
+    com.quorum.tessera.api.PrivacyGroupDeleteRequest:
+      required:
+        - privacyGroupId
+      type: object
+      properties:
+        privacyGroupId:
+          maxLength: 2147483647
+          minLength: 1
+          type: string
+          description: id identifying the privacy group to delete
+          format: base64
+        from:
+          type: string
+          description: public key identifying the sender of the request
+          format: base64
     com.quorum.tessera.api.PrivacyGroupRetrieveRequest:
       required:
         - privacyGroupId
@@ -1229,6 +1244,17 @@ components:
           items:
             type: string
             format: base64
+    com.quorum.tessera.api.PrivacyGroupSearchRequest:
+      required:
+        - addresses
+      type: object
+      properties:
+        addresses:
+          type: array
+          description: public keys of the members of the privacy group
+          items:
+            type: string
+            format: base64
     com.quorum.tessera.api.PrivacyGroupRequest:
       type: object
       properties:
@@ -1248,32 +1274,6 @@ components:
         description:
           type: string
           description: description of the privacy group
-    com.quorum.tessera.api.PrivacyGroupSearchRequest:
-      required:
-        - addresses
-      type: object
-      properties:
-        addresses:
-          type: array
-          description: public keys of the members of the privacy group
-          items:
-            type: string
-            format: base64
-    com.quorum.tessera.api.PrivacyGroupDeleteRequest:
-      required:
-        - privacyGroupId
-      type: object
-      properties:
-        privacyGroupId:
-          maxLength: 2147483647
-          minLength: 1
-          type: string
-          description: id identifying the privacy group to delete
-          format: base64
-        from:
-          type: string
-          description: public key identifying the sender of the request
-          format: base64
     com.quorum.tessera.api.DeleteRequest:
       required:
         - key
