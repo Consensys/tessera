@@ -10,6 +10,7 @@ dependencies {
   compile 'javax.ws.rs:javax.ws.rs-api'
 
   runtimeOnly project(':encryption:encryption-jnacl')
+  runtimeOnly project(':encryption:encryption-ec')
 
   testCompile project(':tests:test-util')
   testCompile 'org.hibernate:hibernate-validator'

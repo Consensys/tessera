@@ -11,6 +11,7 @@ dependencies {
   compile 'org.jasypt:jasypt'
   runtimeOnly 'org.glassfish:javax.el'
   runtimeOnly project(':encryption:encryption-jnacl')
+  runtimeOnly project(':encryption:encryption-ec')
   testCompile project(':tests:test-util')
   testCompile 'org.hibernate:hibernate-validator'
   runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
