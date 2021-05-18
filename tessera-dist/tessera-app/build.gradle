@@ -33,7 +33,7 @@ dependencies {
   compile project(':server:jersey-server')
   compile 'org.glassfish.jersey.media:jersey-media-json-processing:2.27'
   compile project(':encryption:encryption-jnacl')
-
+  compile project(':encryption:encryption-ec')
   compile "org.bouncycastle:bcpkix-jdk15on"
 }
 

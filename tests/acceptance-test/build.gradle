@@ -66,6 +66,9 @@ test {
   include(
     '**/RecoverIT.class',
     '**/RestSuiteHttpH2RemoteEnclave.class',
+    '**/RestSuiteHttpH2RemoteEnclaveEncTypeEC.class',
+    '**/RestSuiteHttpH2EncTypeEC.class',
+    '**/RestSuiteBesu.class',
     '**/RestSuiteHttpHSQL.class',
     '**/RestSuiteUnixH2.class',
     '**/RestSuiteHttpSqllite.class',

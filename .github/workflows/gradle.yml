@@ -127,7 +127,7 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: 11
-    - run: ./gradlew :tests:acceptance-test:test -PexcludeTests="RecoverIT,RestSuiteHttpH2RemoteEnclave,RunHashicorpIT,RunAzureIT,RunAwsIT"
+    - run: ./gradlew :tests:acceptance-test:test -PexcludeTests="RecoverIT,RestSuiteHttpH2RemoteEnclave,RestSuiteHttpH2RemoteEnclaveEncTypeEC,RunHashicorpIT,RunAzureIT,RunAwsIT"
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
