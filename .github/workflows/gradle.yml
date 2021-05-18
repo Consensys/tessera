@@ -149,7 +149,7 @@ jobs:
       - uses: actions/setup-java@v1
         with:
           java-version: 11
-      - run: ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave --tests RestSuiteHttpH2RemoteEnclaveEncTypeEC
+      - run: ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
