@@ -12,7 +12,7 @@ public class KaliumFactoryTest {
   @Test
   public void createInstance() {
     final Encryptor result = this.kaliumFactory.create();
-
+    assertThat(kaliumFactory.getType()).isEqualTo("CUSTOM");
     assertThat(result).isNotNull().isExactlyInstanceOf(Kalium.class);
   }
 }

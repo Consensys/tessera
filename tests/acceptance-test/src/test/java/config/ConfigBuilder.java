@@ -151,7 +151,8 @@ public class ConfigBuilder {
     config.setEncryptor(encryptorConfig);
     JdbcConfig jdbcConfig = new JdbcConfig();
 
-    String nodeName = executionContext.getPrefix().map(s -> s.concat(nodeId)).orElse(nodeId);
+    String nodeName =
+        executionContext.getPrefix().map(s -> s.concat("-").concat(nodeId)).orElse(nodeId);
 
     jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeName, nodeNumber));
     jdbcConfig.setUsername("sa");

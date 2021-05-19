@@ -17,7 +17,6 @@ dependencies {
   implementation "org.glassfish:jakarta.el"
   runtimeOnly project(":encryption:encryption-jnacl")
   runtimeOnly project(":encryption:encryption-ec")
-  runtimeOnly project(":encryption:encryption-kalium")
 
   testImplementation "org.hibernate.validator:hibernate-validator"
 

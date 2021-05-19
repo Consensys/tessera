@@ -13,5 +13,5 @@ import suite.TestSuite;
     communicationType = CommunicationType.REST,
     dbType = DBType.H2,
     socketType = SocketType.HTTP,
-    encryptorType = EncryptorType.KALIUM)
+    encryptorType = EncryptorType.CUSTOM)
 public class RestSuiteHttpH2EncTypeKalium extends RestSuite {}

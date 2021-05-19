@@ -64,7 +64,8 @@ dependencies {
   implementation project(":encryption:encryption-api")
   implementation project(":encryption:encryption-jnacl")
   implementation project(":encryption:encryption-ec")
-  implementation project(":encryption:encryption-kalium")
+  testImplementation project(":encryption:encryption-kalium")
+  testImplementation "org.abstractj.kalium:kalium:0.8.0"
 
   testImplementation "org.eclipse.jetty:jetty-servlet"
 
@@ -76,15 +77,15 @@ test {
 
   excludes.clear()
 
-  systemProperty "application.jar","${buildDir}/unpacked/dist/tessera-"+ project.version +"/bin/tessera"
+  systemProperty "application.jar","${buildDir}/unpacked/dist/tessera-${project.version}/bin/tessera"
 
-  systemProperty "enclave.jaxrs.server.jar","${buildDir}/unpacked/dist/enclave-jaxrs-"+ project.version +"/bin/enclave-jaxrs"
+  systemProperty "enclave.jaxrs.server.jar","${buildDir}/unpacked/dist/enclave-jaxrs-${project.version}/bin/enclave-jaxrs"
   systemProperty "jdbc.hsql.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
   systemProperty "jdbc.sqlite.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
 
-  systemProperty "keyvault.aws.dist","${buildDir}/unpacked/dist/aws-key-vault-"+ project.version +"/bin/tessera"
-  systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-"+ project.version +"/bin/tessera"
-  systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-"+ project.version +"/bin/tessera"
+  systemProperty "keyvault.aws.dist","${buildDir}/unpacked/dist/aws-key-vault-${project.version}/bin/tessera"
+  systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-${project.version}/bin/tessera"
+  systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-${project.version}/bin/tessera"
 
   systemProperty "project.version", project.version
 
@@ -197,6 +198,33 @@ task unzipDdl(type:Copy) {
   into outputDir
 }
 
+task copyKaliumEncrptorToLibDir {
+  doLast {
+    def jarFile = file(project(":encryption:encryption-kalium").jar.outputs.files.getFiles()[0])
+    def kaliumJar = project.configurations.testCompileClasspath.find { it.name.startsWith("kalium") }
+
+    def tesseraLibDir = file("${buildDir}/unpacked/dist/tessera-${project.version}/lib/")
+    copy {
+      from jarFile
+      into tesseraLibDir
+    }
+
+    copy {
+      from kaliumJar
+      into tesseraLibDir
+    }
+
+    def enclaveLibDir = file("${buildDir}/unpacked/dist/enclave-jaxrs-${project.version}/lib/")
+    copy {
+      from jarFile
+      into enclaveLibDir
+    }
+    copy {
+      from kaliumJar
+      into enclaveLibDir
+    }
+  }
+}
 
 task copyJdbcJars {
 
@@ -242,8 +270,8 @@ copyTesseraIntoAzureDist.dependsOn unzipTessera,unzipAzureKeyVault
 copyTesseraIntoHashicorpDist.dependsOn unzipTessera,unzipHashicorpKeyVault
 
 copyJdbcJars.dependsOn copyTesseraIntoAwsDist,copyTesseraIntoAzureDist,copyTesseraIntoHashicorpDist
-
-test.dependsOn unzipDdl,unzipEnclave,copyJdbcJars
+copyKaliumEncrptorToLibDir.dependsOn unzipTessera,unzipEnclave
+test.dependsOn unzipDdl,unzipEnclave,copyJdbcJars,copyKaliumEncrptorToLibDir
 
 
 dependencyCheck {
