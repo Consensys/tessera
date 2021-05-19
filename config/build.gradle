@@ -15,7 +15,9 @@ dependencies {
   implementation "org.apache.commons:commons-lang3"
   implementation "org.jasypt:jasypt"
   implementation "org.glassfish:jakarta.el"
-  runtimeOnly project(':encryption:encryption-jnacl')
+  runtimeOnly project(":encryption:encryption-jnacl")
+  runtimeOnly project(":encryption:encryption-ec")
+  runtimeOnly project(":encryption:encryption-kalium")
 
   testImplementation "org.hibernate.validator:hibernate-validator"
 

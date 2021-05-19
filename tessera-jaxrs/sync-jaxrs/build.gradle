@@ -51,6 +51,7 @@ jar {
 def generatedResources = "${project.buildDir}/generated-resources/openapi"
 
 resolve {
+
   classpath = sourceSets.main.compileClasspath.plus(sourceSets.main.runtimeClasspath)
   outputDir = file(generatedResources)
   outputFileName = "openapi.p2p"

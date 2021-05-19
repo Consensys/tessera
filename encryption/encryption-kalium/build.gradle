@@ -7,20 +7,4 @@ dependencies {
   implementation "org.abstractj.kalium:kalium:0.8.0"
 }
 
-description = "encryption-kalium"
 
-test {
-  onlyIf {
-    project.hasProperty("kaliumTest")
-  }
-}
-
-//compileJava {
-//    doFirst {
-//        options.compilerArgs = [
-//                "--module-path", classpath.asPath,
-//                "--add-modules", "kalium",
-//        ]
-//        classpath = files()
-//    }
-//}

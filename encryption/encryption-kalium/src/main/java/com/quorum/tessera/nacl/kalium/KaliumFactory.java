@@ -22,6 +22,6 @@ public class KaliumFactory implements EncryptorFactory {
 
   @Override
   public String getType() {
-    return "NACL";
+    return "KALIUM";
   }
 }

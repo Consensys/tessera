@@ -54,7 +54,7 @@ resolve {
   outputDir = file(generatedResources)
   outputFileName = "openapi.q2t"
   outputFormat = "JSONANDYAML"
-  prettyPrint = "TRUE"
+  prettyPrint = true
   openApiFile = file("${project.projectDir}/src/main/resources/openapi-base-q2t.yaml")
   resourcePackages = [
     'com.quorum.tessera.api.common',
@@ -66,6 +66,8 @@ resolve {
     "com.quorum.tessera.openapi.FullyQualifiedNameResolver"
   ]
   filterClass = "com.quorum.tessera.openapi.Q2TOperationsFilter"
+
+
 }
 
 sourceSets.main.output.dir(generatedResources)

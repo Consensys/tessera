@@ -11,7 +11,7 @@ public class NodeId {
     executionContext.getPrefix().ifPresent(v -> tokens.add(v));
     tokens.add(executionContext.getCommunicationType().name().toLowerCase());
     tokens.add(executionContext.getSocketType().name().toLowerCase());
-
+    tokens.add(executionContext.getEncryptorType().name().toLowerCase());
     return String.join("-", tokens);
   }
 
@@ -26,7 +26,7 @@ public class NodeId {
     tokens.add(executionContext.getSocketType().name().toLowerCase());
     tokens.add(executionContext.getEnclaveType().name().toLowerCase());
     tokens.add(executionContext.getDbType().name().toLowerCase());
-
+    tokens.add(executionContext.getEncryptorType().name().toLowerCase());
     tokens.add(alias.name().toLowerCase());
 
     return String.join("-", tokens);

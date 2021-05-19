@@ -150,7 +150,10 @@ public class ConfigBuilder {
     final Config config = new Config();
     config.setEncryptor(encryptorConfig);
     JdbcConfig jdbcConfig = new JdbcConfig();
-    jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeId, nodeNumber));
+
+    String nodeName = executionContext.getPrefix().map(s -> s.concat(nodeId)).orElse(nodeId);
+
+    jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeName, nodeNumber));
     jdbcConfig.setUsername("sa");
     jdbcConfig.setPassword("");
     jdbcConfig.setAutoCreateTables(true);

@@ -3,6 +3,7 @@ package com.quorum.tessera.test.rest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
@@ -13,14 +14,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import suite.EnclaveType;
 import suite.ExecutionContext;
 import suite.NodeAlias;
@@ -30,12 +31,23 @@ public class ThirdPartyIT {
 
   private static final PortUtil PORT_UTIL = new PortUtil(50100);
 
-  private NodeExecManager firstNodeExecManager;
+  private static NodeExecManager firstNodeExecManager;
 
-  private NodeExecManager secondNodeExecManager;
+  private static NodeExecManager secondNodeExecManager;
+
+  private ServerConfig thirdPartyServerConfig;
 
   @Before
-  public void beforeTest() throws Exception {
+  public void beforeTest() {
+    thirdPartyServerConfig =
+        secondNodeExecManager.getConfigDescriptor().getConfig().getServerConfigs().stream()
+            .filter(s -> s.getApp() == AppType.THIRD_PARTY)
+            .findFirst()
+            .get();
+  }
+
+  @BeforeClass
+  public static void init() throws Exception {
 
     ExecutionContext.Builder.create()
         .with(CommunicationType.REST)
@@ -43,6 +55,7 @@ public class ThirdPartyIT {
         .with(SocketType.HTTP)
         .with(EncryptorType.NACL)
         .with(EnclaveType.LOCAL)
+        .prefix(ThirdPartyIT.class.getSimpleName().toLowerCase())
         .buildAndStoreContext();
 
     Config firstNodeDesc = createNode(NodeAlias.A);
@@ -125,8 +138,8 @@ public class ThirdPartyIT {
     return config;
   }
 
-  @After
-  public void afterTest() {
+  @AfterClass
+  public static void destroy() {
     try {
       firstNodeExecManager.stop();
       secondNodeExecManager.stop();
@@ -136,35 +149,48 @@ public class ThirdPartyIT {
   }
 
   @Test
-  public void keys() {
-    ServerConfig thridPty =
-        secondNodeExecManager.getConfigDescriptor().getConfig().getServerConfigs().stream()
-            .filter(s -> s.getApp() == AppType.THIRD_PARTY)
-            .findFirst()
-            .get();
+  public void partyInfoKeys() {
 
     Client client = ClientBuilder.newClient();
-    Response response = client.target(thridPty.getServerUri()).path("keys").request().get();
+
+    Response partyinfoResponse =
+        client
+            .target(thirdPartyServerConfig.getServerUri())
+            .path("partyinfo")
+            .path("keys")
+            .request()
+            .get();
+
+    JsonObject partyinfokeysJson = partyinfoResponse.readEntity(JsonObject.class);
+
+    assertThat(partyinfoResponse).isNotNull();
+    assertThat(partyinfoResponse.getStatus()).isEqualTo(200);
+
+    List<JsonObject> keys =
+        Stream.of(firstNodeExecManager, secondNodeExecManager)
+            .map(NodeExecManager::getConfigDescriptor)
+            .map(ConfigDescriptor::getKey)
+            .map(ConfigKeyPair::getPublicKey)
+            .map(k -> Json.createObjectBuilder().add("key", k).build())
+            .collect(Collectors.toUnmodifiableList());
+
+    assertThat(partyinfokeysJson.getJsonArray("keys"))
+        .describedAs("Json that caused failure %s", partyinfokeysJson.toString())
+        .containsAnyElementsOf(keys);
+  }
+
+  @Test
+  public void keys() {
+
+    Client client = ClientBuilder.newClient();
+    Response response =
+        client.target(thirdPartyServerConfig.getServerUri()).path("keys").request().get();
     JsonObject keysJson = response.readEntity(JsonObject.class);
 
     assertThat(response).isNotNull();
     assertThat(response.getStatus()).isEqualTo(200);
     assertThat(keysJson).isNotNull();
     assertThat(keysJson.getJsonArray("keys"))
-        .hasSize(1)
-        .containsExactly(
-            Json.createObjectBuilder()
-                .add("key", "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=")
-                .build());
-
-    Response partyinfoResponse =
-        client.target(thridPty.getServerUri()).path("partyinfo").path("keys").request().get();
-
-    JsonObject partyinfokeysJson = partyinfoResponse.readEntity(JsonObject.class);
-
-    assertThat(partyinfoResponse).isNotNull();
-    assertThat(partyinfoResponse.getStatus()).isEqualTo(200);
-    assertThat(partyinfokeysJson.getJsonArray("keys"))
         .hasSize(1)
         .containsExactly(
             Json.createObjectBuilder()

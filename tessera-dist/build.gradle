@@ -63,6 +63,7 @@ dependencies {
 
   implementation project(":encryption:encryption-api")
   implementation project(":encryption:encryption-jnacl")
+  implementation project(":encryption:encryption-ec")
 
   implementation "jakarta.validation:jakarta.validation-api"
 
