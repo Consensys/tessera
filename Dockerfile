@@ -9,6 +9,6 @@ RUN mkdir /tessera-extracted && tar xvf /tessera/tessera-dist/build/distribution
 # Create docker image with only distribution jar
 FROM adoptopenjdk/openjdk11:alpine
 
-COPY --from=builder /tessera-extracted /tessera-dist
+COPY --from=builder /tessera-extracted /home/tessera-extracted
 
-ENTRYPOINT ["/tessera-dist/bin/tessera"]
+ENTRYPOINT ["/home/tessera-extracted/bin/tessera"]

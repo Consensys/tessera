@@ -185,12 +185,6 @@ jobs:
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           cp tessera-dist/build/distributions/tessera-*.tar tessera-dist/build/distributions/tessera.tar
           mkdir tessera-extracted && tar xvf tessera-dist/build/distributions/tessera.tar -C tessera-extracted --strip-components 1
-      - name: 'Load custom AccTests Docker Image'
-        run: |
-          acctests_docker_image="prdfox/acctests:jigsaw"
-          docker pull $acctests_docker_image
-          # replacing the acctests image to run
-          docker tag $acctests_docker_image quorumengineering/acctests:latest
       - uses: docker/build-push-action@v1
         with:
           repository: quorumengineering/tessera
@@ -199,7 +193,7 @@ jobs:
           dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: DIST=tessera-extracted
       - run:
-          docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest -c "mvn --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='estimategas || networks/typical::istanbul' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
+          docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest -c "mvn --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='\!async && (basic || basic-istanbul || networks/typical::istanbul)' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
       - uses: actions/upload-artifact@v1
         if: always()
         with:
