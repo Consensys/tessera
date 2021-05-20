@@ -2,7 +2,7 @@ module tessera.cli.cli.api.main {
   requires java.management;
   requires info.picocli;
   requires org.slf4j;
-  requires tessera.config.main;
+  requires tessera.config;
   requires tessera.shared.main;
   requires tessera.encryption.encryption.api.main;
 

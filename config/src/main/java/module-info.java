@@ -1,4 +1,4 @@
-open module tessera.config.main {
+open module tessera.config {
   requires java.validation;
   requires java.xml;
   requires java.xml.bind;

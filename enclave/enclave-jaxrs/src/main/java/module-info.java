@@ -6,7 +6,7 @@ module tessera.enclave.enclave.jaxrs.main {
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.cli.cli.api.main;
-  requires tessera.config.main;
+  requires tessera.config;
   requires tessera.enclave.enclave.api.main;
   requires tessera.enclave.enclave.server.main;
   requires tessera.encryption.encryption.api.main;

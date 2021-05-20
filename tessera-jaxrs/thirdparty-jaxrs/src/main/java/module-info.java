@@ -2,7 +2,7 @@ module tessera.tessera.jaxrs.thirdparty.jaxrs.main {
   requires java.json;
   requires java.ws.rs;
   requires io.swagger.v3.oas.annotations;
-  requires tessera.config.main;
+  requires tessera.config;
   requires tessera.shared.main;
   requires tessera.encryption.encryption.api.main;
   requires tessera.tessera.context.main;

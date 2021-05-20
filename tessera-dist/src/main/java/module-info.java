@@ -6,7 +6,7 @@ module tessera.tessera.dist.main {
   requires org.slf4j;
   requires tessera.cli.cli.api.main;
   requires tessera.cli.config.cli.main;
-  requires tessera.config.main;
+  requires tessera.config;
   requires tessera.enclave.enclave.api.main;
   requires tessera.server.jersey.server.main;
   requires tessera.server.server.api.main;

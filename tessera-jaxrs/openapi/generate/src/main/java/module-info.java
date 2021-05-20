@@ -10,7 +10,7 @@ module tessera.tessera.jaxrs.openapi.generate.main {
   requires static tessera.shared.main;
   requires static tessera.tessera.partyinfo.model;
   requires static tessera.encryption.encryption.api.main;
-  requires static tessera.config.main;
+  requires static tessera.config;
   requires static tessera.tessera.recover.main;
   requires static java.json;
 }
