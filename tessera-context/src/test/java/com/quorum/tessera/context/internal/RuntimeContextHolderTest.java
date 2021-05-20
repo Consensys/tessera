@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.context.internal.RuntimeContextHolder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

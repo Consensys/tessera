@@ -7,4 +7,3 @@ dependencies {
   implementation project(":config")
   implementation project(":tessera-context")
 }
-

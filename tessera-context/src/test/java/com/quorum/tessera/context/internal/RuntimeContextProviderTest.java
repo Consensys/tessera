@@ -11,8 +11,6 @@ import com.quorum.tessera.config.util.KeyDataUtil;
 import com.quorum.tessera.context.KeyVaultConfigValidations;
 import com.quorum.tessera.context.RestClientFactory;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.context.internal.RuntimeContextHolder;
-import com.quorum.tessera.context.internal.RuntimeContextProvider;
 import com.quorum.tessera.enclave.Enclave;
 import java.net.URI;
 import java.util.Base64;
@@ -50,9 +48,9 @@ public class RuntimeContextProviderTest {
     Config confg = createMockConfig();
 
     try (var mockedStaticConfigFactory = mockStatic(ConfigFactory.class);
-         var mockStaticRestClientFactory = mockStatic(RestClientFactory.class);
-         var mockStaticKeyDataUtil = mockStatic(KeyDataUtil.class);
-         var mockStaticEnclave = mockStatic(Enclave.class)) {
+        var mockStaticRestClientFactory = mockStatic(RestClientFactory.class);
+        var mockStaticKeyDataUtil = mockStatic(KeyDataUtil.class);
+        var mockStaticEnclave = mockStatic(Enclave.class)) {
 
       Enclave enclave = mock(Enclave.class);
       mockStaticEnclave.when(Enclave::create).thenReturn(enclave);

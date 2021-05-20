@@ -1,7 +1,6 @@
 package com.quorum.tessera.context.internal;
 
 import com.quorum.tessera.context.RuntimeContext;
-
 import java.util.Optional;
 
 /*

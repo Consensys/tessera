@@ -14,8 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
-
-import com.quorum.tessera.context.internal.DefaultKeyVaultConfigValidations;
 import org.junit.Before;
 import org.junit.Test;
 

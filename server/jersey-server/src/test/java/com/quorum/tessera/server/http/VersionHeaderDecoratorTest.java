@@ -2,9 +2,9 @@ package com.quorum.tessera.server.http;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jpmorgan.quorum.server.utils.ServerUtils;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
+import com.quorum.tessera.server.utils.ServerUtils;
 import com.quorum.tessera.shared.Constants;
 import java.net.URI;
 import java.net.http.HttpClient;

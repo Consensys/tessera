@@ -2,6 +2,7 @@ package com.quorum.tessera.context.internal;
 
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
+import com.quorum.tessera.context.KeyVaultConfigValidations;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -10,8 +11,6 @@ import java.util.stream.Stream;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-
-import com.quorum.tessera.context.KeyVaultConfigValidations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

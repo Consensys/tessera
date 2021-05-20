@@ -9,7 +9,6 @@ import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.GetterMustExistRule;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.quorum.tessera.config.keys.KeyEncryptor;
-import com.quorum.tessera.context.internal.DefaultRuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
 import java.net.URI;
 import java.util.List;

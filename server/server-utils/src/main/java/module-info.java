@@ -5,5 +5,5 @@ module tessera.server.utils {
   requires tessera.config;
   requires tessera.security;
 
-  exports com.jpmorgan.quorum.server.utils;
+  exports com.quorum.tessera.server.utils;
 }

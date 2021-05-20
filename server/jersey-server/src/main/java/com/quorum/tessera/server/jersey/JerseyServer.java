@@ -2,7 +2,6 @@ package com.quorum.tessera.server.jersey;
 
 import static java.util.concurrent.Executors.newSingleThreadScheduledExecutor;
 
-import com.jpmorgan.quorum.server.utils.ServerUtils;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.InfluxConfig;
 import com.quorum.tessera.config.ServerConfig;
@@ -12,6 +11,7 @@ import com.quorum.tessera.server.jaxrs.LoggingFilter;
 import com.quorum.tessera.server.monitoring.InfluxDbClient;
 import com.quorum.tessera.server.monitoring.InfluxDbPublisher;
 import com.quorum.tessera.server.monitoring.MetricsResource;
+import com.quorum.tessera.server.utils.ServerUtils;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;

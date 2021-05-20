@@ -1,4 +1,4 @@
-package com.jpmorgan.quorum.server.utils;
+package com.quorum.tessera.server.utils;
 
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.ssl.context.ServerSSLContextFactory;
