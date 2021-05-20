@@ -1,8 +1,8 @@
-module tessera.key.vault.azure.key.vault.main {
+module tessera.keyvault.azure {
   requires jdk.unsupported;
   requires org.slf4j;
   requires tessera.config;
-  requires tessera.key.vault.key.vault.api.main;
+  requires tessera.keyvault.api;
   requires java.annotation;
   requires com.azure.identity;
   requires com.azure.security.keyvault.secrets;

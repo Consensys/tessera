@@ -1,4 +1,4 @@
-module tessera.key.vault.key.vault.api.main {
+module tessera.keyvault.api {
   requires tessera.config;
   requires tessera.shared.main;
 

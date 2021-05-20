@@ -2,7 +2,7 @@ module tessera.key.generation.main {
   requires org.slf4j;
   requires tessera.config;
   requires tessera.encryption.encryption.api.main;
-  requires tessera.key.vault.key.vault.api.main;
+  requires tessera.keyvault.api;
   requires tessera.shared.main;
   requires org.bouncycastle.provider;
 

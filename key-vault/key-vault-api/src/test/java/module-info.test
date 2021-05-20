@@ -1,3 +1,2 @@
-
 --add-reads
-    tessera.key.vault.key.vault.api.main=org.mockito
+    tessera.keyvault.api=org.mockito

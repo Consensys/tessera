@@ -1,8 +1,8 @@
-module tessera.key.vault.aws.key.vault.main {
+module tessera.keyvault.aws {
   requires software.amazon.awssdk.core;
   requires software.amazon.awssdk.services.secretsmanager;
   requires tessera.config;
-  requires tessera.key.vault.key.vault.api.main;
+  requires tessera.keyvault.api;
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
 

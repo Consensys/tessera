@@ -1,9 +1,9 @@
-module tessera.key.vault.hashicorp.key.vault.main {
+module tessera.keyvault.hashicorp {
   requires spring.core;
   requires spring.vault.core;
   requires spring.web;
   requires tessera.config;
-  requires tessera.key.vault.key.vault.api.main;
+  requires tessera.keyvault.api;
 
   provides com.quorum.tessera.key.vault.KeyVaultServiceFactory with
       com.quorum.tessera.key.vault.hashicorp.HashicorpKeyVaultServiceFactory;
