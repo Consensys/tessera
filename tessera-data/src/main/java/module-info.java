@@ -26,13 +26,13 @@ open module tessera.data {
   uses com.quorum.tessera.data.PrivacyGroupDAO;
 
   provides com.quorum.tessera.data.EncryptedTransactionDAO with
-      com.quorum.tessera.data.EncryptedTransactionDAOProvider;
+      com.quorum.tessera.data.internal.EncryptedTransactionDAOProvider;
   provides com.quorum.tessera.data.EncryptedRawTransactionDAO with
-      com.quorum.tessera.data.EncryptedRawTransactionDAOProvider;
+      com.quorum.tessera.data.internal.EncryptedRawTransactionDAOProvider;
   provides com.quorum.tessera.data.staging.StagingEntityDAO with
-      com.quorum.tessera.data.staging.StagingEntityDAOProvider;
+      com.quorum.tessera.data.staging.internal.StagingEntityDAOProvider;
   provides com.quorum.tessera.data.PrivacyGroupDAO with
-      com.quorum.tessera.data.PrivacyGroupDAOProvider;
+      com.quorum.tessera.data.internal.PrivacyGroupDAOProvider;
   provides com.quorum.tessera.data.DataSourceFactory with
-      com.quorum.tessera.data.DataSourceFactoryProvider;
+      com.quorum.tessera.data.internal.DataSourceFactoryProvider;
 }

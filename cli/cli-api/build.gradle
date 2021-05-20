@@ -2,7 +2,6 @@ plugins {
   id "java-library"
 }
 
-
 dependencies {
   implementation "info.picocli:picocli"
   implementation "org.apache.commons:commons-lang3"
@@ -12,5 +11,3 @@ dependencies {
   implementation project(":encryption:encryption-api")
   implementation "org.glassfish:jakarta.el"
 }
-
-description = "cli-api"

@@ -22,11 +22,11 @@ module tessera.recovery {
   uses com.quorum.tessera.recovery.workflow.LegacyResendManager;
 
   provides com.quorum.tessera.recovery.workflow.BatchResendManager with
-      com.quorum.tessera.recovery.workflow.BatchResendManagerProvider;
+      com.quorum.tessera.recovery.workflow.internal.BatchResendManagerProvider;
   provides com.quorum.tessera.recovery.Recovery with
-      com.quorum.tessera.recovery.RecoveryProvider;
+      com.quorum.tessera.recovery.internal.RecoveryProvider;
   provides com.quorum.tessera.recovery.workflow.BatchWorkflowFactory with
-      com.quorum.tessera.recovery.workflow.BatchWorkflowFactoryProvider;
+      com.quorum.tessera.recovery.workflow.internal.BatchWorkflowFactoryProvider;
   provides com.quorum.tessera.recovery.workflow.LegacyResendManager with
-      com.quorum.tessera.recovery.workflow.LegacyResendManagerProvider;
+      com.quorum.tessera.recovery.workflow.internal.LegacyResendManagerProvider;
 }

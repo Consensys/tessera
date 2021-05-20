@@ -1,3 +1,5 @@
+import com.quorum.tessera.config.internal.ConfigFactoryProvider;
+
 open module tessera.config {
   requires java.validation;
   requires java.xml;
@@ -17,6 +19,7 @@ open module tessera.config {
   exports com.quorum.tessera.config.vault.data;
   exports com.quorum.tessera.config.adapters;
   exports com.quorum.tessera.config.constraints;
+  exports com.quorum.tessera.config.internal;
 
   uses com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
   uses com.quorum.tessera.config.ConfigFactory;
@@ -24,5 +27,5 @@ open module tessera.config {
   provides com.quorum.tessera.config.util.EnvironmentVariableProviderFactory with
       com.quorum.tessera.config.util.EnvironmentVariableProviderFactoryImpl;
   provides com.quorum.tessera.config.ConfigFactory with
-      com.quorum.tessera.config.ConfigFactoryProvider;
+      ConfigFactoryProvider;
 }

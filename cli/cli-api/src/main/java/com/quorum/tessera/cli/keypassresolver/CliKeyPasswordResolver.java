@@ -33,7 +33,6 @@ public class CliKeyPasswordResolver implements KeyPasswordResolver {
 
   @Override
   public void resolveKeyPasswords(final Config config) {
-
     final KeyConfiguration keyConfiguration = config.getKeys();
     if (keyConfiguration == null) {
       // invalid config, but gets picked up by validation later

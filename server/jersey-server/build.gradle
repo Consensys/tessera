@@ -42,8 +42,6 @@ dependencies {
   testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
 }
 
-description = "jersey-server"
-
 jacocoTestCoverageVerification {
   enabled false
 }

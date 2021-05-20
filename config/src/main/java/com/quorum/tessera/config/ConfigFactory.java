@@ -1,5 +1,6 @@
 package com.quorum.tessera.config;
 
+import com.quorum.tessera.config.internal.ConfigHolder;
 import java.io.InputStream;
 import java.util.ServiceLoader;
 
@@ -15,9 +16,5 @@ public interface ConfigFactory {
     return ConfigHolder.INSTANCE.getConfig();
   }
 
-  // FIXME:
-  // Should only be accessed in Main
-  default void store(Config config) {
-    ConfigHolder.INSTANCE.setConfig(config);
-  }
+  void store(Config config);
 }

@@ -2,6 +2,7 @@ package com.quorum.tessera.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.quorum.tessera.discovery.internal.DefaultNetworkStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

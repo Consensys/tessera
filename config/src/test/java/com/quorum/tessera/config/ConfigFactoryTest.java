@@ -3,6 +3,7 @@ package com.quorum.tessera.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.quorum.tessera.config.internal.JaxbConfigFactory;
 import org.junit.Test;
 
 public class ConfigFactoryTest {

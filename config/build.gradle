@@ -31,8 +31,6 @@ dependencies {
 
 }
 
-description = "config"
-
 jar {
 
   manifest {

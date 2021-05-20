@@ -15,8 +15,6 @@ dependencies {
   testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
 }
 
-description = "jaxrs-client-unixsocket"
-
 jacocoTestCoverageVerification {
   enabled false
 }

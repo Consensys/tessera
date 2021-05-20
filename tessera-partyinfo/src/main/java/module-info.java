@@ -18,11 +18,11 @@ module tessera.partyinfo {
   uses com.quorum.tessera.partyinfo.P2pClient;
 
   provides com.quorum.tessera.discovery.Discovery with
-      com.quorum.tessera.discovery.DiscoveryProvider;
+      com.quorum.tessera.discovery.internal.DiscoveryProvider;
   provides com.quorum.tessera.discovery.DiscoveryHelper with
-      com.quorum.tessera.discovery.DiscoveryHelperProvider;
+      com.quorum.tessera.discovery.internal.DiscoveryHelperProvider;
   provides com.quorum.tessera.discovery.EnclaveKeySynchroniser with
-      com.quorum.tessera.discovery.EnclaveKeySynchroniserProvider;
+      com.quorum.tessera.discovery.internal.EnclaveKeySynchroniserProvider;
   provides com.quorum.tessera.discovery.NetworkStore with
-      com.quorum.tessera.discovery.NetworkStoreProvider;
+      com.quorum.tessera.discovery.internal.NetworkStoreProvider;
 }

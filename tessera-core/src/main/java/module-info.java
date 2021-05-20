@@ -26,15 +26,15 @@ module tessera.transaction {
   uses com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
 
   provides com.quorum.tessera.transaction.TransactionManager with
-      com.quorum.tessera.transaction.TransactionManagerProvider;
+      com.quorum.tessera.transaction.internal.TransactionManagerProvider;
   provides com.quorum.tessera.transaction.EncodedPayloadManager with
-      com.quorum.tessera.transaction.EncodedPayloadManagerProvider;
+      com.quorum.tessera.transaction.internal.EncodedPayloadManagerProvider;
   provides com.quorum.tessera.transaction.PrivacyHelper with
-      com.quorum.tessera.transaction.PrivacyHelperProvider;
+      com.quorum.tessera.transaction.internal.PrivacyHelperProvider;
   provides com.quorum.tessera.transaction.resend.ResendManager with
-      com.quorum.tessera.transaction.resend.ResendManagerProvider;
+      com.quorum.tessera.transaction.resend.internal.ResendManagerProvider;
   provides com.quorum.tessera.privacygroup.PrivacyGroupManager with
-      com.quorum.tessera.privacygroup.PrivacyGroupManagerProvider;
+      com.quorum.tessera.privacygroup.internal.PrivacyGroupManagerProvider;
   provides com.quorum.tessera.privacygroup.ResidentGroupHandler with
-      com.quorum.tessera.privacygroup.ResidentGroupHandlerProvider;
+      com.quorum.tessera.privacygroup.internal.ResidentGroupHandlerProvider;
 }

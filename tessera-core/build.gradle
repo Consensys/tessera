@@ -30,9 +30,6 @@ dependencies {
   implementation "org.hibernate.validator:hibernate-validator"
 }
 
-description = "tessera-core"
-
-
 sourceSets {
   test {
     java {

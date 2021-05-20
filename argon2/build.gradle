@@ -6,5 +6,3 @@ dependencies {
   implementation "de.mkammerer:argon2-jvm"
   implementation project(":shared")
 }
-
-description = "argon2"

@@ -1,2 +1,2 @@
 --add-opens
-    tessera.recovery/com.quorum.tessera.recovery=org.mockito
+    tessera.recovery/com.quorum.tessera.recovery.internal=org.mockito
