@@ -1,4 +1,4 @@
-package com.quorum.tessera.data.staging.internal;
+package com.quorum.tessera.data.staging;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
-import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;

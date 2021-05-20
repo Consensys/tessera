@@ -1,7 +1,5 @@
-package com.quorum.tessera.data.staging.internal;
+package com.quorum.tessera.data.staging;
 
-import com.quorum.tessera.data.staging.StagingAffectedTransaction;
-import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadDigest;
 import com.quorum.tessera.enclave.PayloadEncoder;
