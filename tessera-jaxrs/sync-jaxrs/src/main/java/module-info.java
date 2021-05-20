@@ -16,7 +16,7 @@ module tessera.partyinfo.jaxrs {
   requires tessera.partyinfo;
   requires org.apache.commons.lang3;
   requires tessera.partyinfo.model;
-  requires tessera.tessera.recover.main;
+  requires tessera.recovery;
   requires io.swagger.v3.oas.annotations;
 
   exports com.quorum.tessera.p2p;

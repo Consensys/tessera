@@ -15,7 +15,7 @@ module tessera.tessera.dist.main {
   requires tessera.partyinfo;
   requires tessera.shared.main;
   requires tessera.partyinfo.jaxrs;
-  requires tessera.tessera.recover.main;
+  requires tessera.recovery;
   requires java.json;
   requires tessera.server.jersey.unixsocket;
   requires org.bouncycastle.provider;

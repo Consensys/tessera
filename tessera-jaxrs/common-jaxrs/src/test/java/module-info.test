@@ -1,2 +1,2 @@
 --add-opens
-     tessera.tessera.jaxrs.common.jaxrs.main/com.quorum.tessera.api=openpojo
+     tessera.common.jaxrs/com.quorum.tessera.api=openpojo

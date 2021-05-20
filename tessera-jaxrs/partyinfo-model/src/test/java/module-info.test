@@ -1,7 +1,7 @@
 
 --add-reads
-   tessera.tessera.partyinfo.model=org.mockito,nl.jqno.equalsverifier
+   tessera.partyinfo.model=org.mockito,nl.jqno.equalsverifier
 
 --add-opens
-       tessera.tessera.partyinfo.model/com.quorum.tessera.partyinfo.model=nl.jqno.equalsverifier
+       tessera.partyinfo.model/com.quorum.tessera.partyinfo.model=nl.jqno.equalsverifier
 

@@ -1,4 +1,4 @@
-module tessera.tessera.recover.main {
+module tessera.recovery {
   requires tessera.config;
   requires tessera.data;
   requires tessera.partyinfo;
