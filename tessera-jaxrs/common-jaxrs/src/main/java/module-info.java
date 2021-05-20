@@ -13,7 +13,7 @@ module tessera.tessera.jaxrs.common.jaxrs.main {
   requires tessera.tessera.context.main;
   requires tessera.transaction;
   requires tessera.tessera.data.main;
-  requires tessera.tessera.partyinfo.main;
+  requires tessera.partyinfo;
   requires java.servlet;
   requires java.json;
 

@@ -8,7 +8,7 @@ module tessera.tessera.jaxrs.thirdparty.jaxrs.main {
   requires tessera.tessera.context.main;
   requires tessera.transaction;
   requires tessera.tessera.jaxrs.common.jaxrs.main;
-  requires tessera.tessera.partyinfo.main;
+  requires tessera.partyinfo;
   requires tessera.tessera.partyinfo.model;
 
   exports com.quorum.tessera.thirdparty;

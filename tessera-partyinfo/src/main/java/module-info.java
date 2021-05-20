@@ -1,4 +1,4 @@
-module tessera.tessera.partyinfo.main {
+module tessera.partyinfo {
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.config.main;

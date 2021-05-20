@@ -12,7 +12,7 @@ module tessera.tessera.dist.main {
   requires tessera.server.server.api.main;
   requires tessera.tessera.context.main;
   requires tessera.transaction;
-  requires tessera.tessera.partyinfo.main;
+  requires tessera.partyinfo;
   requires tessera.shared.main;
   requires tessera.tessera.jaxrs.sync.jaxrs.main;
   requires tessera.tessera.recover.main;

@@ -8,7 +8,7 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
   requires tessera.transaction;
   requires tessera.tessera.data.main;
   requires tessera.tessera.jaxrs.common.jaxrs.main;
-  requires tessera.tessera.partyinfo.main;
+  requires tessera.partyinfo;
   requires tessera.enclave.enclave.api.main;
   requires tessera.tessera.context.main;
   requires tessera.tessera.jaxrs.jaxrs.client.main;

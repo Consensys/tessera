@@ -13,7 +13,7 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
   requires tessera.tessera.data.main;
   requires tessera.tessera.jaxrs.common.jaxrs.main;
   requires tessera.tessera.jaxrs.jaxrs.client.main;
-  requires tessera.tessera.partyinfo.main;
+  requires tessera.partyinfo;
   requires org.apache.commons.lang3;
   requires tessera.tessera.partyinfo.model;
   requires tessera.tessera.recover.main;
