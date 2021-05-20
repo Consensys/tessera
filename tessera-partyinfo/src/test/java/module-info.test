@@ -2,4 +2,4 @@
 --add-opens
     tessera.partyinfo/com.quorum.tessera.discovery=nl.jqno.equalsverifier
 --add-opens
-    tessera.encryption.encryption.api.main/com.quorum.tessera.encryption=nl.jqno.equalsverifier
+    tessera.encryption.api/com.quorum.tessera.encryption=nl.jqno.equalsverifier

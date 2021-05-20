@@ -2,7 +2,7 @@ module tessera.migration.multitenancy.main {
   requires tessera.cli.cli.api.main;
   requires tessera.data;
   requires tessera.config;
-  requires tessera.encryption.encryption.api.main;
+  requires tessera.encryption.api;
   requires info.picocli;
   requires tessera.enclave.enclave.api.main;
   requires java.sql;

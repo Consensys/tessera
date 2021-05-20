@@ -4,7 +4,7 @@ module tessera.transaction.jaxrs {
   requires org.slf4j;
   requires io.swagger.v3.oas.annotations;
   requires tessera.config;
-  requires tessera.encryption.encryption.api.main;
+  requires tessera.encryption.api;
   requires tessera.transaction;
   requires tessera.data;
   requires tessera.common.jaxrs;

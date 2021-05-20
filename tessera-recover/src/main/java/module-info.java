@@ -4,7 +4,7 @@ module tessera.tessera.recover.main {
   requires tessera.partyinfo;
   requires tessera.enclave.enclave.api.main;
   requires tessera.shared.main;
-  requires tessera.encryption.encryption.api.main;
+  requires tessera.encryption.api;
   requires tessera.tessera.context.main;
   requires org.slf4j;
   requires tessera.transaction;

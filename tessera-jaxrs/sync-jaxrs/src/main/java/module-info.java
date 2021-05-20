@@ -5,7 +5,7 @@ module tessera.partyinfo.jaxrs {
   requires org.slf4j;
   requires tessera.config;
   requires tessera.enclave.enclave.api.main;
-  requires tessera.encryption.encryption.api.main;
+  requires tessera.encryption.api;
   requires tessera.security.main;
   requires tessera.shared.main;
   requires tessera.tessera.context.main;

@@ -1,7 +1,7 @@
-module tessera.encryption.encryption.jnacl.main {
+module tessera.encryption.jnacl {
   requires jnacl;
   requires org.slf4j;
-  requires tessera.encryption.encryption.api.main;
+  requires tessera.encryption.api;
 
   uses com.quorum.tessera.encryption.EncryptorFactory;
 

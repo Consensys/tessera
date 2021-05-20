@@ -20,9 +20,6 @@ module tessera.tessera.dist.main {
   requires tessera.server.jaxrs.client.unixsocket.main;
   requires org.bouncycastle.provider;
 
-  //    requires tessera.encryption.encryption.jnacl.main;
-  //    requires tessera.encryption.encryption.api.main;
-
   uses com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
   uses com.quorum.tessera.p2p.resend.TransactionRequester;
   uses com.quorum.tessera.discovery.EnclaveKeySynchroniser;

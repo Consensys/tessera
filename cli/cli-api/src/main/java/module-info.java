@@ -4,7 +4,7 @@ module tessera.cli.cli.api.main {
   requires org.slf4j;
   requires tessera.config;
   requires tessera.shared.main;
-  requires tessera.encryption.encryption.api.main;
+  requires tessera.encryption.api;
 
   exports com.quorum.tessera.cli;
   exports com.quorum.tessera.cli.keypassresolver;

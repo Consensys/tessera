@@ -6,7 +6,7 @@ open module tessera.config {
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.argontwo;
-  requires tessera.encryption.encryption.api.main;
+  requires tessera.encryption.api;
   requires tessera.shared.main;
 
   exports com.quorum.tessera.config;

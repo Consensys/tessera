@@ -1,7 +1,7 @@
-module tessera.encryption.encryption.kalium.main {
+module tessera.encryption.kalium {
   requires kalium;
   requires org.slf4j;
-  requires tessera.encryption.encryption.api.main;
+  requires tessera.encryption.api;
 
   provides com.quorum.tessera.encryption.EncryptorFactory with
       com.quorum.tessera.nacl.kalium.KaliumFactory;

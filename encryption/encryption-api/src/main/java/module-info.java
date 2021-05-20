@@ -1,4 +1,4 @@
-module tessera.encryption.encryption.api.main {
+module tessera.encryption.api {
   requires org.slf4j;
   requires tessera.shared.main;
 
