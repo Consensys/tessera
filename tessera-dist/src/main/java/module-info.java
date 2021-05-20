@@ -14,7 +14,7 @@ module tessera.tessera.dist.main {
   requires tessera.transaction;
   requires tessera.partyinfo;
   requires tessera.shared.main;
-  requires tessera.tessera.jaxrs.sync.jaxrs.main;
+  requires tessera.partyinfo.jaxrs;
   requires tessera.tessera.recover.main;
   requires java.json;
   requires tessera.server.jaxrs.client.unixsocket.main;

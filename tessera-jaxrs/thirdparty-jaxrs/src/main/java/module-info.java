@@ -1,4 +1,4 @@
-module tessera.tessera.jaxrs.thirdparty.jaxrs.main {
+module tessera.thirdparty.jaxrs {
   requires java.json;
   requires java.ws.rs;
   requires io.swagger.v3.oas.annotations;
@@ -7,9 +7,9 @@ module tessera.tessera.jaxrs.thirdparty.jaxrs.main {
   requires tessera.encryption.encryption.api.main;
   requires tessera.tessera.context.main;
   requires tessera.transaction;
-  requires tessera.tessera.jaxrs.common.jaxrs.main;
+  requires tessera.common.jaxrs;
   requires tessera.partyinfo;
-  requires tessera.tessera.partyinfo.model;
+  requires tessera.partyinfo.model;
 
   exports com.quorum.tessera.thirdparty;
 

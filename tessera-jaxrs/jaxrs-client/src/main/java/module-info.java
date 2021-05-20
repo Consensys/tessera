@@ -1,4 +1,4 @@
-module tessera.tessera.jaxrs.jaxrs.client.main {
+module tessera.jaxrs.client {
   requires java.ws.rs;
   requires tessera.config;
   requires tessera.security.main;

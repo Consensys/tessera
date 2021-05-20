@@ -1,4 +1,4 @@
-module tessera.tessera.partyinfo.model {
+module tessera.partyinfo.model {
   requires tessera.partyinfo;
   requires tessera.encryption.encryption.api.main;
 

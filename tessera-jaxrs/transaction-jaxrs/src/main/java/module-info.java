@@ -1,4 +1,4 @@
-module tessera.tessera.jaxrs.transaction.jaxrs.main {
+module tessera.transaction.jaxrs {
   requires java.validation;
   requires java.ws.rs;
   requires org.slf4j;
@@ -7,11 +7,11 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
   requires tessera.encryption.encryption.api.main;
   requires tessera.transaction;
   requires tessera.data;
-  requires tessera.tessera.jaxrs.common.jaxrs.main;
+  requires tessera.common.jaxrs;
   requires tessera.partyinfo;
   requires tessera.enclave.enclave.api.main;
   requires tessera.tessera.context.main;
-  requires tessera.tessera.jaxrs.jaxrs.client.main;
+  requires tessera.jaxrs.client;
   requires tessera.shared.main;
   requires java.json;
 

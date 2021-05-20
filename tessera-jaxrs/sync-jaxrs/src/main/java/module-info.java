@@ -1,4 +1,4 @@
-module tessera.tessera.jaxrs.sync.jaxrs.main {
+module tessera.partyinfo.jaxrs {
   requires java.json;
   requires java.validation;
   requires java.ws.rs;
@@ -11,11 +11,11 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
   requires tessera.tessera.context.main;
   requires tessera.transaction;
   requires tessera.data;
-  requires tessera.tessera.jaxrs.common.jaxrs.main;
-  requires tessera.tessera.jaxrs.jaxrs.client.main;
+  requires tessera.common.jaxrs;
+  requires tessera.jaxrs.client;
   requires tessera.partyinfo;
   requires org.apache.commons.lang3;
-  requires tessera.tessera.partyinfo.model;
+  requires tessera.partyinfo.model;
   requires tessera.tessera.recover.main;
   requires io.swagger.v3.oas.annotations;
 

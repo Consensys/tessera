@@ -1,4 +1,4 @@
-module tessera.tessera.jaxrs.common.jaxrs.main {
+module tessera.common.jaxrs {
   requires java.persistence;
   requires java.validation;
   requires java.ws.rs;
