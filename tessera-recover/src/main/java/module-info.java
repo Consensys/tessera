@@ -1,6 +1,6 @@
 module tessera.tessera.recover.main {
   requires tessera.config;
-  requires tessera.tessera.data.main;
+  requires tessera.data;
   requires tessera.partyinfo;
   requires tessera.enclave.enclave.api.main;
   requires tessera.shared.main;

@@ -10,7 +10,7 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
   requires tessera.shared.main;
   requires tessera.tessera.context.main;
   requires tessera.transaction;
-  requires tessera.tessera.data.main;
+  requires tessera.data;
   requires tessera.tessera.jaxrs.common.jaxrs.main;
   requires tessera.tessera.jaxrs.jaxrs.client.main;
   requires tessera.partyinfo;

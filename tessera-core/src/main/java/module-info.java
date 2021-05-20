@@ -4,7 +4,7 @@ module tessera.transaction {
   requires tessera.enclave.enclave.api.main;
   requires tessera.encryption.encryption.api.main;
   requires tessera.shared.main;
-  requires tessera.tessera.data.main;
+  requires tessera.data;
   requires tessera.partyinfo;
   requires tessera.tessera.context.main;
 

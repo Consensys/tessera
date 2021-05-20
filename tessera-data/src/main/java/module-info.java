@@ -1,4 +1,4 @@
-open module tessera.tessera.data.main {
+open module tessera.data {
   requires java.instrument;
   requires java.persistence;
   requires org.bouncycastle.provider;

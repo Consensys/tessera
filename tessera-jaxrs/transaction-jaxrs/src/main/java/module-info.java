@@ -6,7 +6,7 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
   requires tessera.config;
   requires tessera.encryption.encryption.api.main;
   requires tessera.transaction;
-  requires tessera.tessera.data.main;
+  requires tessera.data;
   requires tessera.tessera.jaxrs.common.jaxrs.main;
   requires tessera.partyinfo;
   requires tessera.enclave.enclave.api.main;
