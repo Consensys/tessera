@@ -5,7 +5,7 @@ open module tessera.config {
   requires jasypt;
   requires org.apache.commons.lang3;
   requires org.slf4j;
-  requires tessera.argon2.main;
+  requires tessera.argontwo;
   requires tessera.encryption.encryption.api.main;
   requires tessera.shared.main;
 

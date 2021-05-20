@@ -14,7 +14,7 @@ plugins {
 ext {
   jettyVersion = "9.4.39.v20210325"
   eclipselinkVersion = "2.7.7"
-  swaggerVersion = "2.1.5"
+  swaggerVersion = "2.1.9"
   jerseyVersion = "2.32"
   slf4jVersion = "1.7.30"
   logbackVersion = "1.2.3"

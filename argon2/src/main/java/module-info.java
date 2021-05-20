@@ -1,4 +1,4 @@
-module tessera.argon2.main {
+module tessera.argontwo {
   requires de.mkammerer.argon2;
   requires org.slf4j;
   requires tessera.shared.main;
