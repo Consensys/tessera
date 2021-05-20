@@ -12,8 +12,17 @@ env:
   GPG_SECRET_KEYS: ${{ secrets.GPG_SECRET_KEYS }}
 
 jobs:
+  checkdependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v1
+        with:
+          java-version: 11
+      - run: ./gradlew dependencyCheckAnalyze -x test
   release:
-    runs-on: [ubuntu-latest]
+    needs: checkdependencies
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -25,12 +34,12 @@ jobs:
         run: |
           git config user.name "quorumbot"
           now=`date +%Y%m%d%H%M%S`
-          git checkout -b "release-$now"
           tagversion=`cat version.txt | cut -d'-' -f1`
+          tagname="tessera-$tagversion"
           echo "$tagversion" > version.txt
           git add version.txt
           git commit -m "Change to release version $tagversion"
-          git tag -a $tagversion -m "Release tessera $tagversion"
+          git tag -a $tagname -m "Release tessera $tagversion"
           git push --tags
 
           echo "${GPG_SECRET_KEYS}" | base64 --decode | gpg --import --no-tty --batch --yes
@@ -40,11 +49,17 @@ jobs:
           ./gradlew incrementProjectVersion --info
           git add version.txt
           git commit -m "Change version to next development version"
-          git push --set-upstream origin release-$now
 
           minor_version=${tagversion%.*}
           echo ::set-output name=full-ver::$tagversion
           echo ::set-output name=minor-ver::$minor_version
+          echo ::set-output name=branch-name::release-$now
+      - name: Create PR to update development version
+        uses: peter-evans/create-pull-request@v3
+        with:
+          branch: ${{ steps.release.outputs.branch-name }}
+          title: Update development version
+          body: Triggered by release https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       - name: Save tessera-app.jar
         uses: actions/upload-artifact@v2
         with:
@@ -60,4 +75,4 @@ jobs:
           add_git_labels: true
           dockerfile: .github/workflows/noBuild.Dockerfile
           path: tessera-dist/tessera-app/build/libs
-          build_args: JAR_FILE=tessera-app-${{ steps.tag.outputs.full-ver }}-app.jar
+          build_args: JAR_FILE=tessera-app-${{ steps.release.outputs.full-ver }}-app.jar
