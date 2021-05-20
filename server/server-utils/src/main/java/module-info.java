@@ -3,7 +3,7 @@ module tessera.server.utils {
   requires org.eclipse.jetty.unixsocket;
   requires org.eclipse.jetty.util;
   requires tessera.config;
-  requires tessera.security.main;
+  requires tessera.security;
 
   exports com.jpmorgan.quorum.server.utils;
 }

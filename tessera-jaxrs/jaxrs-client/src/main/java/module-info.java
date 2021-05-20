@@ -1,7 +1,7 @@
 module tessera.jaxrs.client {
   requires java.ws.rs;
   requires tessera.config;
-  requires tessera.security.main;
+  requires tessera.security;
   requires tessera.shared;
   requires tessera.context;
 

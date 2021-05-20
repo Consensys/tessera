@@ -2,7 +2,7 @@ module tessera.tests.acceptance.test.main {
   requires org.slf4j;
   requires java.sql;
   requires tessera.encryption.jnacl;
-  requires tessera.security.main;
+  requires tessera.security;
   requires tessera.config;
   requires tessera.encryption.api;
   requires java.ws.rs;

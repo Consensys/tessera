@@ -1,4 +1,4 @@
-module tessera.security.main {
+module tessera.security {
   // requires java.base;
   requires java.xml.bind;
   //  requires cryptacular;

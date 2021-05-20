@@ -11,25 +11,3 @@ dependencies {
   implementation "org.cryptacular:cryptacular"
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 }
-
-description = "security"
-
-test {
-  moduleOptions {
-    addOpens = [
-      "java.base/sun.security.ssl" : "org.assertj.core",
-      "java.base/javax.net.ssl" : "org.assertj.core",
-      "java.base/sun.security.x509" : "org.assertj.core",
-      "tessera.security.main/com.quorum.tessera.ssl.context.model" : "openpojo",
-      "tessera.security.main/com.quorum.tessera.ssl.trust" : "org.mockito"
-    ]
-  }
-}
-
-compileTestJava {
-  moduleOptions {
-    addReads = [
-      "sun.security.x509": "org.assertj.core"
-    ]
-  }
-}

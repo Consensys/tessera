@@ -6,7 +6,7 @@ module tessera.server.jersey {
   requires org.eclipse.jetty.servlet;
   requires org.slf4j;
   requires tessera.config;
-  requires tessera.security.main;
+  requires tessera.security;
   requires tessera.server.utils;
   requires tessera.server.api;
   requires java.servlet;
