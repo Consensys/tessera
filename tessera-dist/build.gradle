@@ -6,7 +6,7 @@ plugins {
 application {
   applicationName = "tessera"
   mainClass = "com.quorum.tessera.launcher.Main"
-  mainModule = "tessera.tessera.dist.main"
+  mainModule = "tessera.application"
   applicationDefaultJvmArgs = [
     "-Dtessera.cli.type=CONFIG",
     "-Djnr.ffi.asm.enabled=false",

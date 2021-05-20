@@ -1,9 +1,9 @@
-module tessera.enclave.enclave.server.main {
+module tessera.enclave.cli {
   requires info.picocli;
   requires org.slf4j;
   requires tessera.cli.api;
   requires tessera.config;
-  requires tessera.shared.main;
+  requires tessera.shared;
 
   exports com.quorum.tessera.enclave.server;
 

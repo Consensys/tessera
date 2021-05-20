@@ -1,4 +1,4 @@
 --add-opens
-    tessera.tessera.context.main/com.quorum.tessera.context=openpojo
+    tessera.context/com.quorum.tessera.context=openpojo
 --add-opens
-    tessera.encryption.encryption.api.main/com.quorum.tessera.encryption=openpojo
+    tessera.encryption.api/com.quorum.tessera.encryption=openpojo

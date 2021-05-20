@@ -9,10 +9,10 @@ module tessera.transaction.jaxrs {
   requires tessera.data;
   requires tessera.common.jaxrs;
   requires tessera.partyinfo;
-  requires tessera.enclave.enclave.api.main;
-  requires tessera.tessera.context.main;
+  requires tessera.enclave.api;
+  requires tessera.context;
   requires tessera.jaxrs.client;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires java.json;
 
   exports com.quorum.tessera.q2t;

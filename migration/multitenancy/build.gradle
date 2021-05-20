@@ -23,7 +23,7 @@ dependencies {
 application {
   applicationName = "multitenancy"
   mainClass = "com.quorum.tessera.multitenancy.migration.Main"
-  mainModule = "tessera.migration.multitenancy.main"
+  mainModule = "tessera.migration.multitenancy"
 
   applicationDefaultJvmArgs = [
     "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",

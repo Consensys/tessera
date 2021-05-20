@@ -3,7 +3,7 @@ module tessera.cli.api {
   requires info.picocli;
   requires org.slf4j;
   requires tessera.config;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires tessera.encryption.api;
 
   exports com.quorum.tessera.cli;

@@ -10,7 +10,7 @@ module tessera.server.jersey {
   requires tessera.server.utils;
   requires tessera.server.api;
   requires java.servlet;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires hk2.api;
   requires jakarta.inject;
   requires jersey.server;

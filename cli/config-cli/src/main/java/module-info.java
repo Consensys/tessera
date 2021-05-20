@@ -8,7 +8,7 @@ module tessera.cli.config {
   requires tessera.config;
   requires tessera.encryption.api;
   requires tessera.keygeneration;
-  requires tessera.shared.main;
+  requires tessera.shared;
 
   uses com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
   uses com.quorum.tessera.passwords.PasswordReaderFactory;

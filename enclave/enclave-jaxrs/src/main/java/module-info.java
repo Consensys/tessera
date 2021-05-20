@@ -1,4 +1,4 @@
-module tessera.enclave.enclave.jaxrs.main {
+module tessera.enclave.jaxrs {
   requires java.json;
   requires java.ws.rs;
   requires java.xml.bind;
@@ -7,12 +7,12 @@ module tessera.enclave.enclave.jaxrs.main {
   requires org.slf4j;
   requires tessera.cli.api;
   requires tessera.config;
-  requires tessera.enclave.enclave.api.main;
-  requires tessera.enclave.enclave.server.main;
+  requires tessera.enclave.api;
+  requires tessera.enclave.cli;
   requires tessera.encryption.api;
   requires tessera.server.jersey;
   requires tessera.server.api;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires tessera.jaxrs.client;
   requires org.bouncycastle.provider;
 

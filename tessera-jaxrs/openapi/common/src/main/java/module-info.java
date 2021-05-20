@@ -1,4 +1,4 @@
-module tessera.tessera.jaxrs.openapi.common.main {
+module tessera.openapi.common {
   requires static io.swagger.v3.core;
   requires static io.swagger.v3.oas.annotations;
   requires static io.swagger.v3.oas.models;

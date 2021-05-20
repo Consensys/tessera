@@ -1,13 +1,13 @@
-module tessera.tessera.jaxrs.openapi.generate.main {
+module tessera.openapi.generate {
   requires static tessera.common.jaxrs;
   requires static tessera.partyinfo.jaxrs;
   requires static tessera.transaction.jaxrs;
   requires static tessera.thirdparty.jaxrs;
-  requires static tessera.tessera.jaxrs.openapi.common.main;
-  requires static tessera.enclave.enclave.api.main;
+  requires static tessera.openapi.common;
+  requires static tessera.enclave.api;
   requires static tessera.partyinfo;
   requires static tessera.transaction;
-  requires static tessera.shared.main;
+  requires static tessera.shared;
   requires static tessera.partyinfo.model;
   requires static tessera.encryption.api;
   requires static tessera.config;

@@ -1,12 +1,12 @@
 module tessera.transaction {
   requires org.slf4j;
   requires tessera.config;
-  requires tessera.enclave.enclave.api.main;
+  requires tessera.enclave.api;
   requires tessera.encryption.api;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires tessera.data;
   requires tessera.partyinfo;
-  requires tessera.tessera.context.main;
+  requires tessera.context;
 
   exports com.quorum.tessera.transaction;
   exports com.quorum.tessera.transaction.exception;

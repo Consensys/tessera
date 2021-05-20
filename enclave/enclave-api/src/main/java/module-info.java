@@ -1,8 +1,8 @@
-module tessera.enclave.enclave.api.main {
+module tessera.enclave.api {
   requires tessera.config;
   requires tessera.encryption.api;
   requires tessera.keyvault.api;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires org.bouncycastle.provider;
   requires org.slf4j;
 

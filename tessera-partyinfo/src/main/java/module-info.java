@@ -2,10 +2,10 @@ module tessera.partyinfo {
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.config;
-  requires tessera.enclave.enclave.api.main;
+  requires tessera.enclave.api;
   requires tessera.encryption.api;
-  requires tessera.shared.main;
-  requires tessera.tessera.context.main;
+  requires tessera.shared;
+  requires tessera.context;
 
   exports com.quorum.tessera.discovery;
   exports com.quorum.tessera.partyinfo;

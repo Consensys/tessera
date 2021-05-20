@@ -8,11 +8,11 @@ module tessera.tests.acceptance.test.main {
   requires java.ws.rs;
   requires tessera.partyinfo.jaxrs;
   requires tessera.jaxrs.client;
-  requires tessera.enclave.enclave.api.main;
+  requires tessera.enclave.api;
   requires tessera.common.jaxrs;
   requires tessera.partyinfo.model;
-  requires tessera.tessera.dist.main;
-  requires tessera.shared.main;
+  requires tessera.application;
+  requires tessera.shared;
   requires jdk.httpserver;
   requires java.net.http;
 }

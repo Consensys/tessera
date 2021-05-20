@@ -4,13 +4,13 @@ open module tessera.data {
   requires org.bouncycastle.provider;
   requires org.slf4j;
   requires tessera.config;
-  requires tessera.enclave.enclave.api.main;
+  requires tessera.enclave.api;
   requires tessera.encryption.api;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires java.sql;
   requires com.zaxxer.hikari;
   requires java.validation;
-  requires tessera.eclipselink.utils.main;
+  requires tessera.eclipselink.utils;
 
   //    opens com.quorum.tessera.data to org.eclipse.persistence.core;
   //    opens com.quorum.tessera.data.staging to org.eclipse.persistence.core;

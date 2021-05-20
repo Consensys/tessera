@@ -1,4 +1,4 @@
-module tessera.tessera.dist.main {
+module tessera.application {
   exports com.quorum.tessera.launcher;
 
   requires java.validation;
@@ -7,13 +7,13 @@ module tessera.tessera.dist.main {
   requires tessera.cli.api;
   requires tessera.cli.config;
   requires tessera.config;
-  requires tessera.enclave.enclave.api.main;
+  requires tessera.enclave.api;
   requires tessera.server.jersey;
   requires tessera.server.api;
-  requires tessera.tessera.context.main;
+  requires tessera.context;
   requires tessera.transaction;
   requires tessera.partyinfo;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires tessera.partyinfo.jaxrs;
   requires tessera.recovery;
   requires java.json;

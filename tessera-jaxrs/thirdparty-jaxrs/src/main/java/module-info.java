@@ -3,9 +3,9 @@ module tessera.thirdparty.jaxrs {
   requires java.ws.rs;
   requires io.swagger.v3.oas.annotations;
   requires tessera.config;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires tessera.encryption.api;
-  requires tessera.tessera.context.main;
+  requires tessera.context;
   requires tessera.transaction;
   requires tessera.common.jaxrs;
   requires tessera.partyinfo;

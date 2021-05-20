@@ -1,7 +1,7 @@
 module tessera.argontwo {
   requires de.mkammerer.argon2;
   requires org.slf4j;
-  requires tessera.shared.main;
+  requires tessera.shared;
 
   exports com.quorum.tessera.argon2;
 

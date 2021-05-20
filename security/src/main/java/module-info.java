@@ -4,7 +4,7 @@ module tessera.security.main {
   //  requires cryptacular;
   requires org.slf4j;
   requires tessera.config;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires org.bouncycastle.pkix;
   requires org.bouncycastle.provider;
 

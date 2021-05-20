@@ -1,6 +1,6 @@
 module tessera.keyvault.api {
   requires tessera.config;
-  requires tessera.shared.main;
+  requires tessera.shared;
 
   uses com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 

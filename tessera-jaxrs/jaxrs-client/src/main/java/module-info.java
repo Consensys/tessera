@@ -2,8 +2,8 @@ module tessera.jaxrs.client {
   requires java.ws.rs;
   requires tessera.config;
   requires tessera.security.main;
-  requires tessera.shared.main;
-  requires tessera.tessera.context.main;
+  requires tessera.shared;
+  requires tessera.context;
 
   exports com.quorum.tessera.jaxrs.client;
 

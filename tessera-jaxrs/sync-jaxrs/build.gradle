@@ -73,5 +73,3 @@ resolve {
 sourceSets.main.output.dir(generatedResources)
 
 jar.dependsOn(resolve)
-
-description = "sync-jaxrs"

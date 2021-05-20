@@ -1,2 +1,2 @@
 --add-opens
-    tessera.enclave.enclave.jaxrs.main/com.quorum.tessera.enclave.rest=org.apache.commons.lang3
+    tessera.enclave.jaxrs/com.quorum.tessera.enclave.rest=org.apache.commons.lang3

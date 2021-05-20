@@ -1,4 +1,4 @@
-module tessera.shared.main {
+module tessera.shared {
   // requires java.compiler;
 
   requires java.annotation;

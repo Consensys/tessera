@@ -2,10 +2,10 @@ module tessera.recovery {
   requires tessera.config;
   requires tessera.data;
   requires tessera.partyinfo;
-  requires tessera.enclave.enclave.api.main;
-  requires tessera.shared.main;
+  requires tessera.enclave.api;
+  requires tessera.shared;
   requires tessera.encryption.api;
-  requires tessera.tessera.context.main;
+  requires tessera.context;
   requires org.slf4j;
   requires tessera.transaction;
   requires java.persistence;

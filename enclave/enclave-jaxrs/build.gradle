@@ -4,7 +4,7 @@ plugins {
 
 application {
   mainClass = "com.quorum.tessera.enclave.rest.Main"
-  mainModule = "tessera.enclave.enclave.jaxrs.main"
+  mainModule = "tessera.enclave.jaxrs"
   applicationDefaultJvmArgs = [
     "-Dtessera.cli.type=ENCLAVE",
     "-Djnr.ffi.asm.enabled=false",

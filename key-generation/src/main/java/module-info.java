@@ -3,7 +3,7 @@ module tessera.keygeneration {
   requires tessera.config;
   requires tessera.encryption.api;
   requires tessera.keyvault.api;
-  requires tessera.shared.main;
+  requires tessera.shared;
   requires org.bouncycastle.provider;
 
   exports com.quorum.tessera.key.generation;
