@@ -1,5 +1,5 @@
 --add-opens
-    tessera.tests.acceptance.test.main/transaction.rest=io.cucumber.core,io.cucumber.java8
+    tessera.acceptance.tests/transaction.rest=io.cucumber.core,io.cucumber.java8
 
 --add-opens
     tessera.acceptance.tests/transaction.raw=io.cucumber.core,io.cucumber.java8
