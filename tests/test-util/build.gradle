@@ -5,4 +5,3 @@ plugins {
 dependencies {
   implementation "org.glassfish:jakarta.el"
 }
-
