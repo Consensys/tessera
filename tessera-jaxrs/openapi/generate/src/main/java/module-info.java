@@ -6,7 +6,7 @@ module tessera.tessera.jaxrs.openapi.generate.main {
   requires static tessera.tessera.jaxrs.openapi.common.main;
   requires static tessera.enclave.enclave.api.main;
   requires static tessera.tessera.partyinfo.main;
-  requires static tessera.tessera.core.main;
+  requires static tessera.transaction;
   requires static tessera.shared.main;
   requires static tessera.tessera.partyinfo.model;
   requires static tessera.encryption.encryption.api.main;

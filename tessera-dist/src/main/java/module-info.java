@@ -11,7 +11,7 @@ module tessera.tessera.dist.main {
   requires tessera.server.jersey.server.main;
   requires tessera.server.server.api.main;
   requires tessera.tessera.context.main;
-  requires tessera.tessera.core.main;
+  requires tessera.transaction;
   requires tessera.tessera.partyinfo.main;
   requires tessera.shared.main;
   requires tessera.tessera.jaxrs.sync.jaxrs.main;

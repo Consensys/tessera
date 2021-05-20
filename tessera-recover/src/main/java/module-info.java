@@ -7,7 +7,7 @@ module tessera.tessera.recover.main {
   requires tessera.encryption.encryption.api.main;
   requires tessera.tessera.context.main;
   requires org.slf4j;
-  requires tessera.tessera.core.main;
+  requires tessera.transaction;
   requires java.persistence;
 
   exports com.quorum.tessera.recovery;

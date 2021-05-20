@@ -1,4 +1,4 @@
-module tessera.tessera.core.main {
+module tessera.transaction {
   requires org.slf4j;
   requires tessera.config.main;
   requires tessera.enclave.enclave.api.main;

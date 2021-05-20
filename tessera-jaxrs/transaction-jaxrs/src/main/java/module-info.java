@@ -5,7 +5,7 @@ module tessera.tessera.jaxrs.transaction.jaxrs.main {
   requires io.swagger.v3.oas.annotations;
   requires tessera.config.main;
   requires tessera.encryption.encryption.api.main;
-  requires tessera.tessera.core.main;
+  requires tessera.transaction;
   requires tessera.tessera.data.main;
   requires tessera.tessera.jaxrs.common.jaxrs.main;
   requires tessera.tessera.partyinfo.main;

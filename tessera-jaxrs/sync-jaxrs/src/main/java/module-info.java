@@ -9,7 +9,7 @@ module tessera.tessera.jaxrs.sync.jaxrs.main {
   requires tessera.security.main;
   requires tessera.shared.main;
   requires tessera.tessera.context.main;
-  requires tessera.tessera.core.main;
+  requires tessera.transaction;
   requires tessera.tessera.data.main;
   requires tessera.tessera.jaxrs.common.jaxrs.main;
   requires tessera.tessera.jaxrs.jaxrs.client.main;

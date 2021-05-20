@@ -11,7 +11,7 @@ module tessera.tessera.jaxrs.common.jaxrs.main {
   requires tessera.encryption.encryption.api.main;
   requires tessera.shared.main;
   requires tessera.tessera.context.main;
-  requires tessera.tessera.core.main;
+  requires tessera.transaction;
   requires tessera.tessera.data.main;
   requires tessera.tessera.partyinfo.main;
   requires java.servlet;
