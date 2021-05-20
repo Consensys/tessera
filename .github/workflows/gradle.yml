@@ -3,7 +3,7 @@ name: Tessera Gradle Build
 on:
   push:
     branches:
-      - full_jigsaw_dist
+      - master
   pull_request:
     branches:
       - master
