@@ -6,11 +6,3 @@ dependencies {
   implementation "org.glassfish:jakarta.el"
 }
 
-//compileJava {
-//    doFirst {
-//        options.compilerArgs = [
-//                "--module-path", classpath.asPath,
-//        ]
-//        classpath = files()
-//    }
-//}

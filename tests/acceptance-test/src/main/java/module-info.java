@@ -1,4 +1,4 @@
-module tessera.tests.acceptance.test.main {
+module tessera.acceptance.tests {
   requires org.slf4j;
   requires java.sql;
   requires tessera.encryption.jnacl;
