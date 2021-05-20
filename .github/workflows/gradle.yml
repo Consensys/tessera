@@ -95,7 +95,7 @@ jobs:
         java-version: 11
     - run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,AzureKeyVaultIT" --info
+        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,AzureKeyVaultIT,RunAzureIT" --info
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
