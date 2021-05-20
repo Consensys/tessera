@@ -1,4 +1,4 @@
-module tessera.server.jaxrs.client.unixsocket.main {
+module tessera.server.jersey.unixsocket {
   requires java.ws.rs;
   requires jersey.client;
   requires jersey.common;

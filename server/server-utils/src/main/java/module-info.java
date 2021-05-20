@@ -1,4 +1,4 @@
-module tessera.server.server.utils.main {
+module tessera.server.utils {
   requires org.eclipse.jetty.server;
   requires org.eclipse.jetty.unixsocket;
   requires org.eclipse.jetty.util;

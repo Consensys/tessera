@@ -8,8 +8,8 @@ module tessera.tessera.dist.main {
   requires tessera.cli.config.cli.main;
   requires tessera.config;
   requires tessera.enclave.enclave.api.main;
-  requires tessera.server.jersey.server.main;
-  requires tessera.server.server.api.main;
+  requires tessera.server.jersey;
+  requires tessera.server.api;
   requires tessera.tessera.context.main;
   requires tessera.transaction;
   requires tessera.partyinfo;
@@ -17,7 +17,7 @@ module tessera.tessera.dist.main {
   requires tessera.partyinfo.jaxrs;
   requires tessera.tessera.recover.main;
   requires java.json;
-  requires tessera.server.jaxrs.client.unixsocket.main;
+  requires tessera.server.jersey.unixsocket;
   requires org.bouncycastle.provider;
 
   uses com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;

@@ -10,8 +10,8 @@ module tessera.enclave.enclave.jaxrs.main {
   requires tessera.enclave.enclave.api.main;
   requires tessera.enclave.enclave.server.main;
   requires tessera.encryption.api;
-  requires tessera.server.jersey.server.main;
-  requires tessera.server.server.api.main;
+  requires tessera.server.jersey;
+  requires tessera.server.api;
   requires tessera.shared.main;
   requires tessera.jaxrs.client;
   requires org.bouncycastle.provider;

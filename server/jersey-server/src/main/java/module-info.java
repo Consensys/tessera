@@ -1,4 +1,4 @@
-module tessera.server.jersey.server.main {
+module tessera.server.jersey {
   requires java.management;
   requires java.ws.rs;
   requires java.validation;
@@ -7,8 +7,8 @@ module tessera.server.jersey.server.main {
   requires org.slf4j;
   requires tessera.config;
   requires tessera.security.main;
-  requires tessera.server.server.utils.main;
-  requires tessera.server.server.api.main;
+  requires tessera.server.utils;
+  requires tessera.server.api;
   requires java.servlet;
   requires tessera.shared.main;
   requires hk2.api;
