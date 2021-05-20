@@ -1,4 +1,4 @@
-module tessera.cli.cli.api.main {
+module tessera.cli.api {
   requires java.management;
   requires info.picocli;
   requires org.slf4j;

@@ -5,7 +5,7 @@ module tessera.enclave.enclave.jaxrs.main {
   requires info.picocli;
   requires org.apache.commons.lang3;
   requires org.slf4j;
-  requires tessera.cli.cli.api.main;
+  requires tessera.cli.api;
   requires tessera.config;
   requires tessera.enclave.enclave.api.main;
   requires tessera.enclave.enclave.server.main;

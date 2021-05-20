@@ -1,7 +1,7 @@
 module tessera.enclave.enclave.server.main {
   requires info.picocli;
   requires org.slf4j;
-  requires tessera.cli.cli.api.main;
+  requires tessera.cli.api;
   requires tessera.config;
   requires tessera.shared.main;
 

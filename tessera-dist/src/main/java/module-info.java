@@ -4,8 +4,8 @@ module tessera.tessera.dist.main {
   requires java.validation;
   requires org.apache.commons.lang3;
   requires org.slf4j;
-  requires tessera.cli.cli.api.main;
-  requires tessera.cli.config.cli.main;
+  requires tessera.cli.api;
+  requires tessera.cli.config;
   requires tessera.config;
   requires tessera.enclave.enclave.api.main;
   requires tessera.server.jersey;

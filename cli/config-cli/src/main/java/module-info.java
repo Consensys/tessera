@@ -1,13 +1,13 @@
-module tessera.cli.config.cli.main {
+module tessera.cli.config {
   requires java.management;
   requires java.validation;
   requires java.xml.bind;
   requires info.picocli;
   requires org.slf4j;
-  requires tessera.cli.cli.api.main;
+  requires tessera.cli.api;
   requires tessera.config;
   requires tessera.encryption.api;
-  requires tessera.key.generation.main;
+  requires tessera.keygeneration;
   requires tessera.shared.main;
 
   uses com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;

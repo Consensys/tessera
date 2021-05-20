@@ -1,4 +1,4 @@
-module tessera.key.generation.main {
+module tessera.keygeneration {
   requires org.slf4j;
   requires tessera.config;
   requires tessera.encryption.api;

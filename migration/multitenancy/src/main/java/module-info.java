@@ -1,5 +1,5 @@
 module tessera.migration.multitenancy.main {
-  requires tessera.cli.cli.api.main;
+  requires tessera.cli.api;
   requires tessera.data;
   requires tessera.config;
   requires tessera.encryption.api;
