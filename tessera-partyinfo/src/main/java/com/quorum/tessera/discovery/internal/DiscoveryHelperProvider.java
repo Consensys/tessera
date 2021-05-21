@@ -11,13 +11,13 @@ public class DiscoveryHelperProvider {
   private static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryHelperProvider.class);
 
   public static DiscoveryHelper provider() {
-    LOGGER.info("Creating network store");
+    LOGGER.debug("Creating network store");
     final NetworkStore networkStore = NetworkStore.getInstance();
-    LOGGER.info("Created network store {}", networkStore);
+    LOGGER.debug("Created network store {}", networkStore);
 
-    LOGGER.info("Creating enclave");
+    LOGGER.debug("Creating enclave");
     Enclave enclave = Enclave.create();
-    LOGGER.info("Created enclave {}", enclave);
+    LOGGER.debug("Created enclave {}", enclave);
 
     return new DiscoveryHelperImpl(networkStore, enclave);
   }
