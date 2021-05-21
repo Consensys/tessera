@@ -129,12 +129,12 @@ jobs:
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
-          name: itest-junit-report
+          name: ec_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
-          name: itest-logs
+          name: ec_itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
       - uses: homoluctus/slatify@v3.0.0
         if: always()
