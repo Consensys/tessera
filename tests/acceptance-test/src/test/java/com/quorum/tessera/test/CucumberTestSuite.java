@@ -18,15 +18,9 @@ import suite.TestSuite;
   CucumberVersionCliIT.class
 })
 @ProcessConfig(
-  communicationType = CommunicationType.REST,
-  dbType = DBType.H2,
-  socketType = SocketType.HTTP,
-  encryptorType = EncryptorType.NACL,
-  prefix = "cucumber"
-)
-public class CucumberTestSuite {
-
-
-
-
-}
+    communicationType = CommunicationType.REST,
+    dbType = DBType.H2,
+    socketType = SocketType.HTTP,
+    encryptorType = EncryptorType.NACL,
+    prefix = "cucumber")
+public class CucumberTestSuite {}
