@@ -107,7 +107,6 @@ test {
     "**/P2pTestSuite.class",
     "**/AwsKeyVaultIT.class",
     "**/RunAzureIT.class",
-    "**/AzureKeyVaultIT.class",
     "**/RunHashicorpIT.class",
     "**/ThirdPartyIT.class"
     )

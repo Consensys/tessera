@@ -96,7 +96,7 @@ jobs:
         check-latest: true
     - run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,AzureKeyVaultIT,RunAzureIT,RestSuiteHttpH2EncTypeEC,RestSuiteHttpH2RemoteEnclaveEncTypeEC" --info
+        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2EncTypeEC,RestSuiteHttpH2RemoteEnclaveEncTypeEC" --info
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
@@ -140,7 +140,7 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: itest
+          job_name: ec_itest
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
@@ -182,7 +182,8 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 11
+          java-version: 12
+          check-latest: true
       - run: |
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RecoverIT
