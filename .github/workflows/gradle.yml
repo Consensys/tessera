@@ -74,7 +74,8 @@ jobs:
         distribution: 'adopt'
         java-version: 12
         check-latest: true
-    - run: ./gradlew dependencyCheckAnalyze -x test
+    - name: Execute gradle dependencyCheckAnalyze task
+      run: ./gradlew dependencyCheckAnalyze -x test
     - name: Send slack notification
       uses: homoluctus/slatify@v3.0.0
       if: always()
@@ -95,7 +96,8 @@ jobs:
         distribution: 'adopt'
         java-version: 12
         check-latest: true
-    - run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerification --info
+    - name: Execute gradle test
+      run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerification --info
     - name: Send slack notification
       uses: homoluctus/slatify@v3.0.0
       if: always()
@@ -116,15 +118,18 @@ jobs:
         distribution: 'adopt'
         java-version: 12
         check-latest: true
+    - name: Execute gradle integration tests
     - run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
         ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
-    - uses: actions/upload-artifact@v1
+    - name: Upload Junit reports
+      uses: actions/upload-artifact@v1
       if: failure()
       with:
        name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
-    - uses: actions/upload-artifact@v1
+    - name: Upload test logs
+      uses: actions/upload-artifact@v1
       if: failure()
       with:
        name: itest-logs
@@ -149,14 +154,22 @@ jobs:
           distribution: 'adopt'
           java-version: 12
           check-latest: true
-      - run: |
+      - name: Execute gradle integration tests
+        run: |
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave --tests RestSuiteHttpH2RemoteEnclaveEncTypeEC --info
-      - uses: actions/upload-artifact@v1
+      - name: Upload junit reports
+        uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: remote_enclave_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+      - name: Upload test logs
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: remote_enclave_itest-logs
+          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
       - name: Send slack notification
         uses: homoluctus/slatify@v3.0.0
         if: always()
@@ -177,15 +190,18 @@ jobs:
           distribution: 'adopt'
           java-version: 11
           check-latest: true
-      - run: |
+      - name: Execute gradle
+        run: |
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests CucumberTestSuite --info
-      - uses: actions/upload-artifact@v1
+      - name: Upload junit reports
+        uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: cucumber_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
-      - uses: actions/upload-artifact@v1
+      - name: Upload test logs
+        uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: cucumber_itest-logs
@@ -209,19 +225,22 @@ jobs:
           distribution: 'adopt'
           java-version: 11
           check-latest: true
-      - run: |
+      - name: Download and run hashicorp and execute gradle
+        run: |
           wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
           mkdir -p vault/bin && pushd $_
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RunHashicorpIT --tests AwsKeyVaultIT --tests RunAzureIT --info
-      - uses: actions/upload-artifact@v1
+      - name: Upload junit reports
+        uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: vault-itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
-      - uses: actions/upload-artifact@v1
+      - name: Upload test logs
+        uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: vault-itest-logs
@@ -239,20 +258,24 @@ jobs:
     steps:
       - name: Checkout code from SCM
         uses: actions/checkout@v2
-      - uses: actions/setup-java@v2
+      - name: Set up java
+        uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 12
           check-latest: true
-      - run: |
+      - name: Execute gradle
+        run: |
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RecoverIT --info
-      - uses: actions/upload-artifact@v1
+      - name: Upload junit reports
+        uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: recovery_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
-      - uses: actions/upload-artifact@v1
+      - name: Upload test logs
+        uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: recovery-itest-logs
@@ -274,20 +297,24 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 11
-      - run: |
+      - name: Build and prepare docker image
+        run: |
           ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           cp tessera-dist/build/distributions/tessera-*.tar tessera-dist/build/distributions/tessera.tar
           mkdir tessera-extracted && tar xvf tessera-dist/build/distributions/tessera.tar -C tessera-extracted --strip-components 1
-      - uses: docker/build-push-action@v1
+      - name: Push docker image
+        uses: docker/build-push-action@v1
         with:
           repository: quorumengineering/tessera
           tags: develop
           push: false
           dockerfile: .github/workflows/noBuild.Dockerfile
           build_args: DIST=tessera-extracted
-      - run:
+      - name: Execute acceptence tests
+        run:
           docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests quorumengineering/acctests:latest -c "mvn --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='\!async && (basic || basic-istanbul || networks/typical::istanbul)' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
-      - uses: actions/upload-artifact@v1
+      - name: Upload Gauge report
+        uses: actions/upload-artifact@v1
         if: always()
         with:
           name: gauge-reports
