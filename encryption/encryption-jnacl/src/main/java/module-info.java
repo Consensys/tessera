@@ -6,5 +6,5 @@ module tessera.encryption.jnacl {
   uses com.quorum.tessera.encryption.EncryptorFactory;
 
   provides com.quorum.tessera.encryption.EncryptorFactory with
-      com.quorum.tessera.nacl.jnacl.JnaclFactory;
+      com.quorum.tessera.encryption.nacl.jnacl.JnaclFactory;
 }

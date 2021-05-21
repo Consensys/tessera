@@ -4,5 +4,5 @@ module tessera.encryption.kalium {
   requires tessera.encryption.api;
 
   provides com.quorum.tessera.encryption.EncryptorFactory with
-      com.quorum.tessera.nacl.kalium.KaliumFactory;
+      com.quorum.tessera.encryption.nacl.kalium.KaliumFactory;
 }

@@ -4,5 +4,5 @@ module tessera.encryption.ec {
   requires tessera.encryption.api;
 
   provides com.quorum.tessera.encryption.EncryptorFactory with
-      com.jpmorgan.quorum.encryption.ec.EllipticalCurveEncryptorFactory;
+      com.quorum.tessera.encryption.ec.EllipticalCurveEncryptorFactory;
 }
