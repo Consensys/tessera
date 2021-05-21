@@ -13,6 +13,7 @@ env:
   DIST_TAR: tessera-dist/build/distributions/tessera-*.tar
 jobs:
   build:
+    name: Build and upload binaries
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code from SCM
@@ -58,10 +59,11 @@ jobs:
       if: always()
       with:
         type: ${{job.status}}
-        job_name: Build
+        job_name: ${{job.name}}
         url: ${{ secrets.SLACK_WEBHOOK }}
 
   checkdependencies:
+    name: Check dependencies for any security advisories
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code from SCM
@@ -78,10 +80,11 @@ jobs:
       if: always()
       with:
         type: ${{job.status}}
-        job_name: Dependency check
+        job_name: ${{job.name}}
         url: ${{ secrets.SLACK_WEBHOOK }}
 
   test:
+    name: Unit tests
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code from SCM
@@ -98,10 +101,11 @@ jobs:
       if: always()
       with:
         type: ${{job.status}}
-        job_name: Unit tests
+        job_name: ${{job.name}}
         url: ${{ secrets.SLACK_WEBHOOK }}
 
   itest:
+    name: Integration tests
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code from SCM
@@ -130,10 +134,11 @@ jobs:
       if: always()
       with:
         type: ${{job.status}}
-        job_name: Integration tests
+        job_name: ${{job.name}}
         url: ${{ secrets.SLACK_WEBHOOK }}
 
   remote_enclave_itest:
+    name: Remote enclave integration tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -157,10 +162,11 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: Remove enclave integration tests
+          job_name: ${{job.name}}
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   cucumber_itest:
+    name: Legacy cucumber tests that need java < 12 to run
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -169,7 +175,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: 12
+          java-version: 11
           check-latest: true
       - run: |
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
@@ -189,10 +195,11 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: Legacy cucumber itests
+          job_name: ${{job.name}}
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
+    name: Key vault integration tests that need java < 12 to run
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -223,10 +230,11 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: Key vault tests
+          job_name: ${{job.name}}
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   recovery_itest:
+    name: Recovery integration tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -254,10 +262,11 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: Recovery integration tests
+          job_name: ${{job.name}}
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   atest:
+    name: Quorum acceptence tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -288,5 +297,5 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: Acceptance tests
+          job_name: ${{job.name}}
           url: ${{ secrets.SLACK_WEBHOOK }}
