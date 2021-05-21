@@ -2,7 +2,7 @@ package com.quorum.tessera.recovery.workflow.internal;
 
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
-import com.quorum.tessera.data.staging.internal.StagingTransactionUtils;
+import com.quorum.tessera.data.staging.StagingTransactionUtils;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.recovery.resend.PushBatchRequest;
 import com.quorum.tessera.recovery.resend.ResendBatchRequest;
