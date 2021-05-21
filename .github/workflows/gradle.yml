@@ -59,7 +59,7 @@ jobs:
       if: always()
       with:
         type: ${{job.status}}
-        job_name: ${{job.name}}
+        job_name: Build and upload binaries
         url: ${{ secrets.SLACK_WEBHOOK }}
 
   checkdependencies:
@@ -80,7 +80,7 @@ jobs:
       if: always()
       with:
         type: ${{job.status}}
-        job_name: ${{job.name}}
+        job_name: Check dependencies for any security advisories
         url: ${{ secrets.SLACK_WEBHOOK }}
 
   test:
@@ -101,7 +101,7 @@ jobs:
       if: always()
       with:
         type: ${{job.status}}
-        job_name: ${{job.name}}
+        job_name: Unit tests
         url: ${{ secrets.SLACK_WEBHOOK }}
 
   itest:
@@ -134,7 +134,7 @@ jobs:
       if: always()
       with:
         type: ${{job.status}}
-        job_name: ${{job.name}}
+        job_name: Integration tests
         url: ${{ secrets.SLACK_WEBHOOK }}
 
   remote_enclave_itest:
@@ -162,11 +162,11 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: ${{job.name}}
+          job_name: Remote enclave integration tests
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   cucumber_itest:
-    name: Legacy cucumber tests that need java < 12 to run
+    name: Legacy cucumber tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -195,11 +195,11 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: ${{job.name}}
+          job_name: Legacy cucumber tests
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
-    name: Key vault integration tests that need java < 12 to run
+    name: Key vault integration tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -230,7 +230,7 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: ${{job.name}}
+          job_name: Key vault integration tests
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   recovery_itest:
@@ -262,7 +262,7 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: ${{job.name}}
+          job_name: Recovery integration tests
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   atest:
@@ -297,5 +297,5 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: ${{job.name}}
+          job_name: Quorum acceptence tests
           url: ${{ secrets.SLACK_WEBHOOK }}
