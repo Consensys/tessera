@@ -121,7 +121,7 @@ jobs:
     - name: Execute gradle integration tests
       run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
+        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --failty-fast -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
     - name: Upload Junit reports
       uses: actions/upload-artifact@v1
       if: failure()
@@ -232,7 +232,7 @@ jobs:
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RunHashicorpIT --tests AwsKeyVaultIT --tests RunAzureIT --info
+          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --failty-fast --tests RunHashicorpIT --tests AwsKeyVaultIT --tests RunAzureIT --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
         if: failure()
