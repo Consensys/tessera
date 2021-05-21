@@ -46,6 +46,12 @@ jobs:
       with:
         name: hashicorp-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ env.GRADLE_CACHE_KEY }}
+        restore-keys: |
+          ${{ env.GRADLE_CACHE_KEY }}
     - uses: homoluctus/slatify@v3.0.0
       if: always()
       with:
@@ -87,15 +93,21 @@ jobs:
 
   itest:
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ env.GRADLE_CACHE_KEY }}
+        restore-keys: |
+          ${{ env.GRADLE_CACHE_KEY }}
     - uses: actions/setup-java@v2
       with:
         distribution: 'adopt'
         java-version: 11
         check-latest: true
     - run: |
-        ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
         ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2EncTypeEC,RestSuiteHttpH2RemoteEnclaveEncTypeEC" --info
     - uses: actions/upload-artifact@v1
       if: failure()
@@ -116,16 +128,22 @@ jobs:
 
   ec_itest:
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
+          restore-keys: |
+            ${{ env.GRADLE_CACHE_KEY }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 12
           check-latest: true
       - run: |
-          ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RestSuiteHttpH2EncTypeEC --tests RestSuiteHttpH2RemoteEnclaveEncTypeEC --info
+          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RestSuiteHttpH2EncTypeEC --info
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
@@ -143,10 +161,40 @@ jobs:
           job_name: ec_itest
           url: ${{ secrets.SLACK_WEBHOOK }}
 
-  vaultTests:
+  remote_enclave_itest:
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
+          restore-keys: |
+            ${{ env.GRADLE_CACHE_KEY }}
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 12
+          check-latest: true
+      - run: ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclaveEncTypeEC --tests RestSuiteHttpH2RemoteEnclave --info
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: remote_enclave_itest-junit-report
+          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+
+  vaultTests:
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
+          restore-keys: |
+            ${{ env.GRADLE_CACHE_KEY }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
@@ -156,7 +204,6 @@ jobs:
           mkdir -p vault/bin && pushd $_
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
-          ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RunHashicorpIT --tests AwsKeyVaultIT --tests AzureKeyVaultIT --info
       - uses: actions/upload-artifact@v1
         if: failure()
@@ -179,13 +226,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ env.GRADLE_CACHE_KEY }}
+          restore-keys: |
+            ${{ env.GRADLE_CACHE_KEY }}
       - uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
           java-version: 12
           check-latest: true
       - run: |
-          ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RecoverIT
       - uses: actions/upload-artifact@v1
         if: failure()
