@@ -89,14 +89,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: |
-        curl -L https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz -o $RUNNER_TEMP/amazon-corretto-11-x64-linux-jdk.tar.gz
     - uses: actions/setup-java@v2
       with:
-        distribution: 'jdkfile'
-        java-version: 11
-        jdkFile: ${{ runner.temp }}/amazon-corretto-11-x64-linux-jdk.tar.gz
-        architecture: x64
+        distribution: 'zulu'
+        java-version: 11.0.11+9
     - run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
         ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,AzureKeyVaultIT,RunAzureIT" --info
