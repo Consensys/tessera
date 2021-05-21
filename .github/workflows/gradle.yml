@@ -91,11 +91,12 @@ jobs:
     - uses: actions/checkout@v2
     - run: |
         wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/11+28/55eed80b163941c8885ad9298e6d786a/jdk-11_linux-x64_bin.tar.gz -O $RUNNER_TEMP/java_package.tar.gz
+        curl -L https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz -O $RUNNER_TEMP/amazon-corretto-11-x64-linux-jdk.tar.gz
     - uses: actions/setup-java@v2
       with:
         distribution: 'jdkfile'
         java-version: 11
-        jdkFile: ${{ runner.temp }}/java_package.tar.gz
+        jdkFile: ${{ runner.temp }}/amazon-corretto-11-x64-linux-jdk.tar.gz
         architecture: x64
     - run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
