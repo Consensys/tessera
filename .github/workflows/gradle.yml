@@ -92,11 +92,11 @@ jobs:
     - uses: actions/setup-java@v2
       with:
         distribution: 'adopt'
-        java-version: 12
+        java-version: 11
         check-latest: true
     - run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,AzureKeyVaultIT,RunAzureIT" --info
+        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,AzureKeyVaultIT,RunAzureIT,RestSuiteHttpH2EncTypeEC,RestSuiteHttpH2RemoteEnclaveEncTypeEC" --info
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
@@ -113,6 +113,35 @@ jobs:
         type: ${{job.status}}
         job_name: itest
         url: ${{ secrets.SLACK_WEBHOOK }}
+
+  ec_itest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'adopt'
+          java-version: 12
+          check-latest: true
+      - run: |
+          ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
+          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RestSuiteHttpH2EncTypeEC --tests RestSuiteHttpH2RemoteEnclaveEncTypeEC --info
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: itest-junit-report
+          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
+      - uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: itest-logs
+          path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
+      - uses: homoluctus/slatify@v3.0.0
+        if: always()
+        with:
+          type: ${{job.status}}
+          job_name: itest
+          url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
     runs-on: ubuntu-latest
