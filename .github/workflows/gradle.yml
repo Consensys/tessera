@@ -92,7 +92,7 @@ jobs:
     - uses: actions/setup-java@v2
       with:
         distribution: 'zulu'
-        java-version: 16
+        java-version: 15
     - run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
         ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,AzureKeyVaultIT,RunAzureIT" --info
