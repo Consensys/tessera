@@ -101,14 +101,12 @@ test {
     "**/RestSuiteHttpH2EncTypeEC.class",
     "**/RestSuiteHttpH2EncTypeKalium.class",
     "**/SendWithRemoteEnclaveReconnectIT.class",
-    "**/CucumberWhitelistIT.class",
-    "**/CucumberFileKeyGenerationIT.class",
-    "**/CucumberVersionCliIT.class",
     "**/P2pTestSuite.class",
     "**/AwsKeyVaultIT.class",
     "**/RunAzureIT.class",
     "**/RunHashicorpIT.class",
-    "**/ThirdPartyIT.class"
+    "**/ThirdPartyIT.class",
+    "**/CucumberTestSuite.class",
     )
 
   if(file("/usr/local/lib/").listFiles(new FilenameFilter() {

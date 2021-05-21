@@ -92,11 +92,11 @@ jobs:
     - uses: actions/setup-java@v2
       with:
         distribution: 'adopt'
-        java-version: 11
+        java-version: 12
         check-latest: true
     - run: |
         ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2EncTypeEC,RestSuiteHttpH2RemoteEnclaveEncTypeEC" --info
+        ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
     - uses: actions/upload-artifact@v1
       if: failure()
       with:
@@ -132,7 +132,7 @@ jobs:
           name: remote_enclave_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
 
-  ec_itest:
+  cucumber_itest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -143,22 +143,22 @@ jobs:
           check-latest: true
       - run: |
           ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
-          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RestSuiteHttpH2EncTypeEC --info
+          ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests CucumberTestSuite --info
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
-          name: ec_itest-junit-report
+          name: cucumber_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - uses: actions/upload-artifact@v1
         if: failure()
         with:
-          name: ec_itest-logs
+          name: cucumber_itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
       - uses: homoluctus/slatify@v3.0.0
         if: always()
         with:
           type: ${{job.status}}
-          job_name: ec_itest
+          job_name: cucumber_itest
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
@@ -169,6 +169,7 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: 11
+          check-latest: true
       - run: |
           wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
           mkdir -p vault/bin && pushd $_

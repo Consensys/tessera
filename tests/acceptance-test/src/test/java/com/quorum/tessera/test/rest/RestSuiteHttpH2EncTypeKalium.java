@@ -14,22 +14,4 @@ import suite.TestSuite;
     dbType = DBType.H2,
     socketType = SocketType.HTTP,
     encryptorType = EncryptorType.CUSTOM)
-@TestSuite.SuiteClasses({
-  SendReceivePrivacyGroupIT.class,
-  PrivacyGroupIT.class,
-  PrivacyIT.class,
-  VersionIT.class,
-  MultipleKeyNodeIT.class,
-  DeleteIT.class,
-  PushIT.class,
-  ReceiveIT.class,
-  ReceiveRawIT.class,
-  ResendAllIT.class,
-  ResendIndividualIT.class,
-  SendIT.class,
-  SendRawIT.class,
-  com.quorum.tessera.test.rest.multitenancy.SendIT.class,
-  com.quorum.tessera.test.rest.multitenancy.ReceiveIT.class,
-  com.quorum.tessera.test.rest.multitenancy.PrivacyIT.class
-})
-public class RestSuiteHttpH2EncTypeKalium {}
+public class RestSuiteHttpH2EncTypeKalium extends RestSuite {}
