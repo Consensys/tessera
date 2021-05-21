@@ -90,7 +90,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: |
-        curl -L https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz -O $RUNNER_TEMP/amazon-corretto-11-x64-linux-jdk.tar.gz
+        curl -L https://corretto.aws/downloads/latest/amazon-corretto-11-x64-linux-jdk.tar.gz -o $RUNNER_TEMP/amazon-corretto-11-x64-linux-jdk.tar.gz
     - uses: actions/setup-java@v2
       with:
         distribution: 'jdkfile'
