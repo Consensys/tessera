@@ -1,23 +1,22 @@
 package com.quorum.tessera.test.rest;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import org.junit.Before;
-import org.junit.Test;
-import suite.NodeAlias;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.UUID;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.junit.Before;
+import org.junit.Test;
+import suite.NodeAlias;
 
 /** retrieve tx with hash retrieve tx with hash and sender retrieve hash that doesn't exist */
 public class ReceiveIT {
@@ -54,7 +53,8 @@ public class ReceiveIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path("/send")
             .request()
@@ -69,17 +69,14 @@ public class ReceiveIT {
     this.encodedHash = URLEncoder.encode(hash, UTF_8.toString());
     this.encodedSender = URLEncoder.encode(partyOne.getPublicKey(), UTF_8.toString());
     this.encodedRecipientOne = URLEncoder.encode(partyThee.getPublicKey(), UTF_8.toString());
-
-
   }
-
-
 
   @Test
   public void fetchExistingTransactionUsingOwnKey() {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH + "/" + this.encodedHash)
             .request()
@@ -100,7 +97,8 @@ public class ReceiveIT {
   public void fetchExistingTransactionUsingRecipientKey() throws Exception {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .path(encodedHash)
@@ -120,7 +118,8 @@ public class ReceiveIT {
   public void fetchExistingTransactionNotUsingKey() throws UnsupportedEncodingException {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .path(encodedHash)
@@ -141,7 +140,8 @@ public class ReceiveIT {
   public void fetchNonexistantTransactionFails() {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .path("invalidhashvalue")

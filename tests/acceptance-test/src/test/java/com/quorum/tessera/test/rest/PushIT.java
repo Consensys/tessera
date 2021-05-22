@@ -39,7 +39,8 @@ public class PushIT {
     this.message = Base64.getDecoder().decode(MSG_BASE64);
 
     // delete the tx if it exists, or do nothing if it doesn't
-    party.getRestClient()
+    party
+        .getRestClient()
         .target(party.getQ2TUri())
         .path("transaction")
         .path(ENCODED_HASH)
@@ -55,7 +56,8 @@ public class PushIT {
   public void storePayloadFromAnotherNode() {
 
     final Response pushReponse =
-      party.getRestClient()
+        party
+            .getRestClient()
             .target(party.getP2PUri())
             .path(PUSH_PATH)
             .request()
@@ -67,7 +69,8 @@ public class PushIT {
     // retrieve that tx
 
     final Response retrieveResponse =
-      party.getRestClient()
+        party
+            .getRestClient()
             .target(party.getQ2TUri())
             .path("/transaction/" + ENCODED_HASH)
             .request()
@@ -86,7 +89,7 @@ public class PushIT {
 
   // TODO: There needs to be a protocol change/ammendment
   // as 500 gives us false positives. We cant discriminate between error types
- @Ignore
+  @Ignore
   @Test
   public void storeCorruptedPayloadFails() {
 
@@ -94,7 +97,8 @@ public class PushIT {
         "this is a bad payload that does not conform to the expected byte array".getBytes();
 
     final Response pushReponse =
-      party.getRestClient()
+        party
+            .getRestClient()
             .target(party.getP2PUri())
             .path(PUSH_PATH)
             .request()

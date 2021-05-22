@@ -47,7 +47,8 @@ public class ReceiveIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path("/send")
             .request()
@@ -68,7 +69,8 @@ public class ReceiveIT {
   public void fetchExistingTransactionUsingOwnKey() {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .path(this.encodedHash)
@@ -93,7 +95,8 @@ public class ReceiveIT {
   public void fetchExistingTransactionUsingRecipientKey() {
 
     final Response response =
-      partyTwo.getRestClient()
+        partyTwo
+            .getRestClient()
             .target(partyTwo.getQ2TUri())
             .path(RECEIVE_PATH)
             .queryParam("to", this.encodedRecipient)
@@ -116,7 +119,8 @@ public class ReceiveIT {
   public void fetchExistingTransactionNotUsingKey() {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .path(encodedHash)
@@ -140,7 +144,8 @@ public class ReceiveIT {
   public void fetchNonexistantTransactionFails() {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .path("invalidhashvalue")

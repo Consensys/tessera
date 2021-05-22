@@ -32,7 +32,8 @@ public class PrivacyGroupTestUtil {
             .build();
 
     final Response response =
-      sender.getRestClient()
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path("/createPrivacyGroup")
             .request()
@@ -48,7 +49,7 @@ public class PrivacyGroupTestUtil {
     JsonObject reqJson = Json.createObjectBuilder().add("privacyGroupId", groupId).build();
     Party node = partyHelper.findByAlias(targetNode);
     final Response response =
-      node.getRestClient()
+        node.getRestClient()
             .target(node.getQ2TUri())
             .path("/retrievePrivacyGroup")
             .request()
@@ -67,7 +68,7 @@ public class PrivacyGroupTestUtil {
     JsonObject json = Json.createObjectBuilder().add("addresses", members).build();
     Party node = partyHelper.findByAlias(targetNode);
     final Response response =
-      node.getRestClient()
+        node.getRestClient()
             .target(node.getQ2TUri())
             .path("/findPrivacyGroup")
             .request()

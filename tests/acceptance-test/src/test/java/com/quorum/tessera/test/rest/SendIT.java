@@ -47,7 +47,8 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-      firstParty.getRestClient()
+        firstParty
+            .getRestClient()
             .target(firstParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -62,7 +63,8 @@ public class SendIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = secondParty.getRestClient().target(location).request().get();
+    final Response checkPersistedTxnResponse =
+        secondParty.getRestClient().target(location).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -107,7 +109,8 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-      sendingParty.getRestClient()
+        sendingParty
+            .getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -122,7 +125,8 @@ public class SendIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = secondParty.getRestClient().target(location).request().get();
+    final Response checkPersistedTxnResponse =
+        secondParty.getRestClient().target(location).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -157,7 +161,8 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-      recipient.getRestClient()
+        recipient
+            .getRestClient()
             .target(recipient.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -171,7 +176,8 @@ public class SendIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = recipient.getRestClient().target(location).request().get();
+    final Response checkPersistedTxnResponse =
+        recipient.getRestClient().target(location).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -191,7 +197,8 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-      sendingParty.getRestClient()
+        sendingParty
+            .getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -205,7 +212,8 @@ public class SendIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = sendingParty.getRestClient().target(location).request().get();
+    final Response checkPersistedTxnResponse =
+        sendingParty.getRestClient().target(location).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -213,7 +221,8 @@ public class SendIT {
 
     assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-    if(sendingParty.getConfig().getServerConfigs().stream().allMatch(not(ServerConfig::isUnixSocket))) {
+    if (sendingParty.getConfig().getServerConfigs().stream()
+        .allMatch(not(ServerConfig::isUnixSocket))) {
       assertThat(location.getHost()).isEqualTo(sendingParty.getQ2TUri().getHost());
       assertThat(location.getPort()).isEqualTo(sendingParty.getQ2TUri().getPort());
     }
@@ -234,7 +243,8 @@ public class SendIT {
             .toString();
 
     final Response response =
-      sendingParty.getRestClient()
+        sendingParty
+            .getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -252,7 +262,8 @@ public class SendIT {
     final String sendRequest = "this is clearly a garbage message";
 
     final Response response =
-      sendingParty.getRestClient()
+        sendingParty
+            .getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -270,7 +281,8 @@ public class SendIT {
     final String sendRequest = "{}";
 
     final Response response =
-      sendingParty.getRestClient()
+        sendingParty
+            .getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -300,7 +312,8 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-      sendingParty.getRestClient()
+        sendingParty
+            .getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -325,7 +338,8 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-      sender.getRestClient()
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path(SEND_PATH)
             .request()

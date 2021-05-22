@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ResendIndividualIT {
-  //Dont use for q2t for as unix ipc file support
+  // Dont use for q2t for as unix ipc file support
   private final Client vanillaHttpOnlyClient = ClientBuilder.newClient();
 
   private static final String RESEND_PATH = "/resend";
@@ -41,7 +41,8 @@ public class ResendIndividualIT {
     recipient = partyHelper.findByAlias("B");
 
     final Response response =
-      sender.getRestClient()
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path("/sendraw")
             .request()

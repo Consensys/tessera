@@ -53,12 +53,12 @@ public class TransactionForwardingIT {
   @Test
   public void sendTransactionToNode3AddsNode1AsRecipient() throws UnsupportedEncodingException {
 
-    final String hash =
-        this.sendNewTransaction(otherRecipient);
+    final String hash = this.sendNewTransaction(otherRecipient);
 
     // check the transaction is in node 1
     final Response response =
-      sender.getRestClient()
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path("transaction")
             .path(URLEncoder.encode(hash, UTF_8.toString()))
@@ -83,7 +83,8 @@ public class TransactionForwardingIT {
 
     // check the transaction is not in node 1
     final Response response =
-      sender.getRestClient()
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path("transaction")
             .path(URLEncoder.encode(hash, UTF_8.toString()))
@@ -100,12 +101,12 @@ public class TransactionForwardingIT {
   public void sendTransactionToNode3DoesNotAddNode2AsRecipient()
       throws UnsupportedEncodingException {
 
-    final String hash =
-        this.sendNewTransaction(otherRecipient);
+    final String hash = this.sendNewTransaction(otherRecipient);
 
     // check the transaction is in node 1
     final Response response =
-        sender.getRestClient()
+        sender
+            .getRestClient()
             .target(reciepient.getQ2TUri())
             .path("transaction")
             .path(URLEncoder.encode(hash, UTF_8.toString()))
@@ -130,11 +131,12 @@ public class TransactionForwardingIT {
     LOGGER.debug("Sending {} to {}", sendRequest, node);
 
     final Response response =
-      party.getRestClient()
-        .target(node)
-        .path("/send")
-        .request()
-        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        party
+            .getRestClient()
+            .target(node)
+            .path("/send")
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
     assertThat(response).isNotNull();
     assertThat(response.getStatus()).isEqualTo(201);
@@ -148,6 +150,4 @@ public class TransactionForwardingIT {
 
     return result.getKey();
   }
-
-
 }

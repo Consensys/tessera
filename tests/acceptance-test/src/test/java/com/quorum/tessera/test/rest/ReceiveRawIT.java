@@ -1,18 +1,17 @@
 package com.quorum.tessera.test.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import org.junit.Before;
-import org.junit.Test;
-import suite.NodeAlias;
-
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.Before;
+import org.junit.Test;
+import suite.NodeAlias;
 
 public class ReceiveRawIT {
 
@@ -45,7 +44,8 @@ public class ReceiveRawIT {
     sendRequest.setFrom(partyOne.getPublicKey());
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path("/send")
             .request()
@@ -54,16 +54,14 @@ public class ReceiveRawIT {
     final SendResponse result = response.readEntity(SendResponse.class);
 
     this.hash = result.getKey();
-
-
   }
-
 
   @Test
   public void fetchExistingTransactionUsingOwnKey() {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
@@ -86,7 +84,8 @@ public class ReceiveRawIT {
   public void fetchExistingTransactionNotUsingKeyOnSender() {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
@@ -117,7 +116,8 @@ public class ReceiveRawIT {
     sendRequest.setTo(partyHelper.findByAlias("B").getPublicKey());
 
     final Response r =
-      sender.getRestClient()
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path("/send")
             .request()
@@ -126,7 +126,7 @@ public class ReceiveRawIT {
     final SendResponse sendResponse = r.readEntity(SendResponse.class);
     final Party pty = partyHelper.findByAlias(NodeAlias.B);
     final Response response =
-      pty.getRestClient()
+        pty.getRestClient()
             .target(pty.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
@@ -148,7 +148,8 @@ public class ReceiveRawIT {
   public void fetchExistingTransactionUsingRecipientKey() {
 
     final Response response =
-      partyTwo.getRestClient()
+        partyTwo
+            .getRestClient()
             .target(partyTwo.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()
@@ -171,7 +172,8 @@ public class ReceiveRawIT {
   public void fetchNonexistentTransactionFails() {
 
     final Response response =
-      partyOne.getRestClient()
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .request()

@@ -126,7 +126,8 @@ public class PrivacyGroupIT {
             .build();
 
     final Response response =
-      sender.getRestClient()
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path("/deletePrivacyGroup")
             .request()

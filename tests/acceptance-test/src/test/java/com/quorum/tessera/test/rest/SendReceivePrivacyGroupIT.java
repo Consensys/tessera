@@ -46,7 +46,7 @@ public class SendReceivePrivacyGroupIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-          a.getRestClient()
+        a.getRestClient()
             .target(a.getQ2TUri())
             .path("/send")
             .request()
