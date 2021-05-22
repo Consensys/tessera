@@ -257,7 +257,7 @@ public class TransactionManagerImpl implements TransactionManager {
     if (enclave.getPublicKeys().contains(encodedPayload.getSenderKey())) {
       // This is our own message that we are rebuilding, handle separately
       this.resendManager.acceptOwnMessage(encodedPayload);
-      LOGGER.info("Stored payload for which we were the sender. Hash = {}", transactionHash);
+      LOGGER.debug("Stored payload for which we were the sender. Hash = {}", transactionHash);
       return transactionHash;
     }
 
@@ -268,7 +268,7 @@ public class TransactionManagerImpl implements TransactionManager {
       // This is the first time we have seen the payload, so just save it to the database as is
       this.encryptedTransactionDAO.save(
           new EncryptedTransaction(transactionHash, payloadEncoder.encode(encodedPayload)));
-      LOGGER.info("Stored new payload with hash {}", transactionHash);
+      LOGGER.debug("Stored new payload with hash {}", transactionHash);
       return transactionHash;
     }
 

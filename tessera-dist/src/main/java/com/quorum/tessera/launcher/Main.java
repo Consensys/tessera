@@ -33,7 +33,7 @@ public class Main {
   public static void main(final String... args) throws Exception {
 
     Security.addProvider(new BouncyCastleProvider());
-
+    LOGGER.debug("args [{}]", String.join(",", args));
     try {
 
       PicoCliDelegate picoCliDelegate = new PicoCliDelegate();
@@ -93,18 +93,18 @@ public class Main {
       BatchResendManager.create();
       LOGGER.debug("Created BatchResendManager");
 
-      LOGGER.info("Creating txn manager");
+      LOGGER.debug("Creating txn manager");
       TransactionManager.create();
-      LOGGER.info("Created txn manager");
+      LOGGER.debug("Created txn manager");
 
-      LOGGER.info("Creating ScheduledServiceFactory");
+      LOGGER.debug("Creating ScheduledServiceFactory");
       ScheduledServiceFactory scheduledServiceFactory = ScheduledServiceFactory.fromConfig(config);
       scheduledServiceFactory.build();
-      LOGGER.info("Created ScheduledServiceFactory");
+      LOGGER.debug("Created ScheduledServiceFactory");
 
-      LOGGER.info("Creating Launcher");
+      LOGGER.debug("Creating Launcher");
       Launcher.create(runtimeContext.isRecoveryMode()).launchServer(config);
-      LOGGER.info("Created Launcher");
+      LOGGER.debug("Created Launcher");
     } catch (final ConstraintViolationException ex) {
       for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
         System.err.println(
