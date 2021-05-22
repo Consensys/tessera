@@ -10,11 +10,10 @@ import java.io.StringReader;
 import java.util.Base64;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PushIT {
@@ -27,20 +26,23 @@ public class PushIT {
   private static final String ENCODED_HASH =
       "QrAgXFRrZ8V24or%2BBZueIdZ6JBl2WQrqZqmmyFh%2FatsXyVkr2aMNEvQh0AsJvzt12oDpNkKmIv0KSnzM2HZL1w%3D%3D";
 
-  private final Client client = ClientBuilder.newClient();
+  private final PartyHelper partyHelper = PartyHelper.create();
 
-  private Party party = PartyHelper.create().getParties().findAny().get();
+  private Party party;
 
   private byte[] message;
 
   @Before
-  public void init() {
+  public void beforeTest() {
+    party = partyHelper.getParties().findAny().get();
+
     this.message = Base64.getDecoder().decode(MSG_BASE64);
 
     // delete the tx if it exists, or do nothing if it doesn't
-    client
+    party.getRestClient()
         .target(party.getQ2TUri())
-        .path("/transaction/" + ENCODED_HASH)
+        .path("transaction")
+        .path(ENCODED_HASH)
         .request()
         .buildDelete()
         .invoke();
@@ -53,7 +55,7 @@ public class PushIT {
   public void storePayloadFromAnotherNode() {
 
     final Response pushReponse =
-        client
+      party.getRestClient()
             .target(party.getP2PUri())
             .path(PUSH_PATH)
             .request()
@@ -65,7 +67,7 @@ public class PushIT {
     // retrieve that tx
 
     final Response retrieveResponse =
-        client
+      party.getRestClient()
             .target(party.getQ2TUri())
             .path("/transaction/" + ENCODED_HASH)
             .request()
@@ -84,6 +86,7 @@ public class PushIT {
 
   // TODO: There needs to be a protocol change/ammendment
   // as 500 gives us false positives. We cant discriminate between error types
+ @Ignore
   @Test
   public void storeCorruptedPayloadFails() {
 
@@ -91,7 +94,7 @@ public class PushIT {
         "this is a bad payload that does not conform to the expected byte array".getBytes();
 
     final Response pushReponse =
-        client
+      party.getRestClient()
             .target(party.getP2PUri())
             .path(PUSH_PATH)
             .request()

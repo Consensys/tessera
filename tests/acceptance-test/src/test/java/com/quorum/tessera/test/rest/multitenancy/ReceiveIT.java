@@ -12,8 +12,6 @@ import com.quorum.tessera.test.PartyHelper;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.UUID;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.junit.Before;
@@ -23,8 +21,6 @@ import org.junit.Test;
 public class ReceiveIT {
 
   private static final String RECEIVE_PATH = "transaction";
-
-  private static final Client client = ClientBuilder.newClient();
 
   private byte[] transactionData = UUID.randomUUID().toString().getBytes();
 
@@ -40,7 +36,7 @@ public class ReceiveIT {
 
   // Persist a single transaction that can be used later
   @Before
-  public void init() throws UnsupportedEncodingException {
+  public void beforeTest() throws UnsupportedEncodingException {
     final PartyHelper partyHelper = PartyHelper.create();
     partyOne = partyHelper.findByAlias("A");
     partyTwo = partyHelper.findByAlias("B");
@@ -51,7 +47,7 @@ public class ReceiveIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-        client
+      partyOne.getRestClient()
             .target(partyOne.getQ2TUri())
             .path("/send")
             .request()
@@ -72,9 +68,10 @@ public class ReceiveIT {
   public void fetchExistingTransactionUsingOwnKey() {
 
     final Response response =
-        client
+      partyOne.getRestClient()
             .target(partyOne.getQ2TUri())
-            .path(RECEIVE_PATH + "/" + this.encodedHash)
+            .path(RECEIVE_PATH)
+            .path(this.encodedHash)
             .queryParam("to", this.encodedSender)
             .request()
             .accept(MIME_TYPE_JSON_2_1)
@@ -96,7 +93,7 @@ public class ReceiveIT {
   public void fetchExistingTransactionUsingRecipientKey() {
 
     final Response response =
-        client
+      partyTwo.getRestClient()
             .target(partyTwo.getQ2TUri())
             .path(RECEIVE_PATH)
             .queryParam("to", this.encodedRecipient)
@@ -119,7 +116,7 @@ public class ReceiveIT {
   public void fetchExistingTransactionNotUsingKey() {
 
     final Response response =
-        client
+      partyOne.getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .path(encodedHash)
@@ -143,7 +140,7 @@ public class ReceiveIT {
   public void fetchNonexistantTransactionFails() {
 
     final Response response =
-        client
+      partyOne.getRestClient()
             .target(partyOne.getQ2TUri())
             .path(RECEIVE_PATH)
             .path("invalidhashvalue")

@@ -12,8 +12,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.UUID;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -21,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import suite.NodeAlias;
 
 /**
  * Tests that recipients specified in the forwarding list receive a transaction
@@ -30,8 +29,6 @@ import org.slf4j.LoggerFactory;
 public class TransactionForwardingIT {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionForwardingIT.class);
-
-  private final Client client = ClientBuilder.newClient();
 
   private Party sender;
 
@@ -44,24 +41,24 @@ public class TransactionForwardingIT {
   private byte[] transactionData;
 
   @Before
-  public void onSetUp() {
+  public void beforeTest() {
     transactionData = UUID.randomUUID().toString().getBytes();
-    sender = parytyHelper.findByAlias("A");
+    sender = parytyHelper.findByAlias(NodeAlias.A);
 
-    reciepient = parytyHelper.findByAlias("B");
+    reciepient = parytyHelper.findByAlias(NodeAlias.B);
 
-    otherRecipient = parytyHelper.findByAlias("C");
+    otherRecipient = parytyHelper.findByAlias(NodeAlias.C);
   }
 
   @Test
   public void sendTransactionToNode3AddsNode1AsRecipient() throws UnsupportedEncodingException {
 
     final String hash =
-        this.sendNewTransaction(otherRecipient.getQ2TUri(), otherRecipient.getPublicKey());
+        this.sendNewTransaction(otherRecipient);
 
     // check the transaction is in node 1
     final Response response =
-        this.client
+      sender.getRestClient()
             .target(sender.getQ2TUri())
             .path("transaction")
             .path(URLEncoder.encode(hash, UTF_8.toString()))
@@ -82,11 +79,11 @@ public class TransactionForwardingIT {
   public void sendTransactionToNode2DoesNotAddNode1AsRecipient()
       throws UnsupportedEncodingException {
 
-    final String hash = this.sendNewTransaction(reciepient.getQ2TUri(), reciepient.getPublicKey());
+    final String hash = this.sendNewTransaction(reciepient);
 
     // check the transaction is not in node 1
     final Response response =
-        this.client
+      sender.getRestClient()
             .target(sender.getQ2TUri())
             .path("transaction")
             .path(URLEncoder.encode(hash, UTF_8.toString()))
@@ -104,11 +101,11 @@ public class TransactionForwardingIT {
       throws UnsupportedEncodingException {
 
     final String hash =
-        this.sendNewTransaction(otherRecipient.getQ2TUri(), otherRecipient.getPublicKey());
+        this.sendNewTransaction(otherRecipient);
 
     // check the transaction is in node 1
     final Response response =
-        this.client
+        sender.getRestClient()
             .target(reciepient.getQ2TUri())
             .path("transaction")
             .path(URLEncoder.encode(hash, UTF_8.toString()))
@@ -121,13 +118,10 @@ public class TransactionForwardingIT {
     assertThat(response.getStatus()).isEqualTo(404);
   }
 
-  /**
-   * Sends a new transaction to the given node
-   *
-   * @param node the target node for the new transaction
-   * @return the hash of the transaction
-   */
-  private String sendNewTransaction(final URI node, final String from) {
+  private String sendNewTransaction(final Party party) {
+
+    final URI node = party.getQ2TUri();
+    final String from = party.getPublicKey();
 
     SendRequest sendRequest = new SendRequest();
     sendRequest.setFrom(from);
@@ -136,11 +130,11 @@ public class TransactionForwardingIT {
     LOGGER.debug("Sending {} to {}", sendRequest, node);
 
     final Response response =
-        this.client
-            .target(node)
-            .path("/send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+      party.getRestClient()
+        .target(node)
+        .path("/send")
+        .request()
+        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
     assertThat(response).isNotNull();
     assertThat(response.getStatus()).isEqualTo(201);
@@ -154,4 +148,6 @@ public class TransactionForwardingIT {
 
     return result.getKey();
   }
+
+
 }

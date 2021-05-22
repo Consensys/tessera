@@ -15,7 +15,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,7 +56,7 @@ public class RestSteps implements En {
     And(
         "^all parties are running$",
         () -> {
-          Client client = ClientBuilder.newClient();
+          Client client = partyHelper.getParties().findAny().get().getRestClient();
 
           partyHelper
               .getParties()

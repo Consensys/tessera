@@ -9,15 +9,11 @@ import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class PrivacyGroupTestUtil {
-
-  private final Client client = ClientBuilder.newClient();
 
   private PartyHelper partyHelper = PartyHelper.create();
 
@@ -36,7 +32,7 @@ public class PrivacyGroupTestUtil {
             .build();
 
     final Response response =
-        client
+      sender.getRestClient()
             .target(sender.getQ2TUri())
             .path("/createPrivacyGroup")
             .request()
@@ -50,10 +46,10 @@ public class PrivacyGroupTestUtil {
   public String retrieve(String targetNode, String groupId) {
 
     JsonObject reqJson = Json.createObjectBuilder().add("privacyGroupId", groupId).build();
-
+    Party node = partyHelper.findByAlias(targetNode);
     final Response response =
-        client
-            .target(partyHelper.findByAlias(targetNode).getQ2TUri())
+      node.getRestClient()
+            .target(node.getQ2TUri())
             .path("/retrievePrivacyGroup")
             .request()
             .post(Entity.entity(reqJson, MediaType.APPLICATION_JSON));
@@ -69,10 +65,10 @@ public class PrivacyGroupTestUtil {
     Stream.of(aliases).map(partyHelper::findByAlias).map(Party::getPublicKey).forEach(members::add);
 
     JsonObject json = Json.createObjectBuilder().add("addresses", members).build();
-
+    Party node = partyHelper.findByAlias(targetNode);
     final Response response =
-        client
-            .target(partyHelper.findByAlias(targetNode).getQ2TUri())
+      node.getRestClient()
+            .target(node.getQ2TUri())
             .path("/findPrivacyGroup")
             .request()
             .post(Entity.entity(json, MediaType.APPLICATION_JSON));

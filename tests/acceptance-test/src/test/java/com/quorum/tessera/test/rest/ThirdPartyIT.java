@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
+import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
 import config.PortUtil;
@@ -19,7 +20,6 @@ import java.util.stream.Stream;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import org.junit.*;
 import suite.EnclaveType;
@@ -37,6 +37,8 @@ public class ThirdPartyIT {
 
   private ServerConfig thirdPartyServerConfig;
 
+  private Client client;
+
   @Before
   public void beforeTest() {
     thirdPartyServerConfig =
@@ -44,6 +46,13 @@ public class ThirdPartyIT {
             .filter(s -> s.getApp() == AppType.THIRD_PARTY)
             .findFirst()
             .get();
+
+    client = new ClientFactory().buildFrom(thirdPartyServerConfig);
+  }
+
+  @After
+  public void afterTest() {
+    client.close();
   }
 
   @BeforeClass
@@ -151,8 +160,6 @@ public class ThirdPartyIT {
   @Test
   public void partyInfoKeys() {
 
-    Client client = ClientBuilder.newClient();
-
     Response partyinfoResponse =
         client
             .target(thirdPartyServerConfig.getServerUri())
@@ -182,7 +189,6 @@ public class ThirdPartyIT {
   @Test
   public void keys() {
 
-    Client client = ClientBuilder.newClient();
     Response response =
         client.target(thirdPartyServerConfig.getServerUri()).path("keys").request().get();
     JsonObject keysJson = response.readEntity(JsonObject.class);

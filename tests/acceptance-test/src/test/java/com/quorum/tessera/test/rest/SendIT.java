@@ -1,17 +1,17 @@
 package com.quorum.tessera.test.rest;
 
+import static java.util.function.Predicate.not;
 import static org.assertj.core.api.Assertions.assertThat;
 import static transaction.utils.Utils.generateValidButUnknownPublicKey;
 
 import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
+import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import java.net.URI;
 import javax.json.Json;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,8 +28,6 @@ import suite.ExecutionContext;
 public class SendIT {
 
   private static final String SEND_PATH = "/send";
-
-  private final Client client = ClientBuilder.newClient();
 
   private RestUtils utils = new RestUtils();
 
@@ -49,7 +47,7 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-        client
+      firstParty.getRestClient()
             .target(firstParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -64,7 +62,7 @@ public class SendIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    final Response checkPersistedTxnResponse = secondParty.getRestClient().target(location).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -109,7 +107,7 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-        client
+      sendingParty.getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -124,7 +122,7 @@ public class SendIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    final Response checkPersistedTxnResponse = secondParty.getRestClient().target(location).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -159,7 +157,7 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-        client
+      recipient.getRestClient()
             .target(recipient.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -173,7 +171,7 @@ public class SendIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    final Response checkPersistedTxnResponse = recipient.getRestClient().target(location).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -193,7 +191,7 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-        client
+      sendingParty.getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -207,7 +205,7 @@ public class SendIT {
 
     URI location = response.getLocation();
 
-    final Response checkPersistedTxnResponse = client.target(location).request().get();
+    final Response checkPersistedTxnResponse = sendingParty.getRestClient().target(location).request().get();
 
     assertThat(checkPersistedTxnResponse.getStatus()).isEqualTo(200);
 
@@ -215,8 +213,10 @@ public class SendIT {
 
     assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
 
-    assertThat(location.getHost()).isEqualTo(sendingParty.getQ2TUri().getHost());
-    assertThat(location.getPort()).isEqualTo(sendingParty.getQ2TUri().getPort());
+    if(sendingParty.getConfig().getServerConfigs().stream().allMatch(not(ServerConfig::isUnixSocket))) {
+      assertThat(location.getHost()).isEqualTo(sendingParty.getQ2TUri().getHost());
+      assertThat(location.getPort()).isEqualTo(sendingParty.getQ2TUri().getPort());
+    }
   }
 
   @Test
@@ -234,7 +234,7 @@ public class SendIT {
             .toString();
 
     final Response response =
-        client
+      sendingParty.getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -252,7 +252,7 @@ public class SendIT {
     final String sendRequest = "this is clearly a garbage message";
 
     final Response response =
-        client
+      sendingParty.getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -270,7 +270,7 @@ public class SendIT {
     final String sendRequest = "{}";
 
     final Response response =
-        client
+      sendingParty.getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -300,7 +300,7 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-        client
+      sendingParty.getRestClient()
             .target(sendingParty.getQ2TUri())
             .path(SEND_PATH)
             .request()
@@ -325,7 +325,7 @@ public class SendIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-        client
+      sender.getRestClient()
             .target(sender.getQ2TUri())
             .path(SEND_PATH)
             .request()

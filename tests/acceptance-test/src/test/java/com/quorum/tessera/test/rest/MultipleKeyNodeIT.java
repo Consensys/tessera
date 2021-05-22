@@ -1,22 +1,21 @@
 package com.quorum.tessera.test.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.List;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import suite.NodeAlias;
+import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * This tests that a node that hosts multiple sets of keys can send/receive transactions for both
@@ -27,7 +26,6 @@ public class MultipleKeyNodeIT {
 
   private PartyHelper partyHelper = PartyHelper.create();
 
-  private final Client client = ClientBuilder.newClient();
 
   private final String recipientAlias;
 
@@ -42,7 +40,7 @@ public class MultipleKeyNodeIT {
   @Before
   public void onSetUp() {
 
-    Party sender = partyHelper.findByAlias("A");
+    Party sender = partyHelper.findByAlias(NodeAlias.A);
 
     Party recipient = partyHelper.findByAlias(recipientAlias);
     byte[] transactionData = restUtils.createTransactionData();
@@ -52,6 +50,7 @@ public class MultipleKeyNodeIT {
     assertThat(result.getKey()).isNotBlank();
 
     this.txHash = result.getKey();
+
   }
 
   @Test
@@ -62,7 +61,7 @@ public class MultipleKeyNodeIT {
     Party recipient = partyHelper.findByAlias(recipientAlias);
     // retrieve the transaction
     final Response retrieveResponse =
-        this.client
+      recipient.getRestClient()
             .target(recipient.getQ2TUri())
             .path("transaction")
             .path(URLEncoder.encode(txHash, "UTF-8"))
@@ -72,7 +71,7 @@ public class MultipleKeyNodeIT {
 
     assertThat(retrieveResponse).isNotNull();
     assertThat(retrieveResponse.getStatus())
-        .describedAs(txHash + " should be present on other node")
+        .describedAs("%s should be present on other node",txHash)
         .isEqualTo(200);
 
     final ReceiveResponse result = retrieveResponse.readEntity(ReceiveResponse.class);

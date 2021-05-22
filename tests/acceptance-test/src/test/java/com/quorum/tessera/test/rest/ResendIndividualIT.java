@@ -17,8 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ResendIndividualIT {
-
-  private final Client client = ClientBuilder.newClient();
+  //Dont use for q2t for as unix ipc file support
+  private final Client vanillaHttpOnlyClient = ClientBuilder.newClient();
 
   private static final String RESEND_PATH = "/resend";
 
@@ -41,7 +41,7 @@ public class ResendIndividualIT {
     recipient = partyHelper.findByAlias("B");
 
     final Response response =
-        client
+      sender.getRestClient()
             .target(sender.getQ2TUri())
             .path("/sendraw")
             .request()
@@ -64,7 +64,7 @@ public class ResendIndividualIT {
     request.setPublicKey(recipient.getPublicKey());
 
     final Response response =
-        client
+        vanillaHttpOnlyClient
             .target(sender.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -91,7 +91,7 @@ public class ResendIndividualIT {
     request.setPublicKey(sender.getPublicKey());
 
     final Response response =
-        client
+        vanillaHttpOnlyClient
             .target(recipient.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -125,7 +125,7 @@ public class ResendIndividualIT {
     request.setPublicKey(anyOtherParty.getPublicKey());
 
     final Response response =
-        client
+        vanillaHttpOnlyClient
             .target(recipient.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -157,7 +157,7 @@ public class ResendIndividualIT {
             .getPublicKey());
 
     final Response response =
-        client
+        vanillaHttpOnlyClient
             .target(recipient.getP2PUri())
             .path(RESEND_PATH)
             .request()

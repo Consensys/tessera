@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -71,7 +70,7 @@ public class RawSteps implements En {
     And(
         "^all parties are running$",
         () -> {
-          Client client = ClientBuilder.newClient();
+          final Client client = partyHelper.getParties().findAny().get().getRestClient();
 
           assertThat(
                   partyHelper

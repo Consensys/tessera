@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.DBType;
+import com.quorum.tessera.test.PartyHelper;
 import config.ConfigBuilder;
 import exec.ExecArgsBuilder;
 import exec.ExecUtils;
@@ -22,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +155,14 @@ public class WhitelistSteps implements En {
       When(
           "a request is made against the node",
           () -> {
-            Client client = ClientBuilder.newClient();
+            Client client =
+                PartyHelper.create()
+                    .getParties()
+                    .filter(p -> p.getP2PUri().getPort() != P2P_PORT)
+                    .findAny()
+                    .get()
+                    .getRestClient();
+
             Response response =
                 client.target("http://localhost:" + P2P_PORT).path("upcheck").request().get();
 
