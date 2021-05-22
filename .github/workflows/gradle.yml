@@ -124,13 +124,13 @@ jobs:
         ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --fail-fast -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
     - name: Upload Junit reports
       uses: actions/upload-artifact@v1
-      if: failure()
+      if: always()
       with:
        name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
     - name: Upload test logs
       uses: actions/upload-artifact@v1
-      if: failure()
+      if: always()
       with:
        name: itest-logs
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
@@ -160,13 +160,13 @@ jobs:
           ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave --tests RestSuiteHttpH2RemoteEnclaveEncTypeEC --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: remote_enclave_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: remote_enclave_itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
@@ -196,13 +196,13 @@ jobs:
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests CucumberTestSuite --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: cucumber_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: cucumber_itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
@@ -235,13 +235,13 @@ jobs:
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --fail-fast --tests RunHashicorpIT --tests AwsKeyVaultIT --tests RunAzureIT --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: vault-itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: vault-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
@@ -270,13 +270,13 @@ jobs:
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RecoverIT --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: recovery_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: always()
         with:
           name: recovery-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
