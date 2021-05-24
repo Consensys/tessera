@@ -1,6 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -109,9 +108,13 @@ public class RecoverIT {
 
   @After
   public void stopNetwork() throws Exception {
-    setupDatabase.dropAll();
-    ExecutionContext.destroyContext();
-    executors.values().forEach(ExecManager::stop);
+    try {
+      setupDatabase.dropAll();
+    } finally {
+      ExecutionContext.destroyContext();
+      executors.values().forEach(ExecManager::stop);
+    }
+
   }
 
   void sendTransactions() {
