@@ -1,19 +1,16 @@
 package com.quorum.tessera.config;
 
-import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.*;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.*;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
-@ValidEitherServerConfigsOrServer
 @ValidServerConfigs
 @HasKeysOrRemoteEnclave
 public class Config extends ConfigItem {
@@ -25,7 +22,9 @@ public class Config extends ConfigItem {
   @XmlElement(name = "jdbc", required = true)
   private JdbcConfig jdbcConfig;
 
+  @NotNull
   @Valid
+  @Size(min = 1)
   @XmlElement(name = "serverConfigs", required = true)
   private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
 
@@ -45,18 +44,11 @@ public class Config extends ConfigItem {
   @XmlElement(name = "alwaysSendTo")
   private List<@ValidBase64 String> alwaysSendTo = new ArrayList<>();
 
-  @ValidPath(checkCanCreate = true)
-  @XmlElement(required = true, type = String.class)
-  @XmlJavaTypeAdapter(PathAdapter.class)
-  private Path unixSocketFile;
-
   @XmlAttribute private boolean useWhiteList;
 
   @XmlAttribute private boolean disablePeerDiscovery;
 
   @XmlAttribute private boolean bootstrapNode;
-
-  @XmlElement private DeprecatedServerConfig server;
 
   @XmlElement private FeatureToggles features = new FeatureToggles();
 
@@ -76,7 +68,6 @@ public class Config extends ConfigItem {
       final List<Peer> peers,
       final KeyConfiguration keyConfiguration,
       final List<String> alwaysSendTo,
-      final Path unixSocketFile,
       final boolean useWhiteList,
       final boolean disablePeerDiscovery) {
     this.jdbcConfig = jdbcConfig;
@@ -84,7 +75,6 @@ public class Config extends ConfigItem {
     this.peers = peers;
     this.keys = keyConfiguration;
     this.alwaysSendTo = alwaysSendTo;
-    this.unixSocketFile = unixSocketFile;
     this.useWhiteList = useWhiteList;
     this.disablePeerDiscovery = disablePeerDiscovery;
   }
@@ -95,21 +85,12 @@ public class Config extends ConfigItem {
     return this.jdbcConfig;
   }
 
-  // TODO: Shouldn't need to lazily recalculate on a getter
   public List<ServerConfig> getServerConfigs() {
-    if (null != this.serverConfigs) {
-      return this.serverConfigs;
-    }
-    return DeprecatedServerConfig.from(server, unixSocketFile);
+    return this.serverConfigs;
   }
 
   public boolean isServerConfigsNull() {
     return null == this.serverConfigs;
-  }
-
-  @Deprecated
-  public Path getUnixSocketFile() {
-    return unixSocketFile;
   }
 
   public List<Peer> getPeers() {
@@ -154,16 +135,6 @@ public class Config extends ConfigItem {
         .orElse(null);
   }
 
-  @Deprecated
-  public DeprecatedServerConfig getServer() {
-    return server;
-  }
-
-  @Deprecated
-  public void setServer(DeprecatedServerConfig server) {
-    this.server = server;
-  }
-
   public void setJdbcConfig(JdbcConfig jdbcConfig) {
     this.jdbcConfig = jdbcConfig;
   }
@@ -182,11 +153,6 @@ public class Config extends ConfigItem {
 
   public void setAlwaysSendTo(List<String> alwaysSendTo) {
     this.alwaysSendTo = alwaysSendTo;
-  }
-
-  @Deprecated
-  public void setUnixSocketFile(Path unixSocketFile) {
-    this.unixSocketFile = unixSocketFile;
   }
 
   public void setUseWhiteList(boolean useWhiteList) {

@@ -65,15 +65,6 @@ public class ConfigTest {
   }
 
   @Test
-  public void setNullServerDoesNothing() {
-    Config config = new Config();
-    config.setServer(null);
-
-    assertThat(config.getServerConfigs()).isEmpty();
-    assertThat(config.getServer()).isNull();
-  }
-
-  @Test
   public void areServerConfigsNull() {
     Config config = new Config();
     Path unixServerPath = mock(Path.class);
