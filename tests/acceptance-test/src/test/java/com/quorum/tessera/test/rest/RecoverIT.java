@@ -114,7 +114,6 @@ public class RecoverIT {
       ExecutionContext.destroyContext();
       executors.values().forEach(ExecManager::stop);
     }
-
   }
 
   void sendTransactions() {
