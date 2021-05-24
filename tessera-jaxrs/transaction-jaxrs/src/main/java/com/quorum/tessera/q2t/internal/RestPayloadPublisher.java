@@ -1,4 +1,4 @@
-package com.quorum.tessera.q2t;
+package com.quorum.tessera.q2t.internal;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
@@ -31,8 +31,7 @@ public class RestPayloadPublisher implements PayloadPublisher {
 
   private final Discovery discovery;
 
-  public RestPayloadPublisher(
-      Client restclient, PayloadEncoder payloadEncoder, Discovery discovery) {
+  RestPayloadPublisher(Client restclient, PayloadEncoder payloadEncoder, Discovery discovery) {
     this.restclient = Objects.requireNonNull(restclient);
     this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     this.discovery = Objects.requireNonNull(discovery);

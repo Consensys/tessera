@@ -1,4 +1,4 @@
-package com.quorum.tessera.q2t;
+package com.quorum.tessera.q2t.internal;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;

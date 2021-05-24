@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
+import com.quorum.tessera.q2t.internal.BatchPrivacyGroupPublisherProvider;
 import org.junit.Test;
 
 public class BatchPrivacyGroupPublisherProviderTest {

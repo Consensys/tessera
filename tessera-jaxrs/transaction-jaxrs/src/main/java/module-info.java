@@ -20,11 +20,11 @@ module tessera.transaction.jaxrs {
   provides com.quorum.tessera.config.apps.TesseraApp with
       com.quorum.tessera.q2t.Q2TRestApp;
   provides com.quorum.tessera.transaction.publish.PayloadPublisher with
-      com.quorum.tessera.q2t.PayloadPublisherProvider;
+      com.quorum.tessera.q2t.internal.PayloadPublisherProvider;
   provides com.quorum.tessera.transaction.publish.BatchPayloadPublisher with
-      com.quorum.tessera.q2t.BatchPayloadPublisherProvider;
+      com.quorum.tessera.q2t.internal.BatchPayloadPublisherProvider;
   provides com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher with
-      com.quorum.tessera.q2t.PrivacyGroupPublisherProvider;
+      com.quorum.tessera.q2t.internal.PrivacyGroupPublisherProvider;
   provides com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher with
-      com.quorum.tessera.q2t.BatchPrivacyGroupPublisherProvider;
+      com.quorum.tessera.q2t.internal.BatchPrivacyGroupPublisherProvider;
 }

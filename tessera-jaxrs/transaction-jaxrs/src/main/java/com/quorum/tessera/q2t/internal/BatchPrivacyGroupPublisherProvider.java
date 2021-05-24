@@ -1,4 +1,4 @@
-package com.quorum.tessera.q2t;
+package com.quorum.tessera.q2t.internal;
 
 import com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;

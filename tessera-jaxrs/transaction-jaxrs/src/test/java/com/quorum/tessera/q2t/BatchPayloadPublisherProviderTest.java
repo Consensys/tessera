@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.q2t.internal.BatchPayloadPublisherProvider;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import org.junit.Test;

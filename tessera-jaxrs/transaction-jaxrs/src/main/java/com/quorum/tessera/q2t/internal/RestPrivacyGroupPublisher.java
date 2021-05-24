@@ -1,4 +1,4 @@
-package com.quorum.tessera.q2t;
+package com.quorum.tessera.q2t.internal;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.encryption.PublicKey;
@@ -25,7 +25,7 @@ public class RestPrivacyGroupPublisher implements PrivacyGroupPublisher {
 
   private final Client restClient;
 
-  RestPrivacyGroupPublisher(Discovery discovery, Client restClient) {
+  public RestPrivacyGroupPublisher(Discovery discovery, Client restClient) {
     this.discovery = discovery;
     this.restClient = restClient;
   }

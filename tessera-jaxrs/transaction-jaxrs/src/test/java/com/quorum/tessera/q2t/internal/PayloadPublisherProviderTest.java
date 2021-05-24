@@ -1,4 +1,4 @@
-package com.quorum.tessera.q2t;
+package com.quorum.tessera.q2t.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;

@@ -1,4 +1,4 @@
-package com.quorum.tessera.q2t;
+package com.quorum.tessera.q2t.internal;
 
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.exception.PrivacyGroupPublishException;
