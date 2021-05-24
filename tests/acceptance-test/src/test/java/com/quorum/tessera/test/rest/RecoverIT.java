@@ -21,7 +21,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -35,9 +34,8 @@ import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import suite.*;
@@ -48,7 +46,7 @@ public class RecoverIT {
 
   private Map<NodeAlias, ExecManager> executors;
 
-  private SetupDatabase setupDatabase;
+  private static SetupDatabase setupDatabase;
 
   private PartyHelper partyHelper;
 
@@ -56,17 +54,37 @@ public class RecoverIT {
 
   private List<Party> recipients;
 
+
+  @BeforeClass
+  public static void beforeTestClass() {
+    final ExecutionContext executionContext =
+      ExecutionContext.Builder.create()
+        .with(CommunicationType.REST)
+        .with(DBType.H2)
+        .with(SocketType.HTTP)
+        .with(EnclaveType.LOCAL)
+        .with(EncryptorType.NACL)
+        .prefix(RecoverIT.class.getSimpleName().toLowerCase())
+        .createAndSetupContext();
+
+    String nodeId = NodeId.generate(executionContext);
+    DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
+    databaseServer.start();
+
+    setupDatabase = new SetupDatabase(executionContext);
+
+  }
+
+  @AfterClass
+  public static void afterTestClass() {
+    ExecutionContext.destroyContext();
+  }
+
   @Before
   public void startNetwork() throws Exception {
-    final ExecutionContext executionContext =
-        ExecutionContext.Builder.create()
-            .with(CommunicationType.REST)
-            .with(DBType.H2)
-            .with(SocketType.HTTP)
-            .with(EnclaveType.LOCAL)
-            .with(EncryptorType.NACL)
-            .prefix(RecoverIT.class.getSimpleName().toLowerCase())
-            .createAndSetupContext();
+    setupDatabase.setUp();
+
+    ExecutionContext executionContext = ExecutionContext.currentContext();
 
     partyHelper = PartyHelper.create();
     sender = partyHelper.findByAlias(NodeAlias.A);
@@ -75,13 +93,6 @@ public class RecoverIT {
             .getParties()
             .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
             .collect(Collectors.toList());
-
-    String nodeId = NodeId.generate(executionContext);
-    DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
-    databaseServer.start();
-
-    setupDatabase = new SetupDatabase(executionContext);
-    setupDatabase.setUp();
 
     this.executors =
         executionContext.getConfigs().stream()
@@ -111,7 +122,6 @@ public class RecoverIT {
     try {
       setupDatabase.dropAll();
     } finally {
-      ExecutionContext.destroyContext();
       executors.values().forEach(ExecManager::stop);
     }
   }
