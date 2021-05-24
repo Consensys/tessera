@@ -326,6 +326,12 @@ jobs:
         with:
           name: hashicorp-key-vault-dist
           path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
+      - name: Run AWS tests
+        run: |
+          ./gradlew :tests:acceptance-test:test --tests AwsKeyVaultIT --info
+      - name: Run azure tests
+        run: |
+          ./gradlew :tests:acceptance-test:test --tests RunAzureIT --info
       - name: Run hashicorp tests
         run: |
           wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
@@ -333,12 +339,6 @@ jobs:
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
           ./gradlew :tests:acceptance-test:test --tests RunHashicorpIT --info
-      - name: Run AWS tests
-        run: |
-          ./gradlew :tests:acceptance-test:test --tests AwsKeyVaultIT --info
-      - name: Run azure tests
-        run: |
-          ./gradlew :tests:acceptance-test:test --tests RunAzureIT --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
         if: failure()
