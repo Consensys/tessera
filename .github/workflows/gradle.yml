@@ -169,6 +169,7 @@ jobs:
 
   remote_enclave_itest:
     name: Remote enclave integration tests
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -179,9 +180,33 @@ jobs:
           distribution: 'adopt'
           java-version: 12
           check-latest: true
+      - name: Download tessera dist
+        uses: actions/download-artifact@v2
+        with:
+          name: tessera-dists
+          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+      - name: Download tessera enclave dist
+        uses: actions/download-artifact@v2
+        with:
+          name: enclave-dists
+          path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+      - name: Download aws key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: aws-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+      - name: Download azure key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: azure-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+      - name: Download azure key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: hashicorp-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
       - name: Execute gradle integration tests
         run: |
-          ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave --tests RestSuiteHttpH2RemoteEnclaveEncTypeEC --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
@@ -205,6 +230,7 @@ jobs:
 
   cucumber_itest:
     name: Legacy cucumber tests
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -215,9 +241,33 @@ jobs:
           distribution: 'adopt'
           java-version: 11
           check-latest: true
+      - name: Download tessera dist
+        uses: actions/download-artifact@v2
+        with:
+          name: tessera-dists
+          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+      - name: Download tessera enclave dist
+        uses: actions/download-artifact@v2
+        with:
+          name: enclave-dists
+          path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+      - name: Download aws key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: aws-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+      - name: Download azure key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: azure-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+      - name: Download azure key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: hashicorp-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
       - name: Execute gradle
         run: |
-          ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests CucumberTestSuite --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
@@ -241,6 +291,7 @@ jobs:
 
   vaultTests:
     name: Key vault integration tests
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -250,13 +301,37 @@ jobs:
           distribution: 'adopt'
           java-version: 11
           check-latest: true
+      - name: Download tessera dist
+        uses: actions/download-artifact@v2
+        with:
+          name: tessera-dists
+          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+      - name: Download tessera enclave dist
+        uses: actions/download-artifact@v2
+        with:
+          name: enclave-dists
+          path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+      - name: Download aws key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: aws-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+      - name: Download azure key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: azure-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+      - name: Download azure key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: hashicorp-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
       - name: Download and run hashicorp and execute gradle
         run: |
           wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
           mkdir -p vault/bin && pushd $_
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
-          ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --fail-fast --tests RunHashicorpIT --tests AwsKeyVaultIT --tests RunAzureIT --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
@@ -279,6 +354,7 @@ jobs:
 
   recovery_itest:
     name: Recovery integration tests
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -289,9 +365,33 @@ jobs:
           distribution: 'adopt'
           java-version: 12
           check-latest: true
-      - name: Execute gradle
+      - name: Download tessera dist
+        uses: actions/download-artifact@v2
+        with:
+          name: tessera-dists
+          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+      - name: Download tessera enclave dist
+        uses: actions/download-artifact@v2
+        with:
+          name: enclave-dists
+          path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+      - name: Download aws key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: aws-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+      - name: Download azure key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: azure-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+      - name: Download azure key vault dist
+        uses: actions/download-artifact@v2
+        with:
+          name: hashicorp-key-vault-dist
+          path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
+      - name: Execute tests
         run: |
-          ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RecoverIT --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
@@ -315,6 +415,7 @@ jobs:
 
   atest:
     name: Quorum acceptence tests
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code from SCM
@@ -325,9 +426,13 @@ jobs:
           distribution: 'adopt'
           java-version: 12
           check-latest: true
+      - name: Download tessera dist
+        uses: actions/download-artifact@v2
+        with:
+          name: tessera-dists
+          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
       - name: Build and prepare docker image
         run: |
-          ./gradlew build -x test -x dependencyCheckAnalyze -x javadoc
           cp tessera-dist/build/distributions/tessera-*.tar tessera-dist/build/distributions/tessera.tar
           mkdir tessera-extracted && tar xvf tessera-dist/build/distributions/tessera.tar -C tessera-extracted --strip-components 1
       - name: Push docker image
