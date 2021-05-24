@@ -139,7 +139,7 @@ jobs:
       with:
         name: azure-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-    - name: Download azure key vault dist
+    - name: Download hashicorp key vault dist
       uses: actions/download-artifact@v2
       with:
         name: hashicorp-key-vault-dist
@@ -200,7 +200,7 @@ jobs:
         with:
           name: azure-key-vault-dist
           path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-      - name: Download azure key vault dist
+      - name: Download hashicorp key vault dist
         uses: actions/download-artifact@v2
         with:
           name: hashicorp-key-vault-dist
@@ -261,7 +261,7 @@ jobs:
         with:
           name: azure-key-vault-dist
           path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-      - name: Download azure key vault dist
+      - name: Download hashicorp key vault dist
         uses: actions/download-artifact@v2
         with:
           name: hashicorp-key-vault-dist
@@ -321,7 +321,7 @@ jobs:
         with:
           name: azure-key-vault-dist
           path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-      - name: Download azure key vault dist
+      - name: Download hashicorp key vault dist
         uses: actions/download-artifact@v2
         with:
           name: hashicorp-key-vault-dist
@@ -391,7 +391,7 @@ jobs:
         with:
           name: azure-key-vault-dist
           path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
-      - name: Download azure key vault dist
+      - name: Download hashicorp key vault dist
         uses: actions/download-artifact@v2
         with:
           name: hashicorp-key-vault-dist
