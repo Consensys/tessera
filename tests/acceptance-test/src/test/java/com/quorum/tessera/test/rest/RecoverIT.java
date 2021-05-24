@@ -122,7 +122,7 @@ public class RecoverIT {
       for (Connection connection : setupDatabase.getConnections()) {
         try (connection) {
           try (Statement statement = connection.createStatement()) {
-            assertThat(statement.execute("DELETE ENCRYPTED_TRANSACTION")).isTrue();
+            statement.execute("DELETE ENCRYPTED_TRANSACTION");
           }
         } catch (SQLException sqlException) {
           fail("DB Error when deleting data", sqlException);
