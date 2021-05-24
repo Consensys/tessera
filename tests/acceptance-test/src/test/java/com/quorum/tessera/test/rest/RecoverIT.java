@@ -17,10 +17,8 @@ import db.UncheckedSQLException;
 import exec.ExecManager;
 import exec.NodeExecManager;
 import exec.RecoveryExecManager;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+
+import java.sql.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +54,7 @@ public class RecoverIT {
 
 
   @BeforeClass
-  public static void beforeTestClass() {
+  public static void beforeTestClass() throws Exception {
     final ExecutionContext executionContext =
       ExecutionContext.Builder.create()
         .with(CommunicationType.REST)
@@ -72,17 +70,22 @@ public class RecoverIT {
     databaseServer.start();
 
     setupDatabase = new SetupDatabase(executionContext);
+    setupDatabase.setUp();
 
   }
 
   @AfterClass
-  public static void afterTestClass() {
-    ExecutionContext.destroyContext();
+  public static void afterTestClass() throws Exception {
+    try {
+      ExecutionContext.destroyContext();
+    } finally {
+      setupDatabase.dropAll();
+    }
   }
 
   @Before
   public void startNetwork() throws Exception {
-    setupDatabase.setUp();
+
 
     ExecutionContext executionContext = ExecutionContext.currentContext();
 
@@ -119,8 +122,17 @@ public class RecoverIT {
 
   @After
   public void stopNetwork() throws Exception {
+
     try {
-      setupDatabase.dropAll();
+      for(Connection connection : setupDatabase.getConnections()) {
+        try(connection) {
+          try(Statement statement = connection.createStatement()) {
+            assertThat(statement.execute("DELETE ENCRYPTED_TRANSACTION")).isTrue();
+          }
+        } catch (SQLException sqlException) {
+          fail("DB Error when deleting data",sqlException);
+        }
+      }
     } finally {
       executors.values().forEach(ExecManager::stop);
     }
