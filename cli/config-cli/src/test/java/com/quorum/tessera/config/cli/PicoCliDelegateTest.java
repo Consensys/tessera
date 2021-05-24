@@ -559,32 +559,6 @@ public class PicoCliDelegateTest {
   }
 
   @Test
-  public void emptyConfigFileOverride() throws Exception {
-
-    Path unixSocketFile = Files.createTempFile("unixSocketFile", ".ipc");
-    unixSocketFile.toFile().deleteOnExit();
-
-    Path configFile = Files.createTempFile("emptyconfig", ".json");
-    configFile.toFile().deleteOnExit();
-    Files.write(configFile, "{}".getBytes());
-    try {
-      CliResult result =
-          cliDelegate.execute(
-              "-configfile",
-              configFile.toString(),
-              "-o",
-              Strings.join("unixSocketFile=", unixSocketFile.toString()).with(""),
-              "-o",
-              "encryptor.type=NACL");
-
-      assertThat(result).isNotNull();
-      failBecauseExceptionWasNotThrown(ConstraintViolationException.class);
-    } catch (ConstraintViolationException ex) {
-      ex.getConstraintViolations().forEach(v -> LOGGER.info("{}", v));
-    }
-  }
-
-  @Test
   public void overrideAlwaysSendTo() throws Exception {
 
     String alwaysSendToKey = "giizjhZQM6peq52O7icVFxdTmTYinQSUsvyhXzgZqkE=";

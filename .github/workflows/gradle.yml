@@ -332,30 +332,22 @@ jobs:
           mkdir -p vault/bin && pushd $_
           unzip /tmp/vault_1.2.2_linux_amd64.zip
           export PATH=$PATH:$PWD && popd
-          ./gradlew :tests:acceptance-test:test --fail-fast --tests RunHashicorpIT --info
+          ./gradlew :tests:acceptance-test:test --tests RunHashicorpIT --info
       - name: Run AWS tests
         run: |
-          wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
-          mkdir -p vault/bin && pushd $_
-          unzip /tmp/vault_1.2.2_linux_amd64.zip
-          export PATH=$PATH:$PWD && popd
-          ./gradlew :tests:acceptance-test:test --fail-fast --tests AwsKeyVaultIT --info
+          ./gradlew :tests:acceptance-test:test --tests AwsKeyVaultIT --info
       - name: Run azure tests
         run: |
-          wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
-          mkdir -p vault/bin && pushd $_
-          unzip /tmp/vault_1.2.2_linux_amd64.zip
-          export PATH=$PATH:$PWD && popd
-          ./gradlew :tests:acceptance-test:test --fail-fast --tests RunAzureIT --info
+          ./gradlew :tests:acceptance-test:test --tests RunAzureIT --info
       - name: Upload junit reports
         uses: actions/upload-artifact@v1
-        if: always()
+        if: failure()
         with:
           name: vault-itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
         uses: actions/upload-artifact@v1
-        if: always()
+        if: failure()
         with:
           name: vault-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs

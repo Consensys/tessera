@@ -26,7 +26,7 @@ public class Config extends ConfigItem {
   @Valid
   @Size(min = 1)
   @XmlElement(name = "serverConfigs", required = true)
-  private List<@Valid @ValidServerConfig ServerConfig> serverConfigs;
+  private List<@Valid @ValidServerConfig ServerConfig> serverConfigs = new ArrayList<>();
 
   @NotNull
   @Valid

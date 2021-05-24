@@ -34,7 +34,6 @@ public class OpenPojoTest {
             DefaultKeyVaultConfig.class,
             Config.class,
             Version.class,
-            DeprecatedServerConfig.class,
             FeatureToggles.class,
             InfluxConfig.class,
             ArgonOptions.class,
