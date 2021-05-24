@@ -118,9 +118,33 @@ jobs:
         distribution: 'adopt'
         java-version: 12
         check-latest: true
+    - name: Download tessera dist
+      uses: actions/download-artifact@v2
+      with:
+        name: tessera-dists
+        path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+    - name: Download tessera enclave dist
+      uses: actions/download-artifact@v2
+      with:
+        name: enclave-dists
+        path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
+    - name: Download aws key vault dist
+      uses: actions/download-artifact@v2
+      with:
+        name: aws-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
+    - name: Download azure key vault dist
+      uses: actions/download-artifact@v2
+      with:
+        name: azure-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
+    - name: Download azure key vault dist
+      uses: actions/download-artifact@v2
+      with:
+        name: hashicorp-key-vault-dist
+        path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
     - name: Execute gradle integration tests
       run: |
-        ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test
         ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --fail-fast -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
     - name: Upload Junit reports
       uses: actions/upload-artifact@v1
