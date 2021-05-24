@@ -108,6 +108,7 @@ jobs:
 
   itest:
     name: Integration tests
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code from SCM
