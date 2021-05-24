@@ -64,7 +64,7 @@ public class SetupDatabase {
     }
   }
 
-  private Connection getConnection(NodeAlias nodeAlias) {
+  public Connection getConnection(NodeAlias nodeAlias) {
     return executionContext.getConfigs().stream()
         .filter(c -> c.getAlias() == nodeAlias)
         .map(ConfigDescriptor::getConfig)
@@ -82,7 +82,7 @@ public class SetupDatabase {
         .get();
   }
 
-  private List<Connection> getConnections() {
+  public List<Connection> getConnections() {
     return Arrays.stream(NodeAlias.values()).map(this::getConnection).collect(Collectors.toList());
   }
 

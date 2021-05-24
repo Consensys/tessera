@@ -17,7 +17,6 @@ import db.UncheckedSQLException;
 import exec.ExecManager;
 import exec.NodeExecManager;
 import exec.RecoveryExecManager;
-
 import java.sql.*;
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,18 +50,17 @@ public class RecoverIT {
 
   private List<Party> recipients;
 
-
   @BeforeClass
   public static void beforeTestClass() throws Exception {
     final ExecutionContext executionContext =
-      ExecutionContext.Builder.create()
-        .with(CommunicationType.REST)
-        .with(DBType.H2)
-        .with(SocketType.HTTP)
-        .with(EnclaveType.LOCAL)
-        .with(EncryptorType.NACL)
-        .prefix(RecoverIT.class.getSimpleName().toLowerCase())
-        .createAndSetupContext();
+        ExecutionContext.Builder.create()
+            .with(CommunicationType.REST)
+            .with(DBType.H2)
+            .with(SocketType.HTTP)
+            .with(EnclaveType.LOCAL)
+            .with(EncryptorType.NACL)
+            .prefix(RecoverIT.class.getSimpleName().toLowerCase())
+            .createAndSetupContext();
 
     String nodeId = NodeId.generate(executionContext);
     DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
@@ -71,7 +68,6 @@ public class RecoverIT {
 
     setupDatabase = new SetupDatabase(executionContext);
     setupDatabase.setUp();
-
   }
 
   @AfterClass
@@ -85,7 +81,6 @@ public class RecoverIT {
 
   @Before
   public void startNetwork() throws Exception {
-
 
     ExecutionContext executionContext = ExecutionContext.currentContext();
 
@@ -124,13 +119,13 @@ public class RecoverIT {
   public void stopNetwork() throws Exception {
 
     try {
-      for(Connection connection : setupDatabase.getConnections()) {
-        try(connection) {
-          try(Statement statement = connection.createStatement()) {
+      for (Connection connection : setupDatabase.getConnections()) {
+        try (connection) {
+          try (Statement statement = connection.createStatement()) {
             assertThat(statement.execute("DELETE ENCRYPTED_TRANSACTION")).isTrue();
           }
         } catch (SQLException sqlException) {
-          fail("DB Error when deleting data",sqlException);
+          fail("DB Error when deleting data", sqlException);
         }
       }
     } finally {
