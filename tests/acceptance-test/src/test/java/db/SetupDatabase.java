@@ -91,7 +91,7 @@ public class SetupDatabase {
 
     try (Connection connection = getConnection(nodeAlias)) {
       DatabaseMetaData metaData = connection.getMetaData();
-      if(Objects.isNull(metaData)) {
+      if (Objects.isNull(metaData)) {
         LOGGER.warn("No connection metadata returning");
         return;
       }
