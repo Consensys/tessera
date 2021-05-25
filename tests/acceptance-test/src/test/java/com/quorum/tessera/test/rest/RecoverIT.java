@@ -17,7 +17,10 @@ import db.UncheckedSQLException;
 import exec.ExecManager;
 import exec.NodeExecManager;
 import exec.RecoveryExecManager;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -31,7 +34,9 @@ import java.util.stream.Collectors;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import suite.*;
@@ -42,7 +47,7 @@ public class RecoverIT {
 
   private Map<NodeAlias, ExecManager> executors;
 
-  private static SetupDatabase setupDatabase;
+  private SetupDatabase setupDatabase;
 
   private PartyHelper partyHelper;
 
@@ -50,39 +55,17 @@ public class RecoverIT {
 
   private List<Party> recipients;
 
-  @BeforeClass
-  public static void beforeTestClass() throws Exception {
+  @Before
+  public void startNetwork() throws Exception {
     final ExecutionContext executionContext =
         ExecutionContext.Builder.create()
             .with(CommunicationType.REST)
-            .with(DBType.H2)
+            .with(DBType.SQLITE)
             .with(SocketType.HTTP)
             .with(EnclaveType.LOCAL)
             .with(EncryptorType.NACL)
             .prefix(RecoverIT.class.getSimpleName().toLowerCase())
             .createAndSetupContext();
-
-    String nodeId = NodeId.generate(executionContext);
-    DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
-    databaseServer.start();
-
-    setupDatabase = new SetupDatabase(executionContext);
-    setupDatabase.setUp();
-  }
-
-  @AfterClass
-  public static void afterTestClass() throws Exception {
-    try {
-      ExecutionContext.destroyContext();
-    } finally {
-      setupDatabase.dropAll();
-    }
-  }
-
-  @Before
-  public void startNetwork() throws Exception {
-
-    ExecutionContext executionContext = ExecutionContext.currentContext();
 
     partyHelper = PartyHelper.create();
     sender = partyHelper.findByAlias(NodeAlias.A);
@@ -91,6 +74,13 @@ public class RecoverIT {
             .getParties()
             .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
             .collect(Collectors.toList());
+
+    String nodeId = NodeId.generate(executionContext);
+    DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
+    databaseServer.start();
+
+    setupDatabase = new SetupDatabase(executionContext);
+    setupDatabase.setUp();
 
     this.executors =
         executionContext.getConfigs().stream()
@@ -117,20 +107,9 @@ public class RecoverIT {
 
   @After
   public void stopNetwork() throws Exception {
-
-    try {
-      for (Connection connection : setupDatabase.getConnections()) {
-        try (connection) {
-          try (Statement statement = connection.createStatement()) {
-            statement.execute("DELETE ENCRYPTED_TRANSACTION");
-          }
-        } catch (SQLException sqlException) {
-          fail("DB Error when deleting data", sqlException);
-        }
-      }
-    } finally {
-      executors.values().forEach(ExecManager::stop);
-    }
+    setupDatabase.dropAll();
+    ExecutionContext.destroyContext();
+    executors.values().forEach(ExecManager::stop);
   }
 
   void sendTransactions() {
