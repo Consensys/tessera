@@ -13,6 +13,7 @@ module tessera.acceptance.tests {
   requires tessera.partyinfo.model;
   requires tessera.application;
   requires tessera.shared;
+  requires tessera.data;
   requires jdk.httpserver;
   requires java.net.http;
 }

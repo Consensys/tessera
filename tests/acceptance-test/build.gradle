@@ -5,6 +5,7 @@ plugins {
 dependencies {
   implementation project(":tessera-core")
   implementation project(":tessera-context")
+  implementation project(":tessera-data")
   implementation project(":security")
   implementation project(":tessera-partyinfo")
   implementation project(":tessera-dist")
@@ -40,8 +41,8 @@ dependencies {
   testRuntimeOnly "org.slf4j:jcl-over-slf4j"
   testRuntimeOnly "org.slf4j:jul-to-slf4j"
 
-  testImplementation "io.cucumber:cucumber-junit:6.8.2"
-  testImplementation "io.cucumber:cucumber-java8:6.8.2"
+  testImplementation "io.cucumber:cucumber-junit:6.10.4"
+  testImplementation "io.cucumber:cucumber-java8:6.10.4"
 
   testImplementation "org.xerial:sqlite-jdbc"
   testImplementation "org.hsqldb:hsqldb"
