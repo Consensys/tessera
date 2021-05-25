@@ -229,7 +229,7 @@ jobs:
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   cucumber_itest:
-    name: Legacy cucumber tests
+    name: Cucumber itests
     needs: [build]
     runs-on: ubuntu-latest
     steps:
@@ -286,7 +286,7 @@ jobs:
         if: always()
         with:
           type: ${{job.status}}
-          job_name: Legacy cucumber tests
+          job_name: Cucumber itests
           url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
