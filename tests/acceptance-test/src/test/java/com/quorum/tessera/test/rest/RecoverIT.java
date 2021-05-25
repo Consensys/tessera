@@ -21,26 +21,27 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import suite.*;
 
+@RunWith(Parameterized.class)
 public class RecoverIT {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RecoverIT.class);
@@ -55,12 +56,18 @@ public class RecoverIT {
 
   private List<Party> recipients;
 
+  private DBType dbType;
+
+  public RecoverIT(TestConfig testConfig) {
+    this.dbType = testConfig.dbType;
+  }
+
   @Before
   public void startNetwork() throws Exception {
     final ExecutionContext executionContext =
         ExecutionContext.Builder.create()
             .with(CommunicationType.REST)
-            .with(DBType.SQLITE)
+            .with(dbType)
             .with(SocketType.HTTP)
             .with(EnclaveType.LOCAL)
             .with(EncryptorType.NACL)
@@ -273,4 +280,25 @@ public class RecoverIT {
     }
     executorService.shutdown();
   }
+
+  @Parameterized.Parameters(name = "{0}")
+  public static List<TestConfig> configs() {
+    return Stream.of(DBType.SQLITE).map(TestConfig::new).collect(Collectors.toUnmodifiableList());
+  }
+
+  static class TestConfig {
+    DBType dbType;
+
+    TestConfig(DBType dbType) {
+      this.dbType = Objects.requireNonNull(dbType);
+    }
+
+    @Override
+    public String toString() {
+      return "TestConfig{" +
+        "dbType=" + dbType +
+        '}';
+    }
+  }
+
 }
