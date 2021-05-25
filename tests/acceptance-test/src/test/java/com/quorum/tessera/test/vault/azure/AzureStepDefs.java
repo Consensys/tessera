@@ -3,6 +3,7 @@ package com.quorum.tessera.test.vault.azure;
 import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
 import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -511,6 +512,7 @@ public class AzureStepDefs implements En {
           // each PUT url (nodeAPub, nodeAKey, nodeBPub, nodeBKey) is authenticated
 
           // wireMockServer.get().verify(4, postRequestedFor(urlEqualTo(authUrl)));
+          fail("test not implemented");
         });
   }
 
@@ -526,6 +528,7 @@ public class AzureStepDefs implements En {
     Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
     tesseraEnvironment.put(AZURE_CLIENT_ID, "my-client-id");
     tesseraEnvironment.put(AZURE_CLIENT_SECRET, "my-client-secret");
+    tesseraEnvironment.put("AZURE_TENANT_ID", "my-tenant-id");
     tesseraEnvironment.put(
         "JAVA_OPTS",
         jvmArgsStr); // JAVA_OPTS is read by start script and is used to provide jvm args

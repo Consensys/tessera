@@ -329,9 +329,9 @@ jobs:
       - name: Run AWS tests
         run: |
           ./gradlew :tests:acceptance-test:test --tests AwsKeyVaultIT --info
-      - name: Run azure tests
-        run: |
-          ./gradlew :tests:acceptance-test:test --tests RunAzureIT --info
+#      - name: Run azure tests
+#        run: |
+#          ./gradlew :tests:acceptance-test:test --tests RunAzureIT --info
       - name: Run hashicorp tests
         run: |
           wget https://releases.hashicorp.com/vault/1.2.2/vault_1.2.2_linux_amd64.zip -O /tmp/vault_1.2.2_linux_amd64.zip
