@@ -295,10 +295,7 @@ public class RecoverIT {
 
     @Override
     public String toString() {
-      return "TestConfig{" +
-        "dbType=" + dbType +
-        '}';
+      return "TestConfig{" + "dbType=" + dbType + '}';
     }
   }
-
 }
