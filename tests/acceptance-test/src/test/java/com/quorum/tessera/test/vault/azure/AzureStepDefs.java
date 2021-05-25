@@ -1,9 +1,5 @@
 package com.quorum.tessera.test.vault.azure;
 
-import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
-import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.ssl.context.SSLContextBuilder;
@@ -15,6 +11,14 @@ import config.PortUtil;
 import exec.ExecArgsBuilder;
 import exec.NodeExecManager;
 import io.cucumber.java8.En;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.core.UriBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,13 +40,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.core.UriBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
+import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class AzureStepDefs implements En {
 
@@ -511,6 +513,7 @@ public class AzureStepDefs implements En {
           // each PUT url (nodeAPub, nodeAKey, nodeBPub, nodeBKey) is authenticated
 
           // wireMockServer.get().verify(4, postRequestedFor(urlEqualTo(authUrl)));
+          fail("test not implemented");
         });
   }
 
@@ -526,6 +529,7 @@ public class AzureStepDefs implements En {
     Map<String, String> tesseraEnvironment = tesseraProcessBuilder.environment();
     tesseraEnvironment.put(AZURE_CLIENT_ID, "my-client-id");
     tesseraEnvironment.put(AZURE_CLIENT_SECRET, "my-client-secret");
+    tesseraEnvironment.put("AZURE_TENANT_ID", "my-tenant-id");
     tesseraEnvironment.put(
         "JAVA_OPTS",
         jvmArgsStr); // JAVA_OPTS is read by start script and is used to provide jvm args
