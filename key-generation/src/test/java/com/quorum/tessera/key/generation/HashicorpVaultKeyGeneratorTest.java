@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
-import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
@@ -76,21 +75,19 @@ public class HashicorpVaultKeyGeneratorTest {
         new HashicorpVaultKeyPair("publicKey", "privateKey", secretEngine, filename, null);
     assertThat(result).isEqualToComparingFieldByField(expected);
 
-    final ArgumentCaptor<HashicorpSetSecretData> captor =
-        ArgumentCaptor.forClass(HashicorpSetSecretData.class);
+    final ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
     verify(keyVaultService).setSecret(captor.capture());
 
     assertThat(captor.getAllValues()).hasSize(1);
-    HashicorpSetSecretData capturedArg = captor.getValue();
+    Map capturedArg = captor.getValue();
 
-    Map<String, Object> expectedNameValuePairs = new HashMap<>();
-    expectedNameValuePairs.put("publicKey", pub.encodeToBase64());
-    expectedNameValuePairs.put("privateKey", priv.encodeToBase64());
+    Map<String, Object> expectedData = new HashMap<>();
+    expectedData.put("publicKey", pub.encodeToBase64());
+    expectedData.put("privateKey", priv.encodeToBase64());
+    expectedData.put("secretEngineName", secretEngine);
+    expectedData.put("secretName", filename);
 
-    HashicorpSetSecretData expectedData =
-        new HashicorpSetSecretData(secretEngine, filename, expectedNameValuePairs);
-
-    assertThat(capturedArg).isEqualToComparingFieldByFieldRecursively(expectedData);
+    assertThat(capturedArg).isEqualTo(expectedData);
 
     verifyNoMoreInteractions(keyVaultService);
   }

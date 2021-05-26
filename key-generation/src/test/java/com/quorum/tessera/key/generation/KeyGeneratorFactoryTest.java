@@ -9,6 +9,7 @@ import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 import java.security.Security;
 import java.util.Collections;
@@ -51,9 +52,14 @@ public class KeyGeneratorFactoryTest {
 
     try (MockedStatic<KeyVaultServiceFactory> mockedKeyVaultServiceFactory =
         mockStatic(KeyVaultServiceFactory.class)) {
+
+      KeyVaultService keyVaultService = mock(KeyVaultService.class);
+      KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
+      when(keyVaultServiceFactory.create(any(), any())).thenReturn(keyVaultService);
+
       mockedKeyVaultServiceFactory
           .when(() -> KeyVaultServiceFactory.getInstance(KeyVaultType.AWS))
-          .thenReturn(new MockAwsVaultServiceFactory());
+          .thenReturn(keyVaultServiceFactory);
 
       final KeyGenerator keyGenerator = keyGeneratorFactory.create(keyVaultConfig, encryptorConfig);
 

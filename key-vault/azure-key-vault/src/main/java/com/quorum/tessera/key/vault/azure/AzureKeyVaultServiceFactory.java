@@ -32,12 +32,8 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
             .orElseThrow(
                 () -> new ConfigException(new RuntimeException("No Azure Key Vault url provided")));
 
-    final AzureSecretClientDelegate client =
-        new AzureSecretClientDelegate(
-            new AzureSecretClientFactory(url, new DefaultAzureCredentialBuilder().build())
-                .create());
-
-    return new AzureKeyVaultService(client);
+    return new AzureKeyVaultService(
+        new AzureSecretClientFactory(url, new DefaultAzureCredentialBuilder().build()).create());
   }
 
   @Override

@@ -5,18 +5,13 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.*;
+import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 import java.util.Map;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 
 public class DefaultKeyGeneratorFactoryTest {
-
-  private Map<KeyVaultType, Class<? extends KeyVaultServiceFactory>> lookup =
-      Map.of(
-          KeyVaultType.AWS, MockAwsVaultServiceFactory.class,
-          KeyVaultType.AZURE, MockAzureKeyVaultServiceFactory.class,
-          KeyVaultType.HASHICORP, MockHashicorpKeyVaultServiceFactory.class);
 
   private Map<KeyVaultType, Class<? extends KeyGenerator>> resultsLookup =
       Map.of(
@@ -37,9 +32,13 @@ public class DefaultKeyGeneratorFactoryTest {
       DefaultKeyGeneratorFactory defaultKeyGeneratorFactory = new DefaultKeyGeneratorFactory();
       try (MockedStatic<KeyVaultServiceFactory> mockedKeyVaultServiceFactory =
           mockStatic(KeyVaultServiceFactory.class)) {
+
+        KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
+        when(keyVaultServiceFactory.create(any(), any())).thenReturn(mock(KeyVaultService.class));
+
         mockedKeyVaultServiceFactory
             .when(() -> KeyVaultServiceFactory.getInstance(keyVaultType))
-            .thenReturn(lookup.get(keyVaultType).getConstructor().newInstance());
+            .thenReturn(keyVaultServiceFactory);
 
         final KeyGenerator keyGenerator =
             defaultKeyGeneratorFactory.create(keyVaultConfig, encryptorConfig);
@@ -61,9 +60,12 @@ public class DefaultKeyGeneratorFactoryTest {
 
     try (MockedStatic<KeyVaultServiceFactory> mockedKeyVaultServiceFactory =
         mockStatic(KeyVaultServiceFactory.class)) {
+
+      KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
+
       mockedKeyVaultServiceFactory
           .when(() -> KeyVaultServiceFactory.getInstance(KeyVaultType.AWS))
-          .thenReturn(new MockAwsVaultServiceFactory());
+          .thenReturn(keyVaultServiceFactory);
 
       try {
         defaultKeyGeneratorFactory.create(keyVaultConfig, encryptorConfig);

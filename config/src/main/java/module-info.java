@@ -16,10 +16,8 @@ open module tessera.config {
   exports com.quorum.tessera.config.keypairs;
   exports com.quorum.tessera.config.keys;
   exports com.quorum.tessera.config.util;
-  exports com.quorum.tessera.config.vault.data;
   exports com.quorum.tessera.config.adapters;
   exports com.quorum.tessera.config.constraints;
-  exports com.quorum.tessera.config.internal;
 
   uses com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
   uses com.quorum.tessera.config.ConfigFactory;

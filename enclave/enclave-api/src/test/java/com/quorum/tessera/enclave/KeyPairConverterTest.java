@@ -7,7 +7,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
-import com.quorum.tessera.config.vault.data.GetSecretData;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
@@ -91,7 +90,8 @@ public class KeyPairConverterTest {
     try (var staticKeyVaultServiceFactory = mockStatic(KeyVaultServiceFactory.class)) {
       KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
       KeyVaultService keyVaultService = mock(KeyVaultService.class);
-      when(keyVaultService.getSecret(any(GetSecretData.class)))
+
+      when(keyVaultService.getSecret(any(Map.class)))
           .thenReturn("publicSecret")
           .thenReturn("privSecret");
 
@@ -116,7 +116,7 @@ public class KeyPairConverterTest {
 
       assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
 
-      verify(keyVaultService, times(2)).getSecret(any(GetSecretData.class));
+      verify(keyVaultService, times(2)).getSecret(any(Map.class));
       verify(keyVaultServiceFactory)
           .create(any(Config.class), any(EnvironmentVariableProvider.class));
       staticKeyVaultServiceFactory.verify(
@@ -134,7 +134,7 @@ public class KeyPairConverterTest {
     try (var staticKeyVaultServiceFactory = mockStatic(KeyVaultServiceFactory.class)) {
       KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
       KeyVaultService keyVaultService = mock(KeyVaultService.class);
-      when(keyVaultService.getSecret(any(GetSecretData.class)))
+      when(keyVaultService.getSecret(any(Map.class)))
           .thenReturn("publicSecret")
           .thenReturn("privSecret");
 
@@ -158,7 +158,7 @@ public class KeyPairConverterTest {
               PrivateKey.from(decodeBase64("privSecret")));
 
       assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
-      verify(keyVaultService, times(2)).getSecret(any(GetSecretData.class));
+      verify(keyVaultService, times(2)).getSecret(any(Map.class));
       verify(keyVaultServiceFactory)
           .create(any(Config.class), any(EnvironmentVariableProvider.class));
       staticKeyVaultServiceFactory.verify(
@@ -176,7 +176,7 @@ public class KeyPairConverterTest {
     try (var staticKeyVaultServiceFactory = mockStatic(KeyVaultServiceFactory.class)) {
       KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
       KeyVaultService keyVaultService = mock(KeyVaultService.class);
-      when(keyVaultService.getSecret(any(GetSecretData.class)))
+      when(keyVaultService.getSecret(any(Map.class)))
           .thenReturn("publicSecret")
           .thenReturn("privSecret");
 
@@ -201,7 +201,7 @@ public class KeyPairConverterTest {
               PrivateKey.from(decodeBase64("privSecret")));
 
       assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
-      verify(keyVaultService, times(2)).getSecret(any(GetSecretData.class));
+      verify(keyVaultService, times(2)).getSecret(any(Map.class));
       verify(keyVaultServiceFactory)
           .create(any(Config.class), any(EnvironmentVariableProvider.class));
       staticKeyVaultServiceFactory.verify(
