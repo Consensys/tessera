@@ -7,19 +7,12 @@ import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.keypairs.HashicorpVaultKeyPair;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
-import com.quorum.tessera.config.vault.data.AWSGetSecretData;
-import com.quorum.tessera.config.vault.data.AzureGetSecretData;
-import com.quorum.tessera.config.vault.data.GetSecretData;
-import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class KeyPairConverter {
@@ -50,10 +43,13 @@ public class KeyPairConverter {
 
       AzureVaultKeyPair akp = (AzureVaultKeyPair) configKeyPair;
 
-      GetSecretData getPublicKeyData =
-          new AzureGetSecretData(akp.getPublicKeyId(), akp.getPublicKeyVersion());
-      GetSecretData getPrivateKeyData =
-          new AzureGetSecretData(akp.getPrivateKeyId(), akp.getPrivateKeyVersion());
+      Map<String, String> getPublicKeyData =
+          new HashMap<>(Map.of("secretName", akp.getPublicKeyId()));
+      getPublicKeyData.put("secretVersion", akp.getPublicKeyVersion());
+
+      Map<String, String> getPrivateKeyData =
+          new HashMap<>(Map.of("secretName", akp.getPrivateKeyId()));
+      getPrivateKeyData.put("secretVersion", akp.getPrivateKeyVersion());
 
       base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
       base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);
@@ -66,18 +62,19 @@ public class KeyPairConverter {
 
       HashicorpVaultKeyPair hkp = (HashicorpVaultKeyPair) configKeyPair;
 
-      GetSecretData getPublicKeyData =
-          new HashicorpGetSecretData(
-              hkp.getSecretEngineName(),
-              hkp.getSecretName(),
-              hkp.getPublicKeyId(),
-              hkp.getSecretVersion());
-      GetSecretData getPrivateKeyData =
-          new HashicorpGetSecretData(
-              hkp.getSecretEngineName(),
-              hkp.getSecretName(),
-              hkp.getPrivateKeyId(),
-              hkp.getSecretVersion());
+      Map<String, String> getPublicKeyData =
+          Map.of(
+              "secretEngineName", hkp.getSecretEngineName(),
+              "secretName", hkp.getSecretName(),
+              "secretId", hkp.getPublicKeyId(),
+              "secretVersion", Objects.toString(hkp.getSecretVersion()));
+
+      Map<String, String> getPrivateKeyData =
+          Map.of(
+              "secretEngineName", hkp.getSecretEngineName(),
+              "secretName", hkp.getSecretName(),
+              "secretId", hkp.getPrivateKeyId(),
+              "secretVersion", Objects.toString(hkp.getSecretVersion()));
 
       base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
       base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);
@@ -89,8 +86,8 @@ public class KeyPairConverter {
 
       AWSKeyPair akp = (AWSKeyPair) configKeyPair;
 
-      GetSecretData getPublicKeyData = new AWSGetSecretData(akp.getPublicKeyId());
-      GetSecretData getPrivateKeyData = new AWSGetSecretData(akp.getPrivateKeyId());
+      Map<String, String> getPublicKeyData = Map.of("secretName", akp.getPublicKeyId());
+      Map<String, String> getPrivateKeyData = Map.of("secretName", akp.getPrivateKeyId());
 
       base64PublicKey = keyVaultService.getSecret(getPublicKeyData);
       base64PrivateKey = keyVaultService.getSecret(getPrivateKeyData);
