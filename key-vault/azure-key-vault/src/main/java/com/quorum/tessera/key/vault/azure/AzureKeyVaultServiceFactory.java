@@ -1,6 +1,10 @@
 package com.quorum.tessera.key.vault.azure;
 
+import com.azure.core.http.policy.HttpLogDetailLevel;
+import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigException;
 import com.quorum.tessera.config.KeyVaultConfig;
@@ -32,8 +36,14 @@ public class AzureKeyVaultServiceFactory implements KeyVaultServiceFactory {
             .orElseThrow(
                 () -> new ConfigException(new RuntimeException("No Azure Key Vault url provided")));
 
-    return new AzureKeyVaultService(
-        new AzureSecretClientFactory(url, new DefaultAzureCredentialBuilder().build()).create());
+    final SecretClient secretClient =
+        new SecretClientBuilder()
+            .vaultUrl(url)
+            .httpLogOptions(new HttpLogOptions().setLogLevel(HttpLogDetailLevel.BODY_AND_HEADERS))
+            .credential(new DefaultAzureCredentialBuilder().build())
+            .buildClient();
+
+    return new AzureKeyVaultService(secretClient);
   }
 
   @Override
