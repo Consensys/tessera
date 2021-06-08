@@ -1,7 +1,5 @@
 package com.quorum.tessera.test.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keypairs.ConfigKeyPair;
 import com.quorum.tessera.config.util.JaxbUtil;
@@ -10,6 +8,16 @@ import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
 import config.PortUtil;
 import exec.NodeExecManager;
+import org.junit.*;
+import suite.EnclaveType;
+import suite.ExecutionContext;
+import suite.NodeAlias;
+import suite.SocketType;
+
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.core.Response;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,15 +25,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
-import org.junit.*;
-import suite.EnclaveType;
-import suite.ExecutionContext;
-import suite.NodeAlias;
-import suite.SocketType;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThirdPartyIT {
 
@@ -68,7 +69,7 @@ public class ThirdPartyIT {
         .buildAndStoreContext();
 
     Config firstNodeDesc = createNode(NodeAlias.A);
-    Config secondNodeDesc = createNode(NodeAlias.A);
+    Config secondNodeDesc = createNode(NodeAlias.B);
 
     firstNodeDesc.setPeers(
         List.of(new Peer(secondNodeDesc.getP2PServerConfig().getServerAddress())));
@@ -95,7 +96,7 @@ public class ThirdPartyIT {
     return new ConfigDescriptor(nodeAlias, configPath, config, null, null);
   }
 
-  static Config createNode(NodeAlias nodeAlias) throws Exception {
+  static Config createNode(NodeAlias nodeAlias) {
 
     Config config = new Config();
     config.setEncryptor(
@@ -182,8 +183,8 @@ public class ThirdPartyIT {
             .collect(Collectors.toUnmodifiableList());
 
     assertThat(partyinfokeysJson.getJsonArray("keys"))
-        .describedAs("Json that caused failure %s", partyinfokeysJson.toString())
-        .containsAnyElementsOf(keys);
+        .describedAs("partyInfo response that caused failure %s", partyinfokeysJson.toString())
+        .containsExactlyInAnyOrderElementsOf(keys);
   }
 
   @Test

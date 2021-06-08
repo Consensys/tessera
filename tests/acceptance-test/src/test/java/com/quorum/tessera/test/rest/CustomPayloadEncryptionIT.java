@@ -1,24 +1,41 @@
 package com.quorum.tessera.test.rest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.quorum.tessera.api.PayloadEncryptResponse;
 import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import java.util.Base64;
-import java.util.Collections;
-import java.util.Objects;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import suite.NodeAlias;
+
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.junit.Test;
-import suite.NodeAlias;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
+import static com.quorum.tessera.version.MultiTenancyVersion.MIME_TYPE_JSON_2_1;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@RunWith(Parameterized.class)
 public class CustomPayloadEncryptionIT {
 
   private final PartyHelper partyHelper = PartyHelper.create();
+
+  private String mediaType;
+
+  public CustomPayloadEncryptionIT(final String mediaType) {
+    this.mediaType = mediaType;
+  }
+
+  @Parameterized.Parameters
+  public static List<String> params() {
+    return List.of(MediaType.APPLICATION_JSON, MIME_TYPE_JSON_2_1);
+  }
 
   @Test
   public void createPayload() {
@@ -33,7 +50,7 @@ public class CustomPayloadEncryptionIT {
             .getRestClientWebTarget()
             .path("/encodedpayload/create")
             .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(sendRequest, mediaType));
 
     assertThat(result.getStatus()).isEqualTo(200);
 
@@ -72,7 +89,7 @@ public class CustomPayloadEncryptionIT {
             .getRestClientWebTarget()
             .path("/encodedpayload/create")
             .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(sendRequest, mediaType));
 
     assertThat(encryptResult.getStatus()).isEqualTo(200);
     final PayloadEncryptResponse payloadEncryptResponse =
@@ -84,7 +101,7 @@ public class CustomPayloadEncryptionIT {
             .getRestClientWebTarget()
             .path("/encodedpayload/decrypt")
             .request()
-            .post(Entity.entity(payloadEncryptResponse, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(payloadEncryptResponse, mediaType));
     final ReceiveResponse decryptedPayload =
         decryptResultForSender.readEntity(ReceiveResponse.class);
     assertThat(Base64.getDecoder().decode(decryptedPayload.getPayload()))
@@ -106,7 +123,7 @@ public class CustomPayloadEncryptionIT {
             .getRestClientWebTarget()
             .path("/encodedpayload/decrypt")
             .request()
-            .post(Entity.entity(payloadEncryptResponse, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(payloadEncryptResponse, mediaType));
     final ReceiveResponse decryptedPayloadForRecipient =
         decryptResultForRecipient.readEntity(ReceiveResponse.class);
     assertThat(Base64.getDecoder().decode(decryptedPayloadForRecipient.getPayload()))
@@ -125,7 +142,7 @@ public class CustomPayloadEncryptionIT {
             .getRestClientWebTarget()
             .path("/encodedpayload/create")
             .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(sendRequest, mediaType));
 
     assertThat(result.getStatus()).isEqualTo(200);
 
@@ -141,7 +158,7 @@ public class CustomPayloadEncryptionIT {
             .getRestClientWebTarget()
             .path("/encodedpayload/decrypt")
             .request()
-            .post(Entity.entity(payloadEncryptResponse, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(payloadEncryptResponse, mediaType));
     assertThat(decryptResultForSender.getStatus()).isEqualTo(500);
   }
 
@@ -159,7 +176,7 @@ public class CustomPayloadEncryptionIT {
             .getRestClientWebTarget()
             .path("/encodedpayload/create")
             .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(sendRequest, mediaType));
 
     assertThat(encryptResult.getStatus()).isEqualTo(200);
     final PayloadEncryptResponse payloadEncryptResponse =
@@ -182,7 +199,7 @@ public class CustomPayloadEncryptionIT {
             .getRestClientWebTarget()
             .path("/encodedpayload/decrypt")
             .request()
-            .post(Entity.entity(payloadEncryptResponse, MediaType.APPLICATION_JSON));
+            .post(Entity.entity(payloadEncryptResponse, mediaType));
     assertThat(decryptResultForRecipient.getStatus()).isEqualTo(500);
   }
 }
