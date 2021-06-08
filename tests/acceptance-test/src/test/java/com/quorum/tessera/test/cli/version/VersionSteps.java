@@ -41,7 +41,7 @@ public class VersionSteps implements En {
           Path startScript = Paths.get(appPath);
 
           ExecArgsBuilder argsBuilder =
-              new ExecArgsBuilder().withStartScript(startScript).withArg("tessera").withArg(subcmd);
+              new ExecArgsBuilder().withStartScript(startScript).withArg(subcmd);
 
           LOGGER.info("Args {}", argsBuilder.build());
           final ProcessBuilder processBuilder = new ProcessBuilder(argsBuilder.build());
