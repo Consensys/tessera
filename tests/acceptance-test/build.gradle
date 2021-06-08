@@ -104,7 +104,7 @@ test {
     "**/SendWithRemoteEnclaveReconnectIT.class",
     "**/P2pTestSuite.class",
     "**/AwsKeyVaultIT.class",
-    "**/RunAzureIT.class",
+//    "**/RunAzureIT.class",
     "**/RunHashicorpIT.class",
     "**/ThirdPartyIT.class",
     "**/CucumberTestSuite.class",
