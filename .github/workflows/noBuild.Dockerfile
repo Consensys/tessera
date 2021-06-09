@@ -8,6 +8,6 @@ RUN mkdir /tessera/distributions/extracted && tar xvf /tessera/distributions/tes
 # Create executable image
 FROM adoptopenjdk/openjdk11:alpine
 
-COPY --from=extractor /tessera/distributions/extracted /tessera
+COPY --from=extractor /tessera/distributions/extracted /home/tessera-extracted/
 
-ENTRYPOINT ["/tessera/bin/tessera"]
+ENTRYPOINT ["/home/tessera-extracted/bin/tessera"]
