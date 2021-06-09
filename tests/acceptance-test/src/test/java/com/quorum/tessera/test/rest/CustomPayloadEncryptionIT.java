@@ -1,25 +1,24 @@
 package com.quorum.tessera.test.rest;
 
+import static com.quorum.tessera.version.MultiTenancyVersion.MIME_TYPE_JSON_2_1;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.quorum.tessera.api.PayloadEncryptResponse;
 import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import suite.NodeAlias;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import static com.quorum.tessera.version.MultiTenancyVersion.MIME_TYPE_JSON_2_1;
-import static org.assertj.core.api.Assertions.assertThat;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import suite.NodeAlias;
 
 @RunWith(Parameterized.class)
 public class CustomPayloadEncryptionIT {
