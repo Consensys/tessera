@@ -183,7 +183,7 @@ public class ThirdPartyIT {
 
     assertThat(partyinfokeysJson.getJsonArray("keys"))
         .describedAs("partyInfo response that caused failure %s", partyinfokeysJson.toString())
-        .containsExactlyInAnyOrderElementsOf(keys);
+        .containsAnyElementsOf(keys);
   }
 
   @Test
