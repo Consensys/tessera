@@ -14,7 +14,7 @@ public class JnaclFactory implements EncryptorFactory {
 
   @Override
   public Encryptor create(Map<String, String> properties) {
-    LOGGER.debug("Creating a JNaCL implementation of NaclFacadeFactory");
+    LOGGER.debug("Creating a JNaCl implementation of EncryptorFactory");
 
     final SecureRandom secureRandom = new SecureRandom();
     final JnaclSecretBox secretBox = new JnaclSecretBox();

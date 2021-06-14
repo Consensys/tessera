@@ -13,7 +13,7 @@ public class KaliumFactory implements EncryptorFactory {
 
   @Override
   public Encryptor create(Map<String, String> properties) {
-    LOGGER.debug("Creating a Kalium implementation of NaclFacadeFactory");
+    LOGGER.debug("Creating a Kalium implementation of EncryptorFactory");
 
     final NaCl.Sodium sodium = NaCl.sodium();
 

@@ -1,4 +1,5 @@
 plugins {
+  id "java-library"
   id "application"
 }
 
@@ -17,7 +18,6 @@ configurations.all {
 }
 
 dependencies {
-
   implementation platform('io.projectreactor:reactor-bom:2020.0.1')
 
   // define dependencies without versions
@@ -29,17 +29,9 @@ dependencies {
   implementation project(":key-vault:key-vault-api")
   implementation "jakarta.annotation:jakarta.annotation-api"
 
-  implementation ("com.azure:azure-security-keyvault-secrets:4.2.3") {
-    //  transitive = false
-  }
-  implementation("com.azure:azure-identity:1.2.0") {
-    //    transitive = false
-  }
-
-  implementation("com.azure:azure-core:1.10.0") {
-    //    transitive = false
-  }
-
+  implementation ("com.azure:azure-security-keyvault-secrets:4.2.3")
+  implementation("com.azure:azure-identity:1.2.0")
+  implementation("com.azure:azure-core:1.10.0")
 }
 
 publishing {

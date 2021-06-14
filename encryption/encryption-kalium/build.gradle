@@ -1,5 +1,10 @@
 plugins {
   id "java-library"
+  id "application"
+}
+
+application {
+  startScripts.enabled = false
 }
 
 dependencies {

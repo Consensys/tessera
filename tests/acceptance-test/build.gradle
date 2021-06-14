@@ -66,7 +66,6 @@ dependencies {
   implementation project(":encryption:encryption-jnacl")
   implementation project(":encryption:encryption-ec")
   testImplementation project(":encryption:encryption-kalium")
-  testImplementation "org.abstractj.kalium:kalium:0.8.0"
 
   testImplementation "org.eclipse.jetty:jetty-servlet"
 
@@ -79,8 +78,11 @@ test {
   excludes.clear()
 
   systemProperty "application.jar","${buildDir}/unpacked/dist/tessera-${project.version}/bin/tessera"
+  systemProperty "application.kalium.jar","${buildDir}/unpacked/dist/kalium-tessera-${project.version}/bin/tessera"
 
   systemProperty "enclave.jaxrs.server.jar","${buildDir}/unpacked/dist/enclave-jaxrs-${project.version}/bin/enclave-jaxrs"
+  systemProperty "enclave.jaxrs.server.kalium.jar","${buildDir}/unpacked/dist/kalium-enclave-jaxrs-${project.version}/bin/enclave-jaxrs"
+
   systemProperty "jdbc.hsql.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
   systemProperty "jdbc.sqlite.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
 
@@ -196,32 +198,53 @@ task unzipDdl(type:Copy) {
   into outputDir
 }
 
-task copyKaliumEncrptorToLibDir {
-  doLast {
-    def jarFile = file(project(":encryption:encryption-kalium").jar.outputs.files.getFiles()[0])
-    def kaliumJar = project.configurations.testCompileClasspath.find { it.name.startsWith("kalium") }
-
-    def tesseraLibDir = file("${buildDir}/unpacked/dist/tessera-${project.version}/lib/")
-    copy {
-      from jarFile
-      into tesseraLibDir
-    }
-
-    copy {
-      from kaliumJar
-      into tesseraLibDir
-    }
-
-    def enclaveLibDir = file("${buildDir}/unpacked/dist/enclave-jaxrs-${project.version}/lib/")
-    copy {
-      from jarFile
-      into enclaveLibDir
-    }
-    copy {
-      from kaliumJar
-      into enclaveLibDir
-    }
+task unzipKaliumEncryptor(type: Copy) {
+  def zipFile = file(project(":encryption:encryption-kalium").distZip.outputs.files.getFiles()[0])
+  def outputDir = file("${buildDir}/unpacked/dist")
+  from(zipTree(zipFile)) {
+    exclude "**/jnr-ffi-2.0.5.jar" // prevents a conflict with later jar in tessera dist
   }
+  into outputDir
+}
+
+task newTesseraCopyForKaliumEncryptor(type: Copy) {
+  dependsOn unzipTessera
+
+  def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def tesseraDir = file("${buildDir}/unpacked/dist/${tesseraName}")
+  def outputDir = file("${buildDir}/unpacked/dist/kalium-${tesseraName}")
+  from tesseraDir into outputDir
+}
+
+task copyKaliumEncryptorToTessera(type: Copy) {
+  dependsOn newTesseraCopyForKaliumEncryptor,unzipKaliumEncryptor
+
+  def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def tesseraDir = file("${buildDir}/unpacked/dist/kalium-${tesseraName}")
+  def kaliumName = file(project(":encryption:encryption-kalium").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def kaliumDir = file("${buildDir}/unpacked/dist/${kaliumName}")
+
+  from kaliumDir into tesseraDir
+}
+
+task newEnclaveCopyForKaliumEncryptor(type: Copy) {
+  dependsOn unzipEnclave
+
+  def enclaveName = file(project(":enclave:enclave-jaxrs").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def enclaveDir = file("${buildDir}/unpacked/dist/${enclaveName}")
+  def outputDir = file("${buildDir}/unpacked/dist/kalium-${enclaveName}")
+  from enclaveDir into outputDir
+}
+
+task copyKaliumEncryptorToEnclave(type: Copy) {
+  dependsOn newEnclaveCopyForKaliumEncryptor,unzipKaliumEncryptor
+
+  def enclaveName = file(project(":enclave:enclave-jaxrs").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def enclaveDir = file("${buildDir}/unpacked/dist/kalium-${enclaveName}")
+  def kaliumName = file(project(":encryption:encryption-kalium").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def kaliumDir = file("${buildDir}/unpacked/dist/${kaliumName}")
+
+  from kaliumDir into enclaveDir
 }
 
 task copyJdbcJars {
@@ -268,8 +291,7 @@ copyTesseraIntoAzureDist.dependsOn unzipTessera,unzipAzureKeyVault
 copyTesseraIntoHashicorpDist.dependsOn unzipTessera,unzipHashicorpKeyVault
 
 copyJdbcJars.dependsOn copyTesseraIntoAwsDist,copyTesseraIntoAzureDist,copyTesseraIntoHashicorpDist
-copyKaliumEncrptorToLibDir.dependsOn unzipTessera,unzipEnclave
-test.dependsOn unzipDdl,unzipEnclave,copyJdbcJars,copyKaliumEncrptorToLibDir
+test.dependsOn unzipDdl,unzipEnclave,copyJdbcJars,copyKaliumEncryptorToTessera,copyKaliumEncryptorToEnclave
 
 
 dependencyCheck {

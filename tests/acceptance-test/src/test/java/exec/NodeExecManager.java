@@ -1,6 +1,7 @@
 package exec;
 
 import com.quorum.tessera.config.AppType;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
 import java.net.URL;
@@ -44,10 +45,14 @@ public class NodeExecManager implements ExecManager {
 
   @Override
   public Process doStart() throws Exception {
-
-    Path startScript = Paths.get(System.getProperty("application.jar"));
-
     ExecutionContext executionContext = ExecutionContext.currentContext();
+
+    Path startScript;
+    if (EncryptorType.CUSTOM.equals(executionContext.getEncryptorType())) {
+      startScript = Paths.get(System.getProperty("application.kalium.jar"));
+    } else {
+      startScript = Paths.get(System.getProperty("application.jar"));
+    }
 
     ExecArgsBuilder argsBuilder =
         new ExecArgsBuilder()

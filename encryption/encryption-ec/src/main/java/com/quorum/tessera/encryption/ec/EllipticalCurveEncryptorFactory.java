@@ -5,8 +5,13 @@ import com.quorum.tessera.encryption.EncryptorFactory;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EllipticalCurveEncryptorFactory implements EncryptorFactory {
+
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(EllipticalCurveEncryptorFactory.class);
 
   @Override
   public String getType() {
@@ -15,6 +20,7 @@ public class EllipticalCurveEncryptorFactory implements EncryptorFactory {
 
   @Override
   public Encryptor create(Map<String, String> properties) {
+    LOGGER.debug("Creating an EC implementation of EncryptorFactory");
 
     final Map<String, String> props =
         Optional.ofNullable(properties).orElse(Collections.emptyMap());
