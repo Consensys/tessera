@@ -9,6 +9,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +65,7 @@ public class SetupDatabase {
     }
   }
 
-  private Connection getConnection(NodeAlias nodeAlias) {
+  public Connection getConnection(NodeAlias nodeAlias) {
     return executionContext.getConfigs().stream()
         .filter(c -> c.getAlias() == nodeAlias)
         .map(ConfigDescriptor::getConfig)
@@ -82,7 +83,7 @@ public class SetupDatabase {
         .get();
   }
 
-  private List<Connection> getConnections() {
+  public List<Connection> getConnections() {
     return Arrays.stream(NodeAlias.values()).map(this::getConnection).collect(Collectors.toList());
   }
 
@@ -90,6 +91,10 @@ public class SetupDatabase {
 
     try (Connection connection = getConnection(nodeAlias)) {
       DatabaseMetaData metaData = connection.getMetaData();
+      if (Objects.isNull(metaData)) {
+        LOGGER.warn("No connection metadata returning");
+        return;
+      }
       List<String> tableNames = new ArrayList<>();
       try (ResultSet rs = metaData.getTables(null, null, "%", null)) {
 

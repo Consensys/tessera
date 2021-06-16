@@ -1,40 +1,53 @@
 package com.quorum.tessera.multitenancy.migration;
 
 import com.quorum.tessera.data.EncryptedRawTransaction;
-import com.quorum.tessera.data.EncryptedRawTransactionDAO;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 public class RawTransactionMigrator {
 
-  private final EncryptedRawTransactionDAO primary;
+  private final EntityManager primaryEntityManager;
 
-  private final EncryptedRawTransactionDAO secondary;
+  private final EntityManager secondaryEntityManager;
 
   private final int maxBatchSize = 100;
 
   public RawTransactionMigrator(
-      final EncryptedRawTransactionDAO primary, final EncryptedRawTransactionDAO secondary) {
-    this.primary = Objects.requireNonNull(primary);
-    this.secondary = Objects.requireNonNull(secondary);
+      final EntityManager primaryEntityManager, final EntityManager secondaryEntityManager) {
+    this.primaryEntityManager = Objects.requireNonNull(primaryEntityManager);
+    this.secondaryEntityManager = Objects.requireNonNull(secondaryEntityManager);
   }
 
   public void migrate() {
-    final long secondaryTxCount = secondary.transactionCount();
+
+    final long secondaryTxCount =
+        secondaryEntityManager
+            .createQuery("select count(e) from EncryptedRawTransaction e", Long.class)
+            .getSingleResult();
     final int batchCount = calculateBatchCount(maxBatchSize, secondaryTxCount);
 
     IntStream.range(0, batchCount)
         .map(i -> i * maxBatchSize)
-        .mapToObj(offset -> secondary.retrieveTransactions(offset, maxBatchSize))
-        .flatMap(List::stream)
+        .mapToObj(
+            offset ->
+                secondaryEntityManager
+                    .createNamedQuery(
+                        "EncryptedRawTransaction.FindAll", EncryptedRawTransaction.class)
+                    .setFirstResult(offset)
+                    .setMaxResults(maxBatchSize))
+        .flatMap(TypedQuery::getResultStream)
         .forEach(
             ert -> {
               final Optional<EncryptedRawTransaction> existing =
-                  primary.retrieveByHash(ert.getHash());
+                  Optional.ofNullable(
+                      primaryEntityManager.find(EncryptedRawTransaction.class, ert.getHash()));
               if (existing.isEmpty()) {
-                primary.save(ert);
+                primaryEntityManager.getTransaction().begin();
+                primaryEntityManager.persist(ert);
+                primaryEntityManager.getTransaction().commit();
               }
             });
   }

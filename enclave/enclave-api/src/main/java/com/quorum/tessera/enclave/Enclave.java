@@ -3,6 +3,7 @@ package com.quorum.tessera.enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 /**
@@ -121,4 +122,8 @@ public interface Enclave extends Service {
 
   @Override
   default void stop() {}
+
+  static Enclave create() {
+    return ServiceLoader.load(Enclave.class).findFirst().get();
+  }
 }

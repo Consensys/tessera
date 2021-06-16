@@ -21,7 +21,6 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -47,19 +46,10 @@ public class SendWithRemoteEnclaveReconnectIT {
 
   private Party party;
 
-  //    static {
-  //        System.setProperty("application.jar",
-  // "../../tessera-dist/tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");
-  //        System.setProperty("enclave.jaxrs.server.jar",
-  // "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar");
-  //        System.setProperty("javax.xml.bind.JAXBContextFactory",
-  // "org.eclipse.persistence.jaxb.JAXBContextFactory");
-  //        System.setProperty("javax.xml.bind.context.factory",
-  // "org.eclipse.persistence.jaxb.JAXBContextFactory");
-  //
-  //    }
+  private Client client;
+
   @Before
-  public void onSetup() throws IOException {
+  public void beforeTest() throws IOException {
 
     EncryptorConfig encryptorConfig =
         new EncryptorConfig() {
@@ -156,16 +146,19 @@ public class SendWithRemoteEnclaveReconnectIT {
     enclaveExecManager.start();
 
     nodeExecManager.start();
+
+    client = party.getRestClient();
   }
 
   @After
-  public void onTearDown() {
-
-    nodeExecManager.stop();
-
-    enclaveExecManager.stop();
-
-    ExecutionContext.destroyContext();
+  public void afterTest() {
+    try {
+      nodeExecManager.stop();
+      enclaveExecManager.stop();
+      client.close();
+    } finally {
+      ExecutionContext.destroyContext();
+    }
   }
 
   @Test
@@ -179,8 +172,6 @@ public class SendWithRemoteEnclaveReconnectIT {
     final SendRequest sendRequest = new SendRequest();
     sendRequest.setFrom(party.getPublicKey());
     sendRequest.setPayload(transactionData);
-
-    Client client = ClientBuilder.newClient();
 
     final Response response =
         client

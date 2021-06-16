@@ -1,0 +1,5 @@
+
+--add-opens
+    tessera.partyinfo/com.quorum.tessera.discovery=nl.jqno.equalsverifier
+--add-opens
+    tessera.encryption.api/com.quorum.tessera.encryption=nl.jqno.equalsverifier

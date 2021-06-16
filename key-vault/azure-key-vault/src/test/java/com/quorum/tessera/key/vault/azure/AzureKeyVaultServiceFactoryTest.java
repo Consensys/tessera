@@ -1,7 +1,5 @@
 package com.quorum.tessera.key.vault.azure;
 
-import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_ID;
-import static com.quorum.tessera.config.util.EnvironmentVariables.AZURE_CLIENT_SECRET;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -17,7 +15,7 @@ import org.junit.Test;
 
 public class AzureKeyVaultServiceFactoryTest {
 
-  private AzureKeyVaultServiceFactory azureKeyVaultServiceFactory;
+  private AzureKeyVaultServiceFactory keyVaultServiceFactory;
 
   private Config config;
 
@@ -26,65 +24,20 @@ public class AzureKeyVaultServiceFactoryTest {
   @Before
   public void setUp() {
     this.config = mock(Config.class);
-    this.envProvider = mock(EnvironmentVariableProvider.class);
-    this.azureKeyVaultServiceFactory = new AzureKeyVaultServiceFactory();
+    this.envProvider = null;
+    this.keyVaultServiceFactory = new AzureKeyVaultServiceFactory();
   }
 
   @Test(expected = NullPointerException.class)
   public void nullConfigThrowsException() {
-    azureKeyVaultServiceFactory.create(null, envProvider);
-  }
-
-  @Test(expected = NullPointerException.class)
-  public void nullEnvVarProviderThrowsException() {
-    azureKeyVaultServiceFactory.create(config, null);
-  }
-
-  @Test
-  public void clientIdEnvironmentVariableNotSetThrowsException() {
-    Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
-
-    when(envProvider.getEnv(AZURE_CLIENT_ID)).thenReturn(null);
-    when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn("secret");
-
-    assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-    assertThat(ex.getMessage())
-        .isEqualTo(
-            AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
-  }
-
-  @Test
-  public void clientSecretEnvironmentVariableNotSetThrowsException() {
-    Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
-
-    when(envProvider.getEnv(AZURE_CLIENT_ID)).thenReturn("id");
-    when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn(null);
-
-    assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-    assertThat(ex.getMessage())
-        .isEqualTo(
-            AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
-  }
-
-  @Test
-  public void bothClientIdAndClientSecretEnvironmentVariablesNotSetThrowsException() {
-    Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
-
-    when(envProvider.getEnv(AZURE_CLIENT_ID)).thenReturn(null);
-    when(envProvider.getEnv(AZURE_CLIENT_SECRET)).thenReturn(null);
-
-    assertThat(ex).isInstanceOf(AzureCredentialNotSetException.class);
-    assertThat(ex.getMessage())
-        .isEqualTo(
-            AZURE_CLIENT_ID + " and " + AZURE_CLIENT_SECRET + " environment variables must be set");
+    keyVaultServiceFactory.create(null, envProvider);
   }
 
   @Test
   public void nullKeyConfigurationThrowsException() {
-    when(envProvider.getEnv(anyString())).thenReturn("envVar");
     when(config.getKeys()).thenReturn(null);
 
-    Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
+    Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
     assertThat(ex).isExactlyInstanceOf(ConfigException.class);
     assertThat(ex.getMessage())
@@ -94,12 +47,12 @@ public class AzureKeyVaultServiceFactoryTest {
 
   @Test
   public void nullKeyVaultConfigurationThrowsException() {
-    when(envProvider.getEnv(anyString())).thenReturn("envVar");
-    KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-    when(keyConfiguration.getAzureKeyVaultConfig()).thenReturn(null);
-    when(config.getKeys()).thenReturn(keyConfiguration);
+    final KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
 
-    Throwable ex = catchThrowable(() -> azureKeyVaultServiceFactory.create(config, envProvider));
+    when(config.getKeys()).thenReturn(keyConfiguration);
+    when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE)).thenReturn(Optional.empty());
+
+    Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
 
     assertThat(ex).isExactlyInstanceOf(ConfigException.class);
     assertThat(ex.getMessage())
@@ -108,22 +61,37 @@ public class AzureKeyVaultServiceFactoryTest {
   }
 
   @Test
-  public void envVarsAndKeyVaultConfigProvidedCreatesAzureKeyVaultService() {
-    when(envProvider.getEnv(anyString())).thenReturn("envVar");
-    KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
-    DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
-    when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("URL"));
+  public void keyVaultConfigDoesNotContainUrlThrowsException() {
+    final KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+    final DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+    when(config.getKeys()).thenReturn(keyConfiguration);
     when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE))
         .thenReturn(Optional.of(keyVaultConfig));
-    when(config.getKeys()).thenReturn(keyConfiguration);
+    when(keyVaultConfig.getProperty(anyString())).thenReturn(Optional.empty());
 
-    KeyVaultService result = azureKeyVaultServiceFactory.create(config, envProvider);
+    final Throwable ex = catchThrowable(() -> keyVaultServiceFactory.create(config, envProvider));
+
+    assertThat(ex).isExactlyInstanceOf(ConfigException.class);
+    assertThat(ex.getMessage()).contains("No Azure Key Vault url provided");
+  }
+
+  @Test
+  public void create() {
+    final KeyConfiguration keyConfiguration = mock(KeyConfiguration.class);
+    final DefaultKeyVaultConfig keyVaultConfig = mock(DefaultKeyVaultConfig.class);
+
+    when(config.getKeys()).thenReturn(keyConfiguration);
+    when(keyConfiguration.getKeyVaultConfig(KeyVaultType.AZURE))
+        .thenReturn(Optional.of(keyVaultConfig));
+    when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of("http://vaulturl"));
+
+    KeyVaultService result = keyVaultServiceFactory.create(config, envProvider);
 
     assertThat(result).isInstanceOf(AzureKeyVaultService.class);
   }
 
   @Test
   public void getType() {
-    assertThat(azureKeyVaultServiceFactory.getType()).isEqualTo(KeyVaultType.AZURE);
+    assertThat(keyVaultServiceFactory.getType()).isEqualTo(KeyVaultType.AZURE);
   }
 }

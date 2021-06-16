@@ -15,7 +15,6 @@ import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.passwords.PasswordReader;
 import com.quorum.tessera.passwords.PasswordReaderFactory;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
@@ -42,15 +41,14 @@ public class CliKeyPasswordResolverTest {
   }
 
   @Test
-  public void defaultConstructorCreatesReaderInstanceFromFactory()
-      throws ReflectiveOperationException {
-    final CliKeyPasswordResolver resolver = new CliKeyPasswordResolver();
+  public void defaultConstructorCreatesReaderInstanceFromFactory() {
 
-    final Field field = resolver.getClass().getDeclaredField("passwordReader");
-    field.setAccessible(true);
-    final Object obj = field.get(resolver);
-
-    assertThat(obj).isInstanceOf(PasswordReaderFactory.create().getClass());
+    try (var staticPasswordReaderFactory = mockStatic(PasswordReaderFactory.class)) {
+      staticPasswordReaderFactory.when(PasswordReaderFactory::create).thenReturn(passwordReader);
+      final CliKeyPasswordResolver resolver = new CliKeyPasswordResolver();
+      assertThat(resolver).isNotNull();
+      staticPasswordReaderFactory.verify(PasswordReaderFactory::create);
+    }
   }
 
   @Test

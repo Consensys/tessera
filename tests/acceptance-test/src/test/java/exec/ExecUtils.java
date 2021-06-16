@@ -1,9 +1,11 @@
 package exec;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.*;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -23,25 +25,15 @@ public class ExecUtils {
     if (env != null) {
       processBuilder.environment().putAll(env);
     }
-    processBuilder.redirectErrorStream(true);
+    processBuilder.redirectErrorStream(false);
     Process process = processBuilder.start();
 
     executorService.submit(
-        () -> {
-          try (BufferedReader reader =
-              Stream.of(process.getInputStream())
-                  .map(InputStreamReader::new)
-                  .map(BufferedReader::new)
-                  .findAny()
-                  .get()) {
-
-            String line = null;
-            while ((line = reader.readLine()) != null) {
-              LOGGER.debug("Exec : {}", line);
-            }
-          }
-          return null;
-        });
+        new StreamConsumer(
+            process.getErrorStream(), line -> LOGGER.error("Exec error data : {}", line)));
+    executorService.submit(
+        new StreamConsumer(
+            process.getInputStream(), line -> LOGGER.debug("Exec line data : {}", line)));
 
     executorService.submit(
         () -> {
@@ -56,29 +48,33 @@ public class ExecUtils {
     return process;
   }
 
+  public static void kill(Path pidFile) {
+    Stream.of(pidFile)
+        .filter(Files::exists)
+        .flatMap(
+            p -> {
+              try {
+                return Files.lines(p);
+              } catch (IOException e) {
+                LOGGER.debug(null, e);
+                throw new UncheckedIOException(e);
+              }
+            })
+        .findFirst()
+        .ifPresent(ExecUtils::kill);
+  }
+
   public static void kill(String pid) {
 
-    Optional<ProcessHandle> optionalProcessHandle = ProcessHandle.of(Long.valueOf(pid));
+    List<String> args = List.of("kill", pid);
+    ProcessBuilder processBuilder = new ProcessBuilder(args);
     try {
-      ProcessHandle processHandle = optionalProcessHandle.get();
-      LOGGER.debug("Killing process, pid: {}", processHandle.pid());
-      processHandle.destroy();
-
-      for (int i = 0; i < 10; i++) {
-        if (processHandle.isAlive()) {
-          LOGGER.debug("Waiting for process to exit, pid: {}", processHandle.pid());
-          try {
-            Thread.sleep(100L);
-          } catch (InterruptedException ex) {
-          }
-        } else {
-          LOGGER.debug("Process successfully killed, pid: {}", processHandle.pid());
-          return;
-        }
-      }
-    } catch (NoSuchElementException e) {
-      LOGGER.debug("No such process, pid: {}", pid);
+      Process process = processBuilder.start();
+      int exitCode = process.waitFor();
+    } catch (IOException ex) {
+      throw new UncheckedIOException(ex);
+    } catch (InterruptedException ex) {
+      LOGGER.warn("", ex);
     }
-    LOGGER.warn("Process did not exit yet, pid: {}", pid);
   }
 }

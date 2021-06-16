@@ -7,13 +7,10 @@ import com.quorum.tessera.api.filter.GlobalFilter;
 import com.quorum.tessera.api.filter.IPWhitelistFilter;
 import com.quorum.tessera.app.TesseraRestApplication;
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.Config;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
@@ -21,7 +18,9 @@ import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.transaction.TransactionManagerFactory;
+import java.net.URI;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.ws.rs.ApplicationPath;
@@ -34,7 +33,8 @@ import org.slf4j.LoggerFactory;
  */
 @GlobalFilter
 @ApplicationPath("/")
-public class P2PRestApp extends TesseraRestApplication {
+public class P2PRestApp extends TesseraRestApplication
+    implements com.quorum.tessera.config.apps.TesseraApp {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(P2PRestApp.class);
 
@@ -44,23 +44,57 @@ public class P2PRestApp extends TesseraRestApplication {
 
   private final Enclave enclave;
 
-  private final Config config;
-
   private final PartyStore partyStore;
 
+  private final TransactionManager transactionManager;
+
+  private final BatchResendManager batchResendManager;
+
+  private final PayloadEncoder payloadEncoder;
+
+  private final LegacyResendManager legacyResendManager;
+
+  private final PrivacyGroupManager privacyGroupManager;
+
   public P2PRestApp() {
-    this.config = ServiceFactory.create().config();
-    this.enclave = EnclaveFactory.create().create(config);
-    this.discovery = Discovery.getInstance();
-    this.partyStore = PartyStore.getInstance();
+    this(
+        Discovery.create(),
+        Enclave.create(),
+        PartyStore.getInstance(),
+        TransactionManager.create(),
+        BatchResendManager.create(),
+        PayloadEncoder.create(),
+        LegacyResendManager.create(),
+        PrivacyGroupManager.create());
+  }
+
+  public P2PRestApp(
+      Discovery discovery,
+      Enclave enclave,
+      PartyStore partyStore,
+      TransactionManager transactionManager,
+      BatchResendManager batchResendManager,
+      PayloadEncoder payloadEncoder,
+      LegacyResendManager legacyResendManager,
+      PrivacyGroupManager privacyGroupManager) {
+    this.discovery = Objects.requireNonNull(discovery);
+    this.enclave = Objects.requireNonNull(enclave);
+    this.partyStore = Objects.requireNonNull(partyStore);
+    this.transactionManager = Objects.requireNonNull(transactionManager);
+    this.batchResendManager = Objects.requireNonNull(batchResendManager);
+    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
+    this.legacyResendManager = Objects.requireNonNull(legacyResendManager);
+    this.privacyGroupManager = Objects.requireNonNull(privacyGroupManager);
   }
 
   @Override
   public Set<Object> getSingletons() {
-    RuntimeContext runtimeContext = RuntimeContext.getInstance();
-    LOGGER.debug("Found configured peers {}", runtimeContext.getPeers());
 
-    runtimeContext.getPeers().stream()
+    RuntimeContext runtimeContext = RuntimeContext.getInstance();
+    List<URI> peers = runtimeContext.getPeers();
+    LOGGER.debug("Found configured peers {}", peers);
+
+    peers.stream()
         .map(NodeUri::create)
         .map(NodeUri::asURI)
         .peek(u -> LOGGER.debug("Adding {} to party store", u))
@@ -76,22 +110,17 @@ public class P2PRestApp extends TesseraRestApplication {
 
     final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
-    TransactionManager transactionManager = TransactionManagerFactory.create().create(config);
-    BatchResendManager batchResendManager = BatchResendManager.create(config);
-    PayloadEncoder payloadEncoder = PayloadEncoder.create();
-    final LegacyResendManager legacyResendManager = LegacyResendManager.create(config);
-
     final TransactionResource transactionResource =
         new TransactionResource(
             transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
-    final RecoveryResource recoveryResource =
-        new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
+
     final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
 
-    final PrivacyGroupManager privacyGroupManager = PrivacyGroupManager.create(config);
     final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 
     if (runtimeContext.isRecoveryMode()) {
+      final RecoveryResource recoveryResource =
+          new RecoveryResource(transactionManager, batchResendManager, payloadEncoder);
       return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource);
     }
     return Set.of(

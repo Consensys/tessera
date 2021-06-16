@@ -1,6 +1,7 @@
 package com.quorum.tessera.test.rest;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
@@ -27,16 +28,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import suite.*;
 
+@RunWith(Parameterized.class)
 public class RecoverIT {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RecoverIT.class);
@@ -51,12 +56,18 @@ public class RecoverIT {
 
   private List<Party> recipients;
 
+  private DBType dbType;
+
+  public RecoverIT(TestConfig testConfig) {
+    this.dbType = testConfig.dbType;
+  }
+
   @Before
   public void startNetwork() throws Exception {
     final ExecutionContext executionContext =
         ExecutionContext.Builder.create()
             .with(CommunicationType.REST)
-            .with(DBType.H2)
+            .with(dbType)
             .with(SocketType.HTTP)
             .with(EnclaveType.LOCAL)
             .with(EncryptorType.NACL)
@@ -85,27 +96,20 @@ public class RecoverIT {
 
     executors.values().forEach(ExecManager::start);
 
-    LOGGER.debug("nodes started");
-
     partyInfoSync();
 
-    LOGGER.debug("nodes synced");
-
     sendTransactions();
-
-    LOGGER.debug("transactions sent");
 
     Arrays.stream(NodeAlias.values())
         .forEach(
             a -> {
               long count = doCount(a);
               if (a == NodeAlias.D) {
-                assertThat(count).describedAs(a + " should have 100 ").isEqualTo(100L);
+                assertThat(count).describedAs("%s should have 100 ", a).isEqualTo(100L);
               } else {
-                assertThat(count).describedAs(a + " should have 500 ").isEqualTo(500L);
+                assertThat(count).describedAs("%s should have 500 ", a).isEqualTo(500L);
               }
             });
-    LOGGER.debug("transactions checked");
   }
 
   @After
@@ -163,34 +167,33 @@ public class RecoverIT {
 
   private void recoverNode(NodeAlias nodeAlias) throws Exception {
 
-    LOGGER.debug("testing recovery of {}", nodeAlias);
-
     ExecManager execManager = executors.get(nodeAlias);
     execManager.stop();
     setupDatabase.drop(nodeAlias);
     setupDatabase.setUp(nodeAlias);
-
-    LOGGER.debug("stopped {} and dropped DB", nodeAlias);
 
     assertThat(doCount(nodeAlias)).isZero();
 
     RecoveryExecManager recoveryExecManager =
         new RecoveryExecManager(execManager.getConfigDescriptor());
 
-    LOGGER.debug("starting {} in recovery mode", nodeAlias);
-
     Process process = recoveryExecManager.start();
 
-    process.waitFor();
+    int exitCode = process.waitFor();
 
-    LOGGER.debug("{}'s recovery finished", nodeAlias);
+    assertThat(exitCode).describedAs("Exit code should be zero. %s", nodeAlias.name()).isZero();
 
     if (nodeAlias == NodeAlias.D) {
-      assertThat(doCount(nodeAlias)).isEqualTo(100);
+      assertThat(doCount(nodeAlias))
+          .describedAs(
+              "Node %s is expected to have 100 ENCRYPTED_TRANSACTION rows", nodeAlias.name())
+          .isEqualTo(100);
     } else {
-      assertThat(doCount(nodeAlias)).isEqualTo(500);
+      assertThat(doCount(nodeAlias))
+          .describedAs(
+              "Node %s is expected to have 500 ENCRYPTED_TRANSACTION rows", nodeAlias.name())
+          .isEqualTo(500);
     }
-    LOGGER.debug("{}'s transactions fully recovered", nodeAlias);
 
     recoveryExecManager.stop();
 
@@ -199,8 +202,6 @@ public class RecoverIT {
     LOGGER.debug("starting {} in normal mode", nodeAlias);
 
     nodeExecManager.start();
-
-    LOGGER.debug("waiting for {} to sync with all parties", nodeAlias);
 
     partyInfoSync();
 
@@ -274,9 +275,27 @@ public class RecoverIT {
           partyInfoSyncLatch.countDown();
         });
 
-    if (!partyInfoSyncLatch.await(10, TimeUnit.MINUTES)) {
+    if (!partyInfoSyncLatch.await(30, TimeUnit.MINUTES)) {
       fail("Unable to sync party info");
     }
     executorService.shutdown();
+  }
+
+  @Parameterized.Parameters(name = "{0}")
+  public static List<TestConfig> configs() {
+    return Stream.of(DBType.SQLITE).map(TestConfig::new).collect(Collectors.toUnmodifiableList());
+  }
+
+  static class TestConfig {
+    DBType dbType;
+
+    TestConfig(DBType dbType) {
+      this.dbType = Objects.requireNonNull(dbType);
+    }
+
+    @Override
+    public String toString() {
+      return "TestConfig{" + "dbType=" + dbType + '}';
+    }
   }
 }

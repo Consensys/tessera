@@ -10,7 +10,7 @@ import org.eclipse.persistence.sequencing.Sequence;
 import org.eclipse.persistence.sessions.Session;
 
 /**
- * >Quick and dirty sequence generator for staging data. Cannot be used for non staging use cass as
+ * Quick and dirty sequence generator for staging data. Cannot be used for non staging use cass as
  * sequence only lives for duration of process.
  *
  * <h6>Usage</h6>

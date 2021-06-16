@@ -1,13 +1,12 @@
 package com.quorum.tessera.jaxrs.client;
 
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.SslConfig;
-import com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -90,8 +89,8 @@ public class ClientFactoryTest {
     assertThat(result.getConfiguration().getProperty("unixfile").toString())
         .isEqualTo("unix:/tmp/bogus.socket");
 
-    assertThat(result.getConfiguration().getConnectorProvider())
-        .isInstanceOf(JerseyUnixSocketConnectorProvider.class);
+    assertThat(result.getConfiguration().getConnectorProvider().getClass().getName())
+        .isEqualTo("com.quorum.tessera.jaxrs.unixsocket.JerseyUnixSocketConnectorProvider");
   }
 
   @Test

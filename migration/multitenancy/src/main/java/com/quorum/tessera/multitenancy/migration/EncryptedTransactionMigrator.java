@@ -1,45 +1,69 @@
 package com.quorum.tessera.multitenancy.migration;
 
 import com.quorum.tessera.data.EncryptedTransaction;
-import com.quorum.tessera.data.EncryptedTransactionDAO;
-import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.RecipientBox;
+import com.quorum.tessera.enclave.SecurityHash;
+import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
 public class EncryptedTransactionMigrator {
 
-  private final EncryptedTransactionDAO primary;
+  private final EntityManager primaryEntityManager;
 
-  private final EncryptedTransactionDAO secondary;
+  private final EntityManager secondaryEntityManager;
 
   private final PayloadEncoder payloadEncoder;
 
   private final int maxBatchSize = 100;
 
   public EncryptedTransactionMigrator(
-      final EncryptedTransactionDAO primary,
-      final EncryptedTransactionDAO secondary,
+      final EntityManager primaryEntityManager,
+      final EntityManager secondaryEntityManager,
       final PayloadEncoder payloadEncoder) {
-    this.primary = Objects.requireNonNull(primary);
-    this.secondary = Objects.requireNonNull(secondary);
+    this.primaryEntityManager = Objects.requireNonNull(primaryEntityManager);
+    this.secondaryEntityManager = Objects.requireNonNull(secondaryEntityManager);
     this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
   }
 
   public void migrate() {
-    final long secondaryTxCount = secondary.transactionCount();
+
+    final long secondaryTxCount =
+        secondaryEntityManager
+            .createQuery("select count(e) from EncryptedTransaction e", Long.class)
+            .getSingleResult();
     final int batchCount = calculateBatchCount(maxBatchSize, secondaryTxCount);
 
     IntStream.range(0, batchCount)
         .map(i -> i * maxBatchSize)
-        .mapToObj(offset -> secondary.retrieveTransactions(offset, maxBatchSize))
-        .flatMap(List::stream)
+        .mapToObj(
+            offset ->
+                secondaryEntityManager
+                    .createNamedQuery("EncryptedTransaction.FindAll", EncryptedTransaction.class)
+                    .setFirstResult(offset)
+                    .setMaxResults(maxBatchSize))
+        .flatMap(TypedQuery<EncryptedTransaction>::getResultStream)
         .forEach(
             et -> {
-              final Optional<EncryptedTransaction> existing = primary.retrieveByHash(et.getHash());
+              final Optional<EncryptedTransaction> existing =
+                  primaryEntityManager
+                      .createNamedQuery(
+                          "EncryptedTransaction.FindByHash", EncryptedTransaction.class)
+                      .setParameter("hash", et.getHash().getHashBytes())
+                      .getResultStream()
+                      .findAny();
+
               if (existing.isEmpty()) {
-                primary.save(et);
+                primaryEntityManager.getTransaction().begin();
+                primaryEntityManager.persist(et);
+                primaryEntityManager.getTransaction().commit();
                 return;
               }
 
@@ -53,7 +77,9 @@ public class EncryptedTransactionMigrator {
 
               final byte[] updatedEncoded = payloadEncoder.encode(updatedPayload);
               outerTx.setEncodedPayload(updatedEncoded);
-              primary.update(outerTx);
+              primaryEntityManager.getTransaction().begin();
+              primaryEntityManager.merge(outerTx);
+              primaryEntityManager.getTransaction().commit();
             });
   }
 

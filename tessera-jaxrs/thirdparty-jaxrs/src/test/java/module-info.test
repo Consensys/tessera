@@ -1,0 +1,2 @@
+--add-opens
+    tessera.thirdparty.jaxrs/com.quorum.tessera.thirdparty.model=openpojo

@@ -8,10 +8,7 @@ public class ResendBatchResponseTest {
 
   @Test
   public void testCreate() {
-    ResendBatchResponse resendBatchResponse = new ResendBatchResponse(1);
-    assertThat(resendBatchResponse.getTotal()).isEqualTo(1);
-    resendBatchResponse = new ResendBatchResponse();
-    resendBatchResponse.setTotal(2);
-    assertThat(resendBatchResponse.getTotal()).isEqualTo(2);
+    ResendBatchResponse resendBatchResponse = new ResendBatchResponse(1912L);
+    assertThat(resendBatchResponse.getTotal()).isEqualTo(1912L);
   }
 }

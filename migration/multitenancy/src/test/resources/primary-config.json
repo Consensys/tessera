@@ -1,0 +1,19 @@
+{
+    "version" : "21.1.1-SNAPSHOT",
+    "useWhiteList" : false,
+    "disablePeerDiscovery" : false,
+    "bootstrapNode" : false,
+    "jdbc" : {
+        "username" : "junit",
+        "password" : "junit",
+        "url" : "jdbc:h2:mem:primary",
+        "autoCreateTables" : false,
+        "fetchSize" : 0
+    },
+    "alwaysSendTo" : [ ],
+    "features" : {
+        "enableRemoteKeyValidation" : false,
+        "enablePrivacyEnhancements" : false
+    },
+    "mode" : "tessera"
+}

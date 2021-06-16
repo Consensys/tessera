@@ -1,5 +1,0 @@
-
-
-dependencies {
-  compile project(':service-locator:service-locator-api')
-}

@@ -3,32 +3,18 @@ package com.quorum.tessera.enclave;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.*;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.stream.Stream;
-import org.junit.Before;
 import org.junit.Test;
 
 public class EnclaveFactoryTest {
 
-  private EnclaveFactory enclaveFactory;
-
-  @Before
-  public void onSetUp() {
-    this.enclaveFactory = EnclaveFactory.create();
-  }
-
-  @Test
-  public void create() {
-    assertThat(enclaveFactory).isNotNull();
-  }
-
   @Test
   public void createRemote() {
+
     final Config config = new Config();
     config.setEncryptor(
         new EncryptorConfig() {
@@ -39,14 +25,27 @@ public class EnclaveFactoryTest {
 
     ServerConfig serverConfig = new ServerConfig();
     serverConfig.setApp(AppType.ENCLAVE);
-    serverConfig.setCommunicationType(CommunicationType.REST);
     serverConfig.setServerAddress("http://bogus:9898");
 
     config.setServerConfigs(singletonList(serverConfig));
 
-    Enclave result = enclaveFactory.create(config);
+    try (var staticEnclaveClientFactory = mockStatic(EnclaveClientFactory.class);
+        var enclaveClientMockedStatic = mockStatic(EnclaveClient.class)) {
 
-    assertThat(result).isInstanceOf(EnclaveClient.class);
+      EnclaveClientFactory enclaveClientFactory = mock(EnclaveClientFactory.class);
+
+      staticEnclaveClientFactory
+          .when(EnclaveClientFactory::create)
+          .thenReturn(enclaveClientFactory);
+
+      EnclaveClient enclaveClient = mock(EnclaveClient.class);
+      enclaveClientMockedStatic.when(EnclaveClient::create).thenReturn(enclaveClient);
+
+      EnclaveFactoryImpl enclaveFactory = new EnclaveFactoryImpl(config);
+      Enclave result = enclaveFactory.createEnclave();
+
+      assertThat(result).isSameAs(enclaveClient);
+    }
   }
 
   @Test
@@ -82,7 +81,9 @@ public class EnclaveFactoryTest {
 
               config.setAlwaysSendTo(new ArrayList<>());
 
-              Enclave result = enclaveFactory.create(config);
+              EnclaveFactoryImpl enclaveFactory = new EnclaveFactoryImpl(config);
+
+              Enclave result = enclaveFactory.createEnclave();
 
               assertThat(result).isInstanceOf(EnclaveImpl.class);
             });
@@ -110,7 +111,9 @@ public class EnclaveFactoryTest {
 
     config.setAlwaysSendTo(new ArrayList<>());
 
-    Enclave result = enclaveFactory.create(config);
+    EnclaveFactoryImpl enclaveFactory = new EnclaveFactoryImpl(config);
+
+    Enclave result = enclaveFactory.createEnclave();
 
     assertThat(result).isInstanceOf(EnclaveImpl.class);
   }
@@ -135,8 +138,8 @@ public class EnclaveFactoryTest {
     config.setKeys(keyConfiguration);
 
     config.setAlwaysSendTo(new ArrayList<>());
-
-    Enclave result = enclaveFactory.createLocal(config);
+    EnclaveFactoryImpl enclaveFactory = new EnclaveFactoryImpl(config);
+    Enclave result = enclaveFactory.createLocal();
 
     assertThat(result).isInstanceOf(EnclaveImpl.class);
   }
@@ -147,37 +150,13 @@ public class EnclaveFactoryTest {
     EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
     when(encryptorConfig.getType()).thenThrow(new RuntimeException("OUCH"));
     when(config.getEncryptor()).thenReturn(encryptorConfig);
+    EnclaveFactoryImpl enclaveFactory = new EnclaveFactoryImpl(config);
+
     try {
-      enclaveFactory.create(config);
+      enclaveFactory.createEnclave();
       failBecauseExceptionWasNotThrown(RuntimeException.class);
     } catch (RuntimeException ex) {
       assertThat(ex).hasMessage("OUCH");
     }
-  }
-
-  @Test
-  public void callCreateWithStoreInstance() {
-
-    Enclave storedEnclave = mock(Enclave.class);
-    MockEnclaveHolder.setMockEnclave(storedEnclave);
-
-    Enclave enclave = enclaveFactory.create(mock(Config.class));
-
-    assertThat(enclave).isSameAs(storedEnclave);
-
-    MockEnclaveHolder.reset();
-  }
-
-  @Test
-  public void callEnclaveWithStoreInstance() {
-
-    Enclave storedEnclave = mock(Enclave.class);
-    MockEnclaveHolder.setMockEnclave(storedEnclave);
-
-    Optional<Enclave> result = enclaveFactory.enclave();
-
-    assertThat(result).isPresent().contains(storedEnclave);
-
-    MockEnclaveHolder.reset();
   }
 }

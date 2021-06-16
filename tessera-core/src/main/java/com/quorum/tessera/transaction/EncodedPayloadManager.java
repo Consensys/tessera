@@ -1,13 +1,8 @@
 package com.quorum.tessera.transaction;
 
-import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.data.EntityManagerDAOFactory;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadDigest;
 import com.quorum.tessera.encryption.PublicKey;
+import java.util.ServiceLoader;
 
 /**
  * The EncodedPayloadManager handles requests for translating and validating an incoming request to
@@ -38,19 +33,7 @@ public interface EncodedPayloadManager {
    */
   ReceiveResponse decrypt(EncodedPayload payload, PublicKey maybeDefaultRecipient);
 
-  static EncodedPayloadManager create(Config config) {
-    return ServiceLoaderUtil.load(EncodedPayloadManager.class)
-        .orElseGet(
-            () -> {
-              final Enclave enclave = EnclaveFactory.create().create(config);
-              final EntityManagerDAOFactory emDAOFactory =
-                  EntityManagerDAOFactory.newFactory(config);
-              boolean privacyEnabled = config.getFeatures().isEnablePrivacyEnhancements();
-              final PrivacyHelper privacyHelper =
-                  new PrivacyHelperImpl(
-                      emDAOFactory.createEncryptedTransactionDAO(), privacyEnabled);
-              final PayloadDigest payloadDigest = PayloadDigest.create(config);
-              return new EncodedPayloadManagerImpl(enclave, privacyHelper, payloadDigest);
-            });
+  static EncodedPayloadManager create() {
+    return ServiceLoader.load(EncodedPayloadManager.class).findFirst().get();
   }
 }

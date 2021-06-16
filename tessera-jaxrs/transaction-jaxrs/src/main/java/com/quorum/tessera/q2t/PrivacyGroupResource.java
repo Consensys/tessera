@@ -7,7 +7,6 @@ import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
-import com.quorum.tessera.util.Base64Codec;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -32,8 +32,6 @@ import javax.ws.rs.core.Response;
 public class PrivacyGroupResource {
 
   private final PrivacyGroupManager privacyGroupManager;
-
-  private final Base64Codec base64Codec = Base64Codec.create();
 
   public PrivacyGroupResource(PrivacyGroupManager privacyGroupManager) {
     this.privacyGroupManager = privacyGroupManager;
@@ -65,20 +63,20 @@ public class PrivacyGroupResource {
 
     final PublicKey from =
         Optional.ofNullable(request.getFrom())
-            .map(base64Codec::decode)
+            .map(Base64.getDecoder()::decode)
             .map(PublicKey::from)
             .orElseGet(privacyGroupManager::defaultPublicKey);
 
     final List<PublicKey> members =
         Stream.ofNullable(request.getAddresses())
             .flatMap(Arrays::stream)
-            .map(base64Codec::decode)
+            .map(Base64.getDecoder()::decode)
             .map(PublicKey::from)
             .collect(Collectors.toList());
 
     final byte[] randomSeed =
         Optional.ofNullable(request.getSeed())
-            .map(base64Codec::decode)
+            .map(Base64.getDecoder()::decode)
             .orElseGet(generateRandomSeed);
 
     final String name = Optional.ofNullable(request.getName()).orElse("");
@@ -116,7 +114,7 @@ public class PrivacyGroupResource {
 
     final List<PublicKey> members =
         Stream.of(searchRequest.getAddresses())
-            .map(base64Codec::decode)
+            .map(Base64.getDecoder()::decode)
             .map(PublicKey::from)
             .collect(Collectors.toList());
 
@@ -184,7 +182,7 @@ public class PrivacyGroupResource {
 
     final PublicKey from =
         Optional.ofNullable(request.getFrom())
-            .map(base64Codec::decode)
+            .map(Base64.getDecoder()::decode)
             .map(PublicKey::from)
             .orElseGet(privacyGroupManager::defaultPublicKey);
 

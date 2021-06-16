@@ -1,5 +1,6 @@
 package com.quorum.tessera.p2p.model;
 
+import com.quorum.tessera.config.Peer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;

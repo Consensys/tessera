@@ -4,107 +4,95 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.*;
 
-import com.microsoft.azure.keyvault.models.SecretBundle;
-import com.microsoft.azure.keyvault.requests.SetSecretRequest;
-import com.quorum.tessera.config.KeyVaultConfig;
-import com.quorum.tessera.config.vault.data.AzureGetSecretData;
-import com.quorum.tessera.config.vault.data.AzureSetSecretData;
+import com.azure.core.exception.ResourceNotFoundException;
+import com.azure.core.http.HttpResponse;
+import com.azure.security.keyvault.secrets.SecretClient;
+import com.azure.security.keyvault.secrets.models.KeyVaultSecret;
 import com.quorum.tessera.key.vault.VaultSecretNotFoundException;
-import java.util.Optional;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 public class AzureKeyVaultServiceTest {
 
   private AzureKeyVaultService keyVaultService;
 
-  private AzureKeyVaultClientDelegate azureKeyVaultClientDelegate;
-
-  private String vaultUrl = "url";
-
-  private KeyVaultConfig keyVaultConfig;
+  private SecretClient secretClient;
 
   @Before
-  public void setUp() {
-    this.azureKeyVaultClientDelegate = mock(AzureKeyVaultClientDelegate.class);
-    this.keyVaultConfig = mock(KeyVaultConfig.class);
-    when(keyVaultConfig.getProperty("url")).thenReturn(Optional.of(vaultUrl));
-
-    this.keyVaultService = new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
+  public void beforeTest() {
+    this.secretClient = mock(SecretClient.class);
+    this.keyVaultService = new AzureKeyVaultService(secretClient);
   }
 
   @Test
-  public void getSecretGetsLatestVersionOfSecretIfNoVersionProvided() {
-    String secretName = "name";
-
-    AzureGetSecretData getSecretData = mock(AzureGetSecretData.class);
-    when(getSecretData.getSecretName()).thenReturn(secretName);
-    when(getSecretData.getSecretVersion()).thenReturn(null);
-
-    SecretBundle secretBundle = mock(SecretBundle.class);
-    when(azureKeyVaultClientDelegate.getSecret(anyString(), anyString())).thenReturn(secretBundle);
-    when(secretBundle.value()).thenReturn("value");
-
-    keyVaultService.getSecret(getSecretData);
-
-    verify(azureKeyVaultClientDelegate).getSecret(vaultUrl, secretName);
+  public void afterTest() {
+    verifyNoMoreInteractions(secretClient);
   }
 
   @Test
-  public void getSecretGetsSpecificVersionOfSecretIfVersionProvided() {
-    String secretName = "name";
-    String secretVersion = "version";
+  public void getSecret() {
+    final String secretName = "secret-name";
+    final String secretVersion = "secret-version";
 
-    AzureGetSecretData getSecretData = mock(AzureGetSecretData.class);
-    when(getSecretData.getSecretName()).thenReturn(secretName);
-    when(getSecretData.getSecretVersion()).thenReturn(secretVersion);
+    final Map<String, String> getSecretData =
+        Map.of(
+            AzureKeyVaultService.SECRET_NAME_KEY, secretName,
+            AzureKeyVaultService.SECRET_VERSION_KEY, secretVersion);
 
-    SecretBundle secretBundle = mock(SecretBundle.class);
-    when(azureKeyVaultClientDelegate.getSecret(anyString(), anyString(), anyString()))
-        .thenReturn(secretBundle);
-    when(secretBundle.value()).thenReturn("value");
+    final String expectedSecretValue = "secret-value";
+    final KeyVaultSecret gotSecret = mock(KeyVaultSecret.class);
+    when(gotSecret.getValue()).thenReturn(expectedSecretValue);
 
-    keyVaultService.getSecret(getSecretData);
+    when(secretClient.getSecret(anyString(), anyString())).thenReturn(gotSecret);
 
-    verify(azureKeyVaultClientDelegate).getSecret(vaultUrl, secretName, secretVersion);
+    final String result = keyVaultService.getSecret(getSecretData);
+
+    assertThat(result).isEqualTo(expectedSecretValue);
+    verify(secretClient).getSecret(secretName, secretVersion);
   }
 
   @Test
   public void getSecretThrowsExceptionIfKeyNotFoundInVault() {
-    when(azureKeyVaultClientDelegate.getSecret(anyString(), anyString())).thenReturn(null);
+    final String secretName = "secret-name";
+    final String secretVersion = "secret-version";
 
-    AzureKeyVaultService azureKeyVaultService =
-        new AzureKeyVaultService(keyVaultConfig, azureKeyVaultClientDelegate);
+    final Map<String, String> getSecretData =
+        Map.of(
+            AzureKeyVaultService.SECRET_NAME_KEY, secretName,
+            AzureKeyVaultService.SECRET_VERSION_KEY, secretVersion);
 
-    String secretName = "secret";
+    final ResourceNotFoundException toThrow =
+        new ResourceNotFoundException("oh no", mock(HttpResponse.class));
+    when(secretClient.getSecret(anyString(), anyString())).thenThrow(toThrow);
 
-    AzureGetSecretData getSecretData = mock(AzureGetSecretData.class);
-    when(getSecretData.getSecretName()).thenReturn(secretName);
+    when(secretClient.getVaultUrl()).thenReturn("vault-url");
 
-    Throwable throwable = catchThrowable(() -> azureKeyVaultService.getSecret(getSecretData));
+    final Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
-    assertThat(throwable).isInstanceOf(VaultSecretNotFoundException.class);
-    assertThat(throwable)
-        .hasMessageContaining(
-            "Azure Key Vault secret " + secretName + " was not found in vault " + vaultUrl);
+    assertThat(ex).isExactlyInstanceOf(VaultSecretNotFoundException.class);
+    assertThat(ex)
+        .hasMessage("Azure Key Vault secret secret-name was not found in vault vault-url");
+    verify(secretClient).getSecret("secret-name", "secret-version");
   }
 
   @Test
   public void setSecret() {
-    AzureSetSecretData setSecretData = mock(AzureSetSecretData.class);
-    String secretName = "id";
-    String secret = "secret";
-    when(setSecretData.getSecretName()).thenReturn(secretName);
-    when(setSecretData.getSecret()).thenReturn(secret);
 
-    keyVaultService.setSecret(setSecretData);
+    final String secretName = "secret-name";
+    final String secret = "secret-value";
 
-    SetSecretRequest expected = new SetSecretRequest.Builder(vaultUrl, secretName, secret).build();
+    final Map<String, String> setSecretData =
+        Map.of(
+            AzureKeyVaultService.SECRET_NAME_KEY, secretName,
+            AzureKeyVaultService.SECRET_KEY, secret);
 
-    ArgumentCaptor<SetSecretRequest> argument = ArgumentCaptor.forClass(SetSecretRequest.class);
-    verify(azureKeyVaultClientDelegate).setSecret(argument.capture());
+    final KeyVaultSecret newSecret = mock(KeyVaultSecret.class);
+    when(secretClient.setSecret(secretName, secret)).thenReturn(newSecret);
 
-    assertThat(argument.getValue()).isEqualToComparingFieldByField(expected);
+    final Object result = keyVaultService.setSecret(setSecretData);
+
+    assertThat(result).isSameAs(newSecret);
+    verify(secretClient).setSecret("secret-name", "secret-value");
   }
 }

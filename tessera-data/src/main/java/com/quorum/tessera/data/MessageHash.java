@@ -35,6 +35,8 @@ public class MessageHash implements Serializable {
     return Arrays.hashCode(getHashBytes());
   }
 
+  // FIXME: toString is being used as a message format thing used to messages
+  // rather than being a string representation of the object.
   @Override
   public String toString() {
     return Base64.getEncoder().encodeToString(hashBytes);

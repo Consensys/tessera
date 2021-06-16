@@ -1,19 +1,11 @@
 package com.quorum.tessera.privacygroup;
 
-import com.quorum.tessera.ServiceLoaderUtil;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.data.EntityManagerDAOFactory;
-import com.quorum.tessera.data.PrivacyGroupDAO;
 import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.exception.*;
-import com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisher;
-import com.quorum.tessera.privacygroup.publish.BatchPrivacyGroupPublisherFactory;
-import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
-import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisherFactory;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 public interface PrivacyGroupManager {
@@ -95,19 +87,7 @@ public interface PrivacyGroupManager {
 
   Set<PublicKey> getManagedKeys();
 
-  static PrivacyGroupManager create(final Config config) {
-    return ServiceLoaderUtil.load(PrivacyGroupManager.class)
-        .orElseGet(
-            () -> {
-              Enclave enclave = EnclaveFactory.create().create(config);
-              EntityManagerDAOFactory entityManagerDAOFactory =
-                  EntityManagerDAOFactory.newFactory(config);
-              PrivacyGroupDAO privacyGroupDAO = entityManagerDAOFactory.createPrivacyGroupDAO();
-              PrivacyGroupPublisher publisher =
-                  PrivacyGroupPublisherFactory.newFactory(config).create(config);
-              BatchPrivacyGroupPublisher batchPublisher =
-                  BatchPrivacyGroupPublisherFactory.newFactory(config).create(publisher);
-              return new PrivacyGroupManagerImpl(enclave, privacyGroupDAO, batchPublisher);
-            });
+  static PrivacyGroupManager create() {
+    return ServiceLoader.load(PrivacyGroupManager.class).findFirst().get();
   }
 }

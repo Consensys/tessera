@@ -3,7 +3,7 @@
     "jdbc": {
         "username": "sa",
         "password": "",
-        "url": "jdbc:h2:./target/h2/rest1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=9090"
+        "url": "jdbc:h2:./build/h2/rest1;MODE=Oracle;TRACE_LEVEL_SYSTEM_OUT=0;AUTO_SERVER=TRUE;AUTO_SERVER_PORT=9090"
     },
     "serverConfigs": [
         {
