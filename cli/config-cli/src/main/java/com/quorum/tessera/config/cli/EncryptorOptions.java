@@ -13,19 +13,19 @@ class EncryptorOptions {
   @CommandLine.Option(
       names = {"--encryptor.type"},
       description = "Valid values: ${COMPLETION-CANDIDATES}")
-  EncryptorType type;
+  private EncryptorType type;
 
   @CommandLine.Option(names = {"--encryptor.symmetricCipher"})
-  String symmetricCipher;
+  private String symmetricCipher;
 
   @CommandLine.Option(names = {"--encryptor.ellipticCurve"})
-  String ellipticCurve;
+  private String ellipticCurve;
 
   @CommandLine.Option(names = {"--encryptor.nonceLength"})
-  String nonceLength;
+  private String nonceLength;
 
   @CommandLine.Option(names = {"--encryptor.sharedKeyLength"})
-  String sharedKeyLength;
+  private String sharedKeyLength;
 
   EncryptorConfig parseEncryptorConfig() {
     final EncryptorConfig encryptorConfig = new EncryptorConfig();

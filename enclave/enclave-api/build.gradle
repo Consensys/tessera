@@ -1,10 +1,16 @@
+plugins {
+  id "java-library"
+}
 
 dependencies {
-  compile project(':config')
-  compile project(':encryption:encryption-api')
-  compile project(':shared')
-  compile project(':key-vault:key-vault-api')
-  compile 'org.bouncycastle:bcpkix-jdk15on'
-  testCompile 'org.apache.tuweni:tuweni-rlp'
-  testCompile 'org.apache.tuweni:tuweni-bytes'
+  implementation project(":config")
+  implementation project(":encryption:encryption-api")
+  implementation project(":shared")
+  implementation project(":key-vault:key-vault-api")
+  implementation "org.bouncycastle:bcpkix-jdk15on"
+  implementation "org.slf4j:slf4j-api"
+
+
+  testImplementation "org.apache.tuweni:tuweni-rlp"
+  testImplementation "org.apache.tuweni:tuweni-bytes"
 }

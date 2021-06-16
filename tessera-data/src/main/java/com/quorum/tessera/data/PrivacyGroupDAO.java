@@ -2,6 +2,7 @@ package com.quorum.tessera.data;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.concurrent.Callable;
 
 /** A data store for privacy group data that need to be retrieved later */
@@ -69,4 +70,8 @@ public interface PrivacyGroupDAO {
   List<PrivacyGroupEntity> findByLookupId(byte[] lookupId);
 
   List<PrivacyGroupEntity> findAll();
+
+  static PrivacyGroupDAO create() {
+    return ServiceLoader.load(PrivacyGroupDAO.class).findFirst().get();
+  }
 }

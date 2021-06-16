@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
+import java.util.Objects;
 import java.util.Optional;
 import javax.net.ssl.SSLContext;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -19,8 +20,15 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
 
   private static final String DEFAULT_KNOWN_SERVER_FILEPATH = "knownServers";
 
-  private static final EnvironmentVariableProvider envVarProvider =
-      EnvironmentVariableProviderFactory.load().create();
+  private final EnvironmentVariableProvider environmentVariableProvider;
+
+  public ClientSSLContextFactoryImpl() {
+    this(EnvironmentVariableProviderFactory.load().create());
+  }
+
+  protected ClientSSLContextFactoryImpl(EnvironmentVariableProvider environmentVariableProvider) {
+    this.environmentVariableProvider = Objects.requireNonNull(environmentVariableProvider);
+  }
 
   @Override
   public SSLContext from(String address, SslConfig sslConfig) {
@@ -70,14 +78,19 @@ public class ClientSSLContextFactoryImpl implements ClientSSLContextFactory {
   // Return the prefixed env var value if set, else return the config value, else return the global
   // env var value
   private char[] getPreferredPassword(char[] configPassword, String envVarPrefix, String envVar) {
-    char[] password = envVarProvider.getEnvAsCharArray(envVarPrefix + "_" + envVar);
 
-    if (password != null) {
-      return password;
-    } else if (configPassword != null) {
+    if (Objects.nonNull(envVarPrefix) && Objects.nonNull(envVar)) {
+      char[] password =
+          environmentVariableProvider.getEnvAsCharArray(envVarPrefix.concat("_").concat(envVar));
+      if (password != null) {
+        return password;
+      }
+    }
+
+    if (Objects.nonNull(configPassword)) {
       return configPassword;
     }
 
-    return envVarProvider.getEnvAsCharArray(envVar);
+    return environmentVariableProvider.getEnvAsCharArray(envVar);
   }
 }

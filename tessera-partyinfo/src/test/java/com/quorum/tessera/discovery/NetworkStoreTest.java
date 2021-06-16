@@ -2,6 +2,7 @@ package com.quorum.tessera.discovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.quorum.tessera.discovery.internal.DefaultNetworkStore;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +14,7 @@ public class NetworkStoreTest {
   @Before
   public void setUp() {
     networkStore = NetworkStore.getInstance();
-    assertThat(networkStore).isExactlyInstanceOf(NetworkStoreFactory.class);
+    assertThat(networkStore).isExactlyInstanceOf(DefaultNetworkStore.class);
     networkStore.getActiveNodes().map(ActiveNode::getUri).forEach(networkStore::remove);
   }
 

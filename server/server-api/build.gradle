@@ -1,7 +1,9 @@
-dependencies {
-  compile project(':shared')
-  compile project(':config')
-  compile project(':tessera-context')
+plugins {
+  id "java-library"
 }
 
-description = 'server-api'
+dependencies {
+  implementation project(":shared")
+  implementation project(":config")
+  implementation project(":tessera-context")
+}

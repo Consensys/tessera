@@ -1,15 +1,17 @@
 package com.quorum.tessera.enclave;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.Config;
+import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.keypairs.*;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
 import java.util.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,57 +85,132 @@ public class KeyPairConverterTest {
   }
 
   @Test
-  // Uses com.quorum.tessera.keypairconverter.MockAzureKeyVaultServiceFactory
   public void convertSingleAzureVaultKeyPair() {
-    final AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pub", "priv", null, null);
 
-    Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
+    try (var staticKeyVaultServiceFactory = mockStatic(KeyVaultServiceFactory.class)) {
+      KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
+      KeyVaultService keyVaultService = mock(KeyVaultService.class);
 
-    assertThat(result).hasSize(1);
+      when(keyVaultService.getSecret(any(Map.class)))
+          .thenReturn("publicSecret")
+          .thenReturn("privSecret");
 
-    KeyPair resultKeyPair = result.iterator().next();
-    KeyPair expected =
-        new KeyPair(
-            PublicKey.from(decodeBase64("publicSecret")),
-            PrivateKey.from(decodeBase64("privSecret")));
+      when(keyVaultServiceFactory.create(any(Config.class), any(EnvironmentVariableProvider.class)))
+          .thenReturn(keyVaultService);
 
-    assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+      staticKeyVaultServiceFactory
+          .when(() -> KeyVaultServiceFactory.getInstance(KeyVaultType.AZURE))
+          .thenReturn(keyVaultServiceFactory);
+
+      final AzureVaultKeyPair keyPair = new AzureVaultKeyPair("pub", "priv", null, null);
+
+      Collection<KeyPair> result = converter.convert(List.of(keyPair));
+
+      assertThat(result).hasSize(1);
+
+      KeyPair resultKeyPair = result.iterator().next();
+      KeyPair expected =
+          new KeyPair(
+              PublicKey.from(decodeBase64("publicSecret")),
+              PrivateKey.from(decodeBase64("privSecret")));
+
+      assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+
+      verify(keyVaultService, times(2)).getSecret(any(Map.class));
+      verify(keyVaultServiceFactory)
+          .create(any(Config.class), any(EnvironmentVariableProvider.class));
+      staticKeyVaultServiceFactory.verify(
+          () -> KeyVaultServiceFactory.getInstance(KeyVaultType.AZURE));
+
+      staticKeyVaultServiceFactory.verifyNoMoreInteractions();
+      verifyNoMoreInteractions(keyVaultService);
+      verifyNoMoreInteractions(keyVaultServiceFactory);
+    }
   }
 
   @Test
-  // Uses com.quorum.tessera.keypairconverter.MockAwsKeyVaultServiceFactory
   public void convertSingleAwsVaultKeyPair() {
-    final AWSKeyPair keyPair = new AWSKeyPair("pub", "priv");
 
-    Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
+    try (var staticKeyVaultServiceFactory = mockStatic(KeyVaultServiceFactory.class)) {
+      KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
+      KeyVaultService keyVaultService = mock(KeyVaultService.class);
+      when(keyVaultService.getSecret(any(Map.class)))
+          .thenReturn("publicSecret")
+          .thenReturn("privSecret");
 
-    assertThat(result).hasSize(1);
+      when(keyVaultServiceFactory.create(any(Config.class), any(EnvironmentVariableProvider.class)))
+          .thenReturn(keyVaultService);
 
-    KeyPair resultKeyPair = result.iterator().next();
-    KeyPair expected =
-        new KeyPair(
-            PublicKey.from(decodeBase64("publicSecret")),
-            PrivateKey.from(decodeBase64("privSecret")));
+      staticKeyVaultServiceFactory
+          .when(() -> KeyVaultServiceFactory.getInstance(KeyVaultType.AWS))
+          .thenReturn(keyVaultServiceFactory);
 
-    assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+      final AWSKeyPair keyPair = new AWSKeyPair("pub", "priv");
+
+      Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
+
+      assertThat(result).hasSize(1);
+
+      KeyPair resultKeyPair = result.iterator().next();
+      KeyPair expected =
+          new KeyPair(
+              PublicKey.from(decodeBase64("publicSecret")),
+              PrivateKey.from(decodeBase64("privSecret")));
+
+      assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+      verify(keyVaultService, times(2)).getSecret(any(Map.class));
+      verify(keyVaultServiceFactory)
+          .create(any(Config.class), any(EnvironmentVariableProvider.class));
+      staticKeyVaultServiceFactory.verify(
+          () -> KeyVaultServiceFactory.getInstance(KeyVaultType.AWS));
+
+      staticKeyVaultServiceFactory.verifyNoMoreInteractions();
+      verifyNoMoreInteractions(keyVaultService);
+      verifyNoMoreInteractions(keyVaultServiceFactory);
+    }
   }
 
   @Test
   public void convertSingleHashicorpVaultKeyPair() {
-    final HashicorpVaultKeyPair keyPair =
-        new HashicorpVaultKeyPair("pub", "priv", "engine", "secretName", 10);
 
-    Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
+    try (var staticKeyVaultServiceFactory = mockStatic(KeyVaultServiceFactory.class)) {
+      KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
+      KeyVaultService keyVaultService = mock(KeyVaultService.class);
+      when(keyVaultService.getSecret(any(Map.class)))
+          .thenReturn("publicSecret")
+          .thenReturn("privSecret");
 
-    assertThat(result).hasSize(1);
+      when(keyVaultServiceFactory.create(any(Config.class), any(EnvironmentVariableProvider.class)))
+          .thenReturn(keyVaultService);
 
-    KeyPair resultKeyPair = result.iterator().next();
-    KeyPair expected =
-        new KeyPair(
-            PublicKey.from(decodeBase64("publicSecret")),
-            PrivateKey.from(decodeBase64("privSecret")));
+      staticKeyVaultServiceFactory
+          .when(() -> KeyVaultServiceFactory.getInstance(KeyVaultType.HASHICORP))
+          .thenReturn(keyVaultServiceFactory);
 
-    assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+      final HashicorpVaultKeyPair keyPair =
+          new HashicorpVaultKeyPair("pub", "priv", "engine", "secretName", 10);
+
+      Collection<KeyPair> result = converter.convert(Collections.singletonList(keyPair));
+
+      assertThat(result).hasSize(1);
+
+      KeyPair resultKeyPair = result.iterator().next();
+      KeyPair expected =
+          new KeyPair(
+              PublicKey.from(decodeBase64("publicSecret")),
+              PrivateKey.from(decodeBase64("privSecret")));
+
+      assertThat(resultKeyPair).isEqualToComparingFieldByField(expected);
+      verify(keyVaultService, times(2)).getSecret(any(Map.class));
+      verify(keyVaultServiceFactory)
+          .create(any(Config.class), any(EnvironmentVariableProvider.class));
+      staticKeyVaultServiceFactory.verify(
+          () -> KeyVaultServiceFactory.getInstance(KeyVaultType.HASHICORP));
+
+      staticKeyVaultServiceFactory.verifyNoMoreInteractions();
+      verifyNoMoreInteractions(keyVaultService);
+      verifyNoMoreInteractions(keyVaultServiceFactory);
+    }
   }
 
   @Test

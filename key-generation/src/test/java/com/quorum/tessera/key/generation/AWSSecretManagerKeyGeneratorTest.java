@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.ArgonOptions;
 import com.quorum.tessera.config.keypairs.AWSKeyPair;
-import com.quorum.tessera.config.vault.data.AWSSetSecretData;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
@@ -14,6 +13,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.key.vault.KeyVaultService;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -48,16 +48,18 @@ public class AWSSecretManagerKeyGeneratorTest {
 
     final AWSKeyPair result = awsSecretManagerKeyGenerator.generate(vaultId, null, null);
 
-    final ArgumentCaptor<AWSSetSecretData> captor = ArgumentCaptor.forClass(AWSSetSecretData.class);
+    final ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
 
     verify(keyVaultService, times(2)).setSecret(captor.capture());
 
-    List<AWSSetSecretData> capturedArgs = captor.getAllValues();
+    List<Map> capturedArgs = captor.getAllValues();
     assertThat(capturedArgs).hasSize(2);
 
-    AWSSetSecretData expectedDataPub = new AWSSetSecretData(pubVaultId, pub.encodeToBase64());
-    AWSSetSecretData expectedDataPriv = new AWSSetSecretData(privVaultId, priv.encodeToBase64());
+    Map<String, String> expectedDataPub =
+        Map.of("secretName", pubVaultId, "secret", pub.encodeToBase64());
 
+    Map<String, String> expectedDataPriv =
+        Map.of("secretName", privVaultId, "secret", priv.encodeToBase64());
     assertThat(capturedArgs)
         .usingRecursiveFieldByFieldElementComparator()
         .containsExactlyInAnyOrder(expectedDataPub, expectedDataPriv);
@@ -79,15 +81,16 @@ public class AWSSecretManagerKeyGeneratorTest {
 
     awsSecretManagerKeyGenerator.generate(path, null, null);
 
-    final ArgumentCaptor<AWSSetSecretData> captor = ArgumentCaptor.forClass(AWSSetSecretData.class);
+    final ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
 
     verify(keyVaultService, times(2)).setSecret(captor.capture());
 
-    List<AWSSetSecretData> capturedArgs = captor.getAllValues();
+    List<Map> capturedArgs = captor.getAllValues();
     assertThat(capturedArgs).hasSize(2);
 
-    AWSSetSecretData expectedDataPub = new AWSSetSecretData(pubVaultId, pub.encodeToBase64());
-    AWSSetSecretData expectedDataPriv = new AWSSetSecretData(privVaultId, priv.encodeToBase64());
+    Map expectedDataPub = Map.of("secretName", pubVaultId, "secret", pub.encodeToBase64());
+
+    Map expectedDataPriv = Map.of("secretName", privVaultId, "secret", priv.encodeToBase64());
 
     assertThat(capturedArgs)
         .usingRecursiveFieldByFieldElementComparator()
@@ -100,15 +103,16 @@ public class AWSSecretManagerKeyGeneratorTest {
   public void ifNoVaultIdProvidedThenSuffixOnlyIsUsed() {
     awsSecretManagerKeyGenerator.generate(null, null, null);
 
-    final ArgumentCaptor<AWSSetSecretData> captor = ArgumentCaptor.forClass(AWSSetSecretData.class);
+    final ArgumentCaptor<Map> captor = ArgumentCaptor.forClass(Map.class);
 
     verify(keyVaultService, times(2)).setSecret(captor.capture());
 
-    List<AWSSetSecretData> capturedArgs = captor.getAllValues();
+    List<Map> capturedArgs = captor.getAllValues();
     assertThat(capturedArgs).hasSize(2);
 
-    AWSSetSecretData expectedDataPub = new AWSSetSecretData("Pub", pub.encodeToBase64());
-    AWSSetSecretData expectedDataPriv = new AWSSetSecretData("Key", priv.encodeToBase64());
+    Map expectedDataPub = Map.of("secretName", "Pub", "secret", pub.encodeToBase64());
+
+    Map expectedDataPriv = Map.of("secretName", "Key", "secret", priv.encodeToBase64());
 
     assertThat(capturedArgs)
         .usingRecursiveFieldByFieldElementComparator()

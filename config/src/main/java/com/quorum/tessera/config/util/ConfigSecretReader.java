@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.util;
 
-import com.quorum.tessera.io.SystemAdapter;
 import com.quorum.tessera.passwords.PasswordReaderFactory;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,19 +9,21 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class ConfigSecretReader {
+public class ConfigSecretReader {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigSecretReader.class);
 
-  private ConfigSecretReader() {}
+  private final EnvironmentVariableProvider environmentVariableProvider;
 
-  public static Optional<char[]> readSecretFromFile() {
+  public ConfigSecretReader(EnvironmentVariableProvider environmentVariableProvider) {
+    this.environmentVariableProvider = environmentVariableProvider;
+  }
 
-    final EnvironmentVariableProvider envProvider = new EnvironmentVariableProvider();
+  public Optional<char[]> readSecretFromFile() {
 
-    if (envProvider.hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH)) {
+    if (environmentVariableProvider.hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH)) {
       final Path secretPath =
-          Paths.get(envProvider.getEnv(EnvironmentVariables.CONFIG_SECRET_PATH));
+          Paths.get(environmentVariableProvider.getEnv(EnvironmentVariables.CONFIG_SECRET_PATH));
       if (Files.exists(secretPath)) {
         try {
           return Optional.of(new String(Files.readAllBytes(secretPath)).trim().toCharArray());
@@ -37,10 +38,8 @@ public final class ConfigSecretReader {
     return Optional.empty();
   }
 
-  public static char[] readSecretFromConsole() {
-    SystemAdapter.INSTANCE
-        .out()
-        .println("Please enter the secret/password used to decrypt config value");
+  public char[] readSecretFromConsole() {
+    System.out.println("Please enter the secret/password used to decrypt config value");
     return PasswordReaderFactory.create().readPasswordFromConsole();
   }
 }

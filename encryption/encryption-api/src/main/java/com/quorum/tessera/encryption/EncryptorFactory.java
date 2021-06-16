@@ -1,8 +1,10 @@
 package com.quorum.tessera.encryption;
 
-import com.quorum.tessera.ServiceLoaderUtil;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
+import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  * * A factory for providing the implementation of the {@link Encryptor} with all its dependencies
@@ -30,9 +32,18 @@ public interface EncryptorFactory {
    *     Encryptor}
    */
   static EncryptorFactory newFactory(String type) {
-    return ServiceLoaderUtil.loadAll(EncryptorFactory.class)
+
+    return ServiceLoader.load(EncryptorFactory.class).stream()
+        .map(ServiceLoader.Provider::get)
         .filter(f -> f.getType().equals(type))
         .findAny()
-        .orElseThrow(() -> new EncryptorFactoryNotFoundException(type));
+        .orElseThrow(
+            () -> {
+              String message =
+                  ServiceLoader.load(EncryptorFactory.class).stream()
+                      .map(Objects::toString)
+                      .collect(Collectors.joining(","));
+              return new EncryptorFactoryNotFoundException(type + " Found only " + message);
+            });
   }
 }

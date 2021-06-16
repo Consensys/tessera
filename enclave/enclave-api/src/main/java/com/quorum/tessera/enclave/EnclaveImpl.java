@@ -158,8 +158,7 @@ public class EnclaveImpl implements Enclave {
     return encodedPayload.getAffectedContractTransactions().entrySet().stream()
         .filter(
             entry -> {
-              // TODO - remove extra logs
-              LOGGER.info("Verifying hash for TxKey {}", entry.getKey().encodeToBase64());
+              LOGGER.debug("Verifying hash for TxKey {}", entry.getKey().encodeToBase64());
               TxHash txHash = entry.getKey();
 
               final Optional<EncodedPayload> affectedTransaction =

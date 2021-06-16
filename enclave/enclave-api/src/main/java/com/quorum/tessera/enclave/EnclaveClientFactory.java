@@ -1,7 +1,7 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.Config;
+import java.util.ServiceLoader;
 
 /**
  * Creates clients which connect to remote instances of an enclave.
@@ -14,6 +14,6 @@ public interface EnclaveClientFactory<T extends EnclaveClient> {
 
   static EnclaveClientFactory create() {
     // TODO: return the stream and let the caller deal with it
-    return ServiceLoaderUtil.loadAll(EnclaveClientFactory.class).findAny().get();
+    return ServiceLoader.load(EnclaveClientFactory.class).findFirst().get();
   }
 }

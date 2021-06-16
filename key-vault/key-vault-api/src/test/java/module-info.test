@@ -1,0 +1,2 @@
+--add-reads
+    tessera.keyvault.api=org.mockito

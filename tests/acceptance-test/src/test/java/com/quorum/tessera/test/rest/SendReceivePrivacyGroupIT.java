@@ -15,16 +15,13 @@ import java.net.URLEncoder;
 import java.util.Base64;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
+import suite.NodeAlias;
 
 public class SendReceivePrivacyGroupIT {
-
-  private final Client client = ClientBuilder.newClient();
 
   private final PartyHelper partyHelper = PartyHelper.create();
 
@@ -35,8 +32,8 @@ public class SendReceivePrivacyGroupIT {
   @Test
   public void sendTransactionToPrivacyGroup() throws UnsupportedEncodingException {
 
-    final Party a = partyHelper.findByAlias("A");
-    final Party b = partyHelper.findByAlias("B");
+    final Party a = partyHelper.findByAlias(NodeAlias.A);
+    final Party b = partyHelper.findByAlias(NodeAlias.B);
 
     final String output = privacyGroupTestUtil.create("A", "B");
     final JsonObject jsonObj = Json.createReader(new StringReader(output)).readObject();
@@ -49,8 +46,8 @@ public class SendReceivePrivacyGroupIT {
     sendRequest.setPayload(transactionData);
 
     final Response response =
-        client
-            .target(partyHelper.findByAlias("A").getQ2TUri())
+        a.getRestClient()
+            .target(a.getQ2TUri())
             .path("/send")
             .request()
             .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
@@ -68,7 +65,7 @@ public class SendReceivePrivacyGroupIT {
     assertThat(response.getStatus()).isEqualTo(201);
 
     final Response receiveResponse =
-        client
+        a.getRestClient()
             .target(a.getQ2TUri())
             .path("/transaction")
             .path(encodedHash)
@@ -89,7 +86,7 @@ public class SendReceivePrivacyGroupIT {
     //        assertThat(receiveResult.getPrivacyGroupId()).isEqualTo(groupId);
 
     final Response receiveResponseOnB =
-        client
+        b.getRestClient()
             .target(b.getQ2TUri())
             .path("/transaction")
             .path(encodedHash)

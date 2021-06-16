@@ -2,7 +2,7 @@ package com.quorum.tessera.api.exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.quorum.tessera.util.exception.DecodingException;
+import com.quorum.tessera.base64.DecodingException;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
 

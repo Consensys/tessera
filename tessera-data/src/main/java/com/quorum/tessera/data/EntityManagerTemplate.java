@@ -14,7 +14,7 @@ public class EntityManagerTemplate {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EntityManagerTemplate.class);
 
-  private EntityManagerFactory entityManagerFactory;
+  private final EntityManagerFactory entityManagerFactory;
 
   public EntityManagerTemplate(EntityManagerFactory entityManagerFactory) {
     this.entityManagerFactory = Objects.requireNonNull(entityManagerFactory);

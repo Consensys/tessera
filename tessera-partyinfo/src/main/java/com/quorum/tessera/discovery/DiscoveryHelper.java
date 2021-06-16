@@ -15,7 +15,7 @@ public interface DiscoveryHelper {
 
   Set<NodeInfo> buildRemoteNodeInfos();
 
-  static DiscoveryHelper getInstance() {
+  static DiscoveryHelper create() {
     return ServiceLoader.load(DiscoveryHelper.class).findFirst().get();
   }
 }

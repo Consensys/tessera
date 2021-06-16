@@ -18,7 +18,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 public class RestBatchTransactionRequesterTest {
 
@@ -33,12 +32,12 @@ public class RestBatchTransactionRequesterTest {
   private BatchTransactionRequester transactionRequester;
 
   @Before
-  public void init() {
+  public void beforeTest() {
 
     this.enclave = mock(Enclave.class);
     this.recoveryClient = mock(RecoveryClient.class);
 
-    doReturn(new ResendBatchResponse(100))
+    doReturn(new ResendBatchResponse(100L))
         .when(recoveryClient)
         .makeBatchResendRequest(anyString(), any(ResendBatchRequest.class));
 
@@ -48,7 +47,7 @@ public class RestBatchTransactionRequesterTest {
   }
 
   @After
-  public void after() {
+  public void afterTest() {
     verifyNoMoreInteractions(enclave, recoveryClient);
   }
 
@@ -58,7 +57,7 @@ public class RestBatchTransactionRequesterTest {
 
     this.transactionRequester.requestAllTransactionsFromNode("fakeurl.com");
 
-    verifyZeroInteractions(recoveryClient);
+    verifyNoInteractions(recoveryClient);
     verify(enclave).getPublicKeys();
   }
 
@@ -122,7 +121,7 @@ public class RestBatchTransactionRequesterTest {
 
     assertThat(success).isTrue();
 
-    Mockito.verifyZeroInteractions(recoveryClient);
+    verifyNoInteractions(recoveryClient);
     verify(enclave).getPublicKeys();
   }
 

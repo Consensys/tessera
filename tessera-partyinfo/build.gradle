@@ -1,18 +1,38 @@
+plugins {
+  id "java-library"
+}
 
 dependencies {
 
-  compile 'javax.transaction:javax.transaction-api'
-  compile project(':encryption:encryption-api')
-  compile project(':shared')
-  compile project(':config')
-  compile project(':enclave:enclave-api')
-  compile project(':tessera-context')
-
-  compile 'io.swagger.core.v3:swagger-annotations'
-  compile project(':tessera-data')
-  compile 'org.apache.commons:commons-lang3'
-
-  compile project(':service-locator:service-locator-api')
-  runtimeOnly project(':service-locator:service-locator-spring')
-  testImplementation project(':test-utils:mock-service-locator')
+  implementation "jakarta.transaction:jakarta.transaction-api"
+  implementation project(":encryption:encryption-api")
+  implementation project(":shared")
+  implementation project(":config")
+  implementation project(":enclave:enclave-api")
+  implementation project(":tessera-context")
+  implementation project(":tessera-data")
+  implementation "org.apache.commons:commons-lang3"
+  implementation "org.slf4j:slf4j-api"
+  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 }
+
+//test {
+//        doFirst {
+//            jvmArgs = [
+//                    '--add-module','java.ws.rs',
+//            ]
+//           // classpath = files()
+//        }
+//
+//}
+
+//compileJava {
+//    doFirst {
+//        options.compilerArgs = [
+//                "--module-path", classpath.asPath,
+//                "--add-modules", "swagger.annotations",
+//        ]
+//        classpath = files()
+//    }
+//}

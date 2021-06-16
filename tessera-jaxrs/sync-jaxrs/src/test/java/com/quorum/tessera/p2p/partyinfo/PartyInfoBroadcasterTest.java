@@ -126,7 +126,21 @@ public class PartyInfoBroadcasterTest {
 
   @Test
   public void constructWithMinimalArgs() {
-    assertThat(new PartyInfoBroadcaster(p2pClient)).isNotNull();
+
+    try (var discoveryMockedStatic = mockStatic(Discovery.class);
+        var partyInfoParserMockedStatic = mockStatic(PartyInfoParser.class);
+        var partyStoreMockedStatic = mockStatic(PartyStore.class)) {
+      discoveryMockedStatic.when(Discovery::create).thenReturn(discovery);
+      partyInfoParserMockedStatic.when(PartyInfoParser::create).thenReturn(partyInfoParser);
+      partyStoreMockedStatic.when(PartyStore::getInstance).thenReturn(partyStore);
+
+      PartyInfoBroadcaster partyInfoBroadcaster = new PartyInfoBroadcaster(mock(P2pClient.class));
+      assertThat(partyInfoBroadcaster).isNotNull();
+
+      discoveryMockedStatic.verify(Discovery::create);
+      partyInfoParserMockedStatic.verify(PartyInfoParser::create);
+      partyStoreMockedStatic.verify(PartyStore::getInstance);
+    }
   }
 
   @Test

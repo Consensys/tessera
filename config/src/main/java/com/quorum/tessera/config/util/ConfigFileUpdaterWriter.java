@@ -6,7 +6,6 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.KeyData;
 import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.io.FilesDelegate;
-import com.quorum.tessera.io.SystemAdapter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -47,7 +46,7 @@ public class ConfigFileUpdaterWriter {
       List<KeyData> newKeys, KeyVaultConfig keyVaultConfig, Config config) {
     LOGGER.info("Writing updated config to system out");
     update(newKeys, keyVaultConfig, config);
-    JaxbUtil.marshal(config, SystemAdapter.INSTANCE.out());
+    JaxbUtil.marshal(config, System.out);
     LOGGER.info("Updated config written to system out");
   }
 

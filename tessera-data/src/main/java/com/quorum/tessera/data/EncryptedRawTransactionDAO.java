@@ -2,6 +2,7 @@ package com.quorum.tessera.data;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 /** A data store for transactions that need to be retrieved later */
 public interface EncryptedRawTransactionDAO {
@@ -52,4 +53,8 @@ public interface EncryptedRawTransactionDAO {
    * @return The list of requested rows from the database
    */
   List<EncryptedRawTransaction> retrieveTransactions(int offset, int maxResult);
+
+  static EncryptedRawTransactionDAO create() {
+    return ServiceLoader.load(EncryptedRawTransactionDAO.class).findFirst().get();
+  }
 }

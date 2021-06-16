@@ -11,16 +11,12 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonString;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 public class PrivacyGroupIT {
-
-  private final Client client = ClientBuilder.newClient();
 
   private final PartyHelper partyHelper = PartyHelper.create();
 
@@ -130,7 +126,8 @@ public class PrivacyGroupIT {
             .build();
 
     final Response response =
-        client
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path("/deletePrivacyGroup")
             .request()

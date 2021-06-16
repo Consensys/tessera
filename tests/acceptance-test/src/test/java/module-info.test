@@ -1,0 +1,23 @@
+--add-opens
+    tessera.acceptance.tests/transaction.rest=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+    tessera.acceptance.tests/transaction.raw=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+    tessera.acceptance.tests/com.quorum.tessera.test.vault.azure=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+     tessera.acceptance.tests/com.quorum.tessera.test.vault.aws=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+    tessera.acceptance.tests/com.quorum.tessera.test.vault.hashicorp=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+   tessera.acceptance.tests/com.quorum.tessera.test.cli.keygen=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+    tessera.acceptance.tests/transaction.whitelist=io.cucumber.core,io.cucumber.java8
+
+--add-opens
+    tessera.acceptance.tests/com.quorum.tessera.test.cli.version=io.cucumber.core,io.cucumber.java8

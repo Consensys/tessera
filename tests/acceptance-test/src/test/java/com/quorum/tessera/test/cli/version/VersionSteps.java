@@ -2,7 +2,8 @@ package com.quorum.tessera.test.cli.version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import cucumber.api.java8.En;
+import exec.ExecArgsBuilder;
+import io.cucumber.java8.En;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -10,8 +11,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -39,19 +38,13 @@ public class VersionSteps implements En {
             throw new IllegalStateException("No application.jar system property defined");
           }
 
-          final Path applicationJar = Paths.get(appPath);
+          Path startScript = Paths.get(appPath);
 
-          List<String> cmd =
-              new ArrayList<>(
-                  Arrays.asList(
-                      "java",
-                      "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
-                      "-Dnode.number=versioncmd",
-                      "-jar",
-                      applicationJar.toString(),
-                      subcmd));
+          ExecArgsBuilder argsBuilder =
+              new ExecArgsBuilder().withStartScript(startScript).withArg(subcmd);
 
-          final ProcessBuilder processBuilder = new ProcessBuilder(cmd);
+          LOGGER.info("Args {}", argsBuilder.build());
+          final ProcessBuilder processBuilder = new ProcessBuilder(argsBuilder.build());
 
           process = processBuilder.start();
 
@@ -72,7 +65,9 @@ public class VersionSteps implements En {
 
           LOGGER.info("tessera version cmd output: {}", String.join("\n", cmdOutput));
 
-          assertThat(cmdOutput).hasSize(1);
+          assertThat(cmdOutput)
+              .describedAs(String.join(System.lineSeparator(), cmdOutput))
+              .hasSize(1);
           capturedVersion = cmdOutput.get(0);
         });
 

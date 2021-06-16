@@ -1,17 +1,22 @@
+plugins {
+  id "java-library"
+}
 
 dependencies {
-  compile 'info.picocli:picocli:4.6.1'
-  compile project(':encryption:encryption-api')
-  compile project(':config')
-  compile project(':shared')
-  compile project(':cli:cli-api')
-  compile project(':key-generation')
-  compile project(':tessera-jaxrs:jaxrs-client')
-  compile 'javax.ws.rs:javax.ws.rs-api'
+  implementation "info.picocli:picocli"
+  implementation project(":encryption:encryption-api")
+  implementation project(":config")
+  implementation project(":shared")
+  implementation project(":cli:cli-api")
+  implementation project(":key-generation")
 
-  runtimeOnly project(':encryption:encryption-jnacl')
-  runtimeOnly project(':encryption:encryption-ec')
+  implementation project(":tessera-jaxrs:jaxrs-client")
+  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-  testCompile project(':tests:test-util')
-  testCompile 'org.hibernate:hibernate-validator'
+  implementation "jakarta.validation:jakarta.validation-api"
+  testImplementation project(":tests:test-util")
+  runtimeOnly "org.hibernate.validator:hibernate-validator"
+
+  testImplementation "org.glassfish:jakarta.json"
 }

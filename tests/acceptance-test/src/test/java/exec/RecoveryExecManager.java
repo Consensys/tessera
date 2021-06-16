@@ -1,12 +1,10 @@
 package exec;
 
-import com.quorum.tessera.launcher.Main;
 import config.ConfigDescriptor;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -42,27 +40,26 @@ public class RecoveryExecManager implements ExecManager {
   @Override
   public Process doStart() throws Exception {
 
-    Path nodeServerJar =
-        Paths.get(
-            System.getProperty(
-                "application.jar", "../../tessera-app/target/tessrea-app-0.10-SNAPSHOT-app.jar"));
+    Path nodeServerJar = Paths.get(System.getProperty("application.jar"));
 
     ExecutionContext executionContext = ExecutionContext.currentContext();
 
     ExecArgsBuilder argsBuilder =
         new ExecArgsBuilder()
             .withArg("--recover")
-            .withJvmArg("-Dnode.number=" + nodeId.concat("-").concat("recover"))
-            .withStartScriptOrJarFile(nodeServerJar)
-            .withMainClass(Main.class)
+            .withStartScript(nodeServerJar)
             .withPidFile(pid)
-            .withConfigFile(configDescriptor.getPath())
-            .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
-            .withClassPathItem(nodeServerJar);
+            .withConfigFile(configDescriptor.getPath());
 
     List<String> args = argsBuilder.build();
 
-    Map<String, String> env = Collections.EMPTY_MAP;
+    List<String> jvmArgs =
+        List.of(
+            "-Dlogback.configurationFile=" + logbackConfigFile.getFile(),
+            "-Dnode.number=" + nodeId.concat("-").concat("recover"));
+
+    Map<String, String> env = new HashMap<>();
+    env.put("JAVA_OPTS", String.join(" ", jvmArgs));
     final Process process = ExecUtils.start(args, executorService, env);
 
     return process;
@@ -70,13 +67,9 @@ public class RecoveryExecManager implements ExecManager {
 
   @Override
   public void doStop() throws Exception {
-    String p = Files.lines(pid).findFirst().orElse(null);
-    if (p == null) {
-      return;
-    }
-    LOGGER.info("Stopping Node: {}, Pid: {}", nodeId, p);
+    LOGGER.info("Stopping Node: {}, Pid: {}", nodeId, pid);
     try {
-      ExecUtils.kill(p);
+      ExecUtils.kill(pid);
     } finally {
       executorService.shutdown();
     }

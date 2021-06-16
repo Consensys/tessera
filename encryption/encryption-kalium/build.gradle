@@ -1,13 +1,13 @@
-
-dependencies {
-  implementation project(':encryption:encryption-api')
-  implementation 'org.abstractj.kalium:kalium:0.8.0'
+plugins {
+  id "java-library"
+  id "application"
 }
 
-description = 'encryption-kalium'
+application {
+  startScripts.enabled = false
+}
 
-test {
-  onlyIf {
-    project.hasProperty("kaliumTest")
-  }
+dependencies {
+  implementation project(":encryption:encryption-api")
+  implementation "org.abstractj.kalium:kalium:0.8.0"
 }

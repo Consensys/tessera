@@ -1,0 +1,14 @@
+--add-opens
+       java.base/sun.security.ssl=org.assertj.core
+
+--add-opens
+       java.base/javax.net.ssl=org.assertj.core
+
+--add-opens
+       java.base/sun.security.x509=org.assertj.core
+
+--add-opens
+       tessera.security/com.quorum.tessera.ssl.context.model=openpojo
+
+--add-opens
+       tessera.security/com.quorum.tessera.ssl.trust=org.mockito
