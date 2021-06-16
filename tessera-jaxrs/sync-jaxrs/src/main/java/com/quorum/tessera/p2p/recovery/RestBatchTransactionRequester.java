@@ -3,7 +3,6 @@ package com.quorum.tessera.p2p.recovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.resend.ResendRequest;
-import com.quorum.tessera.p2p.resend.ResendRequestType;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import java.util.Base64;
 import java.util.Objects;
@@ -126,7 +125,7 @@ public class RestBatchTransactionRequester implements BatchTransactionRequester 
     final ResendRequest request = new ResendRequest();
     final String encoded = key.encodeToBase64();
     request.setPublicKey(encoded);
-    request.setType(ResendRequestType.ALL);
+    request.setType("ALL");
 
     return request;
   }

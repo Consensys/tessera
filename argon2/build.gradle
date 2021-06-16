@@ -1,7 +1,8 @@
-
-dependencies {
-  compile 'de.mkammerer:argon2-jvm:2.5'
-  compile project(':shared')
+plugins {
+  id "java-library"
 }
 
-description = 'argon2'
+dependencies {
+  implementation "de.mkammerer:argon2-jvm"
+  implementation project(":shared")
+}

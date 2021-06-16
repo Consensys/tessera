@@ -15,7 +15,7 @@ public class NodeOfflineExceptionMapper implements ExceptionMapper<NodeOfflineEx
   private final Discovery discovery;
 
   public NodeOfflineExceptionMapper() {
-    this(Discovery.getInstance());
+    this(Discovery.create());
   }
 
   protected NodeOfflineExceptionMapper(Discovery discovery) {

@@ -183,7 +183,7 @@ public class OverrideUtilTest {
   @Test
   public void initialiseNestedObjects() {
 
-    Config config = new Config(null, null, null, null, null, null, true, true);
+    Config config = new Config(null, null, null, null, null, true, true);
 
     OverrideUtil.initialiseNestedObjects(config);
 
@@ -268,8 +268,6 @@ public class OverrideUtilTest {
 
     assertThat(config.getJdbcConfig().getUsername()).isEqualTo("someuser");
     assertThat(config.getJdbcConfig().getPassword()).isEqualTo("tiger");
-
-    assertThat(config.getUnixSocketFile()).isEqualTo(Paths.get("${unixSocketPath}"));
   }
 
   // TODO: Need to support oerrides in config module

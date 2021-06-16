@@ -5,7 +5,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import com.quorum.tessera.api.StoreRawRequest;
 import com.quorum.tessera.api.StoreRawResponse;
-import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -35,7 +34,7 @@ public class RawTransactionResource {
   private final TransactionManager transactionManager;
 
   public RawTransactionResource() {
-    this(ServiceFactory.create().transactionManager());
+    this(TransactionManager.create());
   }
 
   public RawTransactionResource(final TransactionManager transactionManager) {

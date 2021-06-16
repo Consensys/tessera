@@ -37,26 +37,6 @@ public class ServerConfigValidator implements ConstraintValidator<ValidServerCon
       return false;
     }
 
-    if (!serverConfig
-        .getApp()
-        .getAllowedCommunicationTypes()
-        .contains(serverConfig.getCommunicationType())) {
-      LOGGER.debug(
-          "Invalid communicationType '"
-              + serverConfig.getCommunicationType()
-              + "' specified for serverConfig with app "
-              + serverConfig.getApp());
-      constraintContext.disableDefaultConstraintViolation();
-      constraintContext
-          .buildConstraintViolationWithTemplate(
-              "Invalid communicationType '"
-                  + serverConfig.getCommunicationType()
-                  + "' specified for serverConfig with app "
-                  + serverConfig.getApp())
-          .addConstraintViolation();
-      return false;
-    }
-
     if (serverConfig.getApp() != AppType.THIRD_PARTY) {
       if (serverConfig.getCrossDomainConfig() != null) {
         LOGGER.debug(

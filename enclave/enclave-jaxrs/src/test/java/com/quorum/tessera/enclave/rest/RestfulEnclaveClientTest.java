@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
@@ -30,8 +31,31 @@ public class RestfulEnclaveClientTest {
 
   @Before
   public void setUp() throws Exception {
-    enclave = mock(Enclave.class);
+    Config config = new Config();
+    config.setEncryptor(new EncryptorConfig());
+    config.getEncryptor().setType(EncryptorType.NACL);
+    config.setKeys(new KeyConfiguration());
+    config
+        .getKeys()
+        .setKeyData(
+            List.of(
+                new KeyData() {
+                  @Override
+                  public String getPrivateKey() {
+                    return "yAWAJjwPqUtNVlqGjSrBmr1/iIkghuOh1803Yzx9jLM=";
+                  }
 
+                  @Override
+                  public String getPublicKey() {
+                    return "/+UuD63zItL1EbjxkKUljMgG8Z1w0AJ8pNOR4iq2yQc=";
+                  }
+
+                  {
+                  }
+                }));
+    ConfigFactory.create().store(config);
+
+    enclave = mock(Enclave.class);
     jersey = Util.create(enclave);
 
     jersey.setUp();
@@ -41,8 +65,12 @@ public class RestfulEnclaveClientTest {
 
   @After
   public void tearDown() throws Exception {
-    verifyNoMoreInteractions(enclave);
-    jersey.tearDown();
+    try {
+      verifyNoMoreInteractions(enclave);
+      jersey.tearDown();
+    } finally {
+      //  mockedStaticEnclave.close();
+    }
   }
 
   @Test

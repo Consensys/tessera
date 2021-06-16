@@ -1,0 +1,2 @@
+--add-opens
+     tessera.transaction/com.quorum.tessera.privacygroup.internal=org.mockito

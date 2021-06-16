@@ -1,5 +1,7 @@
 package com.quorum.tessera.ssl.context.model;
 
+import com.openpojo.reflection.PojoClass;
+import com.openpojo.reflection.impl.PojoClassFactory;
 import com.openpojo.validation.Validator;
 import com.openpojo.validation.ValidatorBuilder;
 import com.openpojo.validation.rule.impl.EqualsAndHashCodeMatchRule;
@@ -13,6 +15,8 @@ public class SSLContextPropertiesTest {
   @Test
   public void executeOpenPojoValidationsNoSetter() {
 
+    PojoClass pojoClass = PojoClassFactory.getPojoClass(SSLContextProperties.class);
+
     final Validator pojoValidator =
         ValidatorBuilder.create()
             .with(new GetterMustExistRule())
@@ -21,6 +25,6 @@ public class SSLContextPropertiesTest {
             .with(new NoPublicFieldsExceptStaticFinalRule())
             .build();
 
-    pojoValidator.validateRecursively("com.quorum.tessera.ssl.context.model");
+    pojoValidator.validate(pojoClass);
   }
 }

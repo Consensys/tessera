@@ -3,7 +3,7 @@ package com.quorum.tessera.config;
 import com.quorum.tessera.config.constraints.NoUnmatchedElements;
 import java.lang.reflect.Field;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAnyElement;
+import javax.xml.bind.annotation.XmlTransient;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -12,7 +12,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @NoUnmatchedElements
 public abstract class ConfigItem {
 
-  @XmlAnyElement private List<Object> unmatched;
+  @XmlTransient private List<Object> unmatched;
 
   public List<Object> getUnmatched() {
     return unmatched;

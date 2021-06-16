@@ -5,13 +5,9 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.context.RuntimeContext;
-import com.quorum.tessera.mock.MockRuntimeContextFactory;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
@@ -20,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 
 public class IPWhitelistFilterTest {
 
@@ -29,10 +26,14 @@ public class IPWhitelistFilterTest {
 
   private RuntimeContext runtimeContext;
 
+  private MockedStatic<RuntimeContext> runtimeContextMockedStatic;
+
   @Before
   public void init() throws URISyntaxException {
+
     runtimeContext = mock(RuntimeContext.class);
-    MockRuntimeContextFactory.setMockContext(runtimeContext);
+    runtimeContextMockedStatic = mockStatic(RuntimeContext.class);
+    runtimeContextMockedStatic.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
     when(runtimeContext.getPeers())
         .thenReturn(singletonList(URI.create("http://whitelistedHost:8080")));
@@ -48,15 +49,19 @@ public class IPWhitelistFilterTest {
 
   @After
   public void onTearDown() {
-    reset(runtimeContext);
-    MockRuntimeContextFactory.reset();
+    try {
+      verifyNoMoreInteractions(runtimeContext);
+    } finally {
+      runtimeContextMockedStatic.close();
+    }
   }
 
   @Test
   public void disabledFilterAllowsAllRequests() {
+
     when(runtimeContext.getPeers()).thenReturn(emptyList());
     when(runtimeContext.isUseWhiteList()).thenReturn(false);
-    this.filter = new IPWhitelistFilter();
+
     final HttpServletRequest request = mock(HttpServletRequest.class);
     doReturn("someotherhost").when(request).getRemoteAddr();
     doReturn("someotherhost").when(request).getRemoteHost();
@@ -64,8 +69,10 @@ public class IPWhitelistFilterTest {
     filter.setHttpServletRequest(request);
     filter.filter(ctx);
 
-    verifyZeroInteractions(request);
-    verifyZeroInteractions(ctx);
+    verifyNoInteractions(request);
+    verifyNoInteractions(ctx);
+
+    verify(runtimeContext).isUseWhiteList();
   }
 
   @Test
@@ -88,6 +95,8 @@ public class IPWhitelistFilterTest {
     verify(ctx).abortWith(captor.capture());
 
     assertThat(captor.getValue()).isEqualToComparingFieldByFieldRecursively(expectedResponse);
+    verify(runtimeContext).isUseWhiteList();
+    verify(runtimeContext).getPeers();
   }
 
   @Test
@@ -102,13 +111,14 @@ public class IPWhitelistFilterTest {
     verify(request).getRemoteHost();
     verify(request).getRemoteAddr();
     verifyNoMoreInteractions(ctx);
+
+    verify(runtimeContext).isUseWhiteList();
+    verify(runtimeContext).getPeers();
   }
 
   @Test
   public void defaultConstructor() {
     when(runtimeContext.isUseWhiteList()).thenReturn(Boolean.TRUE);
-    MockServiceLocator mockServiceLocator = (MockServiceLocator) ServiceLocator.create();
-    mockServiceLocator.setServices(Collections.singleton(runtimeContext));
 
     assertThat(new IPWhitelistFilter()).isNotNull();
   }
@@ -129,6 +139,9 @@ public class IPWhitelistFilterTest {
     verify(request).getRemoteHost();
     verify(request).getRemoteAddr();
     verifyNoMoreInteractions(ctx);
+
+    verify(runtimeContext).isUseWhiteList();
+    verify(runtimeContext).getPeers();
   }
 
   @Test
@@ -146,6 +159,9 @@ public class IPWhitelistFilterTest {
     verify(request).getRemoteHost();
     verify(request).getRemoteAddr();
     verifyNoMoreInteractions(ctx);
+
+    verify(runtimeContext).isUseWhiteList();
+    verify(runtimeContext).getPeers();
   }
 
   @Test
@@ -163,5 +179,8 @@ public class IPWhitelistFilterTest {
     verify(request).getRemoteHost();
     verify(request).getRemoteAddr();
     verifyNoMoreInteractions(ctx);
+
+    verify(runtimeContext).isUseWhiteList();
+    verify(runtimeContext).getPeers();
   }
 }

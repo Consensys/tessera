@@ -1,12 +1,13 @@
-
-dependencies {
-  compile 'info.picocli:picocli'
-  compile 'org.apache.commons:commons-lang3:3.7'
-  compile project(':config')
-  compile project(':shared')
-  compile project(':tessera-context')
-  compile project(':encryption:encryption-api')
-  testCompile project(':tests:test-util')
+plugins {
+  id "java-library"
 }
 
-description = 'cli-api'
+dependencies {
+  implementation "info.picocli:picocli"
+  implementation "org.apache.commons:commons-lang3"
+  implementation project(":config")
+  implementation project(":shared")
+  implementation project(":tessera-context")
+  implementation project(":encryption:encryption-api")
+  implementation "org.glassfish:jakarta.el"
+}

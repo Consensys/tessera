@@ -1,79 +1,102 @@
 package com.quorum.tessera.config.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.contrib.java.lang.system.EnvironmentVariables;
 import org.junit.rules.TemporaryFolder;
 
 public class ConfigSecretReaderTest {
 
   private String filePath;
 
-  @Rule
-  public final org.junit.contrib.java.lang.system.EnvironmentVariables envVariables =
-      new EnvironmentVariables();
+  private ConfigSecretReader configSecretReader;
+
+  private EnvironmentVariableProvider environmentVariableProvider;
 
   @Rule public TemporaryFolder tempDir = new TemporaryFolder();
 
   @Before
-  public void setUp() {
+  public void beforeTest() {
+    environmentVariableProvider = mock(EnvironmentVariableProvider.class);
+    configSecretReader = new ConfigSecretReader(environmentVariableProvider);
     filePath = getClass().getResource("/key.secret").getPath();
+  }
+
+  @After
+  public void afterTest() {
+    verifyNoMoreInteractions(environmentVariableProvider);
   }
 
   @Test
   public void testReadSecret() {
 
-    envVariables.set(
-        com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH, filePath);
-
-    Optional<char[]> secret = ConfigSecretReader.readSecretFromFile();
+    when(environmentVariableProvider.getEnv(EnvironmentVariables.CONFIG_SECRET_PATH))
+        .thenReturn(filePath);
+    when(environmentVariableProvider.hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH))
+        .thenReturn(true);
+    Optional<char[]> secret = configSecretReader.readSecretFromFile();
 
     assertThat(secret).isPresent();
     assertThat(secret.get()).isEqualTo("quorum".toCharArray());
+
+    verify(environmentVariableProvider).hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH);
+    verify(environmentVariableProvider).getEnv(EnvironmentVariables.CONFIG_SECRET_PATH);
   }
 
   @Test
   public void testNotAbleToReadSecret() {
+    when(environmentVariableProvider.hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH))
+        .thenReturn(true);
+    when(environmentVariableProvider.getEnv(EnvironmentVariables.CONFIG_SECRET_PATH))
+        .thenReturn("not-existed");
 
-    envVariables.set(
-        com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH, "not-existed");
-    assertThat(ConfigSecretReader.readSecretFromFile()).isEmpty();
+    assertThat(configSecretReader.readSecretFromFile()).isEmpty();
+
+    verify(environmentVariableProvider).hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH);
+    verify(environmentVariableProvider).getEnv(EnvironmentVariables.CONFIG_SECRET_PATH);
   }
 
   @Test
   public void envNotSet() {
-    envVariables.clear(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH);
-    assertThat(ConfigSecretReader.readSecretFromFile()).isEmpty();
+    when(environmentVariableProvider.hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH))
+        .thenReturn(false);
+    assertThat(configSecretReader.readSecretFromFile()).isEmpty();
+    verify(environmentVariableProvider).hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH);
   }
 
   @Test
   public void testReadFromConsole() {
     ByteArrayInputStream in = new ByteArrayInputStream("password".getBytes());
     System.setIn(in);
-    assertThat(ConfigSecretReader.readSecretFromConsole()).isEqualTo("password".toCharArray());
+    assertThat(configSecretReader.readSecretFromConsole()).isEqualTo("password".toCharArray());
 
     System.setIn(System.in);
-    assertThat(ConfigSecretReader.readSecretFromConsole()).isEqualTo("".toCharArray());
+    assertThat(configSecretReader.readSecretFromConsole()).isEqualTo("".toCharArray());
   }
 
   @Test
   public void testReadException() throws IOException {
-    envVariables.clear(com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH);
 
+    when(environmentVariableProvider.hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH))
+        .thenReturn(true);
     final File tempFile = tempDir.newFile("key.secret");
     tempFile.setReadable(false);
 
-    envVariables.set(
-        com.quorum.tessera.config.util.EnvironmentVariables.CONFIG_SECRET_PATH,
-        tempFile.getAbsolutePath());
+    when(environmentVariableProvider.getEnv(EnvironmentVariables.CONFIG_SECRET_PATH))
+        .thenReturn(tempFile.getAbsolutePath());
 
-    assertThat(ConfigSecretReader.readSecretFromFile()).isEmpty();
+    assertThat(configSecretReader.readSecretFromFile()).isEmpty();
+
+    verify(environmentVariableProvider).hasEnv(EnvironmentVariables.CONFIG_SECRET_PATH);
+    verify(environmentVariableProvider).getEnv(EnvironmentVariables.CONFIG_SECRET_PATH);
   }
 }

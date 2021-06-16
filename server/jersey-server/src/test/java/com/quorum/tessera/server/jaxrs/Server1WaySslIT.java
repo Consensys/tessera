@@ -4,7 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.server.JerseyServer;
+import com.quorum.tessera.server.jersey.JerseyServer;
+import com.quorum.tessera.server.jersey.SampleApplication;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -15,7 +16,6 @@ import java.security.cert.CertificateException;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
@@ -50,8 +50,7 @@ public class Server1WaySslIT {
 
     JaxbUtil.marshalWithNoValidation(serverConfig, System.out);
 
-    Application sample = new SampleApplication();
-    server = new JerseyServer(serverConfig, sample);
+    server = new JerseyServer(serverConfig, SampleApplication.class);
 
     server.start();
   }

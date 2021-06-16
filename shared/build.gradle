@@ -1,18 +1,21 @@
-dependencies {
-  compile "javax.xml.bind:jaxb-api"
-  runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
-  compile "javax.annotation:javax.annotation-api"
-  testImplementation 'com.jcabi:jcabi-manifests:1.1'
+plugins {
+  id "java-library"
 }
 
+dependencies {
+  //    runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
+  //    runtimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
+  implementation "jakarta.annotation:jakarta.annotation-api"
+  runtimeOnly "jakarta.validation:jakarta.validation-api"
+}
 
 jar {
 
   manifest {
     attributes(
       "Implementation-Title": project.name,
-      "Implementation-Version": version,
-      "Specification-Version": String.valueOf(version)
+      "Implementation-Version": project.version,
+      "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
       )
   }
 }

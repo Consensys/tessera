@@ -3,6 +3,7 @@ package com.quorum.tessera.p2p.resend;
 import com.quorum.tessera.partyinfo.model.Party;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 /**
  * Stores nodes that need to be contacted for resending existing transactions
@@ -41,4 +42,8 @@ public interface ResendPartyStore {
    * @param attemptedParty the party that has failed to be contacted
    */
   void incrementFailedAttempt(SyncableParty attemptedParty);
+
+  static ResendPartyStore create() {
+    return ServiceLoader.load(ResendPartyStore.class).findFirst().get();
+  }
 }

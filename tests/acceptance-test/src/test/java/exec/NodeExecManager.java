@@ -1,11 +1,10 @@
 package exec;
 
 import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.launcher.Main;
+import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.test.DBType;
 import config.ConfigDescriptor;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -46,24 +45,21 @@ public class NodeExecManager implements ExecManager {
 
   @Override
   public Process doStart() throws Exception {
-
-    Path nodeServerJar =
-        Paths.get(
-            System.getProperty(
-                "application.jar", "../../tessera-app/target/tessrea-app-0.10-SNAPSHOT-app.jar"));
-
     ExecutionContext executionContext = ExecutionContext.currentContext();
+
+    Path startScript;
+    if (EncryptorType.CUSTOM.equals(executionContext.getEncryptorType())) {
+      startScript = Paths.get(System.getProperty("application.kalium.jar"));
+    } else {
+      startScript = Paths.get(System.getProperty("application.jar"));
+    }
 
     ExecArgsBuilder argsBuilder =
         new ExecArgsBuilder()
-            .withJvmArg("-Ddebug=true")
-            .withJvmArg("-Dnode.number=" + nodeId)
-            .withStartScriptOrJarFile(nodeServerJar)
-            .withMainClass(Main.class)
+            .withStartScript(startScript)
             .withPidFile(pid)
-            .withConfigFile(configDescriptor.getPath())
-            .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile.getFile())
-            .withClassPathItem(nodeServerJar);
+            .withConfigFile(configDescriptor.getPath());
+    // .withArg("-jdbc.autoCreateTables", "true");
 
     if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {
       Path enclaveJar =
@@ -90,22 +86,19 @@ public class NodeExecManager implements ExecManager {
 
     LOGGER.info("Exec : {}", String.join(" ", args));
 
-    String javaOpts =
-        "-Dnode.number="
-            .concat(nodeId)
-            .concat(" ")
-            .concat("-Dlogback.configurationFile=")
-            .concat(logbackConfigFile.toString());
+    List<String> javaOptions =
+        List.of(
+            "-Dnode.number=".concat(nodeId),
+            "-Dlogback.configurationFile=" + logbackConfigFile.toString());
 
-    LOGGER.info("EXT DIR : {}", System.getProperty("jdbc.dir"));
     if (System.getProperties().containsKey("jdbc.dir")) {
-      javaOpts += " -Djava.ext.dirs=" + System.getProperty("jdbc.dir");
+      //  javaOpts += " -Djava.ext.dirs=" + System.getProperty("jdbc.dir");
     }
 
     Map<String, String> env = new HashMap<>();
-    env.put("JAVA_OPTS", javaOpts);
+    env.put("JAVA_OPTS", String.join(" ", javaOptions));
 
-    LOGGER.debug("Set env JAVA_OPTS {}", javaOpts);
+    LOGGER.debug("Set env JAVA_OPTS {}", javaOptions);
 
     final Process process = ExecUtils.start(args, executorService, env);
 
@@ -157,14 +150,9 @@ public class NodeExecManager implements ExecManager {
 
   @Override
   public void doStop() throws Exception {
-
-    String p = Files.lines(pid).findFirst().orElse(null);
-    if (p == null) {
-      return;
-    }
-    LOGGER.info("Stopping Node: {}, Pid: {}", nodeId, p);
+    LOGGER.info("Stopping Node: {}, Pid: {}", nodeId, pid);
     try {
-      ExecUtils.kill(p);
+      ExecUtils.kill(pid);
     } finally {
       executorService.shutdown();
     }

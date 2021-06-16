@@ -1,6 +1,5 @@
 package com.quorum.tessera.cli.parsers;
 
-import static com.quorum.tessera.test.util.ElUtil.createAndPopulatePaths;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
@@ -15,7 +14,7 @@ public class ConfigurationConverterTest {
 
   @Test
   public void configReadFromFile() throws Exception {
-    final Path configFile = createAndPopulatePaths(getClass().getResource("/sample-config.json"));
+    final Path configFile = Path.of(getClass().getResource("/sample-config.json").toURI());
 
     final Config result = configConverter.convert(configFile.toString());
 

@@ -3,14 +3,10 @@ package com.quorum.tessera.api.common;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import com.jpmorgan.quorum.mock.servicelocator.MockServiceLocator;
 import com.quorum.tessera.api.StoreRawRequest;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.service.locator.ServiceLocator;
 import com.quorum.tessera.transaction.TransactionManager;
-import java.util.HashSet;
-import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
@@ -111,15 +107,16 @@ public class RawTransactionResourceTest {
   }
 
   @Test
-  public void testNoParamConstructor() {
-    MockServiceLocator serviceLocator = (MockServiceLocator) ServiceLocator.create();
-    Set services = new HashSet();
-    TransactionManager tm = mock(TransactionManager.class);
-    when(tm.defaultPublicKey()).thenReturn(mock(PublicKey.class));
-    services.add(tm);
-    serviceLocator.setServices(services);
-
-    RawTransactionResource tr = new RawTransactionResource();
-    assertThat(tr).isNotNull();
+  public void defaultConstrcutor() {
+    RawTransactionResource resource;
+    try (var mockedStaticTM = mockStatic(TransactionManager.class)) {
+      TransactionManager transactionManager = mock(TransactionManager.class);
+      mockedStaticTM.when(TransactionManager::create).thenReturn(transactionManager);
+      resource = new RawTransactionResource();
+      mockedStaticTM.verify(TransactionManager::create);
+      mockedStaticTM.verifyNoMoreInteractions();
+      verifyNoInteractions(transactionManager);
+    }
+    assertThat(resource).isNotNull();
   }
 }

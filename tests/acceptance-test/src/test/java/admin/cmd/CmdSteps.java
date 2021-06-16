@@ -6,7 +6,7 @@ import com.quorum.tessera.config.Peer;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import com.quorum.tessera.test.rest.RestUtils;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

@@ -15,27 +15,22 @@ public class ApiObjectTest {
     Validator validator =
         ValidatorBuilder.create().with(new GetterTester()).with(new SetterTester()).build();
 
-    validator.validate(
-        "com.quorum.tessera.api",
-        pojoClass -> !pojoClass.getClazz().getName().contains(VersionTest.class.getName()));
+    validator.validate("com.quorum.tessera.api");
   }
 
   @Test
   public void nonEmptyConstructor() {
-    assertThat(new SendResponse("Data", new String[] {"arbitrary"}, "senderKey"))
-        .isNotNull()
-        .extracting(SendResponse::getKey)
-        .isNotNull();
 
-    assertThat(new SendResponse("Data", new String[] {"arbitrary"}, "senderKey"))
-        .isNotNull()
-        .extracting(SendResponse::getManagedParties)
-        .isNotNull();
+    SendResponse sendResponse = new SendResponse("Data", new String[] {"arbitrary"}, "senderKey");
 
-    assertThat(new SendResponse("Data", new String[] {"arbitrary"}, "senderKey"))
+    assertThat(sendResponse).isNotNull().extracting(SendResponse::getKey).isNotNull();
+
+    assertThat(sendResponse).isNotNull().extracting(SendResponse::getManagedParties).isNotNull();
+
+    assertThat(sendResponse)
         .isNotNull()
         .extracting(SendResponse::getSenderKey)
-        .containsExactly("senderKey");
+        .isEqualTo("senderKey");
 
     assertThat(new StoreRawResponse("Data".getBytes()))
         .isNotNull()

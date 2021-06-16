@@ -1,0 +1,2 @@
+--add-opens
+    tessera.eclipselink.utils/com.quorum.tessera.eclipselink=org.eclipse.persistence.core

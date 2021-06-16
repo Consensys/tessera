@@ -1,43 +1,39 @@
-dependencies {
-  compile project(':tessera-data')
-  compile 'io.swagger.core.v3:swagger-annotations'
-  compile 'javax.validation:validation-api:2.0.1.Final'
-  compile project(':enclave:enclave-api')
-  compile project(':shared')
-  compile project(':tessera-context')
-  compile project(':tessera-partyinfo')
-  compile project(':config')
-  compile project(':key-vault:key-vault-api')
-
-  compile 'javax.transaction:javax.transaction-api:1.3'
-
-  compile 'org.bouncycastle:bcpkix-jdk15on:1.61'
-  compile project(':encryption:encryption-api')
-
-  runtimeOnly 'org.springframework:spring-orm:5.1.2.RELEASE'
-
-  testCompile 'org.springframework:spring-test:5.1.2.RELEASE'
-  testCompile project(':cli:cli-api')
-  testImplementation project(':test-utils:mock-service-locator')
-  compileOnly 'javax.inject:javax.inject:1'
-  testImplementation 'javax.inject:javax.inject:1'
-  testImplementation "javax.persistence:javax.persistence-api:2.2"
-  testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa:2.7.3"
-
-  implementation "org.hibernate:hibernate-validator:6.0.2.Final"
-
-  compile project(':service-locator:service-locator-api')
-  runtimeOnly project(':service-locator:service-locator-spring')
-  testImplementation project(':test-utils:mock-service-locator')
+plugins {
+  id "java-library"
 }
 
-description = 'tessera-core'
+dependencies {
 
+  implementation project(":tessera-data")
+
+
+  implementation project(":shared")
+  implementation project(":tessera-context")
+  implementation project(":tessera-partyinfo")
+  implementation project(":config")
+  implementation project(":key-vault:key-vault-api")
+  implementation project(":encryption:encryption-api")
+  implementation project(":enclave:enclave-api")
+
+  implementation "jakarta.transaction:jakarta.transaction-api"
+  implementation "jakarta.annotation:jakarta.annotation-api"
+
+  implementation "org.bouncycastle:bcpkix-jdk15on"
+
+  testImplementation project(":cli:cli-api")
+
+  testImplementation "jakarta.persistence:jakarta.persistence-api"
+  testImplementation "org.eclipse.persistence:org.eclipse.persistence.jpa"
+  testImplementation project(":eclipselink-utils")
+
+  testImplementation "jakarta.validation:jakarta.validation-api"
+  implementation "org.hibernate.validator:hibernate-validator"
+}
 
 sourceSets {
   test {
     java {
-      exclude '**/*IT'
+      exclude "**/*IT"
     }
   }
 }

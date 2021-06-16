@@ -1,35 +1,61 @@
 plugins {
-  id 'com.github.johnrengelman.shadow'
-  id 'java'
+  id "java-library"
+  id "application"
 }
 
 def nettyVersion = "4.1.46.Final"
+def jacksonVersion = "2.12.3";
 
 dependencyCheck {
   failBuildOnCVSS = 11
 }
 
+application {
+  startScripts.enabled = false
+}
+
+configurations.all {
+  exclude group: "commons-logging"
+  exclude module: "jakarta.activation"
+  exclude module: "jackson-bom"
+}
+
+
 dependencies {
-  compile project(':config')
-  compile 'software.amazon.awssdk:secretsmanager:2.10.25'
-  compile project(':key-vault:key-vault-api')
-  compile 'com.typesafe.netty:netty-reactive-streams:2.0.4'
-  compile 'com.typesafe.netty:netty-reactive-streams-http:2.0.4'
+  implementation project(":config")
 
-  //   compile 'io.netty:netty:'+ nettyVersion
-  compile 'io.netty:netty-handler:'+ nettyVersion
-  compile 'io.netty:netty-common:'+ nettyVersion
-  compile 'io.netty:netty-buffer:'+ nettyVersion
-  compile 'io.netty:netty-transport:'+ nettyVersion
-  compile 'io.netty:netty-codec:'+ nettyVersion
-  compile 'io.netty:netty-codec-http:'+ nettyVersion
-  compile 'io.netty:netty-codec-http2:'+ nettyVersion
-  compile 'io.netty:netty-transport-native-unix-common:'+ nettyVersion
-  compile 'io.netty:netty-transport-native-epoll:'+ nettyVersion +':linux-x86_64'
+  implementation("software.amazon.awssdk:secretsmanager:2.10.25")
+
+  implementation("software.amazon.awssdk:apache-client:2.10.25")
+
+
+  implementation("org.apache.httpcomponents:httpclient:4.5.9")
+
+  implementation project(":key-vault:key-vault-api")
+
+  //   compile "io.netty:netty:"+ nettyVersion
+  implementation "io.netty:netty-handler:$nettyVersion"
+  implementation "io.netty:netty-common:$nettyVersion"
+  implementation "io.netty:netty-buffer:$nettyVersion"
+  implementation "io.netty:netty-transport:$nettyVersion"
+  implementation "io.netty:netty-codec:$nettyVersion"
+  implementation "io.netty:netty-codec-http:$nettyVersion"
+  implementation "io.netty:netty-codec-http2:$nettyVersion"
+  implementation "io.netty:netty-transport-native-unix-common:$nettyVersion"
+  implementation "io.netty:netty-transport-native-epoll:$nettyVersion:linux-x86_64"
+
+  implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
+  implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+  implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
+  runtimeOnly "org.slf4j:jcl-over-slf4j"
+
 }
 
-shadowJar {
-  classifier = 'all'
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      artifact distZip
+      artifact distTar
+    }
+  }
 }
-
-build.dependsOn shadowJar

@@ -15,7 +15,8 @@ import com.quorum.tessera.encryption.KeyPair;
 import com.quorum.tessera.encryption.PrivateKey;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.encryption.SharedKey;
-import cucumber.api.java8.En;
+import exec.ExecArgsBuilder;
+import io.cucumber.java8.En;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,17 +59,14 @@ public class FileKeygenSteps implements En {
             throw new IllegalStateException("No application.jar system property defined");
           }
 
-          final Path applicationJar = Paths.get(appPath);
+          final Path startScript = Paths.get(appPath);
 
           this.args =
-              new ArrayList<>(
-                  Arrays.asList(
-                      "java",
-                      "-jar",
-                      applicationJar.toString(),
-                      "-keygen",
-                      "--encryptor.type",
-                      "NACL"));
+              new ExecArgsBuilder()
+                  .withStartScript(startScript)
+                  .withArg("-keygen")
+                  .withArg("--encryptor.type", "NACL")
+                  .build();
         });
 
     Given("no file exists at {string}", (String path) -> Files.deleteIfExists(Paths.get(path)));

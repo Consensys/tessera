@@ -11,25 +11,36 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 public class PidFileMixinTest {
 
   private PidFileMixin pidFileMixin;
 
+  @Rule public TemporaryFolder dir = new TemporaryFolder();
+
   private Path pidFile;
 
   @Before
-  public void init() throws IOException {
+  public void beforeTest() throws Exception {
     this.pidFileMixin = new PidFileMixin();
-    this.pidFile = Files.createTempFile(UUID.randomUUID().toString(), ".tmp");
+    this.pidFile = dir.getRoot().toPath().resolve("PidFile.pid");
+
+    assertThat(pidFile).doesNotExist();
+  }
+
+  @Test
+  public void afterTest() throws Exception {
+    Files.deleteIfExists(pidFile);
   }
 
   @Test
   public void noPidFilePathDoesNothing() {
     this.pidFileMixin.createPidFile();
+    assertThat(pidFile).doesNotExist();
   }
 
   @Test

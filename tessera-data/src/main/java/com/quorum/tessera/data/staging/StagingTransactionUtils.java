@@ -4,20 +4,26 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadDigest;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class StagingTransactionUtils {
 
-  private static final PayloadDigest PAYLOAD_DIGEST = new PayloadDigest.Default();
+  private final PayloadDigest payloadDigest;
 
-  private StagingTransactionUtils() {}
+  private StagingTransactionUtils(PayloadDigest payloadDigest) {
+    this.payloadDigest = Objects.requireNonNull(payloadDigest);
+  }
 
   public static StagingTransaction fromRawPayload(byte[] rawPayload) {
+    PayloadDigest payloadDigest = PayloadDigest.create();
+    return new StagingTransactionUtils(payloadDigest).createFromRawPayload(rawPayload);
+  }
 
+  private StagingTransaction createFromRawPayload(byte[] rawPayload) {
     final EncodedPayload encodedPayload = PayloadEncoder.create().decode(rawPayload);
-
-    final byte[] messageHashData = PAYLOAD_DIGEST.digest(encodedPayload.getCipherText());
+    final byte[] messageHashData = payloadDigest.digest(encodedPayload.getCipherText());
     final String messageHash = Base64.getEncoder().encodeToString(messageHashData);
 
     StagingTransaction stagingTransaction = new StagingTransaction();

@@ -1,5 +1,6 @@
 package com.quorum.tessera.config.util;
 
+import java.util.Objects;
 import org.jasypt.encryption.pbe.PBEStringCleanablePasswordEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.jasypt.properties.PropertyValueEncryptionUtils;
@@ -14,8 +15,18 @@ public class EncryptedStringResolver {
 
   private boolean isPasswordSet;
 
+  private final ConfigSecretReader configSecretReader;
+
+  protected EncryptedStringResolver(
+      ConfigSecretReader configSecretReader, PBEStringCleanablePasswordEncryptor encryptor) {
+    this.configSecretReader = Objects.requireNonNull(configSecretReader);
+    this.encryptor = Objects.requireNonNull(encryptor);
+  }
+
   public EncryptedStringResolver() {
-    this.encryptor = new StandardPBEStringEncryptor();
+    this(
+        new ConfigSecretReader(new EnvironmentVariableProvider()),
+        new StandardPBEStringEncryptor());
   }
 
   public String resolve(final String textToDecrypt) {
@@ -24,8 +35,9 @@ public class EncryptedStringResolver {
 
       if (!isPasswordSet) {
         encryptor.setPasswordCharArray(
-            ConfigSecretReader.readSecretFromFile()
-                .orElseGet(ConfigSecretReader::readSecretFromConsole));
+            configSecretReader
+                .readSecretFromFile()
+                .orElseGet(configSecretReader::readSecretFromConsole));
         isPasswordSet = true;
       }
 

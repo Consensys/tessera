@@ -1,35 +1,34 @@
 package com.quorum.tessera.multitenancy.migration;
 
-import com.quorum.tessera.data.EntityManagerDAOFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import java.util.Objects;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 
 public class MigrationRunner {
 
-  private final EntityManagerDAOFactory primary;
+  private final EntityManagerFactory primary;
 
-  private final EntityManagerDAOFactory secondary;
+  private final EntityManagerFactory secondary;
 
-  public MigrationRunner(
-      final EntityManagerDAOFactory primary, final EntityManagerDAOFactory secondary) {
+  public MigrationRunner(final EntityManagerFactory primary, final EntityManagerFactory secondary) {
     this.primary = Objects.requireNonNull(primary);
     this.secondary = Objects.requireNonNull(secondary);
   }
 
   public void run() {
+
+    final EntityManager primaryEntityManager = primary.createEntityManager();
+    final EntityManager secondaryEntityManager = secondary.createEntityManager();
     // migrate raw
     final RawTransactionMigrator rawMigrator =
-        new RawTransactionMigrator(
-            primary.createEncryptedRawTransactionDAO(),
-            secondary.createEncryptedRawTransactionDAO());
+        new RawTransactionMigrator(primaryEntityManager, secondaryEntityManager);
     rawMigrator.migrate();
 
     // migrate regular
     final EncryptedTransactionMigrator etMigrator =
         new EncryptedTransactionMigrator(
-            primary.createEncryptedTransactionDAO(),
-            secondary.createEncryptedTransactionDAO(),
-            PayloadEncoder.create());
+            primaryEntityManager, secondaryEntityManager, PayloadEncoder.create());
     etMigrator.migrate();
   }
 }

@@ -5,13 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.config.EncryptorConfig;
 import com.quorum.tessera.config.EncryptorType;
 import org.junit.Test;
+import picocli.CommandLine;
 
 public class EncryptorOptionsTest {
 
   @Test
   public void ellipticalCurveNoPropertiesDefined() {
     EncryptorOptions encryptorOptions = new EncryptorOptions();
-    encryptorOptions.type = EncryptorType.EC;
+    String[] args = new String[] {"--encryptor.type=EC"};
+
+    new CommandLine(encryptorOptions).parseArgs(args);
 
     EncryptorConfig result = encryptorOptions.parseEncryptorConfig();
 
@@ -23,11 +26,17 @@ public class EncryptorOptionsTest {
   @Test
   public void ellipticalCurveWithDefinedProperties() {
     EncryptorOptions encryptorOptions = new EncryptorOptions();
-    encryptorOptions.type = EncryptorType.EC;
-    encryptorOptions.symmetricCipher = "somecipher";
-    encryptorOptions.ellipticCurve = "somecurve";
-    encryptorOptions.nonceLength = "3";
-    encryptorOptions.sharedKeyLength = "2";
+
+    String[] args =
+        new String[] {
+          "--encryptor.type=EC",
+          "--encryptor.symmetricCipher=somecipher",
+          "--encryptor.ellipticCurve=somecurve",
+          "--encryptor.nonceLength=3",
+          "--encryptor.sharedKeyLength=2"
+        };
+
+    new CommandLine(encryptorOptions).parseArgs(args);
 
     EncryptorConfig result = encryptorOptions.parseEncryptorConfig();
 
@@ -54,8 +63,8 @@ public class EncryptorOptionsTest {
   @Test
   public void encryptorTypeCUSTOM() {
     EncryptorOptions encryptorOptions = new EncryptorOptions();
-    encryptorOptions.type = EncryptorType.CUSTOM;
-
+    String[] args = new String[] {"--encryptor.type=CUSTOM"};
+    new CommandLine(encryptorOptions).parseArgs(args);
     EncryptorConfig result = encryptorOptions.parseEncryptorConfig();
 
     assertThat(result).isNotNull();

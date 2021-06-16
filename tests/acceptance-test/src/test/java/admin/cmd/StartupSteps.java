@@ -6,7 +6,7 @@ import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.util.ElUtil;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;

@@ -1,11 +1,8 @@
 package com.quorum.tessera.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
-import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Collections;
 import org.junit.Test;
 
 public class ConfigTest {
@@ -18,7 +15,7 @@ public class ConfigTest {
 
   @Test
   public void createWithNullArgs() {
-    Config config = new Config(null, null, null, null, null, null, false, false);
+    Config config = new Config(null, null, null, null, null, false, false);
     assertThat(config).isNotNull();
   }
 
@@ -62,28 +59,6 @@ public class ConfigTest {
     config.setServerConfigs(Arrays.asList(serverConfig));
 
     assertThat(config.getP2PServerConfig()).isNull();
-  }
-
-  @Test
-  public void setNullServerDoesNothing() {
-    Config config = new Config();
-    config.setServer(null);
-
-    assertThat(config.getServerConfigs()).isEmpty();
-    assertThat(config.getServer()).isNull();
-  }
-
-  @Test
-  public void areServerConfigsNull() {
-    Config config = new Config();
-    Path unixServerPath = mock(Path.class);
-    config.setUnixSocketFile(unixServerPath);
-
-    assertThat(config.getServerConfigs()).isEmpty();
-    assertThat(config.isServerConfigsNull()).isTrue();
-
-    config.setServerConfigs(Collections.EMPTY_LIST);
-    assertThat(config.isServerConfigsNull()).isFalse();
   }
 
   // TODO: Ensure that version read from jar file works

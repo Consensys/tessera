@@ -8,11 +8,22 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.enclave.AffectedTransaction;
+import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EnclaveServer;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.enclave.PrivacyMetadata;
+import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.Response;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
@@ -171,13 +182,23 @@ public class EnclaveApplicationTest {
 
   @Test
   public void appType() {
-    assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getAppType())
-        .isEqualTo(AppType.ENCLAVE);
+    assertThat(new EnclaveApplication(enclave).getAppType()).isEqualTo(AppType.ENCLAVE);
   }
 
   @Test
   public void getCommunicationType() {
-    assertThat(new EnclaveApplication(mock(EnclaveResource.class)).getCommunicationType())
+    assertThat(new EnclaveApplication(enclave).getCommunicationType())
         .isEqualTo(CommunicationType.REST);
+  }
+
+  @Test
+  public void defaultConstructor() throws Exception {
+
+    try (var enclaveMockedStatic = mockStatic(EnclaveServer.class)) {
+      enclaveMockedStatic.when(EnclaveServer::create).thenReturn(mock(EnclaveServer.class));
+      new EnclaveApplication();
+      enclaveMockedStatic.verify(EnclaveServer::create);
+      enclaveMockedStatic.verifyNoMoreInteractions();
+    }
   }
 }

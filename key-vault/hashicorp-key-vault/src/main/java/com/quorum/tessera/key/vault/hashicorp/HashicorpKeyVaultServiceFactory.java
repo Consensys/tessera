@@ -100,7 +100,8 @@ public class HashicorpKeyVaultServiceFactory implements KeyVaultServiceFactory {
     VaultOperations vaultOperations =
         new VaultTemplate(vaultEndpoint, clientHttpRequestFactory, sessionManager);
 
-    return new HashicorpKeyVaultService(new KeyValueOperationsDelegateFactory(vaultOperations));
+    return new HashicorpKeyVaultService(
+        vaultOperations, () -> new VaultVersionedKeyValueTemplateFactory() {});
   }
 
   @Override

@@ -1,89 +1,126 @@
-
+plugins {
+  id "java-library"
+}
 
 dependencies {
+  implementation project(":tessera-core")
+  implementation project(":tessera-context")
+  implementation project(":tessera-data")
+  implementation project(":security")
+  implementation project(":tessera-partyinfo")
+  implementation project(":tessera-dist")
 
-  testCompile project(':tessera-core')
-  testCompile project(':security')
-  testCompile project(':tessera-partyinfo')
-  testCompile project(':tessera-dist:tessera-launcher')
+  implementation project(":enclave:enclave-jaxrs")
 
-  testCompile project(path: ':tessera-dist:tessera-app', configuration: 'shadow')
-  testCompile project(path: ':enclave:enclave-jaxrs', configuration: 'shadow')
-  testCompile project(path: ':config-migration', configuration: 'shadow')
+  implementation project(":enclave:enclave-api")
 
-  testCompile project(':enclave:enclave-api')
-  testCompile project(':encryption:encryption-api')
-  testCompile project(':tessera-jaxrs:common-jaxrs')
-  testCompile project(':tessera-jaxrs:jaxrs-client')
-  testCompile project(':shared')
-  testCompile project(':config')
-  testCompile project(':tests:test-util')
+  implementation project(":tessera-jaxrs:common-jaxrs")
+  implementation project(":tessera-jaxrs:jaxrs-client")
+  implementation project(":tessera-jaxrs:sync-jaxrs")
+  implementation project(":tessera-jaxrs:partyinfo-model")
+  implementation project(":server:jersey-server")
 
-  testCompile project(':ddls')
+  implementation project(":shared")
+  implementation project(":config")
+  //   implementation project(":tests:test-util")
 
-  testCompile "org.slf4j:slf4j-api:1.7.5"
-  testRuntimeOnly "ch.qos.logback:logback-classic:1.2.3"
-  testRuntimeOnly "ch.qos.logback:logback-core:1.2.3"
-  testRuntimeOnly "org.slf4j:jcl-over-slf4j:1.7.5"
-  testRuntimeOnly "org.slf4j:jul-to-slf4j:1.7.5"
+  implementation project(":key-vault:aws-key-vault")
+  testImplementation("software.amazon.awssdk:secretsmanager:2.10.25")
 
-  testCompile 'io.cucumber:cucumber-junit:4.0.1'
-  testCompile 'io.cucumber:cucumber-java8:4.0.1'
+  implementation project(":key-vault:azure-key-vault")
+  //    implementation project(":key-vault:hashicorp-key-vault")
 
-  testCompile 'org.xerial:sqlite-jdbc:3.23.1'
-  testCompile 'org.hsqldb:hsqldb:2.4.1'
-  testCompile 'com.github.tomakehurst:wiremock-jre8:2.26.3'
-  testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
-  testCompile 'org.assertj:assertj-core:3.9.1'
-  testCompile 'javax.ws.rs:javax.ws.rs-api:2.1'
-  testCompile 'com.github.jnr:jnr-unixsocket:0.25'
-  testCompile 'org.eclipse.persistence:org.eclipse.persistence.moxy:2.7.3'
-  testCompile 'org.yaml:snakeyaml:1.27'
+  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+
+  testImplementation project(":ddls")
+
+  implementation "org.slf4j:slf4j-api"
+  testRuntimeOnly "ch.qos.logback:logback-classic"
+  testRuntimeOnly "ch.qos.logback:logback-core"
+  testRuntimeOnly "org.slf4j:jcl-over-slf4j"
+  testRuntimeOnly "org.slf4j:jul-to-slf4j"
+
+  testImplementation "io.cucumber:cucumber-junit:6.10.4"
+  testImplementation "io.cucumber:cucumber-java8:6.10.4"
+
+  testImplementation "org.xerial:sqlite-jdbc"
+  testImplementation "org.hsqldb:hsqldb"
+
+  //testImplementation "com.google.guava:guava:29.0-jre"
+
+  testImplementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  testImplementation "org.assertj:assertj-core"
+  testImplementation "com.github.jnr:jnr-unixsocket"
+  testImplementation "org.glassfish:jakarta.el"
+
+  testImplementation "org.bouncycastle:bcpkix-jdk15on"
+  testImplementation "org.bouncycastle:bcprov-jdk15on"
+
+
+  testRuntimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
+
+  implementation "org.glassfish:jakarta.json"
+
+  implementation project(":encryption:encryption-api")
+  implementation project(":encryption:encryption-jnacl")
+  implementation project(":encryption:encryption-ec")
+  testImplementation project(":encryption:encryption-kalium")
+
+  testImplementation "org.eclipse.jetty:jetty-servlet"
+
+  testImplementation "org.yaml:snakeyaml:1.27"
+
 }
-
-sourceSets {
-  test {
-    java {
-      srcDir 'src/test/java'
-    }
-    resources {
-      srcDir 'src/test/resources'
-    }
-  }
-}
-
-
 
 test {
+  maxParallelForks 1
+  excludes.clear()
 
-  systemProperty 'application.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('tessera-app')}
-  systemProperty 'config-migration-app.jar',project.configurations.testCompileClasspath.find {it.name.startsWith('config-migration')}
-  systemProperty 'enclave.jaxrs.server.jar',project.configurations.testCompileClasspath.find { it.name.startsWith('enclave-jaxrs') }
-  systemProperty 'jdbc.hsql.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
-  systemProperty 'jdbc.sqlite.jar',project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
-  systemProperty 'jdbc.dir',"${buildDir}/ext"
+  systemProperty "application.jar","${buildDir}/unpacked/dist/tessera-${project.version}/bin/tessera"
+  systemProperty "application.kalium.jar","${buildDir}/unpacked/dist/kalium-tessera-${project.version}/bin/tessera"
+
+  systemProperty "enclave.jaxrs.server.jar","${buildDir}/unpacked/dist/enclave-jaxrs-${project.version}/bin/enclave-jaxrs"
+  systemProperty "enclave.jaxrs.server.kalium.jar","${buildDir}/unpacked/dist/kalium-enclave-jaxrs-${project.version}/bin/enclave-jaxrs"
+
+  systemProperty "jdbc.hsql.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb") }
+  systemProperty "jdbc.sqlite.jar",project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite-jdbc") }
+
+  systemProperty "keyvault.aws.dist","${buildDir}/unpacked/dist/aws-key-vault-${project.version}/bin/tessera"
+  systemProperty "keyvault.azure.dist","${buildDir}/unpacked/dist/azure-key-vault-${project.version}/bin/tessera"
+  systemProperty "keyvault.hashicorp.dist","${buildDir}/unpacked/dist/hashicorp-key-vault-${project.version}/bin/tessera"
+
+  systemProperty "project.version", project.version
 
   include(
-    '**/RecoverIT.class',
-    '**/RestSuiteHttpH2RemoteEnclave.class',
-    '**/RestSuiteHttpH2RemoteEnclaveEncTypeEC.class',
-    '**/RestSuiteHttpH2EncTypeEC.class',
-    '**/RestSuiteBesu.class',
-    '**/RestSuiteHttpHSQL.class',
-    '**/RestSuiteUnixH2.class',
-    '**/RestSuiteHttpSqllite.class',
-    '**/RestSuiteHttpH2.class',
-    '**/SendWithRemoteEnclaveReconnectIT.class',
-    '**/RestSuiteHttpqlite.class',
-    '**/CucumberWhitelistIT.class',
-    '**/ConfigMigrationIT.class',
-    '**/CucumberFileKeyGenerationIT.class',
-    '**/CucumberVersionCliIT.class',
-    '**/P2pTestSuite.class',
-    '**/RunAwsIT.class',
-    '**/RunAzureIT.class',
-    '**/RunHashicorpIT.class'
+    "**/RecoverIT.class",
+    "**/RestSuiteHttpH2RemoteEnclave.class",
+    "**/RestSuiteHttpH2RemoteEnclaveEncTypeEC.class",
+    "**/RestSuiteBesu.class",
+    "**/RestSuiteHttpHSQL.class",
+    "**/RestSuiteUnixH2.class",
+    "**/RestSuiteHttpSqllite.class",
+    "**/RestSuiteHttpH2.class",
+    "**/RestSuiteHttpH2EncTypeEC.class",
+    "**/RestSuiteHttpH2EncTypeKalium.class",
+    "**/SendWithRemoteEnclaveReconnectIT.class",
+    "**/P2pTestSuite.class",
+    "**/AwsKeyVaultIT.class",
+    //    "**/RunAzureIT.class",
+    "**/RunHashicorpIT.class",
+    "**/ThirdPartyIT.class",
+    "**/CucumberTestSuite.class",
     )
+
+  if(file("/usr/local/lib/").listFiles(new FilenameFilter() {
+    @Override
+    boolean accept(File dir, String name) {
+      return name.startsWith("libsodium");
+    }
+  }).length <= 0) {
+    exclude "**/RestSuiteHttpH2EncTypeKalium.class"
+  }
+
 
   if (project.hasProperty('excludeTests')) {
     def tokens = project.property('excludeTests').split(",")
@@ -93,43 +130,170 @@ test {
   }
 }
 
+task copyTesseraIntoAzureDist(type: Copy) {
+  def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def tesseraDir = file("${buildDir}/unpacked/dist/${tesseraName}")
+  def distname = file(project(":key-vault:azure-key-vault").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
 
+  def outputDir = file("${buildDir}/unpacked/dist/${distname}")
+  from tesseraDir into outputDir
+}
+
+task copyTesseraIntoAwsDist(type: Copy) {
+  def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def tesseraDir = file("${buildDir}/unpacked/dist/${tesseraName}")
+  def distname = file(project(":key-vault:aws-key-vault").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def outputDir = file("${buildDir}/unpacked/dist/${distname}")
+  from tesseraDir into outputDir
+}
+
+task copyTesseraIntoHashicorpDist(type: Copy) {
+  def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def tesseraDir = file("${buildDir}/unpacked/dist/${tesseraName}")
+  def distname = file(project(":key-vault:hashicorp-key-vault").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def outputDir = file("${buildDir}/unpacked/dist/${distname}")
+
+  from tesseraDir into outputDir
+}
+
+task unzipAzureKeyVault(type: Copy) {
+  def zipFile = file(project(":key-vault:azure-key-vault").distZip.outputs.files.getFiles()[0])
+  def outputDir = file("${buildDir}/unpacked/dist")
+  from zipTree(zipFile)
+  into outputDir
+}
+
+task unzipAwsKeyVault(type: Copy) {
+  def zipFile = file(project(":key-vault:aws-key-vault").distZip.outputs.files.getFiles()[0])
+  def outputDir = file("${buildDir}/unpacked/dist")
+  from zipTree(zipFile)
+  into outputDir
+}
+
+task unzipHashicorpKeyVault(type: Copy) {
+  def zipFile = file(project(":key-vault:hashicorp-key-vault").distZip.outputs.files.getFiles()[0])
+  def outputDir = file("${buildDir}/unpacked/dist")
+  from zipTree(zipFile)
+  into outputDir
+}
+
+task unzipTessera(type: Copy) {
+  def zipFile = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0])
+  def outputDir = file("${buildDir}/unpacked/dist")
+  from zipTree(zipFile)
+  into outputDir
+}
+
+task unzipEnclave(type: Copy) {
+  def zipFile = file(project(":enclave:enclave-jaxrs").distZip.outputs.files.getFiles()[0])
+  def outputDir = file("${buildDir}/unpacked/dist")
+  from zipTree(zipFile)
+  into outputDir
+}
 
 task unzipDdl(type:Copy) {
-  def zipFile = file(project(':ddls').jar.outputs.files.getFiles()[0])
+  def zipFile = file(project(":ddls").jar.outputs.files.getFiles()[0])
   def outputDir = file("${buildDir}/resources/test/ddls")
   from zipTree(zipFile)
   into outputDir
 }
 
-task copyJdbcJars(type:Copy) {
-
-  def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
-  def sqliteJar = project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite")}
-
-  def outputDir = file("${buildDir}/ext")
-  from hsqldbJar
-  into outputDir
-
-  from sqliteJar
+task unzipKaliumEncryptor(type: Copy) {
+  def zipFile = file(project(":encryption:encryption-kalium").distZip.outputs.files.getFiles()[0])
+  def outputDir = file("${buildDir}/unpacked/dist")
+  from(zipTree(zipFile)) {
+    exclude "**/jnr-ffi-2.0.5.jar" // prevents a conflict with later jar in tessera dist
+  }
   into outputDir
 }
 
-clean {
+task newTesseraCopyForKaliumEncryptor(type: Copy) {
+  dependsOn unzipTessera
 
-
-  def buildDir = file('build')
-  def targetDir = file('target')
-  delete targetDir
-  delete buildDir
+  def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def tesseraDir = file("${buildDir}/unpacked/dist/${tesseraName}")
+  def outputDir = file("${buildDir}/unpacked/dist/kalium-${tesseraName}")
+  from tesseraDir into outputDir
 }
 
+task copyKaliumEncryptorToTessera(type: Copy) {
+  dependsOn newTesseraCopyForKaliumEncryptor,unzipKaliumEncryptor
 
-task list(dependsOn: configurations.compileClasspath) {
+  def tesseraName = file(project(":tessera-dist").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def tesseraDir = file("${buildDir}/unpacked/dist/kalium-${tesseraName}")
+  def kaliumName = file(project(":encryption:encryption-kalium").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def kaliumDir = file("${buildDir}/unpacked/dist/${kaliumName}")
+
+  from kaliumDir into tesseraDir
+}
+
+task newEnclaveCopyForKaliumEncryptor(type: Copy) {
+  dependsOn unzipEnclave
+
+  def enclaveName = file(project(":enclave:enclave-jaxrs").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def enclaveDir = file("${buildDir}/unpacked/dist/${enclaveName}")
+  def outputDir = file("${buildDir}/unpacked/dist/kalium-${enclaveName}")
+  from enclaveDir into outputDir
+}
+
+task copyKaliumEncryptorToEnclave(type: Copy) {
+  dependsOn newEnclaveCopyForKaliumEncryptor,unzipKaliumEncryptor
+
+  def enclaveName = file(project(":enclave:enclave-jaxrs").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def enclaveDir = file("${buildDir}/unpacked/dist/kalium-${enclaveName}")
+  def kaliumName = file(project(":encryption:encryption-kalium").distZip.outputs.files.getFiles()[0]).getName().replaceFirst("\\.zip","")
+  def kaliumDir = file("${buildDir}/unpacked/dist/${kaliumName}")
+
+  from kaliumDir into enclaveDir
+}
+
+task copyJdbcJars {
+
   doLast {
-    println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
+    def hsqldbJar = project.configurations.testCompileClasspath.find { it.name.startsWith("hsqldb")}
+    def sqliteJar = project.configurations.testCompileClasspath.find { it.name.startsWith("sqlite")}
+
+    def dirs = file("${buildDir}/unpacked/dist/").listFiles()
+    dirs.each {
+
+      def f = it
+      if (f.isDirectory()) {
+        def path = f.toPath().resolve("lib/")
+        copy {
+          from hsqldbJar
+          into path
+
+          from sqliteJar
+          into path
+        }
+      }
+    }
   }
 }
 
 
-test.dependsOn clean,copyJdbcJars,unzipDdl
+//task list(dependsOn: configurations.compileClasspath) {
+//    doLast {
+//        println "classpath = ${configurations.testCompileClasspath.collect { File file -> file.name }}"
+//    }
+//}
+
+
+compileJava {
+  include("**/module-info.java")
+}
+
+
+copyTesseraIntoAwsDist.dependsOn unzipTessera, unzipAwsKeyVault
+
+copyTesseraIntoAzureDist.dependsOn unzipTessera,unzipAzureKeyVault
+
+copyTesseraIntoHashicorpDist.dependsOn unzipTessera,unzipHashicorpKeyVault
+
+copyJdbcJars.dependsOn copyTesseraIntoAwsDist,copyTesseraIntoAzureDist,copyTesseraIntoHashicorpDist
+test.dependsOn unzipDdl,unzipEnclave,copyJdbcJars,copyKaliumEncryptorToTessera,copyKaliumEncryptorToEnclave
+
+
+dependencyCheck {
+  skip = true
+}

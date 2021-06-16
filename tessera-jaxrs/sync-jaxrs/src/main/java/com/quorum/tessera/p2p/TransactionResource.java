@@ -2,6 +2,7 @@ package com.quorum.tessera.p2p;
 
 import static javax.ws.rs.core.MediaType.*;
 
+import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
@@ -11,7 +12,6 @@ import com.quorum.tessera.recovery.resend.ResendBatchResponse;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import com.quorum.tessera.util.Base64Codec;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -106,7 +106,7 @@ public class TransactionResource {
         com.quorum.tessera.recovery.resend.ResendRequest.Builder.create()
             .withType(
                 com.quorum.tessera.recovery.resend.ResendRequest.ResendRequestType.valueOf(
-                    resendRequest.getType().name()))
+                    resendRequest.getType()))
             .withRecipient(recipient)
             .withHash(transactionHash)
             .build();

@@ -1,49 +1,84 @@
 package com.quorum.tessera.enclave;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.Config;
-import java.util.Base64;
+import com.quorum.tessera.config.ConfigFactory;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.stream.Stream;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class PayloadDigestTest {
 
-  @Test
-  public void defaultDigest() {
-    PayloadDigest digest = new PayloadDigest.Default();
-    String cipherText = "cipherText";
-    byte[] result = digest.digest(cipherText.getBytes());
+  private ClientMode clientMode;
 
-    assertThat(result).isNotNull();
-    assertThat(result).hasSize(64);
-  }
+  private Class<? extends PayloadDigest> digestType;
 
-  @Test
-  public void digest32Bytes() {
-    PayloadDigest digest = new PayloadDigest.SHA512256();
-    String cipherText = "cipherText";
-    byte[] result = digest.digest(cipherText.getBytes());
-
-    // This is what Orion would have generated
-    final String expectedB64 = "7AagSZbaNRe/IJzrUKTp8Hl60wncQL1DHvDJCVQ+YIk=";
-
-    assertThat(result).isNotNull();
-    assertThat(result).hasSize(32);
-    String resultInBase64 = Base64.getEncoder().encodeToString(result);
-    assertThat(resultInBase64).isEqualTo(expectedB64);
+  public PayloadDigestTest(Map.Entry<ClientMode, Class<? extends PayloadDigest>> pair) {
+    this.digestType = pair.getValue();
+    this.clientMode = pair.getKey();
   }
 
   @Test
   public void create() {
-    Config config = mock(Config.class);
-    assertThat(PayloadDigest.create(config)).isNotNull().isInstanceOf(PayloadDigest.Default.class);
 
-    when(config.getClientMode()).thenReturn(ClientMode.ORION);
-    assertThat(PayloadDigest.create(config))
-        .isNotNull()
-        .isInstanceOf(PayloadDigest.SHA512256.class);
+    ServiceLoader<PayloadDigest> serviceLoader = mock(ServiceLoader.class);
+
+    Stream<ServiceLoader.Provider<PayloadDigest>> providerStream =
+        Stream.of(DefaultPayloadDigest.class, SHA512256PayloadDigest.class)
+            .map(
+                type ->
+                    new ServiceLoader.Provider<PayloadDigest>() {
+                      @Override
+                      public Class<? extends PayloadDigest> type() {
+                        return type;
+                      }
+
+                      @Override
+                      public PayloadDigest get() {
+                        return mock(type);
+                      }
+                    });
+
+    when(serviceLoader.stream()).thenReturn(providerStream);
+
+    Config config = mock(Config.class);
+    when(config.getClientMode()).thenReturn(clientMode);
+
+    ConfigFactory configFactory = mock(ConfigFactory.class);
+    when(configFactory.getConfig()).thenReturn(config);
+
+    PayloadDigest result;
+    try (var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class);
+        var configFactoryMockedStatic = mockStatic(ConfigFactory.class)) {
+      serviceLoaderMockedStatic
+          .when(() -> ServiceLoader.load(PayloadDigest.class))
+          .thenReturn(serviceLoader);
+      configFactoryMockedStatic.when(ConfigFactory::create).thenReturn(configFactory);
+
+      result = PayloadDigest.create();
+
+      serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(PayloadDigest.class));
+      serviceLoaderMockedStatic.verifyNoMoreInteractions();
+
+      configFactoryMockedStatic.verify(ConfigFactory::create);
+      configFactoryMockedStatic.verifyNoMoreInteractions();
+    }
+
+    assertThat(result).isExactlyInstanceOf(digestType).isNotNull();
+  }
+
+  @Parameterized.Parameters(name = "{0}")
+  public static List<Map.Entry<ClientMode, Class<? extends PayloadDigest>>> params() {
+    return List.of(
+        Map.entry(ClientMode.ORION, SHA512256PayloadDigest.class),
+        Map.entry(ClientMode.TESSERA, DefaultPayloadDigest.class));
   }
 }

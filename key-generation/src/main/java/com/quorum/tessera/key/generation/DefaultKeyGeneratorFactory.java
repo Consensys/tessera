@@ -4,12 +4,6 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
-import com.quorum.tessera.config.vault.data.AWSGetSecretData;
-import com.quorum.tessera.config.vault.data.AWSSetSecretData;
-import com.quorum.tessera.config.vault.data.AzureGetSecretData;
-import com.quorum.tessera.config.vault.data.AzureSetSecretData;
-import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
-import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
 import com.quorum.tessera.encryption.Encryptor;
 import com.quorum.tessera.encryption.EncryptorFactory;
 import com.quorum.tessera.key.vault.KeyVaultService;
@@ -40,7 +34,7 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 
         config.setKeys(keyConfiguration);
 
-        final KeyVaultService<AzureSetSecretData, AzureGetSecretData> keyVaultService =
+        final KeyVaultService keyVaultService =
             keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
 
         return new AzureVaultKeyGenerator(encryptor, keyVaultService);
@@ -55,7 +49,7 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 
         config.setKeys(keyConfiguration);
 
-        final KeyVaultService<AWSSetSecretData, AWSGetSecretData> keyVaultService =
+        final KeyVaultService keyVaultService =
             keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
 
         return new AWSSecretManagerKeyGenerator(encryptor, keyVaultService);
@@ -64,7 +58,7 @@ public class DefaultKeyGeneratorFactory implements KeyGeneratorFactory {
 
         config.setKeys(keyConfiguration);
 
-        final KeyVaultService<HashicorpSetSecretData, HashicorpGetSecretData> keyVaultService =
+        final KeyVaultService keyVaultService =
             keyVaultServiceFactory.create(config, new EnvironmentVariableProvider());
 
         return new HashicorpVaultKeyGenerator(encryptor, keyVaultService);

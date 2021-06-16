@@ -6,7 +6,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
 import com.quorum.tessera.p2p.resend.ResendRequest;
-import com.quorum.tessera.p2p.resend.ResendRequestType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import javax.ws.rs.client.Client;
@@ -18,8 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ResendIndividualIT {
-
-  private final Client client = ClientBuilder.newClient();
+  // Dont use for q2t for as unix ipc file support
+  private final Client vanillaHttpOnlyClient = ClientBuilder.newClient();
 
   private static final String RESEND_PATH = "/resend";
 
@@ -33,6 +32,8 @@ public class ResendIndividualIT {
 
   private Party recipient;
 
+  private static final String RESEND_INDIVIDUAL_VALUE = "INDIVIDUAL";
+
   @Before
   public void init() {
 
@@ -40,7 +41,8 @@ public class ResendIndividualIT {
     recipient = partyHelper.findByAlias("B");
 
     final Response response =
-        client
+        sender
+            .getRestClient()
             .target(sender.getQ2TUri())
             .path("/sendraw")
             .request()
@@ -58,12 +60,12 @@ public class ResendIndividualIT {
   public void resendTransactionsForGivenKey() {
 
     final ResendRequest request = new ResendRequest();
-    request.setType(ResendRequestType.INDIVIDUAL);
+    request.setType(RESEND_INDIVIDUAL_VALUE);
     request.setKey(this.hash);
     request.setPublicKey(recipient.getPublicKey());
 
     final Response response =
-        client
+        vanillaHttpOnlyClient
             .target(sender.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -85,12 +87,12 @@ public class ResendIndividualIT {
   @Test
   public void resendTransactionWhereKeyIsSender() {
     final ResendRequest request = new ResendRequest();
-    request.setType(ResendRequestType.INDIVIDUAL);
+    request.setType(RESEND_INDIVIDUAL_VALUE);
     request.setKey(this.hash);
     request.setPublicKey(sender.getPublicKey());
 
     final Response response =
-        client
+        vanillaHttpOnlyClient
             .target(recipient.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -111,7 +113,7 @@ public class ResendIndividualIT {
   @Test
   public void resendTransactionForIncorrectKey() {
     final ResendRequest request = new ResendRequest();
-    request.setType(ResendRequestType.INDIVIDUAL);
+    request.setType(RESEND_INDIVIDUAL_VALUE);
     request.setKey(this.hash);
 
     Party anyOtherParty =
@@ -121,11 +123,10 @@ public class ResendIndividualIT {
             .filter(p -> !p.equals(recipient))
             .findAny()
             .get();
-
     request.setPublicKey(anyOtherParty.getPublicKey());
 
     final Response response =
-        client
+        vanillaHttpOnlyClient
             .target(recipient.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -145,7 +146,7 @@ public class ResendIndividualIT {
         "2xTEBlTtYXSBXZD4jDDp83cVJbnkzP6PbUoUJx076BO/FSR75NXwDDpLDu3AIiDV1TlK8nGK4mlhsg4Xzpd5og==";
 
     final ResendRequest request = new ResendRequest();
-    request.setType(ResendRequestType.INDIVIDUAL);
+    request.setType(RESEND_INDIVIDUAL_VALUE);
     request.setKey(unknownHash);
     request.setPublicKey(
         partyHelper
@@ -157,7 +158,7 @@ public class ResendIndividualIT {
             .getPublicKey());
 
     final Response response =
-        client
+        vanillaHttpOnlyClient
             .target(recipient.getP2PUri())
             .path(RESEND_PATH)
             .request()

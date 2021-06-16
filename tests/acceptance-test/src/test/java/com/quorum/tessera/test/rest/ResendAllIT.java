@@ -7,7 +7,6 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PayloadEncoderImpl;
 import com.quorum.tessera.p2p.resend.ResendRequest;
-import com.quorum.tessera.p2p.resend.ResendRequestType;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import java.io.UnsupportedEncodingException;
@@ -31,19 +30,22 @@ public class ResendAllIT {
 
   private byte[] transactionData = UUID.randomUUID().toString().getBytes();
 
-  private final Client client = ClientBuilder.newClient();
-
   private static final String RESEND_PATH = "/resend";
 
   private static final PayloadEncoder ENCODER = new PayloadEncoderImpl();
 
   private PartyHelper partyHelper = PartyHelper.create();
 
+  // Cant be used for q2t
+  private Client vanillaHttpOnlyClient = ClientBuilder.newClient();
+
   private Party partyOne;
 
   private Party partyTwo;
 
   private Party partyThree;
+
+  private static final String RESEND_ALL_VALUE = "ALL";
 
   @Before
   public void onSetup() {
@@ -57,7 +59,8 @@ public class ResendAllIT {
     // setup (sending in a tx)
 
     Response sendRawResponse =
-        client
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path("/sendraw")
             .request()
@@ -72,25 +75,31 @@ public class ResendAllIT {
     final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
     // delete it from sender node
-    final Response deleteReq = client.target(location).request().delete();
+    final Response deleteReq = partyOne.getRestClient().target(location).request().delete();
 
     assertThat(deleteReq).isNotNull();
     assertThat(deleteReq.getStatus()).isEqualTo(204);
 
     // check it is deleted
     final Response deleteCheck =
-        client.target(partyOne.getQ2TUri()).path("transaction").path(encodedHash).request().get();
+        partyOne
+            .getRestClient()
+            .target(partyOne.getQ2TUri())
+            .path("transaction")
+            .path(encodedHash)
+            .request()
+            .get();
 
     assertThat(deleteCheck).isNotNull();
     assertThat(deleteCheck.getStatus()).isEqualTo(404);
 
     // request resend from recipient
     final ResendRequest req = new ResendRequest();
-    req.setType(ResendRequestType.ALL);
+    req.setType(RESEND_ALL_VALUE);
     req.setPublicKey(partyOne.getPublicKey());
 
     final Response resendRequest =
-        client
+        vanillaHttpOnlyClient
             .target(partyTwo.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -102,7 +111,13 @@ public class ResendAllIT {
 
     // and fetch the transaction to make sure it is there
     final Response resendCheck =
-        client.target(partyOne.getQ2TUri()).path("transaction").path(encodedHash).request().get();
+        partyOne
+            .getRestClient()
+            .target(partyOne.getQ2TUri())
+            .path("transaction")
+            .path(encodedHash)
+            .request()
+            .get();
 
     assertThat(resendCheck).isNotNull();
     assertThat(resendCheck.getStatus()).isEqualTo(200);
@@ -114,7 +129,8 @@ public class ResendAllIT {
     // setup (sending in a tx)
 
     Response sendRawResponse =
-        client
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path("/sendraw")
             .request()
@@ -128,24 +144,30 @@ public class ResendAllIT {
     final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
 
     // delete it from the sender node
-    final Response deleteReq = client.target(location).request().delete();
+    final Response deleteReq = partyOne.getRestClient().target(location).request().delete();
     assertThat(deleteReq).isNotNull();
     assertThat(deleteReq.getStatus()).isEqualTo(204);
 
     // check it is deleted
     final Response deleteCheck =
-        client.target(partyOne.getQ2TUri()).path("transaction").path(encodedHash).request().get();
+        partyOne
+            .getRestClient()
+            .target(partyOne.getQ2TUri())
+            .path("transaction")
+            .path(encodedHash)
+            .request()
+            .get();
 
     assertThat(deleteCheck).isNotNull();
     assertThat(deleteCheck.getStatus()).isEqualTo(404);
 
     // request resend from recipients
     final ResendRequest req = new ResendRequest();
-    req.setType(ResendRequestType.ALL);
+    req.setType(RESEND_ALL_VALUE);
     req.setPublicKey(partyOne.getPublicKey());
 
     final Response resendRequest =
-        client
+        vanillaHttpOnlyClient
             .target(partyTwo.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -156,7 +178,7 @@ public class ResendAllIT {
     assertThat(resendRequest.getStatus()).isEqualTo(200);
 
     final Response resendRequestNode3 =
-        client
+        vanillaHttpOnlyClient
             .target(partyThree.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -188,7 +210,8 @@ public class ResendAllIT {
     // setup (sending in a tx)
 
     Response sendRawResponse =
-        client
+        partyOne
+            .getRestClient()
             .target(partyOne.getQ2TUri())
             .path("/sendraw")
             .request()
@@ -203,7 +226,8 @@ public class ResendAllIT {
 
     // delete it from a recipient node
     final Response deleteReq =
-        client
+        partyTwo
+            .getRestClient()
             .target(partyTwo.getQ2TUri())
             .path("transaction")
             .path(encodedHash)
@@ -214,18 +238,24 @@ public class ResendAllIT {
 
     // check it is deleted
     final Response deleteCheck =
-        client.target(partyTwo.getQ2TUri()).path("transaction").path(encodedHash).request().get();
+        partyTwo
+            .getRestClient()
+            .target(partyTwo.getQ2TUri())
+            .path("transaction")
+            .path(encodedHash)
+            .request()
+            .get();
 
     assertThat(deleteCheck).isNotNull();
     assertThat(deleteCheck.getStatus()).isEqualTo(404);
 
     // request resend from sender
     final ResendRequest req = new ResendRequest();
-    req.setType(ResendRequestType.ALL);
+    req.setType(RESEND_ALL_VALUE);
     req.setPublicKey(partyTwo.getPublicKey());
 
     final Response resendRequest =
-        client
+        vanillaHttpOnlyClient
             .target(partyOne.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -257,11 +287,11 @@ public class ResendAllIT {
   public void resendForKeyWithNoTransactions() {
     // perform resend
     final ResendRequest req = new ResendRequest();
-    req.setType(ResendRequestType.ALL);
+    req.setType(RESEND_ALL_VALUE);
     req.setPublicKey("rUSW9gnm2Unm5ECvEfuU10LX7KYsN59Flw7m7iu6wEo=");
 
     final Response resendRequest =
-        client
+        vanillaHttpOnlyClient
             .target(partyOne.getP2PUri())
             .path(RESEND_PATH)
             .request()
@@ -276,11 +306,11 @@ public class ResendAllIT {
   public void resendForInvalidKeyErrors() {
     // perform resend
     final ResendRequest req = new ResendRequest();
-    req.setType(ResendRequestType.ALL);
+    req.setType(RESEND_ALL_VALUE);
     req.setPublicKey("rUSW9gnm2Unm5ECvEfuU&&&&&&&&59Flw7m7iu6wEo=");
 
     final Response resendRequest =
-        client
+        vanillaHttpOnlyClient
             .target(partyOne.getP2PUri())
             .path(RESEND_PATH)
             .request()

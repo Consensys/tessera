@@ -1,6 +1,8 @@
 package com.quorum.tessera.eclipselink;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
@@ -56,7 +58,7 @@ public class AtomicLongSequenceTest {
   @Test(expected = UnsupportedOperationException.class)
   public void getGeneratedVectorIsNotSupported() {
     AtomicLongSequence atomicLongSequence = new AtomicLongSequence();
-    atomicLongSequence.getGeneratedVector(null, null, new String(), 0);
+    atomicLongSequence.getGeneratedVector(null, null, anyString(), anyInt());
   }
 
   @Test

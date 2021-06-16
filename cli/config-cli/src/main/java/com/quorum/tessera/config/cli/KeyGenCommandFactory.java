@@ -17,16 +17,18 @@ public class KeyGenCommandFactory implements CommandLine.IFactory {
                 + " cannot create instance of type "
                 + cls.getSimpleName());
       }
-
-      KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.newFactory();
+      KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.create();
       ConfigFileUpdaterWriter configFileUpdaterWriter =
           new ConfigFileUpdaterWriter(FilesDelegate.create());
       PasswordFileUpdaterWriter passwordFileUpdaterWriter =
           new PasswordFileUpdaterWriter(FilesDelegate.create());
-
+      KeyDataMarshaller keyDataMarshaller = KeyDataMarshaller.create();
       return (K)
           new KeyGenCommand(
-              keyGeneratorFactory, configFileUpdaterWriter, passwordFileUpdaterWriter);
+              keyGeneratorFactory,
+              configFileUpdaterWriter,
+              passwordFileUpdaterWriter,
+              keyDataMarshaller);
     } catch (Exception e) {
       return CommandLine.defaultFactory().create(cls); // fallback if missing
     }

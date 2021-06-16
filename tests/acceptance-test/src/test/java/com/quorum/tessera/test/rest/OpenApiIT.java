@@ -12,7 +12,6 @@ import java.util.List;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.junit.After;
@@ -25,9 +24,10 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 public class OpenApiIT {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenApiIT.class);
 
-  private final Client client = ClientBuilder.newClient();
+  private Client client;
 
   private Party node;
 
@@ -35,14 +35,16 @@ public class OpenApiIT {
 
   @Before
   public void setUp() {
-    node = PartyHelper.create().getParties().findFirst().get();
-
+    PartyHelper partyHelper = PartyHelper.create();
+    node = partyHelper.getParties().findFirst().get();
+    client = node.getRestClient();
     LOGGER.debug("Begin test: {}", testName.getMethodName());
   }
 
   @After
   public void after() {
     LOGGER.debug("After test: {}", testName.getMethodName());
+    client.close();
   }
 
   @Test
