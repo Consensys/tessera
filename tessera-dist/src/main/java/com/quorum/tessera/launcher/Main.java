@@ -9,6 +9,7 @@ import com.quorum.tessera.config.cli.PicoCliDelegate;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.privacygroup.ResidentGroupHandler;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -84,6 +85,13 @@ public class Main {
       Discovery discovery = Discovery.create();
       discovery.onCreate();
       LOGGER.debug("Created Discovery {}", discovery);
+
+      if (runtimeContext.isMultiplePrivateStates()) {
+        LOGGER.debug("Creating ResidentGroupHandler");
+        ResidentGroupHandler residentGroupHandler = ResidentGroupHandler.create();
+        residentGroupHandler.onCreate(config);
+        LOGGER.debug("Created ResidentGroupHandler {}", residentGroupHandler);
+      }
 
       LOGGER.debug("Creating EncodedPayloadManager");
       EncodedPayloadManager.create();
