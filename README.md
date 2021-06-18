@@ -27,7 +27,7 @@ Each Tessera node:
 Tessera distribution (https://github.com/consensys/tessera/releases)
 Enclave server distribution
 Key vaults
-- Azure (key-vault/azure-key-vault/README.md)
+- Azure (/tessera/key-vault/azure-key-vault/README.md)
 - AWS (key-vault/aws-key-vault/README.md)
 - hashicorp (key-vault/hashicorp-key-vault/README.md)
 
