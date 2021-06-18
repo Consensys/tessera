@@ -28,15 +28,13 @@ Tessera distribution (https://github.com/consensys/tessera/releases)
 Enclave server distribution
 Key vaults
 - [Azure](key-vault/azure-key-vault)
-- AWS(key-vault/aws-key-vault/README.md)
-- hashicorp(key-vault/hashicorp-key-vault/README.md)
+- [AWS](key-vault/aws-key-vault)
+- [hashicorp](key-vault/hashicorp-key-vault)
 
 ### Encryptors
-- JNACL encryptor (encryption/encryption-jnacl/README.md)
-- Elliptical Curve encryptor (encryption/encryption-ec/README.md)
-- Kalium encryptor sample (encryption/encryption-kalium/README.md)
-
-
+- [JNACL] (encryption/encryption-jnacl)
+- [Elliptical Curve] encryptor (encryption/encryption-ec)
+- [Kalium] (encryption/encryption-kalium)
 
 ## Prerequisites
 Java 11+ (tested up to Java 14), code source is java 11. 
