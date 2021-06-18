@@ -4,7 +4,7 @@
 
 # <img src="https://raw.githubusercontent.com/consensys/tessera/master/tessera-logo.png" width="150" height="36"/>
 
-Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/).
+Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/) and/or [Besu](http://github.com/hyperledger/besu)
 
 Each Tessera node:
 
