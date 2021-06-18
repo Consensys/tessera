@@ -23,6 +23,9 @@ Each Tessera node:
 
 * Connects to any SQL DB which supports the JDBC client
 
+##
+[Docs](https://docs.tessera.consensys.net/en/stable/)
+
 ## Artefacts
 Tessera distribution (https://github.com/consensys/tessera/releases)
 Enclave server distribution
