@@ -32,9 +32,9 @@ Key vaults
 - [hashicorp](key-vault/hashicorp-key-vault)
 
 ### Encryptors
-- [JNACL] (encryption/encryption-jnacl)
-- [Elliptical Curve] encryptor (encryption/encryption-ec)
-- [Kalium] (encryption/encryption-kalium)
+- [JNACL](encryption/encryption-jnacl)
+- [Elliptical Curve](encryption/encryption-ec)
+- [Kalium](encryption/encryption-kalium)
 
 ## Prerequisites
 Java 11+ (tested up to Java 14), code source is java 11. 
