@@ -137,9 +137,6 @@ rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb
 
 Pick up this output and wrap it inside `ENC()` function, we should have the following `ENC(rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb)` in the config json file.
 
-### Migrating from Constellation to Tessera
-Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/HowTo/MigrateFromConstellation/).
-
 ## Further reading
 * The [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
 * [Quorum](https://github.com/consensys/quorum/) is an Ethereum-based distributed ledger protocol that uses Tessera to provide transaction privacy.
