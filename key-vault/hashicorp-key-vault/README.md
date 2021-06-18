@@ -1,2 +1,2 @@
-[Store keys in HashiCorp Vault](https://docs.tessera.consensys.net/en/latest/HowTo/Generate-Keys/Hashicorp-Vault/)
-[Configuring use of HashiCorp Vault](https://docs.tessera.consensys.net/en/latest/HowTo/Configure/KeyVault/Hashicorp-Vault/)
+- [Store keys in HashiCorp Vault](https://docs.tessera.consensys.net/en/latest/HowTo/Generate-Keys/Hashicorp-Vault/)
+- [Configuring use of HashiCorp Vault](https://docs.tessera.consensys.net/en/latest/HowTo/Configure/KeyVault/Hashicorp-Vault/)
