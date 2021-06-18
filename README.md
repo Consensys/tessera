@@ -4,6 +4,8 @@
 
 # <img src="https://raw.githubusercontent.com/consensys/tessera/master/tessera-logo.png" width="150" height="36"/>
 
+
+
 > __Important: Release 0.9 Feature__ <br/>Tessera now supports [remote enclaves](https://docs.tessera.consensys.net/HowTo/Configure/Enclave/#remote-enclave-setup) for increased security.
 
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/).
@@ -25,18 +27,26 @@ Each Tessera node:
 
 * Connects to any SQL DB which supports the JDBC client
 
+## Artefacts
+Tessera distribution (https://github.com/consensys/tessera/releases)
+Enclave server distribution
+Key vaults
+- Azure (key-vault/azure-key-vault/README.md)
+- AWS (key-vault/aws-key-vault/README.md)
+- hashicorp (key-vault/hashicorp-key-vault/README.md)
+
+### Encryptors
+- JNACL encryptor (encryption/encryption-jnacl/README.md)
+- Elliptical Curve encryptor (encryption/encryption-ec/README.md)
+- Kalium encryptor sample (encryption/encryption-kalium/README.md)
+
+
+
 ## Prerequisites
+Java 11+ (tested up to Java 14), code source is java 11. 
 - [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)<br/>
     Install the correct JDK/JRE for the version of Tessera you are using:
-
-    | Tessera version    | Build method                                                                | JDK/JRE version |
-    |--------------------|-----------------------------------------------------------------------------|:---------------:|
-    | 0.10.3 and later   | [Pre-built release JARs](https://github.com/consensys/tessera/releases) |        11       |
-    |                    | Building from source                                                        |        11       |
-    | 0.10.2 and earlier | [Pre-built release JARs](https://github.com/consensys/tessera/releases) |        8        |
-    |                    | Building from source                                                        |     8 or 11     |
-
-- [libsodium](https://download.libsodium.org/doc/installation/) (if using kalium as the NaCl implementation)
+    
 
 ## Building Tessera from source
 To build and install Tessera:
@@ -46,55 +56,20 @@ To build and install Tessera:
     ./gradlew build   
     ```
 
-
-### Selecting an NaCl Implementation
-Tessera can use either the [jnacl](https://github.com/neilalexander/jnacl) or [kalium](https://github.com/abstractj/kalium) NaCl cryptography implementations.
-
-#### jnacl (default)
-
-No additional steps required. 
-
-#### kalium
-
-Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium).  Add the `net.consensys.quorum.tessera:encryption-kalium` jar to the classpath when running Tessera:
-
-```
-java -jar /path/to/encryption-kalium-<version>.jar:/path/to/tessera-app-<version>.jar com.quorum.tessera.launcher.Main
-```
-
 ## Running Tessera
+Download and unpack distribution
 ```
-java -jar tessera-dist/tessera-app/build/libs/tessera-app-${version}-app.jar -configfile /path/to/config.json
-```
-
-> See the [`tessera-dist` README](tessera-dist) for info on the different distributions available.
-
-Once Tessera has been configured and built, you may want to copy the .jar to another location, create an alias and add it to your PATH:
-
-```
-alias tessera="java -jar /path/to/tessera-app-${version}-app.jar"`
+tar xvf tessera-[version].tar
+./tessera-[version]/bin/tessera -configfile /path/to/config.json
 ```
 
 You will then be able to more concisely use the Tessera CLI commands, such as:
 
-```
-tessera -configfile /path/to/config.json
-```
+By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the lib dir:
 
-and
-
-```
-tessera help
-```
-
-By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the classpath:
-
-```
-java -cp some-jdbc-driver.jar:/path/to/tessera-app.jar:. com.quorum.tessera.launcher.Main
-```
 For example, to use Oracle database:
 ```
-java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.launcher.Main -configfile config.json
+cp ojdbc7.jar tessera-[version]/lib/
 ```
 
 [DDLs](ddls/create-table) have been provided to help with defining these databases.
