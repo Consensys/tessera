@@ -39,6 +39,7 @@ Key vaults
 ## Prerequisites
 Java 11+ (tested up to Java 14), code source is java 11. 
 - [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)<br/>
+
 Optional: If you want to use a locally installed gradle rather that the wrapper then the build is currently using 7.0.2
 - [Gradle](https://gradle.org/install/)<br/>
 
