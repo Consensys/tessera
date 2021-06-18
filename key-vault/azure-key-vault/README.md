@@ -1,1 +1,2 @@
-TODO
+[Store keys in Azure Key Vault](https://docs.tessera.consensys.net/en/latest/HowTo/Generate-Keys/Azure-Key-Vault/)
+[Azure Key Vault key pairs](https://docs.tessera.consensys.net/en/latest/HowTo/Configure/Keys/Azure-Key-Vault-Pairs/)

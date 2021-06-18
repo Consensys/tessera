@@ -1,1 +1,2 @@
-TODO
+[Store keys in AWS Secrets Manager](https://docs.tessera.consensys.net/en/latest/HowTo/Generate-Keys/AWS-Secrets-Manager/)
+[AWS Secrets Manager key pairs](https://docs.tessera.consensys.net/en/latest/HowTo/Configure/Keys/AWS-Secrets-Pairs/)
