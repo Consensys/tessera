@@ -27,9 +27,9 @@ Each Tessera node:
 Tessera distribution (https://github.com/consensys/tessera/releases)
 Enclave server distribution
 Key vaults
-- Azure (key-vault/azure-key-vault)
-- AWS (key-vault/aws-key-vault/README.md)
-- hashicorp (key-vault/hashicorp-key-vault/README.md)
+- Azure(key-vault/azure-key-vault)
+- AWS(key-vault/aws-key-vault)
+- hashicorp(key-vault/hashicorp-key-vault)
 
 ### Encryptors
 - JNACL encryptor (encryption/encryption-jnacl/README.md)
