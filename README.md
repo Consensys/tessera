@@ -4,7 +4,7 @@
 
 # <img src="https://raw.githubusercontent.com/consensys/tessera/master/tessera-logo.png" width="150" height="36"/>
 
-Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/).
+Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/) and/or [Besu](http://github.com/hyperledger/besu)
 
 Each Tessera node:
 
@@ -27,22 +27,21 @@ Each Tessera node:
 Tessera distribution (https://github.com/consensys/tessera/releases)
 Enclave server distribution
 Key vaults
-- Azure(key-vault/azure-key-vault)
-- AWS(key-vault/aws-key-vault)
-- hashicorp(key-vault/hashicorp-key-vault)
+- [Azure](key-vault/azure-key-vault)
+- [AWS](key-vault/aws-key-vault)
+- [hashicorp](key-vault/hashicorp-key-vault)
 
 ### Encryptors
-- JNACL encryptor (encryption/encryption-jnacl/README.md)
-- Elliptical Curve encryptor (encryption/encryption-ec/README.md)
-- Kalium encryptor sample (encryption/encryption-kalium/README.md)
-
-
+- [JNACL](encryption/encryption-jnacl)
+- [Elliptical Curve](encryption/encryption-ec)
+- [Kalium](encryption/encryption-kalium)
 
 ## Prerequisites
 Java 11+ (tested up to Java 14), code source is java 11. 
 - [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)<br/>
-    Install the correct JDK/JRE for the version of Tessera you are using:
-    
+
+Optional: If you want to use a locally installed gradle rather that the wrapper then the build is currently using 7.0.2
+- [Gradle](https://gradle.org/install/)<br/>
 
 ## Building Tessera from source
 To build and install Tessera:
@@ -137,9 +136,6 @@ rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb
 ```
 
 Pick up this output and wrap it inside `ENC()` function, we should have the following `ENC(rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb)` in the config json file.
-
-### Migrating from Constellation to Tessera
-Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/HowTo/MigrateFromConstellation/).
 
 ## Further reading
 * The [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
