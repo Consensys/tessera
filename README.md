@@ -4,10 +4,6 @@
 
 # <img src="https://raw.githubusercontent.com/consensys/tessera/master/tessera-logo.png" width="150" height="36"/>
 
-
-
-> __Important: Release 0.9 Feature__ <br/>Tessera now supports [remote enclaves](https://docs.tessera.consensys.net/HowTo/Configure/Enclave/#remote-enclave-setup) for increased security.
-
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/).
 
 Each Tessera node:
