@@ -1,8 +1,9 @@
 name: Tessera Release Build
 
 on:
-  repository_dispatch:
-    types: [release]
+  push:
+    branches:
+      - test-dist-release
 
 env:
   SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
