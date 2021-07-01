@@ -28,33 +28,33 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build -x dependencyCheckAnalyze -x javadoc -x test --info
     - name: Upload tessera dist
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       if: success()
       with:
         name: tessera-dists
         path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
     - name: Upload tessera enclave dist
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: enclave-dists
         path: /home/runner/work/tessera/tessera/enclave/enclave-jaxrs/build/distributions/
     - name: Upload aws key vault dist
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: aws-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/aws-key-vault/build/distributions/
     - name: Upload azure key vault dist
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: azure-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/azure-key-vault/build/distributions/
     - name: Upload hashicorp key vault dist
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: hashicorp-key-vault-dist
         path: /home/runner/work/tessera/tessera/key-vault/hashicorp-key-vault/build/distributions/
     - name: Upload kalium encryptor dist
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       with:
         name: kalium-dist
         path: /home/runner/work/tessera/tessera/encryption/encryption-kalium/build/distributions/
@@ -157,13 +157,13 @@ jobs:
       run: |
         ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --fail-fast -PexcludeTests="RunHashicorpIT,AwsKeyVaultIT,RecoverIT,RunAzureIT,RestSuiteHttpH2RemoteEnclaveEncTypeEC,CucumberTestSuite" --info
     - name: Upload Junit reports
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       if: always()
       with:
        name: itest-junit-report
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
     - name: Upload test logs
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v2
       if: always()
       with:
        name: itest-logs
@@ -223,13 +223,13 @@ jobs:
         run: |
           ./gradlew :tests:acceptance-test:test --tests RestSuiteHttpH2RemoteEnclave --tests RestSuiteHttpH2RemoteEnclaveEncTypeEC --info
       - name: Upload junit reports
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: remote_enclave_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: remote_enclave_itest-logs
@@ -289,13 +289,13 @@ jobs:
         run: |
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests CucumberTestSuite --info
       - name: Upload junit reports
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: cucumber_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: cucumber_itest-logs
@@ -364,13 +364,13 @@ jobs:
           export PATH=$PATH:$PWD && popd
           ./gradlew :tests:acceptance-test:test --tests RunHashicorpIT --info
       - name: Upload junit reports
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: vault-itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: failure()
         with:
           name: vault-itest-logs
@@ -429,13 +429,13 @@ jobs:
         run: |
           ./gradlew :tests:acceptance-test:clean :tests:acceptance-test:test --tests RecoverIT --info
       - name: Upload junit reports
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: recovery_itest-junit-report
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/reports/tests/
       - name: Upload test logs
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: recovery-itest-logs
@@ -462,10 +462,17 @@ jobs:
           path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-      - name: Build image as tar
+      - name: Get current date-time (RFC 3339 standard)
+        id: date
+        run: echo "::set-output name=now::$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+      - name: Build image as portable tar
         uses: docker/build-push-action@v2
         with:
-          tags: quorumengineering/tessera:develop
+          tags: ${{ secrets.DOCKER_REPO }}:develop
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.date.outputs.now }}
           push: false
           file: .github/workflows/noBuild.Dockerfile
           context: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
@@ -515,7 +522,7 @@ jobs:
         run:
           docker run --entrypoint /bin/sh --network host -v /tmp/run/sh:/tmp/run.sh -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/acctests:/tmp/acctests -e TF_VAR_quorum_docker_image='{name="quorumengineering/quorum:${{ steps.quorumver.outputs.version }}",local=false}' quorumengineering/acctests:latest -c "mvn --no-transfer-progress -B -DskipToolsCheck test -Pauto -Dtags='\!async && (basic || basic-istanbul || networks/typical::istanbul)' -Dauto.outputDir=/tmp/acctests -Dnetwork.forceDestroy=true && cp -R /workspace/target/gauge /tmp/acctests/gauge && chmod -R 775 /tmp/acctests/gauge"
       - name: Upload Gauge report
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: gauge-reports
@@ -554,4 +561,4 @@ jobs:
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
       - name: Push image
         run : |
-          docker push quorumengineering/tessera:develop
+          docker push ${{ secrets.DOCKER_REPO }}:develop

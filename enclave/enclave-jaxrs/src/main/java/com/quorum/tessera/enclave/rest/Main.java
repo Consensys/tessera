@@ -34,6 +34,10 @@ public class Main {
     commandLine.execute(args);
     final CliResult cliResult = commandLine.getExecutionResult();
 
+    if (cliResult == null) {
+      System.exit(1);
+    }
+
     if (!cliResult.getConfig().isPresent()) {
       System.exit(cliResult.getStatus());
     }
