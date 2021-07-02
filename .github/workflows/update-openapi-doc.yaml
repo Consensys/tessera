@@ -9,7 +9,7 @@ on:
 env:
   GHPAGES_DIR: gh-pages
   GHPAGES_REF: refs/heads/gh-pages
-  GENERERATED_SPEC: ./tessera-jaxrs/generate-openapi/build/generated-resources/openapi/openapi.yaml
+  GENERERATED_SPEC: ./tessera-jaxrs/openapi/generate/build/generated-resources/openapi/openapi.yaml
 jobs:
   update-version:
     name: Update API versions list and specs
