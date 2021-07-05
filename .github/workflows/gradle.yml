@@ -488,6 +488,8 @@ jobs:
     needs: [build, build_image]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code from SCM
+        uses: actions/checkout@v2
       - name: Set up java
         uses: actions/setup-java@v2
         with:
@@ -517,6 +519,12 @@ jobs:
             VERSION=latest
           fi
           echo "using version $VERSION"
+
+          # TODO(cjh) remove when quorum version supporting --revertreason CLI flag is released
+          VERSION=develop
+          echo "force version to $VERSION"
+          # end(cjh)
+
           echo ::set-output name=version::$VERSION
       - name: Execute acceptance tests
         run:
