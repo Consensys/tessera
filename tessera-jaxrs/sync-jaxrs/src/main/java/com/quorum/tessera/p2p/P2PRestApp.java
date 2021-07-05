@@ -15,6 +15,8 @@ import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveFactory;
 import com.quorum.tessera.enclave.PayloadEncoder;
+import com.quorum.tessera.messaging.Inbox;
+import com.quorum.tessera.messaging.InboxFactory;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
@@ -48,11 +50,14 @@ public class P2PRestApp extends TesseraRestApplication {
 
   private final PartyStore partyStore;
 
+  private final Inbox inbox;
+
   public P2PRestApp() {
     this.config = ServiceFactory.create().config();
     this.enclave = EnclaveFactory.create().create(config);
     this.discovery = Discovery.getInstance();
     this.partyStore = PartyStore.getInstance();
+    this.inbox = InboxFactory.create().create(config);
   }
 
   @Override
@@ -91,15 +96,19 @@ public class P2PRestApp extends TesseraRestApplication {
     final PrivacyGroupManager privacyGroupManager = PrivacyGroupManager.create(config);
     final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 
+    final MessageResource messageResource = new MessageResource(inbox);
+
     if (runtimeContext.isRecoveryMode()) {
-      return Set.of(partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource);
+      return Set.of(
+          partyInfoResource, iPWhitelistFilter, recoveryResource, upCheckResource, messageResource);
     }
     return Set.of(
         partyInfoResource,
         iPWhitelistFilter,
         transactionResource,
         privacyGroupResource,
-        upCheckResource);
+        upCheckResource,
+        messageResource);
   }
 
   @Override

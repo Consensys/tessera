@@ -9,6 +9,9 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.core.api.ServiceFactory;
 import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.messaging.Messaging;
+import com.quorum.tessera.messaging.MessagingFactory;
+import com.quorum.tessera.thirdparty.messaging.MessageResource;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.TransactionManagerFactory;
 import java.util.Set;
@@ -24,12 +27,15 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
 
   private final TransactionManager transactionManager;
 
+  private final Messaging messaging;
+
   public ThirdPartyRestApp() {
     final ServiceFactory serviceFactory = ServiceFactory.create();
 
     Config config = serviceFactory.config();
     this.discovery = Discovery.getInstance();
     this.transactionManager = TransactionManagerFactory.create().create(config);
+    this.messaging = MessagingFactory.create().create(config);
   }
 
   @Override
@@ -39,8 +45,14 @@ public class ThirdPartyRestApp extends TesseraRestApplication {
     final PartyInfoResource partyInfoResource = new PartyInfoResource(discovery);
     final KeyResource keyResource = new KeyResource();
     final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+    final MessageResource messagingResource = new MessageResource(messaging);
 
-    return Stream.of(rawTransactionResource, partyInfoResource, keyResource, upCheckResource)
+    return Stream.of(
+            rawTransactionResource,
+            partyInfoResource,
+            keyResource,
+            upCheckResource,
+            messagingResource)
         .collect(Collectors.toSet());
   }
 

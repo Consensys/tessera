@@ -6,6 +6,7 @@
         <class>com.quorum.tessera.data.EncryptedTransaction</class>
         <class>com.quorum.tessera.data.EncryptedRawTransaction</class>
         <class>com.quorum.tessera.data.PrivacyGroupEntity</class>
+        <class>com.quorum.tessera.data.EncryptedMessage</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <shared-cache-mode>NONE</shared-cache-mode>
     </persistence-unit>

@@ -94,4 +94,9 @@ public class EntityManagerDAOFactory {
     LOGGER.debug("Create StagingEntityDAO");
     return new StagingEntityDAOImpl(stagingEntityManagerFactory);
   }
+
+  public EncryptedMessageDAO createEncryptedMessageDAO() {
+    LOGGER.debug("Create EncryptedMessageDAO");
+    return new EncryptedMessageDAOImpl(entityManagerFactory);
+  }
 }
