@@ -4,9 +4,9 @@
 
 # <img src="https://raw.githubusercontent.com/consensys/tessera/master/tessera-logo.png" width="150" height="36"/>
 
-> __Important: Release 0.9 Feature__ <br/>Tessera now supports [remote enclaves](https://docs.tessera.consensys.net/HowTo/Configure/Enclave/#remote-enclave-setup) for increased security.
+> __Important: If using version 21.4.1 and earlier__ <br/>Tessera is now released as a zipped distribution instead of an uber jar.  If using version 21.4.1 and earlier, see the [previous README](https://github.com/ConsenSys/tessera/tree/tessera-21.4.1).
 
-Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/).
+Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/) and/or [Besu](http://github.com/hyperledger/besu)
 
 Each Tessera node:
 
@@ -25,18 +25,39 @@ Each Tessera node:
 
 * Connects to any SQL DB which supports the JDBC client
 
+## Documentation
+[Docs](https://docs.tessera.consensys.net/en/stable/)
+
+## Artefacts
+
+### Runnable distributions
+
+#### Tessera
+- [Tessera distribution](https://github.com/consensys/tessera/releases): Start a Tessera node
+
+#### Remote Enclave Server
+- [Remote Enclave Server distribution](enclave/enclave-jaxrs): Start a remote enclave
+
+### Optional Artefacts
+
+The following artefacts can be [added to a distribution](#supplementing-the-distribution) to provide additional functionality.
+
+#### Key Vaults
+- [Azure](key-vault/azure-key-vault): Add support for key pairs stored in Azure Key Vault 
+- [AWS](key-vault/aws-key-vault): Add support for key pairs stored in AWS Secret Store
+- [Hashicorp](key-vault/hashicorp-key-vault): Add support for key pairs stored in Hashicorp Vault
+
+#### Encryptors
+- [jnacl](encryption/encryption-jnacl): (already included in Tessera and Remote Enclave Server distributions) Add support for NaCl key pairs using [jnacl](https://github.com/neilalexander/jnacl) library
+- [Elliptical Curve](encryption/encryption-ec): Add support for elliptic curve key pairs
+- [kalium](encryption/encryption-kalium): Add support for NaCl key pairs using [kalium](https://github.com/abstractj/kalium) library
+
 ## Prerequisites
-- [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)<br/>
-    Install the correct JDK/JRE for the version of Tessera you are using:
+- [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
+    - Java 11+ (tested up to Java 14), code source is Java 11.
 
-    | Tessera version    | Build method                                                                | JDK/JRE version |
-    |--------------------|-----------------------------------------------------------------------------|:---------------:|
-    | 0.10.3 and later   | [Pre-built release JARs](https://github.com/consensys/tessera/releases) |        11       |
-    |                    | Building from source                                                        |        11       |
-    | 0.10.2 and earlier | [Pre-built release JARs](https://github.com/consensys/tessera/releases) |        8        |
-    |                    | Building from source                                                        |     8 or 11     |
-
-- [libsodium](https://download.libsodium.org/doc/installation/) (if using kalium as the NaCl implementation)
+- [Optional: Gradle](https://gradle.org/install/)<br/>
+    - If you want to use a locally installed Gradle rather than the included wrapper. Note: wrapper currently uses Gradle 7.0.2.
 
 ## Building Tessera from source
 To build and install Tessera:
@@ -46,55 +67,53 @@ To build and install Tessera:
     ./gradlew build   
     ```
 
-
-### Selecting an NaCl Implementation
-Tessera can use either the [jnacl](https://github.com/neilalexander/jnacl) or [kalium](https://github.com/abstractj/kalium) NaCl cryptography implementations.
-
-#### jnacl (default)
-
-No additional steps required. 
-
-#### kalium
-
-Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium).  Add the `net.consensys.quorum.tessera:encryption-kalium` jar to the classpath when running Tessera:
-
+## Installing Tessera
+Download and unpack distribution:
 ```
-java -jar /path/to/encryption-kalium-<version>.jar:/path/to/tessera-app-<version>.jar com.quorum.tessera.launcher.Main
+$ tar xvf tessera-[version].tar
+$ tree tessera-[version]
+tessera-[version]
+├── bin
+│   ├── tessera
+│   └── tessera.bat
+└── lib
+    ├── HikariCP-3.2.0.jar
+    ...
 ```
-
-## Running Tessera
+Run Tessera (use correct `/bin` script for your system): 
 ```
-java -jar tessera-dist/tessera-app/build/libs/tessera-app-${version}-app.jar -configfile /path/to/config.json
+./tessera-[version]/bin/tessera help
 ```
 
-> See the [`tessera-dist` README](tessera-dist) for info on the different distributions available.
+## Supplementing the distribution
 
-Once Tessera has been configured and built, you may want to copy the .jar to another location, create an alias and add it to your PATH:
+Additional functionality can be added to a distribution by adding `.jar` files to the `/lib` directory.
 
+### Adding Tessera artefacts
+
+Download and unpack the artefact:
 ```
-alias tessera="java -jar /path/to/tessera-app-${version}-app.jar"`
-```
-
-You will then be able to more concisely use the Tessera CLI commands, such as:
-
-```
-tessera -configfile /path/to/config.json
-```
-
-and
-
-```
-tessera help
+$ tar xvf aws-key-vault-[version].tar
+$ tree aws-key-vault-[version]
+aws-key-vault-[version].tar
+└── lib
+    ├── annotations-2.10.25.jar
+    ...
 ```
 
-By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the classpath:
+Copy the contents of the artefact's `/lib` into the distribution `/lib` (make sure to resolve any version conflicts/duplicated `.jar` files introduced during the copy):
 
 ```
-java -cp some-jdbc-driver.jar:/path/to/tessera-app.jar:. com.quorum.tessera.launcher.Main
+ cp -a aws-key-vault-[version]/lib/. tessera-[version]/lib/
 ```
+
+### Supporting alternate databases
+
+By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the `lib/` dir:
+
 For example, to use Oracle database:
 ```
-java -cp ojdbc7.jar:tessera-app.jar:. com.quorum.tessera.launcher.Main -configfile config.json
+cp ojdbc7.jar tessera-[version]/lib/
 ```
 
 [DDLs](ddls/create-table) have been provided to help with defining these databases.
@@ -166,9 +185,6 @@ rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb
 ```
 
 Pick up this output and wrap it inside `ENC()` function, we should have the following `ENC(rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb)` in the config json file.
-
-### Migrating from Constellation to Tessera
-Tessera is the service used to provide Quorum with the ability to support private transactions, replacing Constellation.  If you have previously been using Constellation, utilities are provided within Tessera to enable the migration of Constellation configuration and datastores to Tessera compatible formats.  Details on how to use these utilities can be found in the [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/HowTo/MigrateFromConstellation/).
 
 ## Further reading
 * The [Tessera Documentation](https://docs.tessera.consensys.net/en/latest/) provides additional information on how Tessera works, migrating from Constellation to Tessera, configuration details, and more.
