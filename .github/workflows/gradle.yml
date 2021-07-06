@@ -4,12 +4,8 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - '**.md'
   pull_request:
     branches: ['*']
-    paths-ignore:
-      - '**.md'
   
 env:
   GRADLE_CACHE_KEY: ${{ github.run_id }}-gradle-${{ github.run_number }}-${{ github.run_number }}-${{ github.sha }}
