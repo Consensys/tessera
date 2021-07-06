@@ -4,6 +4,8 @@
 
 # <img src="https://raw.githubusercontent.com/consensys/tessera/master/tessera-logo.png" width="150" height="36"/>
 
+> __Important: If using version 21.4.1 and earlier__ <br/>Tessera is now released as a zipped distribution instead of an uber jar.  If using version 21.4.1 and earlier, see the [previous README](https://github.com/ConsenSys/tessera/tree/tessera-21.4.1).
+
 Tessera is a stateless Java system that is used to enable the encryption, decryption, and distribution of private transactions for [Quorum](https://github.com/consensys/quorum/) and/or [Besu](http://github.com/hyperledger/besu)
 
 Each Tessera node:
@@ -23,28 +25,39 @@ Each Tessera node:
 
 * Connects to any SQL DB which supports the JDBC client
 
-##
+## Documentation
 [Docs](https://docs.tessera.consensys.net/en/stable/)
 
 ## Artefacts
-Tessera distribution (https://github.com/consensys/tessera/releases)
-Enclave server distribution
-Key vaults
-- [Azure](key-vault/azure-key-vault)
-- [AWS](key-vault/aws-key-vault)
-- [hashicorp](key-vault/hashicorp-key-vault)
 
-### Encryptors
-- [JNACL](encryption/encryption-jnacl)
-- [Elliptical Curve](encryption/encryption-ec)
-- [Kalium](encryption/encryption-kalium)
+### Runnable distributions
+
+#### Tessera
+- [Tessera distribution](https://github.com/consensys/tessera/releases): Start a Tessera node
+
+#### Remote Enclave Server
+- [Remote Enclave Server distribution](enclave/enclave-jaxrs): Start a remote enclave
+
+### Optional Artefacts
+
+The following artefacts can be [added to a distribution](#supplementing-the-distribution) to provide additional functionality.
+
+#### Key Vaults
+- [Azure](key-vault/azure-key-vault): Add support for key pairs stored in Azure Key Vault 
+- [AWS](key-vault/aws-key-vault): Add support for key pairs stored in AWS Secret Store
+- [Hashicorp](key-vault/hashicorp-key-vault): Add support for key pairs stored in Hashicorp Vault
+
+#### Encryptors
+- [jnacl](encryption/encryption-jnacl): (already included in Tessera and Remote Enclave Server distributions) Add support for NaCl key pairs using [jnacl](https://github.com/neilalexander/jnacl) library
+- [Elliptical Curve](encryption/encryption-ec): Add support for elliptic curve key pairs
+- [kalium](encryption/encryption-kalium): Add support for NaCl key pairs using [kalium](https://github.com/abstractj/kalium) library
 
 ## Prerequisites
-Java 11+ (tested up to Java 14), code source is java 11. 
-- [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)<br/>
+- [Java](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
+    - Java 11+ (tested up to Java 14), code source is Java 11.
 
-Optional: If you want to use a locally installed gradle rather that the wrapper then the build is currently using 7.0.2
-- [Gradle](https://gradle.org/install/)<br/>
+- [Optional: Gradle](https://gradle.org/install/)<br/>
+    - If you want to use a locally installed Gradle rather than the included wrapper. Note: wrapper currently uses Gradle 7.0.2.
 
 ## Building Tessera from source
 To build and install Tessera:
@@ -54,16 +67,49 @@ To build and install Tessera:
     ./gradlew build   
     ```
 
-## Running Tessera
-Download and unpack distribution
+## Installing Tessera
+Download and unpack distribution:
 ```
-tar xvf tessera-[version].tar
-./tessera-[version]/bin/tessera -configfile /path/to/config.json
+$ tar xvf tessera-[version].tar
+$ tree tessera-[version]
+tessera-[version]
+├── bin
+│   ├── tessera
+│   └── tessera.bat
+└── lib
+    ├── HikariCP-3.2.0.jar
+    ...
+```
+Run Tessera (use correct `/bin` script for your system): 
+```
+./tessera-[version]/bin/tessera help
 ```
 
-You will then be able to more concisely use the Tessera CLI commands, such as:
+## Supplementing the distribution
 
-By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the lib dir:
+Additional functionality can be added to a distribution by adding `.jar` files to the `/lib` directory.
+
+### Adding Tessera artefacts
+
+Download and unpack the artefact:
+```
+$ tar xvf aws-key-vault-[version].tar
+$ tree aws-key-vault-[version]
+aws-key-vault-[version].tar
+└── lib
+    ├── annotations-2.10.25.jar
+    ...
+```
+
+Copy the contents of the artefact's `/lib` into the distribution `/lib` (make sure to resolve any version conflicts/duplicated `.jar` files introduced during the copy):
+
+```
+ cp -a aws-key-vault-[version]/lib/. tessera-[version]/lib/
+```
+
+### Supporting alternate databases
+
+By default, Tessera uses an H2 database.  To use an alternative database, add the necessary drivers to the `lib/` dir:
 
 For example, to use Oracle database:
 ```

@@ -1,10 +1,7 @@
-#Kalium encryption
-This module is provide as a sample of how developers can provide CUSTOM encryptor types.
+# Kalium encryption
 
-A encryption implementation that uses org.abstractj.kalium:kalium:0.8.0 ro 
-encrypt using NACL. 
+This module is provided as a sample of how developers can provide `CUSTOM` encryptor types.
 
-Kalium requires libsodium to be installed on execution env. Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium).  Add the `net.consensys.quorum.tessera:encryption-kalium` jar to the classpath when running Tessera:
+Add support for NaCl key pairs using [kalium](https://github.com/abstractj/kalium) library
 
-
-[kalium](https://github.com/abstractj/kalium)
+Kalium requires libsodium to be installed on execution env. Install libsodium as detailed on the [kalium project page](https://github.com/abstractj/kalium).  Add the `net.consensys.quorum.tessera:encryption-kalium` jar to the classpath when running Tessera.
