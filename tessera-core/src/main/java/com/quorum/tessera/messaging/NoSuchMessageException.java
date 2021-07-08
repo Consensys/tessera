@@ -1,16 +1,14 @@
 package com.quorum.tessera.messaging;
 
-import com.quorum.tessera.data.MessageHash;
-
 public class NoSuchMessageException extends Exception {
 
-  private final MessageHash messageHash;
+  private final MessageId messageId;
 
-  public NoSuchMessageException(MessageHash messageHash) {
-    this.messageHash = messageHash;
+  public NoSuchMessageException(MessageId messageId) {
+    this.messageId = messageId;
   }
 
-  public MessageHash getMessageHash() {
-    return messageHash;
+  public MessageId getMessageId() {
+    return messageId;
   }
 }

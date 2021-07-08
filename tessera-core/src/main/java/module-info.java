@@ -27,6 +27,7 @@ module tessera.transaction {
   uses com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
   uses com.quorum.tessera.privacygroup.ResidentGroupHandler;
   uses com.quorum.tessera.messaging.Messaging;
+  uses com.quorum.tessera.messaging.Courier;
   uses com.quorum.tessera.messaging.Inbox;
 
   provides com.quorum.tessera.transaction.TransactionManager with

@@ -3,8 +3,8 @@ package com.quorum.tessera.p2p;
 import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
-import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.messaging.Inbox;
+import com.quorum.tessera.messaging.MessageId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -53,9 +53,9 @@ public class MessageResource {
         "Received inbound message {}", java.util.Base64.getEncoder().encodeToString(message));
 
     try {
-      MessageHash messageHash = inbox.put(message);
-      LOGGER.info("Stored message with identifier {}", messageHash);
-      return Response.status(Response.Status.CREATED).entity(messageHash.toString()).build();
+      MessageId messageId = inbox.put(message);
+      LOGGER.info("Stored message with messageId: {}", messageId);
+      return Response.status(Response.Status.CREATED).entity(messageId.toString()).build();
     } catch (Exception ex) {
       LOGGER.warn("Caught exception whilst storing message", ex);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();

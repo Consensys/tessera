@@ -1,7 +1,6 @@
 package com.quorum.tessera.messaging.internal;
 
 import com.quorum.tessera.base64.Base64Codec;
-import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
@@ -10,6 +9,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.messaging.Courier;
 import com.quorum.tessera.messaging.Inbox;
 import com.quorum.tessera.messaging.Message;
+import com.quorum.tessera.messaging.MessageId;
 import com.quorum.tessera.messaging.Messaging;
 import com.quorum.tessera.messaging.NoSuchMessageException;
 import com.quorum.tessera.messaging.UnknownRecipientException;
@@ -68,28 +68,24 @@ class MessagingImpl implements Messaging {
     final byte[] encoded = payloadEncoder.encode(encrypted);
 
     // Send it, and return the identifier
-    final byte[] sent = courier.push(encoded, recipient);
-    final String messageId = base64Codec.encodeToString(sent);
+    final MessageId messageId = courier.push(encoded, recipient);
     LOGGER.info("Sent {} as {}", message, messageId);
-    return messageId;
+    return messageId.toString();
   }
 
   @Override
   public List<String> received() {
-    return getInbox().stream()
-        .map(MessageHash::getHashBytes)
-        .map(base64Codec::encodeToString)
-        .collect(Collectors.toList());
+    return getInbox().stream().map(MessageId::toString).collect(Collectors.toList());
   }
 
   @Override
   public Message read(String messageId) throws NoSuchMessageException {
 
     // Try and fetch the corresponding message
-    final MessageHash messageHash = new MessageHash(base64Codec.decode(messageId));
-    byte[] encoded = getInbox().get(messageHash);
+    final MessageId parsed = MessageId.parseMessageId(messageId);
+    byte[] encoded = getInbox().get(parsed);
     if (encoded == null) {
-      throw new NoSuchMessageException(messageHash);
+      throw new NoSuchMessageException(parsed);
     }
 
     // Decode and decrypt it
@@ -103,6 +99,6 @@ class MessagingImpl implements Messaging {
 
   @Override
   public void remove(String messageId) {
-    getInbox().delete(new MessageHash(base64Codec.decode(messageId)));
+    getInbox().delete(MessageId.parseMessageId(messageId));
   }
 }

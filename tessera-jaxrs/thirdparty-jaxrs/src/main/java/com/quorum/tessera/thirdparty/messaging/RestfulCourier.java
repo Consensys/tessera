@@ -1,11 +1,11 @@
 package com.quorum.tessera.thirdparty.messaging;
 
-import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.messaging.Courier;
 import com.quorum.tessera.messaging.CourierException;
+import com.quorum.tessera.messaging.MessageId;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
@@ -21,7 +21,6 @@ public class RestfulCourier implements Courier {
 
   private final Client client;
   private final Discovery discovery;
-  private final Base64Codec base64Codec = Base64Codec.create();
 
   RestfulCourier(Client client, Discovery discovery) {
     this.client = client;
@@ -38,7 +37,7 @@ public class RestfulCourier implements Courier {
   }
 
   @Override
-  public byte[] push(byte[] message, PublicKey to) {
+  public MessageId push(byte[] message, PublicKey to) {
 
     String targetUrl = null;
     try {
@@ -63,7 +62,7 @@ public class RestfulCourier implements Courier {
       }
       final String string = response.readEntity(String.class);
       LOGGER.info("Message sent with response: {}", string);
-      return base64Codec.decode(string);
+      return MessageId.parseMessageId(string);
     } catch (ProcessingException pex) {
       LOGGER.warn("Exception whilst forwarding message to {}", targetUrl, pex);
       throw new CourierException(String.format("%s is offline", targetUrl), pex);

@@ -19,7 +19,7 @@ public interface Courier {
    * @param to the public key of the recipient
    * @return the binary form of the sent message
    */
-  byte[] push(byte[] message, PublicKey to);
+  MessageId push(byte[] message, PublicKey to);
 
   static Courier create() {
     return ServiceLoaderUtil.loadSingle(ServiceLoader.load(Courier.class));

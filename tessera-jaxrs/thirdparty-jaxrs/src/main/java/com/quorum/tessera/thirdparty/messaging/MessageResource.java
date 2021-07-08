@@ -139,9 +139,9 @@ public class MessageResource {
               mediaType = APPLICATION_JSON,
               schema = @Schema(implementation = GetMessageResponse.class)))
   @GET
-  @Path("/")
+  @Path("/{messageId}")
   @Produces(APPLICATION_JSON)
-  public Response get(@Parameter(required = true) @QueryParam("messageId") String messageId) {
+  public Response get(@Parameter(required = true) @PathParam("messageId") String messageId) {
 
     LOGGER.info("Fetching {}", messageId);
     try {
@@ -163,9 +163,9 @@ public class MessageResource {
       description = "Delete a received message")
   @ApiResponse(responseCode = "204", description = "Message was deleted")
   @DELETE
-  @Path("/")
+  @Path("/{messageId}")
   @Produces(APPLICATION_JSON)
-  public Response delete(@Parameter(required = true) @QueryParam("messageId") String messageId) {
+  public Response delete(@Parameter(required = true) @PathParam("messageId") String messageId) {
 
     try {
       messaging.remove(messageId);

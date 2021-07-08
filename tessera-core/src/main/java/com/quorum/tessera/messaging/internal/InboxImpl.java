@@ -4,6 +4,7 @@ import com.quorum.tessera.data.EncryptedMessage;
 import com.quorum.tessera.data.EncryptedMessageDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.messaging.Inbox;
+import com.quorum.tessera.messaging.MessageId;
 import java.security.MessageDigest;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -31,34 +32,40 @@ class InboxImpl implements Inbox {
     }
   }
 
-  @Override
-  public MessageHash hash(byte[] encoded) {
+  MessageHash hash(byte[] encoded) {
     sha256.reset();
     sha1.reset();
     return new MessageHash(sha1.digest(sha256.digest(encoded)));
   }
 
   @Override
-  public MessageHash put(byte[] encoded) {
+  public MessageId put(byte[] encoded) {
 
     final MessageHash messageHash = hash(encoded);
-    LOGGER.debug("Received message with identifier: {}", messageHash);
     dao.save(new EncryptedMessage(messageHash, encoded));
-    return messageHash;
+    final MessageId messageId = new MessageId(messageHash.getHashBytes());
+    LOGGER.info("Received message with identifier: {}", messageId);
+    return messageId;
   }
 
   @Override
-  public byte[] get(MessageHash messageHash) {
+  public byte[] get(MessageId messageId) {
+
+    final MessageHash messageHash = new MessageHash(messageId.getValue());
     return dao.retrieveByHash(messageHash).map(EncryptedMessage::getContent).orElse(null);
   }
 
   @Override
-  public Stream<MessageHash> stream() {
-    return dao.retrieveMessageHashes(0, Integer.MAX_VALUE).stream();
+  public Stream<MessageId> stream() {
+    return dao.retrieveMessageHashes(0, Integer.MAX_VALUE).stream()
+        .map(MessageHash::getHashBytes)
+        .map(MessageId::new);
   }
 
   @Override
-  public void delete(MessageHash messageHash) {
+  public void delete(MessageId messageId) {
+
+    final MessageHash messageHash = new MessageHash(messageId.getValue());
     dao.delete(messageHash);
   }
 }
