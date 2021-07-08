@@ -3,12 +3,8 @@ package com.quorum.tessera.messaging;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Arrays;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MessageId {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(MessageId.class);
 
   private byte[] value;
 
@@ -33,7 +29,6 @@ public class MessageId {
         final int right = Character.digit(it.next(), radix);
         buffer[index] = (byte) ((left << 4) + right);
       }
-      LOGGER.info("Parsed {} as {}", stringValue, buffer);
       return new MessageId(buffer);
     } catch (Exception ex) {
       throw new IllegalArgumentException(ex);
