@@ -32,22 +32,22 @@ public class MessageResource {
   @Operation(
       summary = "/message/push",
       operationId = "pushMessage",
-      description = "store encoded message to the server's database")
+      description = "store a message in the server inbox")
   @ApiResponse(
       responseCode = "201",
-      description = "hash of encoded message",
+      description = "identifier of received message",
       content =
           @Content(
               mediaType = TEXT_PLAIN,
               schema =
                   @Schema(
-                      description = "hash of encrypted message",
+                      description = "identifier of received message",
                       type = "string",
                       format = "base64")))
   @PUT
   @Path("/push")
   @Consumes(APPLICATION_OCTET_STREAM)
-  public Response push(@Schema(description = "encoded message") final byte[] message) {
+  public Response push(@Schema(description = "arbitrary message") final byte[] message) {
 
     LOGGER.info(
         "Received inbound message {}", java.util.Base64.getEncoder().encodeToString(message));
