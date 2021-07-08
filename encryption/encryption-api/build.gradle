@@ -1,8 +1,8 @@
-
-
+plugins {
+  id "java-library"
+}
 
 dependencies {
-  implementation project(':service-locator:service-locator-api')
-  implementation project(':shared')
-  testImplementation 'org.bouncycastle:bcpkix-jdk15on'
+  implementation project(":shared")
+  testImplementation "org.bouncycastle:bcpkix-jdk15on"
 }

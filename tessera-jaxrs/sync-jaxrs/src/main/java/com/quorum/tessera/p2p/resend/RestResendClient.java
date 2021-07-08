@@ -6,11 +6,11 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-public class RestResendClient implements ResendClient {
+class RestResendClient implements ResendClient {
 
   private final Client client;
 
-  public RestResendClient(final Client client) {
+  RestResendClient(final Client client) {
     this.client = Objects.requireNonNull(client);
   }
 

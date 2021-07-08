@@ -1,7 +1,8 @@
 package com.quorum.tessera.messaging;
 
-import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
+import java.util.ServiceLoader;
 
 public interface Courier {
 
@@ -12,11 +13,15 @@ public interface Courier {
   boolean isKnownRecipient(PublicKey publicKey);
 
   /**
-   * Send the given message to the recipient corresponding to the given public key
+   * Pushes the given message to the recipient corresponding to the given public key
    *
    * @param message a message
    * @param to the public key of the recipient
    * @return the binary form of the sent message
    */
-  byte[] send(EncodedPayload message, PublicKey to);
+  byte[] push(byte[] message, PublicKey to);
+
+  static Courier create() {
+    return ServiceLoaderUtil.loadSingle(ServiceLoader.load(Courier.class));
+  }
 }

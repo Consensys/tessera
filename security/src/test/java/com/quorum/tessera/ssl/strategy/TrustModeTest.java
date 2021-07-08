@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
+import java.security.Security;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +18,10 @@ public class TrustModeTest {
   private Path tmpFile;
 
   private Path tmpKnownHosts;
+
+  static {
+    Security.addProvider(new BouncyCastleProvider());
+  }
 
   @Before
   public void setUp() throws IOException {

@@ -4,8 +4,8 @@ import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
-import com.quorum.tessera.data.EntityManagerDAOFactory;
 import java.util.concurrent.Callable;
+import javax.persistence.EntityManagerFactory;
 import picocli.CommandLine;
 
 @CommandLine.Command(
@@ -21,13 +21,13 @@ public class MigrationCliAdapter implements CliAdapter, Callable<CliResult> {
       names = "--primary",
       description = "path to primary node configuration file",
       required = true)
-  public Config configPrimary;
+  private Config configPrimary;
 
   @CommandLine.Option(
       names = "--secondary",
       description = "path to secondary node configuration file",
       required = true)
-  public Config configSecondary;
+  private Config configSecondary;
 
   @Override
   public CliType getType() {
@@ -36,10 +36,14 @@ public class MigrationCliAdapter implements CliAdapter, Callable<CliResult> {
 
   @Override
   public CliResult execute(String... args) {
-    EntityManagerDAOFactory primaryFactory = EntityManagerDAOFactory.newFactory(configPrimary);
-    EntityManagerDAOFactory secondaryFactory = EntityManagerDAOFactory.newFactory(configSecondary);
 
-    new MigrationRunner(primaryFactory, secondaryFactory).run();
+    EntityManagerFactory primaryEntityManagerFactory =
+        JdbcConfigUtil.entityManagerFactory(configPrimary.getJdbcConfig());
+    EntityManagerFactory secondaryEntityManagerFactory =
+        JdbcConfigUtil.entityManagerFactory(configSecondary.getJdbcConfig());
+    // migrate raw
+
+    new MigrationRunner(primaryEntityManagerFactory, secondaryEntityManagerFactory).run();
 
     return new CliResult(0, true, null);
   }

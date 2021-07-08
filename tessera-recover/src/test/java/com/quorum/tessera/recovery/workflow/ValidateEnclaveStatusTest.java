@@ -36,7 +36,7 @@ public class ValidateEnclaveStatusTest {
     validateEnclaveStatus.execute(context);
 
     verify(enclave).status();
-    verifyZeroInteractions(context);
+    verifyNoInteractions(context);
   }
 
   @Test
@@ -50,7 +50,7 @@ public class ValidateEnclaveStatusTest {
       failBecauseExceptionWasNotThrown(EnclaveNotAvailableException.class);
     } catch (EnclaveNotAvailableException ex) {
       verify(enclave).status();
-      verifyZeroInteractions(context);
+      verifyNoInteractions(context);
     }
   }
 }

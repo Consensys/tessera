@@ -16,7 +16,7 @@ public class ResendPartyStoreTest {
 
   @Before
   public void init() {
-    this.resendPartyStore = new ResendPartyStoreImpl();
+    this.resendPartyStore = ResendPartyStore.create();
   }
 
   @Test

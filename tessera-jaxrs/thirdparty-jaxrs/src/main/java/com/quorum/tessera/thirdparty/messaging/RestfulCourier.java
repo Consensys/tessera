@@ -1,14 +1,12 @@
 package com.quorum.tessera.thirdparty.messaging;
 
+import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.KeyNotFoundException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.messaging.Courier;
 import com.quorum.tessera.messaging.CourierException;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
-import com.quorum.tessera.util.Base64Codec;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
@@ -23,17 +21,11 @@ public class RestfulCourier implements Courier {
 
   private final Client client;
   private final Discovery discovery;
-  private final PayloadEncoder payloadEncoder;
   private final Base64Codec base64Codec = Base64Codec.create();
 
-  public RestfulCourier(Client client, Discovery discovery) {
-    this(client, discovery, PayloadEncoder.create());
-  }
-
-  public RestfulCourier(Client client, Discovery discovery, PayloadEncoder payloadEncoder) {
+  RestfulCourier(Client client, Discovery discovery) {
     this.client = client;
     this.discovery = discovery;
-    this.payloadEncoder = payloadEncoder;
 
     LOGGER.info("RestfulCourier instantiated.");
   }
@@ -46,7 +38,7 @@ public class RestfulCourier implements Courier {
   }
 
   @Override
-  public byte[] send(EncodedPayload message, PublicKey to) {
+  public byte[] push(byte[] message, PublicKey to) {
 
     String targetUrl = null;
     try {
@@ -59,13 +51,12 @@ public class RestfulCourier implements Courier {
       throw new CourierException(String.format("Failed to retrieve exception for %s", to));
     }
 
-    final byte[] encoded = payloadEncoder.encode(message);
     try (Response response =
         client
             .target(targetUrl)
             .path("/message/push")
             .request()
-            .put(Entity.entity(encoded, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
+            .put(Entity.entity(message, MediaType.APPLICATION_OCTET_STREAM_TYPE))) {
 
       if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
         throw new CourierException(String.format("Message not accepted by %s", targetUrl));

@@ -1,0 +1,4 @@
+--add-opens
+    tessera.context/com.quorum.tessera.context.internal=openpojo
+--add-opens
+    tessera.encryption.api/com.quorum.tessera.encryption=openpojo

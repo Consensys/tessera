@@ -1,7 +1,7 @@
 package com.quorum.tessera.test.rest;
 
-import cucumber.api.PendingException;
-import cucumber.api.java8.En;
+import io.cucumber.java8.En;
+import io.cucumber.java8.PendingException;
 
 public class ReceiveSteps implements En {
 

@@ -2,18 +2,14 @@ package transaction.whitelist;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.quorum.tessera.config.AppType;
-import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.config.Config;
-import com.quorum.tessera.config.EncryptorConfig;
-import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
-import com.quorum.tessera.launcher.Main;
 import com.quorum.tessera.test.DBType;
+import com.quorum.tessera.test.PartyHelper;
 import config.ConfigBuilder;
-import cucumber.api.java8.En;
 import exec.ExecArgsBuilder;
 import exec.ExecUtils;
+import io.cucumber.java8.En;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
@@ -21,12 +17,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +31,6 @@ import suite.*;
 public class WhitelistSteps implements En {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WhitelistSteps.class);
-
-  private static String jarPath =
-      System.getProperty(
-          "application.jar", "../../tessera-app/target/tessera-app-0.9-SNAPSHOT-app.jar");
 
   private final URL logbackConfigFile = WhitelistSteps.class.getResource("/logback-node.xml");
 
@@ -95,10 +87,16 @@ public class WhitelistSteps implements En {
               throw new UncheckedIOException(ex);
             }
 
+            final String appPath = System.getProperty("application.jar");
+
+            if (Objects.equals("", appPath)) {
+              throw new IllegalStateException("No application.jar system property defined");
+            }
+
+            final Path startScript = Paths.get(appPath);
             List<String> cmd =
                 new ExecArgsBuilder()
-                    .withMainClass(Main.class)
-                    .withClassPathItem(Paths.get(jarPath))
+                    .withStartScript(startScript)
                     .withConfigFile(configFile)
                     .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
                     .withJvmArg("-Dnode.number=whitelist")
@@ -148,7 +146,7 @@ public class WhitelistSteps implements En {
             Boolean started =
                 executorService
                     .submit(new ServerStatusCheckExecutor(serverStatusCheck))
-                    .get(20, TimeUnit.SECONDS);
+                    .get(60, TimeUnit.SECONDS);
 
             assertThat(started).isTrue();
           });
@@ -157,7 +155,14 @@ public class WhitelistSteps implements En {
       When(
           "a request is made against the node",
           () -> {
-            Client client = ClientBuilder.newClient();
+            Client client =
+                PartyHelper.create()
+                    .getParties()
+                    .filter(p -> p.getP2PUri().getPort() != P2P_PORT)
+                    .findAny()
+                    .get()
+                    .getRestClient();
+
             Response response =
                 client.target("http://localhost:" + P2P_PORT).path("upcheck").request().get();
 
@@ -171,12 +176,7 @@ public class WhitelistSteps implements En {
       Then(
           "the node is stopped",
           () -> {
-            Files.lines(pid)
-                .findAny()
-                .ifPresent(
-                    p -> {
-                      ExecUtils.kill(p);
-                    });
+            ExecUtils.kill(pid);
           });
 
     } catch (Exception ex) {

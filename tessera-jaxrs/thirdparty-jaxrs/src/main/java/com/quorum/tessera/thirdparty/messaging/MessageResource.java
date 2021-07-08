@@ -2,11 +2,11 @@ package com.quorum.tessera.thirdparty.messaging;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
+import com.quorum.tessera.base64.Base64Codec;
+import com.quorum.tessera.base64.DecodingException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.messaging.Message;
 import com.quorum.tessera.messaging.Messaging;
-import com.quorum.tessera.util.Base64Codec;
-import com.quorum.tessera.util.exception.DecodingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
@@ -59,7 +58,7 @@ public class MessageResource {
   @Path("/send")
   @Consumes(APPLICATION_JSON)
   @Produces(APPLICATION_JSON)
-  public Response send(@NotNull final SendMessageRequest request) {
+  public Response send(final SendMessageRequest request) {
 
     System.out.println("MessagingResource#sendMessage");
 

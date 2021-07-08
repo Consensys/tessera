@@ -8,61 +8,28 @@ import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
-import com.quorum.tessera.util.Base64Codec;
-import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
+import java.util.Objects;
 import javax.ws.rs.core.Response;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class PrivacyGroupResourceTest {
 
-  private JerseyTest jersey;
-
   private PrivacyGroupManager privacyGroupManager;
-
-  private PrivacyGroupResource resource;
 
   private PrivacyGroup mockResult;
 
-  RuntimeContext runtimeContext = RuntimeContext.getInstance();
-
-  @BeforeClass
-  public static void setUpLoggers() {
-    SLF4JBridgeHandler.removeHandlersForRootLogger();
-    SLF4JBridgeHandler.install();
-  }
+  private PrivacyGroupResource privacyGroupResource;
 
   @Before
   public void onSetup() throws Exception {
 
-    when(runtimeContext.isMultiplePrivateStates()).thenReturn(false);
-
     privacyGroupManager = mock(PrivacyGroupManager.class);
-    resource = new PrivacyGroupResource(privacyGroupManager);
-
-    jersey =
-        new JerseyTest() {
-          @Override
-          protected Application configure() {
-            forceSet(TestProperties.CONTAINER_PORT, "0");
-            enable(TestProperties.LOG_TRAFFIC);
-            enable(TestProperties.DUMP_ENTITY);
-            return new ResourceConfig().register(resource);
-          }
-        };
-
-    jersey.setUp();
+    privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 
     mockResult = mock(PrivacyGroup.class);
     when(mockResult.getName()).thenReturn("name");
@@ -78,14 +45,13 @@ public class PrivacyGroupResourceTest {
   @After
   public void onTearDown() throws Exception {
     verifyNoMoreInteractions(privacyGroupManager);
-    jersey.tearDown();
   }
 
   @Test
   public void testCreatePrivacyGroup() {
 
-    String member1 = Base64Codec.create().encodeToString("member1".getBytes());
-    String member2 = Base64Codec.create().encodeToString("member2".getBytes());
+    String member1 = Base64.getEncoder().encodeToString("member1".getBytes());
+    String member2 = Base64.getEncoder().encodeToString("member2".getBytes());
     PrivacyGroupRequest request = new PrivacyGroupRequest();
     request.setAddresses(new String[] {member1, member2});
     request.setFrom(member1);
@@ -95,16 +61,14 @@ public class PrivacyGroupResourceTest {
     when(privacyGroupManager.createPrivacyGroup(any(), any(), any(), anyList(), any(byte[].class)))
         .thenReturn(mockResult);
 
-    final Response response =
-        jersey
-            .target("createPrivacyGroup")
-            .request()
-            .post(Entity.entity(request, MediaType.APPLICATION_JSON));
+    final Response response = privacyGroupResource.createPrivacyGroup(request);
+    // jersey.target("createPrivacyGroup").request().post(Entity.entity(request,
+    // MediaType.APPLICATION_JSON));
 
     assertThat(response).isNotNull();
     assertThat(response.getStatus()).isEqualTo(200);
 
-    final PrivacyGroupResponse entity = response.readEntity(PrivacyGroupResponse.class);
+    final PrivacyGroupResponse entity = (PrivacyGroupResponse) response.getEntity();
     assertThat(entity.getName()).isEqualTo("name");
     assertThat(entity.getDescription()).isEqualTo("description");
 
@@ -128,34 +92,6 @@ public class PrivacyGroupResourceTest {
   }
 
   @Test
-  public void testCreatePrivacyGroupMinimal() {
-    String member1 = Base64Codec.create().encodeToString("member1".getBytes());
-    String member2 = Base64Codec.create().encodeToString("member2".getBytes());
-    PrivacyGroupRequest request = new PrivacyGroupRequest();
-    request.setAddresses(new String[] {member1, member2});
-    request.setFrom(member1);
-    when(privacyGroupManager.createPrivacyGroup(any(), any(), any(), anyList(), any(byte[].class)))
-        .thenReturn(mockResult);
-
-    final Response response =
-        jersey
-            .target("createPrivacyGroup")
-            .request()
-            .post(Entity.entity(request, MediaType.APPLICATION_JSON));
-
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(200);
-
-    ArgumentCaptor<String> strArgCaptor = ArgumentCaptor.forClass(String.class);
-
-    verify(privacyGroupManager)
-        .createPrivacyGroup(
-            strArgCaptor.capture(), strArgCaptor.capture(), any(), any(), any(byte[].class));
-
-    assertThat(strArgCaptor.getAllValues()).contains("");
-  }
-
-  @Test
   public void testFindPrivacyGroup() {
 
     PrivacyGroupSearchRequest req = new PrivacyGroupSearchRequest();
@@ -166,16 +102,16 @@ public class PrivacyGroupResourceTest {
 
     when(privacyGroupManager.findPrivacyGroup(members)).thenReturn(List.of(mockResult));
 
-    final Response response =
-        jersey
-            .target("findPrivacyGroup")
-            .request()
-            .post(Entity.entity(req, MediaType.APPLICATION_JSON));
+    final Response response = privacyGroupResource.findPrivacyGroup(req);
+    // jersey.target("findPrivacyGroup").request().post(Entity.entity(req,
+    // MediaType.APPLICATION_JSON));
 
     assertThat(response).isNotNull();
     assertThat(response.getStatus()).isEqualTo(200);
-    PrivacyGroupResponse result =
-        Arrays.stream(response.readEntity(PrivacyGroupResponse[].class)).iterator().next();
+
+    PrivacyGroupResponse[] privacyGroupResponses = (PrivacyGroupResponse[]) response.getEntity();
+
+    PrivacyGroupResponse result = privacyGroupResponses[0];
     assertThat(result.getName()).isEqualTo(mockResult.getName());
     assertThat(result.getDescription()).isEqualTo(mockResult.getDescription());
     assertThat(result.getMembers()).isEqualTo(req.getAddresses());
@@ -193,16 +129,14 @@ public class PrivacyGroupResourceTest {
 
     when(privacyGroupManager.retrievePrivacyGroup(mockResult.getId())).thenReturn(mockResult);
 
-    final Response response =
-        jersey
-            .target("retrievePrivacyGroup")
-            .request()
-            .post(Entity.entity(req, MediaType.APPLICATION_JSON));
+    final Response response = privacyGroupResource.retrievePrivacyGroup(req);
+    //   jersey.target("retrievePrivacyGroup").request().post(Entity.entity(req,
+    // MediaType.APPLICATION_JSON));
 
     assertThat(response).isNotNull();
     assertThat(response.getStatus()).isEqualTo(200);
 
-    final PrivacyGroupResponse res = response.readEntity(PrivacyGroupResponse.class);
+    final PrivacyGroupResponse res = (PrivacyGroupResponse) response.getEntity();
     assertThat(res.getName()).isEqualTo(mockResult.getName());
     assertThat(res.getDescription()).isEqualTo(mockResult.getDescription());
     assertThat(res.getMembers())
@@ -224,16 +158,14 @@ public class PrivacyGroupResourceTest {
             PublicKey.from("member1".getBytes()), mockResult.getId()))
         .thenReturn(mockResult);
 
-    final Response response =
-        jersey
-            .target("deletePrivacyGroup")
-            .request()
-            .post(Entity.entity(req, MediaType.APPLICATION_JSON));
+    final Response response = privacyGroupResource.deletePrivacyGroup(req);
+    //   jersey.target("deletePrivacyGroup").request().post(Entity.entity(req,
+    // MediaType.APPLICATION_JSON));
 
     assertThat(response).isNotNull();
     assertThat(response.getStatus()).isEqualTo(200);
 
-    final String out = response.readEntity(String.class);
+    final String out = Objects.toString(response.getEntity());
 
     assertThat(out).isEqualTo("\"aWQ=\"");
 
@@ -244,56 +176,81 @@ public class PrivacyGroupResourceTest {
   @Test
   public void testGetGroups() {
 
-    RuntimeContext context = RuntimeContext.getInstance();
-    when(context.isMultiplePrivateStates()).thenReturn(true);
+    final RuntimeContext runtimeContext = mock(RuntimeContext.class);
+    when(runtimeContext.isMultiplePrivateStates()).thenReturn(true);
 
     when(privacyGroupManager.findPrivacyGroupByType(PrivacyGroup.Type.RESIDENT))
         .thenReturn(List.of(mockResult));
 
-    final Response response = resource.getPrivacyGroups("resident");
+    try (var runtimeContextMockedStatic = mockStatic(RuntimeContext.class)) {
+      runtimeContextMockedStatic.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(200);
+      final Response response = privacyGroupResource.getPrivacyGroups("resident");
 
-    PrivacyGroupResponse result = ((PrivacyGroupResponse[]) response.getEntity())[0];
-    assertThat(result.getName()).isEqualTo(mockResult.getName());
-    assertThat(result.getDescription()).isEqualTo(mockResult.getDescription());
-    assertThat(result.getPrivacyGroupId()).isEqualTo(mockResult.getId().getBase64());
-    assertThat(result.getType()).isEqualTo(mockResult.getType().name());
+      assertThat(response).isNotNull();
+      assertThat(response.getStatus()).isEqualTo(200);
 
+      PrivacyGroupResponse result = ((PrivacyGroupResponse[]) response.getEntity())[0];
+      assertThat(result.getName()).isEqualTo(mockResult.getName());
+      assertThat(result.getDescription()).isEqualTo(mockResult.getDescription());
+      assertThat(result.getPrivacyGroupId()).isEqualTo(mockResult.getId().getBase64());
+      assertThat(result.getType()).isEqualTo(mockResult.getType().name());
+
+      runtimeContextMockedStatic.verify(RuntimeContext::getInstance);
+      runtimeContextMockedStatic.verifyNoMoreInteractions();
+    }
+    verify(runtimeContext).isMultiplePrivateStates();
+    verifyNoMoreInteractions(runtimeContext);
     verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.RESIDENT));
   }
 
   @Test
   public void testGetGroupsMPSDisabled() {
 
-    RuntimeContext context = RuntimeContext.getInstance();
-    when(context.isMultiplePrivateStates()).thenReturn(false);
+    RuntimeContext runtimeContext = mock(RuntimeContext.class);
+    when(runtimeContext.isMultiplePrivateStates()).thenReturn(false);
 
-    final Response response = resource.getPrivacyGroups("resident");
+    try (var runtimeContextMockedStatic = mockStatic(RuntimeContext.class)) {
+      runtimeContextMockedStatic.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
+      final Response response = privacyGroupResource.getPrivacyGroups("resident");
 
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(503);
-    assertThat(response.getEntity())
-        .isEqualTo("Multiple private state feature is not available on this privacy manager");
+      assertThat(response).isNotNull();
+      assertThat(response.getStatus()).isEqualTo(503);
+      assertThat(response.getEntity())
+          .isEqualTo("Multiple private state feature is not available on this privacy manager");
+
+      runtimeContextMockedStatic.verify(RuntimeContext::getInstance);
+      runtimeContextMockedStatic.verifyNoMoreInteractions();
+    }
+
+    verify(runtimeContext).isMultiplePrivateStates();
+    verifyNoMoreInteractions(runtimeContext);
   }
 
   @Test
   public void testGetNoGroupsFound() {
-    final Response response = jersey.target("groups/legacy").request().get();
 
-    assertThat(response).isNotNull();
-    assertThat(response.getStatus()).isEqualTo(200);
-    PrivacyGroupResponse[] responses = response.readEntity(PrivacyGroupResponse[].class);
+    RuntimeContext runtimeContext = mock(RuntimeContext.class);
 
-    assertThat(responses.length).isEqualTo(0);
+    try (var runtimeContextMockedStatic = mockStatic(RuntimeContext.class)) {
+      runtimeContextMockedStatic.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
 
+      final Response response = privacyGroupResource.getPrivacyGroups("legacy");
+
+      assertThat(response).isNotNull();
+      assertThat(response.getStatus()).isEqualTo(200);
+      PrivacyGroupResponse[] responses = (PrivacyGroupResponse[]) response.getEntity();
+
+      assertThat(responses.length).isEqualTo(0);
+      runtimeContextMockedStatic.verify(RuntimeContext::getInstance);
+      runtimeContextMockedStatic.verifyNoMoreInteractions();
+    }
     verify(privacyGroupManager).findPrivacyGroupByType(eq(PrivacyGroup.Type.LEGACY));
+    verifyNoMoreInteractions(runtimeContext);
   }
 
-  @Test
+  @Test(expected = IllegalArgumentException.class)
   public void testGetGroupNotValid() {
-    final Response response = jersey.target("groups/bogus").request().get();
-    assertThat(response.getStatus()).isNotEqualTo(200);
+    privacyGroupResource.getPrivacyGroups("bogus");
   }
 }

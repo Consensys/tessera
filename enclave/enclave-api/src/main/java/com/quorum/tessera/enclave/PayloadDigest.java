@@ -1,37 +1,29 @@
 package com.quorum.tessera.enclave;
 
-import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.Config;
-import org.bouncycastle.jcajce.provider.digest.SHA3;
-import org.bouncycastle.jcajce.provider.digest.SHA512;
+import com.quorum.tessera.config.ConfigFactory;
+import java.util.ServiceLoader;
 
 public interface PayloadDigest {
 
   byte[] digest(byte[] cipherText);
 
-  class Default implements PayloadDigest {
-    @Override
-    public byte[] digest(byte[] cipherText) {
-      final SHA3.DigestSHA3 digestSHA3 = new SHA3.Digest512();
-      return digestSHA3.digest(cipherText);
-    }
-  }
+  static PayloadDigest create() {
 
-  class SHA512256 implements PayloadDigest {
-    @Override
-    public byte[] digest(byte[] cipherText) {
-      final SHA512.DigestT256 digestSHA512256 = new SHA512.DigestT256();
-      return digestSHA512256.digest(cipherText);
-    }
-  }
+    Config config = ConfigFactory.create().getConfig();
 
-  static PayloadDigest create(Config config) {
-    return ServiceLoaderUtil.load(PayloadDigest.class)
-        .orElseGet(
-            () -> {
-              if (config.getClientMode() == ClientMode.ORION) return new SHA512256();
-              return new Default();
-            });
+    // FIXME:
+    final Class implType;
+    if (config.getClientMode() == ClientMode.ORION) {
+      implType = SHA512256PayloadDigest.class;
+    } else {
+      implType = DefaultPayloadDigest.class;
+    }
+    return ServiceLoader.load(PayloadDigest.class).stream()
+        .filter(payloadDigestProvider -> payloadDigestProvider.type() == implType)
+        .map(ServiceLoader.Provider::get)
+        .findFirst()
+        .get();
   }
 }

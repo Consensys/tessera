@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p.resend;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.Pattern;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests. Used when a request is received to
@@ -14,8 +15,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
  */
 public class ResendRequest {
 
+  @Pattern(regexp = "^(ALL|INDIVIDUAL)$")
   @Schema(required = true)
-  private ResendRequestType type;
+  private String type;
 
   @Schema(
       description = "resend transactions involving this public key",
@@ -26,11 +28,11 @@ public class ResendRequest {
   @Schema(description = "hash of encoded transaction (INDIVIDUAL only)", format = "base64")
   private String key;
 
-  public ResendRequestType getType() {
+  public String getType() {
     return type;
   }
 
-  public void setType(final ResendRequestType type) {
+  public void setType(final String type) {
     this.type = type;
   }
 

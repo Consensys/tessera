@@ -6,6 +6,7 @@ import com.quorum.tessera.test.DefaultPartyHelper;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,6 +29,8 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
 
     List<Party> parties = partyHelper.getParties().collect(Collectors.toList());
 
+    Boolean[] results = new Boolean[parties.size()];
+
     for (int i = 0; i < parties.size(); i++) {
       Party p = parties.get(i);
       ServerConfig p2pConfig = p.getConfig().getP2PServerConfig();
@@ -37,37 +40,34 @@ public class RestPartyInfoChecker implements PartyInfoChecker {
       Response response = client.target(p2pConfig.getServerUri()).path("partyinfo").request().get();
 
       LOGGER.debug("Requested party info for {} . {}", p.getAlias(), response.getStatus());
+      if (response.getStatus() == 200) {
+        final JsonObject result = response.readEntity(JsonObject.class);
 
-      if (response.getStatus() != 200) {
-        return false;
-      }
+        JsonWriterFactory jsonGeneratorFactory =
+            Json.createWriterFactory(Map.of(JsonGenerator.PRETTY_PRINTING, true));
+        StringWriter stringWriter = new StringWriter();
+        JsonWriter jsonWriter = jsonGeneratorFactory.createWriter(stringWriter);
+        try (jsonWriter) {
+          jsonWriter.writeObject(result);
+          LOGGER.debug("Reponse from node {} is {}", p.getAlias(), stringWriter.toString());
+        }
 
-      final JsonObject result = response.readEntity(JsonObject.class);
+        final JsonArray keys = result.getJsonArray("keys");
+        final long contactedUrlCount =
+            keys.stream()
+                .map(JsonValue::asJsonObject)
+                .map(o -> o.getString("url"))
+                .collect(Collectors.toSet())
+                .size();
 
-      JsonWriterFactory jsonGeneratorFactory =
-          Json.createWriterFactory(Map.of(JsonGenerator.PRETTY_PRINTING, true));
-      StringWriter stringWriter = new StringWriter();
-      JsonWriter jsonWriter = jsonGeneratorFactory.createWriter(stringWriter);
-      try (jsonWriter) {
-        jsonWriter.writeObject(result);
-        LOGGER.debug("Reponse from node {} is {}", p.getAlias(), stringWriter.toString());
-      }
+        LOGGER.debug("Found {} peers of {} on {}", contactedUrlCount, parties.size(), p.getAlias());
 
-      final JsonArray keys = result.getJsonArray("keys");
-      final long contactedUrlCount =
-          keys.stream()
-              .map(JsonValue::asJsonObject)
-              .map(o -> o.getString("url"))
-              .collect(Collectors.toSet())
-              .size();
-
-      LOGGER.debug("Found {} peers of {} on {}", contactedUrlCount, parties.size(), p.getAlias());
-
-      if (contactedUrlCount != parties.size()) {
-        return false;
+        results[i] = (contactedUrlCount == parties.size());
+      } else {
+        results[i] = false;
       }
     }
 
-    return true;
+    return Arrays.stream(results).allMatch(p -> p);
   }
 }

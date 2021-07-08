@@ -6,7 +6,7 @@ public class NoSuchMessageException extends Exception {
 
   private final MessageHash messageHash;
 
-  NoSuchMessageException(MessageHash messageHash) {
+  public NoSuchMessageException(MessageHash messageHash) {
     this.messageHash = messageHash;
   }
 

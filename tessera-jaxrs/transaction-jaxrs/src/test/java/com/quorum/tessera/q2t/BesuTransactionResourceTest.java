@@ -3,7 +3,6 @@ package com.quorum.tessera.q2t;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 import com.quorum.tessera.api.BesuReceiveResponse;
 import com.quorum.tessera.api.ReceiveRequest;
@@ -20,33 +19,19 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.TestProperties;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class BesuTransactionResourceTest {
-
-  private JerseyTest jersey;
 
   private TransactionManager transactionManager;
 
   private PrivacyGroupManager privacyGroupManager;
 
-  @BeforeClass
-  public static void setUpLoggers() {
-    SLF4JBridgeHandler.removeHandlersForRootLogger();
-    SLF4JBridgeHandler.install();
-  }
+  private BesuTransactionResource besuTransactionResource;
 
   @Before
   public void onSetup() throws Exception {
@@ -54,28 +39,13 @@ public class BesuTransactionResourceTest {
     transactionManager = mock(TransactionManager.class);
     privacyGroupManager = mock(PrivacyGroupManager.class);
 
-    BesuTransactionResource besuTransactionResource =
-        new BesuTransactionResource(transactionManager, privacyGroupManager);
-
-    jersey =
-        new JerseyTest() {
-          @Override
-          protected Application configure() {
-            forceSet(TestProperties.CONTAINER_PORT, "0");
-            enable(TestProperties.LOG_TRAFFIC);
-            enable(TestProperties.DUMP_ENTITY);
-            return new ResourceConfig().register(besuTransactionResource);
-          }
-        };
-
-    jersey.setUp();
+    besuTransactionResource = new BesuTransactionResource(transactionManager, privacyGroupManager);
   }
 
   @After
   public void onTearDown() throws Exception {
     verifyNoMoreInteractions(transactionManager);
     verifyNoMoreInteractions(privacyGroupManager);
-    jersey.tearDown();
   }
 
   @Test
@@ -113,17 +83,15 @@ public class BesuTransactionResourceTest {
             eq(sender), eq(List.of(PublicKey.from(recipientKeyBytes)))))
         .thenReturn(legacy);
 
-    final Response result =
-        jersey
-            .target("send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+    final Response result = besuTransactionResource.send(sendRequest);
+    //  jersey.target("send").request().post(Entity.entity(sendRequest,
+    // MediaType.APPLICATION_JSON));
 
     assertThat(result.getStatus()).isEqualTo(200);
 
     assertThat(result.getLocation().getPath())
-        .isEqualTo("/transaction/" + base64Encoder.encodeToString(txnData));
-    SendResponse resultSendResponse = result.readEntity(SendResponse.class);
+        .isEqualTo("transaction/" + base64Encoder.encodeToString(txnData));
+    SendResponse resultSendResponse = (SendResponse) result.getEntity();
     assertThat(resultSendResponse.getKey()).isEqualTo(Base64.getEncoder().encodeToString(txnData));
 
     ArgumentCaptor<com.quorum.tessera.transaction.SendRequest> argumentCaptor =
@@ -186,17 +154,15 @@ public class BesuTransactionResourceTest {
     when(retrieved.getMembers()).thenReturn(List.of(member));
     when(privacyGroupManager.retrievePrivacyGroup(groupId)).thenReturn(retrieved);
 
-    final Response result =
-        jersey
-            .target("send")
-            .request()
-            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+    final Response result = besuTransactionResource.send(sendRequest);
+    //    jersey.target("send").request().post(Entity.entity(sendRequest,
+    // MediaType.APPLICATION_JSON));
 
     assertThat(result.getStatus()).isEqualTo(200);
 
     assertThat(result.getLocation().getPath())
-        .isEqualTo("/transaction/" + base64Encoder.encodeToString(txnData));
-    SendResponse resultSendResponse = result.readEntity(SendResponse.class);
+        .isEqualTo("transaction/" + base64Encoder.encodeToString(txnData));
+    SendResponse resultSendResponse = (SendResponse) result.getEntity();
     assertThat(resultSendResponse.getKey()).isEqualTo(Base64.getEncoder().encodeToString(txnData));
 
     ArgumentCaptor<com.quorum.tessera.transaction.SendRequest> argumentCaptor =

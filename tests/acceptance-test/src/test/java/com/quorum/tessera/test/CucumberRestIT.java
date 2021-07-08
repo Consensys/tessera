@@ -1,9 +1,9 @@
 package com.quorum.tessera.test;
 
-import cucumber.api.CucumberOptions;
+import io.cucumber.junit.CucumberOptions;
 
 @CucumberOptions(
     glue = "transaction.rest",
     tags = "@rest",
-    plugin = {"json:target/cucumber/rest.json"})
+    plugin = {"json:build/cucumber/rest.json"})
 public class CucumberRestIT extends CucumberTestCase {}

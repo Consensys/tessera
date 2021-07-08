@@ -3,6 +3,7 @@ package com.quorum.tessera.data;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 
 /** A data store for messages that need to be retrieved later */
 public interface EncryptedMessageDAO {
@@ -61,4 +62,8 @@ public interface EncryptedMessageDAO {
    * @return true if data store is up and running ok, else false
    */
   boolean upcheck();
+
+  static EncryptedMessageDAO create() {
+    return ServiceLoader.load(EncryptedMessageDAO.class).findFirst().get();
+  }
 }

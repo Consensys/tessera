@@ -7,6 +7,7 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.Set;
 
 public interface PrivacyHelper {
@@ -26,4 +27,8 @@ public interface PrivacyHelper {
 
   EncodedPayload sanitisePrivacyPayload(
       TxHash txHash, EncodedPayload encodedPayload, Set<TxHash> invalidSecurityHashes);
+
+  static PrivacyHelper create() {
+    return ServiceLoader.load(PrivacyHelper.class).findFirst().get();
+  }
 }

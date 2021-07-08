@@ -27,7 +27,7 @@ public class Utils {
     List<String> args =
         new ExecArgsBuilder()
             .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
-            .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+            .withStartScript(Paths.get(jarPath))
             .withConfigFile(party.getConfigFilePath())
             .build();
 
@@ -36,7 +36,7 @@ public class Utils {
     ProcessBuilder processBuilder = new ProcessBuilder(args);
 
     processBuilder.redirectErrorStream(false);
-    LOGGER.info("Starting {}", String.join(",", args));
+    LOGGER.info("HERE Starting {}", String.join(",", args));
     Process process = processBuilder.start();
 
     ExecutionResult executionResult = new ExecutionResult();
@@ -92,7 +92,7 @@ public class Utils {
     List<String> args =
         new ExecArgsBuilder()
             .withJvmArg(String.format("-Dnode.number=%S", party.getAlias()))
-            .withStartScriptOrExecutableJarFile(Paths.get(jarPath))
+            .withStartScript(Paths.get(jarPath))
             .withConfigFile(party.getConfigFilePath())
             .withSubcommands("admin", "addpeer")
             .withArg(url)

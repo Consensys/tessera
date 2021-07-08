@@ -13,7 +13,6 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -30,7 +29,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.security.auth.x500.X500Principal;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 final class SSLKeyStoreLoader {
 
@@ -55,10 +53,6 @@ final class SSLKeyStoreLoader {
   private static final char[] EMPTY_PASSWORD = "".toCharArray();
 
   private static final Base64.Decoder decoder = Base64.getMimeDecoder();
-
-  static {
-    Security.addProvider(new BouncyCastleProvider());
-  }
 
   private SSLKeyStoreLoader() {}
 

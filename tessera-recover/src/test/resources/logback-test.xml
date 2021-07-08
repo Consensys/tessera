@@ -7,8 +7,8 @@
         </encoder>
     </appender>
 
-    <logger name="eclipselink.logging.sql" level="DEBUG" />
-    <logger name="eclipselink" level="DEBUG" />
+    <logger name="eclipselink.logging.sql" level="INFO" />
+    <logger name="eclipselink" level="INFO" />
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
     </root>

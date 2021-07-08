@@ -8,17 +8,28 @@ import com.quorum.tessera.test.PartyHelper;
 import java.net.URI;
 import java.util.UUID;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class AdminConfigIT {
 
-  private final Client client = ClientBuilder.newClient();
+  private Client client;
 
-  private final PartyHelper partyHelper = PartyHelper.create();
+  private PartyHelper partyHelper = PartyHelper.create();
+
+  @Before
+  public void beforeTest() {
+    client = partyHelper.getParties().findAny().get().getRestClient();
+  }
+
+  @After
+  public void afterTest() {
+    client.close();
+  }
 
   @Test
   public void addPeer() {

@@ -11,7 +11,9 @@ import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.partyinfo.model.Party;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import org.junit.After;
 import org.junit.Before;
@@ -208,6 +210,15 @@ public class SyncPollerTest {
 
   @Test
   public void constructWithMinimalArgs() {
-    assertThat(new SyncPoller(resendPartyStore, transactionRequester, p2pClient)).isNotNull();
+
+    try (var d = mockStatic(Discovery.class);
+        var p = mockStatic(PartyInfoParser.class)) {
+      d.when(Discovery::create).thenReturn(mock(Discovery.class));
+      p.when(PartyInfoParser::create).thenReturn(mock(PartyInfoParser.class));
+      assertThat(new SyncPoller(resendPartyStore, transactionRequester, p2pClient)).isNotNull();
+
+      d.verify(Discovery::create);
+      p.verify(PartyInfoParser::create);
+    }
   }
 }

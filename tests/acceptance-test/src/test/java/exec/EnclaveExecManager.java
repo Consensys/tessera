@@ -47,11 +47,12 @@ public class EnclaveExecManager implements ExecManager {
   @Override
   public Process doStart() throws Exception {
 
-    final Path enclaveServerJar =
-        Paths.get(
-            System.getProperty(
-                "enclave.jaxrs.server.jar",
-                "../../enclave/enclave-jaxrs/target/enclave-jaxrs-0.9-SNAPSHOT-server.jar"));
+    Path startScript;
+    if (EncryptorType.CUSTOM.equals(configDescriptor.getConfig().getEncryptor().getType())) {
+      startScript = Paths.get(System.getProperty("enclave.jaxrs.server.kalium.jar"));
+    } else {
+      startScript = Paths.get(System.getProperty("enclave.jaxrs.server.jar"));
+    }
 
     final ServerConfig serverConfig =
         configDescriptor.getEnclaveConfig().get().getServerConfigs().get(0);
@@ -63,7 +64,7 @@ public class EnclaveExecManager implements ExecManager {
             .withPidFile(pid)
             .withJvmArg("-Dnode.number=" + nodeId)
             .withJvmArg("-Dlogback.configurationFile=" + logbackConfigFile)
-            .withStartScriptOrExecutableJarFile(enclaveServerJar)
+            .withStartScript(startScript)
             .withConfigFile(configDescriptor.getEnclavePath())
             .build();
 
@@ -101,14 +102,9 @@ public class EnclaveExecManager implements ExecManager {
 
   @Override
   public void doStop() throws Exception {
-
-    String p = Files.lines(pid).findFirst().orElse(null);
-    if (p == null) {
-      return;
-    }
-    LOGGER.info("Stopping Enclave : {}, Pid: {}", nodeId, p);
+    LOGGER.info("Stopping Enclave : {}, Pid: {}", nodeId, pid);
     try {
-      ExecUtils.kill(p);
+      ExecUtils.kill(pid);
     } finally {
       executorService.shutdown();
     }

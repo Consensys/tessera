@@ -8,13 +8,6 @@ import org.junit.Test;
 public class EnclaveHolderTest {
 
   @Test
-  public void getInstance() {
-    assertThat(EnclaveHolder.getInstance())
-        .isNotNull()
-        .isExactlyInstanceOf(MockEnclaveHolder.class);
-  }
-
-  @Test
   public void setAndGetDefaultEnclaveHolder() {
     DefaultEnclaveHolder.INSTANCE.reset();
     EnclaveHolder enclaveHolder = DefaultEnclaveHolder.INSTANCE;

@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Variant;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,6 +25,11 @@ public class Q2TApiResourceTest {
   public void setUp() {
     apiResource = new Q2TApiResource();
     request = mock(Request.class);
+  }
+
+  @After
+  public void afterTest() {
+    verifyNoMoreInteractions(request);
   }
 
   @Test

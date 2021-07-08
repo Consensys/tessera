@@ -1,173 +1,179 @@
 package com.quorum.tessera.p2p.recovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.quorum.tessera.jaxrs.mock.MockClient;
 import com.quorum.tessera.p2p.resend.ResendRequest;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Collection;
+import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class RestRecoveryClientTest {
 
-  private MockClient restClient;
+  private Response.Status expectedResponseStatus;
 
-  private RestRecoveryClient client;
-
-  @Before
-  public void onSetUp() {
-    restClient = new MockClient();
-    client = new RestRecoveryClient(restClient);
+  public RestRecoveryClientTest(Response.Status expectedResponseStatus) {
+    this.expectedResponseStatus = expectedResponseStatus;
   }
 
   @Test
   public void makeResendRequest() {
 
-    Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
+    try (var entityMockedStatic = mockStatic(Entity.class)) {
 
-    List<Entity> postedEntities = new ArrayList<>();
+      Entity<ResendRequest> outboundEntity = mock(Entity.class);
+      ResendRequest resendRequest = mock(ResendRequest.class);
 
-    doAnswer(
-            (invocation) -> {
-              postedEntities.add(invocation.getArgument(0));
-              return Response.ok().build();
-            })
-        .when(m)
-        .post(any(Entity.class));
+      entityMockedStatic
+          .when(() -> Entity.entity(resendRequest, MediaType.APPLICATION_JSON))
+          .thenReturn(outboundEntity);
 
-    String targetUrl = "http://somedomain.com";
-    ResendRequest request = new ResendRequest();
+      String targetUrl = "targetUrl";
+      Client client = mock(Client.class);
+      WebTarget webTarget = mock(WebTarget.class);
+      when(client.target(targetUrl)).thenReturn(webTarget);
+      when(webTarget.path("/resend")).thenReturn(webTarget);
 
-    boolean result = client.makeResendRequest(targetUrl, request);
+      Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+      when(webTarget.request()).thenReturn(invocationBuilder);
 
-    assertThat(postedEntities).hasSize(1);
-    assertThat(result).isTrue();
+      Response response = mock(Response.class);
+      when(response.getStatus()).thenReturn(expectedResponseStatus.getStatusCode());
 
-    Entity entity = postedEntities.get(0);
-    assertThat(entity.getMediaType()).isEqualTo(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-    assertThat(entity.getEntity()).isSameAs(request);
-  }
+      when(invocationBuilder.post(outboundEntity)).thenReturn(response);
 
-  @Test
-  public void makeResendRequestReturns500() {
+      RestRecoveryClient restRecoveryClient = new RestRecoveryClient(client);
 
-    Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
+      boolean outcome = restRecoveryClient.makeResendRequest(targetUrl, resendRequest);
+      if (expectedResponseStatus == Response.Status.OK) {
+        assertThat(outcome).isTrue();
+      } else {
+        assertThat(outcome).isFalse();
+      }
 
-    doAnswer(
-            (invocation) -> {
-              return Response.serverError().build();
-            })
-        .when(m)
-        .post(any(Entity.class));
+      entityMockedStatic.verify(() -> Entity.entity(resendRequest, MediaType.APPLICATION_JSON));
+      entityMockedStatic.verifyNoMoreInteractions();
 
-    String targetUrl = "http://somedomain.com";
-    ResendRequest request = new ResendRequest();
+      verify(client).target(targetUrl);
+      verify(webTarget).path("/resend");
+      verify(webTarget).request();
+      verify(invocationBuilder).post(outboundEntity);
 
-    boolean result = client.makeResendRequest(targetUrl, request);
-
-    assertThat(result).isFalse();
+      verifyNoMoreInteractions(outboundEntity, resendRequest, client, webTarget, invocationBuilder);
+    }
   }
 
   @Test
   public void pushBatch() {
 
-    Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
+    try (var entityMockedStatic = mockStatic(Entity.class)) {
 
-    byte[] responseData = "Result".getBytes();
-    Response response = mock(Response.class);
-    when(response.readEntity(byte[].class)).thenReturn(responseData);
-    when(response.getStatus()).thenReturn(200);
+      Entity<PushBatchRequest> outboundEntity = mock(Entity.class);
+      PushBatchRequest pushBatchRequest = mock(PushBatchRequest.class);
 
-    List<Entity> postedEntities = new ArrayList<>();
-    doAnswer(
-            (invocation) -> {
-              postedEntities.add(invocation.getArgument(0));
-              return response;
-            })
-        .when(m)
-        .post(any(Entity.class));
+      entityMockedStatic
+          .when(() -> Entity.entity(pushBatchRequest, MediaType.APPLICATION_JSON))
+          .thenReturn(outboundEntity);
 
-    String targetUrl = "http://somedomain.com";
+      String targetUrl = "targetUrl";
+      Client client = mock(Client.class);
+      WebTarget webTarget = mock(WebTarget.class);
+      when(client.target(targetUrl)).thenReturn(webTarget);
+      when(webTarget.path("/pushBatch")).thenReturn(webTarget);
 
-    PushBatchRequest pushBatchRequest = mock(PushBatchRequest.class);
+      Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+      when(webTarget.request()).thenReturn(invocationBuilder);
 
-    boolean result = client.pushBatch(targetUrl, pushBatchRequest);
+      Response response = mock(Response.class);
+      when(response.getStatus()).thenReturn(expectedResponseStatus.getStatusCode());
 
-    assertThat(result).isTrue();
+      when(invocationBuilder.post(outboundEntity)).thenReturn(response);
 
-    assertThat(postedEntities).hasSize(1);
+      RestRecoveryClient restRecoveryClient = new RestRecoveryClient(client);
 
-    Entity entity = postedEntities.get(0);
-    assertThat(entity.getMediaType()).isEqualTo(javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE);
-    assertThat(entity.getEntity()).isSameAs(pushBatchRequest);
-  }
+      boolean outcome = restRecoveryClient.pushBatch(targetUrl, pushBatchRequest);
+      if (expectedResponseStatus == Response.Status.OK) {
+        assertThat(outcome).isTrue();
+      } else {
+        assertThat(outcome).isFalse();
+      }
 
-  @Test
-  public void pushBatchReturns500() {
+      entityMockedStatic.verify(() -> Entity.entity(pushBatchRequest, MediaType.APPLICATION_JSON));
+      entityMockedStatic.verifyNoMoreInteractions();
 
-    Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
+      verify(client).target(targetUrl);
+      verify(webTarget).path("/pushBatch");
+      verify(webTarget).request();
+      verify(invocationBuilder).post(outboundEntity);
 
-    byte[] responseData = "Result".getBytes();
-    Response response = mock(Response.class);
-    when(response.readEntity(byte[].class)).thenReturn(responseData);
-    when(response.getStatus()).thenReturn(500);
-
-    when(m.post(any(Entity.class))).thenReturn(response);
-
-    String targetUrl = "http://somedomain.com";
-
-    PushBatchRequest pushBatchRequest = mock(PushBatchRequest.class);
-
-    boolean result = client.pushBatch(targetUrl, pushBatchRequest);
-
-    assertThat(result).isFalse();
+      verifyNoMoreInteractions(
+          outboundEntity, pushBatchRequest, client, webTarget, invocationBuilder);
+    }
   }
 
   @Test
   public void makeBatchResendRequest() {
 
-    Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
+    try (var entityMockedStatic = mockStatic(Entity.class)) {
 
-    ResendBatchResponse responseData = mock(ResendBatchResponse.class);
-    Response response = mock(Response.class);
-    when(response.readEntity(ResendBatchResponse.class)).thenReturn(responseData);
-    when(response.getStatus()).thenReturn(200);
+      Entity<PushBatchRequest> outboundEntity = mock(Entity.class);
+      ResendBatchRequest pushBatchRequest = mock(ResendBatchRequest.class);
 
-    when(m.post(any(Entity.class))).thenReturn(response);
+      entityMockedStatic
+          .when(() -> Entity.entity(pushBatchRequest, MediaType.APPLICATION_JSON))
+          .thenReturn(outboundEntity);
 
-    String targetUrl = "http://somedomain.com";
+      String targetUrl = "targetUrl";
+      Client client = mock(Client.class);
+      WebTarget webTarget = mock(WebTarget.class);
+      when(client.target(targetUrl)).thenReturn(webTarget);
+      when(webTarget.path("/resendBatch")).thenReturn(webTarget);
 
-    ResendBatchRequest resendBatchRequest = mock(ResendBatchRequest.class);
-    ResendBatchResponse resendBatchResponse =
-        client.makeBatchResendRequest(targetUrl, resendBatchRequest);
+      Invocation.Builder invocationBuilder = mock(Invocation.Builder.class);
+      when(webTarget.request()).thenReturn(invocationBuilder);
 
-    assertThat(resendBatchResponse).isNotNull().isSameAs(responseData);
+      Response response = mock(Response.class);
+      when(response.getStatus()).thenReturn(expectedResponseStatus.getStatusCode());
+      ResendBatchResponse resendBatchResponse = mock(ResendBatchResponse.class);
+      when(response.readEntity(ResendBatchResponse.class)).thenReturn(resendBatchResponse);
+
+      when(invocationBuilder.post(outboundEntity)).thenReturn(response);
+
+      RestRecoveryClient restRecoveryClient = new RestRecoveryClient(client);
+
+      ResendBatchResponse outcome =
+          restRecoveryClient.makeBatchResendRequest(targetUrl, pushBatchRequest);
+      if (expectedResponseStatus == Response.Status.OK) {
+        verify(response).readEntity(ResendBatchResponse.class);
+        assertThat(outcome).isSameAs(resendBatchResponse);
+      } else {
+        assertThat(outcome).isNull();
+      }
+
+      entityMockedStatic.verify(() -> Entity.entity(pushBatchRequest, MediaType.APPLICATION_JSON));
+      entityMockedStatic.verifyNoMoreInteractions();
+
+      verify(client).target(targetUrl);
+      verify(webTarget).path("/resendBatch");
+      verify(webTarget).request();
+      verify(invocationBuilder).post(outboundEntity);
+
+      verifyNoMoreInteractions(
+          outboundEntity, pushBatchRequest, client, webTarget, invocationBuilder);
+    }
   }
 
-  @Test
-  public void makeBatchResendRequestServerError() {
-
-    Invocation.Builder m = restClient.getWebTarget().getMockInvocationBuilder();
-
-    ResendBatchResponse responseData = mock(ResendBatchResponse.class);
-    Response response = mock(Response.class);
-    when(response.readEntity(ResendBatchResponse.class)).thenReturn(responseData);
-    when(response.getStatus()).thenReturn(500);
-
-    when(m.post(any(Entity.class))).thenReturn(response);
-
-    String targetUrl = "http://somedomain.com";
-
-    ResendBatchRequest resendBatchRequest = mock(ResendBatchRequest.class);
-    ResendBatchResponse resendBatchResponse =
-        client.makeBatchResendRequest(targetUrl, resendBatchRequest);
-
-    assertThat(resendBatchResponse).isNull();
+  @Parameterized.Parameters(name = "ResponseStatus {0}")
+  public static Collection<Response.Status> statuses() {
+    return Arrays.asList(Response.Status.values());
   }
 }

@@ -36,7 +36,7 @@ public class PartyInfoBroadcaster implements Runnable {
 
   public PartyInfoBroadcaster(final P2pClient p2pClient) {
     this(
-        Discovery.getInstance(),
+        Discovery.create(),
         PartyInfoParser.create(),
         p2pClient,
         Executors.newCachedThreadPool(),

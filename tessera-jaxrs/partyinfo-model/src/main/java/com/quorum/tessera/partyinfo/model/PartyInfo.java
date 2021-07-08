@@ -1,7 +1,9 @@
 package com.quorum.tessera.partyinfo.model;
 
+import com.quorum.tessera.partyinfo.node.NodeInfo;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Contains all information that is transferred between two nodes on the network, including: - the
@@ -32,5 +34,20 @@ public class PartyInfo {
 
   public Set<Party> getParties() {
     return parties;
+  }
+
+  public static PartyInfo from(NodeInfo nodeInfo) {
+    Set<Recipient> recipients =
+        nodeInfo.getRecipients().stream()
+            .map(r -> Recipient.of(r.getKey(), r.getUrl()))
+            .collect(Collectors.toUnmodifiableSet());
+
+    Set<Party> parties =
+        nodeInfo.getRecipients().stream()
+            .map(com.quorum.tessera.partyinfo.node.Recipient::getUrl)
+            .map(Party::new)
+            .collect(Collectors.toUnmodifiableSet());
+
+    return new PartyInfo(nodeInfo.getUrl(), recipients, parties);
   }
 }

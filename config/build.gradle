@@ -1,31 +1,43 @@
-
-
-dependencies {
-  compileOnly "javax.ws.rs:javax.ws.rs-api"
-  implementation 'org.glassfish:javax.json:1.1.2'
-  compile 'javax.validation:validation-api'
-  compile project(':shared')
-  compile project(':argon2')
-  compile project(':encryption:encryption-api')
-  compile 'org.apache.commons:commons-lang3'
-  compile 'org.jasypt:jasypt'
-  runtimeOnly 'org.glassfish:javax.el'
-  runtimeOnly project(':encryption:encryption-jnacl')
-  runtimeOnly project(':encryption:encryption-ec')
-  testCompile project(':tests:test-util')
-  testCompile 'org.hibernate:hibernate-validator'
-  runtimeOnly 'org.eclipse.persistence:org.eclipse.persistence.moxy'
+plugins {
+  id "java-library"
 }
 
-description = 'config'
+dependencies {
+
+  implementation "jakarta.ws.rs:jakarta.ws.rs-api"
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+
+  implementation "org.glassfish:jakarta.json"
+  implementation "jakarta.validation:jakarta.validation-api"
+  implementation project(':shared')
+  implementation project(':argon2')
+  implementation project(':encryption:encryption-api')
+  implementation "org.apache.commons:commons-lang3"
+  implementation "org.jasypt:jasypt"
+  implementation "org.glassfish:jakarta.el"
+  runtimeOnly project(":encryption:encryption-jnacl")
+  runtimeOnly project(":encryption:encryption-ec")
+
+  testImplementation "org.hibernate.validator:hibernate-validator"
+
+  implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+  runtimeOnly("org.eclipse.persistence:org.eclipse.persistence.moxy") {
+    exclude group: "jakarta.json", module: "jakarta,json-api"
+  }
+  runtimeOnly "org.glassfish.jaxb:jaxb-runtime"
+
+  testImplementation "nl.jqno.equalsverifier:equalsverifier"
+  //   testImplementation "jakarta.el:jakarta.el-api"
+
+}
 
 jar {
 
   manifest {
     attributes(
       "Implementation-Title": project.name,
-      "Implementation-Version": version,
-      "Specification-Version": String.valueOf(version)
+      "Implementation-Version": project.version,
+      "Specification-Version": String.valueOf(project.version).replaceAll("-SNAPSHOT","")
       )
   }
 }

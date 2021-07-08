@@ -30,20 +30,16 @@ public class Peer extends ConfigItem {
   }
 
   @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-
-    if (obj == null) return false;
-
-    if (getClass() != obj.getClass()) return false;
-
-    final Peer other = (Peer) obj;
-
-    return Objects.equals(this.url, other.url);
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    if (!super.equals(o)) return false;
+    Peer peer = (Peer) o;
+    return Objects.equals(url, peer.url);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.url);
+    return Objects.hash(super.hashCode(), url);
   }
 }

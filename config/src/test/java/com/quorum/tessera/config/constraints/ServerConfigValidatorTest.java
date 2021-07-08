@@ -57,16 +57,6 @@ public class ServerConfigValidatorTest {
   }
 
   @Test
-  public void unsupportedCommunicationType() {
-
-    serverConfig.setCommunicationType(CommunicationType.WEB_SOCKET);
-
-    assertThat(validator.isValid(serverConfig, cvc)).isFalse();
-    verify(cvc).disableDefaultConstraintViolation();
-    verify(cvc).buildConstraintViolationWithTemplate(anyString());
-  }
-
-  @Test
   public void allowCorsOnlyInThirdPartyServer() {
 
     serverConfig.setApp(AppType.P2P);

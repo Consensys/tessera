@@ -1,5 +1,8 @@
 package com.quorum.tessera.recovery.resend;
 
+import com.quorum.tessera.serviceloader.ServiceLoaderUtil;
+import java.util.ServiceLoader;
+
 /**
  * Makes requests to other nodes to resend their transactions
  *
@@ -24,4 +27,8 @@ public interface BatchTransactionRequester {
    * @return
    */
   boolean requestAllTransactionsFromLegacyNode(String url);
+
+  static BatchTransactionRequester create() {
+    return ServiceLoaderUtil.loadSingle(ServiceLoader.load(BatchTransactionRequester.class));
+  }
 }

@@ -1,0 +1,8 @@
+--add-opens
+    tessera.partyinfo.jaxrs/com.quorum.tessera.p2p.resend=openpojo
+
+--add-opens
+    tessera.partyinfo.jaxrs/com.quorum.tessera.p2p.recovery=openpojo
+
+--add-opens
+    tessera.partyinfo.jaxrs/com.quorum.tessera.p2p.model=openpojo

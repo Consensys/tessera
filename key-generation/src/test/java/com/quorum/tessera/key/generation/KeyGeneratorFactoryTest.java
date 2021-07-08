@@ -1,17 +1,27 @@
 package com.quorum.tessera.key.generation;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-import com.quorum.tessera.config.*;
+import com.quorum.tessera.config.DefaultKeyVaultConfig;
+import com.quorum.tessera.config.EncryptorConfig;
+import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.config.KeyVaultType;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
+import com.quorum.tessera.key.vault.KeyVaultService;
+import com.quorum.tessera.key.vault.KeyVaultServiceFactory;
+import java.security.Security;
 import java.util.Collections;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 public class KeyGeneratorFactoryTest {
+
+  static {
+    Security.addProvider(new BouncyCastleProvider());
+  }
 
   @Test
   public void fileKeyGeneratorWhenKeyVaultConfigNotProvided() {
@@ -21,8 +31,7 @@ public class KeyGeneratorFactoryTest {
     when(encryptorConfig.getType()).thenReturn(EncryptorType.EC);
     when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
 
-    final KeyGenerator keyGenerator =
-        KeyGeneratorFactory.newFactory().create(null, encryptorConfig);
+    final KeyGenerator keyGenerator = KeyGeneratorFactory.create().create(null, encryptorConfig);
     when(envProvider.getEnv(anyString())).thenReturn("env");
 
     assertThat(keyGenerator).isNotNull();
@@ -30,37 +39,8 @@ public class KeyGeneratorFactoryTest {
   }
 
   @Test
-  public void azureVaultKeyGeneratorWhenAzureConfigProvided() {
-    final AzureKeyVaultConfig keyVaultConfig = new AzureKeyVaultConfig();
-
-    EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
-    when(encryptorConfig.getType()).thenReturn(EncryptorType.EC);
-    when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
-
-    final KeyGenerator keyGenerator =
-        KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig);
-
-    assertThat(keyGenerator).isNotNull();
-    assertThat(keyGenerator).isExactlyInstanceOf(AzureVaultKeyGenerator.class);
-  }
-
-  @Test
-  public void hashicorpVaultKeyGeneratorWhenHashicorpConfigProvided() {
-    final HashicorpKeyVaultConfig keyVaultConfig = new HashicorpKeyVaultConfig();
-
-    EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
-    when(encryptorConfig.getType()).thenReturn(EncryptorType.EC);
-    when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
-
-    final KeyGenerator keyGenerator =
-        KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig);
-
-    assertThat(keyGenerator).isNotNull();
-    assertThat(keyGenerator).isExactlyInstanceOf(HashicorpVaultKeyGenerator.class);
-  }
-
-  @Test
   public void awsVaultKeyGeneratorWhenAwsConfigProvided() {
+
     final DefaultKeyVaultConfig keyVaultConfig = new DefaultKeyVaultConfig();
     keyVaultConfig.setKeyVaultType(KeyVaultType.AWS);
 
@@ -68,26 +48,23 @@ public class KeyGeneratorFactoryTest {
     when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
     when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
 
-    final KeyGenerator keyGenerator =
-        KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig);
+    KeyGeneratorFactory keyGeneratorFactory = KeyGeneratorFactory.create();
 
-    assertThat(keyGenerator).isNotNull();
-    assertThat(keyGenerator).isExactlyInstanceOf(AWSSecretManagerKeyGenerator.class);
-  }
+    try (MockedStatic<KeyVaultServiceFactory> mockedKeyVaultServiceFactory =
+        mockStatic(KeyVaultServiceFactory.class)) {
 
-  @Test
-  public void awsVaultKeyGeneratorWhenNonDefaultKeyVaultConfig() {
-    final KeyVaultConfig keyVaultConfig = mock(KeyVaultConfig.class);
-    when(keyVaultConfig.getKeyVaultType()).thenReturn(KeyVaultType.AWS);
+      KeyVaultService keyVaultService = mock(KeyVaultService.class);
+      KeyVaultServiceFactory keyVaultServiceFactory = mock(KeyVaultServiceFactory.class);
+      when(keyVaultServiceFactory.create(any(), any())).thenReturn(keyVaultService);
 
-    EncryptorConfig encryptorConfig = mock(EncryptorConfig.class);
-    when(encryptorConfig.getType()).thenReturn(EncryptorType.NACL);
-    when(encryptorConfig.getProperties()).thenReturn(Collections.EMPTY_MAP);
+      mockedKeyVaultServiceFactory
+          .when(() -> KeyVaultServiceFactory.getInstance(KeyVaultType.AWS))
+          .thenReturn(keyVaultServiceFactory);
 
-    final Throwable ex =
-        catchThrowable(
-            () -> KeyGeneratorFactory.newFactory().create(keyVaultConfig, encryptorConfig));
+      final KeyGenerator keyGenerator = keyGeneratorFactory.create(keyVaultConfig, encryptorConfig);
 
-    assertThat(ex).isInstanceOf(IllegalArgumentException.class);
+      assertThat(keyGenerator).isNotNull();
+      assertThat(keyGenerator).isExactlyInstanceOf(AWSSecretManagerKeyGenerator.class);
+    }
   }
 }

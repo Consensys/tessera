@@ -1,6 +1,7 @@
 package com.quorum.tessera.messaging;
 
 import java.util.List;
+import java.util.ServiceLoader;
 
 public interface Messaging {
 
@@ -28,4 +29,8 @@ public interface Messaging {
    * @param messageId the identifier of a store message
    */
   void remove(String messageId);
+
+  static Messaging create() {
+    return ServiceLoader.load(Messaging.class).findFirst().get();
+  }
 }

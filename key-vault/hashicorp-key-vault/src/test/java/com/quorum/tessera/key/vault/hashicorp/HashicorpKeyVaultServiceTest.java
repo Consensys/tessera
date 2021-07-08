@@ -2,129 +2,198 @@ package com.quorum.tessera.key.vault.hashicorp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-import com.quorum.tessera.config.vault.data.HashicorpGetSecretData;
-import com.quorum.tessera.config.vault.data.HashicorpSetSecretData;
-import java.util.Collections;
 import java.util.Map;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.vault.core.VaultOperations;
+import org.springframework.vault.core.VaultVersionedKeyValueTemplate;
 import org.springframework.vault.support.Versioned;
 
 public class HashicorpKeyVaultServiceTest {
 
   private HashicorpKeyVaultService keyVaultService;
 
-  private KeyValueOperationsDelegateFactory delegateFactory;
+  private VaultOperations vaultOperations;
 
-  private KeyValueOperationsDelegate delegate;
+  private VaultVersionedKeyValueTemplateFactory vaultVersionedKeyValueTemplateFactory;
 
   @Before
-  public void setUp() {
-    this.delegateFactory = mock(KeyValueOperationsDelegateFactory.class);
-    this.delegate = mock(KeyValueOperationsDelegate.class);
-    when(delegateFactory.create(anyString())).thenReturn(delegate);
+  public void beforeTest() {
+    this.vaultOperations = mock(VaultOperations.class);
+    this.vaultVersionedKeyValueTemplateFactory = mock(VaultVersionedKeyValueTemplateFactory.class);
+    this.keyVaultService =
+        new HashicorpKeyVaultService(vaultOperations, () -> vaultVersionedKeyValueTemplateFactory);
+  }
 
-    this.keyVaultService = new HashicorpKeyVaultService(delegateFactory);
+  @After
+  public void afterTest() {
+    verifyNoMoreInteractions(vaultOperations);
+    verifyNoMoreInteractions(vaultVersionedKeyValueTemplateFactory);
   }
 
   @Test
   public void getSecret() {
-    HashicorpGetSecretData getSecretData = mock(HashicorpGetSecretData.class);
-
-    when(getSecretData.getSecretEngineName()).thenReturn("secretEngine");
-    when(getSecretData.getSecretName()).thenReturn("secretName");
-    when(getSecretData.getValueId()).thenReturn("keyId");
+    final Map<String, String> getSecretData =
+        Map.of(
+            HashicorpKeyVaultService.SECRET_ENGINE_NAME_KEY, "secretEngine",
+            HashicorpKeyVaultService.SECRET_NAME_KEY, "secretName",
+            HashicorpKeyVaultService.SECRET_ID_KEY, "keyId");
 
     Versioned versionedResponse = mock(Versioned.class);
 
-    when(delegate.get(any(HashicorpGetSecretData.class))).thenReturn(versionedResponse);
-
     when(versionedResponse.hasData()).thenReturn(true);
 
-    Map responseData = mock(Map.class);
-    when(versionedResponse.getData()).thenReturn(responseData);
-    when(responseData.containsKey("keyId")).thenReturn(true);
+    VaultVersionedKeyValueTemplate vaultVersionedKeyValueTemplate =
+        mock(VaultVersionedKeyValueTemplate.class);
+    when(vaultVersionedKeyValueTemplate.get("secretName", Versioned.Version.from(0)))
+        .thenReturn(versionedResponse);
+
+    when(vaultVersionedKeyValueTemplateFactory.createVaultVersionedKeyValueTemplate(
+            vaultOperations, "secretEngine"))
+        .thenReturn(vaultVersionedKeyValueTemplate);
+
     String keyValue = "keyvalue";
-    when(responseData.get("keyId")).thenReturn(keyValue);
+    Map responseData = Map.of("keyId", keyValue);
+    when(versionedResponse.getData()).thenReturn(responseData);
 
     String result = keyVaultService.getSecret(getSecretData);
-
     assertThat(result).isEqualTo(keyValue);
+
+    verify(vaultVersionedKeyValueTemplateFactory)
+        .createVaultVersionedKeyValueTemplate(vaultOperations, "secretEngine");
   }
 
   @Test
   public void getSecretThrowsExceptionIfNullRetrievedFromVault() {
-    HashicorpGetSecretData getSecretData =
-        new HashicorpGetSecretData("engine", "secretName", "id", 0);
 
-    when(delegate.get(getSecretData)).thenReturn(null);
+    Map<String, String> getSecretData =
+        Map.of(
+            HashicorpKeyVaultService.SECRET_ENGINE_NAME_KEY, "engine",
+            HashicorpKeyVaultService.SECRET_NAME_KEY, "secretName",
+            HashicorpKeyVaultService.SECRET_ID_KEY, "id",
+            HashicorpKeyVaultService.SECRET_VERSION_KEY, "0");
+
+    VaultVersionedKeyValueTemplate vaultVersionedKeyValueTemplate =
+        mock(VaultVersionedKeyValueTemplate.class);
+    when(vaultVersionedKeyValueTemplate.get("secretName", Versioned.Version.from(0)))
+        .thenReturn(null);
+
+    when(vaultVersionedKeyValueTemplateFactory.createVaultVersionedKeyValueTemplate(
+            vaultOperations, "engine"))
+        .thenReturn(vaultVersionedKeyValueTemplate);
 
     Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
     assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
     assertThat(ex).hasMessage("No data found at engine/secretName");
+
+    verify(vaultVersionedKeyValueTemplateFactory)
+        .createVaultVersionedKeyValueTemplate(vaultOperations, "engine");
   }
 
   @Test
   public void getSecretThrowsExceptionIfNoDataRetrievedFromVault() {
-    HashicorpGetSecretData getSecretData =
-        new HashicorpGetSecretData("engine", "secretName", "id", 0);
+
+    final Map<String, String> getSecretData =
+        Map.of(
+            HashicorpKeyVaultService.SECRET_ENGINE_NAME_KEY, "engine",
+            HashicorpKeyVaultService.SECRET_NAME_KEY, "secretName",
+            HashicorpKeyVaultService.SECRET_ID_KEY, "id",
+            HashicorpKeyVaultService.SECRET_VERSION_KEY, "0");
 
     Versioned versionedResponse = mock(Versioned.class);
     when(versionedResponse.hasData()).thenReturn(false);
 
-    when(delegate.get(getSecretData)).thenReturn(versionedResponse);
+    VaultVersionedKeyValueTemplate vaultVersionedKeyValueTemplate =
+        mock(VaultVersionedKeyValueTemplate.class);
+    when(vaultVersionedKeyValueTemplate.get("secretName", Versioned.Version.from(0)))
+        .thenReturn(versionedResponse);
+
+    when(vaultVersionedKeyValueTemplateFactory.createVaultVersionedKeyValueTemplate(
+            vaultOperations, "engine"))
+        .thenReturn(vaultVersionedKeyValueTemplate);
 
     Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
     assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
     assertThat(ex).hasMessage("No data found at engine/secretName");
+
+    verify(vaultVersionedKeyValueTemplateFactory)
+        .createVaultVersionedKeyValueTemplate(vaultOperations, "engine");
   }
 
   @Test
   public void getSecretThrowsExceptionIfValueNotFoundForGivenId() {
-    HashicorpGetSecretData getSecretData =
-        new HashicorpGetSecretData("engine", "secretName", "id", 0);
+
+    final Map<String, String> getSecretData =
+        Map.of(
+            HashicorpKeyVaultService.SECRET_ENGINE_NAME_KEY, "engine",
+            HashicorpKeyVaultService.SECRET_NAME_KEY, "secretName",
+            HashicorpKeyVaultService.SECRET_ID_KEY, "id",
+            HashicorpKeyVaultService.SECRET_VERSION_KEY, "0");
 
     Versioned versionedResponse = mock(Versioned.class);
     when(versionedResponse.hasData()).thenReturn(true);
 
-    Map responseData = mock(Map.class);
-    when(versionedResponse.getData()).thenReturn(responseData);
-    when(responseData.containsKey("id")).thenReturn(false);
+    VaultVersionedKeyValueTemplate vaultVersionedKeyValueTemplate =
+        mock(VaultVersionedKeyValueTemplate.class);
+    when(vaultVersionedKeyValueTemplate.get("secretName", Versioned.Version.from(0)))
+        .thenReturn(versionedResponse);
 
-    when(delegate.get(getSecretData)).thenReturn(versionedResponse);
+    when(vaultVersionedKeyValueTemplateFactory.createVaultVersionedKeyValueTemplate(
+            vaultOperations, "engine"))
+        .thenReturn(vaultVersionedKeyValueTemplate);
+
+    Map responseData = Map.of();
+    when(versionedResponse.getData()).thenReturn(responseData);
 
     Throwable ex = catchThrowable(() -> keyVaultService.getSecret(getSecretData));
 
     assertThat(ex).isExactlyInstanceOf(HashicorpVaultException.class);
     assertThat(ex).hasMessage("No value with id id found at engine/secretName");
+
+    verify(vaultVersionedKeyValueTemplateFactory)
+        .createVaultVersionedKeyValueTemplate(vaultOperations, "engine");
   }
 
   @Test
   public void setSecretReturnsMetadataObject() {
-    HashicorpSetSecretData setSecretData =
-        new HashicorpSetSecretData("engine", "name", Collections.emptyMap());
+    Map<String, String> setSecretData =
+        Map.of(
+            HashicorpKeyVaultService.SECRET_ENGINE_NAME_KEY, "engine",
+            HashicorpKeyVaultService.SECRET_NAME_KEY, "name");
 
     Versioned.Metadata metadata = mock(Versioned.Metadata.class);
-    when(delegate.set(setSecretData)).thenReturn(metadata);
+    VaultVersionedKeyValueTemplate vaultVersionedKeyValueTemplate =
+        mock(VaultVersionedKeyValueTemplate.class);
+    when(vaultVersionedKeyValueTemplate.put(eq("name"), anyMap())).thenReturn(metadata);
+
+    when(vaultVersionedKeyValueTemplateFactory.createVaultVersionedKeyValueTemplate(
+            vaultOperations, "engine"))
+        .thenReturn(vaultVersionedKeyValueTemplate);
 
     Object result = keyVaultService.setSecret(setSecretData);
 
     assertThat(result).isInstanceOf(Versioned.Metadata.class);
     assertThat(result).isEqualTo(metadata);
+
+    verify(vaultVersionedKeyValueTemplateFactory)
+        .createVaultVersionedKeyValueTemplate(vaultOperations, "engine");
   }
 
   @Test
   public void setSecretIfNullPointerExceptionThenHashicorpExceptionThrown() {
-    HashicorpSetSecretData setSecretData = mock(HashicorpSetSecretData.class);
+    Map<String, String> setSecretData =
+        Map.of(
+            HashicorpKeyVaultService.SECRET_NAME_KEY, "SomeName",
+            HashicorpKeyVaultService.SECRET_ENGINE_NAME_KEY, "SomeEngineName");
 
-    when(delegate.set(any(HashicorpSetSecretData.class))).thenThrow(new NullPointerException());
+    when(vaultVersionedKeyValueTemplateFactory.createVaultVersionedKeyValueTemplate(
+            vaultOperations, "SomeEngineName"))
+        .thenReturn(null);
 
     Throwable ex = catchThrowable(() -> keyVaultService.setSecret(setSecretData));
 
@@ -132,5 +201,8 @@ public class HashicorpKeyVaultServiceTest {
     assertThat(ex.getMessage())
         .isEqualTo(
             "Unable to save generated secret to vault.  Ensure that the secret engine being used is a v2 kv secret engine");
+
+    verify(vaultVersionedKeyValueTemplateFactory)
+        .createVaultVersionedKeyValueTemplate(vaultOperations, "SomeEngineName");
   }
 }

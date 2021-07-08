@@ -1,6 +1,7 @@
 package com.quorum.tessera.messaging;
 
 import com.quorum.tessera.data.MessageHash;
+import java.util.ServiceLoader;
 import java.util.stream.Stream;
 
 public interface Inbox {
@@ -35,4 +36,8 @@ public interface Inbox {
    * @param messageHash the hash of the message to remove
    */
   void delete(MessageHash messageHash);
+
+  static Inbox create() {
+    return ServiceLoader.load(Inbox.class).findFirst().get();
+  }
 }

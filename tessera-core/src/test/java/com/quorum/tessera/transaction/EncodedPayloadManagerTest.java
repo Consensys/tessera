@@ -1,30 +1,35 @@
 package com.quorum.tessera.transaction;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-import com.quorum.tessera.config.*;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import org.junit.Test;
 
 public class EncodedPayloadManagerTest {
 
   @Test
-  public void createFromConfig() {
-    final Config config = mock(Config.class);
+  public void create() {
+    EncodedPayloadManager expected = mock(EncodedPayloadManager.class);
+    EncodedPayloadManager encodedPayloadManager;
+    try (var serviceLoaderMockedStatic = mockStatic(ServiceLoader.class)) {
 
-    final ServerConfig serverConfig = mock(ServerConfig.class);
-    when(serverConfig.getCommunicationType()).thenReturn(CommunicationType.REST);
-    when(config.getP2PServerConfig()).thenReturn(serverConfig);
+      ServiceLoader<EncodedPayloadManager> serviceLoader = mock(ServiceLoader.class);
+      when(serviceLoader.findFirst()).thenReturn(Optional.of(expected));
+      serviceLoaderMockedStatic
+          .when(() -> ServiceLoader.load(EncodedPayloadManager.class))
+          .thenReturn(serviceLoader);
 
-    final JdbcConfig jdbcConfig = new JdbcConfig("junit", "junit", "jdbc:h2:mem:junit");
-    when(config.getJdbcConfig()).thenReturn(jdbcConfig);
+      encodedPayloadManager = EncodedPayloadManager.create();
 
-    final FeatureToggles features = new FeatureToggles();
-    features.setEnablePrivacyEnhancements(true);
-    when(config.getFeatures()).thenReturn(features);
+      verify(serviceLoader).findFirst();
+      verifyNoMoreInteractions(serviceLoader);
 
-    final EncodedPayloadManager encodedPayloadManager = EncodedPayloadManager.create(config);
-    assertThat(encodedPayloadManager).isNotNull();
+      serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(EncodedPayloadManager.class));
+      serviceLoaderMockedStatic.verifyNoMoreInteractions();
+    }
+
+    assertThat(encodedPayloadManager).isNotNull().isSameAs(expected);
   }
 }

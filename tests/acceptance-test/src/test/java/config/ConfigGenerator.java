@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -28,7 +27,7 @@ public class ConfigGenerator {
   private static final Logger LOGGER = LoggerFactory.getLogger(ConfigGenerator.class);
 
   public List<ConfigDescriptor> generateConfigs(ExecutionContext executionContext) {
-
+    Objects.requireNonNull(executionContext, "Execution context is required");
     Path path = calculatePath(executionContext);
     try {
       Files.createDirectories(path);
@@ -105,20 +104,17 @@ public class ConfigGenerator {
   }
 
   public static Path calculatePath(ExecutionContext executionContext) {
-    try {
-      URI baseUri = ConfigGenerator.class.getResource("/").toURI();
 
-      return executionContext
-          .getPrefix()
-          .map(v -> Paths.get(baseUri).resolve(v))
-          .orElse(Paths.get(baseUri))
-          .resolve(executionContext.getCommunicationType().name().toLowerCase())
-          .resolve(executionContext.getSocketType().name().toLowerCase())
-          .resolve(executionContext.getDbType().name().toLowerCase())
-          .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
-    } catch (URISyntaxException ex) {
-      throw new RuntimeException(ex);
-    }
+    URI baseUri = Paths.get("build/").toAbsolutePath().toUri();
+
+    return executionContext
+        .getPrefix()
+        .map(v -> Paths.get(baseUri).resolve(v))
+        .orElse(Paths.get(baseUri))
+        .resolve(executionContext.getCommunicationType().name().toLowerCase())
+        .resolve(executionContext.getSocketType().name().toLowerCase())
+        .resolve(executionContext.getDbType().name().toLowerCase())
+        .resolve("enclave-" + executionContext.getEnclaveType().name().toLowerCase());
   }
 
   private static Map<Integer, SortedMap<String, String>> keyLookup(EncryptorType encryptorType) {

@@ -1,7 +1,7 @@
 package com.quorum.tessera.messaging;
 
+import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.encryption.PublicKey;
-import com.quorum.tessera.util.Base64Codec;
 
 public class Message {
 

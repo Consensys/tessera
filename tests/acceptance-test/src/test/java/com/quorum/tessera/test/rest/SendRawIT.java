@@ -9,10 +9,11 @@ import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import java.net.URI;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import suite.ExecutionContext;
 
@@ -22,7 +23,7 @@ public class SendRawIT {
 
   private RestUtils restUtils = new RestUtils();
 
-  private final Client client = ClientBuilder.newClient();
+  private Client client;
 
   private static final byte[] TXN_DATA = "Zm9v".getBytes();
 
@@ -31,6 +32,16 @@ public class SendRawIT {
   private Party sender = partyHelper.findByAlias("A");
 
   private Party recipient = partyHelper.findByAlias("D");
+
+  @Before
+  public void beforeTest() {
+    client = partyHelper.getParties().findAny().get().getRestClient();
+  }
+
+  @After
+  public void afterTest() {
+    client.close();
+  }
 
   /** Quorum sends transaction with singe public recipient key */
   @Test

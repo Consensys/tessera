@@ -6,7 +6,7 @@ public class UnknownRecipientException extends RuntimeException {
 
   private final PublicKey publicKey;
 
-  UnknownRecipientException(PublicKey publicKey) {
+  public UnknownRecipientException(PublicKey publicKey) {
     this.publicKey = publicKey;
   }
 

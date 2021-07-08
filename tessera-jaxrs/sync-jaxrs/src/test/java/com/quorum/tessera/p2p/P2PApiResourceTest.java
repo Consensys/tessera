@@ -8,6 +8,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 import javax.ws.rs.core.*;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,6 +22,11 @@ public class P2PApiResourceTest {
   public void setUp() {
     apiResource = new P2PApiResource();
     request = mock(Request.class);
+  }
+
+  @After
+  public void afterTest() {
+    verifyNoMoreInteractions(request);
   }
 
   @Test

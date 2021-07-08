@@ -1,6 +1,5 @@
 package com.quorum.tessera.config.cli;
 
-import com.quorum.tessera.ServiceLoaderUtil;
 import com.quorum.tessera.cli.CliException;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.keypassresolver.CliKeyPasswordResolver;
@@ -39,7 +38,10 @@ public class TesseraCommand implements Callable<CliResult> {
   private final KeyPasswordResolver keyPasswordResolver;
 
   public TesseraCommand() {
-    this(ServiceLoaderUtil.load(KeyPasswordResolver.class).orElse(new CliKeyPasswordResolver()));
+    this(
+        ServiceLoader.load(KeyPasswordResolver.class)
+            .findFirst()
+            .orElse(new CliKeyPasswordResolver()));
   }
 
   private TesseraCommand(final KeyPasswordResolver keyPasswordResolver) {

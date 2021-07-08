@@ -7,7 +7,6 @@ import com.quorum.tessera.test.PartyHelper;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import org.junit.*;
@@ -17,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class P2PRestAppIT {
 
-  private final Client client = ClientBuilder.newClient();
+  private Client client;
 
   private static final Logger LOGGER = LoggerFactory.getLogger(P2PRestAppIT.class);
 
@@ -28,13 +27,14 @@ public class P2PRestAppIT {
   @Before
   public void beforeTest() {
     this.actor = PartyHelper.create().getParties().findFirst().get();
-
+    client = actor.getRestClient();
     LOGGER.debug("Begin test: {}", testName.getMethodName());
   }
 
   @After
   public void afterTest() {
     LOGGER.debug("After test: {}", testName.getMethodName());
+    client.close();
   }
 
   @Ignore
