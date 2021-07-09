@@ -68,7 +68,25 @@ jobs:
         if: success()
         with:
           name: tessera-dists
-          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+          path: tessera-dist/build/distributions/
+      - name: Upload azure-key-vault dists
+        uses: actions/upload-artifact@v2
+        if: success()
+        with:
+          name: azure-key-vault-dists
+          path: key-vault/azure-key-vault/build/distributions/
+      - name: Upload aws-key-vault dists
+        uses: actions/upload-artifact@v2
+        if: success()
+        with:
+          name: aws-key-vault-dists
+          path: key-vault/aws-key-vault/build/distributions/
+      - name: Upload hashicorp-key-vault dists
+        uses: actions/upload-artifact@v2
+        if: success()
+        with:
+          name: hashicorp-key-vault-dists
+          path: key-vault/hashicorp-key-vault/build/distributions/
 
   release_docker:
     needs: release_sonatype
@@ -76,11 +94,29 @@ jobs:
     steps:
       - name: Checkout code from SCM
         uses: actions/checkout@v2
-      - name: Download tessera dist
+      - name: Download tessera dists
         uses: actions/download-artifact@v2
         with:
           name: tessera-dists
-          path: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+          path: tessera-dist/build/distributions/
+      - name: Download azure-key-vault dists
+        uses: actions/download-artifact@v2
+        if: success()
+        with:
+          name: azure-key-vault-dists
+          path: key-vault/azure-key-vault/build/distributions/
+      - name: Download aws-key-vault dists
+        uses: actions/download-artifact@v2
+        if: success()
+        with:
+          name: aws-key-vault-dists
+          path: key-vault/aws-key-vault/build/distributions/
+      - name: Download hashicorp-key-vault dists
+        uses: actions/download-artifact@v2
+        if: success()
+        with:
+          name: hashicorp-key-vault-dists
+          path: key-vault/hashicorp-key-vault/build/distributions/
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
       - name: Login to DockerHub
@@ -92,7 +128,7 @@ jobs:
         id: date
         run: |
           echo "::set-output name=now::$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
-      - name: Build and push images
+      - name: Build and push standalone tessera images
         uses: docker/build-push-action@v2
         with:
           tags: |
@@ -104,5 +140,51 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ steps.date.outputs.now }}
           push: true
-          file: .github/workflows/noBuild.Dockerfile
-          context: /home/runner/work/tessera/tessera/tessera-dist/build/distributions/
+          file: docker/tessera.Dockerfile
+          # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
+          context: .
+      - name: Build and push tessera+azure images
+        uses: docker/build-push-action@v2
+        with:
+          tags: |
+            ${{ secrets.DOCKER_REPO }}:azure-latest
+            ${{ secrets.DOCKER_REPO }}:azure-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ secrets.DOCKER_REPO }}:azure-${{ needs.release_sonatype.outputs.full-ver }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.date.outputs.now }}
+          push: true
+          file: docker/tessera.azure.Dockerfile
+          # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
+          context: .
+      - name: Build and push tessera+aws images
+        uses: docker/build-push-action@v2
+        with:
+          tags: |
+            ${{ secrets.DOCKER_REPO }}:aws-latest
+            ${{ secrets.DOCKER_REPO }}:aws-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ secrets.DOCKER_REPO }}:aws-${{ needs.release_sonatype.outputs.full-ver }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.date.outputs.now }}
+          push: true
+          file: docker/tessera.aws.Dockerfile
+          # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
+          context: .
+      - name: Build and push tessera+hashicorp images
+        uses: docker/build-push-action@v2
+        with:
+          tags: |
+            ${{ secrets.DOCKER_REPO }}:hashicorp-latest
+            ${{ secrets.DOCKER_REPO }}:hashicorp-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ secrets.DOCKER_REPO }}:hashicorp-${{ needs.release_sonatype.outputs.full-ver }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ steps.date.outputs.now }}
+          push: true
+          file: docker/tessera.hashicorp.Dockerfile
+          # context must be explicitly provided to prevent docker/build-push-action checking out the repo again and deleting the downloaded artifacts
+          context: .

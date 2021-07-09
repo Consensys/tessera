@@ -120,6 +120,13 @@ cp ojdbc7.jar tessera-[version]/lib/
 
 Since Tessera 0.7 a timestamp is recorded with each encrypted transaction stored in the Tessera DB.  To update an existing DB to work with Tessera 0.7+, execute one of the provided [alter scripts](ddls/add-timestamp).
 
+## Docker images
+
+* See [quorumengineering/tessera](https://hub.docker.com/repository/docker/quorumengineering/tessera) Docker repository for available images
+    * See [docker/README.md](docker) for details on the various images available 
+
+* To build images from source see [docker/README.md](docker)
+
 ## Configuration
 
 ### Config File
