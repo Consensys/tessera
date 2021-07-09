@@ -147,8 +147,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: |
-            ${{ secrets.DOCKER_REPO }}:${{ needs.release_sonatype.outputs.minor-ver }}-azure
-            ${{ secrets.DOCKER_REPO }}:${{ needs.release_sonatype.outputs.full-ver }}-azure
+            ${{ secrets.DOCKER_REPO }}:azure-latest
+            ${{ secrets.DOCKER_REPO }}:azure-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ secrets.DOCKER_REPO }}:azure-${{ needs.release_sonatype.outputs.full-ver }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -161,8 +162,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: |
-            ${{ secrets.DOCKER_REPO }}:${{ needs.release_sonatype.outputs.minor-ver }}-aws
-            ${{ secrets.DOCKER_REPO }}:${{ needs.release_sonatype.outputs.full-ver }}-aws
+            ${{ secrets.DOCKER_REPO }}:aws-latest
+            ${{ secrets.DOCKER_REPO }}:aws-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ secrets.DOCKER_REPO }}:aws-${{ needs.release_sonatype.outputs.full-ver }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
@@ -175,8 +177,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           tags: |
-            ${{ secrets.DOCKER_REPO }}:${{ needs.release_sonatype.outputs.minor-ver }}-hashicorp
-            ${{ secrets.DOCKER_REPO }}:${{ needs.release_sonatype.outputs.full-ver }}-hashicorp
+            ${{ secrets.DOCKER_REPO }}:hashicorp-latest
+            ${{ secrets.DOCKER_REPO }}:hashicorp-${{ needs.release_sonatype.outputs.minor-ver }}
+            ${{ secrets.DOCKER_REPO }}:hashicorp-${{ needs.release_sonatype.outputs.full-ver }}
           labels: |
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
