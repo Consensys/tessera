@@ -18,7 +18,7 @@ From project root:
 
 2. Build image, e.g.:
     ```shell
-    docker build -t me/tessera:azure
+    docker build -t me/tessera:azure .
     ```
 
 3. Verify image, e.g.:
