@@ -18,12 +18,12 @@ From project root:
 
 2. Build image, e.g.:
     ```shell
-    docker build -t me/tessera:azure .
+    docker build -f docker/tessera.Dockerfile -t me/tessera:develop .
     ```
 
 3. Verify image, e.g.:
     ```shell
-    docker run me/tessera:azure help
+    docker run me/tessera:develop help
     ```
 
 ## .dockerignore
