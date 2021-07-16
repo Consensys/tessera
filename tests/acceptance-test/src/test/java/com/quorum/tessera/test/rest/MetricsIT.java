@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
-import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import java.net.URI;
@@ -22,8 +21,6 @@ public class MetricsIT {
   @Test
   public void metrics() {
     final PartyHelper partyHelper = PartyHelper.create();
-
-    ClientFactory clientFactory = new ClientFactory();
 
     Set<URI> uris =
         partyHelper
