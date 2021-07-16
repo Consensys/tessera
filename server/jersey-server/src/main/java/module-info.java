@@ -28,7 +28,8 @@ module tessera.server.jersey {
   exports com.quorum.tessera.server.jaxrs to
       hk2.locator;
   exports com.quorum.tessera.server.monitoring to
-      hk2.locator;
+      hk2.locator,
+      jersey.server;
 
   opens com.quorum.tessera.server.jaxrs to
       hk2.utils;
