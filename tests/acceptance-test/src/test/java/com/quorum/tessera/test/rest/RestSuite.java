@@ -20,6 +20,7 @@ import suite.TestSuite;
   TransactionForwardingIT.class,
   CustomPayloadEncryptionIT.class,
   OpenApiIT.class,
+  MetricsIT.class,
   ///
   com.quorum.tessera.test.rest.multitenancy.SendIT.class,
   com.quorum.tessera.test.rest.multitenancy.ReceiveIT.class,
