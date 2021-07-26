@@ -39,7 +39,7 @@ public class MetricsResource {
 
     return Response.status(Response.Status.OK)
         .header(HttpHeaders.CONTENT_TYPE, TEXT_PLAIN)
-        .entity(formattedMetrics.toString().trim())
+        .entity(formattedMetrics.toString())
         .build();
   }
 }
