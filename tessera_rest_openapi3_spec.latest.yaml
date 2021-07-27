@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-d27d02b5
+  version: latest-e83782c4
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
