@@ -23,7 +23,7 @@ public class PrometheusProtocolFormatter {
           .append("\n");
     }
 
-    return formattedMetrics.toString().trim();
+    return formattedMetrics.toString();
   }
 
   private String sanitize(final String input) {
