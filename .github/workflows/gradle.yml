@@ -58,13 +58,13 @@ jobs:
       with:
         name: kalium-dist
         path: /home/runner/work/tessera/tessera/encryption/encryption-kalium/build/distributions/
-    - name: Send slack notification
-      uses: homoluctus/slatify@v3.0.0
-      if: always()
-      with:
-        type: ${{job.status}}
-        job_name: Build and upload binaries
-        url: ${{ secrets.SLACK_WEBHOOK }}
+#    - name: Send slack notification
+#      uses: homoluctus/slatify@v3.0.0
+#      if: always()
+#      with:
+#        type: ${{job.status}}
+#        job_name: Build and upload binaries
+#        url: ${{ secrets.SLACK_WEBHOOK }}
 
   checkdependencies:
     name: Check dependencies for any security advisories
@@ -80,13 +80,13 @@ jobs:
         check-latest: true
     - name: Execute gradle dependencyCheckAnalyze task
       run: ./gradlew dependencyCheckAnalyze -x test
-    - name: Send slack notification
-      uses: homoluctus/slatify@v3.0.0
-      if: always()
-      with:
-        type: ${{job.status}}
-        job_name: Check dependencies for any security advisories
-        url: ${{ secrets.SLACK_WEBHOOK }}
+#    - name: Send slack notification
+#      uses: homoluctus/slatify@v3.0.0
+#      if: always()
+#      with:
+#        type: ${{job.status}}
+#        job_name: Check dependencies for any security advisories
+#        url: ${{ secrets.SLACK_WEBHOOK }}
 
   test:
     name: Unit tests
@@ -102,13 +102,13 @@ jobs:
         check-latest: true
     - name: Execute gradle test
       run: ./gradlew test -x dependencyCheckAnalyze -x :tests:acceptance-test:test -x javadoc -x :cli:config-cli:jacocoTestCoverageVerification --info
-    - name: Send slack notification
-      uses: homoluctus/slatify@v3.0.0
-      if: always()
-      with:
-        type: ${{job.status}}
-        job_name: Unit tests
-        url: ${{ secrets.SLACK_WEBHOOK }}
+#    - name: Send slack notification
+#      uses: homoluctus/slatify@v3.0.0
+#      if: always()
+#      with:
+#        type: ${{job.status}}
+#        job_name: Unit tests
+#        url: ${{ secrets.SLACK_WEBHOOK }}
 
   itest:
     name: Integration tests
@@ -168,13 +168,13 @@ jobs:
       with:
        name: itest-logs
        path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-    - name: Send slack notification
-      uses: homoluctus/slatify@v3.0.0
-      if: always()
-      with:
-        type: ${{job.status}}
-        job_name: Integration tests
-        url: ${{ secrets.SLACK_WEBHOOK }}
+#    - name: Send slack notification
+#      uses: homoluctus/slatify@v3.0.0
+#      if: always()
+#      with:
+#        type: ${{job.status}}
+#        job_name: Integration tests
+#        url: ${{ secrets.SLACK_WEBHOOK }}
 
   remote_enclave_itest:
     name: Remote enclave integration tests
@@ -234,13 +234,13 @@ jobs:
         with:
           name: remote_enclave_itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-      - name: Send slack notification
-        uses: homoluctus/slatify@v3.0.0
-        if: always()
-        with:
-          type: ${{job.status}}
-          job_name: Remote enclave integration tests
-          url: ${{ secrets.SLACK_WEBHOOK }}
+#      - name: Send slack notification
+#        uses: homoluctus/slatify@v3.0.0
+#        if: always()
+#        with:
+#          type: ${{job.status}}
+#          job_name: Remote enclave integration tests
+#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   cucumber_itest:
     name: Cucumber itests
@@ -300,13 +300,13 @@ jobs:
         with:
           name: cucumber_itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-      - name: Send slack notification
-        uses: homoluctus/slatify@v3.0.0
-        if: always()
-        with:
-          type: ${{job.status}}
-          job_name: Cucumber itests
-          url: ${{ secrets.SLACK_WEBHOOK }}
+#      - name: Send slack notification
+#        uses: homoluctus/slatify@v3.0.0
+#        if: always()
+#        with:
+#          type: ${{job.status}}
+#          job_name: Cucumber itests
+#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   vaultTests:
     name: Key vault integration tests
@@ -375,12 +375,12 @@ jobs:
         with:
           name: vault-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-      - uses: homoluctus/slatify@v3.0.0
-        if: always()
-        with:
-          type: ${{job.status}}
-          job_name: Key vault integration tests
-          url: ${{ secrets.SLACK_WEBHOOK }}
+#      - uses: homoluctus/slatify@v3.0.0
+#        if: always()
+#        with:
+#          type: ${{job.status}}
+#          job_name: Key vault integration tests
+#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   recovery_itest:
     name: Recovery integration tests
@@ -440,13 +440,13 @@ jobs:
         with:
           name: recovery-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-      - name: Send slack notification
-        uses: homoluctus/slatify@v3.0.0
-        if: always()
-        with:
-          type: ${{job.status}}
-          job_name: Recovery integration tests
-          url: ${{ secrets.SLACK_WEBHOOK }}
+#      - name: Send slack notification
+#        uses: homoluctus/slatify@v3.0.0
+#        if: always()
+#        with:
+#          type: ${{job.status}}
+#          job_name: Recovery integration tests
+#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   build_image:
     name: Build develop Docker image
@@ -536,13 +536,13 @@ jobs:
         with:
           name: gauge-reports
           path: /tmp/acctests/gauge
-      - name: Send slack notification
-        uses: homoluctus/slatify@v3.0.0
-        if: always()
-        with:
-          type: ${{job.status}}
-          job_name: Quorum acceptance tests
-          url: ${{ secrets.SLACK_WEBHOOK }}
+#      - name: Send slack notification
+#        uses: homoluctus/slatify@v3.0.0
+#        if: always()
+#        with:
+#          type: ${{job.status}}
+#          job_name: Quorum acceptance tests
+#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   push_docker_develop:
     name: Push develop image to DockerHub

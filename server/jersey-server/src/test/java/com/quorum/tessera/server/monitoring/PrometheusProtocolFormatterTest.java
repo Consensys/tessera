@@ -27,7 +27,7 @@ public class PrometheusProtocolFormatterTest {
 
     AppType type = AppType.P2P;
 
-    String expectedResponse = "tessera_P2P_GET_upCheck_AverageTime_ms 100";
+    String expectedResponse = "tessera_P2P_GET_upCheck_AverageTime_ms 100\n";
 
     assertThat(protocolFormatter.format(mockMetrics, type)).isEqualTo(expectedResponse);
   }
@@ -41,7 +41,7 @@ public class PrometheusProtocolFormatterTest {
     AppType type = AppType.P2P;
 
     String expectedResponse =
-        "tessera_P2P_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
+        "tessera_P2P_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3\n";
 
     assertThat(protocolFormatter.format(mockMetrics, type)).isEqualTo(expectedResponse);
   }
@@ -53,7 +53,7 @@ public class PrometheusProtocolFormatterTest {
 
     AppType type = AppType.P2P;
 
-    String expectedResponse = "tessera_P2P_POST_push_byte_MinTime_ms 3.4";
+    String expectedResponse = "tessera_P2P_POST_push_byte_MinTime_ms 3.4\n";
 
     assertThat(protocolFormatter.format(mockMetrics, type)).isEqualTo(expectedResponse);
   }
@@ -66,7 +66,7 @@ public class PrometheusProtocolFormatterTest {
 
     AppType type = AppType.P2P;
 
-    String expectedResponse = "tessera_P2P_GET_receiveRaw_StringString_AverageTime_ms 5.2";
+    String expectedResponse = "tessera_P2P_GET_receiveRaw_StringString_AverageTime_ms 5.2\n";
 
     assertThat(protocolFormatter.format(mockMetrics, type)).isEqualTo(expectedResponse);
   }
@@ -82,9 +82,8 @@ public class PrometheusProtocolFormatterTest {
     AppType type = AppType.P2P;
 
     String expectedResponse =
-        "tessera_P2P_GET_upCheck_AverageTime_ms 100"
-            + "\n"
-            + "tessera_P2P_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3";
+        "tessera_P2P_GET_upCheck_AverageTime_ms 100\n"
+            + "tessera_P2P_POST_resend_ResendRequest_RequestRate_requestsPerSeconds 1.3\n";
 
     assertThat(protocolFormatter.format(mockMetrics, type)).isEqualTo(expectedResponse);
   }
