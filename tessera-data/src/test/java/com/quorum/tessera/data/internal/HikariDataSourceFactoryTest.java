@@ -7,13 +7,12 @@ import static org.mockito.Mockito.when;
 import com.quorum.tessera.config.JdbcConfig;
 import com.quorum.tessera.data.DataSourceFactory;
 import com.zaxxer.hikari.HikariDataSource;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import javax.sql.DataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 public class HikariDataSourceFactoryTest {
 
@@ -59,7 +58,8 @@ public class HikariDataSourceFactoryTest {
   public void createWithEncryptedDatabasePassword() {
 
     String username = "junit";
-    String encryptedPassword = "ENC(rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb)"; // unencrypted value = "dbpassword"
+    String encryptedPassword =
+        "ENC(rJ70hNidkrpkTwHoVn2sGSp3h3uBWxjb)"; // unencrypted value = "dbpassword"
     String url = "jdbc:h2:mem:";
 
     JdbcConfig jdbcConfig = mock(JdbcConfig.class);
@@ -81,6 +81,5 @@ public class HikariDataSourceFactoryTest {
     assertThat(hikariDataSource.getJdbcUrl()).isEqualTo(url);
     assertThat(hikariDataSource.getUsername()).isEqualTo(username);
     assertThat(hikariDataSource.getPassword()).isEqualTo("dbpassword");
-
   }
 }
