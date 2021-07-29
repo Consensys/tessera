@@ -19,12 +19,11 @@ public enum HikariDataSourceFactory implements DataSourceFactory {
     }
 
     final EncryptedStringResolver resolver = new EncryptedStringResolver();
-    String url = resolver.resolve(config.getUrl());
 
     final HikariConfig hikariConfig = new HikariConfig();
-    hikariConfig.setJdbcUrl(url);
+    hikariConfig.setJdbcUrl(config.getUrl());
     hikariConfig.setUsername(config.getUsername());
-    hikariConfig.setPassword(config.getPassword());
+    hikariConfig.setPassword(resolver.resolve(config.getPassword()));
 
     dataSource = new HikariDataSource(hikariConfig);
 
