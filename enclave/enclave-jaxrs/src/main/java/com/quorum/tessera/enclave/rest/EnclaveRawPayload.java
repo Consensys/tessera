@@ -31,6 +31,9 @@ public class EnclaveRawPayload {
   private byte[] execHash;
 
   @XmlMimeType("base64Binary")
+  private List<byte[]> mandatoryRecipients;
+
+  @XmlMimeType("base64Binary")
   private byte[] privacyGroupId;
 
   public byte[] getEncryptedPayload() {
@@ -95,6 +98,14 @@ public class EnclaveRawPayload {
 
   public void setExecHash(byte[] execHash) {
     this.execHash = execHash;
+  }
+
+  public List<byte[]> getMandatoryRecipients() {
+    return mandatoryRecipients;
+  }
+
+  public void setMandatoryRecipients(List<byte[]> mandatoryRecipients) {
+    this.mandatoryRecipients = mandatoryRecipients;
   }
 
   public byte[] getPrivacyGroupId() {
