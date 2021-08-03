@@ -1,5 +1,6 @@
 package com.quorum.tessera.q2t;
 
+import static com.quorum.tessera.version.MandatoryRecipientsVersion.MIME_TYPE_JSON_4;
 import static com.quorum.tessera.version.MultiTenancyVersion.MIME_TYPE_JSON_2_1;
 import static com.quorum.tessera.version.PrivacyGroupVersion.MIME_TYPE_JSON_3;
 import static javax.ws.rs.core.MediaType.*;
@@ -105,8 +106,8 @@ public class TransactionResource3 {
               schema = @Schema(implementation = SendResponse.class)))
   @POST
   @Path("send")
-  @Consumes({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
-  @Produces({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
+  @Consumes({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3, MIME_TYPE_JSON_4})
+  @Produces({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3, MIME_TYPE_JSON_4})
   public Response send(@NotNull @Valid @PrivacyValid final SendRequest sendRequest) {
 
     final PublicKey sender =
@@ -142,6 +143,13 @@ public class TransactionResource3 {
 
     final PrivacyMode privacyMode = PrivacyMode.fromFlag(sendRequest.getPrivacyFlag());
 
+    final Set<PublicKey> mandatoryRecipients =
+        Stream.ofNullable(sendRequest.getMandatoryRecipients())
+            .flatMap(Arrays::stream)
+            .map(base64Decoder::decode)
+            .map(PublicKey::from)
+            .collect(Collectors.toUnmodifiableSet());
+
     final com.quorum.tessera.transaction.SendRequest.Builder requestBuilder =
         com.quorum.tessera.transaction.SendRequest.Builder.create()
             .withRecipients(recipientList)
@@ -149,7 +157,8 @@ public class TransactionResource3 {
             .withPayload(sendRequest.getPayload())
             .withExecHash(execHash)
             .withPrivacyMode(privacyMode)
-            .withAffectedContractTransactions(affectedTransactions);
+            .withAffectedContractTransactions(affectedTransactions)
+            .withMandatoryRecipients(mandatoryRecipients);
     privacyGroupId.ifPresent(requestBuilder::withPrivacyGroupId);
 
     final com.quorum.tessera.transaction.SendResponse response =
@@ -244,8 +253,8 @@ public class TransactionResource3 {
       })
   @POST
   @Path("sendsignedtx")
-  @Consumes({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
-  @Produces({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
+  @Consumes({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3, MIME_TYPE_JSON_4})
+  @Produces({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3, MIME_TYPE_JSON_4})
   public Response sendSignedTransaction(
       @NotNull @Valid @PrivacyValid final SendSignedRequest sendSignedRequest) {
 
@@ -278,13 +287,21 @@ public class TransactionResource3 {
             .map(String::getBytes)
             .orElse(new byte[0]);
 
+    final Set<PublicKey> mandatoryRecipients =
+        Stream.ofNullable(sendSignedRequest.getMandatoryRecipients())
+            .flatMap(Arrays::stream)
+            .map(base64Decoder::decode)
+            .map(PublicKey::from)
+            .collect(Collectors.toUnmodifiableSet());
+
     final com.quorum.tessera.transaction.SendSignedRequest.Builder requestBuilder =
         com.quorum.tessera.transaction.SendSignedRequest.Builder.create()
             .withSignedData(sendSignedRequest.getHash())
             .withRecipients(recipients)
             .withPrivacyMode(privacyMode)
             .withAffectedContractTransactions(affectedTransactions)
-            .withExecHash(execHash);
+            .withExecHash(execHash)
+            .withMandatoryRecipients(mandatoryRecipients);
     privacyGroupId.ifPresent(requestBuilder::withPrivacyGroupId);
 
     final com.quorum.tessera.transaction.SendResponse response =
@@ -340,7 +357,8 @@ public class TransactionResource3 {
       })
   @GET
   @Path("/transaction/{hash}")
-  @Produces({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3})
+  @Consumes({MIME_TYPE_JSON_4})
+  @Produces({MIME_TYPE_JSON_2_1, MIME_TYPE_JSON_3, MIME_TYPE_JSON_4})
   public Response receive(
       @Parameter(
               description = "hash indicating encrypted payload to retrieve from database",
@@ -405,6 +423,11 @@ public class TransactionResource3 {
         .getPrivacyGroupId()
         .map(PrivacyGroup.Id::getBase64)
         .ifPresent(receiveResponse::setPrivacyGroupId);
+
+    receiveResponse.setMandatoryRecipients(
+        response.getMandatoryRecipients().stream()
+            .map(PublicKey::encodeToBase64)
+            .toArray(String[]::new));
 
     return Response.ok(receiveResponse).build();
   }
