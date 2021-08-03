@@ -46,6 +46,12 @@ public class SendSignedRequest {
   @Schema(description = "privacy group id of the payload", format = "base64")
   private String privacyGroupId;
 
+  @ArraySchema(
+      arraySchema =
+          @Schema(description = "public keys identifying the mandatory recipients of the payload"),
+      schema = @Schema(format = "base64"))
+  private String[] mandatoryRecipients;
+
   public byte[] getHash() {
     return hash;
   }
@@ -92,5 +98,13 @@ public class SendSignedRequest {
 
   public void setPrivacyGroupId(String privacyGroupId) {
     this.privacyGroupId = privacyGroupId;
+  }
+
+  public String[] getMandatoryRecipients() {
+    return mandatoryRecipients;
+  }
+
+  public void setMandatoryRecipients(String... mandatoryRecipients) {
+    this.mandatoryRecipients = mandatoryRecipients;
   }
 }
