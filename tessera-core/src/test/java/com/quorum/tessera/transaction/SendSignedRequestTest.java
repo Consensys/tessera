@@ -25,7 +25,6 @@ public class SendSignedRequestTest {
 
     SendSignedRequest request =
         SendSignedRequest.Builder.create()
-            .withSender(mock(PublicKey.class))
             .withSignedData(signedData)
             .withExecHash("Exehash".getBytes())
             .withRecipients(recipients)
@@ -90,5 +89,42 @@ public class SendSignedRequestTest {
         .withAffectedContractTransactions(Collections.emptySet())
         .withExecHash(new byte[0])
         .build();
+  }
+
+  @Test
+  public void buildMandatoryRecipients() {
+    SendSignedRequest req =
+        SendSignedRequest.Builder.create()
+            .withSignedData("Data".getBytes())
+            .withRecipients(Collections.emptyList())
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withMandatoryRecipients(Set.of(PublicKey.from("Key".getBytes())))
+            .build();
+
+    assertThat(req.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
+    assertThat(req.getMandatoryRecipients()).containsExactly(PublicKey.from("Key".getBytes()));
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void buildWithMandatoryRecipientsInvalid() {
+    byte[] payload = "Payload".getBytes();
+    List<PublicKey> recipients = List.of(mock(PublicKey.class));
+    SendSignedRequest.Builder.create()
+      .withSignedData(payload)
+      .withRecipients(recipients)
+      .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+      .withMandatoryRecipients(Set.of(PublicKey.from("key".getBytes())))
+      .build();
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void buildWithNoMandatoryRecipientsData() {
+    byte[] payload = "Payload".getBytes();
+    List<PublicKey> recipients = List.of(mock(PublicKey.class));
+    SendSignedRequest.Builder.create()
+      .withSignedData(payload)
+      .withRecipients(recipients)
+      .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+      .build();
   }
 }

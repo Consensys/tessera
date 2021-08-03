@@ -22,6 +22,8 @@ public interface SendRequest {
 
   Optional<PrivacyGroup.Id> getPrivacyGroupId();
 
+  Set<PublicKey> getMandatoryRecipients();
+
   class Builder {
 
     private PublicKey from;
@@ -32,11 +34,13 @@ public interface SendRequest {
 
     private PrivacyMode privacyMode;
 
-    private byte[] execHash;
+    private byte[] execHash = new byte[0];
 
-    private Set<MessageHash> affectedContractTransactions;
+    private Set<MessageHash> affectedContractTransactions = Collections.emptySet();
 
     private PrivacyGroup.Id privacyGroupId;
+
+    private Set<PublicKey> mandatoryRecipients = Collections.emptySet();
 
     public static Builder create() {
       return new Builder() {};
@@ -77,21 +81,29 @@ public interface SendRequest {
       return this;
     }
 
+    public Builder withMandatoryRecipients(Set<PublicKey> mandatoryRecipients) {
+      this.mandatoryRecipients = mandatoryRecipients;
+      return this;
+    }
+
     public SendRequest build() {
 
       Objects.requireNonNull(from, "Sender is required");
       Objects.requireNonNull(recipients, "Recipients are required");
       Objects.requireNonNull(payload, "Payload is required");
       Objects.requireNonNull(privacyMode, "PrivacyMode is required");
-      Objects.requireNonNull(
-          affectedContractTransactions, "AffectedContractTransactions is required");
-      Objects.requireNonNull(execHash, "ExecutionHash is required");
 
       if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
         if (execHash.length == 0) {
           throw new RuntimeException(
               "ExecutionHash is required for PRIVATE_STATE_VALIDATION privacy mode");
         }
+      }
+
+      if ((privacyMode == PrivacyMode.MANDATORY_RECIPIENTS) == mandatoryRecipients.isEmpty()) {
+        throw new RuntimeException(
+          "Mandatory recipients data only applicable for Mandatory Recipients privacy mode. "
+            + "In case no mandatory recipient is required, consider using Party Protection privacy mode");
       }
 
       return new SendRequest() {
@@ -118,7 +130,7 @@ public interface SendRequest {
 
         @Override
         public byte[] getExecHash() {
-          return execHash;
+          return Arrays.copyOf(execHash, execHash.length);
         }
 
         @Override
@@ -129,6 +141,11 @@ public interface SendRequest {
         @Override
         public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
           return Optional.ofNullable(privacyGroupId);
+        }
+
+        @Override
+        public Set<PublicKey> getMandatoryRecipients() {
+          return Set.copyOf(mandatoryRecipients);
         }
       };
     }

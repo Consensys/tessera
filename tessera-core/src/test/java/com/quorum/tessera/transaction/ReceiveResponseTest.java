@@ -85,4 +85,32 @@ public class ReceiveResponseTest {
     assertThat(result.sender()).isEqualTo(PublicKey.from("sender".getBytes()));
     assertThat(result.getManagedParties()).containsExactly(PublicKey.from("ownKey".getBytes()));
   }
+
+  @Test
+  public void buildMandatoryRecipients() {
+    ReceiveResponse result =
+        ReceiveResponse.Builder.create()
+            .withUnencryptedTransactionData("data".getBytes())
+            .withSender(PublicKey.from("sender".getBytes()))
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withAffectedTransactions(Set.of(new MessageHash("hash".getBytes())))
+            .withManagedParties(Set.of(PublicKey.from("ownKey".getBytes())))
+            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
+            .withMandatoryRecipients(
+                Set.of(
+                    PublicKey.from("mandatory1".getBytes()),
+                    PublicKey.from("mandatory2".getBytes())))
+            .build();
+
+    assertThat(result.getPrivacyGroupId()).isPresent();
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
+    assertThat(result.getAffectedTransactions())
+        .containsExactly(new MessageHash("hash".getBytes()));
+    assertThat(result.getPrivacyGroupId().get())
+        .isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
+    assertThat(result.sender()).isEqualTo(PublicKey.from("sender".getBytes()));
+    assertThat(result.getManagedParties()).containsExactly(PublicKey.from("ownKey".getBytes()));
+    assertThat(result.getMandatoryRecipients())
+        .contains(PublicKey.from("mandatory2".getBytes()), PublicKey.from("mandatory1".getBytes()));
+  }
 }

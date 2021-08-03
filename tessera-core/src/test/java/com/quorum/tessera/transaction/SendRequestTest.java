@@ -89,4 +89,60 @@ public class SendRequestTest {
         .withExecHash(new byte[0])
         .build();
   }
+
+  @Test
+  public void buildWithMandatoryRecipients() {
+    byte[] payload = "Payload".getBytes();
+    PublicKey sender = mock(PublicKey.class);
+    PrivacyGroup.Id groupId = mock(PrivacyGroup.Id.class);
+    List<PublicKey> recipients = List.of(mock(PublicKey.class));
+    MessageHash affectedTransaction = mock(MessageHash.class);
+    SendRequest sendRequest =
+        SendRequest.Builder.create()
+            .withPayload(payload)
+            .withSender(sender)
+            .withRecipients(recipients)
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withMandatoryRecipients(Set.of(PublicKey.from("key".getBytes())))
+            .withAffectedContractTransactions(Set.of(affectedTransaction))
+            .withPrivacyGroupId(groupId)
+            .build();
+
+    assertThat(sendRequest).isNotNull();
+    assertThat(sendRequest.getSender()).isSameAs(sender);
+    assertThat(sendRequest.getPayload()).containsExactly(payload);
+    assertThat(sendRequest.getRecipients()).containsAll(recipients);
+    assertThat(sendRequest.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
+    assertThat(sendRequest.getAffectedContractTransactions()).containsExactly(affectedTransaction);
+    assertThat(sendRequest.getMandatoryRecipients())
+        .containsExactly(PublicKey.from("key".getBytes()));
+    assertThat(sendRequest.getPrivacyGroupId()).isPresent().get().isSameAs(groupId);
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void buildWithMandatoryRecipientsInvalid() {
+    byte[] payload = "Payload".getBytes();
+    PublicKey sender = mock(PublicKey.class);
+    List<PublicKey> recipients = List.of(mock(PublicKey.class));
+      SendRequest.Builder.create()
+        .withPayload(payload)
+        .withSender(sender)
+        .withRecipients(recipients)
+        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+        .withMandatoryRecipients(Set.of(PublicKey.from("key".getBytes())))
+        .build();
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void buildWithNoMandatoryRecipientsData() {
+    byte[] payload = "Payload".getBytes();
+    PublicKey sender = mock(PublicKey.class);
+    List<PublicKey> recipients = List.of(mock(PublicKey.class));
+    SendRequest.Builder.create()
+      .withPayload(payload)
+      .withSender(sender)
+      .withRecipients(recipients)
+      .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+      .build();
+  }
 }

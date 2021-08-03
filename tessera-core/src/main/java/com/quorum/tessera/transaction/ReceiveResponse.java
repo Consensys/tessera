@@ -22,6 +22,8 @@ public interface ReceiveResponse {
 
   Optional<PrivacyGroup.Id> getPrivacyGroupId();
 
+  Set<PublicKey> getMandatoryRecipients();
+
   class Builder {
 
     private byte[] unencryptedTransactionData;
@@ -37,6 +39,8 @@ public interface ReceiveResponse {
     private PublicKey sender;
 
     private PrivacyGroup.Id privacyGroupId;
+
+    private Set<PublicKey> mandatoryRecipients = Collections.emptySet();
 
     private Builder() {}
 
@@ -76,6 +80,11 @@ public interface ReceiveResponse {
 
     public Builder withPrivacyGroupId(PrivacyGroup.Id privacyGroupId) {
       this.privacyGroupId = privacyGroupId;
+      return this;
+    }
+
+    public Builder withMandatoryRecipients(Set<PublicKey> mandatoryRecipients) {
+      this.mandatoryRecipients = mandatoryRecipients;
       return this;
     }
 
@@ -127,6 +136,11 @@ public interface ReceiveResponse {
         @Override
         public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
           return Optional.ofNullable(privacyGroupId);
+        }
+
+        @Override
+        public Set<PublicKey> getMandatoryRecipients() {
+          return Set.copyOf(mandatoryRecipients);
         }
       };
     }
