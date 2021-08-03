@@ -2231,4 +2231,293 @@ public class PayloadEncoderTest {
 
     assertThat(payload.getRecipientKeys()).containsExactly(PublicKey.from("someKey".getBytes()));
   }
+
+  @Test
+  public void encodeDecodePP() {
+
+    final EncodedPayload payload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(PublicKey.from("SENDER".getBytes()))
+            .withCipherText("CIPHER_TEXT".getBytes())
+            .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+            .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+            .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+            .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+            .withAffectedContractTransactions(
+                Map.of(
+                    TxHash.from("hash1".getBytes()),
+                    "1".getBytes(),
+                    TxHash.from("hash2".getBytes()),
+                    "2".getBytes()))
+            .build();
+
+    final byte[] encoded = payloadEncoder.encode(payload);
+
+    final EncodedPayload result = payloadEncoder.decode(encoded);
+
+    assertThat(result.getSenderKey()).isEqualTo(payload.getSenderKey());
+    assertThat(result.getCipherText()).isEqualTo(payload.getCipherText());
+    assertThat(result.getCipherTextNonce()).isEqualTo(payload.getCipherTextNonce());
+    assertThat(result.getRecipientBoxes()).isEqualTo(payload.getRecipientBoxes());
+    assertThat(result.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
+    assertThat(result.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
+
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
+    assertThat(result.getAffectedContractTransactions())
+        .isEqualTo(payload.getAffectedContractTransactions());
+    assertThat(result.getExecHash()).isNullOrEmpty();
+    assertThat(result.getPrivacyGroupId()).isNotPresent();
+    assertThat(result.getMandatoryRecipients()).isEmpty();
+  }
+
+  @Test
+  public void encodeDecodePPWithPrivacyGroupId() {
+
+    final EncodedPayload payload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(PublicKey.from("SENDER".getBytes()))
+            .withCipherText("CIPHER_TEXT".getBytes())
+            .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+            .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+            .withRecipientKeys(List.of(PublicKey.from("KEY1".getBytes())))
+            .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+            .withAffectedContractTransactions(
+                Map.of(
+                    TxHash.from("hash1".getBytes()),
+                    "1".getBytes(),
+                    TxHash.from("hash2".getBytes()),
+                    "2".getBytes()))
+            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
+            .build();
+
+    final byte[] encoded = payloadEncoder.encode(payload);
+
+    final EncodedPayload result = payloadEncoder.decode(encoded);
+
+    assertThat(result.getSenderKey()).isEqualTo(payload.getSenderKey());
+    assertThat(result.getCipherText()).isEqualTo(payload.getCipherText());
+    assertThat(result.getCipherTextNonce()).isEqualTo(payload.getCipherTextNonce());
+    assertThat(result.getRecipientBoxes()).isEqualTo(payload.getRecipientBoxes());
+    assertThat(result.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
+    assertThat(result.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
+
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
+    assertThat(result.getAffectedContractTransactions())
+        .isEqualTo(payload.getAffectedContractTransactions());
+    assertThat(result.getExecHash()).isNullOrEmpty();
+    assertThat(result.getPrivacyGroupId()).isPresent();
+    assertThat(result.getPrivacyGroupId().get().getBytes()).isEqualTo("group".getBytes());
+    assertThat(result.getMandatoryRecipients()).isEmpty();
+  }
+
+  @Test
+  public void encodeDecodeMR() {
+
+    final EncodedPayload payload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(PublicKey.from("SENDER".getBytes()))
+            .withCipherText("CIPHER_TEXT".getBytes())
+            .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+            .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+            .withRecipientKeys(
+                List.of(PublicKey.from("KEY1".getBytes()), PublicKey.from("KEY2".getBytes())))
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withAffectedContractTransactions(
+                Map.of(
+                    TxHash.from("hash1".getBytes()),
+                    "1".getBytes(),
+                    TxHash.from("hash2".getBytes()),
+                    "2".getBytes()))
+            .withMandatoryRecipients(Set.of(PublicKey.from("KEY2".getBytes())))
+            .build();
+
+    final byte[] encoded = payloadEncoder.encode(payload);
+
+    final EncodedPayload result = payloadEncoder.decode(encoded);
+
+    assertThat(result.getSenderKey()).isEqualTo(payload.getSenderKey());
+    assertThat(result.getCipherText()).isEqualTo(payload.getCipherText());
+    assertThat(result.getCipherTextNonce()).isEqualTo(payload.getCipherTextNonce());
+    assertThat(result.getRecipientBoxes()).isEqualTo(payload.getRecipientBoxes());
+    assertThat(result.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
+    assertThat(result.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
+
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
+    assertThat(result.getAffectedContractTransactions())
+        .isEqualTo(payload.getAffectedContractTransactions());
+    assertThat(result.getExecHash()).isNullOrEmpty();
+    assertThat(result.getPrivacyGroupId()).isNotPresent();
+    assertThat(result.getMandatoryRecipients()).isEqualTo(payload.getMandatoryRecipients());
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void encodeDecodeMREmptyList() {
+
+    final EncodedPayload payload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(PublicKey.from("SENDER".getBytes()))
+            .withCipherText("CIPHER_TEXT".getBytes())
+            .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+            .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+            .withRecipientKeys(
+                List.of(PublicKey.from("KEY1".getBytes()), PublicKey.from("KEY2".getBytes())))
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withAffectedContractTransactions(
+                Map.of(
+                    TxHash.from("hash1".getBytes()),
+                    "1".getBytes(),
+                    TxHash.from("hash2".getBytes()),
+                    "2".getBytes()))
+            .withMandatoryRecipients(emptySet())
+            .build();
+
+    final byte[] encoded = payloadEncoder.encode(payload);
+
+    final EncodedPayload result = payloadEncoder.decode(encoded);
+
+    assertThat(result.getSenderKey()).isEqualTo(payload.getSenderKey());
+    assertThat(result.getCipherText()).isEqualTo(payload.getCipherText());
+    assertThat(result.getCipherTextNonce()).isEqualTo(payload.getCipherTextNonce());
+    assertThat(result.getRecipientBoxes()).isEqualTo(payload.getRecipientBoxes());
+    assertThat(result.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
+    assertThat(result.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
+
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
+    assertThat(result.getAffectedContractTransactions())
+        .isEqualTo(payload.getAffectedContractTransactions());
+    assertThat(result.getExecHash()).isNullOrEmpty();
+    assertThat(result.getPrivacyGroupId()).isNotPresent();
+    assertThat(result.getMandatoryRecipients()).isEmpty();
+  }
+
+  @Test
+  public void encodeDecodeMRWithPrivacyGroupId() {
+
+    final EncodedPayload payload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(PublicKey.from("SENDER".getBytes()))
+            .withCipherText("CIPHER_TEXT".getBytes())
+            .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+            .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+            .withRecipientKeys(
+                List.of(PublicKey.from("KEY1".getBytes()), PublicKey.from("KEY2".getBytes())))
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withAffectedContractTransactions(
+                Map.of(
+                    TxHash.from("hash1".getBytes()),
+                    "1".getBytes(),
+                    TxHash.from("hash2".getBytes()),
+                    "2".getBytes()))
+            .withMandatoryRecipients(Set.of(PublicKey.from("KEY2".getBytes())))
+            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
+            .build();
+
+    final byte[] encoded = payloadEncoder.encode(payload);
+
+    final EncodedPayload result = payloadEncoder.decode(encoded);
+
+    assertThat(result.getSenderKey()).isEqualTo(payload.getSenderKey());
+    assertThat(result.getCipherText()).isEqualTo(payload.getCipherText());
+    assertThat(result.getCipherTextNonce()).isEqualTo(payload.getCipherTextNonce());
+    assertThat(result.getRecipientBoxes()).isEqualTo(payload.getRecipientBoxes());
+    assertThat(result.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
+    assertThat(result.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
+
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
+    assertThat(result.getAffectedContractTransactions())
+        .isEqualTo(payload.getAffectedContractTransactions());
+    assertThat(result.getExecHash()).isNullOrEmpty();
+    assertThat(result.getPrivacyGroupId()).isPresent();
+    assertThat(result.getPrivacyGroupId().get().getBytes()).isEqualTo("group".getBytes());
+    assertThat(result.getMandatoryRecipients()).containsExactly(PublicKey.from("KEY2".getBytes()));
+  }
+
+  @Test
+  public void encodeDecodePSV() {
+
+    final EncodedPayload payload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(PublicKey.from("SENDER".getBytes()))
+            .withCipherText("CIPHER_TEXT".getBytes())
+            .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+            .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+            .withRecipientKeys(
+                List.of(PublicKey.from("KEY1".getBytes()), PublicKey.from("KEY2".getBytes())))
+            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+            .withAffectedContractTransactions(
+                Map.of(
+                    TxHash.from("hash1".getBytes()),
+                    "1".getBytes(),
+                    TxHash.from("hash2".getBytes()),
+                    "2".getBytes()))
+            .withExecHash("execHash".getBytes())
+            .build();
+
+    final byte[] encoded = payloadEncoder.encode(payload);
+
+    final EncodedPayload result = payloadEncoder.decode(encoded);
+
+    assertThat(result.getSenderKey()).isEqualTo(payload.getSenderKey());
+    assertThat(result.getCipherText()).isEqualTo(payload.getCipherText());
+    assertThat(result.getCipherTextNonce()).isEqualTo(payload.getCipherTextNonce());
+    assertThat(result.getRecipientBoxes()).isEqualTo(payload.getRecipientBoxes());
+    assertThat(result.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
+    assertThat(result.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
+
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+    assertThat(result.getAffectedContractTransactions())
+        .isEqualTo(payload.getAffectedContractTransactions());
+    assertThat(result.getExecHash()).isEqualTo("execHash".getBytes());
+    assertThat(result.getPrivacyGroupId()).isNotPresent();
+    assertThat(result.getMandatoryRecipients()).isEmpty();
+  }
+
+  @Test
+  public void encodeDecodePSVWithPrivacyGroupId() {
+
+    final EncodedPayload payload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(PublicKey.from("SENDER".getBytes()))
+            .withCipherText("CIPHER_TEXT".getBytes())
+            .withCipherTextNonce(new Nonce("NONCE".getBytes()))
+            .withRecipientBoxes(singletonList("recipientBox".getBytes()))
+            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
+            .withRecipientKeys(
+                List.of(PublicKey.from("KEY1".getBytes()), PublicKey.from("KEY2".getBytes())))
+            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+            .withAffectedContractTransactions(
+                Map.of(
+                    TxHash.from("hash1".getBytes()),
+                    "1".getBytes(),
+                    TxHash.from("hash2".getBytes()),
+                    "2".getBytes()))
+            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
+            .withExecHash("execHash".getBytes())
+            .build();
+
+    final byte[] encoded = payloadEncoder.encode(payload);
+
+    final EncodedPayload result = payloadEncoder.decode(encoded);
+
+    assertThat(result.getSenderKey()).isEqualTo(payload.getSenderKey());
+    assertThat(result.getCipherText()).isEqualTo(payload.getCipherText());
+    assertThat(result.getCipherTextNonce()).isEqualTo(payload.getCipherTextNonce());
+    assertThat(result.getRecipientBoxes()).isEqualTo(payload.getRecipientBoxes());
+    assertThat(result.getRecipientNonce()).isEqualTo(payload.getRecipientNonce());
+    assertThat(result.getRecipientKeys()).isEqualTo(payload.getRecipientKeys());
+
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+    assertThat(result.getAffectedContractTransactions())
+        .isEqualTo(payload.getAffectedContractTransactions());
+    assertThat(result.getExecHash()).isEqualTo("execHash".getBytes());
+    assertThat(result.getPrivacyGroupId()).isPresent();
+    assertThat(result.getPrivacyGroupId().get().getBytes()).isEqualTo("group".getBytes());
+    assertThat(result.getMandatoryRecipients()).isEmpty();
+  }
 }

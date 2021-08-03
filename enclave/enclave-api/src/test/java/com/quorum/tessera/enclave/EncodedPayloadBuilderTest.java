@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
@@ -163,5 +164,30 @@ public class EncodedPayloadBuilderTest {
         .withRecipientKey(recipientKey)
         .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
         .build();
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void mandatoryRecipientsInvalid() {
+    EncodedPayload.Builder.create()
+        .withSenderKey(senderKey)
+        .withCipherText(cipherText)
+        .withCipherTextNonce(cipherTextNonce)
+        .withRecipientBox(recipientBox)
+        .withRecipientNonce(recipientNonce)
+        .withPrivacyFlag(1)
+        .withMandatoryRecipients(Set.of(PublicKey.from("KEY1".getBytes())))
+        .build();
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void mandatoryRecipientsInvalidNoData() {
+    EncodedPayload.Builder.create()
+      .withSenderKey(senderKey)
+      .withCipherText(cipherText)
+      .withCipherTextNonce(cipherTextNonce)
+      .withRecipientBox(recipientBox)
+      .withRecipientNonce(recipientNonce)
+      .withPrivacyFlag(2)
+      .build();
   }
 }
