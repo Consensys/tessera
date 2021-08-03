@@ -12,6 +12,7 @@ import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.version.EnhancedPrivacyVersion;
+import com.quorum.tessera.version.MandatoryRecipientsVersion;
 import java.net.URI;
 import java.util.Objects;
 import javax.ws.rs.ProcessingException;
@@ -19,8 +20,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.quorum.tessera.version.MandatoryRecipientsVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,10 +52,12 @@ public class RestPayloadPublisher implements PayloadPublisher {
     }
 
     if (PrivacyMode.MANDATORY_RECIPIENTS == payload.getPrivacyMode()
-      && !remoteNodeInfo.supportedApiVersions().contains(MandatoryRecipientsVersion.API_VERSION_4)) {
+        && !remoteNodeInfo
+            .supportedApiVersions()
+            .contains(MandatoryRecipientsVersion.API_VERSION_4)) {
       throw new MandatoryRecipientsNotSupportedException(
-        "Transactions with mandatory recipients are not currently supported on recipient "
-          + recipientKey.encodeToBase64());
+          "Transactions with mandatory recipients are not currently supported on recipient "
+              + recipientKey.encodeToBase64());
     }
 
     final String targetUrl = remoteNodeInfo.getUrl();

@@ -199,9 +199,10 @@ public class RestPayloadPublisherTest {
     when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
     when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
 
-    assertThatExceptionOfType(MandatoryRecipientsNotSupportedException.class).isThrownBy(
-      () -> payloadPublisher.publishPayload(encodedPayload, recipientKey))
-    .withMessageContaining("Transactions with mandatory recipients are not currently supported on recipient");
+    assertThatExceptionOfType(MandatoryRecipientsNotSupportedException.class)
+        .isThrownBy(() -> payloadPublisher.publishPayload(encodedPayload, recipientKey))
+        .withMessageContaining(
+            "Transactions with mandatory recipients are not currently supported on recipient");
 
     verify(discovery).getRemoteNodeInfo(eq(recipientKey));
   }

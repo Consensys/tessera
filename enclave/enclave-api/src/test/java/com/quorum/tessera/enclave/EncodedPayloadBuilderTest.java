@@ -182,12 +182,12 @@ public class EncodedPayloadBuilderTest {
   @Test(expected = RuntimeException.class)
   public void mandatoryRecipientsInvalidNoData() {
     EncodedPayload.Builder.create()
-      .withSenderKey(senderKey)
-      .withCipherText(cipherText)
-      .withCipherTextNonce(cipherTextNonce)
-      .withRecipientBox(recipientBox)
-      .withRecipientNonce(recipientNonce)
-      .withPrivacyFlag(2)
-      .build();
+        .withSenderKey(senderKey)
+        .withCipherText(cipherText)
+        .withCipherTextNonce(cipherTextNonce)
+        .withRecipientBox(recipientBox)
+        .withRecipientNonce(recipientNonce)
+        .withPrivacyFlag(2)
+        .build();
   }
 }

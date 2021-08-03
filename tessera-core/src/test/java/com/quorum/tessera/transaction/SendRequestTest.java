@@ -124,7 +124,7 @@ public class SendRequestTest {
     byte[] payload = "Payload".getBytes();
     PublicKey sender = mock(PublicKey.class);
     List<PublicKey> recipients = List.of(mock(PublicKey.class));
-      SendRequest.Builder.create()
+    SendRequest.Builder.create()
         .withPayload(payload)
         .withSender(sender)
         .withRecipients(recipients)
@@ -139,10 +139,10 @@ public class SendRequestTest {
     PublicKey sender = mock(PublicKey.class);
     List<PublicKey> recipients = List.of(mock(PublicKey.class));
     SendRequest.Builder.create()
-      .withPayload(payload)
-      .withSender(sender)
-      .withRecipients(recipients)
-      .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
-      .build();
+        .withPayload(payload)
+        .withSender(sender)
+        .withRecipients(recipients)
+        .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+        .build();
   }
 }

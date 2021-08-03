@@ -110,11 +110,11 @@ public class SendSignedRequestTest {
     byte[] payload = "Payload".getBytes();
     List<PublicKey> recipients = List.of(mock(PublicKey.class));
     SendSignedRequest.Builder.create()
-      .withSignedData(payload)
-      .withRecipients(recipients)
-      .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-      .withMandatoryRecipients(Set.of(PublicKey.from("key".getBytes())))
-      .build();
+        .withSignedData(payload)
+        .withRecipients(recipients)
+        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
+        .withMandatoryRecipients(Set.of(PublicKey.from("key".getBytes())))
+        .build();
   }
 
   @Test(expected = RuntimeException.class)
@@ -122,9 +122,9 @@ public class SendSignedRequestTest {
     byte[] payload = "Payload".getBytes();
     List<PublicKey> recipients = List.of(mock(PublicKey.class));
     SendSignedRequest.Builder.create()
-      .withSignedData(payload)
-      .withRecipients(recipients)
-      .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
-      .build();
+        .withSignedData(payload)
+        .withRecipients(recipients)
+        .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+        .build();
   }
 }

@@ -91,8 +91,8 @@ public interface SendSignedRequest {
 
       if ((privacyMode == PrivacyMode.MANDATORY_RECIPIENTS) == mandatoryRecipients.isEmpty()) {
         throw new RuntimeException(
-          "Mandatory recipients data only applicable for Mandatory Recipients privacy mode. "
-            + "In case no mandatory recipient is required, consider using Party Protection privacy mode");
+            "Mandatory recipients data only applicable for Mandatory Recipients privacy mode. "
+                + "In case no mandatory recipient is required, consider using Party Protection privacy mode");
       }
 
       return new SendSignedRequest() {

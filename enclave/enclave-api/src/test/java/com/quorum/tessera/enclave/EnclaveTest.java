@@ -716,15 +716,17 @@ public class EnclaveTest {
 
     byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
     when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey))
-      .thenReturn(encryptedMasterKeys);
+        .thenReturn(encryptedMasterKeys);
 
     final PrivacyMetadata metaData =
-      PrivacyMetadata.Builder.create().withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
-        .withMandatoryRecipients(Set.of(recipientPublicKey)).build();
+        PrivacyMetadata.Builder.create()
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withMandatoryRecipients(Set.of(recipientPublicKey))
+            .build();
 
     EncodedPayload result =
-      enclave.encryptPayload(
-        message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
+        enclave.encryptPayload(
+            message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -879,7 +881,7 @@ public class EnclaveTest {
     byte[] encryptedKeyBytes = "ENCRYPTED_KEY".getBytes();
 
     RawTransaction rawTransaction =
-      new RawTransaction(cipherText, encryptedKeyBytes, cipherNonce, senderPublicKey);
+        new RawTransaction(cipherText, encryptedKeyBytes, cipherNonce, senderPublicKey);
 
     Nonce recipientNonce = mock(Nonce.class);
 
@@ -889,7 +891,7 @@ public class EnclaveTest {
     when(nacl.computeSharedKey(senderPublicKey, senderPrivateKey)).thenReturn(sharedKeyForSender);
 
     when(nacl.openAfterPrecomputation(encryptedKeyBytes, cipherNonce, sharedKeyForSender))
-      .thenReturn(masterKeyBytes);
+        .thenReturn(masterKeyBytes);
 
     when(nacl.randomNonce()).thenReturn(recipientNonce);
 
@@ -900,16 +902,16 @@ public class EnclaveTest {
 
     byte[] encryptedMasterKeys = "encryptedMasterKeys".getBytes();
     when(nacl.sealAfterPrecomputation(masterKeyBytes, recipientNonce, sharedKey))
-      .thenReturn(encryptedMasterKeys);
+        .thenReturn(encryptedMasterKeys);
 
     final PrivacyMetadata metaData =
-      PrivacyMetadata.Builder.create()
-        .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
-        .withMandatoryRecipients(Set.of(recipientPublicKey))
-        .build();
+        PrivacyMetadata.Builder.create()
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withMandatoryRecipients(Set.of(recipientPublicKey))
+            .build();
 
     EncodedPayload result =
-      enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
+        enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);

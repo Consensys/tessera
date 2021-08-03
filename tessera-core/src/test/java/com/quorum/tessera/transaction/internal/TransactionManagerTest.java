@@ -127,7 +127,8 @@ public class TransactionManagerTest {
     when(sendRequest.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
     when(sendRequest.getMandatoryRecipients()).thenReturn(Set.of(receiver));
 
-    ArgumentCaptor<PrivacyMetadata> metadataArgCaptor = ArgumentCaptor.forClass(PrivacyMetadata.class);
+    ArgumentCaptor<PrivacyMetadata> metadataArgCaptor =
+        ArgumentCaptor.forClass(PrivacyMetadata.class);
 
     SendResponse result = transactionManager.send(sendRequest);
 
@@ -145,7 +146,6 @@ public class TransactionManagerTest {
 
     assertThat(metadata.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
     assertThat(metadata.getMandatoryRecipients()).containsExactly(receiver);
-
   }
 
   @Test
@@ -286,15 +286,15 @@ public class TransactionManagerTest {
     EncodedPayload payload = mock(EncodedPayload.class);
 
     EncryptedRawTransaction encryptedRawTransaction =
-      new EncryptedRawTransaction(
-        new MessageHash("HASH".getBytes()),
-        "ENCRYPTED_PAYLOAD".getBytes(),
-        "ENCRYPTED_KEY".getBytes(),
-        "NONCE".getBytes(),
-        "SENDER".getBytes());
+        new EncryptedRawTransaction(
+            new MessageHash("HASH".getBytes()),
+            "ENCRYPTED_PAYLOAD".getBytes(),
+            "ENCRYPTED_KEY".getBytes(),
+            "NONCE".getBytes(),
+            "SENDER".getBytes());
 
     when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
-      .thenReturn(Optional.of(encryptedRawTransaction));
+        .thenReturn(Optional.of(encryptedRawTransaction));
 
     when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
 
@@ -1086,10 +1086,10 @@ public class TransactionManagerTest {
     MessageHash messageHash = new MessageHash(randomData);
 
     ReceiveRequest receiveRequest =
-      ReceiveRequest.Builder.create()
-        .withRecipient(mock(PublicKey.class))
-        .withTransactionHash(messageHash)
-        .build();
+        ReceiveRequest.Builder.create()
+            .withRecipient(mock(PublicKey.class))
+            .withTransactionHash(messageHash)
+            .build();
 
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, randomData);
     PublicKey mandReceiver1 = PublicKey.from("mandatory1".getBytes());
@@ -1099,16 +1099,16 @@ public class TransactionManagerTest {
     when(payload.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
     when(payload.getSenderKey()).thenReturn(sender);
     when(payload.getPrivacyGroupId())
-      .thenReturn(Optional.of(PrivacyGroup.Id.fromBytes("group".getBytes())));
+        .thenReturn(Optional.of(PrivacyGroup.Id.fromBytes("group".getBytes())));
     when(payloadEncoder.decode(any(byte[].class))).thenReturn(payload);
 
     when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-      .thenReturn(Optional.of(encryptedTransaction));
+        .thenReturn(Optional.of(encryptedTransaction));
 
     byte[] expectedOutcome = "Encrypted payload".getBytes();
 
     when(enclave.unencryptTransaction(any(EncodedPayload.class), any(PublicKey.class)))
-      .thenReturn(expectedOutcome);
+        .thenReturn(expectedOutcome);
 
     PublicKey publicKey = mock(PublicKey.class);
     when(enclave.getPublicKeys()).thenReturn(Set.of(publicKey));
@@ -1120,7 +1120,7 @@ public class TransactionManagerTest {
     assertThat(receiveResponse.getUnencryptedTransactionData()).isEqualTo(expectedOutcome);
     assertThat(receiveResponse.getPrivacyGroupId()).isPresent();
     assertThat(receiveResponse.getPrivacyGroupId().get())
-      .isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
+        .isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
     assertThat(receiveResponse.getMandatoryRecipients()).contains(mandReceiver1, mandReceiver2);
 
     verify(payloadEncoder).decode(any(byte[].class));
