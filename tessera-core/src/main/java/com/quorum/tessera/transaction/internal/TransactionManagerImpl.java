@@ -104,7 +104,11 @@ public class TransactionManagerImpl implements TransactionManager {
         privacyHelper.findAffectedContractTransactionsFromSendRequest(
             sendRequest.getAffectedContractTransactions());
 
-    privacyHelper.validateSendRequest(privacyMode, recipientList, affectedContractTransactions);
+    privacyHelper.validateSendRequest(
+        privacyMode,
+        recipientList,
+        affectedContractTransactions,
+        sendRequest.getMandatoryRecipients());
 
     final PrivacyMetadata.Builder metadataBuilder =
         PrivacyMetadata.Builder.create()
@@ -180,7 +184,11 @@ public class TransactionManagerImpl implements TransactionManager {
         privacyHelper.findAffectedContractTransactionsFromSendRequest(
             sendRequest.getAffectedContractTransactions());
 
-    privacyHelper.validateSendRequest(privacyMode, recipientList, affectedContractTransactions);
+    privacyHelper.validateSendRequest(
+        privacyMode,
+        recipientList,
+        affectedContractTransactions,
+        sendRequest.getMandatoryRecipients());
 
     final List<PublicKey> recipientListNoDuplicate =
         recipientList.stream().distinct().collect(Collectors.toList());

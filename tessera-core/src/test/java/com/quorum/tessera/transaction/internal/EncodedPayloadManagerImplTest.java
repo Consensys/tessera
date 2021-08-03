@@ -77,7 +77,10 @@ public class EncodedPayloadManagerImplTest {
     verify(privacyHelper).findAffectedContractTransactionsFromSendRequest(emptySet());
     verify(privacyHelper)
         .validateSendRequest(
-            PrivacyMode.STANDARD_PRIVATE, List.of(singleRecipient, sender), emptyList());
+            PrivacyMode.STANDARD_PRIVATE,
+            List.of(singleRecipient, sender),
+            emptyList(),
+            emptySet());
     verify(enclave)
         .encryptPayload(
             eq(request.getPayload()), eq(sender), eq(List.of(singleRecipient, sender)), any());
@@ -118,7 +121,10 @@ public class EncodedPayloadManagerImplTest {
     verify(privacyHelper).findAffectedContractTransactionsFromSendRequest(emptySet());
     verify(privacyHelper)
         .validateSendRequest(
-            PrivacyMode.STANDARD_PRIVATE, List.of(singleRecipient, sender), emptyList());
+            PrivacyMode.STANDARD_PRIVATE,
+            List.of(singleRecipient, sender),
+            emptyList(),
+            emptySet());
     verify(enclave)
         .encryptPayload(
             eq(request.getPayload()), eq(sender), eq(List.of(singleRecipient, sender)), any());
