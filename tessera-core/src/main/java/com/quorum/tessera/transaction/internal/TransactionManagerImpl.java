@@ -110,7 +110,8 @@ public class TransactionManagerImpl implements TransactionManager {
         PrivacyMetadata.Builder.create()
             .withPrivacyMode(privacyMode)
             .withAffectedTransactions(affectedContractTransactions)
-            .withExecHash(execHash);
+            .withExecHash(execHash)
+            .withMandatoryRecipients(sendRequest.getMandatoryRecipients());
     sendRequest.getPrivacyGroupId().ifPresent(metadataBuilder::withPrivacyGroupId);
 
     final EncodedPayload payload =
@@ -188,7 +189,8 @@ public class TransactionManagerImpl implements TransactionManager {
         PrivacyMetadata.Builder.create()
             .withPrivacyMode(privacyMode)
             .withAffectedTransactions(affectedContractTransactions)
-            .withExecHash(execHash);
+            .withExecHash(execHash)
+            .withMandatoryRecipients(sendRequest.getMandatoryRecipients());
     sendRequest.getPrivacyGroupId().ifPresent(privacyMetaDataBuilder::withPrivacyGroupId);
 
     final EncodedPayload payload =
@@ -450,6 +452,7 @@ public class TransactionManagerImpl implements TransactionManager {
         .withExecHash(payload.getExecHash())
         .withManagedParties(managedParties)
         .withSender(payload.getSenderKey())
+        .withMandatoryRecipients(payload.getMandatoryRecipients())
         .build();
   }
 
