@@ -39,6 +39,7 @@ jobs:
           now=`date +%Y%m%d%H%M%S`
           tagversion=`cat version.txt | cut -d'-' -f1`
           tagname="tessera-$tagversion"
+          echo "Releasing $tagname"
           echo "$tagversion" > version.txt
           git add version.txt
           git commit -m "Change to release version $tagversion"
