@@ -53,7 +53,7 @@ public class Q2TRestAppTest {
       configFactoryMockedStatic.when(ConfigFactory::create).thenReturn(configFactory);
 
       Set<Object> results = q2TRestApp.getSingletons();
-      assertThat(results).hasSize(6);
+      assertThat(results).hasSize(7);
       List<Class> types = results.stream().map(Object::getClass).collect(Collectors.toList());
       assertThat(types)
           .containsExactlyInAnyOrder(
@@ -62,6 +62,7 @@ public class Q2TRestAppTest {
               EncodedPayloadResource.class,
               UpCheckResource.class,
               TransactionResource3.class,
+              TransactionResource4.class,
               PrivacyGroupResource.class);
     }
   }
