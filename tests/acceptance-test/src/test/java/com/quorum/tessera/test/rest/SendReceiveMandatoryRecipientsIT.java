@@ -145,19 +145,19 @@ public class SendReceiveMandatoryRecipientsIT {
     assertThat(hash).hasSize(64);
 
     final String encodedHash =
-      URLEncoder.encode(Base64.getEncoder().encodeToString(hash), UTF_8.toString());
+        URLEncoder.encode(Base64.getEncoder().encodeToString(hash), UTF_8.toString());
 
     final Response retrieve =
-      a.getRestClient()
-        .target(a.getQ2TUri())
-        .path("/transaction")
-        .path(encodedHash)
-        .request()
-        .accept(MIME_TYPE_JSON_4)
-        .buildGet()
-        .invoke();
+        a.getRestClient()
+            .target(a.getQ2TUri())
+            .path("/transaction")
+            .path(encodedHash)
+            .request()
+            .accept(MIME_TYPE_JSON_4)
+            .buildGet()
+            .invoke();
 
-    //Transaction has not yet been distributed at this point
+    // Transaction has not yet been distributed at this point
     assertThat(retrieve.getStatus()).isEqualTo(404);
 
     final SendSignedRequest sendSignedRequest = new SendSignedRequest();
