@@ -102,7 +102,7 @@ public class SendReceiveMandatoryRecipientsIT {
     assertThat(receiveResult.getMandatoryRecipients()).containsExactly(c.getPublicKey());
 
     final Response receiveResponseOnC =
-        b.getRestClient()
+        c.getRestClient()
             .target(c.getQ2TUri())
             .path("/transaction")
             .path(encodedHash)
