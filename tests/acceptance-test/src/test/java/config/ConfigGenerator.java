@@ -191,6 +191,8 @@ public class ConfigGenerator {
 
     // Node A,B,C have enhanced private enabled, node D does not
 
+    // Only node A has a third party server
+
     Config first =
         new ConfigBuilder()
             .withNodeId(nodeId)
@@ -198,6 +200,7 @@ public class ConfigGenerator {
             .withExecutionContext(executionContext)
             .withQt2Port(port.nextPort())
             .withP2pPort(port.nextPort())
+            .withThirdPartyPort(port.nextPort())
             .withEnclavePort(port.nextPort())
             .withPartyInfoInterval(partyInfoInterval)
             .withKeys(keyLookUp.get(1))
