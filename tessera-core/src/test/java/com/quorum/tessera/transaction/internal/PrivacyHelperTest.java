@@ -307,6 +307,35 @@ public class PrivacyHelperTest {
   }
 
   @Test
+  public void validPayloadMandatoryRecipients() {
+
+    TxHash txHash = mock(TxHash.class);
+    EncodedPayload payload = mock(EncodedPayload.class);
+    when(payload.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
+    PublicKey mandatory1 = mock(PublicKey.class);
+    PublicKey mandatory2 = mock(PublicKey.class);
+    when(payload.getMandatoryRecipients()).thenReturn(Set.of(mandatory1, mandatory2));
+
+    EncodedPayload affectedPayload1 = mock(EncodedPayload.class);
+    when(affectedPayload1.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
+    when(affectedPayload1.getMandatoryRecipients()).thenReturn(Set.of(mandatory1));
+    AffectedTransaction affectedTransaction1 = mock(AffectedTransaction.class);
+    when(affectedTransaction1.getPayload()).thenReturn(affectedPayload1);
+
+    EncodedPayload affectedPayload2 = mock(EncodedPayload.class);
+    when(affectedPayload2.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
+    when(affectedPayload2.getMandatoryRecipients()).thenReturn(Set.of(mandatory2));
+    AffectedTransaction affectedTransaction2 = mock(AffectedTransaction.class);
+    when(affectedTransaction2.getPayload()).thenReturn(affectedPayload2);
+
+    boolean result =
+        privacyHelper.validatePayload(
+            txHash, payload, List.of(affectedTransaction1, affectedTransaction2));
+
+    assertThat(result).isTrue();
+  }
+
+  @Test
   public void validatePsvPayloadWithMissingAffectedTxs() {
     final TxHash txHash = mock(TxHash.class);
     EncodedPayload payload = mock(EncodedPayload.class);
@@ -567,5 +596,31 @@ public class PrivacyHelperTest {
                     singletonList(affectedTransaction),
                     Set.of(recipient1)))
         .withMessageContaining("Privacy metadata mismatched");
+  }
+
+  @Test
+  public void testValidSendMandatoryRecipients() {
+
+    PublicKey recipient1 = mock(PublicKey.class);
+    PublicKey recipient2 = mock(PublicKey.class);
+
+    final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
+    when(encodedPayload.getRecipientKeys()).thenReturn(List.of(recipient1));
+    when(encodedPayload.getMandatoryRecipients()).thenReturn(Set.of(recipient1));
+
+    final AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
+    when(affectedTransaction.getPayload()).thenReturn(encodedPayload);
+    final TxHash hash = TxHash.from("someHash".getBytes());
+    when(affectedTransaction.getHash()).thenReturn(hash);
+
+    boolean valid =
+        privacyHelper.validateSendRequest(
+            PrivacyMode.MANDATORY_RECIPIENTS,
+            List.of(recipient1, recipient2),
+            singletonList(affectedTransaction),
+            Set.of(recipient1, recipient2));
+
+    assertThat(valid).isTrue();
   }
 }

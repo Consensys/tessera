@@ -137,7 +137,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
         .filter(
             a ->
                 a.getPayload().getPrivacyMode() != privacyMode
-                    || !a.getPayload().getMandatoryRecipients().equals(mandatoryRecipients))
+                    || !mandatoryRecipients.containsAll(a.getPayload().getMandatoryRecipients()))
         .findFirst()
         .ifPresent(
             affectedTransaction -> {
@@ -172,9 +172,9 @@ public class PrivacyHelperImpl implements PrivacyHelper {
                         privacyMode.name());
                     return true;
                   }
-                  if (!a.getPayload()
+                  if (!payload
                       .getMandatoryRecipients()
-                      .equals(payload.getMandatoryRecipients())) {
+                      .containsAll(a.getPayload().getMandatoryRecipients())) {
                     LOGGER.info(
                         "ACOTH {} has mandatory recipients mismatched. Ignoring transaction.",
                         a.getHash());
