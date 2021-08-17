@@ -7,10 +7,10 @@ import com.quorum.tessera.config.SslTrustMode;
 import com.quorum.tessera.config.util.EnvironmentVariableProvider;
 import com.quorum.tessera.config.util.EnvironmentVariableProviderFactory;
 import com.quorum.tessera.config.util.EnvironmentVariables;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.nio.file.Files;
 import java.util.Objects;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class SslConfigValidator implements ConstraintValidator<ValidSsl, SslConfig> {
 

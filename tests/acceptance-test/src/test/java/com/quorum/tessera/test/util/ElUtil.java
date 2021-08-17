@@ -15,10 +15,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.el.ELContext;
-import javax.el.ELProcessor;
-import javax.el.ExpressionFactory;
-import javax.el.ValueExpression;
+import jakarta.el.ELContext;
+import jakarta.el.ELProcessor;
+import jakarta.el.ExpressionFactory;
+import jakarta.el.ValueExpression;
 
 public class ElUtil {
 

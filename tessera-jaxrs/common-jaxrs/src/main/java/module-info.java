@@ -1,6 +1,6 @@
 module tessera.common.jaxrs {
   requires java.persistence;
-  requires java.validation;
+  requires jakarta.validation;
   requires java.ws.rs;
   requires java.xml.bind;
   requires org.apache.commons.lang3;

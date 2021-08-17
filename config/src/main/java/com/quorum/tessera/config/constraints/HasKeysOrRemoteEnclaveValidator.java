@@ -2,10 +2,10 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
 import java.util.Optional;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class HasKeysOrRemoteEnclaveValidator
     implements ConstraintValidator<HasKeysOrRemoteEnclave, Config> {

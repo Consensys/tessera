@@ -1,9 +1,9 @@
 package com.quorum.tessera.config.constraints;
 
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.net.MalformedURLException;
 import java.net.URL;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class UrlValidator implements ConstraintValidator<ValidUrl, String> {
 

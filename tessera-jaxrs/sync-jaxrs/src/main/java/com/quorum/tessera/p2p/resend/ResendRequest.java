@@ -1,7 +1,7 @@
 package com.quorum.tessera.p2p.resend;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import javax.validation.constraints.Pattern;
+import jakarta.validation.constraints.Pattern;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests. Used when a request is received to

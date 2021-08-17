@@ -1,8 +1,8 @@
 package com.quorum.tessera.data.staging;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "ST_AFFECTED_TRANSACTION")

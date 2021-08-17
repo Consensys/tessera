@@ -33,15 +33,15 @@ public class MarshallerBuilder {
           JAXBContext jAXBContext = JAXBContext.newInstance(JaxbUtil.JAXB_CLASSES);
 
           Marshaller marshaller = jAXBContext.createMarshaller();
-          if (!beanvalidation) {
-            Enum enu =
-                Enum.valueOf(
-                    Class.class.cast(
-                        marshaller.getProperty("eclipselink.beanvalidation.mode").getClass()),
-                    "NONE");
+          final Class<Enum> beanValidationModeType = Class.class.cast(
+            marshaller.getProperty("eclipselink.beanvalidation.mode").getClass());
 
-            marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
-          }
+          final Enum enu =
+            Enum.valueOf(
+              beanValidationModeType,
+              beanvalidation ? "AUTO":"NONE");
+
+          marshaller.setProperty("eclipselink.beanvalidation.mode", enu);
 
           marshaller.setProperty("eclipselink.media-type", mediaType.getValue());
           marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

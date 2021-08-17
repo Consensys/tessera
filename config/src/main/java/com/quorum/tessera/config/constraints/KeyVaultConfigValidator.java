@@ -2,12 +2,12 @@ package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.DefaultKeyVaultConfig;
 import com.quorum.tessera.config.KeyVaultType;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 // Define here to be used during path validation
 @ValidPath(checkExists = true, message = "File does not exist")

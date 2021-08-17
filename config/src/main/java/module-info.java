@@ -1,7 +1,7 @@
 import com.quorum.tessera.config.internal.ConfigFactoryProvider;
 
 open module tessera.config {
-  requires java.validation;
+  requires jakarta.validation;
   requires java.xml;
   requires java.xml.bind;
   requires jasypt;

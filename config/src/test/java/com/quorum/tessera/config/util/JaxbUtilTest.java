@@ -5,12 +5,12 @@ import static org.mockito.Mockito.mock;
 
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.keys.KeyEncryptorFactory;
+import jakarta.validation.ConstraintViolationException;
 import java.io.*;
 import java.util.Collections;
 import java.util.Optional;
 import javax.json.Json;
 import javax.json.JsonObject;
-import javax.validation.ConstraintViolationException;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.MarshalException;
 import javax.xml.transform.TransformerException;

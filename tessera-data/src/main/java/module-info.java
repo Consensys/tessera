@@ -9,7 +9,7 @@ open module tessera.data {
   requires tessera.shared;
   requires java.sql;
   requires com.zaxxer.hikari;
-  requires java.validation;
+  requires jakarta.validation;
   requires tessera.eclipselink.utils;
 
   //    opens com.quorum.tessera.data to org.eclipse.persistence.core;
