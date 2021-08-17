@@ -7,10 +7,10 @@ import static org.mockito.Mockito.when;
 
 import com.quorum.tessera.config.DefaultKeyVaultConfig;
 import com.quorum.tessera.config.KeyVaultType;
+import jakarta.validation.ConstraintValidatorContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
-import javax.validation.ConstraintValidatorContext;
 import org.junit.Before;
 import org.junit.Test;
 

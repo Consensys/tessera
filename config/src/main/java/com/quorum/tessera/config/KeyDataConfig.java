@@ -1,8 +1,8 @@
 package com.quorum.tessera.config;
 
 import com.quorum.tessera.config.adapters.PrivateKeyTypeAdapter;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;

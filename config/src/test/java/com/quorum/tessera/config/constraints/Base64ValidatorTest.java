@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Base64;
 import java.util.UUID;
-import javax.validation.ConstraintValidatorContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

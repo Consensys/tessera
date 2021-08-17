@@ -1,7 +1,7 @@
 module tessera.application {
   exports com.quorum.tessera.launcher;
 
-  requires java.validation;
+  requires jakarta.validation;
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.cli.api;

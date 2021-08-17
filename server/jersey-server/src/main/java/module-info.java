@@ -1,7 +1,7 @@
 module tessera.server.jersey {
   requires java.management;
   requires java.ws.rs;
-  requires java.validation;
+  requires jakarta.validation;
   requires org.eclipse.jetty.server;
   requires org.eclipse.jetty.servlet;
   requires org.slf4j;

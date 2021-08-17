@@ -5,8 +5,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.quorum.tessera.config.ConfigItem;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Collections;
-import javax.validation.ConstraintValidatorContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Element;

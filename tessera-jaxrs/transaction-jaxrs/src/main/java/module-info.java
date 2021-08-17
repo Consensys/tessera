@@ -1,5 +1,5 @@
 module tessera.transaction.jaxrs {
-  requires java.validation;
+  requires jakarta.validation;
   requires java.ws.rs;
   requires org.slf4j;
   requires io.swagger.v3.oas.annotations;

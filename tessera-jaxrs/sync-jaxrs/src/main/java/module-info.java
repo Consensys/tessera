@@ -1,6 +1,6 @@
 module tessera.partyinfo.jaxrs {
   requires java.json;
-  requires java.validation;
+  requires jakarta.validation;
   requires java.ws.rs;
   requires org.slf4j;
   requires tessera.config;

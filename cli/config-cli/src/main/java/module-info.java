@@ -1,6 +1,6 @@
 module tessera.cli.config {
   requires java.management;
-  requires java.validation;
+  requires jakarta.validation;
   requires java.xml.bind;
   requires info.picocli;
   requires org.slf4j;

@@ -13,7 +13,7 @@ plugins {
 
 ext {
   jettyVersion = "9.4.43.v20210629"
-  eclipselinkVersion = "2.7.7"
+  eclipselinkVersion = "2.7.9"
   swaggerVersion = "2.1.9"
   jerseyVersion = "2.32"
   slf4jVersion = "1.7.30"
@@ -135,11 +135,11 @@ allprojects {
         //api "jakarta.json:jakarta.json-api:1.1.6"
         implementation "org.glassfish:jakarta.json:1.1.6"
 
-        api "jakarta.el:jakarta.el-api:3.0.3"
-        implementation "org.glassfish:jakarta.el:3.0.3"
+        api "jakarta.el:jakarta.el-api:4.0.0"
+        implementation "org.glassfish:jakarta.el:4.0.1"
 
-        api "jakarta.validation:jakarta.validation-api:2.0.2"
-        implementation "org.hibernate.validator:hibernate-validator:6.1.6.Final"
+        api "jakarta.validation:jakarta.validation-api:3.0.0"
+        implementation "org.hibernate.validator:hibernate-validator:7.0.1.Final"
 
         implementation "net.java.dev.jna:jna:5.6.0"
 

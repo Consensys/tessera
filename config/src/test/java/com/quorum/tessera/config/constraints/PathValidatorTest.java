@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.io.FilesDelegate;
+import jakarta.validation.ConstraintValidatorContext;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -13,7 +14,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.validation.ConstraintValidatorContext;
 import org.junit.Test;
 
 public class PathValidatorTest {

@@ -3,10 +3,10 @@ package com.quorum.tessera.config.constraints;
 import com.quorum.tessera.config.KeyConfiguration;
 import com.quorum.tessera.config.KeyVaultConfig;
 import com.quorum.tessera.config.KeyVaultType;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class NoDuplicateKeyVaultConfigsValidator
     implements ConstraintValidator<NoDuplicateKeyVaultConfigs, KeyConfiguration> {
