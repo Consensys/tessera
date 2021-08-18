@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-25fef0c1
+  version: latest-9a7c938d
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -628,9 +628,7 @@ paths:
     get:
       tags:
         - quorum-to-tessera
-      summary: /transaction/{hash}
-      description: get payload from database, decrypt, and return
-      operationId: getDecryptedPayloadJsonUrl
+      operationId: receive
       parameters:
         - name: hash
           in: path
@@ -660,15 +658,10 @@ paths:
             pattern: ^(true|false)$
             type: string
       responses:
-        "200":
-          description: decrypted payload
+        default:
+          description: default response
           content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
-            application/vnd.tessera-2.1+json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
+            application/vnd.tessera-4.0+json: {}
     delete:
       tags:
         - quorum-to-tessera
@@ -736,75 +729,34 @@ paths:
     post:
       tags:
         - quorum-to-tessera
-      summary: /send
-      description: encrypts a payload, stores result in database, and publishes result
-        to recipients
-      operationId: encryptStoreAndSendJson
+      operationId: send
       requestBody:
         content:
-          application/json:
+          application/vnd.tessera-4.0+json:
             schema:
               $ref: "#/components/schemas/com.quorum.tessera.api.SendRequest"
-          application/vnd.tessera-2.1+json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.SendRequest"
+        required: true
       responses:
-        "200":
-          description: hash returned when running in orion mode
+        default:
+          description: default response
           content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
-        "201":
-          description: encrypted payload hash
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
-            application/vnd.tessera-2.1+json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
+            application/vnd.tessera-4.0+json: {}
   /sendsignedtx:
     post:
       tags:
         - quorum-to-tessera
-      summary: /sendsignedtx
-      description: re-wraps a pre-stored & pre-encrypted payload, stores result in
-        database, and publishes result to recipients
-      operationId: sendStored
+      operationId: sendSignedTransaction
       requestBody:
         content:
-          application/json:
+          application/vnd.tessera-4.0+json:
             schema:
               $ref: "#/components/schemas/com.quorum.tessera.api.SendSignedRequest"
-          application/vnd.tessera-2.1+json:
-            schema:
-              $ref: "#/components/schemas/com.quorum.tessera.api.SendSignedRequest"
-          application/octet-stream:
-            schema:
-              type: array
-              items:
-                type: string
-                description: hash of pre-stored payload
-                format: base64
+        required: true
       responses:
-        "200":
-          description: hash of rewrapped payload (for application/octet-stream requests)
+        default:
+          description: default response
           content:
-            application/octet-stream:
-              schema:
-                type: string
-                description: hash of rewrapped payload
-                format: base64
-        "201":
-          description: hash of rewrapped payload
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
-            application/vnd.tessera-2.1+json:
-              schema:
-                $ref: "#/components/schemas/com.quorum.tessera.api.SendResponse"
+            application/vnd.tessera-4.0+json: {}
   /keys:
     get:
       tags:
@@ -1027,6 +979,12 @@ components:
           type: string
           description: privacy group id of the payload
           format: base64
+        mandatoryRecipients:
+          type: array
+          description: public keys identifying the mandatory recipients of the payload
+          items:
+            type: string
+            format: base64
     com.quorum.tessera.api.PayloadEncryptResponse:
       type: object
       properties:
@@ -1197,6 +1155,14 @@ components:
           type: string
           description: privacy group id of the transaction
           format: base64
+        mandatoryRecipients:
+          type: array
+          description: mandatory recipients of the transaction
+          format: base64
+          items:
+            type: string
+            description: mandatory recipients of the transaction
+            format: base64
     com.quorum.tessera.api.PrivacyGroupRequest:
       type: object
       properties:
@@ -1353,6 +1319,12 @@ components:
           type: string
           description: privacy group id of the payload
           format: base64
+        mandatoryRecipients:
+          type: array
+          description: public keys identifying the mandatory recipients of the payload
+          items:
+            type: string
+            format: base64
     com.quorum.tessera.thirdparty.model.GetPublicKeysResponse:
       type: object
       properties:
