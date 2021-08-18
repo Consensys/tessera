@@ -5,6 +5,7 @@ import java.util.stream.Stream;
 public enum PrivacyMode {
   STANDARD_PRIVATE(0),
   PARTY_PROTECTION(1),
+  MANDATORY_RECIPIENTS(2),
   PRIVATE_STATE_VALIDATION(3);
 
   private final int privacyFlag;

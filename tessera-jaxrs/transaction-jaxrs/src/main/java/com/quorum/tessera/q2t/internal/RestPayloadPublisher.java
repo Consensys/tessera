@@ -7,10 +7,12 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
+import com.quorum.tessera.transaction.exception.MandatoryRecipientsNotSupportedException;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.version.EnhancedPrivacyVersion;
+import com.quorum.tessera.version.MandatoryRecipientsVersion;
 import java.net.URI;
 import java.util.Objects;
 import javax.ws.rs.ProcessingException;
@@ -46,6 +48,15 @@ public class RestPayloadPublisher implements PayloadPublisher {
         && !remoteNodeInfo.supportedApiVersions().contains(EnhancedPrivacyVersion.API_VERSION_2)) {
       throw new EnhancedPrivacyNotSupportedException(
           "Transactions with enhanced privacy is not currently supported on recipient "
+              + recipientKey.encodeToBase64());
+    }
+
+    if (PrivacyMode.MANDATORY_RECIPIENTS == payload.getPrivacyMode()
+        && !remoteNodeInfo
+            .supportedApiVersions()
+            .contains(MandatoryRecipientsVersion.API_VERSION_4)) {
+      throw new MandatoryRecipientsNotSupportedException(
+          "Transactions with mandatory recipients are not currently supported on recipient "
               + recipientKey.encodeToBase64());
     }
 

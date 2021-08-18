@@ -4,10 +4,7 @@ import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import javax.json.Json;
 import javax.ws.rs.*;
@@ -93,19 +90,23 @@ public class EnclaveResource {
     final List<AffectedTransaction> affectedTransactions =
         convertToAffectedTransactions(payload.getAffectedContractTransactions());
 
-    final PrivacyMetadata.Builder privacyMetaDataBuilder =
+    final Set<PublicKey> mandatoryRecipients =
+        payload.getMandatoryRecipients().stream().map(PublicKey::from).collect(Collectors.toSet());
+
+    final PrivacyMetadata.Builder privacyMetadataBuilder =
         PrivacyMetadata.Builder.create()
             .withPrivacyMode(payload.getPrivacyMode())
             .withAffectedTransactions(affectedTransactions)
-            .withExecHash(payload.getExecHash());
+            .withExecHash(payload.getExecHash())
+            .withMandatoryRecipients(mandatoryRecipients);
 
     Optional.ofNullable(payload.getPrivacyGroupId())
         .map(PrivacyGroup.Id::fromBytes)
-        .ifPresent(privacyMetaDataBuilder::withPrivacyGroupId);
+        .ifPresent(privacyMetadataBuilder::withPrivacyGroupId);
 
     EncodedPayload outcome =
         enclave.encryptPayload(
-            payload.getData(), senderKey, recipientPublicKeys, privacyMetaDataBuilder.build());
+            payload.getData(), senderKey, recipientPublicKeys, privacyMetadataBuilder.build());
 
     byte[] response = payloadEncoder.encode(outcome);
     final StreamingOutput streamingOutput = out -> out.write(response);
@@ -133,11 +134,17 @@ public class EnclaveResource {
     final List<AffectedTransaction> affectedTransactions =
         convertToAffectedTransactions(enclaveRawPayload.getAffectedContractTransactions());
 
+    Set<PublicKey> mandatoryRecipients =
+        enclaveRawPayload.getMandatoryRecipients().stream()
+            .map(PublicKey::from)
+            .collect(Collectors.toSet());
+
     final PrivacyMetadata.Builder privacyMetaDataBuilder =
         PrivacyMetadata.Builder.create()
             .withPrivacyMode(enclaveRawPayload.getPrivacyMode())
             .withAffectedTransactions(affectedTransactions)
-            .withExecHash(enclaveRawPayload.getExecHash());
+            .withExecHash(enclaveRawPayload.getExecHash())
+            .withMandatoryRecipients(mandatoryRecipients);
 
     Optional.ofNullable(enclaveRawPayload.getPrivacyGroupId())
         .map(PrivacyGroup.Id::fromBytes)

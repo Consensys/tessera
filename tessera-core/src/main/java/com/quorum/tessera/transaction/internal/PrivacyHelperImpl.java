@@ -109,10 +109,17 @@ public class PrivacyHelperImpl implements PrivacyHelper {
   public boolean validateSendRequest(
       PrivacyMode privacyMode,
       List<PublicKey> recipientList,
-      List<AffectedTransaction> affectedTransactions) {
+      List<AffectedTransaction> affectedTransactions,
+      Set<PublicKey> mandatoryRecipients) {
 
     if (privacyMode != PrivacyMode.STANDARD_PRIVATE) {
       checkIfEnhancedPrivacyIsEnabled();
+    }
+
+    if (privacyMode == PrivacyMode.MANDATORY_RECIPIENTS
+        && !recipientList.containsAll(mandatoryRecipients)) {
+      throw new PrivacyViolationException(
+          "One or more mandatory recipients not included in the participant list");
     }
 
     if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
@@ -127,12 +134,15 @@ public class PrivacyHelperImpl implements PrivacyHelper {
     }
 
     affectedTransactions.stream()
-        .filter(a -> a.getPayload().getPrivacyMode() != privacyMode)
+        .filter(
+            a ->
+                a.getPayload().getPrivacyMode() != privacyMode
+                    || !mandatoryRecipients.containsAll(a.getPayload().getMandatoryRecipients()))
         .findFirst()
         .ifPresent(
             affectedTransaction -> {
               throw new PrivacyViolationException(
-                  "Private state validation flag mismatched with Affected Txn "
+                  "Privacy metadata mismatched with Affected Txn "
                       + affectedTransaction.getHash().encodeToBase64());
             });
 
@@ -149,7 +159,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
       checkIfEnhancedPrivacyIsEnabled();
     }
 
-    boolean flagMismatched =
+    boolean privacyMetadataMismatched =
         affectedTransactions.stream()
             .anyMatch(
                 a -> {
@@ -162,10 +172,18 @@ public class PrivacyHelperImpl implements PrivacyHelper {
                         privacyMode.name());
                     return true;
                   }
+                  if (!payload
+                      .getMandatoryRecipients()
+                      .containsAll(a.getPayload().getMandatoryRecipients())) {
+                    LOGGER.info(
+                        "ACOTH {} has mandatory recipients mismatched. Ignoring transaction.",
+                        a.getHash());
+                    return true;
+                  }
                   return false;
                 });
 
-    if (flagMismatched) return false;
+    if (privacyMetadataMismatched) return false;
 
     if (PrivacyMode.PRIVATE_STATE_VALIDATION == privacyMode) {
 

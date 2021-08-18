@@ -48,13 +48,16 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
     LOGGER.debug("Privacy mode for payload: {}", request.getPrivacyMode());
     LOGGER.debug("ExecHash for payload: {}", new String(request.getExecHash()));
 
+    final Set<PublicKey> mandatoryRecipients = request.getMandatoryRecipients();
+    LOGGER.debug("Mandatory recipients for payload: {}", mandatoryRecipients);
+
     final List<AffectedTransaction> affectedContractTransactions =
         privacyHelper.findAffectedContractTransactionsFromSendRequest(
             request.getAffectedContractTransactions());
 
     LOGGER.debug("Validating request against affected contracts");
     privacyHelper.validateSendRequest(
-        privacyMode, recipientListNoDuplicate, affectedContractTransactions);
+        privacyMode, recipientListNoDuplicate, affectedContractTransactions, mandatoryRecipients);
     LOGGER.debug("Successful validation against affected contracts");
 
     final PrivacyMetadata.Builder metaDataBuilder =
