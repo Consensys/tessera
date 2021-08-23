@@ -126,6 +126,7 @@ public class EncodedPayload {
               .withCipherTextNonce(encodedPayload.getCipherTextNonce())
               .withPrivacyMode(encodedPayload.getPrivacyMode())
               .withAffectedContractTransactions(affectedContractTransactionMap)
+              .withMandatoryRecipients(encodedPayload.getMandatoryRecipients())
               .withExecHash(encodedPayload.getExecHash());
 
       encodedPayload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
