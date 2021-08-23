@@ -109,16 +109,16 @@ public class EncodedPayloadBuilderTest {
   @Test
   public void fromMR() {
     final EncodedPayload sample =
-      EncodedPayload.Builder.create()
-        .withSenderKey(senderKey)
-        .withCipherText(cipherText)
-        .withCipherTextNonce(cipherTextNonce)
-        .withRecipientBoxes(List.of(recipientBox))
-        .withRecipientNonce(recipientNonce)
-        .withRecipientKeys(List.of(recipientKey))
-        .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
-        .withMandatoryRecipients(Set.of(recipientKey))
-        .build();
+        EncodedPayload.Builder.create()
+            .withSenderKey(senderKey)
+            .withCipherText(cipherText)
+            .withCipherTextNonce(cipherTextNonce)
+            .withRecipientBoxes(List.of(recipientBox))
+            .withRecipientNonce(recipientNonce)
+            .withRecipientKeys(List.of(recipientKey))
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withMandatoryRecipients(Set.of(recipientKey))
+            .build();
 
     EncodedPayload result = EncodedPayload.Builder.from(sample).build();
 
