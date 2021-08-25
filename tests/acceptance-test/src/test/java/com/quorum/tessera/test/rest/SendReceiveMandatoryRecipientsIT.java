@@ -97,7 +97,6 @@ public class SendReceiveMandatoryRecipientsIT {
     assertThat(receiveResult.getPayload()).isEqualTo(transactionData);
     assertThat(receiveResult.getManagedParties()).containsExactly(a.getPublicKey());
     assertThat(receiveResult.getSenderKey()).isEqualTo(a.getPublicKey());
-    assertThat(receiveResult.getMandatoryRecipients()).containsExactly(c.getPublicKey());
 
     final Response receiveResponseOnC =
         c.getRestClient()
@@ -117,7 +116,7 @@ public class SendReceiveMandatoryRecipientsIT {
     assertThat(receiveResultOnC.getPayload()).isEqualTo(transactionData);
     assertThat(receiveResultOnC.getManagedParties()).containsExactly(c.getPublicKey());
     assertThat(receiveResultOnC.getSenderKey()).isEqualTo(a.getPublicKey());
-    assertThat(receiveResultOnC.getMandatoryRecipients()).containsExactly(c.getPublicKey());
+
   }
 
   @Test
@@ -194,7 +193,6 @@ public class SendReceiveMandatoryRecipientsIT {
     assertThat(receiveResult.getPayload()).isEqualTo(transactionData);
     assertThat(receiveResult.getManagedParties()).containsExactly(a.getPublicKey());
     assertThat(receiveResult.getSenderKey()).isEqualTo(a.getPublicKey());
-    assertThat(receiveResult.getMandatoryRecipients()).containsExactly(c.getPublicKey());
 
     final Response receiveResponseOnC =
         c.getRestClient()
@@ -214,6 +212,5 @@ public class SendReceiveMandatoryRecipientsIT {
     assertThat(receiveResultOnC.getPayload()).isEqualTo(transactionData);
     assertThat(receiveResultOnC.getManagedParties()).containsExactly(c.getPublicKey());
     assertThat(receiveResultOnC.getSenderKey()).isEqualTo(a.getPublicKey());
-    assertThat(receiveResultOnC.getMandatoryRecipients()).containsExactly(c.getPublicKey());
   }
 }
