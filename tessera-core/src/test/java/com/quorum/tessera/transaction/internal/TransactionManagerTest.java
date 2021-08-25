@@ -1121,7 +1121,6 @@ public class TransactionManagerTest {
     assertThat(receiveResponse.getPrivacyGroupId()).isPresent();
     assertThat(receiveResponse.getPrivacyGroupId().get())
         .isEqualTo(PrivacyGroup.Id.fromBytes("group".getBytes()));
-    assertThat(receiveResponse.getMandatoryRecipients()).contains(mandReceiver1, mandReceiver2);
 
     verify(payloadEncoder).decode(any(byte[].class));
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
