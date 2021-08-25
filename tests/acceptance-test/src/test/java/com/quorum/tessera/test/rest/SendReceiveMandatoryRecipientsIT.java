@@ -116,7 +116,6 @@ public class SendReceiveMandatoryRecipientsIT {
     assertThat(receiveResultOnC.getPayload()).isEqualTo(transactionData);
     assertThat(receiveResultOnC.getManagedParties()).containsExactly(c.getPublicKey());
     assertThat(receiveResultOnC.getSenderKey()).isEqualTo(a.getPublicKey());
-
   }
 
   @Test

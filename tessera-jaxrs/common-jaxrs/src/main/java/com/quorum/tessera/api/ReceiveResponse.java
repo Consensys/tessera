@@ -100,5 +100,4 @@ public class ReceiveResponse {
   public void setPrivacyGroupId(String privacyGroupId) {
     this.privacyGroupId = privacyGroupId;
   }
-
 }
