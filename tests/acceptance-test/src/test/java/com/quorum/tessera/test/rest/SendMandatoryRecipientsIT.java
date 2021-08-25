@@ -95,7 +95,8 @@ public class SendMandatoryRecipientsIT {
     try (connection) {
 
       PreparedStatement preparedStatement =
-          connection.prepareStatement("SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION et WHERE HASH = ?");
+          connection.prepareStatement(
+              "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION et WHERE HASH = ?");
       preparedStatement.setBytes(1, hashBytes);
       try (preparedStatement) {
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -109,7 +110,8 @@ public class SendMandatoryRecipientsIT {
     }
 
     EncodedPayload payload = PayloadEncoder.create().decode(receivedPayload);
-    assertThat(payload.getMandatoryRecipients()).containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
+    assertThat(payload.getMandatoryRecipients())
+        .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
     // validate data in Node C's DB
     Connection connectionC = c.getDatabaseConnection();
@@ -119,7 +121,8 @@ public class SendMandatoryRecipientsIT {
     try (connectionC) {
 
       PreparedStatement preparedStatement =
-        connectionC.prepareStatement("SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION et WHERE HASH = ?");
+          connectionC.prepareStatement(
+              "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION et WHERE HASH = ?");
       preparedStatement.setBytes(1, hashBytes);
       try (preparedStatement) {
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -133,8 +136,8 @@ public class SendMandatoryRecipientsIT {
     }
 
     EncodedPayload payloadC = PayloadEncoder.create().decode(payloadOnC);
-    assertThat(payloadC.getMandatoryRecipients()).containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
-
+    assertThat(payloadC.getMandatoryRecipients())
+        .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
   }
 
   @Test
@@ -200,7 +203,8 @@ public class SendMandatoryRecipientsIT {
     try (connection) {
 
       PreparedStatement preparedStatement =
-        connection.prepareStatement("SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION et WHERE HASH = ?");
+          connection.prepareStatement(
+              "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION et WHERE HASH = ?");
       preparedStatement.setBytes(1, hash);
       try (preparedStatement) {
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -214,7 +218,8 @@ public class SendMandatoryRecipientsIT {
     }
 
     EncodedPayload payload = PayloadEncoder.create().decode(payloadOnA);
-    assertThat(payload.getMandatoryRecipients()).containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
+    assertThat(payload.getMandatoryRecipients())
+        .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
     // validate data in Node C's DB
     Connection connectionC = c.getDatabaseConnection();
@@ -224,7 +229,8 @@ public class SendMandatoryRecipientsIT {
     try (connectionC) {
 
       PreparedStatement preparedStatement =
-        connectionC.prepareStatement("SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION et WHERE HASH = ?");
+          connectionC.prepareStatement(
+              "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION et WHERE HASH = ?");
       preparedStatement.setBytes(1, hash);
       try (preparedStatement) {
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -238,6 +244,7 @@ public class SendMandatoryRecipientsIT {
     }
 
     EncodedPayload payloadC = PayloadEncoder.create().decode(payloadOnC);
-    assertThat(payloadC.getMandatoryRecipients()).containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
+    assertThat(payloadC.getMandatoryRecipients())
+        .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
   }
 }
