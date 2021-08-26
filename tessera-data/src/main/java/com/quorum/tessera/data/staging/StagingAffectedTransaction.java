@@ -4,6 +4,9 @@ import java.util.Objects;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
+@NamedQuery(
+  name = "StagingAffectedTransaction.countAll",
+  query = "select count(sat) from StagingAffectedTransaction sat")
 @Entity
 @Table(name = "ST_AFFECTED_TRANSACTION")
 public class StagingAffectedTransaction {
