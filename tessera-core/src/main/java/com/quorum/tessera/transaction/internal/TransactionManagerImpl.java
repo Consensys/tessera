@@ -460,7 +460,6 @@ public class TransactionManagerImpl implements TransactionManager {
         .withExecHash(payload.getExecHash())
         .withManagedParties(managedParties)
         .withSender(payload.getSenderKey())
-        .withMandatoryRecipients(payload.getMandatoryRecipients())
         .build();
   }
 

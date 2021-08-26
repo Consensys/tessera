@@ -2,31 +2,25 @@ package com.quorum.tessera.q2t;
 
 import static com.quorum.tessera.version.MandatoryRecipientsVersion.MIME_TYPE_JSON_4;
 
-import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.api.SendSignedRequest;
 import com.quorum.tessera.api.constraint.PrivacyValid;
-import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.TransactionManager;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
@@ -151,83 +145,6 @@ public class TransactionResource4 {
             .build();
 
     return Response.created(location).entity(sendResponse).build();
-  }
-
-  @GET
-  @Path("/transaction/{hash}")
-  @Consumes({MIME_TYPE_JSON_4})
-  @Produces({MIME_TYPE_JSON_4})
-  public Response receive(
-      @Parameter(
-              description = "hash indicating encrypted payload to retrieve from database",
-              schema = @Schema(format = "base64"))
-          @Valid
-          @ValidBase64
-          @PathParam("hash")
-          final String hash,
-      @Parameter(
-              description =
-                  "(optional) public key of recipient of the encrypted payload; used in decryption; if not provided, decryption is attempted with all known recipient keys in turn",
-              schema = @Schema(format = "base64"))
-          @QueryParam("to")
-          final String toStr,
-      @Parameter(
-              description =
-                  "(optional) indicates whether the payload is raw; determines which database the payload is retrieved from; possible values\n* true - for pre-stored payloads in the \"raw\" database\n* false (default) - for already sent payloads in \"standard\" database")
-          @Valid
-          @Pattern(flags = Pattern.Flag.CASE_INSENSITIVE, regexp = "^(true|false)$")
-          @QueryParam("isRaw")
-          final String isRaw) {
-
-    final PublicKey recipient =
-        Optional.ofNullable(toStr)
-            .filter(Predicate.not(String::isEmpty))
-            .map(base64Decoder::decode)
-            .map(PublicKey::from)
-            .orElse(null);
-
-    final MessageHash transactionHash =
-        Optional.of(hash).map(base64Decoder::decode).map(MessageHash::new).get();
-
-    final com.quorum.tessera.transaction.ReceiveRequest request =
-        com.quorum.tessera.transaction.ReceiveRequest.Builder.create()
-            .withRecipient(recipient)
-            .withTransactionHash(transactionHash)
-            .withRaw(Boolean.parseBoolean(isRaw))
-            .build();
-
-    com.quorum.tessera.transaction.ReceiveResponse response = transactionManager.receive(request);
-
-    final ReceiveResponse receiveResponse = new ReceiveResponse();
-    receiveResponse.setPayload(response.getUnencryptedTransactionData());
-    receiveResponse.setSenderKey(response.sender().encodeToBase64());
-    receiveResponse.setAffectedContractTransactions(
-        response.getAffectedTransactions().stream()
-            .map(MessageHash::getHashBytes)
-            .map(base64Encoder::encodeToString)
-            .toArray(String[]::new));
-
-    Optional.ofNullable(response.getExecHash())
-        .map(String::new)
-        .ifPresent(receiveResponse::setExecHash);
-
-    receiveResponse.setPrivacyFlag(response.getPrivacyMode().getPrivacyFlag());
-    receiveResponse.setManagedParties(
-        Optional.ofNullable(response.getManagedParties()).orElse(Collections.emptySet()).stream()
-            .map(PublicKey::encodeToBase64)
-            .toArray(String[]::new));
-
-    response
-        .getPrivacyGroupId()
-        .map(PrivacyGroup.Id::getBase64)
-        .ifPresent(receiveResponse::setPrivacyGroupId);
-
-    receiveResponse.setMandatoryRecipients(
-        response.getMandatoryRecipients().stream()
-            .map(PublicKey::encodeToBase64)
-            .toArray(String[]::new));
-
-    return Response.ok(receiveResponse).build();
   }
 
   @POST

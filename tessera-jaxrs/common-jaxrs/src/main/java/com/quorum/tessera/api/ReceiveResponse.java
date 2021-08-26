@@ -43,9 +43,6 @@ public class ReceiveResponse {
   @Schema(description = "privacy group id of the transaction", format = "base64")
   private String privacyGroupId;
 
-  @Schema(description = "mandatory recipients of the transaction", format = "base64")
-  private String[] mandatoryRecipients;
-
   public ReceiveResponse() {}
 
   public byte[] getPayload() {
@@ -102,13 +99,5 @@ public class ReceiveResponse {
 
   public void setPrivacyGroupId(String privacyGroupId) {
     this.privacyGroupId = privacyGroupId;
-  }
-
-  public String[] getMandatoryRecipients() {
-    return mandatoryRecipients;
-  }
-
-  public void setMandatoryRecipients(String... mandatoryRecipients) {
-    this.mandatoryRecipients = mandatoryRecipients;
   }
 }
