@@ -8,6 +8,7 @@ open module tessera.data {
   requires tessera.encryption.api;
   requires tessera.shared;
   requires java.sql;
+  requires java.sql.rowset;
   requires com.zaxxer.hikari;
   requires java.validation;
   requires tessera.eclipselink.utils;
