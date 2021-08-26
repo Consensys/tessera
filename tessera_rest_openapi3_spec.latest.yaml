@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-4b8cb30e
+  version: latest-475928f1
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -628,7 +628,9 @@ paths:
     get:
       tags:
         - quorum-to-tessera
-      operationId: receive
+      summary: /transaction/{hash}
+      description: get payload from database, decrypt, and return
+      operationId: getDecryptedPayloadJsonUrl
       parameters:
         - name: hash
           in: path
@@ -658,10 +660,15 @@ paths:
             pattern: ^(true|false)$
             type: string
       responses:
-        default:
-          description: default response
+        "200":
+          description: decrypted payload
           content:
-            application/vnd.tessera-4.0+json: {}
+            application/json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
+            application/vnd.tessera-2.1+json:
+              schema:
+                $ref: "#/components/schemas/com.quorum.tessera.api.ReceiveResponse"
     delete:
       tags:
         - quorum-to-tessera
@@ -1155,14 +1162,6 @@ components:
           type: string
           description: privacy group id of the transaction
           format: base64
-        mandatoryRecipients:
-          type: array
-          description: mandatory recipients of the transaction
-          format: base64
-          items:
-            type: string
-            description: mandatory recipients of the transaction
-            format: base64
     com.quorum.tessera.api.PrivacyGroupRequest:
       type: object
       properties:
