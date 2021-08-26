@@ -107,4 +107,10 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
           return resultList.size();
         });
   }
+
+  @Override
+  public long countAllAffected() {
+    return entityManagerTemplate.execute(
+      em -> em.createNamedQuery("StagingAffectedTransaction.countAll", Long.class).getSingleResult());
+  }
 }
