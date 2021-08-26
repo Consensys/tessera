@@ -156,13 +156,13 @@ class RecoveryImpl implements Recovery {
   public int recover() {
 
     try {
-      if (stagingEntityDAO.countAll() != 0) {
+      if (stagingEntityDAO.countAll() != 0 || stagingEntityDAO.countAllAffected() != 0) {
         LOGGER.error(
             "Staging tables are not empty. Please ensure database has been setup correctly for recovery process");
         return RecoveryResult.FAILURE.getCode();
       }
-    } catch (PersistenceException ex) {
-      LOGGER.error("Please ensure database has been setup correctly for recovery process");
+    } catch (Exception ex) {
+      LOGGER.error("Attempt to query failed. Please ensure database has been setup correctly for recovery process");
       return RecoveryResult.FAILURE.getCode();
     }
 
