@@ -12,6 +12,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import java.util.Base64;
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
@@ -159,5 +160,24 @@ public class TransactionResource4Test {
         .hasSize(2)
         .containsExactlyInAnyOrder(base64AffectedHash1, base64AffectedHash2);
     assertThat(obj.getMandatoryRecipients()).hasSize(1);
+  }
+
+  @Test
+  public void getMandatoryRecipients() {
+    byte[] data = "DUMMY_HASH".getBytes();
+
+    final String dummyPtmHash = Base64.getEncoder().encodeToString(data);
+
+    PublicKey recipient = mock(PublicKey.class);
+    when(recipient.encodeToBase64()).thenReturn("BASE64ENCODEDKEY");
+
+    when(transactionManager.getMandatoryRecipients(any(MessageHash.class)))
+        .thenReturn(Set.of(recipient));
+
+    Response response = transactionResource.getMandatoryRecipients(dummyPtmHash);
+
+    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(response.getEntity()).isEqualTo("BASE64ENCODEDKEY");
+    verify(transactionManager).getMandatoryRecipients(any(MessageHash.class));
   }
 }

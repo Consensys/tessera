@@ -1718,6 +1718,35 @@ public class TransactionManagerTest {
   }
 
   @Test
+  public void getMandatoryRecipients() {
+
+    MessageHash transactionHash = mock(MessageHash.class);
+    when(transactionHash.getHashBytes()).thenReturn("DUMMY_TRANSACTION".getBytes());
+
+    final PublicKey senderKey = mock(PublicKey.class);
+    final PublicKey recipientKey = mock(PublicKey.class);
+
+    final byte[] input = "SOMEDATA".getBytes();
+    final EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
+    final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    when(encodedPayload.getRecipientKeys()).thenReturn(List.of(senderKey, recipientKey));
+    when(encodedPayload.getMandatoryRecipients()).thenReturn(Set.of(recipientKey));
+    when(encryptedTransaction.getEncodedPayload()).thenReturn(input);
+
+    when(encryptedTransactionDAO.retrieveByHash(transactionHash))
+        .thenReturn(Optional.of(encryptedTransaction));
+
+    when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+
+    final Set<PublicKey> participants = transactionManager.getMandatoryRecipients(transactionHash);
+
+    assertThat(participants).containsExactly(recipientKey);
+
+    verify(payloadEncoder).decode(input);
+    verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+  }
+
+  @Test
   public void defaultPublicKey() {
     transactionManager.defaultPublicKey();
     verify(enclave).defaultPublicKey();

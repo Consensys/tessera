@@ -514,6 +514,12 @@ public class TransactionManagerImpl implements TransactionManager {
   }
 
   @Override
+  public Set<PublicKey> getMandatoryRecipients(MessageHash transactionHash) {
+    final EncodedPayload payload = this.fetchPayload(transactionHash);
+    return payload.getMandatoryRecipients();
+  }
+
+  @Override
   public PublicKey defaultPublicKey() {
     return enclave.defaultPublicKey();
   }

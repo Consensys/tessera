@@ -1,6 +1,7 @@
 package com.quorum.tessera.q2t;
 
 import static com.quorum.tessera.version.MandatoryRecipientsVersion.MIME_TYPE_JSON_4;
+import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
 
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
@@ -12,6 +13,12 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.TransactionManager;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -231,5 +238,43 @@ public class TransactionResource4 {
     LOGGER.debug("Encoded key: {}", encodedTransactionHash);
 
     return Response.created(location).entity(responseEntity).build();
+  }
+
+  @Operation(
+      summary = "/transaction/{hash}/mandatory",
+      operationId = "getMandatoryRecipients",
+      description = "get list of mandatory recipient public keys for a transaction")
+  @ApiResponse(
+      responseCode = "200",
+      description = "comma-separated list of mandatory recipients",
+      content =
+          @Content(
+              schema =
+                  @Schema(
+                      type = "string",
+                      description = "comma-separated list of mandatory recipients"),
+              examples =
+                  @ExampleObject(
+                      "ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=")))
+  @GET
+  @Path("/transaction/{hash}/mandatory")
+  @Produces(TEXT_PLAIN)
+  public Response getMandatoryRecipients(
+      @Parameter(
+              description = "hash indicating encrypted payload to get mandatory recipients for",
+              schema = @Schema(format = "base64"))
+          @PathParam("hash")
+          final String ptmHash) {
+    LOGGER.debug("Received mandatory recipients list API request for key {}", ptmHash);
+
+    MessageHash transactionHash =
+        Optional.of(ptmHash).map(Base64.getDecoder()::decode).map(MessageHash::new).get();
+
+    final String mandatoryRecipients =
+        transactionManager.getMandatoryRecipients(transactionHash).stream()
+            .map(PublicKey::encodeToBase64)
+            .collect(Collectors.joining(","));
+
+    return Response.ok(mandatoryRecipients).build();
   }
 }
