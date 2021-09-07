@@ -140,11 +140,14 @@ public class SendMandatoryRecipientsIT {
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
     // Validate recipients data in Node C using /mandatory call
+
+    final String encodedHash = URLEncoder.encode(hash, UTF_8.toString());
+
     final Response getMandatoryResponse =
         c.getRestClient()
             .target(c.getQ2TUri())
             .path("/transaction")
-            .path(hash)
+            .path(encodedHash)
             .path("/mandatory")
             .request()
             .buildGet()
