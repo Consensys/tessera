@@ -14,7 +14,7 @@ info:
 
 
     Depending on the configuration of the node, not all server APIs may be available.
-  version: latest-475928f1
+  version: latest-dcbf6d69
 tags:
   - name: quorum-to-tessera
     description: Operations for Quorum clients
@@ -764,6 +764,30 @@ paths:
           description: default response
           content:
             application/vnd.tessera-4.0+json: {}
+  "/transaction/{hash}/mandatory":
+    get:
+      tags:
+        - quorum-to-tessera
+      summary: /transaction/{hash}/mandatory
+      description: get list of mandatory recipient public keys for a transaction
+      operationId: getMandatoryRecipients
+      parameters:
+        - name: hash
+          in: path
+          description: hash indicating encrypted payload to get mandatory recipients for
+          required: true
+          schema:
+            type: string
+            format: base64
+      responses:
+        "200":
+          description: comma-separated list of mandatory recipients
+          content:
+            text/plain:
+              schema:
+                type: string
+                description: comma-separated list of mandatory recipients
+              example: ROAZBWtSacxXQrOe3FGAqJDyJjFePR5ce4TSIzmJ0Bc=,BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=
   /keys:
     get:
       tags:
