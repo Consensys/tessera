@@ -138,6 +138,22 @@ public class SendMandatoryRecipientsIT {
     EncodedPayload payloadC = PayloadEncoder.create().decode(payloadOnC);
     assertThat(payloadC.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
+
+    // Validate recipients data in Node C using /mandatory call
+    final Response getMandatoryResponse =
+        c.getRestClient()
+            .target(c.getQ2TUri())
+            .path("/transaction")
+            .path(hash)
+            .path("/mandatory")
+            .request()
+            .buildGet()
+            .invoke();
+
+    assertThat(getMandatoryResponse).isNotNull();
+    assertThat(getMandatoryResponse.getStatus()).isEqualTo(200);
+    String mandatoryList = getMandatoryResponse.readEntity(String.class);
+    assertThat(mandatoryList).isEqualTo(c.getPublicKey());
   }
 
   @Test
