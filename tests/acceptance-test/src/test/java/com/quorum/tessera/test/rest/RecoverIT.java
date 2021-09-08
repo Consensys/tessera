@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.enclave.PrivacyMode;
@@ -71,6 +72,7 @@ public class RecoverIT {
             .with(SocketType.HTTP)
             .with(EnclaveType.LOCAL)
             .with(EncryptorType.NACL)
+            .with(ClientMode.TESSERA)
             .prefix(RecoverIT.class.getSimpleName().toLowerCase())
             .createAndSetupContext();
 
