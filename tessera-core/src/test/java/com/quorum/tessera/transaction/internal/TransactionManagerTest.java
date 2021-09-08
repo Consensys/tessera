@@ -1765,13 +1765,14 @@ public class TransactionManagerTest {
     when(encryptedTransaction.getEncodedPayload()).thenReturn(input);
 
     when(encryptedTransactionDAO.retrieveByHash(transactionHash))
-      .thenReturn(Optional.of(encryptedTransaction));
+        .thenReturn(Optional.of(encryptedTransaction));
 
     when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
 
     assertThatExceptionOfType(MandatoryRecipientsNotAvailableException.class)
-      .isThrownBy(() -> transactionManager.getMandatoryRecipients(transactionHash))
-      .withMessageContaining("Operation invalid. Transaction found is not a mandatory recipients privacy type");
+        .isThrownBy(() -> transactionManager.getMandatoryRecipients(transactionHash))
+        .withMessageContaining(
+            "Operation invalid. Transaction found is not a mandatory recipients privacy type");
 
     verify(payloadEncoder).decode(input);
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
