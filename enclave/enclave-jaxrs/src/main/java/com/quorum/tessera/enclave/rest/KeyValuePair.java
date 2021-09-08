@@ -1,8 +1,8 @@
 package com.quorum.tessera.enclave.rest;
 
+import jakarta.xml.bind.annotation.XmlMimeType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import javax.xml.bind.annotation.XmlMimeType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class KeyValuePair implements Serializable {

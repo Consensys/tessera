@@ -1,6 +1,6 @@
 package com.quorum.tessera.jaxrs.unixsocket;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class SamplePayload {

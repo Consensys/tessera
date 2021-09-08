@@ -1,11 +1,10 @@
 package com.quorum.tessera.api.exception;
 
 import com.quorum.tessera.enclave.EnclaveNotAvailableException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,7 @@ public class EnclaveNotAvailableExceptionMapper
     LOGGER.error("Enclave unavailable: {}", ex.getMessage());
     LOGGER.debug(null, ex);
 
-    return Response.status(Status.SERVICE_UNAVAILABLE)
+    return Response.status(Response.Status.SERVICE_UNAVAILABLE)
         .entity(ex.getMessage())
         .type(MediaType.TEXT_PLAIN)
         .build();

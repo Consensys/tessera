@@ -2,7 +2,7 @@ package com.quorum.tessera.config.keypairs;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlElement;
 
 public class HashicorpVaultKeyPair implements ConfigKeyPair {
 

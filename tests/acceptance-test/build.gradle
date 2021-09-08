@@ -35,11 +35,11 @@ dependencies {
 
   testImplementation project(":ddls")
 
-  implementation "org.slf4j:slf4j-api"
-  testRuntimeOnly "ch.qos.logback:logback-classic"
-  testRuntimeOnly "ch.qos.logback:logback-core"
+  api "org.slf4j:slf4j-api"
   testRuntimeOnly "org.slf4j:jcl-over-slf4j"
   testRuntimeOnly "org.slf4j:jul-to-slf4j"
+  testRuntimeOnly "ch.qos.logback:logback-classic"
+  testRuntimeOnly "ch.qos.logback:logback-core"
 
   testImplementation "io.cucumber:cucumber-junit:6.10.4"
   testImplementation "io.cucumber:cucumber-java8:6.10.4"
@@ -61,6 +61,7 @@ dependencies {
   testRuntimeOnly "org.eclipse.persistence:org.eclipse.persistence.moxy"
 
   implementation "org.glassfish:jakarta.json"
+  testImplementation "org.glassfish:jakarta.json"
 
   implementation project(":encryption:encryption-api")
   implementation project(":encryption:encryption-jnacl")
@@ -93,23 +94,22 @@ test {
   systemProperty "project.version", project.version
 
   include(
-    "**/RecoverIT.class",
-    "**/RestSuiteHttpH2RemoteEnclave.class",
-    "**/RestSuiteHttpH2RemoteEnclaveEncTypeEC.class",
-    "**/RestSuiteBesu.class",
-    "**/RestSuiteHttpHSQL.class",
-    "**/RestSuiteUnixH2.class",
-    "**/RestSuiteHttpSqllite.class",
-    "**/RestSuiteHttpH2.class",
-    "**/RestSuiteHttpH2EncTypeEC.class",
-    "**/RestSuiteHttpH2EncTypeKalium.class",
-    "**/SendWithRemoteEnclaveReconnectIT.class",
-    "**/P2pTestSuite.class",
-    "**/AwsKeyVaultIT.class",
-    //    "**/RunAzureIT.class",
-    "**/RunHashicorpIT.class",
-    "**/ThirdPartyIT.class",
-    "**/CucumberTestSuite.class",
+        "**/RecoverIT.class",
+        "**/RestSuiteHttpH2RemoteEnclave.class",
+        "**/RestSuiteHttpH2RemoteEnclaveEncTypeEC.class",
+        "**/RestSuiteBesu.class",
+        "**/RestSuiteHttpHSQL.class",
+        "**/RestSuiteUnixH2.class",
+        "**/RestSuiteHttpSqllite.class",
+        "**/RestSuiteHttpH2.class",
+        "**/RestSuiteHttpH2EncTypeEC.class",
+        "**/RestSuiteHttpH2EncTypeKalium.class",
+        "**/SendWithRemoteEnclaveReconnectIT.class",
+        "**/P2pTestSuite.class",
+        "**/AwsKeyVaultIT.class",
+        "**/RunHashicorpIT.class",
+        "**/ThirdPartyIT.class",
+        "**/CucumberTestSuite.class",
     )
 
   if(file("/usr/local/lib/").listFiles(new FilenameFilter() {

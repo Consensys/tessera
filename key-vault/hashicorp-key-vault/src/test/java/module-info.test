@@ -1,0 +1,2 @@
+--add-exports
+    org.apache.commons.logging/org.apache.commons.logging.impl=spring.core

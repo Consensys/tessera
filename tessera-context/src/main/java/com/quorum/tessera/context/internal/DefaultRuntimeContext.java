@@ -3,10 +3,10 @@ package com.quorum.tessera.context.internal;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.client.Client;
 
 class DefaultRuntimeContext implements RuntimeContext {
 

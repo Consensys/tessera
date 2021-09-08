@@ -4,9 +4,9 @@ import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.ws.rs.client.Client;
 import java.net.URI;
 import java.util.*;
-import javax.ws.rs.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

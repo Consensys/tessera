@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import javax.xml.bind.annotation.XmlMimeType;
+import jakarta.xml.bind.annotation.XmlMimeType;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests

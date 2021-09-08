@@ -1,6 +1,6 @@
 package com.quorum.tessera.config;
 
-import javax.xml.bind.annotation.XmlEnumValue;
+import jakarta.xml.bind.annotation.XmlEnumValue;
 
 public enum AppType {
   P2P,

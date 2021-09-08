@@ -1,11 +1,11 @@
 package com.quorum.tessera.multitenancy.migration;
 
 import com.quorum.tessera.data.EncryptedRawTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 public class RawTransactionMigrator {
 

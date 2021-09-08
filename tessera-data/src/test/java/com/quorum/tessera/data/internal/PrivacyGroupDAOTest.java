@@ -8,6 +8,10 @@ import com.quorum.tessera.data.EntityManagerTemplate;
 import com.quorum.tessera.data.PrivacyGroupDAO;
 import com.quorum.tessera.data.PrivacyGroupEntity;
 import com.quorum.tessera.data.TestConfig;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceException;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -15,10 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
-import javax.persistence.PersistenceException;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -40,16 +40,16 @@ public class PrivacyGroupDAOTest {
   public void onSetUp() {
 
     Map properties = new HashMap();
-    properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
-    properties.put("javax.persistence.jdbc.user", "junit");
-    properties.put("javax.persistence.jdbc.password", "");
+    properties.put("jakarta.persistence.jdbc.url", testConfig.getUrl());
+    properties.put("jakarta.persistence.jdbc.user", "junit");
+    properties.put("jakarta.persistence.jdbc.password", "");
     properties.put(
         "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
     properties.put("eclipselink.logging.level", "FINE");
     properties.put("eclipselink.logging.parameters", "true");
     properties.put("eclipselink.logging.level.sql", "FINE");
     properties.put("eclipselink.cache.shared.default", "false");
-    properties.put("javax.persistence.schema-generation.database.action", "create");
+    properties.put("jakarta.persistence.schema-generation.database.action", "create");
 
     EntityManagerFactory entityManagerFactory =
         Persistence.createEntityManagerFactory("tessera", properties);

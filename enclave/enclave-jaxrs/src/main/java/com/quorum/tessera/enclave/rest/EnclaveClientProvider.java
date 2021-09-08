@@ -3,8 +3,8 @@ package com.quorum.tessera.enclave.rest;
 import com.quorum.tessera.config.*;
 import com.quorum.tessera.enclave.EnclaveClient;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
+import jakarta.ws.rs.client.Client;
 import java.util.Optional;
-import javax.ws.rs.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

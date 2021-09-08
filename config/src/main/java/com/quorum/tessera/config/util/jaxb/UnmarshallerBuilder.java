@@ -1,8 +1,8 @@
 package com.quorum.tessera.config.util.jaxb;
 
 import com.quorum.tessera.config.util.JaxbUtil;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Unmarshaller;
 
 public class UnmarshallerBuilder {
 

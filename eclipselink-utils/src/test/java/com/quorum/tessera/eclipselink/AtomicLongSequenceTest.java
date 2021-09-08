@@ -5,11 +5,11 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import org.eclipse.persistence.sessions.DatabaseLogin;
 import org.eclipse.persistence.sessions.Session;
 import org.junit.After;
@@ -24,15 +24,15 @@ public class AtomicLongSequenceTest {
   public void init() throws Exception {
 
     Map properties = new HashMap();
-    properties.put("javax.persistence.jdbc.url", "jdbc:h2:mem:test");
-    properties.put("javax.persistence.jdbc.user", "junit");
-    properties.put("javax.persistence.jdbc.password", "");
+    properties.put("jakarta.persistence.jdbc.url", "jdbc:h2:mem:test");
+    properties.put("jakarta.persistence.jdbc.user", "junit");
+    properties.put("jakarta.persistence.jdbc.password", "");
     properties.put(
         "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
     properties.put("eclipselink.logging.level", "FINE");
     properties.put("eclipselink.logging.parameters", "true");
     properties.put("eclipselink.logging.level.sql", "FINE");
-    properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+    properties.put("jakarta.persistence.schema-generation.database.action", "drop-and-create");
     properties.put("eclipselink.cache.shared.default", "false");
     properties.put("eclipselink.session.customizer", AtomicLongSequence.class.getName());
 

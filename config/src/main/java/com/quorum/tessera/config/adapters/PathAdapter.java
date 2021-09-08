@@ -1,8 +1,8 @@
 package com.quorum.tessera.config.adapters;
 
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 /** Converts a String to a Path object for JAXB de/serialisation */
 public class PathAdapter extends XmlAdapter<String, Path> {

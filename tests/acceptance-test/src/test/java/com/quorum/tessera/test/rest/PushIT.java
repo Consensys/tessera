@@ -1,17 +1,17 @@
 package com.quorum.tessera.test.rest;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.Response;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Base64;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

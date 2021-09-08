@@ -1,5 +1,9 @@
 package com.quorum.tessera.test.util;
 
+import jakarta.el.ELContext;
+import jakarta.el.ELProcessor;
+import jakarta.el.ExpressionFactory;
+import jakarta.el.ValueExpression;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -15,10 +19,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import jakarta.el.ELContext;
-import jakarta.el.ELProcessor;
-import jakarta.el.ExpressionFactory;
-import jakarta.el.ValueExpression;
 
 public class ElUtil {
 

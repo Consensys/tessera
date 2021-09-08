@@ -5,8 +5,8 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import javax.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 

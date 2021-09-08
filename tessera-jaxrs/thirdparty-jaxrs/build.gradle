@@ -1,5 +1,5 @@
 plugins {
-  id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
+  id "io.swagger.core.v3.swagger-gradle-plugin"
   id "java-library"
 }
 
@@ -13,7 +13,7 @@ dependencies {
   implementation project(':tessera-jaxrs:partyinfo-model')
   implementation project(":tessera-context")
   implementation project(":tessera-data")
-  implementation "io.swagger.core.v3:swagger-annotations"
+  implementation "io.swagger.core.v3:swagger-annotations-jakarta"
   implementation "jakarta.ws.rs:jakarta.ws.rs-api"
   implementation "org.glassfish:jakarta.json"
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"

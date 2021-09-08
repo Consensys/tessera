@@ -1,6 +1,6 @@
 module tessera.server.jersey {
   requires java.management;
-  requires java.ws.rs;
+  requires jakarta.ws.rs;
   requires jakarta.validation;
   requires org.eclipse.jetty.server;
   requires org.eclipse.jetty.servlet;
@@ -9,30 +9,33 @@ module tessera.server.jersey {
   requires tessera.security;
   requires tessera.server.utils;
   requires tessera.server.api;
-  requires java.servlet;
   requires tessera.shared;
-  requires hk2.api;
   requires jakarta.inject;
   requires jersey.server;
   requires jersey.common;
   requires jersey.container.servlet.core;
   requires jul.to.slf4j;
-  requires hk2.utils;
-  requires java.annotation;
+  requires jakarta.annotation;
   requires jersey.bean.validation;
   requires jersey.hk2;
   requires java.net.http;
+  requires org.glassfish.hk2.api;
+  requires jakarta.mail;
 
   exports com.quorum.tessera.server.jersey;
   exports com.quorum.tessera.server.http;
   exports com.quorum.tessera.server.jaxrs to
-      hk2.locator;
+      org.glassfish.hk2.api,
+      org.glassfish.hk2.locator;
   exports com.quorum.tessera.server.monitoring to
-      hk2.locator,
+      org.glassfish.hk2.api,
+      org.glassfish.hk2.locator,
       jersey.server;
 
   opens com.quorum.tessera.server.jaxrs to
-      hk2.utils;
+      org.glassfish.hk2.api,
+      org.glassfish.hk2.locator,
+      org.glassfish.hk2.utilities;
 
   provides com.quorum.tessera.server.TesseraServerFactory with
       com.quorum.tessera.server.jersey.JerseyServerFactory;

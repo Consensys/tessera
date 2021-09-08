@@ -1,0 +1,2 @@
+--add-reads
+    tessera.enclave.cli=system.rules

@@ -1,2 +1,5 @@
 --add-opens
     tessera.enclave.jaxrs/com.quorum.tessera.enclave.rest=org.apache.commons.lang3
+
+--add-opens
+    org.glassfish.json.jaxrs/org.glassfish.json.jaxrs=org.glassfish.hk2.utilities

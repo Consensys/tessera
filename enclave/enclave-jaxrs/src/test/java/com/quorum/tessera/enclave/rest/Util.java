@@ -1,7 +1,7 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.Enclave;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.core.Application;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
