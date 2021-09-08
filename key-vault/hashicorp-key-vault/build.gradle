@@ -15,6 +15,7 @@ configurations.all {
   exclude group: "commons-logging"
   exclude group: "org.springframework", module: "spring-jcl"
   exclude group: "org.springframework", module: "spring-aop"
+  exclude group: "jakarta.json"
 }
 
 def springVersion = "5.3.5"
