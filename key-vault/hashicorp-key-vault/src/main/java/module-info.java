@@ -4,7 +4,6 @@ module tessera.keyvault.hashicorp {
   requires spring.web;
   requires tessera.config;
   requires tessera.keyvault.api;
-  requires jakarta.json;
 
   provides com.quorum.tessera.key.vault.KeyVaultServiceFactory with
       com.quorum.tessera.key.vault.hashicorp.HashicorpKeyVaultServiceFactory;
