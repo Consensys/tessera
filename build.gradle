@@ -195,9 +195,6 @@ subprojects {
   task allDeps(type: DependencyReportTask) {}
 
   configurations.all {
-
-    //        exclude group: 'javax.servlet'
-    //        exclude group: 'javax.ws.rs'
     exclude group: "commons-logging"
     exclude group: "javax.activation"
     exclude group: "javax.mail"
@@ -205,49 +202,13 @@ subprojects {
     exclude module: "jetty-servlet-api"
     exclude group: "io.swagger.core.v3", module: "swagger-models"
     exclude group: "io.swagger.core.v3", module: "swagger-annotations"
-    //exclude group: "com.fasterxml.jackson.jaxrs"
-    // exclude module: "jetty-jakarta-servlet-api"
-    //exclude module: "jakarta.activation"
-    // exclude group: "jakarta.json"
-    // exclude group: "jakarta.json"
-    //exclude group: "jakarta.json.bind"
     exclude group: "jakarta.servlet"// TODO: when jetty fix their servlet module name change jetty-jakarta-servlet-api to jakarta.servlet
     exclude group: "javax.servlet"
     exclude group: "javax.ws.rs"
 
-
-
-    //io.swagger.core.v3:swagger-models-jakarta
-
     resolutionStrategy.capabilitiesResolution.all {
       selectHighestVersion()
     }
-
-    //    resolutionStrategy.eachDependency { details ->
-    //
-    //      if (details.requested.name == "jsr305") {//annoying com.google.guava:guava dependency needed my checkstyle plugin
-    //        details.useTarget("jakarta.annotation:jakarta.annotation-api:2.0.0")
-    //      } else if (details.requested.group == "jakarta.json") {//TODO: Review api + impl modules
-    //        // details.useTarget("org.glassfish:jakarta.json:2.0.1")
-    //      } else if (details.requested.group == "javax.activation") {//TODO: Review api + impl modules
-    //        details.useTarget("com.sun.activation:jakarta.activation:2.0.1");
-    //      } else if (details.requested.group == "javax.ws.rs") {//TODO: stuborn transitive dep in swagger plugin
-    //        details.useTarget("jakarta.ws.rs:jakarta.ws.rs-api:3.0.0")
-    //      } else if (details.requested.group.startsWith("javax.")) {
-    //        def n = details.requested.name.replaceFirst("javax", "jakarta")
-    //        def g = details.requested.group.replaceFirst("javax", "jakarta")
-    //        def v = details.requested.version
-    //        details.useTarget(g + ":" + n + ":" + v)
-    //      }
-    //
-    //      //      if (details.requested.group == "com.sun.mail" && details.requested.name == "javax.mail") {
-    //      //        details.useTarget("com.sun.mail:jakarta.mail:1.6.5")
-    //      //      }
-    //
-    //      if (details.requested.group == "commons-logging") {
-    //        //details.useTarget("org.slf4j:jcl-over-slf4j:$slf4jVersion")
-    //      }
-    //    }
   }
 
 

@@ -8,11 +8,6 @@ application {
   applicationName = "tessera"
   mainClass = "com.quorum.tessera.launcher.Main"
   mainModule = "tessera.application"
-  //  args = [
-  //    "--add-opens",
-  //    "org.glassfish.json.jaxrs/org.glassfish.json.jaxrs=org.glassfish.hk2.utilities",
-  //  ]
-  //
   applicationDefaultJvmArgs = [
     "-Dtessera.cli.type=CONFIG",
     "-Djnr.ffi.asm.enabled=false",
@@ -89,20 +84,6 @@ dependencies {
   implementation "org.glassfish.jersey.core:jersey-common"
   implementation "org.glassfish.jersey.core:jersey-client"
 
-}
-
-
-distZip {
-  // exclude("**/jakarta.persistence-2.2.3.jar")
-  //    exclude("**/jakarta.activation-1.2.2.jar")
-  //    exclude("**/jakarta.inject-2.6.1.jar")
-  //  exclude("**/asm-*.jar")
-}
-distTar {
-  //exclude("**/jakarta.persistence-2.2.3.jar")
-  //  exclude("**/jakarta.activation-1.2.2.jar")
-  //  exclude("**/jakarta.inject-2.6.1.jar")
-  //  exclude("**/asm-*.jar")
 }
 
 dependencyCheck {
