@@ -94,22 +94,22 @@ test {
   systemProperty "project.version", project.version
 
   include(
-        "**/RecoverIT.class",
-        "**/RestSuiteHttpH2RemoteEnclave.class",
-        "**/RestSuiteHttpH2RemoteEnclaveEncTypeEC.class",
-        "**/RestSuiteBesu.class",
-        "**/RestSuiteHttpHSQL.class",
-        "**/RestSuiteUnixH2.class",
-        "**/RestSuiteHttpSqllite.class",
-        "**/RestSuiteHttpH2.class",
-        "**/RestSuiteHttpH2EncTypeEC.class",
-        "**/RestSuiteHttpH2EncTypeKalium.class",
-        "**/SendWithRemoteEnclaveReconnectIT.class",
-        "**/P2pTestSuite.class",
-        "**/AwsKeyVaultIT.class",
-        "**/RunHashicorpIT.class",
-        "**/ThirdPartyIT.class",
-        "**/CucumberTestSuite.class",
+    "**/RecoverIT.class",
+    "**/RestSuiteHttpH2RemoteEnclave.class",
+    "**/RestSuiteHttpH2RemoteEnclaveEncTypeEC.class",
+    "**/RestSuiteBesu.class",
+    "**/RestSuiteHttpHSQL.class",
+    "**/RestSuiteUnixH2.class",
+    "**/RestSuiteHttpSqllite.class",
+    "**/RestSuiteHttpH2.class",
+    "**/RestSuiteHttpH2EncTypeEC.class",
+    "**/RestSuiteHttpH2EncTypeKalium.class",
+    "**/SendWithRemoteEnclaveReconnectIT.class",
+    "**/P2pTestSuite.class",
+    "**/AwsKeyVaultIT.class",
+    "**/RunHashicorpIT.class",
+    "**/ThirdPartyIT.class",
+    "**/CucumberTestSuite.class",
     )
 
   if(file("/usr/local/lib/").listFiles(new FilenameFilter() {
