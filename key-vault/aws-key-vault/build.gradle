@@ -17,6 +17,7 @@ application {
 configurations.all {
   exclude group: "commons-logging"
   exclude module: "jackson-bom"
+  exclude group: "jakarta.json"
 }
 
 
