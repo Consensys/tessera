@@ -64,6 +64,7 @@ public class SendWithRemoteEnclaveReconnectIT {
         .with(SocketType.HTTP)
         .with(EnclaveType.REMOTE)
         .with(encryptorConfig.getType())
+        .with(ClientMode.TESSERA)
         .buildAndStoreContext();
 
     final PortUtil portGenerator = new PortUtil(50100);

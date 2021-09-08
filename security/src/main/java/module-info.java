@@ -8,7 +8,6 @@ module tessera.security {
   requires tessera.shared;
   requires org.bouncycastle.pkix;
   requires org.bouncycastle.provider;
-  requires cryptacular;
 
   exports com.quorum.tessera.ssl.context;
 
