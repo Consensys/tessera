@@ -13,7 +13,6 @@ dependencyCheck {
 
 configurations.all {
   exclude group: "stax"
-  exclude module: "jakarta.activation"
   exclude module: "javax.mail"
 }
 
@@ -28,6 +27,7 @@ dependencies {
   implementation project(":config")
   implementation project(":key-vault:key-vault-api")
   implementation "jakarta.annotation:jakarta.annotation-api"
+  implementation "com.sun.activation:jakarta.activation"
 
   implementation ("com.azure:azure-security-keyvault-secrets:4.2.3")
   implementation("com.azure:azure-identity:1.3.5")
