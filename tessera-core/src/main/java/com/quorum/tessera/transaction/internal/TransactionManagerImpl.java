@@ -519,8 +519,7 @@ public class TransactionManagerImpl implements TransactionManager {
     final EncodedPayload payload = this.fetchPayload(transactionHash);
     if (payload.getPrivacyMode() != PrivacyMode.MANDATORY_RECIPIENTS) {
       throw new MandatoryRecipientsNotAvailableException(
-        "Operation invalid. Transaction found is not a mandatory recipients privacy type"
-      );
+          "Operation invalid. Transaction found is not a mandatory recipients privacy type");
     }
     return payload.getMandatoryRecipients();
   }
