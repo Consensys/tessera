@@ -1,10 +1,10 @@
 package com.quorum.tessera.data;
 
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.Lob;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Base64;
-import javax.persistence.Embeddable;
-import javax.persistence.Lob;
 
 @Embeddable
 public class MessageHash implements Serializable {

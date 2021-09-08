@@ -1,5 +1,5 @@
 plugins {
-  id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
+  id "io.swagger.core.v3.swagger-gradle-plugin"
   id "java-library"
 }
 
@@ -16,7 +16,7 @@ dependencies {
   implementation project(":tessera-partyinfo")
   implementation "jakarta.persistence:jakarta.persistence-api"
   implementation "org.hibernate.validator:hibernate-validator"
-  implementation "io.swagger.core.v3:swagger-annotations"
+  implementation "io.swagger.core.v3:swagger-annotations-jakarta"
   implementation "org.glassfish:jakarta.json"
 
   api "jakarta.inject:jakarta.inject-api"
@@ -24,7 +24,7 @@ dependencies {
   implementation "jakarta.ws.rs:jakarta.ws.rs-api"
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
-  implementation "io.swagger.core.v3:swagger-annotations"
+  compileOnly "io.swagger.core.v3:swagger-annotations-jakarta"
 
   // compile "jakarta.servlet:jakarta.servlet-api"
   implementation "org.apache.commons:commons-lang3"

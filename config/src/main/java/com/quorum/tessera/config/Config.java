@@ -4,10 +4,10 @@ import com.quorum.tessera.config.constraints.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.xml.bind.annotation.*;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)

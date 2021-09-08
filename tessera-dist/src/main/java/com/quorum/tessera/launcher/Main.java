@@ -13,11 +13,11 @@ import com.quorum.tessera.privacygroup.ResidentGroupHandler;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
+import jakarta.json.JsonException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.security.Security;
 import java.util.*;
-import javax.json.JsonException;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
@@ -32,7 +32,6 @@ public class Main {
   private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
   public static void main(final String... args) throws Exception {
-
     Security.addProvider(new BouncyCastleProvider());
     LOGGER.debug("args [{}]", String.join(",", args));
     try {

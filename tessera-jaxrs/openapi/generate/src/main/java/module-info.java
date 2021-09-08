@@ -12,5 +12,5 @@ module tessera.openapi.generate {
   requires static tessera.encryption.api;
   requires static tessera.config;
   requires static tessera.recovery;
-  requires static java.json;
+  requires static jakarta.json;
 }

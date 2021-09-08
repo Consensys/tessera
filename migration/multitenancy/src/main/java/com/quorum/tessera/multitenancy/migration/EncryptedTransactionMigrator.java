@@ -8,11 +8,11 @@ import com.quorum.tessera.enclave.RecipientBox;
 import com.quorum.tessera.enclave.SecurityHash;
 import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
 
 public class EncryptedTransactionMigrator {
 

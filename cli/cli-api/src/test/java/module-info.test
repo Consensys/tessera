@@ -1,3 +1,6 @@
 --add-opens
     tessera.cli.api/com.quorum.tessera.cli.parsers=openpojo
 
+--add-reads
+    tessera.cli.api=system.rules
+

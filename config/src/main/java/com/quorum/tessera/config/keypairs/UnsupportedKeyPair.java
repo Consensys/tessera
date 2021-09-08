@@ -3,9 +3,9 @@ package com.quorum.tessera.config.keypairs;
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidUnsupportedKeyPair;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @ValidUnsupportedKeyPair
 public class UnsupportedKeyPair implements ConfigKeyPair {

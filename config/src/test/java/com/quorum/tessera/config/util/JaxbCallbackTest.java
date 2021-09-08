@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.quorum.tessera.config.util.jaxb.JaxbCallback;
+import jakarta.xml.bind.DataBindingException;
+import jakarta.xml.bind.JAXB;
+import jakarta.xml.bind.JAXBException;
 import java.io.StringReader;
-import javax.xml.bind.DataBindingException;
-import javax.xml.bind.JAXB;
-import javax.xml.bind.JAXBException;
 import org.junit.Test;
 
 public class JaxbCallbackTest {

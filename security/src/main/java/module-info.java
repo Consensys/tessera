@@ -1,12 +1,13 @@
 module tessera.security {
   // requires java.base;
-  requires java.xml.bind;
+  requires jakarta.xml.bind;
   //  requires cryptacular;
   requires org.slf4j;
   requires tessera.config;
   requires tessera.shared;
   requires org.bouncycastle.pkix;
   requires org.bouncycastle.provider;
+  requires cryptacular;
 
   exports com.quorum.tessera.ssl.context;
 

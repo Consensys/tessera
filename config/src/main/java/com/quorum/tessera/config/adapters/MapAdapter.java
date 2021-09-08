@@ -1,12 +1,12 @@
 package com.quorum.tessera.config.adapters;
 
 import com.quorum.tessera.config.ConfigProperties;
+import jakarta.xml.bind.JAXBElement;
+import jakarta.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import javax.xml.namespace.QName;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -18,7 +18,7 @@ public class MapAdapter extends XmlAdapter<ConfigProperties, Map<String, String>
     if (configProperties == null) return null;
 
     Map<String, String> outcome = new LinkedHashMap<>();
-    // TODO : Find out why we have a org.w3c.dom.Element rarher than javax.xml.bind.JAXBElement
+    // TODO : Find out why we have a org.w3c.dom.Element rarher than jakarta.xml.bind.JAXBElement
     for (Object element : configProperties.getProperties()) {
 
       //  outcome.put(element.getName(), element.getValue());

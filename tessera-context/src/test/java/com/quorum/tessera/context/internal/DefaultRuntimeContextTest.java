@@ -10,10 +10,10 @@ import com.openpojo.validation.rule.impl.GetterMustExistRule;
 import com.openpojo.validation.test.impl.GetterTester;
 import com.quorum.tessera.config.keys.KeyEncryptor;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
-import javax.ws.rs.client.Client;
 import org.junit.Test;
 
 public class DefaultRuntimeContextTest {

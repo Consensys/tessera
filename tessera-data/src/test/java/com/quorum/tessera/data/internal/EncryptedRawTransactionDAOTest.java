@@ -5,10 +5,10 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.data.*;
+import jakarta.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import javax.persistence.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,15 +32,15 @@ public class EncryptedRawTransactionDAOTest {
   public void onSetUp() {
 
     Map properties = new HashMap();
-    properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
-    properties.put("javax.persistence.jdbc.user", "junit");
-    properties.put("javax.persistence.jdbc.password", "");
+    properties.put("jakarta.persistence.jdbc.url", testConfig.getUrl());
+    properties.put("jakarta.persistence.jdbc.user", "junit");
+    properties.put("jakarta.persistence.jdbc.password", "");
     properties.put(
         "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
     properties.put("eclipselink.logging.level", "FINE");
     properties.put("eclipselink.logging.parameters", "true");
     properties.put("eclipselink.logging.level.sql", "FINE");
-    properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+    properties.put("jakarta.persistence.schema-generation.database.action", "drop-and-create");
 
     entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
 

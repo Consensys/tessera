@@ -19,12 +19,12 @@ import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
+import jakarta.ws.rs.ApplicationPath;
 import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.ws.rs.ApplicationPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

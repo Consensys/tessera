@@ -9,14 +9,14 @@ import com.quorum.tessera.data.staging.StagingAffectedTransaction;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
 import com.quorum.tessera.enclave.PrivacyMode;
+import jakarta.persistence.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,15 +42,15 @@ public class StagingEntityDAOTest {
   public void beforeTest() throws Exception {
 
     Map properties = new HashMap();
-    properties.put("javax.persistence.jdbc.url", testConfig.getUrl());
-    properties.put("javax.persistence.jdbc.user", "junit");
-    properties.put("javax.persistence.jdbc.password", "");
+    properties.put("jakarta.persistence.jdbc.url", testConfig.getUrl());
+    properties.put("jakarta.persistence.jdbc.user", "junit");
+    properties.put("jakarta.persistence.jdbc.password", "");
     properties.put(
         "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
     properties.put("eclipselink.logging.level", "FINE");
     properties.put("eclipselink.logging.parameters", "true");
     properties.put("eclipselink.logging.level.sql", "FINE");
-    properties.put("javax.persistence.schema-generation.database.action", "drop-and-create");
+    properties.put("jakarta.persistence.schema-generation.database.action", "drop-and-create");
     properties.put("eclipselink.cache.shared.default", "false");
     properties.put(
         "eclipselink.session.customizer", "com.quorum.tessera.eclipselink.AtomicLongSequence");

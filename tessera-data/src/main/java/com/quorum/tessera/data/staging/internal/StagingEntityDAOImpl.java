@@ -3,12 +3,12 @@ package com.quorum.tessera.data.staging.internal;
 import com.quorum.tessera.data.EntityManagerTemplate;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

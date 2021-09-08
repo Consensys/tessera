@@ -1,6 +1,6 @@
 open module tessera.data {
   requires java.instrument;
-  requires java.persistence;
+  requires jakarta.persistence;
   requires org.bouncycastle.provider;
   requires org.slf4j;
   requires tessera.config;

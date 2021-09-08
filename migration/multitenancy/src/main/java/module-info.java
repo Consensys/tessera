@@ -6,7 +6,7 @@ module tessera.migration.multitenancy {
   requires info.picocli;
   requires tessera.enclave.api;
   requires java.sql;
-  requires java.persistence;
+  requires jakarta.persistence;
 
   opens com.quorum.tessera.multitenancy.migration to
       info.picocli;

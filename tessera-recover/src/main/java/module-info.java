@@ -8,7 +8,7 @@ module tessera.recovery {
   requires tessera.context;
   requires org.slf4j;
   requires tessera.transaction;
-  requires java.persistence;
+  requires jakarta.persistence;
 
   exports com.quorum.tessera.recovery;
   exports com.quorum.tessera.recovery.resend;

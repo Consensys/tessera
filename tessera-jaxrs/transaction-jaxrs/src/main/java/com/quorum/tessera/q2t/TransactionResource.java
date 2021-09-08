@@ -1,6 +1,6 @@
 package com.quorum.tessera.q2t;
 
-import static javax.ws.rs.core.MediaType.*;
+import static jakarta.ws.rs.core.MediaType.*;
 
 import com.quorum.tessera.api.*;
 import com.quorum.tessera.api.constraint.PrivacyValid;
@@ -24,6 +24,9 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -31,10 +34,6 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,7 +139,7 @@ public class TransactionResource {
             .path(URLEncoder.encode(encodedKey, StandardCharsets.UTF_8))
             .build();
 
-    return Response.status(Status.CREATED)
+    return Response.status(Response.Status.CREATED)
         .type(APPLICATION_JSON)
         .location(location)
         .entity(sendResponse)
@@ -196,7 +195,10 @@ public class TransactionResource {
             .build();
 
     // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
-    return Response.status(Status.OK).entity(encodedTransactionHash).location(location).build();
+    return Response.status(Response.Status.OK)
+        .entity(encodedTransactionHash)
+        .location(location)
+        .build();
   }
 
   // hide this operation from swagger generation; the /sendsignedtx operation is overloaded and must
@@ -269,7 +271,7 @@ public class TransactionResource {
     SendResponse sendResponse = new SendResponse();
     sendResponse.setKey(endcodedTransactionHash);
 
-    return Response.status(Status.CREATED)
+    return Response.status(Response.Status.CREATED)
         .type(APPLICATION_JSON)
         .location(location)
         .entity(sendResponse)
@@ -357,7 +359,10 @@ public class TransactionResource {
             .build();
 
     // TODO: Quorum expects only 200 responses. When Quorum can handle a 201, change to CREATED
-    return Response.status(Status.OK).entity(encodedTransactionHash).location(location).build();
+    return Response.status(Response.Status.OK)
+        .entity(encodedTransactionHash)
+        .location(location)
+        .build();
   }
 
   // hide this operation from swagger generation; the /transaction/{hash} operation is overloaded
@@ -427,7 +432,10 @@ public class TransactionResource {
         .map(PrivacyGroup.Id::getBase64)
         .ifPresent(receiveResponse::setPrivacyGroupId);
 
-    return Response.status(Status.OK).type(APPLICATION_JSON).entity(receiveResponse).build();
+    return Response.status(Response.Status.OK)
+        .type(APPLICATION_JSON)
+        .entity(receiveResponse)
+        .build();
   }
 
   @Operation(
@@ -486,7 +494,7 @@ public class TransactionResource {
 
     byte[] payload = receiveResponse.getUnencryptedTransactionData();
 
-    return Response.status(Status.OK).entity(payload).build();
+    return Response.status(Response.Status.OK).entity(payload).build();
   }
 
   @Deprecated

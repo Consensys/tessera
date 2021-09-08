@@ -265,9 +265,9 @@ public class ConfigBuilder {
   public static void main(String... args) throws Exception {
 
     System.setProperty(
-        "javax.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        "jakarta.xml.bind.JAXBContextFactory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
     System.setProperty(
-        "javax.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
+        "jakarta.xml.bind.context.factory", "org.eclipse.persistence.jaxb.JAXBContextFactory");
 
     ExecutionContext executionContext =
         ExecutionContext.Builder.create()

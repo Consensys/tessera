@@ -12,10 +12,10 @@ import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
+import jakarta.ws.rs.ApplicationPath;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.ws.rs.ApplicationPath;
 
 /**
  * The main application that is submitted to the HTTP server Contains all the service classes

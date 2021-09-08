@@ -1,0 +1,2 @@
+--add-reads
+    tessera.server.jersey.unixsocket=jakarta.xml.bind

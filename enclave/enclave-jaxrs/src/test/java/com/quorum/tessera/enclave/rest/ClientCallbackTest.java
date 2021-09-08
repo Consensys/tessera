@@ -4,8 +4,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.quorum.tessera.enclave.EnclaveNotAvailableException;
+import jakarta.ws.rs.ProcessingException;
 import java.net.ConnectException;
-import javax.ws.rs.ProcessingException;
 import org.junit.Test;
 
 public class ClientCallbackTest {

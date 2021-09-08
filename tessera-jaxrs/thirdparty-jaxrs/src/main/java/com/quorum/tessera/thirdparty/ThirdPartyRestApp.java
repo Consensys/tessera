@@ -10,10 +10,10 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.messaging.Messaging;
 import com.quorum.tessera.thirdparty.messaging.MessageResource;
 import com.quorum.tessera.transaction.TransactionManager;
+import jakarta.ws.rs.ApplicationPath;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.ws.rs.ApplicationPath;
 
 /** The third party API */
 @ApplicationPath("/")

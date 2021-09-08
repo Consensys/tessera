@@ -1,16 +1,16 @@
 package com.quorum.tessera.server.monitoring;
 
-import static javax.ws.rs.core.MediaType.TEXT_PLAIN;
+import static jakarta.ws.rs.core.MediaType.TEXT_PLAIN;
 
 import com.quorum.tessera.config.AppType;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import java.lang.management.ManagementFactory;
 import java.util.List;
 import javax.management.MBeanServer;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
 
 @Path("/metrics")
 public class MetricsResource {

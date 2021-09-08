@@ -4,12 +4,12 @@ import com.quorum.tessera.config.adapters.PathAdapter;
 import com.quorum.tessera.config.constraints.ValidPath;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.nio.file.Path;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 @Deprecated
 @XmlAccessorType(XmlAccessType.FIELD)

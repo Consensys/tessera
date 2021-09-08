@@ -2,9 +2,9 @@ package com.quorum.tessera.config;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlAttribute;
 
 @Deprecated
 @XmlAccessorType(XmlAccessType.FIELD)

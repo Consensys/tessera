@@ -5,12 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.test.*;
+import jakarta.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Base64;
 import java.util.Collections;
-import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 public class DeleteIT {

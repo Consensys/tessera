@@ -18,8 +18,10 @@ import java.util.concurrent.TimeoutException;
 import org.glassfish.jersey.test.JerseyTest;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.bridge.SLF4JBridgeHandler;
 
 public class RestfulEnclaveClientTest {
 
@@ -29,8 +31,15 @@ public class RestfulEnclaveClientTest {
 
   private RestfulEnclaveClient enclaveClient;
 
+  @BeforeClass
+  public static void beforeClass() {
+    SLF4JBridgeHandler.removeHandlersForRootLogger();
+    SLF4JBridgeHandler.install();
+  }
+
   @Before
   public void setUp() throws Exception {
+
     Config config = new Config();
     config.setEncryptor(new EncryptorConfig());
     config.getEncryptor().setType(EncryptorType.NACL);

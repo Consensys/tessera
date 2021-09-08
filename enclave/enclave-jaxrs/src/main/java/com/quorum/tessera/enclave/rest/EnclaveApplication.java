@@ -4,9 +4,9 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EnclaveServer;
+import jakarta.ws.rs.core.Application;
 import java.util.Objects;
 import java.util.Set;
-import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -41,17 +41,17 @@ public class TesseraCommand implements Callable<CliResult> {
     this(
         ServiceLoader.load(KeyPasswordResolver.class)
             .findFirst()
-            .orElse(new CliKeyPasswordResolver()));
-  }
-
-  private TesseraCommand(final KeyPasswordResolver keyPasswordResolver) {
-    this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
-    this.validator =
+            .orElse(new CliKeyPasswordResolver()),
         Validation.byDefaultProvider()
             .configure()
             .ignoreXmlConfiguration()
             .buildValidatorFactory()
-            .getValidator();
+            .getValidator());
+  }
+
+  private TesseraCommand(final KeyPasswordResolver keyPasswordResolver, Validator validator) {
+    this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
+    this.validator = Objects.requireNonNull(validator);
   }
 
   @CommandLine.Option(

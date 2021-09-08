@@ -10,9 +10,9 @@ import com.quorum.tessera.encryption.EncryptorException;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlTransient;
 import java.util.Objects;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 public class InlineKeypair implements ConfigKeyPair {
 

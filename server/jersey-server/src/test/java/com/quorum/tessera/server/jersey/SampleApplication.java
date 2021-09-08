@@ -1,7 +1,7 @@
 package com.quorum.tessera.server.jersey;
 
+import jakarta.ws.rs.core.Application;
 import java.util.Set;
-import javax.ws.rs.core.Application;
 
 public class SampleApplication extends Application {
 

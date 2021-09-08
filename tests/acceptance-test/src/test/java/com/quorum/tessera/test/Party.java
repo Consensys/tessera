@@ -4,6 +4,8 @@ import com.quorum.tessera.config.*;
 import com.quorum.tessera.config.util.JaxbUtil;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import db.UncheckedSQLException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.WebTarget;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -19,8 +21,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.WebTarget;
 
 public class Party {
 

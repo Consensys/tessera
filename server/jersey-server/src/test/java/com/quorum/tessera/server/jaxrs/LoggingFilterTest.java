@@ -3,10 +3,10 @@ package com.quorum.tessera.server.jaxrs;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.container.ContainerResponseContext;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerResponseContext;
+import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

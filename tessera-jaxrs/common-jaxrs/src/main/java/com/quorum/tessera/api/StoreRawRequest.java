@@ -3,8 +3,8 @@ package com.quorum.tessera.api;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.xml.bind.annotation.XmlInlineBinaryData;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlInlineBinaryData;
 
 /**
  * Model representation of a JSON body on incoming HTTP requests

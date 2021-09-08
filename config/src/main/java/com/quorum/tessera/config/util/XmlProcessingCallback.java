@@ -1,8 +1,8 @@
 package com.quorum.tessera.config.util;
 
 import com.quorum.tessera.config.ConfigException;
+import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
-import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
