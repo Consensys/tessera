@@ -49,6 +49,8 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
   runtimeOnly "org.slf4j:jcl-over-slf4j"
 
+  implementation "org.glassfish:jakarta.json"
+
 }
 
 publishing {
