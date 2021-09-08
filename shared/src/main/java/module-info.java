@@ -24,5 +24,6 @@ module tessera.shared {
       com.quorum.tessera.version.BaseVersion,
       com.quorum.tessera.version.EnhancedPrivacyVersion,
       com.quorum.tessera.version.MultiTenancyVersion,
-      com.quorum.tessera.version.PrivacyGroupVersion;
+      com.quorum.tessera.version.PrivacyGroupVersion,
+      com.quorum.tessera.version.MandatoryRecipientsVersion;
 }

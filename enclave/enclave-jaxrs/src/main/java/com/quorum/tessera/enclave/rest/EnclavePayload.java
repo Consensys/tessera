@@ -26,6 +26,9 @@ public class EnclavePayload implements Serializable {
   private byte[] execHash;
 
   @XmlMimeType("base64Binary")
+  private List<byte[]> mandatoryRecipients;
+
+  @XmlMimeType("base64Binary")
   private byte[] privacyGroupId;
 
   public byte[] getData() {
@@ -82,5 +85,13 @@ public class EnclavePayload implements Serializable {
 
   public void setPrivacyGroupId(byte[] privacyGroupId) {
     this.privacyGroupId = privacyGroupId;
+  }
+
+  public List<byte[]> getMandatoryRecipients() {
+    return mandatoryRecipients;
+  }
+
+  public void setMandatoryRecipients(List<byte[]> mandatoryRecipients) {
+    this.mandatoryRecipients = mandatoryRecipients;
   }
 }

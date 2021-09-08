@@ -1,7 +1,6 @@
 package com.quorum.tessera.q2t.internal;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Fail.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
@@ -13,6 +12,7 @@ import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import com.quorum.tessera.transaction.exception.EnhancedPrivacyNotSupportedException;
+import com.quorum.tessera.transaction.exception.MandatoryRecipientsNotSupportedException;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import com.quorum.tessera.version.EnhancedPrivacyVersion;
@@ -67,7 +67,7 @@ public class RestPayloadPublisherTest {
 
         final NodeInfo nodeInfo = mock(NodeInfo.class);
         when(nodeInfo.supportedApiVersions())
-            .thenReturn(Set.of(EnhancedPrivacyVersion.API_VERSION_2));
+            .thenReturn(Set.of(EnhancedPrivacyVersion.API_VERSION_2, "2.1", "3.0", "4.0"));
         when(nodeInfo.getUrl()).thenReturn(targetUrl);
 
         when(discovery.getRemoteNodeInfo(publicKey)).thenReturn(nodeInfo);
@@ -177,5 +177,33 @@ public class RestPayloadPublisherTest {
       verify(payloadEncoder).encode(payload);
       verify(discovery).getRemoteNodeInfo(eq(recipientKey));
     }
+  }
+
+  @Test
+  public void publishMandatoryRecipientsToNodesThatDoNotSupport() {
+
+    String targetUrl = "http://someplace.com";
+
+    EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
+    byte[] payloadData = "Some Data".getBytes();
+    when(payloadEncoder.encode(encodedPayload)).thenReturn(payloadData);
+
+    PublicKey recipientKey = mock(PublicKey.class);
+    NodeInfo nodeInfo = mock(NodeInfo.class);
+    when(nodeInfo.supportedApiVersions()).thenReturn(Set.of("v2", "2.1", "3.0"));
+    Recipient recipient = mock(Recipient.class);
+    when(recipient.getKey()).thenReturn(recipientKey);
+    when(recipient.getUrl()).thenReturn(targetUrl);
+
+    when(nodeInfo.getRecipients()).thenReturn(Set.of(recipient));
+    when(discovery.getRemoteNodeInfo(recipientKey)).thenReturn(nodeInfo);
+
+    assertThatExceptionOfType(MandatoryRecipientsNotSupportedException.class)
+        .isThrownBy(() -> payloadPublisher.publishPayload(encodedPayload, recipientKey))
+        .withMessageContaining(
+            "Transactions with mandatory recipients are not currently supported on recipient");
+
+    verify(discovery).getRemoteNodeInfo(eq(recipientKey));
   }
 }

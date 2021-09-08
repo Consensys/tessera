@@ -113,6 +113,10 @@ public class RestfulEnclaveClient implements EnclaveClient {
               convertAffectedContractTransactions(
                   privacyMetaData.getAffectedContractTransactions()));
           enclavePayload.setExecHash(privacyMetaData.getExecHash());
+          enclavePayload.setMandatoryRecipients(
+              privacyMetaData.getMandatoryRecipients().stream()
+                  .map(PublicKey::getKeyBytes)
+                  .collect(Collectors.toList()));
           privacyMetaData
               .getPrivacyGroupId()
               .map(PrivacyGroup.Id::getBytes)
@@ -149,6 +153,11 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
           enclaveRawPayload.setPrivacyMode(privacyMetaData.getPrivacyMode());
           enclaveRawPayload.setExecHash(privacyMetaData.getExecHash());
+
+          enclaveRawPayload.setMandatoryRecipients(
+              privacyMetaData.getMandatoryRecipients().stream()
+                  .map(PublicKey::getKeyBytes)
+                  .collect(Collectors.toList()));
 
           enclaveRawPayload.setAffectedContractTransactions(
               convertAffectedContractTransactions(

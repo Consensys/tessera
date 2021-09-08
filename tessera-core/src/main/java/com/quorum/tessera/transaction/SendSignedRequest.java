@@ -20,21 +20,23 @@ public interface SendSignedRequest {
 
   Optional<PrivacyGroup.Id> getPrivacyGroupId();
 
+  Set<PublicKey> getMandatoryRecipients();
+
   class Builder {
 
     private byte[] signedData;
 
     private List<PublicKey> recipients;
 
-    private PublicKey from;
-
     private PrivacyMode privacyMode;
 
-    private byte[] execHash;
+    private byte[] execHash = new byte[0];
 
-    private Set<MessageHash> affectedContractTransactions;
+    private Set<MessageHash> affectedContractTransactions = Collections.emptySet();
 
     private PrivacyGroup.Id privacyGroupId;
+
+    private Set<PublicKey> mandatoryRecipients = Collections.emptySet();
 
     public static Builder create() {
       return new Builder() {};
@@ -42,11 +44,6 @@ public interface SendSignedRequest {
 
     public Builder withSignedData(byte[] signedData) {
       this.signedData = signedData;
-      return this;
-    }
-
-    public Builder withSender(PublicKey from) {
-      this.from = from;
       return this;
     }
 
@@ -75,19 +72,27 @@ public interface SendSignedRequest {
       return this;
     }
 
+    public Builder withMandatoryRecipients(Set<PublicKey> mandatoryRecipients) {
+      this.mandatoryRecipients = mandatoryRecipients;
+      return this;
+    }
+
     public SendSignedRequest build() {
       Objects.requireNonNull(signedData, "Signed data is required");
       Objects.requireNonNull(recipients, "recipients is required");
       Objects.requireNonNull(privacyMode, "privacyMode is required");
-      Objects.requireNonNull(
-          affectedContractTransactions, "affectedContractTransactions is required");
-      Objects.requireNonNull(execHash, "ExecutionHash is required");
 
       if (privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) {
         if (execHash.length == 0) {
           throw new RuntimeException(
               "ExecutionHash is required for PRIVATE_STATE_VALIDATION privacy mode");
         }
+      }
+
+      if ((privacyMode == PrivacyMode.MANDATORY_RECIPIENTS) == mandatoryRecipients.isEmpty()) {
+        throw new RuntimeException(
+            "Mandatory recipients data only applicable for Mandatory Recipients privacy mode. "
+                + "In case no mandatory recipient is required, consider using Party Protection privacy mode");
       }
 
       return new SendSignedRequest() {
@@ -119,6 +124,11 @@ public interface SendSignedRequest {
         @Override
         public Optional<PrivacyGroup.Id> getPrivacyGroupId() {
           return Optional.ofNullable(privacyGroupId);
+        }
+
+        @Override
+        public Set<PublicKey> getMandatoryRecipients() {
+          return Set.copyOf(mandatoryRecipients);
         }
       };
     }

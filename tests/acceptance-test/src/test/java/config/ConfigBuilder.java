@@ -46,7 +46,7 @@ public class ConfigBuilder {
 
   private Integer partyInfoInterval;
 
-  private Integer adminPort;
+  private Integer thirdPartyPort;
 
   private Integer enclavePort;
 
@@ -86,8 +86,8 @@ public class ConfigBuilder {
     return this;
   }
 
-  public ConfigBuilder withAdminPort(Integer adminPort) {
-    this.adminPort = adminPort;
+  public ConfigBuilder withThirdPartyPort(Integer thirdPartyPort) {
+    this.thirdPartyPort = thirdPartyPort;
     return this;
   }
 
@@ -189,14 +189,14 @@ public class ConfigBuilder {
     servers.add(p2pServerConfig);
 
     if (executionContext.getCommunicationType() == CommunicationType.REST
-        && Objects.nonNull(adminPort)) {
-      ServerConfig adminServerConfig = new ServerConfig();
-      adminServerConfig.setApp(AppType.ADMIN);
-      adminServerConfig.setServerAddress("http://localhost:" + adminPort);
-      adminServerConfig.setBindingAddress("http://0.0.0.0:" + adminPort);
-      adminServerConfig.setCommunicationType(CommunicationType.REST);
+        && Objects.nonNull(thirdPartyPort)) {
+      ServerConfig thirdPartyServerConfig = new ServerConfig();
+      thirdPartyServerConfig.setApp(AppType.THIRD_PARTY);
+      thirdPartyServerConfig.setServerAddress("http://localhost:" + thirdPartyPort);
+      thirdPartyServerConfig.setBindingAddress("http://0.0.0.0:" + thirdPartyPort);
+      thirdPartyServerConfig.setCommunicationType(CommunicationType.REST);
 
-      // servers.add(adminServerConfig);
+      servers.add(thirdPartyServerConfig);
     }
 
     if (executionContext.getEnclaveType() == EnclaveType.REMOTE) {

@@ -21,11 +21,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.IntStream;
 import org.junit.After;
 import org.junit.Before;
@@ -271,6 +267,10 @@ public class MigrationTest {
             .withRecipientKeys(List.of(senderKey, PublicKey.from("Recipient".getBytes())));
 
     if (privacyMode != PrivacyMode.PRIVATE_STATE_VALIDATION) {
+      if (privacyMode == PrivacyMode.MANDATORY_RECIPIENTS) {
+        encodedPayloadBuilder.withMandatoryRecipients(
+            Set.of(PublicKey.from("Recipient".getBytes())));
+      }
       encodedPayloadBuilder.withExecHash(new byte[0]);
     } else {
       encodedPayloadBuilder.withExecHash("execHash".getBytes());

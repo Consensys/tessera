@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Test;
 
@@ -82,7 +83,7 @@ public class EncodedPayloadBuilderTest {
   }
 
   @Test
-  public void from() {
+  public void fromPSV() {
     final EncodedPayload sample =
         EncodedPayload.Builder.create()
             .withSenderKey(senderKey)
@@ -103,6 +104,25 @@ public class EncodedPayloadBuilderTest {
         .withIgnoredFields("affectedContractTransactions")
         .usingGetClass()
         .verify();
+  }
+
+  @Test
+  public void fromMR() {
+    final EncodedPayload sample =
+        EncodedPayload.Builder.create()
+            .withSenderKey(senderKey)
+            .withCipherText(cipherText)
+            .withCipherTextNonce(cipherTextNonce)
+            .withRecipientBoxes(List.of(recipientBox))
+            .withRecipientNonce(recipientNonce)
+            .withRecipientKeys(List.of(recipientKey))
+            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+            .withMandatoryRecipients(Set.of(recipientKey))
+            .build();
+
+    EncodedPayload result = EncodedPayload.Builder.from(sample).build();
+
+    assertThat(result).isNotSameAs(sample).isEqualTo(sample);
   }
 
   @Test
@@ -162,6 +182,31 @@ public class EncodedPayloadBuilderTest {
         .withAffectedContractTransactions(affectedContractTransactionsRaw)
         .withRecipientKey(recipientKey)
         .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
+        .build();
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void mandatoryRecipientsInvalid() {
+    EncodedPayload.Builder.create()
+        .withSenderKey(senderKey)
+        .withCipherText(cipherText)
+        .withCipherTextNonce(cipherTextNonce)
+        .withRecipientBox(recipientBox)
+        .withRecipientNonce(recipientNonce)
+        .withPrivacyFlag(1)
+        .withMandatoryRecipients(Set.of(PublicKey.from("KEY1".getBytes())))
+        .build();
+  }
+
+  @Test(expected = RuntimeException.class)
+  public void mandatoryRecipientsInvalidNoData() {
+    EncodedPayload.Builder.create()
+        .withSenderKey(senderKey)
+        .withCipherText(cipherText)
+        .withCipherTextNonce(cipherTextNonce)
+        .withRecipientBox(recipientBox)
+        .withRecipientNonce(recipientNonce)
+        .withPrivacyFlag(2)
         .build();
   }
 }

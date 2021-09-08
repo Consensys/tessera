@@ -92,8 +92,8 @@ public class VersionIT {
                           .map(JsonString.class::cast)
                           .map(JsonString::getString)
                           .toArray(String[]::new))
-                  .describedAs("%s/version/api should return 1.0, 2.0, 2.1, 3.0", u)
-                  .containsExactly("1.0", "2.0", "2.1", "3.0");
+                  .describedAs("%s/version/api should return 1.0, 2.0, 2.1, 3.0, 4.0", u)
+                  .containsExactly("1.0", "2.0", "2.1", "3.0", "4.0");
             });
   }
 }
