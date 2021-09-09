@@ -39,7 +39,7 @@ dependencies {
   implementation "com.sun.activation:jakarta.activation"
   implementation("org.glassfish:jakarta.json:2.0.1:module")
 
-  runtimeOnly "org.slf4j:jcl-over-slf4j"
+  implementation "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 }
 
 publishing {
