@@ -10,6 +10,7 @@ import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.*;
+import com.quorum.tessera.transaction.exception.MandatoryRecipientsNotAvailableException;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
@@ -1730,6 +1731,7 @@ public class TransactionManagerTest {
     final EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
     final EncodedPayload encodedPayload = mock(EncodedPayload.class);
     when(encodedPayload.getRecipientKeys()).thenReturn(List.of(senderKey, recipientKey));
+    when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.MANDATORY_RECIPIENTS);
     when(encodedPayload.getMandatoryRecipients()).thenReturn(Set.of(recipientKey));
     when(encryptedTransaction.getEncodedPayload()).thenReturn(input);
 
@@ -1741,6 +1743,36 @@ public class TransactionManagerTest {
     final Set<PublicKey> participants = transactionManager.getMandatoryRecipients(transactionHash);
 
     assertThat(participants).containsExactly(recipientKey);
+
+    verify(payloadEncoder).decode(input);
+    verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
+  }
+
+  @Test
+  public void getMandatoryRecipientsNotAvailable() {
+
+    MessageHash transactionHash = mock(MessageHash.class);
+    when(transactionHash.getHashBytes()).thenReturn("DUMMY_TRANSACTION".getBytes());
+
+    final PublicKey senderKey = mock(PublicKey.class);
+    final PublicKey recipientKey = mock(PublicKey.class);
+
+    final byte[] input = "SOMEDATA".getBytes();
+    final EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
+    final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    when(encodedPayload.getRecipientKeys()).thenReturn(List.of(senderKey, recipientKey));
+    when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
+    when(encryptedTransaction.getEncodedPayload()).thenReturn(input);
+
+    when(encryptedTransactionDAO.retrieveByHash(transactionHash))
+        .thenReturn(Optional.of(encryptedTransaction));
+
+    when(payloadEncoder.decode(input)).thenReturn(encodedPayload);
+
+    assertThatExceptionOfType(MandatoryRecipientsNotAvailableException.class)
+        .isThrownBy(() -> transactionManager.getMandatoryRecipients(transactionHash))
+        .withMessageContaining(
+            "Operation invalid. Transaction found is not a mandatory recipients privacy type");
 
     verify(payloadEncoder).decode(input);
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));

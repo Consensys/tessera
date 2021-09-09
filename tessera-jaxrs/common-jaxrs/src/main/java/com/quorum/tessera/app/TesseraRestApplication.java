@@ -13,6 +13,8 @@ public abstract class TesseraRestApplication extends Application implements Tess
   @Override
   public Set<Class<?>> getClasses() {
     return Set.of(
+        MandatoryRecipientsNotAvailableExceptionMapper.class,
+        MandatoryRecipientsNotSupportedExceptionMapper.class,
         PrivacyGroupNotFoundExceptionMapper.class,
         PrivacyGroupNotSupportedExceptionMapper.class,
         EnhancedPrivacyNotSupportedExceptionMapper.class,
