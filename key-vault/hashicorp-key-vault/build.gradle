@@ -44,6 +44,14 @@ dependencies {
   implementation "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 }
 
+compileJava {
+  moduleOptions {
+    addExports = [
+      'org.apache.commons.logging/org.apache.commons.logging.impl': 'spring.core'
+    ]
+  }
+}
+
 publishing {
   publications {
     mavenJava(MavenPublication) {
