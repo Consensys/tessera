@@ -206,6 +206,17 @@ subprojects {
     exclude group: "jakarta.servlet"// TODO: when jetty fix their servlet module name change jetty-jakarta-servlet-api to jakarta.servlet
     exclude group: "javax.servlet"
     exclude group: "javax.ws.rs"
+
+    resolutionStrategy.capabilitiesResolution.all {
+      selectHighestVersion()
+    }
+
+    resolutionStrategy.eachDependency { details ->
+      if (details.requested.name == "slf4j-api" && details.requested.group == "org.slf4j") {//Downgrade jetty slf4j version
+        details.useTarget("org.slf4j:slf4j-api:${slf4jVersion}")
+      }
+    }
+
   }
 
 
