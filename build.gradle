@@ -206,10 +206,6 @@ subprojects {
     exclude group: "jakarta.servlet"// TODO: when jetty fix their servlet module name change jetty-jakarta-servlet-api to jakarta.servlet
     exclude group: "javax.servlet"
     exclude group: "javax.ws.rs"
-
-    resolutionStrategy.capabilitiesResolution.all {
-      selectHighestVersion()
-    }
   }
 
 
