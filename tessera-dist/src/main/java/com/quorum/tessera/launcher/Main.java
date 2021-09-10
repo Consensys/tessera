@@ -101,8 +101,15 @@ public class Main {
       LOGGER.debug("Created BatchResendManager");
 
       LOGGER.debug("Creating txn manager");
-      TransactionManager.create();
+      TransactionManager transactionManager = TransactionManager.create();
       LOGGER.debug("Created txn manager");
+
+      LOGGER.debug("Validating if transaction table exists");
+      if (!transactionManager.upcheck()) {
+        throw new RuntimeException(
+            "The database has not been setup correctly. Please ensure transaction tables "
+                + "are present and correct");
+      }
 
       LOGGER.debug("Creating ScheduledServiceFactory");
       ScheduledServiceFactory scheduledServiceFactory = ScheduledServiceFactory.fromConfig(config);
