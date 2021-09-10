@@ -33,6 +33,8 @@ dependencies {
   implementation ("com.azure:azure-security-keyvault-secrets:4.2.3")
   implementation("com.azure:azure-identity:1.3.5")
   implementation("com.azure:azure-core:1.19.0")
+
+  testImplementation "org.glassfish:jakarta.json"
 }
 
 publishing {
