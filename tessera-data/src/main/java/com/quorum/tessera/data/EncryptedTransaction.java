@@ -19,7 +19,7 @@ import javax.persistence.*;
       query = "select et from EncryptedTransaction et order by et.timestamp,et.hash"),
   @NamedQuery(
       name = "EncryptedTransaction.Upcheck",
-      query = "select count(c) from EncryptedTransaction c")
+      query = "select count(c.timestamp) from EncryptedTransaction c")
 })
 @Entity
 @Table(name = "ENCRYPTED_TRANSACTION")
