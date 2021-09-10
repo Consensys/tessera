@@ -120,7 +120,7 @@ public class P2PRestApp extends TesseraRestApplication
         new TransactionResource(
             transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
 
-    final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+    final UpCheckResource upCheckResource = new UpCheckResource();
 
     final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 

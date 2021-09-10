@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 /** The third party API */
 @ApplicationPath("/")
 public class ThirdPartyRestApp extends TesseraRestApplication
-    implements com.quorum.tessera.config.apps.TesseraApp {
+  implements com.quorum.tessera.config.apps.TesseraApp {
 
   private final Discovery discovery;
 
@@ -31,7 +31,7 @@ public class ThirdPartyRestApp extends TesseraRestApplication
   }
 
   protected ThirdPartyRestApp(
-      Discovery discovery, TransactionManager transactionManager, Messaging messaging) {
+    Discovery discovery, TransactionManager transactionManager, Messaging messaging) {
     this.discovery = Objects.requireNonNull(discovery);
     this.transactionManager = Objects.requireNonNull(transactionManager);
     this.messaging = Objects.requireNonNull(messaging);
@@ -40,25 +40,19 @@ public class ThirdPartyRestApp extends TesseraRestApplication
   @Override
   public Set<Object> getSingletons() {
     final RawTransactionResource rawTransactionResource =
-        new RawTransactionResource(transactionManager);
+      new RawTransactionResource(transactionManager);
     final PartyInfoResource partyInfoResource = new PartyInfoResource(discovery);
     final KeyResource keyResource = new KeyResource();
-    final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+    final UpCheckResource upCheckResource = new UpCheckResource();
     final MessageResource messagingResource = new MessageResource(messaging);
-
-    return Stream.of(
-            rawTransactionResource,
-            partyInfoResource,
-            keyResource,
-            upCheckResource,
-            messagingResource)
-        .collect(toSet());
+    return Set.of(
+      rawTransactionResource, partyInfoResource, keyResource, upCheckResource, messagingResource);
   }
 
   @Override
   public Set<Class<?>> getClasses() {
     return Stream.concat(super.getClasses().stream(), Stream.of(ThirdPartyApiResource.class))
-        .collect(toSet());
+      .collect(toSet());
   }
 
   @Override
