@@ -23,7 +23,6 @@ public class UpCheckResource {
   private static final Logger LOGGER = LoggerFactory.getLogger(UpCheckResource.class);
 
   private static final String UPCHECK_RESPONSE_IS_UP = "I'm up!";
-  private static final String UPCHECK_RESPONSE_DB = "Database unavailable";
 
   /**
    * Called to check if the application is running and responsive. Gives no details about the health
@@ -43,8 +42,7 @@ public class UpCheckResource {
               mediaType = MediaType.TEXT_PLAIN,
               schema = @Schema(type = "string"),
               examples = {
-                @ExampleObject(name = UPCHECK_RESPONSE_IS_UP, value = UPCHECK_RESPONSE_IS_UP),
-                @ExampleObject(name = UPCHECK_RESPONSE_DB, value = UPCHECK_RESPONSE_DB)
+                @ExampleObject(name = UPCHECK_RESPONSE_IS_UP, value = UPCHECK_RESPONSE_IS_UP)
               }))
   @GET
   @Produces(MediaType.TEXT_PLAIN)
