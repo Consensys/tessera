@@ -3,3 +3,6 @@
 
 --add-opens
     org.glassfish.json.jaxrs/org.glassfish.json.jaxrs=org.glassfish.hk2.utilities
+
+--add-reads
+    tessera.argontwo=org.slf4j

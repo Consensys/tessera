@@ -4,3 +4,5 @@
     tessera.keygeneration/com.quorum.tessera.key.generation=org.mockito
 --add-opens
     java.base/sun.nio.fs=org.mockito
+--add-reads
+    tessera.argontwo=org.slf4j
