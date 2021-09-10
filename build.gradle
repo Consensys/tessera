@@ -17,8 +17,8 @@ ext {
   eclipselinkVersion = "3.0.2"
   swaggerVersion = "2.1.9"
   jerseyVersion = "3.0.2"
-  slf4jVersion = "1.8.0-beta4"
-  logbackVersion = "1.3.0-alpha10"
+  slf4jVersion = "1.7.30"
+  logbackVersion = "1.2.6"
   hk2Version = "3.0.2"
 }
 
@@ -210,12 +210,19 @@ subprojects {
     resolutionStrategy.capabilitiesResolution.all {
       selectHighestVersion()
     }
+
+    resolutionStrategy.eachDependency { details ->
+      if (details.requested.name == "slf4j-api" && details.requested.group == "org.slf4j") {//Downgrade jetty slf4j version
+        details.useTarget("org.slf4j:slf4j-api:${slf4jVersion}")
+      }
+    }
+
   }
 
 
   dependencies {
 
-    api "org.slf4j:slf4j-api"
+    implementation "org.slf4j:slf4j-api"
     runtimeOnly "ch.qos.logback:logback-classic"
     runtimeOnly "ch.qos.logback:logback-core"
 
