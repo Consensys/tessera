@@ -2,6 +2,7 @@ package com.quorum.tessera.api.common;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+
 import jakarta.ws.rs.core.Response;
 import org.junit.Test;
 
