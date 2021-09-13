@@ -111,6 +111,7 @@ public class ThirdPartyIT {
             setUsername("junit");
             setPassword("junit");
             setUrl("jdbc:h2:mem:thirdpty".concat(nodeAlias.name()));
+            setAutoCreateTables(true);
           }
         });
 
