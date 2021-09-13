@@ -14,7 +14,7 @@ import javax.persistence.*;
       query = "delete from EncryptedRawTransaction where hash.hashBytes = :hash"),
   @NamedQuery(
       name = "EncryptedRawTransaction.Upcheck",
-      query = "select count(c) from EncryptedRawTransaction c"),
+      query = "select count(c.timestamp) from EncryptedRawTransaction c"),
   @NamedQuery(
       name = "EncryptedRawTransaction.FindAll",
       query = "select ert from EncryptedRawTransaction ert order by ert.timestamp, ert.hash"),

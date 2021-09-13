@@ -56,7 +56,7 @@ public class Q2TRestApp extends TesseraRestApplication
     RawTransactionResource rawTransactionResource = new RawTransactionResource(transactionManager);
     EncodedPayloadResource encodedPayloadResource =
         new EncodedPayloadResource(encodedPayloadManager, transactionManager);
-    final UpCheckResource upCheckResource = new UpCheckResource(transactionManager);
+    final UpCheckResource upCheckResource = new UpCheckResource();
 
     final PrivacyGroupResource privacyGroupResource = new PrivacyGroupResource(privacyGroupManager);
 
