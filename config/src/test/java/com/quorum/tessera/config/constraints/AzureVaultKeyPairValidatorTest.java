@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidatorContext;
 import org.junit.Before;
 import org.junit.Test;
 

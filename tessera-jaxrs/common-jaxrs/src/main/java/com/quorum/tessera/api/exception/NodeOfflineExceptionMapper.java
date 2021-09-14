@@ -2,9 +2,9 @@ package com.quorum.tessera.api.exception;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
 import java.util.Objects;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

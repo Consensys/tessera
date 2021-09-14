@@ -7,14 +7,14 @@ import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import com.quorum.tessera.test.rest.RestUtils;
 import io.cucumber.java8.En;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Response;
 
 public class CmdSteps implements En {
 

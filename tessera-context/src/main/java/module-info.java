@@ -1,6 +1,7 @@
 module tessera.context {
-  requires java.validation;
-  requires java.ws.rs;
+  requires jakarta.validation;
+  requires jakarta.xml.bind;
+  requires jakarta.ws.rs;
   requires org.slf4j;
   requires tessera.config;
   requires tessera.enclave.api;

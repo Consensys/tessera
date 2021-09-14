@@ -15,30 +15,36 @@ configurations.all {
   exclude group: "commons-logging"
   exclude group: "org.springframework", module: "spring-jcl"
   exclude group: "org.springframework", module: "spring-aop"
-  exclude module: "jakarta.activation"
+  exclude group: "jakarta.json"
 }
 
-def springVersion = "5.2.3.RELEASE"
+def springVersion = "5.3.5"
 dependencies {
   implementation project(":config")
   implementation project(":key-vault:key-vault-api")
 
-  implementation("org.springframework.vault:spring-vault-core:2.1.5.RELEASE") {
+  implementation("org.springframework.vault:spring-vault-core:2.3.2") {
     exclude group: "org.springframework",module: "spring-core"
   }
   implementation "com.squareup.okhttp3:okhttp:3.12.3"
 
   implementation "org.springframework:spring-orm:$springVersion"
   testImplementation "org.springframework:spring-test:$springVersion"
-  implementation("org.springframework:spring-core:$springVersion") {
-    exclude group: "org.springframework", module: "spring-jcl"
-  }
+  implementation("org.springframework:spring-core:$springVersion")
   implementation "org.springframework:spring-beans:$springVersion"
   implementation "org.springframework:spring-context:$springVersion"
   implementation "org.springframework:spring-web:$springVersion"
 
-  runtimeOnly "org.slf4j:jcl-over-slf4j"
+  api "jakarta.activation:jakarta.activation-api"
+  implementation "com.sun.activation:jakarta.activation"
+
+  implementation("org.glassfish:jakarta.json:2.0.1:module")
+  testImplementation "org.glassfish:jakarta.json"
+
+  implementation "org.slf4j:jcl-over-slf4j:$slf4jVersion"
 }
+
+
 
 publishing {
   publications {

@@ -1,5 +1,5 @@
 plugins {
-  id "io.swagger.core.v3.swagger-gradle-plugin" version "$swaggerVersion"
+  id "io.swagger.core.v3.swagger-gradle-plugin"
 }
 
 dependencies {
@@ -17,7 +17,7 @@ dependencies {
   compileOnly project(":config")
   compileOnly project(":tessera-recover")
 
-  compileOnly "io.swagger.core.v3:swagger-core:$swaggerVersion"
+  compileOnly "io.swagger.core.v3:swagger-core-jakarta"
   compileOnly "org.glassfish:jakarta.json"
 }
 

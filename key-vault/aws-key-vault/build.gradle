@@ -15,9 +15,8 @@ application {
 }
 
 configurations.all {
-  exclude group: "commons-logging"
-  exclude module: "jakarta.activation"
   exclude module: "jackson-bom"
+  exclude group: "jakarta.json"
 }
 
 
@@ -47,7 +46,9 @@ dependencies {
   implementation "com.fasterxml.jackson.core:jackson-core:$jacksonVersion"
   implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
   implementation "com.fasterxml.jackson.core:jackson-annotations:$jacksonVersion"
-  runtimeOnly "org.slf4j:jcl-over-slf4j"
+  implementation "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+
+  implementation "org.glassfish:jakarta.json"
 
 }
 

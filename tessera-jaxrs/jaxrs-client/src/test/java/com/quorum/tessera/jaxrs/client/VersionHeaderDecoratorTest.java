@@ -5,9 +5,9 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.shared.Constants;
 import com.quorum.tessera.version.ApiVersion;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
 import org.junit.Test;
 
 public class VersionHeaderDecoratorTest {

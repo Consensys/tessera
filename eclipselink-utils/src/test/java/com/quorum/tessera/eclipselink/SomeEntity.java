@@ -1,7 +1,7 @@
 package com.quorum.tessera.eclipselink;
 
+import jakarta.persistence.*;
 import java.util.Objects;
-import javax.persistence.*;
 
 @Entity
 public class SomeEntity {

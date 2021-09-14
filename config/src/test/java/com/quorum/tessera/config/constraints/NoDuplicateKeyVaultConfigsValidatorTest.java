@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.*;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.validation.ConstraintValidatorContext;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

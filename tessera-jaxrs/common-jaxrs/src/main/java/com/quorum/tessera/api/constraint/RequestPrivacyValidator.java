@@ -3,9 +3,9 @@ package com.quorum.tessera.api.constraint;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendSignedRequest;
 import com.quorum.tessera.enclave.PrivacyMode;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class RequestPrivacyValidator implements ConstraintValidator<PrivacyValid, Object> {
 

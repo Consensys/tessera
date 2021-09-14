@@ -1,9 +1,9 @@
 package com.quorum.tessera.server.jaxrs;
 
+import jakarta.ws.rs.container.*;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.UriInfo;
 import java.util.Optional;
-import javax.ws.rs.container.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

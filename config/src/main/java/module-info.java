@@ -1,15 +1,14 @@
-import com.quorum.tessera.config.internal.ConfigFactoryProvider;
-
 open module tessera.config {
-  requires java.validation;
+  requires jakarta.validation;
   requires java.xml;
-  requires java.xml.bind;
   requires jasypt;
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.argontwo;
   requires tessera.encryption.api;
   requires tessera.shared;
+  requires jakarta.xml.bind;
+  requires jakarta.json;
 
   exports com.quorum.tessera.config;
   exports com.quorum.tessera.config.apps;
@@ -25,5 +24,5 @@ open module tessera.config {
   provides com.quorum.tessera.config.util.EnvironmentVariableProviderFactory with
       com.quorum.tessera.config.util.EnvironmentVariableProviderFactoryImpl;
   provides com.quorum.tessera.config.ConfigFactory with
-      ConfigFactoryProvider;
+      com.quorum.tessera.config.internal.ConfigFactoryProvider;
 }

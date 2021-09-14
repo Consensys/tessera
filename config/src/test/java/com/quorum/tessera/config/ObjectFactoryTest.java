@@ -3,7 +3,7 @@ package com.quorum.tessera.config;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import javax.xml.bind.JAXBElement;
+import jakarta.xml.bind.JAXBElement;
 import org.junit.Before;
 import org.junit.Test;
 

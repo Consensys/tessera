@@ -1,8 +1,8 @@
 package com.quorum.tessera.data;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.*;
 
 /**
  * The JPA entity that contains the transaction information A simple key/value pair

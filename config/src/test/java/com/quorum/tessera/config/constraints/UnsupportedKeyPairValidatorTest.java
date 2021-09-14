@@ -5,8 +5,8 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.KeyDataConfig;
 import com.quorum.tessera.config.keypairs.UnsupportedKeyPair;
+import jakarta.validation.ConstraintValidatorContext;
 import java.nio.file.Path;
-import javax.validation.ConstraintValidatorContext;
 import org.junit.Before;
 import org.junit.Test;
 

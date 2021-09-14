@@ -6,13 +6,13 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonString;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.json.JsonArray;
-import javax.json.JsonString;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 public class VersionIT {

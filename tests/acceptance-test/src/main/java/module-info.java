@@ -5,7 +5,7 @@ module tessera.acceptance.tests {
   requires tessera.security;
   requires tessera.config;
   requires tessera.encryption.api;
-  requires java.ws.rs;
+  requires jakarta.ws.rs;
   requires tessera.partyinfo.jaxrs;
   requires tessera.jaxrs.client;
   requires tessera.enclave.api;
@@ -16,4 +16,5 @@ module tessera.acceptance.tests {
   requires tessera.data;
   requires jdk.httpserver;
   requires java.net.http;
+  requires jakarta.json;
 }

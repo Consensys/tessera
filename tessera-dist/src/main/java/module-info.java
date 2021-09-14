@@ -1,7 +1,7 @@
 module tessera.application {
   exports com.quorum.tessera.launcher;
 
-  requires java.validation;
+  requires jakarta.validation;
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires tessera.cli.api;
@@ -16,9 +16,12 @@ module tessera.application {
   requires tessera.shared;
   requires tessera.partyinfo.jaxrs;
   requires tessera.recovery;
-  requires java.json;
+  requires jakarta.json;
   requires tessera.server.jersey.unixsocket;
   requires org.bouncycastle.provider;
+  requires com.fasterxml.classmate;
+  requires org.glassfish.json.jaxrs;
+  requires org.eclipse.persistence.asm;
 
   uses com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
   uses com.quorum.tessera.p2p.resend.TransactionRequester;

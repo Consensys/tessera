@@ -5,9 +5,9 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Map;
-import javax.persistence.EntityManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

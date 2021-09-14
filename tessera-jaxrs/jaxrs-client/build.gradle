@@ -13,8 +13,10 @@ dependencies {
   runtimeOnly project(":server:jaxrs-client-unixsocket")
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"
 
+  testImplementation "org.eclipse.jetty:jetty-unixsocket-common"
+  testImplementation "org.eclipse.jetty:jetty-unixsocket-client"
+  testImplementation "org.eclipse.jetty:jetty-unixsocket-server"
 
-  testImplementation "org.eclipse.jetty:jetty-unixsocket"
   testImplementation "org.glassfish.jersey.core:jersey-client"
   testImplementation "org.eclipse.jetty:jetty-client"
   testImplementation project(":server:jaxrs-client-unixsocket")

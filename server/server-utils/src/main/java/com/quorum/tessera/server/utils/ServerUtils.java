@@ -13,7 +13,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.unixsocket.UnixSocketConnector;
+import org.eclipse.jetty.unixsocket.server.UnixSocketConnector;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
 public class ServerUtils {

@@ -3,10 +3,10 @@ package com.quorum.tessera.config.constraints;
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ServerConfig;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

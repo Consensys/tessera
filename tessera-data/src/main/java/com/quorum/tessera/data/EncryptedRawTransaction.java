@@ -3,9 +3,9 @@ package com.quorum.tessera.data;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.*;
 
 /** The JPA entity that contains the raw transaction information */
 @NamedQueries({

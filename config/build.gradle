@@ -1,13 +1,20 @@
 plugins {
   id "java-library"
+  id "org.javamodularity.moduleplugin"
 }
 
 dependencies {
 
   implementation "jakarta.ws.rs:jakarta.ws.rs-api"
   implementation "jakarta.xml.bind:jakarta.xml.bind-api"
+  implementation "com.sun.activation:jakarta.activation"
 
-  implementation "org.glassfish:jakarta.json"
+  implementation "org.glassfish:jsonp-jaxrs"
+  api "jakarta.json:jakarta.json-api"
+  // implementation "org.glassfish:jakarta.json:2.0.1:module"
+  implementation group: "org.glassfish", name: "jakarta.json", classifier: "module"
+
+
   implementation "jakarta.validation:jakarta.validation-api"
   implementation project(':shared')
   implementation project(':argon2')
@@ -32,7 +39,6 @@ dependencies {
 }
 
 jar {
-
   manifest {
     attributes(
       "Implementation-Title": project.name,

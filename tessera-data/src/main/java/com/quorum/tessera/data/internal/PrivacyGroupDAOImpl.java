@@ -3,12 +3,12 @@ package com.quorum.tessera.data.internal;
 import com.quorum.tessera.data.EntityManagerTemplate;
 import com.quorum.tessera.data.PrivacyGroupDAO;
 import com.quorum.tessera.data.PrivacyGroupEntity;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceException;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.PersistenceException;
 
 public class PrivacyGroupDAOImpl implements PrivacyGroupDAO {
 

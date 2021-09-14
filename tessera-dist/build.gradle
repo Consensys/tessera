@@ -1,6 +1,7 @@
 plugins {
   id "application"
   id "org.owasp.dependencycheck"
+  id "org.javamodularity.moduleplugin"
 }
 
 application {
@@ -10,24 +11,27 @@ application {
   applicationDefaultJvmArgs = [
     "-Dtessera.cli.type=CONFIG",
     "-Djnr.ffi.asm.enabled=false",
-    "-Djavax.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
-    "-Djavax.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory"
-
-    //           "--add-opens", "java.base/jdk.internal.misc=io.netty.common,ALL-UNNAMED",
-    //           "--add-exports", "java.base/jdk.internal.misc=io.netty.common,ALL-UNNAMED",
-    //            "--add-opens", "java.base/java.nio=io.netty.common,ALL-UNNAMED",
-    //            "-Dio.netty.tryReflectionSetAccessible=true",
-    //            "-Dreactor.netty.ioWorkerCount=128"
+    "-Djakarta.xml.bind.JAXBContextFactory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+    "-Djakarta.xml.bind.context.factory=org.eclipse.persistence.jaxb.JAXBContextFactory",
+    "--add-opens=org.glassfish.json.jaxrs/org.glassfish.json.jaxrs=org.glassfish.hk2.utilities",
+    "--add-exports=org.apache.commons.logging/org.apache.commons.logging.impl=spring.core" //dreadful hack for hashicorp
   ]
   startScripts.enabled = true
-
 }
 
 configurations.all {
   exclude module: "jakarta.persistence"
-  exclude module: "jakarta.activation"
+  exclude group: "jakarta.mail"
   exclude module: "jakarta.inject"
+  exclude group: "jakarta.json"
   exclude group: "org.ow2.asm"
+
+  exclude group: "io.swagger.core.v3", module: "swagger-core-jakarta"
+  exclude group: "io.swagger.core.v3", module: "swagger-parser"
+  exclude group: "io.swagger.core.v3", module: "swagger-jaxrs2-jakarta"
+  exclude group: "com.fasterxml.jackson.datatype"
+  exclude group: "com.fasterxml.jackson.core"
+  exclude group: "com.fasterxml.jackson.dataformat"
 }
 
 dependencies {
@@ -65,7 +69,13 @@ dependencies {
   implementation project(":encryption:encryption-jnacl")
   implementation project(":encryption:encryption-ec")
 
-  implementation "jakarta.validation:jakarta.validation-api"
+  api "jakarta.validation:jakarta.validation-api"
+  implementation "org.hibernate.validator:hibernate-validator"
+  implementation "com.fasterxml:classmate"
+
+  implementation 'com.sun.mail:jakarta.mail'
+
+  implementation "org.eclipse.persistence:org.eclipse.persistence.asm"
 
   implementation project(":tessera-context")
 
@@ -77,28 +87,12 @@ dependencies {
 
 }
 
-
-distZip {
-  // exclude("**/jakarta.persistence-2.2.3.jar")
-  //    exclude("**/jakarta.activation-1.2.2.jar")
-  //    exclude("**/jakarta.inject-2.6.1.jar")
-  //  exclude("**/asm-*.jar")
-}
-distTar {
-  //exclude("**/jakarta.persistence-2.2.3.jar")
-  //  exclude("**/jakarta.activation-1.2.2.jar")
-  //  exclude("**/jakarta.inject-2.6.1.jar")
-  //  exclude("**/asm-*.jar")
-}
-
 dependencyCheck {
   failBuildOnCVSS = 0
 }
 
 publishing {
-
   publications {
-
     mavenJava(MavenPublication) {
       artifact distZip
       artifact distTar

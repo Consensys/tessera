@@ -1,12 +1,12 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.io.FilesDelegate;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

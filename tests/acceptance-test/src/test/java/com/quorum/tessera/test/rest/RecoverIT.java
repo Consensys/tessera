@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.fail;
 
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
+import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
 import com.quorum.tessera.enclave.PrivacyMode;
@@ -17,6 +18,9 @@ import db.UncheckedSQLException;
 import exec.ExecManager;
 import exec.NodeExecManager;
 import exec.RecoveryExecManager;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,9 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -71,6 +72,7 @@ public class RecoverIT {
             .with(SocketType.HTTP)
             .with(EnclaveType.LOCAL)
             .with(EncryptorType.NACL)
+            .with(ClientMode.TESSERA)
             .prefix(RecoverIT.class.getSimpleName().toLowerCase())
             .createAndSetupContext();
 

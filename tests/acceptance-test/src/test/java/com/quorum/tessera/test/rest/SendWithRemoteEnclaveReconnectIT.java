@@ -12,6 +12,10 @@ import config.ConfigDescriptor;
 import config.PortUtil;
 import exec.EnclaveExecManager;
 import exec.NodeExecManager;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -20,10 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.UUID;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,6 +64,7 @@ public class SendWithRemoteEnclaveReconnectIT {
         .with(SocketType.HTTP)
         .with(EnclaveType.REMOTE)
         .with(encryptorConfig.getType())
+        .with(ClientMode.TESSERA)
         .buildAndStoreContext();
 
     final PortUtil portGenerator = new PortUtil(50100);

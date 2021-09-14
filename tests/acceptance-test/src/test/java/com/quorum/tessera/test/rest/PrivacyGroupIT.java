@@ -4,16 +4,16 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.io.StringReader;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.junit.Test;
 
 public class PrivacyGroupIT {
