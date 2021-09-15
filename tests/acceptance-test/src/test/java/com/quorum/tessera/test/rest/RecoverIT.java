@@ -178,22 +178,17 @@ public class RecoverIT {
       setupDatabase.drop(nodeAlias);
 
       if (!autoCreateTables) {
-        recoverNodeShouldFail(nodeAlias);
-      }
+        recoverNodeShouldFail(nodeAlias); // as staging tables not existed
 
-      if (!autoCreateTables) {
         setupDatabase.setUp(nodeAlias);
         insertBogusData(nodeAlias);
 
-        recoverNodeShouldFail(nodeAlias);
-      }
+        recoverNodeShouldFail(nodeAlias); // as staging tables contain data
 
-      // Setup correctly
-      if (!autoCreateTables) {
         setupDatabase.drop(nodeAlias);
+
+        // Let's setup correctly
         setupDatabase.setUp(nodeAlias);
-      } else {
-        setupDatabase.setUpMainTransactionTables(nodeAlias);
       }
 
       // Should recover successfully
@@ -237,8 +232,6 @@ public class RecoverIT {
   private void recoverNode(NodeAlias nodeAlias) throws Exception {
 
     ExecManager execManager = executors.get(nodeAlias);
-
-    assertThat(doCount(nodeAlias)).isZero();
 
     RecoveryExecManager recoveryExecManager =
       new RecoveryExecManager(execManager.getConfigDescriptor());
