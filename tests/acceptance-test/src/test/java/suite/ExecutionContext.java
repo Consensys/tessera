@@ -40,6 +40,8 @@ public class ExecutionContext {
 
   private ClientMode clientMode;
 
+  private boolean autoCreateTables;
+
   private ExecutionContext(
       DBType dbType,
       CommunicationType communicationType,
@@ -50,7 +52,8 @@ public class ExecutionContext {
       CommunicationType p2pCommunicationType,
       boolean p2pSsl,
       EncryptorType encryptorType,
-      ClientMode clientMode) {
+      ClientMode clientMode,
+      boolean autoCreateTables) {
     this.dbType = dbType;
     this.communicationType = communicationType;
     this.socketType = socketType;
@@ -61,6 +64,7 @@ public class ExecutionContext {
     this.p2pSsl = p2pSsl;
     this.encryptorType = encryptorType;
     this.clientMode = clientMode;
+    this.autoCreateTables = autoCreateTables;
   }
 
   public DBType getDbType() {
@@ -107,6 +111,10 @@ public class ExecutionContext {
     return clientMode;
   }
 
+  public boolean isAutoCreateTables() {
+    return autoCreateTables;
+  }
+
   public static class Builder {
 
     private DBType dbType;
@@ -126,6 +134,8 @@ public class ExecutionContext {
     private EncryptorType encryptorType;
 
     private ClientMode clientMode;
+
+    private boolean autoCreateTables = true;
 
     private Builder() {}
 
@@ -185,6 +195,11 @@ public class ExecutionContext {
       return this;
     }
 
+    public Builder withAutoCreateTables(boolean autoCreateTables) {
+      this.autoCreateTables = autoCreateTables;
+      return this;
+    }
+
     public ExecutionContext build() {
       Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
           .forEach(Objects::requireNonNull);
@@ -203,7 +218,8 @@ public class ExecutionContext {
               p2pCommunicationType,
               p2pSsl,
               encryptorType,
-              clientMode);
+              clientMode,
+              autoCreateTables);
 
       return executionContext;
     }
