@@ -346,8 +346,8 @@ public class RecoverIT {
     return List.of(
         new TestConfig(DBType.H2, true),
         new TestConfig(DBType.H2, false),
-        new TestConfig(DBType.HSQL, true),
-        new TestConfig(DBType.HSQL, false),
+//        new TestConfig(DBType.HSQL, true),
+//        new TestConfig(DBType.HSQL, false),
         new TestConfig(DBType.SQLITE, true),
         new TestConfig(DBType.SQLITE, false)
       );
