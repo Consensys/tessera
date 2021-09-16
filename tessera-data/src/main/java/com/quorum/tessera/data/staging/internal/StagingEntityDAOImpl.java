@@ -111,6 +111,8 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
   @Override
   public long countAllAffected() {
     return entityManagerTemplate.execute(
-      em -> em.createNamedQuery("StagingAffectedTransaction.countAll", Long.class).getSingleResult());
+        em ->
+            em.createNamedQuery("StagingAffectedTransaction.countAll", Long.class)
+                .getSingleResult());
   }
 }

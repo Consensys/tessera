@@ -8,7 +8,6 @@ import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.Party;
@@ -71,24 +70,24 @@ public class RecoverIT {
   @Before
   public void startNetwork() throws Exception {
     final ExecutionContext executionContext =
-      ExecutionContext.Builder.create()
-        .with(CommunicationType.REST)
-        .with(dbType)
-        .with(SocketType.HTTP)
-        .with(EnclaveType.LOCAL)
-        .with(EncryptorType.NACL)
-        .with(ClientMode.TESSERA)
-        .prefix(RecoverIT.class.getSimpleName().toLowerCase())
-        .withAutoCreateTables(autoCreateTables)
-        .createAndSetupContext();
+        ExecutionContext.Builder.create()
+            .with(CommunicationType.REST)
+            .with(dbType)
+            .with(SocketType.HTTP)
+            .with(EnclaveType.LOCAL)
+            .with(EncryptorType.NACL)
+            .with(ClientMode.TESSERA)
+            .prefix(RecoverIT.class.getSimpleName().toLowerCase())
+            .withAutoCreateTables(autoCreateTables)
+            .createAndSetupContext();
 
     partyHelper = PartyHelper.create();
     sender = partyHelper.findByAlias(NodeAlias.A);
     recipients =
-      partyHelper
-        .getParties()
-        .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
-        .collect(Collectors.toList());
+        partyHelper
+            .getParties()
+            .filter(Predicate.not(p -> p.getAlias().equals(sender.getAlias())))
+            .collect(Collectors.toList());
 
     String nodeId = NodeId.generate(executionContext);
     dbServer = executionContext.getDbType().createDatabaseServer(nodeId);
@@ -101,9 +100,9 @@ public class RecoverIT {
     }
 
     this.executors =
-      executionContext.getConfigs().stream()
-        .map(NodeExecManager::new)
-        .collect(Collectors.toMap(e -> e.getConfigDescriptor().getAlias(), e -> e));
+        executionContext.getConfigs().stream()
+            .map(NodeExecManager::new)
+            .collect(Collectors.toMap(e -> e.getConfigDescriptor().getAlias(), e -> e));
 
     executors.values().forEach(ExecManager::start);
 
@@ -112,15 +111,15 @@ public class RecoverIT {
     sendTransactions();
 
     Arrays.stream(NodeAlias.values())
-      .forEach(
-        a -> {
-          long count = doCount(a);
-          if (a == NodeAlias.D) {
-            assertThat(count).describedAs("%s should have 100 ", a).isEqualTo(100L);
-          } else {
-            assertThat(count).describedAs("%s should have 500 ", a).isEqualTo(500L);
-          }
-        });
+        .forEach(
+            a -> {
+              long count = doCount(a);
+              if (a == NodeAlias.D) {
+                assertThat(count).describedAs("%s should have 100 ", a).isEqualTo(100L);
+              } else {
+                assertThat(count).describedAs("%s should have 500 ", a).isEqualTo(500L);
+              }
+            });
   }
 
   @After
@@ -134,35 +133,35 @@ public class RecoverIT {
   void sendTransactions() {
 
     final List<String> recipientList =
-      recipients.stream().map(Party::getPublicKey).collect(Collectors.toList());
+        recipients.stream().map(Party::getPublicKey).collect(Collectors.toList());
 
     final List<String> privacyRecipients =
-      recipients.stream()
-        .filter(r -> r != partyHelper.findByAlias(NodeAlias.D))
-        .map(Party::getPublicKey)
-        .collect(Collectors.toList());
+        recipients.stream()
+            .filter(r -> r != partyHelper.findByAlias(NodeAlias.D))
+            .map(Party::getPublicKey)
+            .collect(Collectors.toList());
 
     // Creating SP Contract
     final String spOriginalHash =
-      sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[0], recipientList);
+        sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[0], recipientList);
     for (int i = 0; i < 99; i++) {
       sendTransaction(PrivacyMode.STANDARD_PRIVATE, new String[] {spOriginalHash}, recipientList);
     }
 
     // Creating PP Contract
     final String ppOriginalHash =
-      sendTransaction(PrivacyMode.PARTY_PROTECTION, new String[0], privacyRecipients);
+        sendTransaction(PrivacyMode.PARTY_PROTECTION, new String[0], privacyRecipients);
     for (int i = 0; i < 199; i++) {
       sendTransaction(
-        PrivacyMode.PARTY_PROTECTION, new String[] {ppOriginalHash}, privacyRecipients);
+          PrivacyMode.PARTY_PROTECTION, new String[] {ppOriginalHash}, privacyRecipients);
     }
 
     // Creating PSV Contract
     final String psvOriginalHash =
-      sendTransaction(PrivacyMode.PRIVATE_STATE_VALIDATION, new String[0], privacyRecipients);
+        sendTransaction(PrivacyMode.PRIVATE_STATE_VALIDATION, new String[0], privacyRecipients);
     for (int i = 0; i < 199; i++) {
       sendTransaction(
-        PrivacyMode.PRIVATE_STATE_VALIDATION, new String[] {psvOriginalHash}, privacyRecipients);
+          PrivacyMode.PRIVATE_STATE_VALIDATION, new String[] {psvOriginalHash}, privacyRecipients);
     }
   }
 
@@ -206,12 +205,11 @@ public class RecoverIT {
     try (connection) {
 
       PreparedStatement preparedStatement =
-        connection.prepareStatement(
-          "INSERT INTO ST_TRANSACTION(ID, HASH, PAYLOAD, PAYLOAD_CODEC) VALUES (?,?,?,?)");
+          connection.prepareStatement(
+              "INSERT INTO ST_TRANSACTION(ID, HASH, PAYLOAD) VALUES (?,?,?)");
       preparedStatement.setInt(1, 1);
       preparedStatement.setString(2, Base64.getEncoder().encodeToString("hash".getBytes()));
       preparedStatement.setBytes(3, "payload".getBytes());
-      preparedStatement.setString(4, EncodedPayloadCodec.LEGACY.name());
       try (preparedStatement) {
         preparedStatement.execute();
       }
@@ -223,7 +221,7 @@ public class RecoverIT {
   private void recoverNodeShouldFail(NodeAlias nodeAlias) throws InterruptedException {
     ExecManager execManager = executors.get(nodeAlias);
     RecoveryExecManager recoveryExecManager =
-      new RecoveryExecManager(execManager.getConfigDescriptor());
+        new RecoveryExecManager(execManager.getConfigDescriptor());
     Process process = recoveryExecManager.start();
     int exitCode = process.waitFor();
     assertThat(exitCode).isEqualTo(2);
@@ -235,7 +233,7 @@ public class RecoverIT {
     ExecManager execManager = executors.get(nodeAlias);
 
     RecoveryExecManager recoveryExecManager =
-      new RecoveryExecManager(execManager.getConfigDescriptor());
+        new RecoveryExecManager(execManager.getConfigDescriptor());
     Process process = recoveryExecManager.start();
     int exitCode = process.waitFor();
 
@@ -243,14 +241,14 @@ public class RecoverIT {
 
     if (nodeAlias == NodeAlias.D) {
       assertThat(doCount(nodeAlias))
-        .describedAs(
-          "Node %s is expected to have 100 ENCRYPTED_TRANSACTION rows", nodeAlias.name())
-        .isEqualTo(100);
+          .describedAs(
+              "Node %s is expected to have 100 ENCRYPTED_TRANSACTION rows", nodeAlias.name())
+          .isEqualTo(100);
     } else {
       assertThat(doCount(nodeAlias))
-        .describedAs(
-          "Node %s is expected to have 500 ENCRYPTED_TRANSACTION rows", nodeAlias.name())
-        .isEqualTo(500);
+          .describedAs(
+              "Node %s is expected to have 500 ENCRYPTED_TRANSACTION rows", nodeAlias.name())
+          .isEqualTo(500);
     }
 
     recoveryExecManager.stop();
@@ -275,7 +273,7 @@ public class RecoverIT {
     try (connection) {
 
       PreparedStatement preparedStatement =
-        connection.prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION");
+          connection.prepareStatement("SELECT COUNT(*) FROM ENCRYPTED_TRANSACTION");
 
       try (preparedStatement) {
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -290,7 +288,7 @@ public class RecoverIT {
   }
 
   private String sendTransaction(
-    PrivacyMode privacyMode, String[] affectedHash, List<String> recipients) {
+      PrivacyMode privacyMode, String[] affectedHash, List<String> recipients) {
 
     Party sender = partyHelper.findByAlias(NodeAlias.A);
 
@@ -305,11 +303,11 @@ public class RecoverIT {
     }
 
     Response response =
-      sender
-        .getRestClientWebTarget()
-        .path("send")
-        .request()
-        .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
+        sender
+            .getRestClientWebTarget()
+            .path("send")
+            .request()
+            .post(Entity.entity(sendRequest, MediaType.APPLICATION_JSON));
 
     assertThat(response.getStatus()).isEqualTo(201);
     final SendResponse result = response.readEntity(SendResponse.class);
@@ -323,15 +321,15 @@ public class RecoverIT {
     final CountDownLatch partyInfoSyncLatch = new CountDownLatch(1);
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     executorService.submit(
-      () -> {
-        while (!partyInfoChecker.hasSynced()) {
-          try {
-            Thread.sleep(1000L);
-          } catch (InterruptedException ex) {
+        () -> {
+          while (!partyInfoChecker.hasSynced()) {
+            try {
+              Thread.sleep(1000L);
+            } catch (InterruptedException ex) {
+            }
           }
-        }
-        partyInfoSyncLatch.countDown();
-      });
+          partyInfoSyncLatch.countDown();
+        });
 
     if (!partyInfoSyncLatch.await(30, TimeUnit.MINUTES)) {
       fail("Unable to sync party info");
@@ -342,11 +340,12 @@ public class RecoverIT {
   @Parameterized.Parameters(name = "{0}")
   public static List<TestConfig> configs() {
     return List.of(
-      //        new TestConfig(DBType.H2, true),
-      //        new TestConfig(DBType.H2, false),
-      //        new TestConfig(DBType.HSQL, true),
-      //        new TestConfig(DBType.HSQL, false),
-      new TestConfig(DBType.SQLITE, true), new TestConfig(DBType.SQLITE, false));
+        new TestConfig(DBType.H2, true),
+        new TestConfig(DBType.H2, false),
+        //        new TestConfig(DBType.HSQL, true),
+        //        new TestConfig(DBType.HSQL, false),
+        new TestConfig(DBType.SQLITE, true),
+        new TestConfig(DBType.SQLITE, false));
   }
 
   static class TestConfig {
