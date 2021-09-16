@@ -7,12 +7,12 @@ import com.quorum.tessera.cli.keypassresolver.KeyPasswordResolver;
 import com.quorum.tessera.cli.parsers.PidFileMixin;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.reflect.ReflectException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.util.*;
 import java.util.concurrent.Callable;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import picocli.CommandLine;
@@ -41,17 +41,17 @@ public class TesseraCommand implements Callable<CliResult> {
     this(
         ServiceLoader.load(KeyPasswordResolver.class)
             .findFirst()
-            .orElse(new CliKeyPasswordResolver()));
-  }
-
-  private TesseraCommand(final KeyPasswordResolver keyPasswordResolver) {
-    this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
-    this.validator =
+            .orElse(new CliKeyPasswordResolver()),
         Validation.byDefaultProvider()
             .configure()
             .ignoreXmlConfiguration()
             .buildValidatorFactory()
-            .getValidator();
+            .getValidator());
+  }
+
+  private TesseraCommand(final KeyPasswordResolver keyPasswordResolver, Validator validator) {
+    this.keyPasswordResolver = Objects.requireNonNull(keyPasswordResolver);
+    this.validator = Objects.requireNonNull(validator);
   }
 
   @CommandLine.Option(

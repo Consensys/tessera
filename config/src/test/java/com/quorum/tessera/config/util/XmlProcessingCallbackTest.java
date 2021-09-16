@@ -3,8 +3,8 @@ package com.quorum.tessera.config.util;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.config.ConfigException;
+import jakarta.xml.bind.JAXBException;
 import java.io.IOException;
-import javax.xml.bind.JAXBException;
 import javax.xml.transform.TransformerException;
 import org.junit.Test;
 

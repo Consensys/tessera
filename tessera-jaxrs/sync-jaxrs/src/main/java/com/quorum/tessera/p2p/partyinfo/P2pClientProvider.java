@@ -6,7 +6,7 @@ import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.partyinfo.P2pClient;
 import com.quorum.tessera.ssl.context.ClientSSLContextFactory;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
-import javax.ws.rs.client.Client;
+import jakarta.ws.rs.client.Client;
 
 public class P2pClientProvider {
 

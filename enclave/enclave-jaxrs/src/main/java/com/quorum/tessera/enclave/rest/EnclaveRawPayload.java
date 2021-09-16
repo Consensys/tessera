@@ -1,9 +1,9 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.PrivacyMode;
+import jakarta.xml.bind.annotation.XmlMimeType;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.List;
-import javax.xml.bind.annotation.XmlMimeType;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class EnclaveRawPayload {

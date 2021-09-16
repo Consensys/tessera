@@ -1,6 +1,6 @@
 package com.quorum.tessera.q2t;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import com.quorum.tessera.api.*;
 import com.quorum.tessera.context.RuntimeContext;
@@ -14,6 +14,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.json.Json;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Response;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
@@ -22,10 +26,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import javax.json.Json;
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
 
 @Tag(name = "quorum-to-tessera")
 @Path("/")

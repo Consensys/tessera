@@ -1,3 +1,6 @@
+--add-reads
+    tessera.enclave.api=nl.jqno.equalsverifier,openpojo,tuweni.bytes,tuweni.rlp
+
 --add-opens
     tessera.enclave.api/com.quorum.tessera.enclave=nl.jqno.equalsverifier,openpojo
 

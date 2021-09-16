@@ -1,9 +1,9 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class AzureVaultKeyPairValidator
     implements ConstraintValidator<ValidAzureVaultKeyPair, AzureVaultKeyPair> {

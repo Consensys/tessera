@@ -2,8 +2,8 @@ package com.quorum.tessera.p2p.model;
 
 import com.quorum.tessera.config.Peer;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.xml.bind.annotation.XmlElement;
 import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
 
 // TODO(cjh) just used for swagger generation - should be used in the actual jaxrs methods
 public class GetPartyInfoResponse {

@@ -2,9 +2,9 @@ package com.quorum.tessera.jaxrs.client;
 
 import com.quorum.tessera.shared.Constants;
 import com.quorum.tessera.version.ApiVersion;
+import jakarta.ws.rs.client.ClientRequestContext;
+import jakarta.ws.rs.client.ClientRequestFilter;
 import java.io.IOException;
-import javax.ws.rs.client.ClientRequestContext;
-import javax.ws.rs.client.ClientRequestFilter;
 
 public class VersionHeaderDecorator implements ClientRequestFilter {
 

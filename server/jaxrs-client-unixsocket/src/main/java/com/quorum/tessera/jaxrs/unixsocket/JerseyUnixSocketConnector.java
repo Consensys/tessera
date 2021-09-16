@@ -1,5 +1,9 @@
 package com.quorum.tessera.jaxrs.unixsocket;
 
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -9,10 +13,6 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentProvider;
 import org.eclipse.jetty.client.api.ContentResponse;
@@ -40,7 +40,7 @@ public class JerseyUnixSocketConnector implements Connector {
     this.unixfile = unixfile;
     String unixFilePath = Paths.get(unixfile).toFile().getAbsolutePath();
 
-    httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixFilePath), null);
+    httpClient = new HttpClient(new HttpClientTransportOverUnixSockets(unixFilePath));
     try {
       httpClient.start();
     } catch (Exception ex) {

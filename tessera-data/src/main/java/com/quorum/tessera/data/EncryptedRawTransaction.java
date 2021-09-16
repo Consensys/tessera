@@ -3,9 +3,9 @@ package com.quorum.tessera.data;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.*;
 
 /** The JPA entity that contains the raw transaction information */
 @NamedQueries({
@@ -14,7 +14,7 @@ import javax.persistence.*;
       query = "delete from EncryptedRawTransaction where hash.hashBytes = :hash"),
   @NamedQuery(
       name = "EncryptedRawTransaction.Upcheck",
-      query = "select count(c) from EncryptedRawTransaction c"),
+      query = "select count(c.timestamp) from EncryptedRawTransaction c"),
   @NamedQuery(
       name = "EncryptedRawTransaction.FindAll",
       query = "select ert from EncryptedRawTransaction ert order by ert.timestamp, ert.hash"),

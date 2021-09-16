@@ -1,9 +1,9 @@
 package com.quorum.tessera.data.staging;
 
 import com.quorum.tessera.enclave.PrivacyMode;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.*;
-import javax.persistence.*;
 
 /** The JPA entity that contains the staging transaction information. */
 @Entity

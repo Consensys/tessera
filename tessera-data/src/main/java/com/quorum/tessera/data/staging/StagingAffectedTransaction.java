@@ -1,8 +1,8 @@
 package com.quorum.tessera.data.staging;
 
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @NamedQuery(
   name = "StagingAffectedTransaction.countAll",

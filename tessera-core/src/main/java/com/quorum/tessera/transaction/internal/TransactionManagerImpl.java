@@ -9,6 +9,7 @@ import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.*;
+import com.quorum.tessera.transaction.exception.MandatoryRecipientsNotAvailableException;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import com.quorum.tessera.transaction.exception.TransactionNotFoundException;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
@@ -460,7 +461,6 @@ public class TransactionManagerImpl implements TransactionManager {
         .withExecHash(payload.getExecHash())
         .withManagedParties(managedParties)
         .withSender(payload.getSenderKey())
-        .withMandatoryRecipients(payload.getMandatoryRecipients())
         .build();
   }
 
@@ -512,6 +512,16 @@ public class TransactionManagerImpl implements TransactionManager {
 
     // this includes the sender
     return payload.getRecipientKeys();
+  }
+
+  @Override
+  public Set<PublicKey> getMandatoryRecipients(MessageHash transactionHash) {
+    final EncodedPayload payload = this.fetchPayload(transactionHash);
+    if (payload.getPrivacyMode() != PrivacyMode.MANDATORY_RECIPIENTS) {
+      throw new MandatoryRecipientsNotAvailableException(
+          "Operation invalid. Transaction found is not a mandatory recipients privacy type");
+    }
+    return payload.getMandatoryRecipients();
   }
 
   @Override

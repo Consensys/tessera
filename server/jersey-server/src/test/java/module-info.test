@@ -1,3 +1,5 @@
-
 --add-opens
-    tessera.server.jersey/com.quorum.tessera.server.monitoring=org.mockito
+   tessera.server.jersey/com.quorum.tessera.server.monitoring=org.mockito
+
+--add-reads
+   tessera.server.jersey=jakarta.xml.bind

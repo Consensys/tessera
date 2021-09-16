@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import com.quorum.tessera.config.KeyConfiguration;
+import jakarta.validation.ConstraintValidatorContext;
 import java.nio.file.Paths;
-import javax.validation.ConstraintValidatorContext;
 import org.junit.Test;
 
 public class KeyConfigurationValidatorTest {

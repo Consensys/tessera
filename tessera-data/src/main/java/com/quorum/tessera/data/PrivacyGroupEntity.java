@@ -1,8 +1,8 @@
 package com.quorum.tessera.data;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Arrays;
-import javax.persistence.*;
 
 /** The JPA entity that contains the privacy group information */
 @NamedQueries({

@@ -1,9 +1,9 @@
 package com.quorum.tessera.ssl.util;
 
+import jakarta.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import javax.xml.bind.DatatypeConverter;
 
 public interface CertificateUtil {
 

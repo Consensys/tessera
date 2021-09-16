@@ -3,13 +3,13 @@ package com.quorum.tessera.config.adapters;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.config.ConfigProperties;
+import jakarta.xml.bind.JAXBElement;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import org.junit.Before;
 import org.junit.Test;

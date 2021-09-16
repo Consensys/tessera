@@ -8,12 +8,12 @@ import com.quorum.tessera.privacygroup.exception.PrivacyGroupPublishException;
 import com.quorum.tessera.privacygroup.publish.PrivacyGroupPublisher;
 import com.quorum.tessera.transaction.publish.NodeOfflineException;
 import com.quorum.tessera.version.PrivacyGroupVersion;
+import jakarta.ws.rs.ProcessingException;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import java.net.URI;
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

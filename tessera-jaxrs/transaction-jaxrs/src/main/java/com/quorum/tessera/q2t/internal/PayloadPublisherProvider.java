@@ -6,7 +6,7 @@ import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
-import javax.ws.rs.client.Client;
+import jakarta.ws.rs.client.Client;
 
 public class PayloadPublisherProvider {
 

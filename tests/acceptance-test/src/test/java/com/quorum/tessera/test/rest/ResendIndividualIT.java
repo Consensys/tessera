@@ -8,11 +8,11 @@ import com.quorum.tessera.enclave.PayloadEncoderImpl;
 import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import org.junit.Before;
 import org.junit.Test;
 

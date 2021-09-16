@@ -239,7 +239,7 @@ public class ExecutionContext {
 
     public ExecutionContext createAndSetupContext() {
 
-      Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType)
+      Stream.of(dbType, communicationType, socketType, enclaveType, encryptorType, clientMode)
           .forEach(Objects::requireNonNull);
 
       ExecutionContext executionContext = build();

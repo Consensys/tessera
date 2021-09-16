@@ -7,15 +7,13 @@ import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.api.SendSignedRequest;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
-import com.quorum.tessera.transaction.ReceiveResponse;
 import com.quorum.tessera.transaction.TransactionManager;
+import jakarta.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.Set;
-import javax.ws.rs.core.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -105,47 +103,6 @@ public class TransactionResource4Test {
   }
 
   @Test
-  public void receiveMandatoryRecipients() {
-    final PublicKey senderPublicKey = PublicKey.from("sender".getBytes());
-    final PublicKey mandatoryKey = PublicKey.from("auditor".getBytes());
-
-    ReceiveResponse response =
-        ReceiveResponse.Builder.create()
-            .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
-            .withAffectedTransactions(Set.of())
-            .withUnencryptedTransactionData("Success".getBytes())
-            .withManagedParties(Set.of(senderPublicKey))
-            .withSender(senderPublicKey)
-            .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
-            .withMandatoryRecipients(Set.of(mandatoryKey))
-            .build();
-
-    when(transactionManager.receive(any(com.quorum.tessera.transaction.ReceiveRequest.class)))
-        .thenReturn(response);
-
-    String transactionHash = Base64.getEncoder().encodeToString("transactionHash".getBytes());
-
-    Response result = transactionResource.receive(transactionHash, null, Boolean.FALSE.toString());
-    assertThat(result.getStatus()).isEqualTo(200);
-
-    com.quorum.tessera.api.ReceiveResponse resultResponse =
-        com.quorum.tessera.api.ReceiveResponse.class.cast(result.getEntity());
-
-    assertThat(resultResponse.getPrivacyFlag())
-        .isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS.getPrivacyFlag());
-    assertThat(resultResponse.getAffectedContractTransactions()).isNullOrEmpty();
-    assertThat(resultResponse.getPayload()).isEqualTo("Success".getBytes());
-    assertThat(resultResponse.getManagedParties())
-        .containsExactlyInAnyOrder(senderPublicKey.encodeToBase64());
-    assertThat(resultResponse.getSenderKey()).isEqualTo(senderPublicKey.encodeToBase64());
-    assertThat(resultResponse.getPrivacyGroupId())
-        .isEqualTo(PublicKey.from("group".getBytes()).encodeToBase64());
-    assertThat(resultResponse.getMandatoryRecipients()[0]).isEqualTo(mandatoryKey.encodeToBase64());
-
-    verify(transactionManager).receive(any(com.quorum.tessera.transaction.ReceiveRequest.class));
-  }
-
-  @Test
   public void sendSignedTransactionWithMandatoryRecipients() {
     final PublicKey sender =
         PublicKey.from(Base64.getDecoder().decode("QfeDAys9MPDs2XHExtc84jKGHxZg/aj52DTh0vtA3Xc="));
@@ -203,5 +160,24 @@ public class TransactionResource4Test {
         .hasSize(2)
         .containsExactlyInAnyOrder(base64AffectedHash1, base64AffectedHash2);
     assertThat(obj.getMandatoryRecipients()).hasSize(1);
+  }
+
+  @Test
+  public void getMandatoryRecipients() {
+    byte[] data = "DUMMY_HASH".getBytes();
+
+    final String dummyPtmHash = Base64.getEncoder().encodeToString(data);
+
+    PublicKey recipient = mock(PublicKey.class);
+    when(recipient.encodeToBase64()).thenReturn("BASE64ENCODEDKEY");
+
+    when(transactionManager.getMandatoryRecipients(any(MessageHash.class)))
+        .thenReturn(Set.of(recipient));
+
+    Response response = transactionResource.getMandatoryRecipients(dummyPtmHash);
+
+    assertThat(response.getStatus()).isEqualTo(200);
+    assertThat(response.getEntity()).isEqualTo("BASE64ENCODEDKEY");
+    verify(transactionManager).getMandatoryRecipients(any(MessageHash.class));
   }
 }

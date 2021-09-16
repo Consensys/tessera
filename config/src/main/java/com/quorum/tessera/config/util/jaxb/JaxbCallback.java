@@ -1,7 +1,7 @@
 package com.quorum.tessera.config.util.jaxb;
 
-import javax.xml.bind.DataBindingException;
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.DataBindingException;
+import jakarta.xml.bind.JAXBException;
 
 @FunctionalInterface
 public interface JaxbCallback<T> {

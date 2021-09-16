@@ -1,10 +1,10 @@
 package com.quorum.tessera.config.constraints;
 
 import com.quorum.tessera.config.keypairs.UnsupportedKeyPair;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 import java.util.Objects;
 import java.util.stream.Stream;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 public class UnsupportedKeyPairValidator
     implements ConstraintValidator<ValidUnsupportedKeyPair, UnsupportedKeyPair> {

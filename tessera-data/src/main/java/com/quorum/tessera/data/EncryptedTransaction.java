@@ -1,8 +1,8 @@
 package com.quorum.tessera.data;
 
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.persistence.*;
 
 /**
  * The JPA entity that contains the transaction information A simple key/value pair
@@ -19,7 +19,7 @@ import javax.persistence.*;
       query = "select et from EncryptedTransaction et order by et.timestamp,et.hash"),
   @NamedQuery(
       name = "EncryptedTransaction.Upcheck",
-      query = "select count(c) from EncryptedTransaction c")
+      query = "select count(c.timestamp) from EncryptedTransaction c")
 })
 @Entity
 @Table(name = "ENCRYPTED_TRANSACTION")

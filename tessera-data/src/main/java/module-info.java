@@ -1,6 +1,6 @@
 open module tessera.data {
   requires java.instrument;
-  requires java.persistence;
+  requires jakarta.persistence;
   requires org.bouncycastle.provider;
   requires org.slf4j;
   requires tessera.config;
@@ -10,7 +10,7 @@ open module tessera.data {
   requires java.sql;
   requires java.sql.rowset;
   requires com.zaxxer.hikari;
-  requires java.validation;
+  requires jakarta.validation;
   requires tessera.eclipselink.utils;
 
   //    opens com.quorum.tessera.data to org.eclipse.persistence.core;

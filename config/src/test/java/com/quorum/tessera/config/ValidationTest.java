@@ -9,11 +9,11 @@ import com.quorum.tessera.config.keypairs.AzureVaultKeyPair;
 import com.quorum.tessera.config.keypairs.DirectKeyPair;
 import com.quorum.tessera.config.keypairs.InlineKeypair;
 import com.quorum.tessera.config.keys.KeyEncryptor;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import java.util.*;
 import java.util.stream.Collectors;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
 import org.junit.Test;
 
 public class ValidationTest {
@@ -233,7 +233,7 @@ public class ValidationTest {
 
     ConstraintViolation<AzureKeyVaultConfig> violation = violations.iterator().next();
     assertThat(violation.getMessageTemplate())
-        .isEqualTo("{javax.validation.constraints.NotNull.message}");
+        .isEqualTo("{jakarta.validation.constraints.NotNull.message}");
   }
 
   @Test
@@ -246,7 +246,7 @@ public class ValidationTest {
 
     ConstraintViolation<HashicorpKeyVaultConfig> violation = violations.iterator().next();
     assertThat(violation.getMessageTemplate())
-        .isEqualTo("{javax.validation.constraints.NotNull.message}");
+        .isEqualTo("{jakarta.validation.constraints.NotNull.message}");
   }
 
   @Test

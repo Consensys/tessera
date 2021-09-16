@@ -4,8 +4,8 @@ import com.quorum.tessera.cli.CliAdapter;
 import com.quorum.tessera.cli.CliResult;
 import com.quorum.tessera.cli.CliType;
 import com.quorum.tessera.config.Config;
+import jakarta.persistence.EntityManagerFactory;
 import java.util.concurrent.Callable;
-import javax.persistence.EntityManagerFactory;
 import picocli.CommandLine;
 
 @CommandLine.Command(

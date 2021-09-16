@@ -1,7 +1,7 @@
 module tessera.shared {
   // requires java.compiler;
 
-  requires java.annotation;
+  requires jakarta.annotation;
   requires org.slf4j;
 
   exports com.quorum.tessera.base64;

@@ -3,7 +3,7 @@ module tessera.keyvault.azure {
   requires org.slf4j;
   requires tessera.config;
   requires tessera.keyvault.api;
-  requires java.annotation;
+  requires jakarta.annotation;
   requires com.azure.identity;
   requires com.azure.security.keyvault.secrets;
   requires com.azure.http.netty;

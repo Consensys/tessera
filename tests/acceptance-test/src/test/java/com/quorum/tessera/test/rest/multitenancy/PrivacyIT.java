@@ -9,9 +9,9 @@ import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
 import com.quorum.tessera.test.rest.RestUtils;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.Response;
 import java.util.List;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import org.junit.Test;
 import suite.NodeAlias;
 
