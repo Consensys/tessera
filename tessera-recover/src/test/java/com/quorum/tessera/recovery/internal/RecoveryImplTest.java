@@ -16,12 +16,11 @@ import com.quorum.tessera.recovery.RecoveryTestCase;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
+import jakarta.persistence.PersistenceException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import jakarta.persistence.PersistenceException;
 
 public class RecoveryImplTest extends RecoveryTestCase {
 

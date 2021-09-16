@@ -162,7 +162,8 @@ class RecoveryImpl implements Recovery {
         return RecoveryResult.FAILURE.getCode();
       }
     } catch (Exception ex) {
-      LOGGER.error("Attempt to query failed. Please ensure database has been setup correctly for recovery process");
+      LOGGER.error(
+          "Attempt to query failed. Please ensure database has been setup correctly for recovery process");
       return RecoveryResult.FAILURE.getCode();
     }
 

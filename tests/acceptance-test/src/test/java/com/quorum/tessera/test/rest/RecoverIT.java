@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
@@ -196,7 +195,6 @@ public class RecoverIT {
 
       // Should recover successfully
       recoverNode(nodeAlias);
-
     }
   }
 
@@ -207,8 +205,8 @@ public class RecoverIT {
     try (connection) {
 
       PreparedStatement preparedStatement =
-        connection.prepareStatement(
-          "INSERT INTO ST_TRANSACTION(ID, HASH, PAYLOAD) VALUES (?,?,?)");
+          connection.prepareStatement(
+              "INSERT INTO ST_TRANSACTION(ID, HASH, PAYLOAD) VALUES (?,?,?)");
       preparedStatement.setInt(1, 1);
       preparedStatement.setString(2, Base64.getEncoder().encodeToString("hash".getBytes()));
       preparedStatement.setBytes(3, "payload".getBytes());
@@ -218,18 +216,16 @@ public class RecoverIT {
     } catch (SQLException ex) {
       throw new UncheckedSQLException(ex);
     }
-
   }
 
   private void recoverNodeShouldFail(NodeAlias nodeAlias) throws InterruptedException {
     ExecManager execManager = executors.get(nodeAlias);
     RecoveryExecManager recoveryExecManager =
-      new RecoveryExecManager(execManager.getConfigDescriptor());
+        new RecoveryExecManager(execManager.getConfigDescriptor());
     Process process = recoveryExecManager.start();
     int exitCode = process.waitFor();
     assertThat(exitCode).isEqualTo(2);
     recoveryExecManager.stop();
-
   }
 
   private void recoverNode(NodeAlias nodeAlias) throws Exception {
@@ -237,7 +233,7 @@ public class RecoverIT {
     ExecManager execManager = executors.get(nodeAlias);
 
     RecoveryExecManager recoveryExecManager =
-      new RecoveryExecManager(execManager.getConfigDescriptor());
+        new RecoveryExecManager(execManager.getConfigDescriptor());
     Process process = recoveryExecManager.start();
     int exitCode = process.waitFor();
 
@@ -346,11 +342,10 @@ public class RecoverIT {
     return List.of(
         new TestConfig(DBType.H2, true),
         new TestConfig(DBType.H2, false),
-//        new TestConfig(DBType.HSQL, true),
-//        new TestConfig(DBType.HSQL, false),
+        //        new TestConfig(DBType.HSQL, true),
+        //        new TestConfig(DBType.HSQL, false),
         new TestConfig(DBType.SQLITE, true),
-        new TestConfig(DBType.SQLITE, false)
-      );
+        new TestConfig(DBType.SQLITE, false));
   }
 
   static class TestConfig {

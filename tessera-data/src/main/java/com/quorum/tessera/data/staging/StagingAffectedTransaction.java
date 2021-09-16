@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Objects;
 
 @NamedQuery(
-  name = "StagingAffectedTransaction.countAll",
-  query = "select count(sat) from StagingAffectedTransaction sat")
+    name = "StagingAffectedTransaction.countAll",
+    query = "select count(sat) from StagingAffectedTransaction sat")
 @Entity
 @Table(name = "ST_AFFECTED_TRANSACTION")
 public class StagingAffectedTransaction {
