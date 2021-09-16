@@ -151,13 +151,10 @@ public class ConfigBuilder {
     config.setEncryptor(encryptorConfig);
     JdbcConfig jdbcConfig = new JdbcConfig();
 
-    String nodeName =
-        executionContext.getPrefix().map(s -> s.concat("-").concat(nodeId)).orElse(nodeId);
-
-    jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeName, nodeNumber));
+    jdbcConfig.setUrl(executionContext.getDbType().createUrl(nodeId, nodeNumber));
     jdbcConfig.setUsername("sa");
-    jdbcConfig.setPassword("");
-    jdbcConfig.setAutoCreateTables(true);
+    jdbcConfig.setPassword("password");
+    jdbcConfig.setAutoCreateTables(executionContext.isAutoCreateTables());
     config.setJdbcConfig(jdbcConfig);
 
     ServerConfig q2tServerConfig = new ServerConfig();
