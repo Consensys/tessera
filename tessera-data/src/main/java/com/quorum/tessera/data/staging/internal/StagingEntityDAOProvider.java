@@ -38,7 +38,6 @@ public class StagingEntityDAOProvider {
 
     properties.put(
         "eclipselink.session.customizer", "com.quorum.tessera.eclipselink.AtomicLongSequence");
-    properties.put("jakarta.persistence.schema-generation.database.action", "drop-and-create");
 
     LOGGER.debug("Creating EntityManagerFactory from {}", properties);
     final EntityManagerFactory entityManagerFactory =
