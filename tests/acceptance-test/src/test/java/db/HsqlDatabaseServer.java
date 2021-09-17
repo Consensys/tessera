@@ -21,7 +21,8 @@ public class HsqlDatabaseServer implements DatabaseServer {
     HsqlProperties properties = new HsqlProperties();
     for (int i = 0; i < 4; i++) {
       String db = nodeId + (i + 1);
-      properties.setProperty("server.database." + i, "file:build/hsql/" + db);
+      properties.setProperty(
+          "server.database." + i, "file:build/hsql/" + db + ";user=sa;password=password");
       properties.setProperty("server.dbname." + i, db);
     }
 

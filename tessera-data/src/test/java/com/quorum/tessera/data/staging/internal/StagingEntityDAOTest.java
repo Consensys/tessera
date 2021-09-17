@@ -148,6 +148,8 @@ public class StagingEntityDAOTest {
         .isEqualTo(1);
     assertThat(stagingEntityDAO.countAll()).isEqualTo(7);
     assertThat(stagingEntityDAO.countStaged()).isEqualTo(6);
+
+    assertThat(stagingEntityDAO.countAllAffected()).isEqualTo(7);
   }
 
   @Test
@@ -197,6 +199,8 @@ public class StagingEntityDAOTest {
         .isEqualTo(1);
     assertThat(stagingEntityDAO.countAll()).isEqualTo(7);
     assertThat(stagingEntityDAO.countStaged()).isEqualTo(6);
+
+    assertThat(stagingEntityDAO.countAllAffected()).isEqualTo(7);
   }
 
   @Test
