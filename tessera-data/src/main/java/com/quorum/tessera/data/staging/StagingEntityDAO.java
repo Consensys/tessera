@@ -59,6 +59,13 @@ public interface StagingEntityDAO {
    */
   int updateStageForBatch(int batchSize, long validationStage);
 
+  /**
+   * counts all records in staging affected transactions
+   *
+   * @return the count
+   */
+  long countAllAffected();
+
   static StagingEntityDAO create() {
     return ServiceLoader.load(StagingEntityDAO.class).findFirst().get();
   }
