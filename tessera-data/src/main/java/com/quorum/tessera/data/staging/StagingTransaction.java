@@ -1,5 +1,6 @@
 package com.quorum.tessera.data.staging;
 
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import jakarta.persistence.*;
 import java.io.Serializable;
@@ -53,6 +54,10 @@ public class StagingTransaction implements Serializable {
 
   @Column(name = "TIMESTAMP", updatable = false)
   private long timestamp;
+
+  @Enumerated(value = EnumType.STRING)
+  @Column(name = "PAYLOAD_CODEC", nullable = false)
+  private EncodedPayloadCodec encodedPayloadCodec;
 
   @OneToMany(
       fetch = FetchType.LAZY,
@@ -123,6 +128,18 @@ public class StagingTransaction implements Serializable {
 
   public void setPayload(byte[] payload) {
     this.payload = payload;
+  }
+
+  public EncodedPayloadCodec getEncodedPayloadCodec() {
+    return encodedPayloadCodec;
+  }
+
+  public void setEncodedPayloadCodec(EncodedPayloadCodec encodedPayloadCodec) {
+    this.encodedPayloadCodec = encodedPayloadCodec;
+  }
+
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
   }
 
   @Override

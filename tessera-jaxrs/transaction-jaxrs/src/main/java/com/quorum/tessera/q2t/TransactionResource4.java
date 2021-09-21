@@ -8,6 +8,7 @@ import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.api.SendSignedRequest;
 import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -48,6 +49,8 @@ import org.slf4j.LoggerFactory;
 public class TransactionResource4 {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource4.class);
+
+  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
 
   private final TransactionManager transactionManager;
 
@@ -117,7 +120,9 @@ public class TransactionResource4 {
             .withExecHash(execHash)
             .withPrivacyMode(privacyMode)
             .withAffectedContractTransactions(affectedTransactions)
-            .withMandatoryRecipients(mandatoryRecipients);
+            .withMandatoryRecipients(mandatoryRecipients)
+            .withEncodedPayloadCodec(encodedPayloadCodec);
+
     privacyGroupId.ifPresent(requestBuilder::withPrivacyGroupId);
 
     final com.quorum.tessera.transaction.SendResponse response =
@@ -204,7 +209,8 @@ public class TransactionResource4 {
             .withPrivacyMode(privacyMode)
             .withAffectedContractTransactions(affectedTransactions)
             .withExecHash(execHash)
-            .withMandatoryRecipients(mandatoryRecipients);
+            .withMandatoryRecipients(mandatoryRecipients)
+            .withEncodedPayloadCodec(encodedPayloadCodec);
     privacyGroupId.ifPresent(requestBuilder::withPrivacyGroupId);
 
     final com.quorum.tessera.transaction.SendResponse response =

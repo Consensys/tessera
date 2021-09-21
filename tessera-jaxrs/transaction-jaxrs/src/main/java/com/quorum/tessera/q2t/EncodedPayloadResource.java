@@ -8,10 +8,7 @@ import com.quorum.tessera.api.PayloadEncryptResponse;
 import com.quorum.tessera.api.ReceiveResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.enclave.RecipientBox;
-import com.quorum.tessera.enclave.TxHash;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -45,6 +42,8 @@ import org.slf4j.LoggerFactory;
 public class EncodedPayloadResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EncodedPayloadResource.class);
+
+  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
 
   private final Base64.Decoder base64Decoder = Base64.getDecoder();
 
@@ -95,6 +94,7 @@ public class EncodedPayloadResource {
 
     final com.quorum.tessera.transaction.SendRequest request =
         com.quorum.tessera.transaction.SendRequest.Builder.create()
+            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withRecipients(recipientList)
             .withSender(sender)
             .withPayload(sendRequest.getPayload())
@@ -152,6 +152,7 @@ public class EncodedPayloadResource {
 
     final EncodedPayload requestAsPayload =
         EncodedPayload.Builder.create()
+            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withSenderKey(PublicKey.from(request.getSenderKey()))
             .withCipherText(request.getCipherText())
             .withCipherTextNonce(request.getCipherTextNonce())
@@ -247,6 +248,7 @@ public class EncodedPayloadResource {
 
     final com.quorum.tessera.transaction.SendRequest request =
         com.quorum.tessera.transaction.SendRequest.Builder.create()
+            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withRecipients(recipientList)
             .withSender(sender)
             .withPayload(sendRequest.getPayload())
@@ -330,6 +332,7 @@ public class EncodedPayloadResource {
 
     final EncodedPayload requestAsPayload =
         EncodedPayload.Builder.create()
+            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withSenderKey(PublicKey.from(request.getSenderKey()))
             .withCipherText(request.getCipherText())
             .withCipherTextNonce(request.getCipherTextNonce())

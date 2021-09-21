@@ -7,8 +7,8 @@ import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.enclave.*;
-import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.junit.After;
 import org.junit.Before;
@@ -24,11 +24,18 @@ public class StagingTransactionUtilsTest {
 
   private final PublicKey recipient1 = PublicKey.from("recipient1".getBytes());
 
-  private final PayloadEncoder encoder = PayloadEncoder.create();
+  private final MockedStatic<PayloadEncoder> payloadEncoderMockedStatic =
+      mockStatic(PayloadEncoder.class);
+
+  private PayloadEncoder payloadEncoder;
 
   private ClientMode clientMode;
 
-  private MockedStatic<ConfigFactory> configFactoryMockedStatic;
+  private final MockedStatic<ConfigFactory> configFactoryMockedStatic =
+      mockStatic(ConfigFactory.class);;
+
+  private final MockedStatic<PayloadDigest> payloadDigestMockedStatic =
+      mockStatic(PayloadDigest.class);;
 
   private ConfigFactory configFactory;
 
@@ -46,61 +53,75 @@ public class StagingTransactionUtilsTest {
   @Before
   public void beforeTest() {
 
+    payloadEncoder = mock(PayloadEncoder.class);
+
+    payloadEncoderMockedStatic
+        .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
+        .thenReturn(Optional.of(payloadEncoder));
+
     Config config = mock(Config.class);
     when(config.getClientMode()).thenReturn(clientMode);
     configFactory = mock(ConfigFactory.class);
     when(configFactory.getConfig()).thenReturn(config);
 
-    configFactoryMockedStatic = mockStatic(ConfigFactory.class);
     configFactoryMockedStatic.when(ConfigFactory::create).thenReturn(configFactory);
-    payloadDigest = PayloadDigest.create();
+    payloadDigest = mock(PayloadDigest.class);
 
-    assertThat(payloadDigest).isExactlyInstanceOf(DIGEST_LOOKUP.get(clientMode));
+    payloadDigestMockedStatic.when(PayloadDigest::create).thenReturn(payloadDigest);
   }
 
   @After
   public void afterTest() {
-    configFactoryMockedStatic.close();
+    List.of(payloadEncoderMockedStatic, payloadDigestMockedStatic, configFactoryMockedStatic)
+        .forEach(
+            m -> {
+              try (m) {
+              } catch (Throwable ex) {
+              }
+            });
+
+    verifyNoMoreInteractions(payloadEncoder, payloadDigest);
   }
 
   @Test
   public void testFromRawPayload() {
 
-    final TxHash affectedHash = new TxHash("TX2");
+    final byte[] payloadData = "SomePayloadData".getBytes(StandardCharsets.UTF_8);
+    final EncodedPayload encodedPayload = mock(EncodedPayload.class);
 
-    final EncodedPayload encodedPayload =
-        EncodedPayload.Builder.create()
-            .withSenderKey(sender)
-            .withCipherText("cipherText".getBytes())
-            .withCipherTextNonce(new Nonce("nonce".getBytes()))
-            .withRecipientBoxes(List.of("box1".getBytes(), "box2".getBytes()))
-            .withRecipientNonce(new Nonce("recipientNonce".getBytes()))
-            .withRecipientKeys(List.of(recipient1))
-            .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-            .withAffectedContractTransactions(Map.of(affectedHash, "somesecurityHash".getBytes()))
-            .build();
+    TxHash txHash = mock(TxHash.class);
+    when(txHash.getBytes()).thenReturn(TxHash.class.getSimpleName().getBytes());
+    SecurityHash securityHash = mock(SecurityHash.class);
+    when(securityHash.getData()).thenReturn(SecurityHash.class.getSimpleName().getBytes());
 
-    // FIXME: Cross module depenency!!!
-    final String messageHash =
-        Base64.getEncoder().encodeToString(payloadDigest.digest(encodedPayload.getCipherText()));
+    when(encodedPayload.getAffectedContractTransactions()).thenReturn(Map.of(txHash, securityHash));
 
-    final byte[] raw = encoder.encode(encodedPayload);
+    when(payloadEncoder.decode(payloadData)).thenReturn(encodedPayload);
+    when(payloadEncoder.encodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
+    byte[] cipherText = "CipherText".getBytes(StandardCharsets.UTF_8);
+    when(encodedPayload.getCipherText()).thenReturn(cipherText);
+    when(encodedPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+    when(payloadDigest.digest(cipherText)).thenReturn(cipherText);
 
-    StagingTransaction result = StagingTransactionUtils.fromRawPayload(raw);
+    StagingTransaction result =
+        StagingTransactionUtils.fromRawPayload(payloadData, EncodedPayloadCodec.UNSUPPORTED);
+
     assertThat(result).isNotNull();
-    assertThat(result.getHash()).isEqualTo(messageHash);
-    assertThat(result.getPayload()).isEqualTo(raw);
-    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.PARTY_PROTECTION);
-    assertThat(result.getValidationStage()).isNull();
+    assertThat(result.getHash()).isEqualTo("Q2lwaGVyVGV4dA==");
+    assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
     assertThat(result.getAffectedContractTransactions()).hasSize(1);
+    assertThat(result.getPayload()).isSameAs(payloadData);
+    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.UNSUPPORTED);
 
-    result
-        .getAffectedContractTransactions()
-        .forEach(
-            atx -> {
-              assertThat(atx.getHash()).isEqualTo(affectedHash.encodeToBase64());
-              assertThat(atx.getSourceTransaction()).isEqualTo(result);
-            });
+    StagingAffectedTransaction stagingAffectedTransaction =
+        result.getAffectedContractTransactions().iterator().next();
+    assertThat(stagingAffectedTransaction.getSourceTransaction()).isSameAs(result);
+    assertThat(stagingAffectedTransaction.getHash())
+        .isEqualTo(Base64.getEncoder().encodeToString(TxHash.class.getSimpleName().getBytes()));
+
+    verify(payloadEncoder).encodedPayloadCodec();
+    verify(payloadDigest).digest(cipherText);
+    verify(payloadEncoder).decode(payloadData);
   }
 
   @Parameterized.Parameters(name = "{0}")

@@ -1,6 +1,7 @@
 package com.quorum.tessera.transaction;
 
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -24,6 +25,8 @@ public interface SendRequest {
 
   Set<PublicKey> getMandatoryRecipients();
 
+  EncodedPayloadCodec getEncodedPayloadCodec();
+
   class Builder {
 
     private PublicKey from;
@@ -36,11 +39,13 @@ public interface SendRequest {
 
     private byte[] execHash = new byte[0];
 
-    private Set<MessageHash> affectedContractTransactions = Collections.emptySet();
+    private Set<MessageHash> affectedContractTransactions = Set.of();
 
     private PrivacyGroup.Id privacyGroupId;
 
-    private Set<PublicKey> mandatoryRecipients = Collections.emptySet();
+    private Set<PublicKey> mandatoryRecipients = Set.of();
+
+    private EncodedPayloadCodec encodedPayloadCodec;
 
     public static Builder create() {
       return new Builder() {};
@@ -86,8 +91,14 @@ public interface SendRequest {
       return this;
     }
 
+    public Builder withEncodedPayloadCodec(EncodedPayloadCodec encodedPayloadCodec) {
+      this.encodedPayloadCodec = encodedPayloadCodec;
+      return this;
+    }
+
     public SendRequest build() {
 
+      Objects.requireNonNull(encodedPayloadCodec, "EncodedPayloadCodec is required");
       Objects.requireNonNull(from, "Sender is required");
       Objects.requireNonNull(recipients, "Recipients are required");
       Objects.requireNonNull(payload, "Payload is required");
@@ -146,6 +157,11 @@ public interface SendRequest {
         @Override
         public Set<PublicKey> getMandatoryRecipients() {
           return Set.copyOf(mandatoryRecipients);
+        }
+
+        @Override
+        public EncodedPayloadCodec getEncodedPayloadCodec() {
+          return encodedPayloadCodec;
         }
       };
     }

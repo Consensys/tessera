@@ -45,6 +45,8 @@ public class PartyInfoResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PartyInfoResource.class);
 
+  private static final EncodedPayloadCodec PAYLOAD_CODEC = EncodedPayloadCodec.LEGACY;
+
   private final PartyInfoParser partyInfoParser;
 
   private final Discovery discovery;
@@ -87,7 +89,7 @@ public class PartyInfoResource {
         partyInfoParser,
         restClient,
         enclave,
-        PayloadEncoder.create(),
+        PayloadEncoder.create(PAYLOAD_CODEC).get(),
         enableKeyValidation,
         PartyStore.getInstance());
   }
@@ -173,7 +175,8 @@ public class PartyInfoResource {
                     dataToEncrypt.getBytes(),
                     localPublicKey,
                     List.of(r.getKey()),
-                    PrivacyMetadata.Builder.forStandardPrivate().build());
+                    PrivacyMetadata.Builder.forStandardPrivate().build(),
+                    PAYLOAD_CODEC);
 
             final byte[] encodedPayloadBytes = payloadEncoder.encode(encodedPayload);
 

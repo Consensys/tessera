@@ -1,5 +1,7 @@
 package com.quorum.tessera.data;
 
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
@@ -22,6 +24,7 @@ import java.util.Objects;
       query = "select count(c.timestamp) from EncryptedTransaction c")
 })
 @Entity
+@EntityListeners(EncryptedTransactionListener.class)
 @Table(name = "ENCRYPTED_TRANSACTION")
 public class EncryptedTransaction implements Serializable {
 
@@ -38,6 +41,16 @@ public class EncryptedTransaction implements Serializable {
   @Column(name = "TIMESTAMP", updatable = false)
   private long timestamp;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "PAYLOAD_CODEC")
+  private EncodedPayloadCodec encodedPayloadCodec;
+
+  @Transient private transient EncodedPayload payload;
+
+  /*
+  TODO: Use empty consructor jpa entities are intentially mutable and this constructor will make adding new properties trickier
+   */
+  @Deprecated
   public EncryptedTransaction(final MessageHash hash, final byte[] encodedPayload) {
     this.hash = hash;
     this.encodedPayload = encodedPayload;
@@ -68,6 +81,26 @@ public class EncryptedTransaction implements Serializable {
 
   public long getTimestamp() {
     return this.timestamp;
+  }
+
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  public EncodedPayloadCodec getEncodedPayloadCodec() {
+    return encodedPayloadCodec;
+  }
+
+  public void setEncodedPayloadCodec(EncodedPayloadCodec encodedPayloadCodec) {
+    this.encodedPayloadCodec = encodedPayloadCodec;
+  }
+
+  public EncodedPayload getPayload() {
+    return payload;
+  }
+
+  public void setPayload(EncodedPayload payload) {
+    this.payload = payload;
   }
 
   @Override

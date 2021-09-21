@@ -1,6 +1,7 @@
 package com.quorum.tessera.p2p.recovery;
 
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
@@ -29,10 +30,13 @@ public class RestResendBatchPublisher implements ResendBatchPublisher {
 
     LOGGER.info("Publishing message to {}", targetUrl);
 
+    EncodedPayloadCodec encodedPayloadCodec =
+        payloads.stream().findFirst().get().getEncodedPayloadCodec();
     final List<byte[]> encodedPayloads =
         payloads.stream().map(payloadEncoder::encode).collect(Collectors.toList());
 
-    final PushBatchRequest pushBatchRequest = new PushBatchRequest(encodedPayloads);
+    final PushBatchRequest pushBatchRequest =
+        new PushBatchRequest(encodedPayloads, encodedPayloadCodec.name());
 
     final boolean result = resendClient.pushBatch(targetUrl, pushBatchRequest);
 

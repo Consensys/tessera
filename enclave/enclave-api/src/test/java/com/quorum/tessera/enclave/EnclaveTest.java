@@ -76,6 +76,7 @@ public class EnclaveTest {
             .withRecipientKeys(List.of(recipientKey, senderKey))
             .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
             .withExecHash("EXEC_HASH".getBytes())
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
@@ -124,6 +125,7 @@ public class EnclaveTest {
             .withRecipientKeys(List.of(recipientKey, senderKey))
             .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
             .withExecHash("EXEC_HASH".getBytes())
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final Throwable throwable =
@@ -152,6 +154,7 @@ public class EnclaveTest {
             .withRecipientBox(recipientBox.getData())
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
@@ -198,6 +201,7 @@ public class EnclaveTest {
             .withRecipientKeys(List.of(senderKey, recipientKey))
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
@@ -244,6 +248,7 @@ public class EnclaveTest {
             .withRecipientKeys(List.of(senderKey, recipientKey))
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final PrivateKey senderPrivateKey = PrivateKey.from("private-key".getBytes());
@@ -292,6 +297,7 @@ public class EnclaveTest {
             .withRecipientKeys(List.of(senderKey, recipientKey))
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final Throwable throwable =
@@ -321,6 +327,7 @@ public class EnclaveTest {
             .withRecipientKey(recipientKey)
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
@@ -370,6 +377,7 @@ public class EnclaveTest {
             .withRecipientKey(recipientKey)
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     when(keyManager.getPublicKeys()).thenReturn(Set.of(recipientKey));
@@ -404,6 +412,7 @@ public class EnclaveTest {
             .withRecipientKey(recipientKey)
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final PrivateKey senderPrivateKey = PrivateKey.from("private-key".getBytes());
@@ -452,6 +461,7 @@ public class EnclaveTest {
             .withRecipientKey(recipientKey)
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final PrivateKey recipientPrivateKey = PrivateKey.from("private-key".getBytes());
@@ -501,6 +511,7 @@ public class EnclaveTest {
             .withRecipientKey(recipientKey)
             .withRecipientNonce(recipientNonce)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     when(keyManager.getPublicKeys()).thenReturn(Set.of(senderKey, recipientKey));
@@ -588,7 +599,11 @@ public class EnclaveTest {
 
     EncodedPayload result =
         enclave.encryptPayload(
-            message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
+            message,
+            senderPublicKey,
+            Arrays.asList(recipientPublicKey),
+            metaData,
+            EncodedPayloadCodec.LEGACY);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -668,7 +683,11 @@ public class EnclaveTest {
 
     final EncodedPayload result =
         enclave.encryptPayload(
-            message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
+            message,
+            senderPublicKey,
+            Arrays.asList(recipientPublicKey),
+            metaData,
+            EncodedPayloadCodec.LEGACY);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -726,7 +745,11 @@ public class EnclaveTest {
 
     EncodedPayload result =
         enclave.encryptPayload(
-            message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
+            message,
+            senderPublicKey,
+            Arrays.asList(recipientPublicKey),
+            metaData,
+            EncodedPayloadCodec.LEGACY);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -784,7 +807,11 @@ public class EnclaveTest {
 
     EncodedPayload result =
         enclave.encryptPayload(
-            message, senderPublicKey, Arrays.asList(recipientPublicKey), metaData);
+            message,
+            senderPublicKey,
+            Arrays.asList(recipientPublicKey),
+            metaData,
+            EncodedPayloadCodec.LEGACY);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -847,7 +874,11 @@ public class EnclaveTest {
         PrivacyMetadata.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
 
     EncodedPayload result =
-        enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
+        enclave.encryptPayload(
+            rawTransaction,
+            Arrays.asList(recipientPublicKey),
+            metaData,
+            EncodedPayloadCodec.LEGACY);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -911,7 +942,11 @@ public class EnclaveTest {
             .build();
 
     EncodedPayload result =
-        enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
+        enclave.encryptPayload(
+            rawTransaction,
+            Arrays.asList(recipientPublicKey),
+            metaData,
+            EncodedPayloadCodec.LEGACY);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);
@@ -976,7 +1011,11 @@ public class EnclaveTest {
             .build();
 
     EncodedPayload result =
-        enclave.encryptPayload(rawTransaction, Arrays.asList(recipientPublicKey), metaData);
+        enclave.encryptPayload(
+            rawTransaction,
+            Arrays.asList(recipientPublicKey),
+            metaData,
+            EncodedPayloadCodec.LEGACY);
 
     assertThat(result).isNotNull();
     assertThat(result.getRecipientKeys()).containsExactly(recipientPublicKey);

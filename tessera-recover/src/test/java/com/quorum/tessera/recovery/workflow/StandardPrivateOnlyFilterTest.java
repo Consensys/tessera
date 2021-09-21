@@ -2,6 +2,7 @@ package com.quorum.tessera.recovery.workflow;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PrivacyMode;
@@ -29,15 +30,16 @@ public class StandardPrivateOnlyFilterTest {
         .filter(p -> !PrivacyMode.STANDARD_PRIVATE.equals(p))
         .forEach(
             p -> {
-              final EncodedPayload.Builder builder =
-                  EncodedPayload.Builder.create().withPrivacyMode(p);
+              EncodedPayload psvPayload = mock(EncodedPayload.class);
+              when(psvPayload.getPrivacyMode()).thenReturn(p);
+
               if (p == PrivacyMode.MANDATORY_RECIPIENTS) {
-                builder.withMandatoryRecipients(Set.of(mock(PublicKey.class)));
+                when(psvPayload.getMandatoryRecipients()).thenReturn(Set.of(mock(PublicKey.class)));
               }
               if (p == PrivacyMode.PRIVATE_STATE_VALIDATION) {
-                builder.withExecHash("execHash".getBytes());
+                when(psvPayload.getExecHash()).thenReturn("execHash".getBytes());
               }
-              final EncodedPayload psvPayload = builder.build();
+
               final BatchWorkflowContext contextPsv = new BatchWorkflowContext();
               contextPsv.setEncodedPayload(psvPayload);
 
@@ -47,8 +49,9 @@ public class StandardPrivateOnlyFilterTest {
 
   @Test
   public void standardPrivatePasses() {
-    final EncodedPayload payload =
-        EncodedPayload.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
+    final EncodedPayload payload = mock(EncodedPayload.class);
+    when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+
     final BatchWorkflowContext context = new BatchWorkflowContext();
     context.setEncodedPayload(payload);
 

@@ -20,16 +20,18 @@ public class SingleEncodedPayloadPublisherTest {
   @Before
   public void init() {
     this.payloadPublisher = mock(PayloadPublisher.class);
-
     this.workflowPublisher = new SingleEncodedPayloadPublisher(payloadPublisher);
   }
 
   @Test
   public void successfulPublishReturnsTrue() {
+
     final PublicKey sampleKey = PublicKey.from("testkey".getBytes());
-    final EncodedPayload samplePayload1 =
-        EncodedPayload.Builder.create().withSenderKey(sampleKey).build();
-    final EncodedPayload samplePayload2 = EncodedPayload.Builder.create().build();
+
+    final EncodedPayload samplePayload1 = mock(EncodedPayload.class);
+    when(samplePayload1.getSenderKey()).thenReturn(sampleKey);
+
+    final EncodedPayload samplePayload2 = mock(EncodedPayload.class);
 
     final BatchWorkflowContext context = new BatchWorkflowContext();
     context.setRecipientKey(sampleKey);
@@ -46,9 +48,11 @@ public class SingleEncodedPayloadPublisherTest {
   @Test
   public void unsuccessfulPublishReturnsFalse() {
     final PublicKey sampleKey = PublicKey.from("testkey".getBytes());
-    final EncodedPayload samplePayload1 =
-        EncodedPayload.Builder.create().withSenderKey(sampleKey).build();
-    final EncodedPayload samplePayload2 = EncodedPayload.Builder.create().build();
+
+    final EncodedPayload samplePayload1 = mock(EncodedPayload.class);
+    when(samplePayload1.getSenderKey()).thenReturn(sampleKey);
+
+    final EncodedPayload samplePayload2 = mock(EncodedPayload.class);
 
     final BatchWorkflowContext context = new BatchWorkflowContext();
     context.setRecipientKey(sampleKey);

@@ -4,15 +4,15 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.data.*;
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import jakarta.persistence.*;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -31,7 +31,7 @@ public class EncryptedTransactionDAOTest {
 
   @Before
   public void onSetUp() {
-
+    System.setProperty("disable.jpa.listeners", "true");
     Map properties = new HashMap();
     properties.put("jakarta.persistence.jdbc.url", testConfig.getUrl());
     properties.put("jakarta.persistence.jdbc.user", "junit");
@@ -45,12 +45,14 @@ public class EncryptedTransactionDAOTest {
     properties.put("jakarta.persistence.schema-generation.database.action", "create");
 
     entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
+
     encryptedTransactionDAO = new EncryptedTransactionDAOImpl(entityManagerFactory);
   }
 
   @After
   public void onTearDown() {
     EntityManager entityManager = entityManagerFactory.createEntityManager();
+
     entityManager.getTransaction().begin();
     entityManager.createQuery("delete from EncryptedTransaction").executeUpdate();
     entityManager.getTransaction().commit();
@@ -101,6 +103,8 @@ public class EncryptedTransactionDAOTest {
     final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setEncodedPayload(new byte[] {5});
     encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED);
+
     encryptedTransactionDAO.save(encryptedTransaction);
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -157,6 +161,7 @@ public class EncryptedTransactionDAOTest {
     final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setEncodedPayload(new byte[] {5});
     encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED);
     encryptedTransactionDAO.save(encryptedTransaction);
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -172,12 +177,26 @@ public class EncryptedTransactionDAOTest {
   public void fetchingAllTransactionsReturnsAll() {
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
+
+    EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    when(encodedPayload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
+
+    byte[] payloadData = "I Love Sparrows".getBytes();
+
     entityManager.getTransaction().begin();
     final List<EncryptedTransaction> payloads =
         IntStream.range(0, 50)
             .mapToObj(i -> UUID.randomUUID().toString().getBytes())
             .map(MessageHash::new)
-            .map(hash -> new EncryptedTransaction(hash, hash.getHashBytes()))
+            .map(
+                hash -> {
+                  EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+                  encryptedTransaction.setHash(hash);
+                  encryptedTransaction.setEncodedPayload(payloadData);
+                  encryptedTransaction.setPayload(encodedPayload);
+                  encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED);
+                  return encryptedTransaction;
+                })
             .peek(entityManager::persist)
             .collect(Collectors.toList());
 
@@ -197,11 +216,11 @@ public class EncryptedTransactionDAOTest {
     final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
-
     // put a transaction in the database
     final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setEncodedPayload(new byte[] {5});
     encryptedTransaction.setHash(messageHash);
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     entityManager.getTransaction().begin();
     entityManager.persist(encryptedTransaction);
@@ -236,6 +255,7 @@ public class EncryptedTransactionDAOTest {
     final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setEncodedPayload(new byte[] {5});
     encryptedTransaction.setHash(messageHash);
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED);
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     entityManager.getTransaction().begin();
@@ -265,6 +285,7 @@ public class EncryptedTransactionDAOTest {
     final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setEncodedPayload(new byte[] {5});
     encryptedTransaction.setHash(messageHash);
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED);
 
     final long expected = System.currentTimeMillis();
     encryptedTransactionDAO.save(encryptedTransaction);
@@ -293,6 +314,7 @@ public class EncryptedTransactionDAOTest {
                   EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
                   encryptedTransaction.setHash(h);
                   encryptedTransaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+                  encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED);
                   entityManager.persist(encryptedTransaction);
                   return encryptedTransaction;
                 })
@@ -323,6 +345,7 @@ public class EncryptedTransactionDAOTest {
     EncryptedTransaction transaction = new EncryptedTransaction();
     transaction.setHash(transactionHash);
     transaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+    transaction.setEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED);
 
     Callable<Void> callback = mock(Callable.class);
 
@@ -462,6 +485,6 @@ public class EncryptedTransactionDAOTest {
 
   @Parameterized.Parameters(name = "DB {0}")
   public static Collection<TestConfig> connectionDetails() {
-    return List.of(TestConfig.values());
+    return List.of(TestConfig.H2, TestConfig.HSQL);
   }
 }

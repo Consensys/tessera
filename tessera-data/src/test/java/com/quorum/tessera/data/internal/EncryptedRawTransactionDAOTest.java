@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.data.*;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import jakarta.persistence.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,6 +64,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     try {
       encryptedRawTransactionDAO.save(encryptedRawTransaction);
@@ -84,7 +86,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
-
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     try {
       encryptedRawTransactionDAO.save(encryptedRawTransaction);
       failBecauseExceptionWasNotThrown(PersistenceException.class);
@@ -102,7 +104,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
-
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     try {
       encryptedRawTransactionDAO.save(encryptedRawTransaction);
       failBecauseExceptionWasNotThrown(PersistenceException.class);
@@ -120,7 +122,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
-
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     try {
       encryptedRawTransactionDAO.save(encryptedRawTransaction);
       failBecauseExceptionWasNotThrown(PersistenceException.class);
@@ -139,7 +141,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedPayload(new byte[] {5});
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
-
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     try {
       encryptedRawTransactionDAO.save(encryptedRawTransaction);
       failBecauseExceptionWasNotThrown(PersistenceException.class);
@@ -158,6 +160,8 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
+
     encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
     final EncryptedRawTransaction duplicateTransaction = new EncryptedRawTransaction();
@@ -166,7 +170,7 @@ public class EncryptedRawTransactionDAOTest {
     duplicateTransaction.setEncryptedKey("key".getBytes());
     duplicateTransaction.setNonce("nonce".getBytes());
     duplicateTransaction.setSender("from".getBytes());
-
+    duplicateTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     try {
       encryptedRawTransactionDAO.save(duplicateTransaction);
       failBecauseExceptionWasNotThrown(PersistenceException.class);
@@ -186,6 +190,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     encryptedRawTransactionDAO.save(encryptedRawTransaction);
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
@@ -208,6 +213,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     entityManager.getTransaction().begin();
@@ -252,7 +258,8 @@ public class EncryptedRawTransactionDAOTest {
                         "payload".getBytes(),
                         "key".getBytes(),
                         "nonce".getBytes(),
-                        "sender".getBytes()))
+                        "sender".getBytes(),
+                        EncodedPayloadCodec.LEGACY))
             .peek(entityManager::persist)
             .collect(Collectors.toList());
 
@@ -277,6 +284,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     entityManager.getTransaction().begin();
@@ -311,6 +319,7 @@ public class EncryptedRawTransactionDAOTest {
     encryptedRawTransaction.setEncryptedKey("key".getBytes());
     encryptedRawTransaction.setNonce("nonce".getBytes());
     encryptedRawTransaction.setSender("from".getBytes());
+    encryptedRawTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     encryptedRawTransactionDAO.save(encryptedRawTransaction);
 

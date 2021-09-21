@@ -4,6 +4,7 @@ import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.enclave.internal.LegacyPayloadEncoder;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
@@ -13,13 +14,13 @@ import org.junit.Test;
 
 public class EncoderCompatibilityTest {
 
-  private final LegacyPayloadEncoder legacyEncoder = new LegacyPayloadEncoder();
+  private final LegacyControlPayloadEncoder legacyEncoder = new LegacyControlPayloadEncoder();
 
   private final V2PayloadEncoder v2Encoder = new V2PayloadEncoder();
 
   private final V3PayloadEncoder v3Encoder = new V3PayloadEncoder();
 
-  private final PayloadEncoder v4Encoder = new PayloadEncoderImpl();
+  private final PayloadEncoder v4Encoder = new LegacyPayloadEncoder();
 
   @Test
   public void legacyToV2() {
@@ -454,6 +455,7 @@ public class EncoderCompatibilityTest {
   public void v4ToLegacy() {
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -521,6 +523,7 @@ public class EncoderCompatibilityTest {
     // Payload to a v2 node should not have privacyGroupId or mandatoryRecipients
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -596,6 +599,7 @@ public class EncoderCompatibilityTest {
     // Payload to a v3 node should not have mandatoryRecipients
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))

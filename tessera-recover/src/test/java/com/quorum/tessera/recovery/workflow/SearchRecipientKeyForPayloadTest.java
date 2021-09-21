@@ -6,15 +6,14 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveNotAvailableException;
-import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.EncryptorException;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.exception.RecipientKeyNotFoundException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,14 +38,14 @@ public class SearchRecipientKeyForPayloadTest {
 
   @Test
   public void payloadsAlreadyFormatted() {
-    final EncodedPayload payloadForRecipient1 =
-        EncodedPayload.Builder.create()
-            .withRecipientKey(PublicKey.from("recipient1".getBytes()))
-            .build();
-    final EncodedPayload payloadForRecipient2 =
-        EncodedPayload.Builder.create()
-            .withRecipientKey(PublicKey.from("recipient2".getBytes()))
-            .build();
+    final EncodedPayload payloadForRecipient1 = mock(EncodedPayload.class);
+    when(payloadForRecipient1.getRecipientKeys())
+        .thenReturn(List.of(PublicKey.from("recipient1".getBytes())));
+
+    final EncodedPayload payloadForRecipient2 = mock(EncodedPayload.class);
+    when(payloadForRecipient2.getRecipientKeys())
+        .thenReturn(List.of(PublicKey.from("recipient2".getBytes())));
+
     final Set<EncodedPayload> preformattedPayloads =
         Set.of(payloadForRecipient1, payloadForRecipient2);
 
@@ -62,14 +61,24 @@ public class SearchRecipientKeyForPayloadTest {
   public void execute() {
     final BatchWorkflowContext workflowEvent = new BatchWorkflowContext();
 
+    EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
+
     final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setHash(new MessageHash("sampleHash".getBytes()));
     workflowEvent.setEncryptedTransaction(encryptedTransaction);
 
-    final EncodedPayload encodedPayloadForRecipient1 =
-        EncodedPayload.Builder.create().withRecipientBox("sample-box-1".getBytes()).build();
-    final EncodedPayload encodedPayloadForRecipient2 =
-        EncodedPayload.Builder.create().withRecipientBox("sample-box-2".getBytes()).build();
+    RecipientBox sampleRecipientBox1 = mock(RecipientBox.class);
+    when(sampleRecipientBox1.getData()).thenReturn("sample-box-1".getBytes());
+    final EncodedPayload encodedPayloadForRecipient1 = mock(EncodedPayload.class);
+    when(encodedPayloadForRecipient1.getRecipientBoxes()).thenReturn(List.of(sampleRecipientBox1));
+    when(encodedPayloadForRecipient1.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
+
+    RecipientBox sampleRecipientBox2 = mock(RecipientBox.class);
+    when(sampleRecipientBox2.getData()).thenReturn("sample-box-2".getBytes());
+    final EncodedPayload encodedPayloadForRecipient2 = mock(EncodedPayload.class);
+    when(encodedPayloadForRecipient2.getRecipientBoxes()).thenReturn(List.of(sampleRecipientBox2));
+    when(encodedPayloadForRecipient2.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
+
     workflowEvent.setPayloadsToPublish(
         Set.of(encodedPayloadForRecipient1, encodedPayloadForRecipient2));
 
@@ -92,14 +101,11 @@ public class SearchRecipientKeyForPayloadTest {
     searchRecipientKeyForPayload.execute(workflowEvent);
 
     final Set<EncodedPayload> updatedPayloads = workflowEvent.getPayloadsToPublish();
-    assertThat(updatedPayloads)
-        .containsExactlyInAnyOrder(
-            EncodedPayload.Builder.from(encodedPayloadForRecipient1)
-                .withRecipientKey(recipient1)
-                .build(),
-            EncodedPayload.Builder.from(encodedPayloadForRecipient2)
-                .withRecipientKey(recipient2)
-                .build());
+    assertThat(
+            updatedPayloads.stream()
+                .flatMap(p -> p.getRecipientKeys().stream())
+                .collect(Collectors.toList()))
+        .containsExactlyInAnyOrder(recipient1, recipient2);
 
     verify(enclave).unencryptTransaction(encodedPayloadForRecipient1, recipient1);
     verify(enclave).unencryptTransaction(encodedPayloadForRecipient2, recipient1);
@@ -117,6 +123,8 @@ public class SearchRecipientKeyForPayloadTest {
             IndexOutOfBoundsException.class,
             EncryptorException.class);
 
+    final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
+
     handledExceptionTypes.forEach(
         t -> {
           final BatchWorkflowContext workflowEvent = new BatchWorkflowContext();
@@ -125,7 +133,8 @@ public class SearchRecipientKeyForPayloadTest {
           encryptedTransaction.setHash(new MessageHash("sampleHash".getBytes()));
           workflowEvent.setEncryptedTransaction(encryptedTransaction);
 
-          final EncodedPayload encodedPayload = EncodedPayload.Builder.create().build();
+          final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+          when(encodedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
           workflowEvent.setPayloadsToPublish(Set.of(encodedPayload));
 
           final PublicKey publicKey = PublicKey.from("sample-public-key".getBytes());

@@ -3,6 +3,7 @@ package com.quorum.tessera.data;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.RawTransaction;
 import java.util.Objects;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class EncryptedRawTransactionTest {
     byte[] nonce = "nonce".getBytes();
     byte[] from = "from".getBytes();
     EncryptedRawTransaction encryptedRawTransaction =
-        new EncryptedRawTransaction(hash, payload, key, nonce, from);
+        new EncryptedRawTransaction(hash, payload, key, nonce, from, EncodedPayloadCodec.LEGACY);
 
     assertThat(encryptedRawTransaction.getHash()).isSameAs(hash);
     assertThat(encryptedRawTransaction.getEncryptedPayload()).isSameAs(payload);
@@ -91,7 +92,7 @@ public class EncryptedRawTransactionTest {
     byte[] from = "from".getBytes();
 
     EncryptedRawTransaction encryptedRawTransaction =
-        new EncryptedRawTransaction(hash, payload, key, nonce, from);
+        new EncryptedRawTransaction(hash, payload, key, nonce, from, EncodedPayloadCodec.LEGACY);
 
     RawTransaction rawTransaction = encryptedRawTransaction.toRawTransaction();
 

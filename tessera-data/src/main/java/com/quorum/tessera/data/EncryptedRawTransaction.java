@@ -1,5 +1,6 @@
 package com.quorum.tessera.data;
 
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.RawTransaction;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
@@ -48,17 +49,24 @@ public class EncryptedRawTransaction implements Serializable {
   @Column(name = "TIMESTAMP", updatable = false)
   private long timestamp;
 
+  @Enumerated(value = EnumType.STRING)
+  @Column(name = "PAYLOAD_CODEC", nullable = false)
+  private EncodedPayloadCodec encodedPayloadCodec;
+
+  @Deprecated
   public EncryptedRawTransaction(
       final MessageHash hash,
       final byte[] encryptedPayload,
       final byte[] encryptedKey,
       final byte[] nonce,
-      final byte[] sender) {
+      final byte[] sender,
+      final EncodedPayloadCodec encodedPayloadCodec) {
     this.hash = hash;
     this.encryptedPayload = encryptedPayload;
     this.encryptedKey = encryptedKey;
     this.nonce = nonce;
     this.sender = sender;
+    this.encodedPayloadCodec = encodedPayloadCodec;
   }
 
   public EncryptedRawTransaction() {}
@@ -104,12 +112,24 @@ public class EncryptedRawTransaction implements Serializable {
     return this.timestamp;
   }
 
+  public void setTimestamp(long timestamp) {
+    this.timestamp = timestamp;
+  }
+
   public byte[] getSender() {
     return sender;
   }
 
   public void setSender(byte[] sender) {
     this.sender = sender;
+  }
+
+  public EncodedPayloadCodec getEncodedPayloadCodec() {
+    return encodedPayloadCodec;
+  }
+
+  public void setEncodedPayloadCodec(EncodedPayloadCodec encodedPayloadCodec) {
+    this.encodedPayloadCodec = encodedPayloadCodec;
   }
 
   @Override

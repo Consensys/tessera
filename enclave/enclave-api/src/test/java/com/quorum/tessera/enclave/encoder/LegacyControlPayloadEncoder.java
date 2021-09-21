@@ -14,7 +14,7 @@ import java.util.List;
  * Do NOT change as this is a copy of the legacy payload encoder. The tests will use these logic to
  * ensure the legacy encoder is still able to understand new encoded payload and vice versa
  */
-public class LegacyPayloadEncoder implements BinaryEncoder {
+public class LegacyControlPayloadEncoder implements BinaryEncoder {
 
   public byte[] encode(final LegacyEncodedPayload payload) {
 

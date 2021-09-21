@@ -34,16 +34,20 @@ class EnclaveServerImpl implements EnclaveServer {
       byte[] message,
       PublicKey senderPublicKey,
       List<PublicKey> recipientPublicKeys,
-      PrivacyMetadata privacyMetadata) {
-    return enclave.encryptPayload(message, senderPublicKey, recipientPublicKeys, privacyMetadata);
+      PrivacyMetadata privacyMetadata,
+      EncodedPayloadCodec encodedPayloadCodec) {
+    return enclave.encryptPayload(
+        message, senderPublicKey, recipientPublicKeys, privacyMetadata, encodedPayloadCodec);
   }
 
   @Override
   public EncodedPayload encryptPayload(
       RawTransaction rawTransaction,
       List<PublicKey> recipientPublicKeys,
-      PrivacyMetadata privacyMetadata) {
-    return enclave.encryptPayload(rawTransaction, recipientPublicKeys, privacyMetadata);
+      PrivacyMetadata privacyMetadata,
+      EncodedPayloadCodec encodedPayloadCodec) {
+    return enclave.encryptPayload(
+        rawTransaction, recipientPublicKeys, privacyMetadata, encodedPayloadCodec);
   }
 
   @Override

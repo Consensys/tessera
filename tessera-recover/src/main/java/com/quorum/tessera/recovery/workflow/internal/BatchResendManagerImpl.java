@@ -73,8 +73,12 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
   @Override
   public synchronized void storeResendBatch(PushBatchRequest resendPushBatchRequest) {
+
     resendPushBatchRequest.getEncodedPayloads().stream()
-        .map(StagingTransactionUtils::fromRawPayload)
+        .map(
+            p ->
+                StagingTransactionUtils.fromRawPayload(
+                    p, resendPushBatchRequest.getEncodedPayloadCodec()))
         .forEach(stagingEntityDAO::save);
   }
 

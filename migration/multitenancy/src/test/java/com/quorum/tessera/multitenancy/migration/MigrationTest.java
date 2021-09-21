@@ -11,6 +11,7 @@ import com.quorum.tessera.data.EncryptedRawTransaction;
 import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -243,7 +244,8 @@ public class MigrationTest {
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setHash(new MessageHash(UUID.randomUUID().toString().getBytes()));
     encryptedTransaction.setEncodedPayload(
-        PayloadEncoder.create().encode(generateEncodedPayload()));
+        PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get().encode(generateEncodedPayload()));
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     return encryptedTransaction;
   }
 
@@ -259,6 +261,7 @@ public class MigrationTest {
 
     EncodedPayload.Builder encodedPayloadBuilder =
         EncodedPayload.Builder.create()
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(senderKey)
             .withCipherText("cipherText".getBytes())
             .withCipherTextNonce("CipherTextNonce".getBytes())
@@ -286,7 +289,8 @@ public class MigrationTest {
             "some encrypted message".getBytes(),
             "encryptedKey".getBytes(),
             "nonce".getBytes(),
-            "sender".getBytes());
+            "sender".getBytes(),
+            EncodedPayloadCodec.LEGACY);
     return secondaryRawTx;
   }
 

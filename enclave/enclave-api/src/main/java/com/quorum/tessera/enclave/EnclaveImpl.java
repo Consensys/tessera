@@ -26,7 +26,8 @@ public class EnclaveImpl implements Enclave {
       final byte[] message,
       final PublicKey senderPublicKey,
       final List<PublicKey> recipientPublicKeys,
-      final PrivacyMetadata privacyMetadata) {
+      final PrivacyMetadata privacyMetadata,
+      final EncodedPayloadCodec encodedPayloadCodec) {
 
     final MasterKey masterKey = encryptor.createMasterKey();
     final Nonce nonce = encryptor.randomNonce();
@@ -45,7 +46,8 @@ public class EnclaveImpl implements Enclave {
                         AffectedTransaction::getHash, AffectedTransaction::getPayload)),
             cipherText);
 
-    final EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
+    final EncodedPayload.Builder payloadBuilder =
+        EncodedPayload.Builder.create().withEncodedPayloadCodec(encodedPayloadCodec);
 
     privacyMetadata.getPrivacyGroupId().ifPresent(payloadBuilder::withPrivacyGroupId);
 
@@ -60,6 +62,7 @@ public class EnclaveImpl implements Enclave {
         .withAffectedContractTransactions(affectedContractTransactionHashes)
         .withExecHash(privacyMetadata.getExecHash())
         .withMandatoryRecipients(privacyMetadata.getMandatoryRecipients())
+        .withEncodedPayloadCodec(encodedPayloadCodec)
         .build();
   }
 
@@ -115,7 +118,8 @@ public class EnclaveImpl implements Enclave {
   public EncodedPayload encryptPayload(
       final RawTransaction rawTransaction,
       final List<PublicKey> recipientPublicKeys,
-      final PrivacyMetadata privacyMetadata) {
+      final PrivacyMetadata privacyMetadata,
+      final EncodedPayloadCodec encodedPayloadCodec) {
 
     final MasterKey masterKey =
         this.getMasterKey(
@@ -151,6 +155,7 @@ public class EnclaveImpl implements Enclave {
         .withAffectedContractTransactions(affectedContractTransactionHashes)
         .withExecHash(privacyMetadata.getExecHash())
         .withMandatoryRecipients(privacyMetadata.getMandatoryRecipients())
+        .withEncodedPayloadCodec(encodedPayloadCodec)
         .build();
   }
 

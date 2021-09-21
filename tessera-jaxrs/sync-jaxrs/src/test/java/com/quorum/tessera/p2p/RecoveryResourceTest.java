@@ -4,13 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.p2p.recovery.PushBatchRequest;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import jakarta.ws.rs.core.Response;
-import java.util.Collections;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +43,8 @@ public class RecoveryResourceTest {
   @Test
   public void pushBatch() {
     PushBatchRequest pushBatchRequest =
-        new PushBatchRequest(Collections.singletonList("SomeData".getBytes()));
+        new PushBatchRequest(
+            List.of("SomeData".getBytes()), EncodedPayloadCodec.UNSUPPORTED.name());
     Response result = recoveryResource.pushBatch(pushBatchRequest);
     assertThat(result.getStatus()).isEqualTo(200);
     ArgumentCaptor<com.quorum.tessera.recovery.resend.PushBatchRequest> argCaptor =

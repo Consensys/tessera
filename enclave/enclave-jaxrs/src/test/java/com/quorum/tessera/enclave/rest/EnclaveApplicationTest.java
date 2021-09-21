@@ -8,14 +8,7 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.config.CommunicationType;
-import com.quorum.tessera.enclave.AffectedTransaction;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EnclaveServer;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.PrivacyMetadata;
-import com.quorum.tessera.enclave.PrivacyMode;
-import com.quorum.tessera.enclave.TxHash;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.service.Service;
@@ -89,7 +82,12 @@ public class EnclaveApplicationTest {
               return pay;
             })
         .when(enclave)
-        .encryptPayload(any(byte[].class), any(PublicKey.class), anyList(), any());
+        .encryptPayload(
+            any(byte[].class),
+            any(PublicKey.class),
+            anyList(),
+            any(),
+            any(EncodedPayloadCodec.class));
 
     PublicKey senderPublicKey = pay.getSenderKey();
     List<PublicKey> recipientPublicKeys = pay.getRecipientKeys();
@@ -103,6 +101,7 @@ public class EnclaveApplicationTest {
     when(acoth.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
     when(acoth.getAffectedContractTransactions()).thenReturn(Collections.emptyMap());
     when(acoth.getExecHash()).thenReturn("0".getBytes());
+    when(acoth.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.LEGACY);
 
     TxHash txHash = new TxHash("key".getBytes());
     AffectedTransaction affectedTransaction = mock(AffectedTransaction.class);
@@ -117,7 +116,11 @@ public class EnclaveApplicationTest {
 
     EncodedPayload result =
         restfulEnclaveClient.encryptPayload(
-            message, senderPublicKey, recipientPublicKeys, privacyMetaData);
+            message,
+            senderPublicKey,
+            recipientPublicKeys,
+            privacyMetaData,
+            EncodedPayloadCodec.LEGACY);
 
     assertThat(result.getSenderKey()).isNotNull().isEqualTo(pay.getSenderKey());
 
@@ -137,7 +140,11 @@ public class EnclaveApplicationTest {
 
     verify(enclave)
         .encryptPayload(
-            any(byte[].class), any(PublicKey.class), anyList(), any(PrivacyMetadata.class));
+            any(byte[].class),
+            any(PublicKey.class),
+            anyList(),
+            any(PrivacyMetadata.class),
+            any(EncodedPayloadCodec.class));
   }
 
   @Test

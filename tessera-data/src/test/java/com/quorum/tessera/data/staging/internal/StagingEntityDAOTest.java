@@ -8,6 +8,7 @@ import com.quorum.tessera.data.Utils;
 import com.quorum.tessera.data.staging.StagingAffectedTransaction;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import jakarta.persistence.*;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -236,6 +237,7 @@ public class StagingEntityDAOTest {
     final StagingTransaction stagingTransaction = new StagingTransaction();
     stagingTransaction.setHash(txHash);
     stagingTransaction.setPrivacyMode(PrivacyMode.STANDARD_PRIVATE);
+    stagingTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     final StagingAffectedTransaction affected1 = new StagingAffectedTransaction();
     affected1.setSourceTransaction(stagingTransaction);
@@ -275,6 +277,7 @@ public class StagingEntityDAOTest {
     final StagingTransaction stTransaction1 = new StagingTransaction();
     stTransaction1.setId(1L);
     stTransaction1.setHash(txnHash1);
+    stTransaction1.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     entityManager.persist(stTransaction1);
 
@@ -283,6 +286,7 @@ public class StagingEntityDAOTest {
     final StagingTransaction stTransaction2a = new StagingTransaction();
     stTransaction2a.setId(21L);
     stTransaction2a.setHash(txnHash2);
+    stTransaction2a.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     StagingAffectedTransaction stAffectedContractTransaction21a = new StagingAffectedTransaction();
     stAffectedContractTransaction21a.setHash(txnHash1);
@@ -297,6 +301,7 @@ public class StagingEntityDAOTest {
     final StagingTransaction stTransaction2b = new StagingTransaction();
     stTransaction2b.setId(22L);
     stTransaction2b.setHash(txnHash2);
+    stTransaction2b.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     StagingAffectedTransaction stAffectedContractTransaction21b = new StagingAffectedTransaction();
     stAffectedContractTransaction21b.setHash(txnHash1);
@@ -315,6 +320,7 @@ public class StagingEntityDAOTest {
     final StagingTransaction stTransaction4 = new StagingTransaction();
     stTransaction4.setId(4L);
     stTransaction4.setHash(txnHash4);
+    stTransaction4.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     StagingAffectedTransaction stAffectedContractTransaction43 = new StagingAffectedTransaction();
     stAffectedContractTransaction43.setHash(txnHash3);
@@ -327,6 +333,7 @@ public class StagingEntityDAOTest {
     final StagingTransaction stTransaction3 = new StagingTransaction();
     stTransaction3.setHash(txnHash3);
     stTransaction3.setId(3L);
+    stTransaction3.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     StagingAffectedTransaction stAffectedContractTransaction31 = new StagingAffectedTransaction();
     stAffectedContractTransaction31.setHash(txnHash1);
@@ -343,6 +350,7 @@ public class StagingEntityDAOTest {
     final StagingTransaction stTransaction5 = new StagingTransaction();
     stTransaction5.setHash(txnHash5);
     stTransaction5.setId(5L);
+    stTransaction5.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     StagingAffectedTransaction stAffectedContractTransaction56 = new StagingAffectedTransaction();
     stAffectedContractTransaction56.setHash(txnHash6);
@@ -357,6 +365,7 @@ public class StagingEntityDAOTest {
     final StagingTransaction stTransaction7 = new StagingTransaction();
     stTransaction7.setHash(txnHash7);
     stTransaction7.setId(7L);
+    stTransaction7.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     StagingAffectedTransaction stAffectedContractTransaction71 = new StagingAffectedTransaction();
     stAffectedContractTransaction71.setHash(txnHash1);

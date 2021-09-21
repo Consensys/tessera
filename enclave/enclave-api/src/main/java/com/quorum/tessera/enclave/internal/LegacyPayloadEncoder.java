@@ -1,14 +1,20 @@
-package com.quorum.tessera.enclave;
+package com.quorum.tessera.enclave.internal;
 
 import static java.util.Collections.*;
 import static java.util.stream.Collectors.toList;
 
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
+public class LegacyPayloadEncoder implements PayloadEncoder, BinaryEncoder {
+
+  @Override
+  public EncodedPayloadCodec encodedPayloadCodec() {
+    return EncodedPayloadCodec.LEGACY;
+  }
 
   @Override
   public byte[] encode(final EncodedPayload payload) {
@@ -124,7 +130,8 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
     final byte[] recipientNonce = new byte[Math.toIntExact(recipientNonceSize)];
     buffer.get(recipientNonce);
 
-    EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
+    EncodedPayload.Builder payloadBuilder =
+        EncodedPayload.Builder.create().withEncodedPayloadCodec(encodedPayloadCodec());
 
     payloadBuilder
         .withSenderKey(PublicKey.from(senderKey))
@@ -266,7 +273,8 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
             .withPrivacyMode(payload.getPrivacyMode())
             .withAffectedContractTransactions(affectedTxnMap)
             .withExecHash(payload.getExecHash())
-            .withMandatoryRecipients(payload.getMandatoryRecipients());
+            .withMandatoryRecipients(payload.getMandatoryRecipients())
+            .withEncodedPayloadCodec(payload.getEncodedPayloadCodec());
     payload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
 
     return builder.build();

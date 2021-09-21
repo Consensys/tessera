@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -31,6 +32,7 @@ public class SendRequestTest {
             .withExecHash(execHash)
             .withAffectedContractTransactions(Set.of(affectedTransaction))
             .withPrivacyGroupId(groupId)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
             .build();
 
     assertThat(sendRequest).isNotNull();
@@ -40,7 +42,7 @@ public class SendRequestTest {
     assertThat(sendRequest.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
     assertThat(sendRequest.getExecHash()).containsExactly(execHash);
     assertThat(sendRequest.getAffectedContractTransactions()).containsExactly(affectedTransaction);
-
+    assertThat(sendRequest.getEncodedPayloadCodec()).isSameAs(EncodedPayloadCodec.UNSUPPORTED);
     assertThat(sendRequest.getPrivacyGroupId()).isPresent().get().isSameAs(groupId);
   }
 
@@ -63,7 +65,11 @@ public class SendRequestTest {
 
     List<PublicKey> recipients = List.of(mock(PublicKey.class));
 
-    SendRequest.Builder.create().withPayload(payload).withRecipients(recipients).build();
+    SendRequest.Builder.create()
+        .withPayload(payload)
+        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
+        .withRecipients(recipients)
+        .build();
   }
 
   @Test(expected = NullPointerException.class)
@@ -87,6 +93,7 @@ public class SendRequestTest {
         .withAffectedContractTransactions(Collections.emptySet())
         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
         .withExecHash(new byte[0])
+        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
         .build();
   }
 
@@ -106,6 +113,7 @@ public class SendRequestTest {
             .withMandatoryRecipients(Set.of(PublicKey.from("key".getBytes())))
             .withAffectedContractTransactions(Set.of(affectedTransaction))
             .withPrivacyGroupId(groupId)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
             .build();
 
     assertThat(sendRequest).isNotNull();
@@ -117,6 +125,7 @@ public class SendRequestTest {
     assertThat(sendRequest.getMandatoryRecipients())
         .containsExactly(PublicKey.from("key".getBytes()));
     assertThat(sendRequest.getPrivacyGroupId()).isPresent().get().isSameAs(groupId);
+    assertThat(sendRequest.getEncodedPayloadCodec()).isSameAs(EncodedPayloadCodec.UNSUPPORTED);
   }
 
   @Test(expected = RuntimeException.class)
@@ -130,6 +139,7 @@ public class SendRequestTest {
         .withRecipients(recipients)
         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
         .withMandatoryRecipients(Set.of(PublicKey.from("key".getBytes())))
+        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
         .build();
   }
 
@@ -143,6 +153,7 @@ public class SendRequestTest {
         .withSender(sender)
         .withRecipients(recipients)
         .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
         .build();
   }
 }

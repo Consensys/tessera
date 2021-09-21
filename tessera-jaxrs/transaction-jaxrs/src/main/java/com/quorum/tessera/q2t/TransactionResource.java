@@ -6,6 +6,7 @@ import com.quorum.tessera.api.*;
 import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -48,6 +49,8 @@ import org.slf4j.LoggerFactory;
 public class TransactionResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
+
+  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
 
   private final TransactionManager transactionManager;
 
@@ -108,6 +111,7 @@ public class TransactionResource {
 
     final com.quorum.tessera.transaction.SendRequest.Builder requestBuilder =
         com.quorum.tessera.transaction.SendRequest.Builder.create()
+            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withRecipients(recipientList)
             .withSender(sender)
             .withPayload(sendRequest.getPayload())
@@ -174,6 +178,7 @@ public class TransactionResource {
 
     final com.quorum.tessera.transaction.SendSignedRequest request =
         com.quorum.tessera.transaction.SendSignedRequest.Builder.create()
+            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withRecipients(recipients)
             .withSignedData(signedTransaction)
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
@@ -244,6 +249,7 @@ public class TransactionResource {
 
     final com.quorum.tessera.transaction.SendSignedRequest.Builder requestBuilder =
         com.quorum.tessera.transaction.SendSignedRequest.Builder.create()
+            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withSignedData(sendSignedRequest.getHash())
             .withRecipients(recipients)
             .withPrivacyMode(privacyMode)
@@ -333,6 +339,7 @@ public class TransactionResource {
 
     final com.quorum.tessera.transaction.SendRequest request =
         com.quorum.tessera.transaction.SendRequest.Builder.create()
+            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withSender(senderKey)
             .withRecipients(recipients)
             .withPayload(payload)

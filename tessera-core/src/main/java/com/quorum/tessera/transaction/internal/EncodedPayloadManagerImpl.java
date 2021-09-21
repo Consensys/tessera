@@ -68,7 +68,11 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
     request.getPrivacyGroupId().ifPresent(metaDataBuilder::withPrivacyGroupId);
 
     return enclave.encryptPayload(
-        request.getPayload(), senderPublicKey, recipientListNoDuplicate, metaDataBuilder.build());
+        request.getPayload(),
+        senderPublicKey,
+        recipientListNoDuplicate,
+        metaDataBuilder.build(),
+        request.getEncodedPayloadCodec());
   }
 
   @Override

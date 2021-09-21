@@ -2,6 +2,7 @@ package com.quorum.tessera.p2p.recovery;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import java.util.Arrays;
 import org.junit.Test;
 
@@ -17,7 +18,8 @@ public class PushBatchRequestTest {
   public void createPopulated() {
     byte[] encodedPayload = "HELLO".getBytes();
 
-    PushBatchRequest request = new PushBatchRequest(Arrays.asList(encodedPayload));
+    PushBatchRequest request =
+        new PushBatchRequest(Arrays.asList(encodedPayload), EncodedPayloadCodec.UNSUPPORTED.name());
 
     assertThat(request.getEncodedPayloads()).containsExactly(encodedPayload);
   }

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.PayloadEncoderImpl;
+import com.quorum.tessera.enclave.internal.LegacyPayloadEncoder;
 import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.test.Party;
 import com.quorum.tessera.test.PartyHelper;
@@ -22,7 +22,7 @@ public class ResendIndividualIT {
 
   private static final String RESEND_PATH = "/resend";
 
-  private static final PayloadEncoder ENCODER = new PayloadEncoderImpl();
+  private static final PayloadEncoder ENCODER = new LegacyPayloadEncoder();
 
   private String hash;
 

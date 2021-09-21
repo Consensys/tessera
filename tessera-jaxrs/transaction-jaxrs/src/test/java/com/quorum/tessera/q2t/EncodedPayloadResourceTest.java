@@ -11,6 +11,7 @@ import com.quorum.tessera.api.PayloadEncryptResponse;
 import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.EncodedPayloadManager;
 import com.quorum.tessera.transaction.ReceiveResponse;
@@ -60,19 +61,29 @@ public class EncodedPayloadResourceTest {
         PublicKey.from(Base64.getDecoder().decode("oNspPPgszVUFw0qmGFfWwh1uxVUXgvBxleXORHj07g8="));
     when(transactionManager.defaultPublicKey()).thenReturn(sender);
 
-    final EncodedPayload samplePayload =
-        EncodedPayload.Builder.create()
-            .withSenderKey(sender)
-            .withRecipientKeys(List.of(PublicKey.from(Base64.getDecoder().decode(base64Key))))
-            .withRecipientBoxes(List.of("boxOne".getBytes()))
-            .withRecipientNonce("recipientNonce".getBytes())
-            .withCipherText("testPayload".getBytes())
-            .withCipherTextNonce("cipherTextNonce".getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .withAffectedContractTransactions(
-                Map.of(TxHash.from("tx1".getBytes()), "tx1val".getBytes()))
-            .withExecHash(new byte[0])
-            .build();
+    final RecipientBox recipientBox = mock(RecipientBox.class);
+    when(recipientBox.getData()).thenReturn("boxOne".getBytes());
+
+    final EncodedPayload samplePayload = mock(EncodedPayload.class);
+    when(samplePayload.getSenderKey()).thenReturn(sender);
+    when(samplePayload.getRecipientKeys())
+        .thenReturn(List.of(PublicKey.from(Base64.getDecoder().decode(base64Key))));
+    when(samplePayload.getRecipientBoxes()).thenReturn(List.of(recipientBox));
+    when(samplePayload.getAffectedContractTransactions())
+        .thenReturn(Map.of(TxHash.from("tx1".getBytes()), SecurityHash.from("tx1val".getBytes())));
+    when(samplePayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+    when(samplePayload.getExecHash()).thenReturn(new byte[0]);
+
+    Nonce recipientNonce = mock(Nonce.class);
+    when(recipientNonce.getNonceBytes()).thenReturn("recipientNonce".getBytes());
+
+    when(samplePayload.getRecipientNonce()).thenReturn(recipientNonce);
+
+    Nonce cipherTextNonce = mock(Nonce.class);
+    when(cipherTextNonce.getNonceBytes()).thenReturn("cipherTextNonce".getBytes());
+
+    when(samplePayload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+    when(samplePayload.getCipherText()).thenReturn("testPayload".getBytes());
 
     when(encodedPayloadManager.create(any(com.quorum.tessera.transaction.SendRequest.class)))
         .thenReturn(samplePayload);
@@ -180,19 +191,45 @@ public class EncodedPayloadResourceTest {
         PublicKey.from(Base64.getDecoder().decode("oNspPPgszVUFw0qmGFfWwh1uxVUXgvBxleXORHj07g8="));
     when(transactionManager.defaultPublicKey()).thenReturn(sender);
 
-    final EncodedPayload samplePayload =
-        EncodedPayload.Builder.create()
-            .withSenderKey(sender)
-            .withRecipientKeys(List.of(PublicKey.from(Base64.getDecoder().decode(base64Key))))
-            .withRecipientBoxes(List.of("boxOne".getBytes()))
-            .withRecipientNonce("recipientNonce".getBytes())
-            .withCipherText("testPayload".getBytes())
-            .withCipherTextNonce("cipherTextNonce".getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .withAffectedContractTransactions(
-                Map.of(TxHash.from("tx1".getBytes()), "tx1val".getBytes()))
-            .withExecHash(new byte[0])
-            .build();
+    final RecipientBox recipientBox = mock(RecipientBox.class);
+    when(recipientBox.getData()).thenReturn("boxOne".getBytes());
+
+    final EncodedPayload samplePayload = mock(EncodedPayload.class);
+    when(samplePayload.getSenderKey()).thenReturn(sender);
+    when(samplePayload.getRecipientKeys())
+        .thenReturn(List.of(PublicKey.from(Base64.getDecoder().decode(base64Key))));
+    when(samplePayload.getRecipientBoxes()).thenReturn(List.of(recipientBox));
+    when(samplePayload.getAffectedContractTransactions())
+        .thenReturn(Map.of(TxHash.from("tx1".getBytes()), SecurityHash.from("tx1val".getBytes())));
+    when(samplePayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+    when(samplePayload.getExecHash()).thenReturn(new byte[0]);
+
+    Nonce recipientNonce = mock(Nonce.class);
+    when(recipientNonce.getNonceBytes()).thenReturn("recipientNonce".getBytes());
+
+    when(samplePayload.getRecipientNonce()).thenReturn(recipientNonce);
+
+    Nonce cipherTextNonce = mock(Nonce.class);
+    when(cipherTextNonce.getNonceBytes()).thenReturn("cipherTextNonce".getBytes());
+
+    when(samplePayload.getCipherTextNonce()).thenReturn(cipherTextNonce);
+    when(samplePayload.getCipherText()).thenReturn("testPayload".getBytes());
+
+    /*
+        final EncodedPayload samplePayload =
+            EncodedPayload.Builder.create()
+                .withSenderKey(sender)
+                .withRecipientKeys(List.of(PublicKey.from(Base64.getDecoder().decode(base64Key))))
+                .withRecipientBoxes(List.of("boxOne".getBytes()))
+                .withRecipientNonce("recipientNonce".getBytes())
+                .withCipherText("testPayload".getBytes())
+                .withCipherTextNonce("cipherTextNonce".getBytes())
+                .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
+                .withAffectedContractTransactions(
+                    Map.of(TxHash.from("tx1".getBytes()), "tx1val".getBytes()))
+                .withExecHash(new byte[0])
+                .build();
+    */
 
     when(encodedPayloadManager.create(any(com.quorum.tessera.transaction.SendRequest.class)))
         .thenReturn(samplePayload);

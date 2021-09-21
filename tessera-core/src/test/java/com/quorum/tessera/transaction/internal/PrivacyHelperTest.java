@@ -2,6 +2,7 @@ package com.quorum.tessera.transaction.internal;
 
 import static java.util.Collections.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyCollection;
 import static org.mockito.Mockito.*;
 
@@ -498,16 +499,14 @@ public class PrivacyHelperTest {
     final TxHash txHash = TxHash.from("Hash1".getBytes());
     TxHash invalid = TxHash.from("InvalidHash".getBytes());
 
-    Map<TxHash, byte[]> affected = new HashMap<>();
-    affected.put(TxHash.from("Hash1".getBytes()), "secHash1".getBytes());
-    affected.put(invalid, "secHash2".getBytes());
+    Map<TxHash, SecurityHash> affected = new HashMap<>();
+    affected.put(TxHash.from("Hash1".getBytes()), SecurityHash.from("secHash1".getBytes()));
+    affected.put(invalid, SecurityHash.from("secHash2".getBytes()));
 
-    EncodedPayload payload =
-        EncodedPayload.Builder.create()
-            .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-            .withAffectedContractTransactions(affected)
-            .build();
-
+    EncodedPayload payload = mock(EncodedPayload.class);
+    when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
+    when(payload.getAffectedContractTransactions()).thenReturn(affected);
+    when(payload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
     assertThat(payload.getAffectedContractTransactions()).hasSize(2);
 
     Set<TxHash> invalidHashes = Set.of(invalid);
@@ -516,6 +515,7 @@ public class PrivacyHelperTest {
         privacyHelper.sanitisePrivacyPayload(txHash, payload, invalidHashes);
 
     assertThat(updatedPayload.getAffectedContractTransactions()).hasSize(1);
+    assertThat(updatedPayload.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.UNSUPPORTED);
   }
 
   @Test

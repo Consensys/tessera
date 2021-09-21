@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
@@ -44,6 +45,7 @@ public class EncodedPayloadBuilderTest {
             .withAffectedContractTransactions(affectedContractTransactionsRaw)
             .withExecHash(execHash)
             .withRecipientKey(recipientKey)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     assertThat(sample.getSenderKey()).isEqualTo(senderKey);
@@ -71,7 +73,10 @@ public class EncodedPayloadBuilderTest {
   @Test
   public void withNewKeysReplacedOld() {
     final EncodedPayload sample =
-        EncodedPayload.Builder.create().withRecipientKey(recipientKey).build();
+        EncodedPayload.Builder.create()
+            .withRecipientKey(recipientKey)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
+            .build();
 
     assertThat(sample.getRecipientKeys()).containsExactly(recipientKey);
 
@@ -94,6 +99,7 @@ public class EncodedPayloadBuilderTest {
             .withRecipientKeys(List.of(recipientKey))
             .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
             .withExecHash(execHash)
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     EncodedPayload result = EncodedPayload.Builder.from(sample).build();
@@ -118,6 +124,7 @@ public class EncodedPayloadBuilderTest {
             .withRecipientKeys(List.of(recipientKey))
             .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
             .withMandatoryRecipients(Set.of(recipientKey))
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     EncodedPayload result = EncodedPayload.Builder.from(sample).build();
@@ -139,6 +146,7 @@ public class EncodedPayloadBuilderTest {
             .withExecHash(execHash)
             .withRecipientKey(recipientKey)
             .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
+            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final EncodedPayload result = EncodedPayload.Builder.from(sample).build();
@@ -208,5 +216,60 @@ public class EncodedPayloadBuilderTest {
         .withRecipientNonce(recipientNonce)
         .withPrivacyFlag(2)
         .build();
+  }
+
+  @Test
+  public void encodedPayloadCodecRequired() {
+    try {
+      EncodedPayload.Builder.create().build();
+      failBecauseExceptionWasNotThrown(NullPointerException.class);
+    } catch (NullPointerException ex) {
+      assertThat(ex).hasMessage("EncodedPayloadCodec is required");
+    }
+  }
+
+  @Test
+  public void mandatoryRecipientsRequired() {
+    try {
+      EncodedPayload.Builder.create()
+          .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
+          .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
+          .withMandatoryRecipients(Set.of())
+          .build();
+      failBecauseExceptionWasNotThrown(RuntimeException.class);
+    } catch (RuntimeException ex) {
+      assertThat(ex)
+          .hasMessage(
+              "Mandatory recipients data only applicable for Mandatory Recipients privacy mode. "
+                  + "In case no mandatory recipient is required, consider using Party Protection privacy mode");
+    }
+  }
+
+  @Test
+  public void executionHashRequiredForPrivateStateValidationEmpty() {
+    try {
+      EncodedPayload.Builder.create()
+          .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
+          .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+          .withExecHash(new byte[0])
+          .build();
+      failBecauseExceptionWasNotThrown(RuntimeException.class);
+    } catch (RuntimeException ex) {
+      assertThat(ex).hasMessage("ExecutionHash data is invalid");
+    }
+  }
+
+  @Test
+  public void executionHashRequiredForPrivateStateValidationNull() {
+    try {
+      EncodedPayload.Builder.create()
+          .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
+          .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+          .withExecHash(null)
+          .build();
+      failBecauseExceptionWasNotThrown(RuntimeException.class);
+    } catch (RuntimeException ex) {
+      assertThat(ex).hasMessage("ExecutionHash data is invalid");
+    }
   }
 }

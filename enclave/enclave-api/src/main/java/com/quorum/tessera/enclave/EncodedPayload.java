@@ -30,6 +30,8 @@ public class EncodedPayload {
 
   private final Set<PublicKey> mandatoryRecipients;
 
+  private final EncodedPayloadCodec encodedPayloadCodec;
+
   private EncodedPayload(
       final PublicKey senderKey,
       final byte[] cipherText,
@@ -41,7 +43,8 @@ public class EncodedPayload {
       final Map<TxHash, SecurityHash> affectedContractTransactions,
       final byte[] execHash,
       final PrivacyGroup.Id privacyGroupId,
-      final Set<PublicKey> mandatoryRecipients) {
+      final Set<PublicKey> mandatoryRecipients,
+      final EncodedPayloadCodec encodedPayloadCodec) {
     this.senderKey = senderKey;
     this.cipherText = cipherText;
     this.cipherTextNonce = cipherTextNonce;
@@ -53,6 +56,7 @@ public class EncodedPayload {
     this.execHash = execHash;
     this.privacyGroupId = privacyGroupId;
     this.mandatoryRecipients = mandatoryRecipients;
+    this.encodedPayloadCodec = encodedPayloadCodec;
   }
 
   public PublicKey getSenderKey() {
@@ -99,6 +103,10 @@ public class EncodedPayload {
     return mandatoryRecipients;
   }
 
+  public EncodedPayloadCodec getEncodedPayloadCodec() {
+    return encodedPayloadCodec;
+  }
+
   public static class Builder {
 
     private Builder() {}
@@ -127,12 +135,15 @@ public class EncodedPayload {
               .withPrivacyMode(encodedPayload.getPrivacyMode())
               .withAffectedContractTransactions(affectedContractTransactionMap)
               .withMandatoryRecipients(encodedPayload.getMandatoryRecipients())
-              .withExecHash(encodedPayload.getExecHash());
+              .withExecHash(encodedPayload.getExecHash())
+              .withEncodedPayloadCodec(encodedPayload.getEncodedPayloadCodec());
 
       encodedPayload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
 
       return builder;
     }
+
+    private EncodedPayloadCodec encodedPayloadCodec;
 
     private PublicKey senderKey;
 
@@ -211,6 +222,8 @@ public class EncodedPayload {
       return this;
     }
 
+    // Use the typed withPrivacyMode
+    @Deprecated
     public Builder withPrivacyFlag(final int privacyFlag) {
       return this.withPrivacyMode(PrivacyMode.fromFlag(privacyFlag));
     }
@@ -243,7 +256,14 @@ public class EncodedPayload {
       return this;
     }
 
+    public Builder withEncodedPayloadCodec(EncodedPayloadCodec encodedPayloadCodec) {
+      this.encodedPayloadCodec = encodedPayloadCodec;
+      return this;
+    }
+
     public EncodedPayload build() {
+
+      Objects.requireNonNull(encodedPayloadCodec, "EncodedPayloadCodec is required");
 
       Map<TxHash, SecurityHash> affectedTransactions =
           affectedContractTransactions.entrySet().stream()
@@ -254,7 +274,8 @@ public class EncodedPayload {
       List<RecipientBox> recipientBoxes =
           this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
 
-      if ((privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) == (execHash.length == 0)) {
+      if ((privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION)
+          == (Objects.nonNull(execHash) && execHash.length == 0)) {
         throw new RuntimeException("ExecutionHash data is invalid");
       }
 
@@ -275,7 +296,8 @@ public class EncodedPayload {
           affectedTransactions,
           execHash,
           privacyGroupId,
-          mandatoryRecipients);
+          mandatoryRecipients,
+          encodedPayloadCodec);
     }
   }
 
@@ -293,7 +315,8 @@ public class EncodedPayload {
         && privacyMode == that.privacyMode
         && Arrays.equals(execHash, that.execHash)
         && Objects.equals(privacyGroupId, that.privacyGroupId)
-        && Objects.equals(mandatoryRecipients, that.mandatoryRecipients);
+        && Objects.equals(mandatoryRecipients, that.mandatoryRecipients)
+        && encodedPayloadCodec == that.encodedPayloadCodec;
   }
 
   @Override
@@ -307,7 +330,8 @@ public class EncodedPayload {
             recipientKeys,
             privacyMode,
             privacyGroupId,
-            mandatoryRecipients);
+            mandatoryRecipients,
+            encodedPayloadCodec);
     result = 31 * result + Arrays.hashCode(cipherText);
     result = 31 * result + Arrays.hashCode(execHash);
     return result;

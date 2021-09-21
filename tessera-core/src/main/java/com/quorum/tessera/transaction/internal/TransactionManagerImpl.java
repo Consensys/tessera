@@ -121,7 +121,11 @@ public class TransactionManagerImpl implements TransactionManager {
 
     final EncodedPayload payload =
         enclave.encryptPayload(
-            raw, senderPublicKey, recipientListNoDuplicate, metadataBuilder.build());
+            raw,
+            senderPublicKey,
+            recipientListNoDuplicate,
+            metadataBuilder.build(),
+            sendRequest.getEncodedPayloadCodec());
 
     final MessageHash transactionHash =
         Optional.of(payload)
@@ -162,9 +166,6 @@ public class TransactionManagerImpl implements TransactionManager {
   @Override
   public SendResponse sendSignedTransaction(final SendSignedRequest sendRequest) {
 
-    final List<PublicKey> recipientList = new ArrayList<>(sendRequest.getRecipients());
-    recipientList.addAll(enclave.getForwardingKeys());
-
     final MessageHash messageHash = new MessageHash(sendRequest.getSignedData());
 
     EncryptedRawTransaction encryptedRawTransaction =
@@ -175,7 +176,12 @@ public class TransactionManagerImpl implements TransactionManager {
                     new TransactionNotFoundException(
                         "Raw Transaction with hash " + messageHash + " was not found"));
 
-    recipientList.add(PublicKey.from(encryptedRawTransaction.getSender()));
+    final List<PublicKey> recipientList =
+        Stream.concat(
+                Stream.concat(
+                    sendRequest.getRecipients().stream(), enclave.getForwardingKeys().stream()),
+                Stream.of(PublicKey.from(encryptedRawTransaction.getSender())))
+            .collect(Collectors.toUnmodifiableList());
 
     final PrivacyMode privacyMode = sendRequest.getPrivacyMode();
 
@@ -206,10 +212,13 @@ public class TransactionManagerImpl implements TransactionManager {
         enclave.encryptPayload(
             encryptedRawTransaction.toRawTransaction(),
             recipientListNoDuplicate,
-            privacyMetaDataBuilder.build());
+            privacyMetaDataBuilder.build(),
+            sendRequest.getEncodedPayloadCodec());
 
-    final EncryptedTransaction newTransaction =
-        new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
+    final EncryptedTransaction newTransaction = new EncryptedTransaction();
+
+    newTransaction.setPayload(payload);
+    newTransaction.setHash(messageHash);
 
     final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
     final Set<PublicKey> managedParties =
@@ -284,7 +293,7 @@ public class TransactionManagerImpl implements TransactionManager {
     }
 
     final EncryptedTransaction encryptedTransaction = tx.get();
-    final EncodedPayload existing = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
+    final EncodedPayload existing = encryptedTransaction.getPayload();
 
     // check all the other bits of the payload match
     final boolean txMatches =
@@ -308,6 +317,7 @@ public class TransactionManagerImpl implements TransactionManager {
             .allMatch(p -> p);
 
     if (!txMatches) {
+      // FIXME: Use specialised exception
       throw new RuntimeException("Invalid existing transaction");
     }
 
@@ -411,8 +421,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     final EncodedPayload payload =
         Optional.of(encryptedTransaction)
-            .map(EncryptedTransaction::getEncodedPayload)
-            .map(payloadEncoder::decode)
+            .map(EncryptedTransaction::getPayload)
             .orElseThrow(
                 () -> new IllegalStateException("Unable to decode previously encoded payload"));
 
@@ -488,7 +497,8 @@ public class TransactionManagerImpl implements TransactionManager {
             rawTransaction.getEncryptedPayload(),
             rawTransaction.getEncryptedKey(),
             rawTransaction.getNonce().getNonceBytes(),
-            rawTransaction.getFrom().getKeyBytes());
+            rawTransaction.getFrom().getKeyBytes(),
+            EncodedPayloadCodec.LEGACY);
 
     encryptedRawTransactionDAO.save(encryptedRawTransaction);
 

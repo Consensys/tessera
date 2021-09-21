@@ -9,10 +9,7 @@ import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.enclave.Enclave;
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.recovery.resend.ResendRequest;
 import com.quorum.tessera.recovery.resend.ResendResponse;
@@ -82,8 +79,9 @@ public class LegacyResendManagerImplTest {
 
   @Test
   public void individualNonStandardPrivateTxFails() {
-    final EncodedPayload nonSPPayload =
-        EncodedPayload.Builder.create().withPrivacyMode(PrivacyMode.PARTY_PROTECTION).build();
+    final EncodedPayload nonSPPayload = mock(EncodedPayload.class);
+    when(nonSPPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
+
     final EncryptedTransaction databaseTx = new EncryptedTransaction();
     databaseTx.setEncodedPayload(new byte[0]);
 
@@ -114,8 +112,9 @@ public class LegacyResendManagerImplTest {
     final MessageHash txHash = new MessageHash("sample-hash".getBytes());
     final PublicKey targetResendKey = PublicKey.from("target".getBytes());
 
-    final EncodedPayload nonSPPayload =
-        EncodedPayload.Builder.create().withPrivacyMode(PrivacyMode.STANDARD_PRIVATE).build();
+    final EncodedPayload nonSPPayload = mock(EncodedPayload.class);
+    when(nonSPPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+
     final EncryptedTransaction databaseTx = new EncryptedTransaction();
     databaseTx.setEncodedPayload(new byte[0]);
 
@@ -146,12 +145,17 @@ public class LegacyResendManagerImplTest {
     final PublicKey targetResendKey = PublicKey.from("target".getBytes());
     final PublicKey localRecipientKey = PublicKey.from("local-recipient".getBytes());
 
-    final EncodedPayload nonSPPayload =
-        EncodedPayload.Builder.create()
-            .withSenderKey(targetResendKey)
-            .withRecipientBox("testBox".getBytes())
-            .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
-            .build();
+    EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
+
+    final EncodedPayload nonSPPayload = mock(EncodedPayload.class);
+    when(nonSPPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
+    when(nonSPPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
+    when(nonSPPayload.getSenderKey()).thenReturn(targetResendKey);
+
+    RecipientBox recipientBox = mock(RecipientBox.class);
+    when(recipientBox.getData()).thenReturn("testBox".getBytes());
+    when(nonSPPayload.getRecipientBoxes()).thenReturn(List.of(recipientBox));
+
     final EncryptedTransaction databaseTx = new EncryptedTransaction();
     databaseTx.setEncodedPayload(new byte[0]);
 
@@ -169,10 +173,9 @@ public class LegacyResendManagerImplTest {
 
     final ResendResponse response = resendManager.resend(request);
 
-    final EncodedPayload expected =
-        EncodedPayload.Builder.from(nonSPPayload).withRecipientKey(localRecipientKey).build();
     assertThat(response).isNotNull();
-    assertThat(response.getPayload()).isEqualToComparingFieldByFieldRecursively(expected);
+    EncodedPayload resultingEncodedPayload = response.getPayload();
+    assertThat(resultingEncodedPayload.getRecipientKeys()).containsExactly(localRecipientKey);
 
     verify(dao).retrieveByHash(txHash);
     verify(encoder).decode(any(byte[].class));

@@ -61,7 +61,7 @@ allprojects {
 
         testImplementation "com.github.jknack:handlebars:4.2.0"
 
-        testImplementation "com.openpojo:openpojo:0.8.13"
+        testImplementation "com.openpojo:openpojo:0.9.1"
 
         testImplementation "com.github.stefanbirkner:system-rules:1.19.0"
 
