@@ -51,6 +51,7 @@ public class EncryptedTransactionDAOTest {
 
   @After
   public void onTearDown() {
+    System.clearProperty("disable.jpa.listeners");
     EntityManager entityManager = entityManagerFactory.createEntityManager();
 
     entityManager.getTransaction().begin();
