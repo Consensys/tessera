@@ -32,7 +32,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +58,12 @@ public class RecoverIT {
 
   private DBType dbType;
 
+  private boolean autoCreateTables;
+
+  private DatabaseServer dbServer;
+
   public RecoverIT(TestConfig testConfig) {
+    this.autoCreateTables = testConfig.autoCreateTables;
     this.dbType = testConfig.dbType;
   }
 
@@ -74,6 +78,7 @@ public class RecoverIT {
             .with(EncryptorType.NACL)
             .with(ClientMode.TESSERA)
             .prefix(RecoverIT.class.getSimpleName().toLowerCase())
+            .withAutoCreateTables(autoCreateTables)
             .createAndSetupContext();
 
     partyHelper = PartyHelper.create();
@@ -85,11 +90,14 @@ public class RecoverIT {
             .collect(Collectors.toList());
 
     String nodeId = NodeId.generate(executionContext);
-    DatabaseServer databaseServer = executionContext.getDbType().createDatabaseServer(nodeId);
-    databaseServer.start();
+    dbServer = executionContext.getDbType().createDatabaseServer(nodeId);
+    dbServer.start();
 
     setupDatabase = new SetupDatabase(executionContext);
-    setupDatabase.setUp();
+
+    if (!autoCreateTables) {
+      setupDatabase.setUp();
+    }
 
     this.executors =
         executionContext.getConfigs().stream()
@@ -119,6 +127,7 @@ public class RecoverIT {
     setupDatabase.dropAll();
     ExecutionContext.destroyContext();
     executors.values().forEach(ExecManager::stop);
+    dbServer.stop();
   }
 
   void sendTransactions() {
@@ -163,24 +172,69 @@ public class RecoverIT {
     Collections.shuffle(aliases);
 
     for (NodeAlias nodeAlias : aliases) {
+
+      // Stop node
+      ExecManager execManager = executors.get(nodeAlias);
+      execManager.stop();
+      // Drop database
+      setupDatabase.drop(nodeAlias);
+
+      if (!autoCreateTables) {
+        recoverNodeShouldFail(nodeAlias); // as staging tables not existed
+
+        setupDatabase.setUp(nodeAlias);
+        insertBogusData(nodeAlias);
+
+        recoverNodeShouldFail(nodeAlias); // as staging tables contain data
+
+        setupDatabase.drop(nodeAlias);
+
+        // Let's setup correctly
+        setupDatabase.setUp(nodeAlias);
+      }
+
+      // Should recover successfully
       recoverNode(nodeAlias);
     }
+  }
+
+  private void insertBogusData(NodeAlias nodeAlias) {
+
+    Connection connection = partyHelper.findByAlias(nodeAlias).getDatabaseConnection();
+
+    try (connection) {
+
+      PreparedStatement preparedStatement =
+          connection.prepareStatement(
+              "INSERT INTO ST_TRANSACTION(ID, HASH, PAYLOAD) VALUES (?,?,?)");
+      preparedStatement.setInt(1, 1);
+      preparedStatement.setString(2, Base64.getEncoder().encodeToString("hash".getBytes()));
+      preparedStatement.setBytes(3, "payload".getBytes());
+      try (preparedStatement) {
+        preparedStatement.execute();
+      }
+    } catch (SQLException ex) {
+      throw new UncheckedSQLException(ex);
+    }
+  }
+
+  private void recoverNodeShouldFail(NodeAlias nodeAlias) throws InterruptedException {
+    ExecManager execManager = executors.get(nodeAlias);
+    RecoveryExecManager recoveryExecManager =
+        new RecoveryExecManager(execManager.getConfigDescriptor());
+    Process process = recoveryExecManager.start();
+    int exitCode = process.waitFor();
+    assertThat(exitCode).isEqualTo(2);
+    recoveryExecManager.stop();
   }
 
   private void recoverNode(NodeAlias nodeAlias) throws Exception {
 
     ExecManager execManager = executors.get(nodeAlias);
-    execManager.stop();
-    setupDatabase.drop(nodeAlias);
-    setupDatabase.setUp(nodeAlias);
-
-    assertThat(doCount(nodeAlias)).isZero();
 
     RecoveryExecManager recoveryExecManager =
         new RecoveryExecManager(execManager.getConfigDescriptor());
-
     Process process = recoveryExecManager.start();
-
     int exitCode = process.waitFor();
 
     assertThat(exitCode).describedAs("Exit code should be zero. %s", nodeAlias.name()).isZero();
@@ -285,19 +339,27 @@ public class RecoverIT {
 
   @Parameterized.Parameters(name = "{0}")
   public static List<TestConfig> configs() {
-    return Stream.of(DBType.SQLITE).map(TestConfig::new).collect(Collectors.toUnmodifiableList());
+    return List.of(
+        new TestConfig(DBType.H2, true),
+        new TestConfig(DBType.H2, false),
+        //        new TestConfig(DBType.HSQL, true),
+        //        new TestConfig(DBType.HSQL, false),
+        new TestConfig(DBType.SQLITE, true),
+        new TestConfig(DBType.SQLITE, false));
   }
 
   static class TestConfig {
     DBType dbType;
+    boolean autoCreateTables;
 
-    TestConfig(DBType dbType) {
-      this.dbType = Objects.requireNonNull(dbType);
+    TestConfig(DBType dbType, boolean autoCreateTables) {
+      this.dbType = dbType;
+      this.autoCreateTables = autoCreateTables;
     }
 
     @Override
     public String toString() {
-      return "TestConfig{" + "dbType=" + dbType + '}';
+      return "TestConfig{" + "dbType=" + dbType + ", autoCreateTables=" + autoCreateTables + '}';
     }
   }
 }

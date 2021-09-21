@@ -16,6 +16,7 @@ import com.quorum.tessera.recovery.RecoveryTestCase;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
 import com.quorum.tessera.transaction.TransactionManager;
 import com.quorum.tessera.transaction.exception.PrivacyViolationException;
+import jakarta.persistence.PersistenceException;
 import java.util.List;
 import org.junit.After;
 import org.junit.Before;
@@ -331,6 +332,9 @@ public class RecoveryImplTest extends RecoveryTestCase {
     verify(spy).request();
     verify(spy).stage();
     verify(spy).sync();
+
+    verify(stagingEntityDAO).countAll();
+    verify(stagingEntityDAO).countAllAffected();
   }
 
   @Test
@@ -347,6 +351,9 @@ public class RecoveryImplTest extends RecoveryTestCase {
     verify(spy).request();
     verify(spy).stage();
     verify(spy).sync();
+
+    verify(stagingEntityDAO).countAll();
+    verify(stagingEntityDAO).countAllAffected();
   }
 
   @Test
@@ -363,5 +370,45 @@ public class RecoveryImplTest extends RecoveryTestCase {
     verify(spy).request();
     verify(spy).stage();
     verify(spy).sync();
+
+    verify(stagingEntityDAO).countAll();
+    verify(stagingEntityDAO).countAllAffected();
+  }
+
+  @Test
+  public void testDBStagingTxNotEmpty() {
+
+    final Recovery spy = spy(recovery);
+
+    when(stagingEntityDAO.countAll()).thenReturn(1L);
+
+    assertThat(spy.recover()).isEqualTo(2);
+
+    verify(stagingEntityDAO).countAll();
+  }
+
+  @Test
+  public void testDBStagingAffectedTxNotEmpty() {
+
+    final Recovery spy = spy(recovery);
+
+    when(stagingEntityDAO.countAllAffected()).thenReturn(1L);
+
+    assertThat(spy.recover()).isEqualTo(2);
+
+    verify(stagingEntityDAO).countAll();
+    verify(stagingEntityDAO).countAllAffected();
+  }
+
+  @Test
+  public void testDBTableNotExisted() {
+
+    final Recovery spy = spy(recovery);
+
+    when(stagingEntityDAO.countAll()).thenThrow(new PersistenceException("OUCH"));
+
+    assertThat(spy.recover()).isEqualTo(2);
+
+    verify(stagingEntityDAO).countAll();
   }
 }
