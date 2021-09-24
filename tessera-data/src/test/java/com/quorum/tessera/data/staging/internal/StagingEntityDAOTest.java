@@ -55,6 +55,8 @@ public class StagingEntityDAOTest {
     properties.put(
         "eclipselink.session.customizer", "com.quorum.tessera.eclipselink.AtomicLongSequence");
 
+    properties.put("eclipselink.jpql.validation", "JPA 2.1");
+
     entityManagerFactory = Persistence.createEntityManagerFactory("tessera-recover", properties);
 
     stagingEntityDAO = new StagingEntityDAOImpl(entityManagerFactory);

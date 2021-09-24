@@ -41,7 +41,7 @@ public class EncryptedRawTransactionDAOTest {
     properties.put("eclipselink.logging.parameters", "true");
     properties.put("eclipselink.logging.level.sql", "FINE");
     properties.put("jakarta.persistence.schema-generation.database.action", "drop-and-create");
-
+    properties.put("eclipselink.jpql.validation", "JPA 2.1");
     entityManagerFactory = Persistence.createEntityManagerFactory("tessera", properties);
 
     encryptedRawTransactionDAO = new EncryptedRawTransactionDAOImpl(entityManagerFactory);
