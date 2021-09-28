@@ -49,7 +49,7 @@ public class TransactionManagerImpl implements TransactionManager {
       PrivacyHelper privacyHelper,
       PayloadDigest payloadDigest) {
     this(
-        PayloadEncoder.create(),
+        PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get(),
         encryptedTransactionDAO,
         batchPayloadPublisher,
         enclave,
@@ -134,9 +134,10 @@ public class TransactionManagerImpl implements TransactionManager {
             .map(MessageHash::new)
             .get();
 
-    byte[] payloadData = this.payloadEncoder.encode(payload);
-    final EncryptedTransaction newTransaction =
-        new EncryptedTransaction(transactionHash, payloadData);
+    final EncryptedTransaction newTransaction = new EncryptedTransaction();
+    newTransaction.setHash(transactionHash);
+    newTransaction.setPayload(payload);
+    newTransaction.setEncodedPayloadCodec(sendRequest.getEncodedPayloadCodec());
 
     final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
     final Set<PublicKey> managedParties =
@@ -216,9 +217,9 @@ public class TransactionManagerImpl implements TransactionManager {
             sendRequest.getEncodedPayloadCodec());
 
     final EncryptedTransaction newTransaction = new EncryptedTransaction();
-
     newTransaction.setPayload(payload);
     newTransaction.setHash(messageHash);
+    newTransaction.setEncodedPayloadCodec(payload.getEncodedPayloadCodec());
 
     final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
     final Set<PublicKey> managedParties =
@@ -286,8 +287,13 @@ public class TransactionManagerImpl implements TransactionManager {
         this.encryptedTransactionDAO.retrieveByHash(transactionHash);
     if (tx.isEmpty()) {
       // This is the first time we have seen the payload, so just save it to the database as is
-      this.encryptedTransactionDAO.save(
-          new EncryptedTransaction(transactionHash, payloadEncoder.encode(encodedPayload)));
+      EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+      encryptedTransaction.setHash(transactionHash);
+      encryptedTransaction.setEncodedPayloadCodec(payload.getEncodedPayloadCodec());
+      encryptedTransaction.setPayload(encodedPayload);
+
+      this.encryptedTransactionDAO.save(encryptedTransaction);
+
       LOGGER.debug("Stored new payload with hash {}", transactionHash);
       return transactionHash;
     }
@@ -365,7 +371,8 @@ public class TransactionManagerImpl implements TransactionManager {
       existingPayloadBuilder.withNewRecipientKeys(existingKeys);
     }
 
-    encryptedTransaction.setEncodedPayload(payloadEncoder.encode(existingPayloadBuilder.build()));
+    EncodedPayload existingPayload = existingPayloadBuilder.build();
+    encryptedTransaction.setPayload(existingPayload);
     this.encryptedTransactionDAO.update(encryptedTransaction);
 
     LOGGER.info("Updated existing payload with hash {}", transactionHash);
@@ -491,14 +498,14 @@ public class TransactionManagerImpl implements TransactionManager {
     RawTransaction rawTransaction =
         enclave.encryptRawPayload(storeRequest.getPayload(), storeRequest.getSender());
     MessageHash hash = new MessageHash(payloadDigest.digest(rawTransaction.getEncryptedPayload()));
-    EncryptedRawTransaction encryptedRawTransaction =
-        new EncryptedRawTransaction(
-            hash,
-            rawTransaction.getEncryptedPayload(),
-            rawTransaction.getEncryptedKey(),
-            rawTransaction.getNonce().getNonceBytes(),
-            rawTransaction.getFrom().getKeyBytes(),
-            EncodedPayloadCodec.LEGACY);
+    EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+
+    encryptedRawTransaction.setHash(hash);
+    encryptedRawTransaction.setEncryptedPayload(rawTransaction.getEncryptedPayload());
+    encryptedRawTransaction.setEncodedPayloadCodec(storeRequest.getEncodedPayloadCodec());
+    encryptedRawTransaction.setNonce(rawTransaction.getNonce().getNonceBytes());
+    encryptedRawTransaction.setSender(rawTransaction.getFrom().getKeyBytes());
+    encryptedRawTransaction.setEncryptedKey(rawTransaction.getEncryptedKey());
 
     encryptedRawTransactionDAO.save(encryptedRawTransaction);
 

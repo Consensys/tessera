@@ -114,7 +114,7 @@ public class TransactionManagerTest {
             anyList(),
             any(PrivacyMetadata.class),
             any(EncodedPayloadCodec.class));
-    verify(payloadEncoder).encode(encodedPayload);
+
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
     verify(enclave).getForwardingKeys();
     verify(enclave).getPublicKeys();
@@ -166,7 +166,7 @@ public class TransactionManagerTest {
             anyList(),
             metadataArgCaptor.capture(),
             any(EncodedPayloadCodec.class));
-    verify(payloadEncoder).encode(encodedPayload);
+
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
     verify(enclave).getForwardingKeys();
     verify(enclave).getPublicKeys();
@@ -227,7 +227,7 @@ public class TransactionManagerTest {
             anyList(),
             any(PrivacyMetadata.class),
             any(EncodedPayloadCodec.class));
-    verify(payloadEncoder).encode(encodedPayload);
+
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
     verify(enclave).getForwardingKeys();
     verify(enclave).getPublicKeys();
@@ -276,7 +276,7 @@ public class TransactionManagerTest {
             anyList(),
             any(PrivacyMetadata.class),
             any(EncodedPayloadCodec.class));
-    verify(payloadEncoder).encode(encodedPayload);
+
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
     verify(enclave).getForwardingKeys();
     verify(enclave).getPublicKeys();
@@ -286,20 +286,20 @@ public class TransactionManagerTest {
   public void sendSignedTransaction() {
 
     EncodedPayload payload = mock(EncodedPayload.class);
+    when(payload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
+    when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
 
-    EncryptedRawTransaction encryptedRawTransaction =
-        new EncryptedRawTransaction(
-            new MessageHash("HASH".getBytes()),
-            "ENCRYPTED_PAYLOAD".getBytes(),
-            "ENCRYPTED_KEY".getBytes(),
-            "NONCE".getBytes(),
-            "SENDER".getBytes(),
-            EncodedPayloadCodec.LEGACY);
+    MessageHash messageHash = mock(MessageHash.class);
+    when(messageHash.getHashBytes()).thenReturn("HASH".getBytes());
+
+    EncryptedRawTransaction encryptedRawTransaction = mock(EncryptedRawTransaction.class);
+    when(encryptedRawTransaction.getHash()).thenReturn(messageHash);
+    when(encryptedRawTransaction.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
+
+    when(encryptedRawTransaction.toRawTransaction()).thenReturn(mock(RawTransaction.class));
 
     when(encryptedRawTransactionDAO.retrieveByHash(any(MessageHash.class)))
         .thenReturn(Optional.of(encryptedRawTransaction));
-
-    when(payload.getCipherText()).thenReturn("ENCRYPTED_PAYLOAD".getBytes());
 
     when(enclave.encryptPayload(
             any(RawTransaction.class),
@@ -343,6 +343,7 @@ public class TransactionManagerTest {
   public void sendSignedTransactionWithMandatoryRecipients() {
 
     EncodedPayload payload = mock(EncodedPayload.class);
+    when(payload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
 
     RawTransaction rawTransaction = mock(RawTransaction.class);
     EncryptedRawTransaction encryptedRawTransaction = mock(EncryptedRawTransaction.class);
@@ -398,6 +399,7 @@ public class TransactionManagerTest {
   public void sendSignedTransactionWithCallbackCoverage() {
 
     EncodedPayload payload = mock(EncodedPayload.class);
+    when(payload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
 
     EncryptedRawTransaction encryptedRawTransaction = mock(EncryptedRawTransaction.class);
     when(encryptedRawTransaction.getSender()).thenReturn("SENDER".getBytes());
@@ -471,6 +473,7 @@ public class TransactionManagerTest {
   @Test
   public void sendSignedTransactionWithDuplicateRecipients() {
     EncodedPayload payload = mock(EncodedPayload.class);
+    when(payload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
 
     EncryptedRawTransaction encryptedRawTransaction = mock(EncryptedRawTransaction.class);
     when(encryptedRawTransaction.getSender()).thenReturn("SENDER".getBytes());
@@ -557,7 +560,6 @@ public class TransactionManagerTest {
 
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-    verify(payloadEncoder).encode(payload);
     verify(enclave).getPublicKeys();
     verify(enclave).findInvalidSecurityHashes(any(EncodedPayload.class), anyList());
   }
@@ -622,7 +624,6 @@ public class TransactionManagerTest {
 
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-    verify(payloadEncoder).encode(payload);
     verify(enclave).getPublicKeys();
     verify(enclave).findInvalidSecurityHashes(any(), any());
   }
@@ -796,16 +797,6 @@ public class TransactionManagerTest {
 
     transactionManager.storePayload(payload);
 
-    verify(payloadEncoder).encode(payloadCaptor.capture());
-    EncodedPayload sanitisedPayload = payloadCaptor.getValue();
-
-    // Assert that the invalid ACOTH had been removed
-    assertThat(
-            sanitisedPayload
-                .getAffectedContractTransactions()
-                .get(TxHash.from("invalidHash".getBytes())))
-        .isNull();
-
     verify(encryptedTransactionDAO).findByHashes(any());
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
@@ -932,14 +923,6 @@ public class TransactionManagerTest {
 
     assertThat(response.toString()).isEqualTo("Y3Qx");
 
-    ArgumentCaptor<EncodedPayload> payloadCaptor = ArgumentCaptor.forClass(EncodedPayload.class);
-    verify(payloadEncoder).encode(payloadCaptor.capture());
-
-    EncodedPayload updatedTransaction = payloadCaptor.getValue();
-    assertThat(updatedTransaction.getRecipientKeys()).containsExactly(recipient1, recipient2);
-    assertThat(updatedTransaction.getRecipientBoxes())
-        .containsExactly(RecipientBox.from("recipient_box1".getBytes()));
-
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     verify(encryptedTransactionDAO).update(existingDatabaseEntry);
     verify(enclave).getPublicKeys();
@@ -978,16 +961,6 @@ public class TransactionManagerTest {
     MessageHash response = transactionManager.storePayload(payloadToStore);
 
     assertThat(response.toString()).isEqualTo("Y3Qx");
-
-    ArgumentCaptor<EncodedPayload> payloadCaptor = ArgumentCaptor.forClass(EncodedPayload.class);
-    verify(payloadEncoder).encode(payloadCaptor.capture());
-
-    EncodedPayload updatedTransaction = payloadCaptor.getValue();
-    assertThat(updatedTransaction.getRecipientKeys()).containsExactly(recipient2, recipient1);
-    assertThat(updatedTransaction.getRecipientBoxes())
-        .containsExactly(
-            RecipientBox.from("recipient_box2".getBytes()),
-            RecipientBox.from("recipient_box1".getBytes()));
 
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     verify(encryptedTransactionDAO).update(existingDatabaseEntry);
@@ -1063,16 +1036,6 @@ public class TransactionManagerTest {
     MessageHash response = transactionManager.storePayload(payloadToStore);
 
     assertThat(response.toString()).isEqualTo("Y3Qx");
-
-    ArgumentCaptor<EncodedPayload> payloadCaptor = ArgumentCaptor.forClass(EncodedPayload.class);
-    verify(payloadEncoder).encode(payloadCaptor.capture());
-
-    EncodedPayload updatedTransaction = payloadCaptor.getValue();
-    assertThat(updatedTransaction.getRecipientKeys()).isEmpty();
-    assertThat(updatedTransaction.getRecipientBoxes())
-        .containsExactly(
-            RecipientBox.from("recipient_box2".getBytes()),
-            RecipientBox.from("recipient_box1".getBytes()));
 
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     verify(encryptedTransactionDAO).update(existingDatabaseEntry);

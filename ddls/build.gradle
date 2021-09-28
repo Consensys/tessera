@@ -56,7 +56,7 @@ tasks.register("schemagen") {
   def configs = [
     [
       'database':'h2',
-      'jakarta.persistence.jdbc.url':'jdbc:h2:mem:',
+      'jakarta.persistence.jdbc.url':'jdbc:h2:mem:;MODE=Oracle',
       'jakarta.persistence.jdbc.user':'sa',
       'jakarta.persistence.jdbc.password':''
     ],

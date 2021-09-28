@@ -115,7 +115,7 @@ public class EncodedPayload {
       return new Builder();
     }
 
-    public static Builder from(EncodedPayload encodedPayload) {
+    public static Builder from(final EncodedPayload encodedPayload) {
 
       final Map<TxHash, byte[]> affectedContractTransactionMap =
           encodedPayload.getAffectedContractTransactions().entrySet().stream()

@@ -54,6 +54,8 @@ public class SetupDatabase {
           LOGGER.trace("Create table SQL : {}", line);
           statement.execute(line);
         }
+      } catch (SQLException sqlException) {
+        LOGGER.error(null, sqlException);
       }
     }
 

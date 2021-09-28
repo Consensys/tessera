@@ -3,6 +3,7 @@ package com.quorum.tessera.recovery.workflow.internal;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
@@ -13,7 +14,7 @@ public class LegacyResendManagerProvider {
     final Enclave enclave = Enclave.create();
     final EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
     final int resendFetchSize = 100;
-    final PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
     final PayloadPublisher payloadPublisher = PayloadPublisher.create();
     final Discovery discovery = Discovery.create();
 

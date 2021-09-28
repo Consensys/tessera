@@ -2,6 +2,7 @@ package com.quorum.tessera.transaction.internal;
 
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.transaction.PrivacyHelper;
 import org.slf4j.Logger;
@@ -16,7 +17,8 @@ public class PrivacyHelperProvider {
     LOGGER.debug("Creating PrivacyHelper");
     boolean privacyEnabled = runtimeContext.isEnhancedPrivacy();
     EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
-    PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec).get();
     PrivacyHelper privacyHelper =
         new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled, payloadEncoder);
     LOGGER.debug("Created PrivacyHelper {}", privacyHelper);

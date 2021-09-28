@@ -11,6 +11,7 @@ import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.discovery.NodeUri;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.partyinfo.PartyInfoParser;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
@@ -63,7 +64,7 @@ public class P2PRestApp extends TesseraRestApplication
         PartyStore.getInstance(),
         TransactionManager.create(),
         BatchResendManager.create(),
-        PayloadEncoder.create(),
+        PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get(),
         LegacyResendManager.create(),
         PrivacyGroupManager.create());
   }

@@ -1,15 +1,18 @@
 package com.quorum.tessera.recovery.workflow.internal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
+import java.util.Optional;
 import org.junit.Test;
 
 public class LegacyResendManagerProviderTest {
@@ -27,8 +30,8 @@ public class LegacyResendManagerProviderTest {
           .when(EncryptedTransactionDAO::create)
           .thenReturn(mock(EncryptedTransactionDAO.class));
       payloadEncoderMockedStatic
-          .when(PayloadEncoder::create)
-          .thenReturn(mock(PayloadEncoder.class));
+          .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
+          .thenReturn(Optional.of(mock(PayloadEncoder.class)));
       payloadPublisherMockedStatic
           .when(PayloadPublisher::create)
           .thenReturn(mock(PayloadPublisher.class));
@@ -44,7 +47,8 @@ public class LegacyResendManagerProviderTest {
       encryptedTransactionDAOMockedStatic.verify(EncryptedTransactionDAO::create);
       encryptedTransactionDAOMockedStatic.verifyNoMoreInteractions();
 
-      payloadEncoderMockedStatic.verify(PayloadEncoder::create);
+      payloadEncoderMockedStatic.verify(
+          () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
       payloadEncoderMockedStatic.verifyNoMoreInteractions();
 
       payloadPublisherMockedStatic.verify(PayloadPublisher::create);

@@ -2,6 +2,7 @@ package com.quorum.tessera.recovery.internal;
 
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.discovery.Discovery;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.Recovery;
 import com.quorum.tessera.recovery.resend.BatchTransactionRequester;
@@ -17,7 +18,7 @@ public class RecoveryProvider {
 
     TransactionManager transactionManager = TransactionManager.create();
 
-    PayloadEncoder payloadEncoder = PayloadEncoder.create();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
 
     return new RecoveryImpl(
         stagingEntityDAO, discovery, batchTransactionRequester, transactionManager, payloadEncoder);

@@ -5,9 +5,11 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import com.quorum.tessera.recovery.workflow.BatchWorkflowFactory;
+import java.util.Optional;
 import org.junit.Test;
 
 public class BatchWorkflowFactoryProviderTest {
@@ -29,7 +31,9 @@ public class BatchWorkflowFactoryProviderTest {
       staticResendBatchPublisher
           .when(ResendBatchPublisher::create)
           .thenReturn(mock(ResendBatchPublisher.class));
-      staticPayloadEncoder.when(PayloadEncoder::create).thenReturn(mock(PayloadEncoder.class));
+      staticPayloadEncoder
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
+          .thenReturn(Optional.of(mock(PayloadEncoder.class)));
 
       BatchWorkflowFactory batchWorkflowFactory = BatchWorkflowFactoryProvider.provider();
       assertThat(batchWorkflowFactory)
@@ -39,7 +43,7 @@ public class BatchWorkflowFactoryProviderTest {
       staticEnclave.verify(Enclave::create);
       staticDiscovery.verify(Discovery::create);
       staticResendBatchPublisher.verify(ResendBatchPublisher::create);
-      staticPayloadEncoder.verify(PayloadEncoder::create);
+      staticPayloadEncoder.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
 
       staticEnclave.verifyNoMoreInteractions();
       staticDiscovery.verifyNoMoreInteractions();

@@ -17,7 +17,7 @@ public class PayloadEncoderTest {
 
     ServiceLoader<PayloadEncoder> serviceLoader = mock(ServiceLoader.class);
     PayloadEncoder payloadEncoder = mock(PayloadEncoder.class);
-    when(payloadEncoder.encodedPayloadCodec()).thenReturn(EncodedPayloadCodec.LEGACY);
+    when(payloadEncoder.encodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
 
     ServiceLoader.Provider<PayloadEncoder> payloadEncoderProvider =
         mock(ServiceLoader.Provider.class);
@@ -29,7 +29,7 @@ public class PayloadEncoderTest {
       serviceLoaderMockedStatic
           .when(() -> ServiceLoader.load(PayloadEncoder.class))
           .thenReturn(serviceLoader);
-      result = PayloadEncoder.create();
+      result = PayloadEncoder.create(EncodedPayloadCodec.UNSUPPORTED).get();
 
       serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(PayloadEncoder.class));
       serviceLoaderMockedStatic.verifyNoMoreInteractions();

@@ -22,7 +22,11 @@ public class ResendManagerImpl implements ResendManager {
       EncryptedTransactionDAO encryptedTransactionDAO,
       Enclave enclave,
       PayloadDigest payloadDigest) {
-    this(encryptedTransactionDAO, PayloadEncoder.create(), enclave, payloadDigest);
+    this(
+        encryptedTransactionDAO,
+        PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get(),
+        enclave,
+        payloadDigest);
   }
 
   public ResendManagerImpl(
@@ -136,9 +140,12 @@ public class ResendManagerImpl implements ResendManager {
         payloadBuilder.withRecipientBox(newBox);
       }
 
-      final byte[] encoded = payloadEncoder.encode(payloadBuilder.build());
-
-      this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, encoded));
+      EncodedPayload encodedPayload = payloadBuilder.build();
+      EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+      encryptedTransaction.setHash(transactionHash);
+      encryptedTransaction.setPayload(encodedPayload);
+      encryptedTransaction.setEncodedPayloadCodec(encodedPayload.getEncodedPayloadCodec());
+      this.encryptedTransactionDAO.save(encryptedTransaction);
     }
   }
 }

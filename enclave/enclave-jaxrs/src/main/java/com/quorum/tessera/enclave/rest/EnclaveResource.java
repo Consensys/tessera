@@ -21,10 +21,11 @@ public class EnclaveResource {
 
   private final Enclave enclave;
 
-  private final PayloadEncoder payloadEncoder = PayloadEncoder.create();
+  private final PayloadEncoder payloadEncoder;
 
   public EnclaveResource(Enclave enclave) {
     this.enclave = Objects.requireNonNull(enclave);
+    payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
   }
 
   @GET
@@ -202,7 +203,7 @@ public class EnclaveResource {
                 keyValuePair ->
                     AffectedTransaction.Builder.create()
                         .withHash(keyValuePair.getKey())
-                        .withPayload(PayloadEncoder.create().decode(keyValuePair.getValue()))
+                        .withPayload(payloadEncoder.decode(keyValuePair.getValue()))
                         .build())
             .collect(Collectors.toList());
 

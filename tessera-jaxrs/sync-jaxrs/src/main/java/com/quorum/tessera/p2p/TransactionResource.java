@@ -4,6 +4,7 @@ import static jakarta.ws.rs.core.MediaType.*;
 
 import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
@@ -86,7 +87,7 @@ public class TransactionResource {
   @Produces(TEXT_PLAIN)
   public Response resend(@Valid @NotNull final ResendRequest resendRequest) {
 
-    LOGGER.debug("Received resend request");
+    LOGGER.debug("Received resend request {}", resendRequest);
 
     PublicKey recipient =
         Optional.of(resendRequest)
@@ -185,8 +186,9 @@ public class TransactionResource {
   public Response push(@Schema(description = "encoded payload") final byte[] payload) {
 
     LOGGER.debug("Received push request");
-
-    final MessageHash messageHash = transactionManager.storePayload(payloadEncoder.decode(payload));
+    final EncodedPayload encodedPayload = payloadEncoder.decode(payload);
+    LOGGER.debug("Decoded payload {}", encodedPayload.getEncodedPayloadCodec());
+    final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
     LOGGER.debug("Push request generated hash {}", messageHash);
     // TODO: Return the query url not the string of the messageHash
     return Response.status(Response.Status.CREATED).entity(Objects.toString(messageHash)).build();

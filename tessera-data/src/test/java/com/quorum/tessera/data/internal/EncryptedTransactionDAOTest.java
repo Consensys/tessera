@@ -19,6 +19,8 @@ import org.junit.runners.Parameterized;
 @RunWith(Parameterized.class)
 public class EncryptedTransactionDAOTest {
 
+  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
+
   private EntityManagerFactory entityManagerFactory;
 
   private EncryptedTransactionDAO encryptedTransactionDAO;
@@ -84,7 +86,7 @@ public class EncryptedTransactionDAOTest {
 
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setEncodedPayload(new byte[] {5});
-
+    encryptedTransaction.setEncodedPayloadCodec(encodedPayloadCodec);
     try {
       encryptedTransactionDAO.save(encryptedTransaction);
       failBecauseExceptionWasNotThrown(PersistenceException.class);
@@ -136,6 +138,7 @@ public class EncryptedTransactionDAOTest {
     final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setEncodedPayload(new byte[] {5});
     encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
+    encryptedTransaction.setEncodedPayloadCodec(encodedPayloadCodec);
 
     EntityManager entityManager = entityManagerFactory.createEntityManager();
     entityManager.getTransaction().begin();
@@ -365,6 +368,7 @@ public class EncryptedTransactionDAOTest {
 
     MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
     EncryptedTransaction transaction = new EncryptedTransaction();
+    transaction.setEncodedPayloadCodec(encodedPayloadCodec);
     transaction.setHash(transactionHash);
     transaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
 
@@ -393,6 +397,7 @@ public class EncryptedTransactionDAOTest {
     EncryptedTransaction transaction = new EncryptedTransaction();
     transaction.setHash(transactionHash);
     transaction.setEncodedPayload(UUID.randomUUID().toString().getBytes());
+    transaction.setEncodedPayloadCodec(encodedPayloadCodec);
 
     Callable<Void> callback = mock(Callable.class);
     when(callback.call()).thenThrow(new RuntimeException("OUCH"));
@@ -415,6 +420,7 @@ public class EncryptedTransactionDAOTest {
   @Test
   public void callBackShouldNotBeExecutedIfSaveFails() {
     final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+    encryptedTransaction.setEncodedPayloadCodec(encodedPayloadCodec);
     encryptedTransaction.setEncodedPayload(new byte[] {5});
     encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
     EntityManager entityManager = entityManagerFactory.createEntityManager();

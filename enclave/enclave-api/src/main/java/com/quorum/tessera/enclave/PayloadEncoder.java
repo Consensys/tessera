@@ -48,11 +48,6 @@ public interface PayloadEncoder {
    */
   EncodedPayload withRecipient(EncodedPayload input, PublicKey recipient);
 
-  @Deprecated
-  static PayloadEncoder create() {
-    return create(EncodedPayloadCodec.LEGACY).get();
-  }
-
   static Optional<PayloadEncoder> create(EncodedPayloadCodec encodedPayloadCodec) {
     return ServiceLoader.load(PayloadEncoder.class).stream()
         .map(ServiceLoader.Provider::get)

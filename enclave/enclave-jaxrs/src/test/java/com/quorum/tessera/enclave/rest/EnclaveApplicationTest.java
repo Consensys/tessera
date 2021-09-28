@@ -26,6 +26,8 @@ import org.mockito.Mockito;
 
 public class EnclaveApplicationTest {
 
+  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
+
   private Enclave enclave;
 
   private JerseyTest jersey;
@@ -132,9 +134,10 @@ public class EnclaveApplicationTest {
 
     assertThat(result.getRecipientKeys()).isNotNull().isEqualTo(pay.getRecipientKeys());
 
-    byte[] resultBytes = PayloadEncoder.create().encode(result);
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec).get();
+    byte[] resultBytes = payloadEncoder.encode(result);
 
-    assertThat(resultBytes).isEqualTo(PayloadEncoder.create().encode(pay));
+    assertThat(resultBytes).isEqualTo(payloadEncoder.encode(pay));
 
     assertThat(results.get(0)).isEqualTo(message);
 

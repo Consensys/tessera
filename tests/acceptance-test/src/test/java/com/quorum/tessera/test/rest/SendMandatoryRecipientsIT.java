@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.api.*;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.test.Party;
@@ -27,13 +28,23 @@ import suite.NodeAlias;
 
 public class SendMandatoryRecipientsIT {
 
-  private final PartyHelper partyHelper = PartyHelper.create();
+  private final PartyHelper partyHelper;
+
+  private final PayloadEncoder payloadEncoder;
 
   private RestUtils utils = new RestUtils();
 
-  final Party a = partyHelper.findByAlias(NodeAlias.A);
-  final Party b = partyHelper.findByAlias(NodeAlias.B);
-  final Party c = partyHelper.findByAlias(NodeAlias.C);
+  final Party a;
+  final Party b;
+  final Party c;
+
+  public SendMandatoryRecipientsIT() {
+    payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
+    partyHelper = PartyHelper.create();
+    a = partyHelper.findByAlias(NodeAlias.A);
+    b = partyHelper.findByAlias(NodeAlias.B);
+    c = partyHelper.findByAlias(NodeAlias.C);
+  }
 
   @Test
   public void invalidRequests() {
@@ -109,7 +120,7 @@ public class SendMandatoryRecipientsIT {
       throw new UncheckedSQLException(ex);
     }
 
-    EncodedPayload payload = PayloadEncoder.create().decode(receivedPayload);
+    EncodedPayload payload = payloadEncoder.decode(receivedPayload);
     assertThat(payload.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
@@ -135,7 +146,7 @@ public class SendMandatoryRecipientsIT {
       throw new UncheckedSQLException(ex);
     }
 
-    EncodedPayload payloadC = PayloadEncoder.create().decode(payloadOnC);
+    EncodedPayload payloadC = payloadEncoder.decode(payloadOnC);
     assertThat(payloadC.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
@@ -236,7 +247,7 @@ public class SendMandatoryRecipientsIT {
       throw new UncheckedSQLException(ex);
     }
 
-    EncodedPayload payload = PayloadEncoder.create().decode(payloadOnA);
+    EncodedPayload payload = payloadEncoder.decode(payloadOnA);
     assertThat(payload.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
@@ -262,7 +273,7 @@ public class SendMandatoryRecipientsIT {
       throw new UncheckedSQLException(ex);
     }
 
-    EncodedPayload payloadC = PayloadEncoder.create().decode(payloadOnC);
+    EncodedPayload payloadC = payloadEncoder.decode(payloadOnC);
     assertThat(payloadC.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
   }

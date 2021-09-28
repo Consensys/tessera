@@ -37,7 +37,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
   public RestfulEnclaveClient(Client client, URI uri, ExecutorService executorService) {
     this.client = Objects.requireNonNull(client);
     this.uri = Objects.requireNonNull(uri);
-    this.payloadEncoder = PayloadEncoder.create();
+    this.payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
     this.executorService = executorService;
   }
 
@@ -131,7 +131,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
           byte[] result = response.readEntity(byte[].class);
 
-          return PayloadEncoder.create().decode(result);
+          return payloadEncoder.decode(result);
         });
   }
 
@@ -268,7 +268,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
     return ClientCallback.execute(
         () -> {
-          final byte[] body = PayloadEncoder.create().encode(payload);
+          final byte[] body = payloadEncoder.encode(payload);
 
           final EnclaveUnencryptPayload dto = new EnclaveUnencryptPayload();
           dto.setData(body);

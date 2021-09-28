@@ -10,7 +10,6 @@ import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.MessageHash;
 import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.enclave.PayloadDigest;
-import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.resend.ResendManager;
 import java.util.*;
@@ -18,6 +17,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 public class ResendManagerImplTest {
 
@@ -30,6 +31,8 @@ public class ResendManagerImplTest {
   private PayloadDigest payloadDigest;
 
   private ResendManager resendManager;
+
+  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
 
   @Before
   public void init() {
@@ -52,16 +55,12 @@ public class ResendManagerImplTest {
     final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
     // A legacy payload has empty recipient and box
-    final EncodedPayload encodedPayload =
-        EncodedPayload.Builder.create()
-            .withSenderKey(senderKey)
-            .withCipherText("CIPHERTEXT".getBytes())
-            .withCipherTextNonce(new Nonce("nonce".getBytes()))
-            .withRecipientBoxes(List.of())
-            .withRecipientNonce(new Nonce("nonce".getBytes()))
-            .withRecipientKeys(List.of())
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
-            .build();
+    final EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    when(encodedPayload.getSenderKey()).thenReturn(senderKey);
+    when(encodedPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
+    when(encodedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
+    when(encodedPayload.getRecipientBoxes()).thenReturn(List.of());
+    when(encodedPayload.getRecipientKeys()).thenReturn(List.of());
 
     final byte[] newEncryptedMasterKey = "newbox".getBytes();
 
@@ -70,21 +69,25 @@ public class ResendManagerImplTest {
         .thenReturn(Optional.empty());
     when(enclave.createNewRecipientBox(any(), any())).thenReturn(newEncryptedMasterKey);
 
+    List<EncryptedTransaction> savedTxns = new ArrayList<>();
+    doAnswer(
+            new Answer() {
+              @Override
+              public Object answer(InvocationOnMock invocation) throws Throwable {
+                savedTxns.add(invocation.getArgument(0, EncryptedTransaction.class));
+                return null;
+              }
+            })
+        .when(encryptedTransactionDAO)
+        .save(any(EncryptedTransaction.class));
+
     resendManager.acceptOwnMessage(encodedPayload);
 
-    ArgumentCaptor<EncodedPayload> payloadCapture = ArgumentCaptor.forClass(EncodedPayload.class);
-
-    verify(payloadEncoder).encode(payloadCapture.capture());
-
-    final EncodedPayload updatedPayload = payloadCapture.getValue();
-    assertThat(updatedPayload).isNotNull();
-
-    // The sender was added
-    assertThat(updatedPayload.getRecipientKeys()).containsExactly(senderKey);
-
-    // New box was created
-    assertThat(updatedPayload.getRecipientBoxes())
-        .containsExactly(RecipientBox.from(newEncryptedMasterKey));
+    assertThat(savedTxns).hasSize(1);
+    EncryptedTransaction savedtxn = savedTxns.iterator().next();
+    assertThat(savedtxn.getHash().getHashBytes())
+        .containsExactly(Base64.getDecoder().decode("Q0lQSEVSVEVYVA==".getBytes()));
+    assertThat(savedtxn.getEncodedPayloadCodec()).isEqualTo(encodedPayloadCodec);
 
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
 
