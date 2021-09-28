@@ -8,6 +8,7 @@ import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.config.ClientMode;
 import com.quorum.tessera.config.CommunicationType;
 import com.quorum.tessera.config.EncryptorType;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.test.DBType;
 import com.quorum.tessera.test.Party;
@@ -206,10 +207,11 @@ public class RecoverIT {
 
       PreparedStatement preparedStatement =
           connection.prepareStatement(
-              "INSERT INTO ST_TRANSACTION(ID, HASH, PAYLOAD) VALUES (?,?,?)");
+              "INSERT INTO ST_TRANSACTION(ID, HASH, PAYLOAD, PAYLOAD_CODEC) VALUES (?,?,?,?)");
       preparedStatement.setInt(1, 1);
       preparedStatement.setString(2, Base64.getEncoder().encodeToString("hash".getBytes()));
       preparedStatement.setBytes(3, "payload".getBytes());
+      preparedStatement.setString(4, EncodedPayloadCodec.LEGACY.name());
       try (preparedStatement) {
         preparedStatement.execute();
       }
