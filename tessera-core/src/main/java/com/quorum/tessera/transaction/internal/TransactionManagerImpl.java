@@ -284,7 +284,7 @@ public class TransactionManagerImpl implements TransactionManager {
       // This is the first time we have seen the payload, so just save it to the database as is
       EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setHash(transactionHash);
-      encryptedTransaction.setEncodedPayloadCodec(payload.getEncodedPayloadCodec());
+      encryptedTransaction.setEncodedPayloadCodec(encodedPayload.getEncodedPayloadCodec());
       encryptedTransaction.setPayload(encodedPayload);
 
       this.encryptedTransactionDAO.save(encryptedTransaction);

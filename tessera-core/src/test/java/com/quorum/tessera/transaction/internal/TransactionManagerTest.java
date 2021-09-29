@@ -167,13 +167,13 @@ public class TransactionManagerTest {
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class), any(Callable.class));
     verify(enclave).getForwardingKeys();
     verify(enclave).getPublicKeys();
-    verify(privacyHelper).findAffectedContractTransactionsFromPayload(encodedPayload);
 
     final PrivacyMetadata metadata = metadataArgCaptor.getValue();
 
     assertThat(metadata.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
     assertThat(metadata.getMandatoryRecipients()).containsExactly(receiver);
 
+    verify(privacyHelper).findAffectedContractTransactionsFromSendRequest(anySet());
     verify(privacyHelper).findAffectedContractTransactionsFromPayload(encodedPayload);
     verify(privacyHelper).validateSendRequest(any(PrivacyMode.class),anyList(),anyList(),anySet());
   }
@@ -564,8 +564,8 @@ public class TransactionManagerTest {
   @Test
   public void storePayloadAsRecipient() {
     EncodedPayload payload = mock(EncodedPayload.class);
-
     when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
+
     when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
         .thenReturn(Optional.empty());
 
@@ -797,39 +797,52 @@ public class TransactionManagerTest {
 
     verify(privacyHelper).findAffectedContractTransactionsFromSendRequest(anySet());
     verify(privacyHelper).validateSendRequest(any(PrivacyMode.class),anyList(),anyList(),anySet());
+
   }
 
   @Test
   public void storePayloadWithInvalidSecurityHashesIgnoreIfNotPsv() {
-    Map<TxHash, SecurityHash> affectedTx =
-        Map.of(TxHash.from("invalidHash".getBytes()), SecurityHash.from("security".getBytes()));
 
-    final EncodedPayload payload = mock(EncodedPayload.class);
-    when(payload.getSenderKey()).thenReturn(PublicKey.from("sender".getBytes()));
-    when(payload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
-    when(payload.getCipherTextNonce()).thenReturn(new Nonce("nonce".getBytes()));
-    when(payload.getRecipientBoxes()).thenReturn(List.of(RecipientBox.from("box1".getBytes())));
-    when(payload.getRecipientNonce()).thenReturn(new Nonce("recipientNonce".getBytes()));
-    when(payload.getRecipientKeys())
-        .thenReturn(List.of(PublicKey.from("recipient".getBytes())));
-    when(payload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
-    when(payload.getAffectedContractTransactions()).thenReturn(affectedTx);
-    when(payload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.LEGACY);
+    final PublicKey senderKey = mock(PublicKey.class);
 
-    when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
-        .thenReturn(Optional.empty());
+    TxHash txHash = mock(TxHash.class);
+    when(txHash.getBytes()).thenReturn("invalidHash".getBytes());
 
-    ArgumentCaptor<EncodedPayload> payloadCaptor = ArgumentCaptor.forClass(EncodedPayload.class);
-    when(enclave.findInvalidSecurityHashes(any(), any()))
-        .thenReturn(Set.of(new TxHash("invalidHash".getBytes())));
+    SecurityHash securityHash = mock(SecurityHash.class);
+    when(securityHash.getData()).thenReturn("security".getBytes());
 
-    transactionManager.storePayload(payload);
+    final Map<TxHash, SecurityHash> affectedTx = Map.of(txHash, securityHash);
 
-    verify(encryptedTransactionDAO).findByHashes(any());
+    final EncodedPayload initialPayload = mock(EncodedPayload.class);
+    when(initialPayload.getCipherText()).thenReturn("CIPHERTEXT".getBytes());
+
+    when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.empty());
+
+    Set<TxHash> invalidSecurityHashes = Set.of(txHash);
+
+    when(enclave.findInvalidSecurityHashes(any(EncodedPayload.class), anyList()))
+        .thenReturn(invalidSecurityHashes);
+
+    EncodedPayload sanitisedPayload = mock(EncodedPayload.class);
+    when(sanitisedPayload.getSenderKey()).thenReturn(senderKey);
+    when(sanitisedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
+    when(sanitisedPayload.getAffectedContractTransactions()).thenReturn(affectedTx);
+
+    when(privacyHelper.sanitisePrivacyPayload(any(TxHash.class),any(EncodedPayload.class),anySet()))
+      .thenReturn(sanitisedPayload);
+
+    when(privacyHelper.validatePayload(any(TxHash.class),any(EncodedPayload.class),anyList())).thenReturn(true);
+
+    transactionManager.storePayload(initialPayload);
+
     verify(encryptedTransactionDAO).save(any(EncryptedTransaction.class));
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
     verify(enclave).getPublicKeys();
     verify(enclave).findInvalidSecurityHashes(any(), any());
+
+    verify(privacyHelper).findAffectedContractTransactionsFromPayload(initialPayload);
+    verify(privacyHelper).validatePayload(any(TxHash.class),any(EncodedPayload.class),anyList());
+    verify(privacyHelper).sanitisePrivacyPayload(any(TxHash.class),any(EncodedPayload.class),anySet());
   }
 
   @Test
@@ -1121,16 +1134,15 @@ public class TransactionManagerTest {
   @Test
   public void receiveWithPrivacyGroupId() {
     PublicKey sender = PublicKey.from("sender".getBytes());
-    byte[] randomData = Base64.getEncoder().encode("odd-data".getBytes());
-    MessageHash messageHash = new MessageHash(randomData);
+
+    MessageHash messageHash = mock(MessageHash.class);
+    when(messageHash.getHashBytes()).thenReturn("odd-data".getBytes());
 
     ReceiveRequest receiveRequest =
         ReceiveRequest.Builder.create()
             .withRecipient(mock(PublicKey.class))
             .withTransactionHash(messageHash)
             .build();
-
-    EncryptedTransaction encryptedTransaction = new EncryptedTransaction(messageHash, randomData);
 
     EncodedPayload payload = mock(EncodedPayload.class);
     when(payload.getExecHash()).thenReturn("execHash".getBytes());
@@ -1139,7 +1151,9 @@ public class TransactionManagerTest {
     when(payload.getPrivacyGroupId())
         .thenReturn(Optional.of(PrivacyGroup.Id.fromBytes("group".getBytes())));
 
-    encryptedTransaction.setPayload(payload);
+    EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
+    when(encryptedTransaction.getHash()).thenReturn(messageHash);
+    when(encryptedTransaction.getPayload()).thenReturn(payload);
 
     when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
         .thenReturn(Optional.of(encryptedTransaction));
