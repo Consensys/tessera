@@ -24,8 +24,6 @@ public class TransactionManagerImpl implements TransactionManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
-  private final PayloadEncoder payloadEncoder;
-
   private final EncryptedTransactionDAO encryptedTransactionDAO;
 
   private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
@@ -49,7 +47,6 @@ public class TransactionManagerImpl implements TransactionManager {
       PrivacyHelper privacyHelper,
       PayloadDigest payloadDigest) {
     this(
-        PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get(),
         encryptedTransactionDAO,
         batchPayloadPublisher,
         enclave,
@@ -61,7 +58,6 @@ public class TransactionManagerImpl implements TransactionManager {
 
   // Only use for tests
   public TransactionManagerImpl(
-      PayloadEncoder payloadEncoder,
       EncryptedTransactionDAO encryptedTransactionDAO,
       BatchPayloadPublisher batchPayloadPublisher,
       Enclave enclave,
@@ -70,7 +66,6 @@ public class TransactionManagerImpl implements TransactionManager {
       PrivacyHelper privacyHelper,
       PayloadDigest payloadDigest) {
 
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
     this.encryptedTransactionDAO =
         Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
     this.batchPayloadPublisher =
@@ -549,8 +544,7 @@ public class TransactionManagerImpl implements TransactionManager {
   private EncodedPayload fetchPayload(final MessageHash hash) {
     return encryptedTransactionDAO
         .retrieveByHash(hash)
-        .map(EncryptedTransaction::getEncodedPayload)
-        .map(payloadEncoder::decode)
+        .map(EncryptedTransaction::getPayload)
         .orElseThrow(
             () ->
                 new TransactionNotFoundException(
