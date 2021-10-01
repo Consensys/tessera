@@ -28,23 +28,16 @@ import suite.NodeAlias;
 
 public class SendMandatoryRecipientsIT {
 
-  private final PartyHelper partyHelper;
+  private final PartyHelper partyHelper = PartyHelper.create();
 
-  private final PayloadEncoder payloadEncoder;
+  private final PayloadEncoder payloadEncoder =
+      PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
 
   private RestUtils utils = new RestUtils();
 
-  final Party a;
-  final Party b;
-  final Party c;
-
-  public SendMandatoryRecipientsIT() {
-    payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
-    partyHelper = PartyHelper.create();
-    a = partyHelper.findByAlias(NodeAlias.A);
-    b = partyHelper.findByAlias(NodeAlias.B);
-    c = partyHelper.findByAlias(NodeAlias.C);
-  }
+  final Party a = partyHelper.findByAlias(NodeAlias.A);
+  final Party b = partyHelper.findByAlias(NodeAlias.B);
+  final Party c = partyHelper.findByAlias(NodeAlias.C);
 
   @Test
   public void invalidRequests() {

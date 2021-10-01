@@ -249,7 +249,6 @@ public class BatchResendManagerImplTest {
               .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
               .withAffectedContractTransactions(emptyMap())
               .withExecHash(new byte[0])
-              .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
               .build();
 
       when(payloadEncoder.decode(any())).thenReturn(encodedPayload);

@@ -187,7 +187,6 @@ public class TransactionResource {
 
     LOGGER.debug("Received push request");
     final EncodedPayload encodedPayload = payloadEncoder.decode(payload);
-    LOGGER.debug("Decoded payload {}", encodedPayload.getEncodedPayloadCodec());
     final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
     LOGGER.debug("Push request generated hash {}", messageHash);
     // TODO: Return the query url not the string of the messageHash

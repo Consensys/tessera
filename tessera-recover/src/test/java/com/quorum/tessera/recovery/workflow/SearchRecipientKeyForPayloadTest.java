@@ -71,13 +71,11 @@ public class SearchRecipientKeyForPayloadTest {
     when(sampleRecipientBox1.getData()).thenReturn("sample-box-1".getBytes());
     final EncodedPayload encodedPayloadForRecipient1 = mock(EncodedPayload.class);
     when(encodedPayloadForRecipient1.getRecipientBoxes()).thenReturn(List.of(sampleRecipientBox1));
-    when(encodedPayloadForRecipient1.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
 
     RecipientBox sampleRecipientBox2 = mock(RecipientBox.class);
     when(sampleRecipientBox2.getData()).thenReturn("sample-box-2".getBytes());
     final EncodedPayload encodedPayloadForRecipient2 = mock(EncodedPayload.class);
     when(encodedPayloadForRecipient2.getRecipientBoxes()).thenReturn(List.of(sampleRecipientBox2));
-    when(encodedPayloadForRecipient2.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
 
     workflowEvent.setPayloadsToPublish(
         Set.of(encodedPayloadForRecipient1, encodedPayloadForRecipient2));
@@ -134,7 +132,6 @@ public class SearchRecipientKeyForPayloadTest {
           workflowEvent.setEncryptedTransaction(encryptedTransaction);
 
           final EncodedPayload encodedPayload = mock(EncodedPayload.class);
-          when(encodedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
           workflowEvent.setPayloadsToPublish(Set.of(encodedPayload));
 
           final PublicKey publicKey = PublicKey.from("sample-public-key".getBytes());

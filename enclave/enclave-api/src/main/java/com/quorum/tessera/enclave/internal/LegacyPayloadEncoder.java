@@ -130,8 +130,7 @@ public class LegacyPayloadEncoder implements PayloadEncoder, BinaryEncoder {
     final byte[] recipientNonce = new byte[Math.toIntExact(recipientNonceSize)];
     buffer.get(recipientNonce);
 
-    EncodedPayload.Builder payloadBuilder =
-        EncodedPayload.Builder.create().withEncodedPayloadCodec(encodedPayloadCodec());
+    EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
 
     payloadBuilder
         .withSenderKey(PublicKey.from(senderKey))
@@ -273,8 +272,8 @@ public class LegacyPayloadEncoder implements PayloadEncoder, BinaryEncoder {
             .withPrivacyMode(payload.getPrivacyMode())
             .withAffectedContractTransactions(affectedTxnMap)
             .withExecHash(payload.getExecHash())
-            .withMandatoryRecipients(payload.getMandatoryRecipients())
-            .withEncodedPayloadCodec(payload.getEncodedPayloadCodec());
+            .withMandatoryRecipients(payload.getMandatoryRecipients());
+
     payload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
 
     return builder.build();

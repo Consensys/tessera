@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -32,7 +31,6 @@ public class SendSignedRequestTest {
             .withAffectedContractTransactions(Set.of(affectedTransaction))
             .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
             .withPrivacyGroupId(groupId)
-            .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
             .build();
 
     assertThat(request).isNotNull();
@@ -41,7 +39,7 @@ public class SendSignedRequestTest {
     assertThat(request.getExecHash()).containsExactly("Exehash".getBytes());
     assertThat(request.getRecipients()).hasSize(1).containsAll(recipients);
     assertThat(request.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
-    assertThat(request.getEncodedPayloadCodec()).isSameAs(EncodedPayloadCodec.UNSUPPORTED);
+
     assertThat(request.getPrivacyGroupId()).isPresent().get().isSameAs(groupId);
   }
 
@@ -57,7 +55,6 @@ public class SendSignedRequestTest {
             .withPrivacyMode(PrivacyMode.STANDARD_PRIVATE)
             .withAffectedContractTransactions(Collections.emptySet())
             .withExecHash(new byte[0])
-            .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
             .build();
 
     assertThat(request).isNotNull();
@@ -75,18 +72,12 @@ public class SendSignedRequestTest {
 
   @Test(expected = NullPointerException.class)
   public void buidlWithoutSignedData() {
-    SendSignedRequest.Builder.create()
-        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
-        .withRecipients(List.of(mock(PublicKey.class)))
-        .build();
+    SendSignedRequest.Builder.create().withRecipients(List.of(mock(PublicKey.class))).build();
   }
 
   @Test(expected = NullPointerException.class)
   public void buildWithoutRecipients() {
-    SendSignedRequest.Builder.create()
-        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
-        .withSignedData("Data".getBytes())
-        .build();
+    SendSignedRequest.Builder.create().withSignedData("Data".getBytes()).build();
   }
 
   @Test(expected = RuntimeException.class)
@@ -97,7 +88,6 @@ public class SendSignedRequestTest {
         .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
         .withAffectedContractTransactions(Collections.emptySet())
         .withExecHash(new byte[0])
-        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
         .build();
   }
 
@@ -109,7 +99,6 @@ public class SendSignedRequestTest {
             .withRecipients(Collections.emptyList())
             .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
             .withMandatoryRecipients(Set.of(PublicKey.from("Key".getBytes())))
-            .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
             .build();
 
     assertThat(req.getPrivacyMode()).isEqualTo(PrivacyMode.MANDATORY_RECIPIENTS);
@@ -125,7 +114,6 @@ public class SendSignedRequestTest {
         .withRecipients(recipients)
         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
         .withMandatoryRecipients(Set.of(PublicKey.from("key".getBytes())))
-        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
         .build();
   }
 
@@ -137,7 +125,6 @@ public class SendSignedRequestTest {
         .withSignedData(payload)
         .withRecipients(recipients)
         .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
-        .withEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED)
         .build();
   }
 }

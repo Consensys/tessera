@@ -8,9 +8,7 @@ import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.api.SendSignedRequest;
 import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
-import com.quorum.tessera.enclave.PrivacyGroup;
-import com.quorum.tessera.enclave.PrivacyMode;
+import com.quorum.tessera.enclave.*;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -120,8 +118,7 @@ public class TransactionResource4 {
             .withExecHash(execHash)
             .withPrivacyMode(privacyMode)
             .withAffectedContractTransactions(affectedTransactions)
-            .withMandatoryRecipients(mandatoryRecipients)
-            .withEncodedPayloadCodec(encodedPayloadCodec);
+            .withMandatoryRecipients(mandatoryRecipients);
 
     privacyGroupId.ifPresent(requestBuilder::withPrivacyGroupId);
 
@@ -209,8 +206,8 @@ public class TransactionResource4 {
             .withPrivacyMode(privacyMode)
             .withAffectedContractTransactions(affectedTransactions)
             .withExecHash(execHash)
-            .withMandatoryRecipients(mandatoryRecipients)
-            .withEncodedPayloadCodec(encodedPayloadCodec);
+            .withMandatoryRecipients(mandatoryRecipients);
+
     privacyGroupId.ifPresent(requestBuilder::withPrivacyGroupId);
 
     final com.quorum.tessera.transaction.SendResponse response =

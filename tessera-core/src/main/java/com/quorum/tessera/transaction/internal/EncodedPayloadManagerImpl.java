@@ -46,7 +46,13 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
 
     final PrivacyMode privacyMode = request.getPrivacyMode();
     LOGGER.debug("Privacy mode for payload: {}", request.getPrivacyMode());
-    LOGGER.debug("ExecHash for payload: {}", new String(request.getExecHash()));
+    LOGGER.debug(
+        "ExecHash for payload: {}",
+        Optional.of(request)
+            .map(SendRequest::getExecHash)
+            .filter(Objects::nonNull)
+            .map(String::new)
+            .orElse(null));
 
     final Set<PublicKey> mandatoryRecipients = request.getMandatoryRecipients();
     LOGGER.debug("Mandatory recipients for payload: {}", mandatoryRecipients);
@@ -68,11 +74,7 @@ public class EncodedPayloadManagerImpl implements EncodedPayloadManager {
     request.getPrivacyGroupId().ifPresent(metaDataBuilder::withPrivacyGroupId);
 
     return enclave.encryptPayload(
-        request.getPayload(),
-        senderPublicKey,
-        recipientListNoDuplicate,
-        metaDataBuilder.build(),
-        request.getEncodedPayloadCodec());
+        request.getPayload(), senderPublicKey, recipientListNoDuplicate, metaDataBuilder.build());
   }
 
   @Override

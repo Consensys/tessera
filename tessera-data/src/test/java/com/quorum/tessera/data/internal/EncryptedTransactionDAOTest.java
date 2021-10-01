@@ -183,7 +183,6 @@ public class EncryptedTransactionDAOTest {
     EntityManager entityManager = entityManagerFactory.createEntityManager();
 
     EncodedPayload encodedPayload = mock(EncodedPayload.class);
-    when(encodedPayload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
 
     byte[] payloadData = "I Love Sparrows".getBytes();
 

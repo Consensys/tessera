@@ -145,18 +145,7 @@ public class EncryptedTransactionMigratorTest {
     when(primaryPayload.getRecipientKeys()).thenReturn(List.of(recipient1, sender, recipient2));
     when(primaryPayload.getRecipientBoxes()).thenReturn(List.of(recipient1Box));
     when(primaryPayload.getAffectedContractTransactions()).thenReturn(recipient1Acoths);
-    when(primaryPayload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
-    /*
-       EncodedPayload.Builder.create()
-           .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-           .withExecHash("execHash".getBytes())
-           .withSenderKey(sender)
-           .withNewRecipientKeys(List.of(recipient1, sender, recipient2))
-           .withRecipientBoxes(List.of(recipient1Box))
-           .withAffectedContractTransactions(recipient1Acoths)
-           .build();
 
-    */
     final EncodedPayload secondaryPayload = mock(EncodedPayload.class);
     when(secondaryPayload.getPrivacyMode()).thenReturn(PrivacyMode.PRIVATE_STATE_VALIDATION);
     when(secondaryPayload.getExecHash()).thenReturn("execHash".getBytes());
@@ -165,16 +154,6 @@ public class EncryptedTransactionMigratorTest {
     when(secondaryPayload.getRecipientBoxes()).thenReturn(List.of(recipient2Box));
     when(secondaryPayload.getAffectedContractTransactions()).thenReturn(recipient2Acoths);
 
-    /*
-            EncodedPayload.Builder.create()
-                .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
-                .withExecHash("execHash".getBytes())
-                .withSenderKey(sender)
-                .withNewRecipientKeys(List.of(recipient2, sender, recipient1))
-                .withRecipientBox(recipient2Box)
-                .withAffectedContractTransactions(recipient2Acoths)
-                .build();
-    */
     final EncodedPayload result =
         migrator.handleSingleTransaction(primaryPayload, secondaryPayload);
 
@@ -187,7 +166,6 @@ public class EncryptedTransactionMigratorTest {
     assertThat(result.getAffectedContractTransactions()).hasSize(2);
     assertThat(result.getAffectedContractTransactions()).containsAllEntriesOf(recipient1Acoths);
     assertThat(result.getAffectedContractTransactions()).containsAllEntriesOf(recipient2Acoths);
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.UNSUPPORTED);
   }
 
   @Test
@@ -291,27 +269,12 @@ public class EncryptedTransactionMigratorTest {
     when(primaryPayload.getSenderKey()).thenReturn(sender);
     when(primaryPayload.getRecipientKeys()).thenReturn(List.of(recipient1));
     when(primaryPayload.getRecipientBoxes()).thenReturn(List.of(recipient1Box));
-    when(primaryPayload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
-
-    //        EncodedPayload.Builder.create()
-    //            .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-    //            .withSenderKey(sender)
-    //            .withNewRecipientKeys(List.of(recipient1))
-    //            .withRecipientBoxes(List.of(recipient1Box))
-    //            .build();
 
     final EncodedPayload secondaryPayload = mock(EncodedPayload.class);
     when(secondaryPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
     when(secondaryPayload.getSenderKey()).thenReturn(sender);
     when(secondaryPayload.getRecipientKeys()).thenReturn(List.of(recipient2));
     when(secondaryPayload.getRecipientBoxes()).thenReturn(List.of(recipient2Box));
-    /*
-    EncodedPayload.Builder.create()
-        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
-        .withSenderKey(sender)
-        .withNewRecipientKeys(List.of(recipient2))
-        .withRecipientBox(recipient2Box)
-        .build();*/
 
     final EncodedPayload result =
         migrator.handleSingleTransaction(primaryPayload, secondaryPayload);
@@ -321,7 +284,6 @@ public class EncryptedTransactionMigratorTest {
     assertThat(result.getSenderKey()).isEqualTo(sender);
     assertThat(result.getRecipientBoxes()).containsExactlyInAnyOrder(recipient1Box, recipient2Box);
     assertThat(result.getRecipientKeys()).containsExactlyInAnyOrder(recipient1, recipient2);
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.UNSUPPORTED);
   }
 
   @Test
@@ -499,7 +461,6 @@ public class EncryptedTransactionMigratorTest {
     when(primaryPayload.getSenderKey()).thenReturn(sender);
     when(primaryPayload.getRecipientKeys()).thenReturn(List.of(recipient1));
     when(primaryPayload.getRecipientBoxes()).thenReturn(List.of(recipient1Box));
-    when(primaryPayload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
 
     final EncodedPayload secondaryPayload = mock(EncodedPayload.class);
     when(secondaryPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
@@ -515,7 +476,6 @@ public class EncryptedTransactionMigratorTest {
     assertThat(result.getSenderKey()).isEqualTo(sender);
     assertThat(result.getRecipientKeys()).containsExactlyInAnyOrder(recipient1, recipient2);
     assertThat(result.getRecipientBoxes()).containsExactlyInAnyOrder(recipient1Box, recipient2Box);
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.UNSUPPORTED);
   }
 
   @Test
@@ -532,7 +492,6 @@ public class EncryptedTransactionMigratorTest {
     when(primaryPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
     when(primaryPayload.getSenderKey()).thenReturn(sender);
     when(primaryPayload.getRecipientBoxes()).thenReturn(List.of(recipient1Box));
-    when(primaryPayload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
 
     final EncodedPayload secondaryPayload = mock(EncodedPayload.class);
     when(secondaryPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
@@ -546,7 +505,6 @@ public class EncryptedTransactionMigratorTest {
     assertThat(result.getSenderKey()).isEqualTo(sender);
     assertThat(result.getRecipientBoxes()).containsExactlyInAnyOrder(recipient1Box, recipient2Box);
     assertThat(result.getPrivacyMode()).isEqualTo(PrivacyMode.STANDARD_PRIVATE);
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.UNSUPPORTED);
   }
 
   // From a pre-0.8 tx

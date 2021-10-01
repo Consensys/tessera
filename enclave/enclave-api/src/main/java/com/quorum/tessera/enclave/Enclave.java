@@ -50,8 +50,7 @@ public interface Enclave extends Service {
       byte[] message,
       PublicKey senderPublicKey,
       List<PublicKey> recipientPublicKeys,
-      PrivacyMetadata privacyMetadata,
-      EncodedPayloadCodec encodedPayloadCodec);
+      PrivacyMetadata privacyMetadata);
 
   /**
    * Decrypts a {@link RawTransaction} so that it can be re-encrypted into a {@link EncodedPayload}
@@ -65,8 +64,7 @@ public interface Enclave extends Service {
   EncodedPayload encryptPayload(
       RawTransaction rawTransaction,
       List<PublicKey> recipientPublicKeys,
-      PrivacyMetadata privacyMetadata,
-      EncodedPayloadCodec encodedPayloadCodec);
+      PrivacyMetadata privacyMetadata);
 
   /**
    * Filters the affectedContractTransaction hashes by removing those that do not pass the security

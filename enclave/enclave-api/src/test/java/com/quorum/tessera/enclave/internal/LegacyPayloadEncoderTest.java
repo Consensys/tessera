@@ -808,7 +808,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -893,7 +892,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -973,7 +971,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1052,7 +1049,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1152,7 +1148,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1245,7 +1240,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1329,7 +1323,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1408,7 +1401,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1507,7 +1499,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1600,7 +1591,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1716,7 +1706,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -1993,7 +1982,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -2084,7 +2072,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -2154,7 +2141,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload originalPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from(sender))
             .withCipherText(cipherText)
             .withCipherTextNonce(new Nonce(nonce))
@@ -2240,14 +2226,12 @@ public class LegacyPayloadEncoderTest {
             .withAffectedContractTransactions(
                 singletonMap(new TxHash("test".getBytes()), "test".getBytes()))
             .withExecHash("execHash".getBytes())
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final EncodedPayload payload =
         payloadEncoder.withRecipient(originalPayload, PublicKey.from("someKey".getBytes()));
 
     assertThat(payload.getRecipientKeys()).containsExactly(PublicKey.from("someKey".getBytes()));
-    assertThat(payload.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test
@@ -2255,7 +2239,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -2288,7 +2271,6 @@ public class LegacyPayloadEncoderTest {
     assertThat(result.getExecHash()).isNullOrEmpty();
     assertThat(result.getPrivacyGroupId()).isNotPresent();
     assertThat(result.getMandatoryRecipients()).isEmpty();
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test
@@ -2296,7 +2278,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -2331,7 +2312,6 @@ public class LegacyPayloadEncoderTest {
     assertThat(result.getPrivacyGroupId()).isPresent();
     assertThat(result.getPrivacyGroupId().get().getBytes()).isEqualTo("group".getBytes());
     assertThat(result.getMandatoryRecipients()).isEmpty();
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test
@@ -2354,7 +2334,6 @@ public class LegacyPayloadEncoderTest {
                     TxHash.from("hash2".getBytes()),
                     "2".getBytes()))
             .withMandatoryRecipients(Set.of(PublicKey.from("KEY2".getBytes())))
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .build();
 
     final byte[] encoded = payloadEncoder.encode(payload);
@@ -2374,7 +2353,6 @@ public class LegacyPayloadEncoderTest {
     assertThat(result.getExecHash()).isNullOrEmpty();
     assertThat(result.getPrivacyGroupId()).isNotPresent();
     assertThat(result.getMandatoryRecipients()).isEqualTo(payload.getMandatoryRecipients());
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test(expected = RuntimeException.class)
@@ -2416,7 +2394,6 @@ public class LegacyPayloadEncoderTest {
     assertThat(result.getExecHash()).isNullOrEmpty();
     assertThat(result.getPrivacyGroupId()).isNotPresent();
     assertThat(result.getMandatoryRecipients()).isEmpty();
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test
@@ -2424,7 +2401,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -2461,7 +2437,6 @@ public class LegacyPayloadEncoderTest {
     assertThat(result.getPrivacyGroupId()).isPresent();
     assertThat(result.getPrivacyGroupId().get().getBytes()).isEqualTo("group".getBytes());
     assertThat(result.getMandatoryRecipients()).containsExactly(PublicKey.from("KEY2".getBytes()));
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test
@@ -2469,7 +2444,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -2504,7 +2478,6 @@ public class LegacyPayloadEncoderTest {
     assertThat(result.getExecHash()).isEqualTo("execHash".getBytes());
     assertThat(result.getPrivacyGroupId()).isNotPresent();
     assertThat(result.getMandatoryRecipients()).isEmpty();
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test
@@ -2512,7 +2485,6 @@ public class LegacyPayloadEncoderTest {
 
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -2549,7 +2521,6 @@ public class LegacyPayloadEncoderTest {
     assertThat(result.getPrivacyGroupId()).isPresent();
     assertThat(result.getPrivacyGroupId().get().getBytes()).isEqualTo("group".getBytes());
     assertThat(result.getMandatoryRecipients()).isEmpty();
-    assertThat(result.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test

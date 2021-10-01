@@ -27,7 +27,7 @@ public class EncryptedTransactionListenerTest {
     encryptedTransactionListener = new EncryptedTransactionListener();
     payloadEncoder = mock(PayloadEncoder.class);
     payloadEncoderFactoryFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.UNSUPPORTED))
+        .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
         .thenReturn(Optional.of(payloadEncoder));
   }
 
@@ -55,14 +55,18 @@ public class EncryptedTransactionListenerTest {
     verify(payloadEncoder).decode(payloadData);
 
     payloadEncoderFactoryFunction.verify(
-        () -> PayloadEncoder.create(EncodedPayloadCodec.UNSUPPORTED));
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test
-  public void onLoadNoiEncoderFound() {
+  public void onLoadNoEncoderFound() {
 
     byte[] payloadData = "PayloadData".getBytes();
 
+    payloadEncoderFactoryFunction.reset();
+    payloadEncoderFactoryFunction
+        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
+        .thenReturn(Optional.empty());
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     encryptedTransaction.setEncodedPayload(payloadData);
@@ -77,17 +81,10 @@ public class EncryptedTransactionListenerTest {
   }
 
   @Test
-  public void onSaveNullPayload() {
-    EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-    encryptedTransactionListener.onSave(encryptedTransaction);
-  }
-
-  @Test
   public void onSave() {
     EncodedPayload encodedPayload = mock(EncodedPayload.class);
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
     encryptedTransaction.setPayload(encodedPayload);
-    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.UNSUPPORTED);
 
     byte[] payloadData = "PayloadData".getBytes();
     when(payloadEncoder.encode(encodedPayload)).thenReturn(payloadData);
@@ -95,40 +92,7 @@ public class EncryptedTransactionListenerTest {
     encryptedTransactionListener.onSave(encryptedTransaction);
 
     verify(payloadEncoder).encode(encodedPayload);
-    payloadEncoderFactoryFunction.verify(
-        () -> PayloadEncoder.create(EncodedPayloadCodec.UNSUPPORTED));
+    payloadEncoderFactoryFunction.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
     assertThat(encryptedTransaction.getEncodedPayload()).isEqualTo(payloadData);
-  }
-
-  @Test
-  public void onSaveEncodedPayloadCodecDefinedOnPayload() {
-    EncodedPayload encodedPayload = mock(EncodedPayload.class);
-    when(encodedPayload.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
-    EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-    encryptedTransaction.setPayload(encodedPayload);
-
-    byte[] payloadData = "PayloadData".getBytes();
-    when(payloadEncoder.encode(encodedPayload)).thenReturn(payloadData);
-
-    encryptedTransactionListener.onSave(encryptedTransaction);
-
-    verify(payloadEncoder).encode(encodedPayload);
-    payloadEncoderFactoryFunction.verify(
-        () -> PayloadEncoder.create(EncodedPayloadCodec.UNSUPPORTED));
-    assertThat(encryptedTransaction.getEncodedPayload()).isEqualTo(payloadData);
-  }
-
-  @Test
-  public void onSaveNoCodec() {
-    EncodedPayload encodedPayload = mock(EncodedPayload.class);
-    EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-    encryptedTransaction.setPayload(encodedPayload);
-
-    try {
-      encryptedTransactionListener.onSave(encryptedTransaction);
-      failBecauseExceptionWasNotThrown(IllegalStateException.class);
-    } catch (IllegalStateException illegalStateException) {
-      assertThat(illegalStateException).hasMessage("No codec defined");
-    }
   }
 }

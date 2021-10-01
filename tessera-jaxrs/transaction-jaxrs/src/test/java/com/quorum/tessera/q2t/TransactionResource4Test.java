@@ -31,7 +31,6 @@ public class TransactionResource4Test {
   public void beforeTest() throws Exception {
     this.transactionManager = mock(TransactionManager.class);
     this.privacyGroupManager = mock(PrivacyGroupManager.class);
-
     transactionResource = new TransactionResource4(transactionManager, privacyGroupManager);
   }
 
@@ -48,10 +47,12 @@ public class TransactionResource4Test {
     final String base64Hash =
         "yKNxAAPdBMiEZFkyQifH1PShwHTHTdE92T3hAfSQ3RtGce9IB8jrsrXxGuCe+Vu3Wyv2zgSbUnt+QBN2Rf48qQ==";
 
+    final byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(base64Key);
-    sendRequest.setPrivacyFlag(2);
+    sendRequest.setPrivacyFlag(PrivacyMode.fromFlag(2).getPrivacyFlag());
     sendRequest.setMandatoryRecipients(new String[] {base64Key});
     sendRequest.setAffectedContractTransactions(base64Hash);
 

@@ -5,7 +5,6 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import com.quorum.tessera.api.StoreRawRequest;
 import com.quorum.tessera.api.StoreRawResponse;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -29,8 +28,6 @@ import java.util.Objects;
 @Tags({@Tag(name = "quorum-to-tessera"), @Tag(name = "third-party")})
 @Path("/")
 public class RawTransactionResource {
-
-  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
 
   public static final String ENDPOINT_STORE_RAW = "storeraw";
 
@@ -106,7 +103,6 @@ public class RawTransactionResource {
 
     final com.quorum.tessera.transaction.StoreRawRequest storeRawRequest =
         com.quorum.tessera.transaction.StoreRawRequest.Builder.create()
-            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withSender(sender)
             .withPayload(request.getPayload())
             .build();

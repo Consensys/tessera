@@ -3,7 +3,6 @@ package com.quorum.tessera.data;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.RawTransaction;
 import java.util.Objects;
 import org.junit.Test;
@@ -25,24 +24,6 @@ public class EncryptedRawTransactionTest {
     encryptedRawTransaction.setEncryptedKey(key);
     encryptedRawTransaction.setNonce(nonce);
     encryptedRawTransaction.setSender(from);
-
-    assertThat(encryptedRawTransaction.getHash()).isSameAs(hash);
-    assertThat(encryptedRawTransaction.getEncryptedPayload()).isSameAs(payload);
-    assertThat(encryptedRawTransaction.getEncryptedKey()).isSameAs(key);
-    assertThat(encryptedRawTransaction.getNonce()).isSameAs(nonce);
-    assertThat(encryptedRawTransaction.getSender()).isSameAs(from);
-  }
-
-  @Test
-  public void createInstanceWithConstructorArgs() {
-
-    byte[] payload = "PAYLOAD".getBytes();
-    MessageHash hash = mock(MessageHash.class);
-    byte[] key = "key".getBytes();
-    byte[] nonce = "nonce".getBytes();
-    byte[] from = "from".getBytes();
-    EncryptedRawTransaction encryptedRawTransaction =
-        new EncryptedRawTransaction(hash, payload, key, nonce, from, EncodedPayloadCodec.LEGACY);
 
     assertThat(encryptedRawTransaction.getHash()).isSameAs(hash);
     assertThat(encryptedRawTransaction.getEncryptedPayload()).isSameAs(payload);
@@ -91,8 +72,12 @@ public class EncryptedRawTransactionTest {
     byte[] nonce = "nonce".getBytes();
     byte[] from = "from".getBytes();
 
-    EncryptedRawTransaction encryptedRawTransaction =
-        new EncryptedRawTransaction(hash, payload, key, nonce, from, EncodedPayloadCodec.LEGACY);
+    EncryptedRawTransaction encryptedRawTransaction = new EncryptedRawTransaction();
+    encryptedRawTransaction.setHash(hash);
+    encryptedRawTransaction.setEncryptedKey(key);
+    encryptedRawTransaction.setSender(from);
+    encryptedRawTransaction.setNonce(nonce);
+    encryptedRawTransaction.setEncryptedPayload(payload);
 
     RawTransaction rawTransaction = encryptedRawTransaction.toRawTransaction();
 

@@ -3,7 +3,6 @@ package com.quorum.tessera.data;
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -42,7 +41,6 @@ public class EncryptedTransaction implements Serializable {
   @Column(name = "TIMESTAMP", updatable = false)
   private long timestamp;
 
-  @NotNull
   @Enumerated(EnumType.STRING)
   @Column(name = "PAYLOAD_CODEC", nullable = false, length = 50)
   private EncodedPayloadCodec encodedPayloadCodec;

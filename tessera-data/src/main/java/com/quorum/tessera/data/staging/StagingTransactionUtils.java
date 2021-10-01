@@ -13,22 +13,20 @@ public class StagingTransactionUtils {
 
   private final PayloadDigest payloadDigest;
 
-  private final PayloadEncoder payloadEncoder;
-
-  private StagingTransactionUtils(PayloadDigest payloadDigest, PayloadEncoder payloadEncoder) {
+  private StagingTransactionUtils(PayloadDigest payloadDigest) {
     this.payloadDigest = Objects.requireNonNull(payloadDigest);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
   }
 
   public static StagingTransaction fromRawPayload(
       byte[] rawPayload, EncodedPayloadCodec encodedPayloadCodec) {
     PayloadDigest payloadDigest = PayloadDigest.create();
-    PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec).get();
-    return new StagingTransactionUtils(payloadDigest, payloadEncoder)
-        .createFromRawPayload(rawPayload);
+    return new StagingTransactionUtils(payloadDigest)
+        .createFromRawPayload(rawPayload, encodedPayloadCodec);
   }
 
-  private StagingTransaction createFromRawPayload(byte[] rawPayload) {
+  private StagingTransaction createFromRawPayload(
+      byte[] rawPayload, EncodedPayloadCodec encodedPayloadCodec) {
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec).get();
     final EncodedPayload encodedPayload = payloadEncoder.decode(rawPayload);
     final byte[] messageHashData = payloadDigest.digest(encodedPayload.getCipherText());
     final String messageHash = Base64.getEncoder().encodeToString(messageHashData);
@@ -49,7 +47,6 @@ public class StagingTransactionUtils {
                       new StagingAffectedTransaction();
                   stagingAffectedTransaction.setHash(hash);
                   stagingAffectedTransaction.setSourceTransaction(stagingTransaction);
-
                   return stagingAffectedTransaction;
                 })
             .collect(Collectors.toSet());

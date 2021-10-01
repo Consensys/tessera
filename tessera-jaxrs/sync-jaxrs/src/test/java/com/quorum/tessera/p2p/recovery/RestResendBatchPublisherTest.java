@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.transaction.publish.PublishPayloadException;
 import java.util.Collection;
@@ -21,8 +20,6 @@ import org.mockito.ArgumentCaptor;
 
 @RunWith(Parameterized.class)
 public class RestResendBatchPublisherTest {
-
-  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
 
   private String targetUrl;
 
@@ -49,7 +46,6 @@ public class RestResendBatchPublisherTest {
             .map(
                 o -> {
                   EncodedPayload encodedPayload = mock(EncodedPayload.class);
-                  when(encodedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
                   when(payloadEncoder.encode(encodedPayload)).thenReturn(o);
                   return encodedPayload;
                 })
@@ -88,7 +84,6 @@ public class RestResendBatchPublisherTest {
             .map(
                 o -> {
                   EncodedPayload encodedPayload = mock(EncodedPayload.class);
-                  when(encodedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
                   when(payloadEncoder.encode(encodedPayload)).thenReturn(o);
                   return encodedPayload;
                 })

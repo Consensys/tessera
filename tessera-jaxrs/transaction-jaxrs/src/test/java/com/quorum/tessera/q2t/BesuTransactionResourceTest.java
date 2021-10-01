@@ -55,8 +55,9 @@ public class BesuTransactionResourceTest {
 
     final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
 
+    byte[] payloadData = "PAYLOAD".getBytes();
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(base64Key);
 
     final PublicKey sender = mock(PublicKey.class);
@@ -126,9 +127,9 @@ public class BesuTransactionResourceTest {
     final Base64.Encoder base64Encoder = Base64.getEncoder();
 
     final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
-
+    byte[] payloadData = "PAYLOAD".getBytes();
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setPrivacyGroupId(base64Key);
 
     final PublicKey sender = mock(PublicKey.class);

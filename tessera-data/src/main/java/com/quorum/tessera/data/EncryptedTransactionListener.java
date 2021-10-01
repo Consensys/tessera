@@ -14,27 +14,31 @@ public class EncryptedTransactionListener implements Disableable {
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedTransactionListener.class);
 
   @PreUpdate
+  public void onUpdate(EncryptedTransaction encryptedTransaction) {
+    if (isDisabled()) {
+      return;
+    }
+
+    final EncodedPayload encodedPayload = encryptedTransaction.getPayload();
+    final EncodedPayloadCodec encodedPayloadCodec = encryptedTransaction.getEncodedPayloadCodec();
+
+    PayloadEncoder payloadEncoder = lookup(encodedPayloadCodec);
+    byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
+    encryptedTransaction.setEncodedPayload(encodedPayloadData);
+  }
+
   @PrePersist
   public void onSave(EncryptedTransaction encryptedTransaction) {
     if (isDisabled()) {
       return;
     }
-    if (encryptedTransaction.getPayload() != null) {
-      EncodedPayload encodedPayload = encryptedTransaction.getPayload();
 
-      final EncodedPayloadCodec encodedPayloadCodec;
-      if (encodedPayload.getEncodedPayloadCodec() != null) {
-        encodedPayloadCodec = encodedPayload.getEncodedPayloadCodec();
-      } else if (encryptedTransaction.getEncodedPayloadCodec() != null) {
-        encodedPayloadCodec = encryptedTransaction.getEncodedPayloadCodec();
-      } else {
-        throw new IllegalStateException("No codec defined");
-      }
-
-      PayloadEncoder payloadEncoder = lookup(encodedPayloadCodec);
-      byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
-      encryptedTransaction.setEncodedPayload(encodedPayloadData);
-    }
+    final EncodedPayload encodedPayload = encryptedTransaction.getPayload();
+    final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.current();
+    PayloadEncoder payloadEncoder = lookup(encodedPayloadCodec);
+    byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
+    encryptedTransaction.setEncodedPayloadCodec(encodedPayloadCodec);
+    encryptedTransaction.setEncodedPayload(encodedPayloadData);
   }
 
   @PostLoad

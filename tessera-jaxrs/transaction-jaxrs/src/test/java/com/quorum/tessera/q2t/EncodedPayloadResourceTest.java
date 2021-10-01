@@ -39,7 +39,6 @@ public class EncodedPayloadResourceTest {
   public void onSetup() throws Exception {
     this.transactionManager = mock(TransactionManager.class);
     this.encodedPayloadManager = mock(EncodedPayloadManager.class);
-
     encodedPayloadResource = new EncodedPayloadResource(encodedPayloadManager, transactionManager);
   }
 
@@ -52,8 +51,10 @@ public class EncodedPayloadResourceTest {
   public void createPayload() {
     final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
 
+    byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(Base64.getEncoder().encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(base64Key);
     sendRequest.setAffectedContractTransactions("dHgx");
 
@@ -182,8 +183,10 @@ public class EncodedPayloadResourceTest {
   public void createPayloadVersion21() {
     final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
 
+    byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(Base64.getEncoder().encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(base64Key);
     sendRequest.setAffectedContractTransactions("dHgx");
 

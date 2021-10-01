@@ -1,7 +1,6 @@
 package com.quorum.tessera.enclave.rest;
 
 import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.enclave.TxHash;
 import com.quorum.tessera.encryption.PublicKey;
@@ -74,7 +73,6 @@ public class Fixtures {
         .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
         .withAffectedContractTransactions(Map.of(new TxHash("test".getBytes()), "test".getBytes()))
         .withExecHash(new byte[0])
-        .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
         .build();
   }
 }

@@ -145,10 +145,7 @@ public class LegacyResendManagerImplTest {
     final PublicKey targetResendKey = PublicKey.from("target".getBytes());
     final PublicKey localRecipientKey = PublicKey.from("local-recipient".getBytes());
 
-    EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
-
     final EncodedPayload nonSPPayload = mock(EncodedPayload.class);
-    when(nonSPPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
     when(nonSPPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
     when(nonSPPayload.getSenderKey()).thenReturn(targetResendKey);
 

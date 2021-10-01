@@ -455,7 +455,6 @@ public class EncoderCompatibilityTest {
   public void v4ToLegacy() {
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -523,7 +522,6 @@ public class EncoderCompatibilityTest {
     // Payload to a v2 node should not have privacyGroupId or mandatoryRecipients
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))
@@ -599,7 +597,6 @@ public class EncoderCompatibilityTest {
     // Payload to a v3 node should not have mandatoryRecipients
     final EncodedPayload payload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(EncodedPayloadCodec.LEGACY)
             .withSenderKey(PublicKey.from("SENDER".getBytes()))
             .withCipherText("CIPHER_TEXT".getBytes())
             .withCipherTextNonce(new Nonce("NONCE".getBytes()))

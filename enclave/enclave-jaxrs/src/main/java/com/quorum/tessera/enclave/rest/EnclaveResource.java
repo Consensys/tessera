@@ -110,11 +110,7 @@ public class EnclaveResource {
 
     EncodedPayload outcome =
         enclave.encryptPayload(
-            payload.getData(),
-            senderKey,
-            recipientPublicKeys,
-            privacyMetadataBuilder.build(),
-            payload.getEncodedPayloadCodec());
+            payload.getData(), senderKey, recipientPublicKeys, privacyMetadataBuilder.build());
 
     byte[] response = payloadEncoder.encode(outcome);
     final StreamingOutput streamingOutput = out -> out.write(response);
@@ -159,11 +155,7 @@ public class EnclaveResource {
         .ifPresent(privacyMetaDataBuilder::withPrivacyGroupId);
 
     EncodedPayload outcome =
-        enclave.encryptPayload(
-            rawTransaction,
-            recipientPublicKeys,
-            privacyMetaDataBuilder.build(),
-            enclaveRawPayload.getEncodedPayloadCodec());
+        enclave.encryptPayload(rawTransaction, recipientPublicKeys, privacyMetaDataBuilder.build());
 
     byte[] response = payloadEncoder.encode(outcome);
     final StreamingOutput streamingOutput = out -> out.write(response);

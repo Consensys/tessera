@@ -127,8 +127,10 @@ public class TransactionResourceTest {
 
     final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
 
+    byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(base64Key);
 
     final PublicKey sender = mock(PublicKey.class);
@@ -184,8 +186,10 @@ public class TransactionResourceTest {
     final String base64Hash =
         "yKNxAAPdBMiEZFkyQifH1PShwHTHTdE92T3hAfSQ3RtGce9IB8jrsrXxGuCe+Vu3Wyv2zgSbUnt+QBN2Rf48qQ==";
 
+    byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(base64Key);
     sendRequest.setPrivacyFlag(3);
     sendRequest.setAffectedContractTransactions(base64Hash);
@@ -244,8 +248,10 @@ public class TransactionResourceTest {
 
     final Base64.Encoder base64Encoder = Base64.getEncoder();
 
+    byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(Base64.getEncoder().encodeToString("Mr Benn".getBytes()));
     final PublicKey sender = mock(PublicKey.class);
     when(transactionManager.defaultPublicKey()).thenReturn(sender);
@@ -501,7 +507,9 @@ public class TransactionResourceTest {
     when(transactionManager.send(any(com.quorum.tessera.transaction.SendRequest.class)))
         .thenReturn(sendResponse);
 
-    Response result = transactionResource.sendRaw("", "someone", "foo".getBytes());
+    byte[] payloadData = "PAYALOAD".getBytes();
+
+    Response result = transactionResource.sendRaw("", "someone", payloadData);
     //                jersey.target("sendraw")
     //                        .request()
     //                        .header("c11n-from", "")
@@ -529,7 +537,9 @@ public class TransactionResourceTest {
     when(transactionManager.send(any(com.quorum.tessera.transaction.SendRequest.class)))
         .thenReturn(sendResponse);
 
-    Response result = transactionResource.sendRaw("", "", "foo".getBytes());
+    byte[] payloadData = "PAYALOAD".getBytes();
+
+    Response result = transactionResource.sendRaw("", "", payloadData);
     //                jersey.target("sendraw")
     //                        .request()
     //                        .header("c11n-from", "")
@@ -556,7 +566,9 @@ public class TransactionResourceTest {
     when(transactionManager.send(any(com.quorum.tessera.transaction.SendRequest.class)))
         .thenReturn(sendResponse);
 
-    Response result = transactionResource.sendRaw("", "", "foo".getBytes());
+    byte[] payloadData = "PAYALOAD".getBytes();
+
+    Response result = transactionResource.sendRaw("", "", payloadData);
     //                jersey.target("sendraw")
     //                        .request()
     //                        .header("c11n-from", "")

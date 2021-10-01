@@ -32,10 +32,8 @@ public class PreparePayloadForRecipientTest {
 
   @Test
   public void targetKeyIsRecipientOfTransaction() {
-    EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
     final PublicKey targetResendKey = PublicKey.from("target".getBytes());
     final EncodedPayload unformattedPayload = mock(EncodedPayload.class);
-    when(unformattedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
 
     RecipientBox recipientBox = mock(RecipientBox.class);
     when(recipientBox.getData()).thenReturn("encrypteddata".getBytes());
@@ -64,10 +62,7 @@ public class PreparePayloadForRecipientTest {
     final PublicKey recipient1 = PublicKey.from("recipient1".getBytes());
     final PublicKey recipient2 = PublicKey.from("recipient2".getBytes());
 
-    EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
-
     final EncodedPayload unformattedPayload = mock(EncodedPayload.class);
-    when(unformattedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
 
     RecipientBox recipientBox = mock(RecipientBox.class);
     when(recipientBox.getData()).thenReturn("encrypteddata1".getBytes());
@@ -99,12 +94,9 @@ public class PreparePayloadForRecipientTest {
   @Test
   public void targetKeyIsSenderOfTransactionWithNoRecipientsPresent() {
     final PublicKey targetResendKey = PublicKey.from("target".getBytes());
-    EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.UNSUPPORTED;
 
     final EncodedPayload unformattedPayload = mock(EncodedPayload.class);
     when(unformattedPayload.getSenderKey()).thenReturn(targetResendKey);
-    when(unformattedPayload.getEncodedPayloadCodec()).thenReturn(encodedPayloadCodec);
-
     List<RecipientBox> recipientBoxes =
         Stream.of("encrypteddata1", "encrypteddata2")
             .map(String::getBytes)

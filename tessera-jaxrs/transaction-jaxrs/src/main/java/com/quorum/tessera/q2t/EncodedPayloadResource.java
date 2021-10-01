@@ -94,7 +94,6 @@ public class EncodedPayloadResource {
 
     final com.quorum.tessera.transaction.SendRequest request =
         com.quorum.tessera.transaction.SendRequest.Builder.create()
-            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withRecipients(recipientList)
             .withSender(sender)
             .withPayload(sendRequest.getPayload())
@@ -152,7 +151,6 @@ public class EncodedPayloadResource {
 
     final EncodedPayload requestAsPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withSenderKey(PublicKey.from(request.getSenderKey()))
             .withCipherText(request.getCipherText())
             .withCipherTextNonce(request.getCipherTextNonce())
@@ -248,7 +246,6 @@ public class EncodedPayloadResource {
 
     final com.quorum.tessera.transaction.SendRequest request =
         com.quorum.tessera.transaction.SendRequest.Builder.create()
-            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withRecipients(recipientList)
             .withSender(sender)
             .withPayload(sendRequest.getPayload())
@@ -332,7 +329,6 @@ public class EncodedPayloadResource {
 
     final EncodedPayload requestAsPayload =
         EncodedPayload.Builder.create()
-            .withEncodedPayloadCodec(encodedPayloadCodec)
             .withSenderKey(PublicKey.from(request.getSenderKey()))
             .withCipherText(request.getCipherText())
             .withCipherTextNonce(request.getCipherTextNonce())
@@ -342,7 +338,7 @@ public class EncodedPayloadResource {
                 request.getRecipientKeys().stream()
                     .map(PublicKey::from)
                     .collect(Collectors.toList()))
-            .withPrivacyFlag(request.getPrivacyMode())
+            .withPrivacyMode(PrivacyMode.fromFlag(request.getPrivacyMode()))
             .withAffectedContractTransactions(affectedTxns)
             .withExecHash(request.getExecHash())
             .build();

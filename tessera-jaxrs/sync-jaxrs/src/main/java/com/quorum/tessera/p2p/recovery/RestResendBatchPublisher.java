@@ -17,6 +17,8 @@ public class RestResendBatchPublisher implements ResendBatchPublisher {
 
   private final PayloadEncoder payloadEncoder;
 
+  private static final EncodedPayloadCodec ENCODED_PAYLOAD_CODEC = EncodedPayloadCodec.current();
+
   private final RecoveryClient resendClient;
 
   public RestResendBatchPublisher(
@@ -30,8 +32,7 @@ public class RestResendBatchPublisher implements ResendBatchPublisher {
 
     LOGGER.info("Publishing message to {}", targetUrl);
 
-    EncodedPayloadCodec encodedPayloadCodec =
-        payloads.stream().findFirst().get().getEncodedPayloadCodec();
+    EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.current();
     final List<byte[]> encodedPayloads =
         payloads.stream().map(payloadEncoder::encode).collect(Collectors.toList());
 

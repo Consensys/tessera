@@ -12,30 +12,13 @@ public class ResendManagerImpl implements ResendManager {
 
   private final EncryptedTransactionDAO encryptedTransactionDAO;
 
-  private final PayloadEncoder payloadEncoder;
-
   private final Enclave enclave;
 
   private final PayloadDigest payloadDigest;
 
   public ResendManagerImpl(
-      EncryptedTransactionDAO encryptedTransactionDAO,
-      Enclave enclave,
-      PayloadDigest payloadDigest) {
-    this(
-        encryptedTransactionDAO,
-        PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get(),
-        enclave,
-        payloadDigest);
-  }
-
-  public ResendManagerImpl(
-      final EncryptedTransactionDAO dao,
-      final PayloadEncoder encoder,
-      final Enclave enclave,
-      final PayloadDigest payloadDigest) {
+      final EncryptedTransactionDAO dao, final Enclave enclave, final PayloadDigest payloadDigest) {
     this.encryptedTransactionDAO = dao;
-    this.payloadEncoder = encoder;
     this.enclave = enclave;
     this.payloadDigest = payloadDigest;
   }
@@ -83,8 +66,7 @@ public class ResendManagerImpl implements ResendManager {
     if (tx.isPresent()) {
 
       // we just need to add the recipient
-      final byte[] encodedPayload = tx.get().getEncodedPayload();
-      final EncodedPayload existing = payloadEncoder.decode(encodedPayload);
+      final EncodedPayload existing = tx.get().getPayload();
 
       // check if the box already exists
       // this is the easiest way to tell if a recipient has already been included
@@ -117,7 +99,7 @@ public class ResendManagerImpl implements ResendManager {
 
         EncryptedTransaction encryptedTransaction = tx.get();
 
-        encryptedTransaction.setEncodedPayload(payloadEncoder.encode(payloadBuilder.build()));
+        encryptedTransaction.setPayload(payloadBuilder.build());
 
         this.encryptedTransactionDAO.update(encryptedTransaction);
       }
@@ -144,7 +126,7 @@ public class ResendManagerImpl implements ResendManager {
       EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setHash(transactionHash);
       encryptedTransaction.setPayload(encodedPayload);
-      encryptedTransaction.setEncodedPayloadCodec(encodedPayload.getEncodedPayloadCodec());
+
       this.encryptedTransactionDAO.save(encryptedTransaction);
     }
   }

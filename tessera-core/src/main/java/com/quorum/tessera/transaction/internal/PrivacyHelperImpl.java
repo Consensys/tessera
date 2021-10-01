@@ -24,8 +24,7 @@ public class PrivacyHelperImpl implements PrivacyHelper {
   private final boolean isEnhancedPrivacyEnabled;
 
   public PrivacyHelperImpl(
-      EncryptedTransactionDAO encryptedTransactionDAO,
-      boolean isEnhancedPrivacyEnabled) {
+      EncryptedTransactionDAO encryptedTransactionDAO, boolean isEnhancedPrivacyEnabled) {
     this.encryptedTransactionDAO = Objects.requireNonNull(encryptedTransactionDAO);
     this.isEnhancedPrivacyEnabled = isEnhancedPrivacyEnabled;
   }

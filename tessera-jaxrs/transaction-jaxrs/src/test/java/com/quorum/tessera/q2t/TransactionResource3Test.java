@@ -8,6 +8,7 @@ import com.quorum.tessera.api.SendRequest;
 import com.quorum.tessera.api.SendResponse;
 import com.quorum.tessera.api.SendSignedRequest;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.PrivacyGroup;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -155,8 +156,10 @@ public class TransactionResource3Test {
 
     final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
 
+    byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(base64Key);
 
     final PublicKey sender =
@@ -214,8 +217,10 @@ public class TransactionResource3Test {
     final String base64Hash =
         "yKNxAAPdBMiEZFkyQifH1PShwHTHTdE92T3hAfSQ3RtGce9IB8jrsrXxGuCe+Vu3Wyv2zgSbUnt+QBN2Rf48qQ==";
 
+    byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(base64Key);
     sendRequest.setPrivacyFlag(3);
     sendRequest.setAffectedContractTransactions(base64Hash);
@@ -274,8 +279,10 @@ public class TransactionResource3Test {
 
     final String base64Key = "BULeR8JyUWhiuuCMU/HLA0Q5pzkYT+cHII3ZKBey3Bo=";
 
+    byte[] payloadData = "PAYLOAD".getBytes();
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setPrivacyGroupId(base64Key);
 
     final PublicKey sender = mock(PublicKey.class);
@@ -337,8 +344,11 @@ public class TransactionResource3Test {
 
     final Base64.Encoder base64Encoder = Base64.getEncoder();
 
+    final byte[] payloadData = "PAYLOAD".getBytes();
+    EncodedPayload encodedPayload = mock(EncodedPayload.class);
+
     final SendRequest sendRequest = new SendRequest();
-    sendRequest.setPayload(base64Encoder.encode("PAYLOAD".getBytes()));
+    sendRequest.setPayload(payloadData);
     sendRequest.setTo(Base64.getEncoder().encodeToString("Mr Benn".getBytes()));
     final PublicKey sender = mock(PublicKey.class);
     when(transactionManager.defaultPublicKey()).thenReturn(sender);

@@ -97,13 +97,11 @@ public class RestfulEnclaveClient implements EnclaveClient {
       final byte[] message,
       final PublicKey senderPublicKey,
       final List<PublicKey> recipientPublicKeys,
-      final PrivacyMetadata privacyMetaData,
-      final EncodedPayloadCodec encodedPayloadCodec) {
+      final PrivacyMetadata privacyMetaData) {
 
     return ClientCallback.execute(
         () -> {
           EnclavePayload enclavePayload = new EnclavePayload();
-          enclavePayload.setEncodedPayloadCodec(encodedPayloadCodec);
           enclavePayload.setData(message);
           enclavePayload.setSenderKey(senderPublicKey.getKeyBytes());
           enclavePayload.setRecipientPublicKeys(
@@ -139,13 +137,11 @@ public class RestfulEnclaveClient implements EnclaveClient {
   public EncodedPayload encryptPayload(
       final RawTransaction rawTransaction,
       final List<PublicKey> recipientPublicKeys,
-      final PrivacyMetadata privacyMetaData,
-      final EncodedPayloadCodec encodedPayloadCodec) {
+      final PrivacyMetadata privacyMetaData) {
 
     return ClientCallback.execute(
         () -> {
           EnclaveRawPayload enclaveRawPayload = new EnclaveRawPayload();
-          enclaveRawPayload.setEncodedPayloadCodec(encodedPayloadCodec);
           enclaveRawPayload.setNonce(rawTransaction.getNonce().getNonceBytes());
           enclaveRawPayload.setFrom(rawTransaction.getFrom().getKeyBytes());
           enclaveRawPayload.setRecipientPublicKeys(
@@ -184,7 +180,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
 
           byte[] body = response.readEntity(byte[].class);
 
-          return PayloadEncoder.create(encodedPayloadCodec).get().decode(body);
+          return payloadEncoder.decode(body);
         });
   }
 
@@ -224,8 +220,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
         () -> {
           EnclaveUnencryptPayload dto = new EnclaveUnencryptPayload();
 
-          byte[] body =
-              PayloadEncoder.create(payload.getEncodedPayloadCodec()).get().encode(payload);
+          byte[] body = payloadEncoder.encode(payload);
 
           dto.setData(body);
 

@@ -15,8 +15,7 @@ public class PrivacyHelperProvider {
     LOGGER.debug("Creating PrivacyHelper");
     boolean privacyEnabled = runtimeContext.isEnhancedPrivacy();
     EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
-    PrivacyHelper privacyHelper =
-        new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled);
+    PrivacyHelper privacyHelper = new PrivacyHelperImpl(encryptedTransactionDAO, privacyEnabled);
     LOGGER.debug("Created PrivacyHelper {}", privacyHelper);
     return privacyHelper;
   }

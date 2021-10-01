@@ -148,12 +148,7 @@ public class RestfulEnclaveClientTest {
                 .withPayload(encodedPayload)
                 .build());
 
-    when(enclave.encryptPayload(
-            eq(message),
-            eq(senderPublicKey),
-            eq(recipientPublicKeys),
-            any(),
-            any(EncodedPayloadCodec.class)))
+    when(enclave.encryptPayload(eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any()))
         .thenReturn(encodedPayload);
 
     final PrivacyMetadata privacyMetaData =
@@ -164,7 +159,7 @@ public class RestfulEnclaveClientTest {
 
     EncodedPayload result =
         enclaveClient.encryptPayload(
-            message, senderPublicKey, recipientPublicKeys, privacyMetaData, encodedPayloadCodec);
+            message, senderPublicKey, recipientPublicKeys, privacyMetaData);
 
     assertThat(result).isNotNull();
 
@@ -177,11 +172,7 @@ public class RestfulEnclaveClientTest {
 
     verify(enclave)
         .encryptPayload(
-            eq(message),
-            eq(senderPublicKey),
-            eq(recipientPublicKeys),
-            any(PrivacyMetadata.class),
-            any(EncodedPayloadCodec.class));
+            eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(PrivacyMetadata.class));
   }
 
   @Test
@@ -213,16 +204,12 @@ public class RestfulEnclaveClientTest {
             .build();
 
     when(enclave.encryptPayload(
-            eq(message),
-            eq(senderPublicKey),
-            eq(recipientPublicKeys),
-            any(PrivacyMetadata.class),
-            any(EncodedPayloadCodec.class)))
+            eq(message), eq(senderPublicKey), eq(recipientPublicKeys), any(PrivacyMetadata.class)))
         .thenReturn(payloadWithGroupId);
 
     EncodedPayload result =
         enclaveClient.encryptPayload(
-            message, senderPublicKey, recipientPublicKeys, privacyMetaData, encodedPayloadCodec);
+            message, senderPublicKey, recipientPublicKeys, privacyMetaData);
 
     assertThat(result).isNotNull();
 
@@ -235,11 +222,7 @@ public class RestfulEnclaveClientTest {
 
     verify(enclave)
         .encryptPayload(
-            eq(message),
-            eq(senderPublicKey),
-            eq(recipientPublicKeys),
-            argumentCaptor.capture(),
-            any(EncodedPayloadCodec.class));
+            eq(message), eq(senderPublicKey), eq(recipientPublicKeys), argumentCaptor.capture());
 
     final PrivacyMetadata passingThroughPrivacyData = argumentCaptor.getValue();
     assertThat(passingThroughPrivacyData.getPrivacyGroupId())
@@ -285,13 +268,11 @@ public class RestfulEnclaveClientTest {
             .withAffectedTransactions(affectedTransactions)
             .build();
 
-    when(enclave.encryptPayload(
-            any(RawTransaction.class), any(List.class), any(), any(EncodedPayloadCodec.class)))
+    when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any()))
         .thenReturn(encodedPayload);
 
     EncodedPayload result =
-        enclaveClient.encryptPayload(
-            rawTransaction, recipientPublicKeys, privacyMetaData, encodedPayloadCodec);
+        enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys, privacyMetaData);
 
     assertThat(result).isNotNull();
 
@@ -300,9 +281,7 @@ public class RestfulEnclaveClientTest {
 
     assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
-    verify(enclave)
-        .encryptPayload(
-            any(RawTransaction.class), any(List.class), any(), any(EncodedPayloadCodec.class));
+    verify(enclave).encryptPayload(any(RawTransaction.class), any(List.class), any());
   }
 
   @Test
@@ -341,13 +320,11 @@ public class RestfulEnclaveClientTest {
             .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("group".getBytes()))
             .build();
 
-    when(enclave.encryptPayload(
-            any(RawTransaction.class), any(List.class), any(), any(EncodedPayloadCodec.class)))
+    when(enclave.encryptPayload(any(RawTransaction.class), any(List.class), any()))
         .thenReturn(encodedPayloadWithGroupId);
 
     EncodedPayload result =
-        enclaveClient.encryptPayload(
-            rawTransaction, recipientPublicKeys, privacyMetaData, encodedPayloadCodec);
+        enclaveClient.encryptPayload(rawTransaction, recipientPublicKeys, privacyMetaData);
 
     assertThat(result).isNotNull();
 
@@ -359,11 +336,7 @@ public class RestfulEnclaveClientTest {
     ArgumentCaptor<PrivacyMetadata> argumentCaptor = ArgumentCaptor.forClass(PrivacyMetadata.class);
 
     verify(enclave)
-        .encryptPayload(
-            any(RawTransaction.class),
-            any(List.class),
-            argumentCaptor.capture(),
-            any(EncodedPayloadCodec.class));
+        .encryptPayload(any(RawTransaction.class), any(List.class), argumentCaptor.capture());
 
     final PrivacyMetadata passingThroughPrivacyData = argumentCaptor.getValue();
     assertThat(passingThroughPrivacyData.getPrivacyGroupId())
