@@ -36,8 +36,7 @@ public class ResendManagerImplTest {
     this.enclave = mock(Enclave.class);
     payloadDigest = cipherText -> cipherText;
 
-    this.resendManager =
-        new ResendManagerImpl(encryptedTransactionDAO, enclave, payloadDigest);
+    this.resendManager = new ResendManagerImpl(encryptedTransactionDAO, enclave, payloadDigest);
   }
 
   @After
@@ -69,7 +68,8 @@ public class ResendManagerImplTest {
 
     resendManager.acceptOwnMessage(encodedPayload);
 
-    ArgumentCaptor<EncryptedTransaction> transactionArgumentCaptor = ArgumentCaptor.forClass(EncryptedTransaction.class);
+    ArgumentCaptor<EncryptedTransaction> transactionArgumentCaptor =
+        ArgumentCaptor.forClass(EncryptedTransaction.class);
 
     verify(encryptedTransactionDAO).save(transactionArgumentCaptor.capture());
 
@@ -96,7 +96,8 @@ public class ResendManagerImplTest {
   @Test
   public void storePayloadAsSenderWhenTxIsPresent() {
     final byte[] storedData = "SOMEDATA".getBytes();
-    final EncryptedTransaction et = mock(EncryptedTransaction.class);// new EncryptedTransaction(null, storedData);
+    final EncryptedTransaction et =
+        mock(EncryptedTransaction.class); // new EncryptedTransaction(null, storedData);
     final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
     final PublicKey recipientKey1 = PublicKey.from("RECIPIENT-KEY1".getBytes());
@@ -120,14 +121,13 @@ public class ResendManagerImplTest {
             .withRecipientKeys(singletonList(recipientKey1))
             .build();
 
-
     when(et.getPayload()).thenReturn(existingEncodedPayload);
 
     when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
     when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
         .thenReturn(Optional.of(et));
-//    when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-//    when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
+    //    when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
+    //    when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
 
     resendManager.acceptOwnMessage(encodedPayload);
 
@@ -150,7 +150,7 @@ public class ResendManagerImplTest {
 
     verify(encryptedTransactionDAO).update(et);
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-   // verify(payloadEncoder).decode(storedData);
+    // verify(payloadEncoder).decode(storedData);
     verify(enclave).getPublicKeys();
     verify(enclave).unencryptTransaction(encodedPayload, senderKey);
     verify(enclave).unencryptTransaction(existingEncodedPayload, senderKey);
@@ -159,7 +159,8 @@ public class ResendManagerImplTest {
   @Test
   public void storePayloadAsSenderWhenTxIsPresentAndPsv() {
     final byte[] storedData = "SOMEDATA".getBytes();
-    final EncryptedTransaction et = mock(EncryptedTransaction.class);//new EncryptedTransaction(null, storedData);
+    final EncryptedTransaction et =
+        mock(EncryptedTransaction.class); // new EncryptedTransaction(null, storedData);
     final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
     final PublicKey recipientKey1 = PublicKey.from("RECIPIENT-KEY1".getBytes());
@@ -190,12 +191,13 @@ public class ResendManagerImplTest {
     when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
     when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
         .thenReturn(Optional.of(et));
-//    when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-//    when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
+    //    when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
+    //    when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
 
     resendManager.acceptOwnMessage(encodedPayload);
 
-    ArgumentCaptor<EncodedPayload> payloadArgumentCaptor = ArgumentCaptor.forClass(EncodedPayload.class);
+    ArgumentCaptor<EncodedPayload> payloadArgumentCaptor =
+        ArgumentCaptor.forClass(EncodedPayload.class);
     verify(et).setPayload(payloadArgumentCaptor.capture());
 
     final EncodedPayload updated = payloadArgumentCaptor.getValue();
@@ -215,7 +217,8 @@ public class ResendManagerImplTest {
   @Test
   public void storePayloadAsSenderWhenTxIsPresentAndRecipientAlreadyExists() {
     final byte[] storedData = "SOMEDATA".getBytes();
-    final EncryptedTransaction et = mock(EncryptedTransaction.class);//new EncryptedTransaction(null, storedData);
+    final EncryptedTransaction et =
+        mock(EncryptedTransaction.class); // new EncryptedTransaction(null, storedData);
     final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
     final PublicKey recipientKey1 = PublicKey.from("RECIPIENT-KEY1".getBytes());
@@ -244,7 +247,7 @@ public class ResendManagerImplTest {
     when(enclave.getPublicKeys()).thenReturn(Set.of(senderKey));
     when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
         .thenReturn(Optional.of(et));
-   // when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
+    // when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
 
     resendManager.acceptOwnMessage(encodedPayload);
 
@@ -253,7 +256,7 @@ public class ResendManagerImplTest {
         .containsExactly(RecipientBox.from(recipientBox2));
 
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-   // verify(payloadEncoder).decode(storedData);
+    // verify(payloadEncoder).decode(storedData);
     verify(enclave).getPublicKeys();
     verify(enclave).unencryptTransaction(encodedPayload, senderKey);
   }
@@ -261,7 +264,8 @@ public class ResendManagerImplTest {
   @Test
   public void storePayloadAsSenderWhenTxIsPresentAndRecipientExisted() {
     final byte[] storedData = "SOMEDATA".getBytes();
-    final EncryptedTransaction et = mock(EncryptedTransaction.class);//new EncryptedTransaction(null, storedData);
+    final EncryptedTransaction et =
+        mock(EncryptedTransaction.class); // new EncryptedTransaction(null, storedData);
     final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
     final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
@@ -281,8 +285,8 @@ public class ResendManagerImplTest {
     when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
         .thenReturn(Optional.of(et));
 
-//    when(payloadEncoder.decode(storedData)).thenReturn(encodedPayload);
-//    when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
+    //    when(payloadEncoder.decode(storedData)).thenReturn(encodedPayload);
+    //    when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
 
     resendManager.acceptOwnMessage(encodedPayload);
 
@@ -290,7 +294,7 @@ public class ResendManagerImplTest {
     assertThat(encodedPayload.getRecipientBoxes()).containsExactly(RecipientBox.from(recipientBox));
 
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-   // verify(payloadEncoder).decode(storedData);
+    // verify(payloadEncoder).decode(storedData);
     verify(enclave).getPublicKeys();
     verify(enclave).unencryptTransaction(encodedPayload, senderKey);
   }
@@ -326,7 +330,8 @@ public class ResendManagerImplTest {
   @Test
   public void invalidPayloadFromMaliciousRecipient() {
     final byte[] storedData = "SOMEDATA".getBytes();
-    final EncryptedTransaction et = mock(EncryptedTransaction.class);//new EncryptedTransaction(null, storedData);
+    final EncryptedTransaction et =
+        mock(EncryptedTransaction.class); // new EncryptedTransaction(null, storedData);
     final PublicKey senderKey = PublicKey.from("SENDER".getBytes());
 
     final PublicKey recipientKey = PublicKey.from("RECIPIENT-KEY".getBytes());
@@ -348,13 +353,12 @@ public class ResendManagerImplTest {
             .withRecipientKeys(new ArrayList<>())
             .build();
 
-
     when(et.getPayload()).thenReturn(existingEncodedPayload);
     when(enclave.getPublicKeys()).thenReturn(singleton(senderKey));
     when(encryptedTransactionDAO.retrieveByHash(any(MessageHash.class)))
         .thenReturn(Optional.of(et));
-//    when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
-//    when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
+    //    when(payloadEncoder.decode(storedData)).thenReturn(existingEncodedPayload);
+    //    when(payloadEncoder.encode(any(EncodedPayload.class))).thenReturn("updated".getBytes());
     when(enclave.unencryptTransaction(existingEncodedPayload, senderKey))
         .thenReturn("payload1".getBytes());
 
@@ -366,7 +370,7 @@ public class ResendManagerImplTest {
         .hasMessage("Invalid payload provided");
 
     verify(encryptedTransactionDAO).retrieveByHash(any(MessageHash.class));
-    //verify(payloadEncoder).decode(storedData);
+    // verify(payloadEncoder).decode(storedData);
     verify(enclave).getPublicKeys();
     verify(enclave).unencryptTransaction(encodedPayload, senderKey);
     verify(enclave).unencryptTransaction(existingEncodedPayload, senderKey);
