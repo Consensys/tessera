@@ -90,10 +90,12 @@ public class TransactionResource {
     LOGGER.debug("Received resend request {}", resendRequest);
 
     PublicKey recipient =
-        Optional.of(resendRequest)
-            .map(ResendRequest::getPublicKey)
+        Optional.of(resendRequest).map(ResendRequest::getPublicKey).stream()
+            .peek(k -> LOGGER.info("Decoding key {}", k))
             .map(Base64Codec.create()::decode)
             .map(PublicKey::from)
+            .peek(k -> LOGGER.info("Decoded key {}", k.encodeToBase64()))
+            .findFirst()
             .get();
 
     MessageHash transactionHash =

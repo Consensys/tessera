@@ -95,4 +95,22 @@ public class EncryptedTransactionListenerTest {
     payloadEncoderFactoryFunction.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
     assertThat(encryptedTransaction.getEncodedPayload()).isEqualTo(payloadData);
   }
+
+  @Test
+  public void onUpdate() {
+    EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
+    encryptedTransaction.setPayload(encodedPayload);
+
+    byte[] payloadData = "PayloadData".getBytes();
+    when(payloadEncoder.encode(encodedPayload)).thenReturn(payloadData);
+
+    encryptedTransactionListener.onUpdate(encryptedTransaction);
+
+    verify(payloadEncoder).encode(encodedPayload);
+    payloadEncoderFactoryFunction.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
+    assertThat(encryptedTransaction.getEncodedPayload()).isEqualTo(payloadData);
+    assertThat(encryptedTransaction).isSameAs(encryptedTransaction);
+  }
 }

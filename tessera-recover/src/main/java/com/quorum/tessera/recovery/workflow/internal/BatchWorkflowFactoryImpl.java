@@ -35,7 +35,7 @@ class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
   public BatchWorkflow create(long transactionCount) {
 
     ValidateEnclaveStatus validateEnclaveStatus = new ValidateEnclaveStatus(enclave);
-    DecodePayloadHandler decodePayloadHandler = new DecodePayloadHandler(payloadEncoder);
+    DecodePayloadHandler decodePayloadHandler = new DecodePayloadHandler();
     PreparePayloadForRecipient preparePayloadForRecipient =
         new PreparePayloadForRecipient(payloadEncoder);
     FindRecipientFromPartyInfo findRecipientFromPartyInfo =

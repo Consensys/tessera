@@ -88,7 +88,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
                     new TransactionNotFoundException(
                         "Message with hash " + messageHash + " was not found"));
 
-    final EncodedPayload payload = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
+    final EncodedPayload payload = encryptedTransaction.getPayload();
 
     if (payload.getPrivacyMode() != PrivacyMode.STANDARD_PRIVATE) {
       throw new EnhancedPrivacyNotSupportedException(
