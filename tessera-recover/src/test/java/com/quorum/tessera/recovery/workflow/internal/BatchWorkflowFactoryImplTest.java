@@ -7,6 +7,7 @@ import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.NodeInfo;
@@ -106,19 +107,18 @@ public class BatchWorkflowFactoryImplTest {
     PublicKey publicKey = mock(PublicKey.class);
     batchWorkflowContext.setRecipientKey(publicKey);
 
+    EncodedPayload encodedPayload = mock(EncodedPayload.class);
     EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
-    byte[] payloadData = "PAYLOAD".getBytes();
-    when(encryptedTransaction.getEncodedPayload()).thenReturn(payloadData);
+    when(encryptedTransaction.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
+    when(encryptedTransaction.getPayload()).thenReturn(encodedPayload);
 
     batchWorkflowContext.setEncryptedTransaction(encryptedTransaction);
 
-    when(payloadEncoder.decode(payloadData)).thenReturn(mock(EncodedPayload.class));
     when(enclave.status()).thenReturn(Service.Status.STARTED);
 
     assertThat(batchWorkflow.execute(batchWorkflowContext)).isFalse();
     assertThat(batchWorkflow.getPublishedMessageCount()).isZero();
 
-    verify(payloadEncoder).decode(payloadData);
     verify(enclave).status();
   }
 }

@@ -105,8 +105,6 @@ public class LegacyResendWorkflowFactoryTest {
     when(testPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION); // causes a failure
     when(testPayload.getSenderKey()).thenReturn(targetResendKey);
 
-    when(payloadEncoder.decode(encodedPayloadAsBytes)).thenReturn(testPayload);
-
     final EncryptedTransaction encryptedTx = new EncryptedTransaction();
     encryptedTx.setEncodedPayload(encodedPayloadAsBytes);
 
@@ -119,7 +117,6 @@ public class LegacyResendWorkflowFactoryTest {
 
     assertThat(success).isFalse();
 
-    verify(payloadEncoder).decode(encodedPayloadAsBytes);
     verify(enclave).status();
   }
 }

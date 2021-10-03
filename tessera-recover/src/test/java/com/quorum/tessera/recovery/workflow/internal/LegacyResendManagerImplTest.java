@@ -82,11 +82,11 @@ public class LegacyResendManagerImplTest {
     final EncodedPayload nonSPPayload = mock(EncodedPayload.class);
     when(nonSPPayload.getPrivacyMode()).thenReturn(PrivacyMode.PARTY_PROTECTION);
 
-    final EncryptedTransaction databaseTx = new EncryptedTransaction();
-    databaseTx.setEncodedPayload(new byte[0]);
+    final EncryptedTransaction databaseTx = mock(EncryptedTransaction.class);
+    when(databaseTx.getPayload()).thenReturn(nonSPPayload);
+    when(databaseTx.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
 
     when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
-    when(encoder.decode(any(byte[].class))).thenReturn(nonSPPayload);
 
     final MessageHash txHash = new MessageHash("sample-hash".getBytes());
     final PublicKey targetResendKey = PublicKey.from("target".getBytes());
@@ -104,7 +104,6 @@ public class LegacyResendManagerImplTest {
         .hasMessage("Cannot resend enhanced privacy transaction in legacy resend");
 
     verify(dao).retrieveByHash(txHash);
-    verify(encoder).decode(any(byte[].class));
   }
 
   @Test
@@ -115,8 +114,9 @@ public class LegacyResendManagerImplTest {
     final EncodedPayload nonSPPayload = mock(EncodedPayload.class);
     when(nonSPPayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
 
-    final EncryptedTransaction databaseTx = new EncryptedTransaction();
-    databaseTx.setEncodedPayload(new byte[0]);
+    final EncryptedTransaction databaseTx = mock(EncryptedTransaction.class);
+    when(databaseTx.getPayload()).thenReturn(nonSPPayload);
+    when(databaseTx.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
 
     final ResendRequest request =
         ResendRequest.Builder.create()
@@ -126,7 +126,6 @@ public class LegacyResendManagerImplTest {
             .build();
 
     when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
-    when(encoder.decode(any(byte[].class))).thenReturn(nonSPPayload);
     when(encoder.forRecipient(nonSPPayload, targetResendKey)).thenReturn(nonSPPayload);
 
     final ResendResponse response = resendManager.resend(request);
@@ -135,7 +134,6 @@ public class LegacyResendManagerImplTest {
     assertThat(response.getPayload()).isEqualTo(nonSPPayload);
 
     verify(dao).retrieveByHash(txHash);
-    verify(encoder).decode(any(byte[].class));
     verify(encoder).forRecipient(nonSPPayload, targetResendKey);
   }
 
@@ -153,8 +151,11 @@ public class LegacyResendManagerImplTest {
     when(recipientBox.getData()).thenReturn("testBox".getBytes());
     when(nonSPPayload.getRecipientBoxes()).thenReturn(List.of(recipientBox));
 
-    final EncryptedTransaction databaseTx = new EncryptedTransaction();
-    databaseTx.setEncodedPayload(new byte[0]);
+    final EncryptedTransaction databaseTx = mock(EncryptedTransaction.class);
+    when(databaseTx.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
+    when(databaseTx.getPayload()).thenReturn(nonSPPayload);
+
+    databaseTx.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
 
     final ResendRequest request =
         ResendRequest.Builder.create()
@@ -164,7 +165,6 @@ public class LegacyResendManagerImplTest {
             .build();
 
     when(dao.retrieveByHash(any(MessageHash.class))).thenReturn(Optional.of(databaseTx));
-    when(encoder.decode(any(byte[].class))).thenReturn(nonSPPayload);
     when(enclave.getPublicKeys()).thenReturn(Set.of(localRecipientKey));
     when(enclave.unencryptTransaction(any(), eq(localRecipientKey))).thenReturn(new byte[0]);
 
@@ -175,7 +175,6 @@ public class LegacyResendManagerImplTest {
     assertThat(resultingEncodedPayload.getRecipientKeys()).containsExactly(localRecipientKey);
 
     verify(dao).retrieveByHash(txHash);
-    verify(encoder).decode(any(byte[].class));
     verify(enclave).getPublicKeys();
     verify(enclave).unencryptTransaction(any(), eq(localRecipientKey));
   }
@@ -203,7 +202,6 @@ public class LegacyResendManagerImplTest {
     assertThat(response.getPayload()).isNull();
 
     verify(enclave, times(2)).status();
-    verify(encoder, times(2)).decode(any());
     verify(dao).transactionCount();
     verify(dao).retrieveTransactions(0, 1);
     verify(dao).retrieveTransactions(1, 1);
