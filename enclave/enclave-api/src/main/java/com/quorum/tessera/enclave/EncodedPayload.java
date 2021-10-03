@@ -211,12 +211,6 @@ public class EncodedPayload {
       return this;
     }
 
-    // Use the typed withPrivacyMode
-    @Deprecated
-    public Builder withPrivacyFlag(final int privacyFlag) {
-      return this.withPrivacyMode(PrivacyMode.fromFlag(privacyFlag));
-    }
-
     public Builder withPrivacyMode(final PrivacyMode privacyMode) {
       this.privacyMode = privacyMode;
       return this;
@@ -229,9 +223,7 @@ public class EncodedPayload {
     }
 
     public Builder withExecHash(final byte[] execHash) {
-      if (Objects.nonNull(execHash)) {
-        this.execHash = execHash;
-      }
+      this.execHash = execHash;
       return this;
     }
 
@@ -246,6 +238,8 @@ public class EncodedPayload {
     }
 
     public EncodedPayload build() {
+      // FIXME: should this be able to happen? Which caller is building with null
+      this.execHash = Objects.isNull(execHash) ? new byte[0] : execHash;
 
       Map<TxHash, SecurityHash> affectedTransactions =
           affectedContractTransactions.entrySet().stream()
@@ -256,8 +250,7 @@ public class EncodedPayload {
       List<RecipientBox> recipientBoxes =
           this.recipientBoxes.stream().map(RecipientBox::from).collect(Collectors.toList());
 
-      if ((privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION)
-          == (Objects.nonNull(execHash) && execHash.length == 0)) {
+      if ((privacyMode == PrivacyMode.PRIVATE_STATE_VALIDATION) == (execHash.length == 0)) {
         throw new RuntimeException("ExecutionHash data is invalid");
       }
 

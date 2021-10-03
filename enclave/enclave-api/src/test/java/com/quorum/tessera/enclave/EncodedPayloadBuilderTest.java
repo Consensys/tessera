@@ -1,6 +1,7 @@
 package com.quorum.tessera.enclave;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 
 import com.quorum.tessera.encryption.PublicKey;
 import java.util.List;
@@ -40,7 +41,7 @@ public class EncodedPayloadBuilderTest {
             .withCipherTextNonce(cipherTextNonce)
             .withRecipientBox(recipientBox)
             .withRecipientNonce(recipientNonce)
-            .withPrivacyFlag(3)
+            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
             .withAffectedContractTransactions(affectedContractTransactionsRaw)
             .withExecHash(execHash)
             .withRecipientKey(recipientKey)
@@ -134,7 +135,7 @@ public class EncodedPayloadBuilderTest {
             .withCipherTextNonce(cipherTextNonce)
             .withRecipientBox(recipientBox)
             .withRecipientNonce(recipientNonce)
-            .withPrivacyFlag(3)
+            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
             .withAffectedContractTransactions(affectedContractTransactionsRaw)
             .withExecHash(execHash)
             .withRecipientKey(recipientKey)
@@ -162,7 +163,7 @@ public class EncodedPayloadBuilderTest {
         .withCipherTextNonce(cipherTextNonce)
         .withRecipientBox(recipientBox)
         .withRecipientNonce(recipientNonce)
-        .withPrivacyFlag(1)
+        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
         .withAffectedContractTransactions(affectedContractTransactionsRaw)
         .withExecHash(execHash)
         .withRecipientKey(recipientKey)
@@ -178,7 +179,7 @@ public class EncodedPayloadBuilderTest {
         .withCipherTextNonce(cipherTextNonce)
         .withRecipientBox(recipientBox)
         .withRecipientNonce(recipientNonce)
-        .withPrivacyFlag(3)
+        .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
         .withAffectedContractTransactions(affectedContractTransactionsRaw)
         .withRecipientKey(recipientKey)
         .withPrivacyGroupId(PrivacyGroup.Id.fromBytes("PRIVACYGROUPID".getBytes()))
@@ -193,7 +194,7 @@ public class EncodedPayloadBuilderTest {
         .withCipherTextNonce(cipherTextNonce)
         .withRecipientBox(recipientBox)
         .withRecipientNonce(recipientNonce)
-        .withPrivacyFlag(1)
+        .withPrivacyMode(PrivacyMode.PARTY_PROTECTION)
         .withMandatoryRecipients(Set.of(PublicKey.from("KEY1".getBytes())))
         .build();
   }
@@ -206,7 +207,66 @@ public class EncodedPayloadBuilderTest {
         .withCipherTextNonce(cipherTextNonce)
         .withRecipientBox(recipientBox)
         .withRecipientNonce(recipientNonce)
-        .withPrivacyFlag(2)
+        .withPrivacyMode(PrivacyMode.MANDATORY_RECIPIENTS)
         .build();
+  }
+
+  @Test
+  public void nullEcxecuteHashForPSV() {
+    try {
+      EncodedPayload.Builder.create()
+          .withSenderKey(senderKey)
+          .withCipherText(cipherText)
+          .withCipherTextNonce(cipherTextNonce)
+          .withRecipientBox(recipientBox)
+          .withRecipientNonce(recipientNonce)
+          .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+          .withAffectedContractTransactions(affectedContractTransactionsRaw)
+          .withExecHash(null)
+          .withRecipientKey(recipientKey)
+          .build();
+      failBecauseExceptionWasNotThrown(RuntimeException.class);
+    } catch (RuntimeException e) {
+      assertThat(e).hasMessage("ExecutionHash data is invalid");
+    }
+  }
+
+  @Test
+  public void emptyEcxecuteHashForPSV() {
+    try {
+      EncodedPayload.Builder.create()
+          .withSenderKey(senderKey)
+          .withCipherText(cipherText)
+          .withCipherTextNonce(cipherTextNonce)
+          .withRecipientBox(recipientBox)
+          .withRecipientNonce(recipientNonce)
+          .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+          .withAffectedContractTransactions(affectedContractTransactionsRaw)
+          .withExecHash(new byte[0])
+          .withRecipientKey(recipientKey)
+          .build();
+      failBecauseExceptionWasNotThrown(RuntimeException.class);
+    } catch (RuntimeException e) {
+      assertThat(e).hasMessage("ExecutionHash data is invalid");
+    }
+  }
+
+  @Test
+  public void nonEmptyExecuteHashForPSV() {
+
+    EncodedPayload payload =
+        EncodedPayload.Builder.create()
+            .withSenderKey(senderKey)
+            .withCipherText(cipherText)
+            .withCipherTextNonce(cipherTextNonce)
+            .withRecipientBox(recipientBox)
+            .withRecipientNonce(recipientNonce)
+            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+            .withAffectedContractTransactions(affectedContractTransactionsRaw)
+            .withExecHash(new byte[1])
+            .withRecipientKey(recipientKey)
+            .build();
+
+    assertThat(payload).isNotNull();
   }
 }

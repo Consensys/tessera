@@ -43,8 +43,6 @@ public class EncodedPayloadResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EncodedPayloadResource.class);
 
-  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
-
   private final Base64.Decoder base64Decoder = Base64.getDecoder();
 
   private final EncodedPayloadManager encodedPayloadManager;
@@ -160,7 +158,7 @@ public class EncodedPayloadResource {
                 request.getRecipientKeys().stream()
                     .map(PublicKey::from)
                     .collect(Collectors.toList()))
-            .withPrivacyFlag(request.getPrivacyMode())
+            .withPrivacyMode(PrivacyMode.fromFlag(request.getPrivacyMode()))
             .withAffectedContractTransactions(affectedTxns)
             .withExecHash(request.getExecHash())
             .build();

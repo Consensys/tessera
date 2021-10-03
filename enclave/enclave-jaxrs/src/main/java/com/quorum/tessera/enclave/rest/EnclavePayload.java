@@ -1,6 +1,5 @@
 package com.quorum.tessera.enclave.rest;
 
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import jakarta.xml.bind.annotation.XmlMimeType;
 import jakarta.xml.bind.annotation.XmlRootElement;
@@ -31,8 +30,6 @@ public class EnclavePayload implements Serializable {
 
   @XmlMimeType("base64Binary")
   private byte[] privacyGroupId;
-
-  private EncodedPayloadCodec encodedPayloadCodec;
 
   public byte[] getData() {
     return data;
@@ -96,13 +93,5 @@ public class EnclavePayload implements Serializable {
 
   public void setMandatoryRecipients(List<byte[]> mandatoryRecipients) {
     this.mandatoryRecipients = mandatoryRecipients;
-  }
-
-  public EncodedPayloadCodec getEncodedPayloadCodec() {
-    return encodedPayloadCodec;
-  }
-
-  public void setEncodedPayloadCodec(EncodedPayloadCodec encodedPayloadCodec) {
-    this.encodedPayloadCodec = encodedPayloadCodec;
   }
 }
