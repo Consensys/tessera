@@ -68,7 +68,10 @@ class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
         context.setExpectedTotal(filteredMessageCount.get());
 
         boolean outcome =
-            handlers.stream().filter(Predicate.not(h -> h.execute(context))).findFirst().isEmpty();
+            handlers.stream()
+                .filter(Predicate.not(h -> h.doExecute(context)))
+                .findFirst()
+                .isEmpty();
 
         if (!outcome) {
           context.setExpectedTotal(filteredMessageCount.decrementAndGet());

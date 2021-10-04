@@ -112,6 +112,6 @@ public class TransactionResourceTest {
     com.quorum.tessera.recovery.resend.ResendBatchRequest convertedRequest = captor.getValue();
 
     assertThat(convertedRequest.getPublicKey()).isEqualTo("someKey");
-    assertThat(convertedRequest.getBatchSize()).isEqualTo(1);
+    assertThat(convertedRequest.getBatchSize()).contains(1);
   }
 }

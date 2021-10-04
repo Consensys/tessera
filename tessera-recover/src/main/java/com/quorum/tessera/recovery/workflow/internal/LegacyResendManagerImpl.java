@@ -115,7 +115,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
     context.setPayloadsToPublish(allTxns);
     context.setEncryptedTransaction(encryptedTransaction);
 
-    new SearchRecipientKeyForPayload(enclave).execute(context);
+    new SearchRecipientKeyForPayload(enclave).doExecute(context);
 
     final EncodedPayload.Builder builder =
         EncodedPayload.Builder.create()

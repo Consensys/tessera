@@ -1,7 +1,6 @@
 package com.quorum.tessera.recovery.resend;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
@@ -14,13 +13,46 @@ public class ResendBatchRequestTest {
 
     assertThat(request).isNotNull();
     assertThat(request.getPublicKey()).isEqualTo("publicKey");
-    assertThat(request.getBatchSize()).isEqualTo(100);
+    assertThat(request.getBatchSize()).contains(100);
+    assertThat(request.toString()).isNotNull().isNotBlank();
   }
 
   @Test
-  public void validate() {
+  public void validateMissingPublicKey() {
+    try {
+      ResendBatchRequest.Builder.create().withBatchSize(10).build();
+      failBecauseExceptionWasNotThrown(NullPointerException.class);
+    } catch (NullPointerException ex) {
+      assertThat(ex).hasMessage("publicKey is required");
+    }
+  }
 
-    assertThatExceptionOfType(NullPointerException.class)
-        .isThrownBy(() -> ResendBatchRequest.Builder.create().build());
+  @Test
+  public void validateMissingBatchSize() {
+
+    ResendBatchRequest result =
+        ResendBatchRequest.Builder.create().withPublicKey("SomeKey").build();
+    assertThat(result.getPublicKey()).isEqualTo("SomeKey");
+    assertThat(result.getBatchSize()).isEmpty();
+  }
+
+  @Test
+  public void validateZeroBatchSize() {
+    try {
+      ResendBatchRequest.Builder.create().withPublicKey("SomeKey").withBatchSize(0).build();
+      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
+    } catch (IllegalArgumentException ex) {
+      assertThat(ex).hasMessage("Batch size must be greater than 1");
+    }
+  }
+
+  @Test
+  public void validateNegativeBatchSize() {
+    try {
+      ResendBatchRequest.Builder.create().withPublicKey("SomeKey").withBatchSize(-100).build();
+      failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
+    } catch (IllegalArgumentException ex) {
+      assertThat(ex).hasMessage("Batch size must be greater than 1");
+    }
   }
 }

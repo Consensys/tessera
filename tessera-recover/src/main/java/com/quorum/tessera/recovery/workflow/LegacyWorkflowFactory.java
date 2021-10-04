@@ -7,8 +7,12 @@ import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LegacyWorkflowFactory {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(LegacyWorkflowFactory.class);
 
   private final Enclave enclave;
 
@@ -60,8 +64,9 @@ public class LegacyWorkflowFactory {
 
       @Override
       public boolean execute(final BatchWorkflowContext context) {
+        LOGGER.debug("Executing legacy batch flow {}", context);
         return handlers.stream()
-            .filter(Predicate.not(h -> h.execute(context)))
+            .filter(Predicate.not(h -> h.doExecute(context)))
             .findFirst()
             .isEmpty();
       }

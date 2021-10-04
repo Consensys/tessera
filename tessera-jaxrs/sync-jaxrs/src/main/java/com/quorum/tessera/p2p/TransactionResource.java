@@ -142,13 +142,15 @@ public class TransactionResource {
   @Produces(APPLICATION_JSON)
   public Response resendBatch(@Valid @NotNull final ResendBatchRequest resendBatchRequest) {
 
-    LOGGER.debug("Received resend request");
+    LOGGER.trace("Received resend request {}", resendBatchRequest);
 
     com.quorum.tessera.recovery.resend.ResendBatchRequest request =
         com.quorum.tessera.recovery.resend.ResendBatchRequest.Builder.create()
             .withPublicKey(resendBatchRequest.getPublicKey())
             .withBatchSize(resendBatchRequest.getBatchSize())
             .build();
+
+    LOGGER.debug("Built resend request {}", request);
 
     ResendBatchResponse response = batchResendManager.resendBatch(request);
 

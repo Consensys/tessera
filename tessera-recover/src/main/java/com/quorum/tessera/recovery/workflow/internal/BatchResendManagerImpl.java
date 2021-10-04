@@ -15,8 +15,12 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchResendManagerImpl implements BatchResendManager {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(BatchResendManagerImpl.class);
 
   private final StagingEntityDAO stagingEntityDAO;
 
@@ -45,14 +49,17 @@ public class BatchResendManagerImpl implements BatchResendManager {
 
   @Override
   public ResendBatchResponse resendBatch(ResendBatchRequest request) {
+    LOGGER.debug("Enter {}", request);
 
-    final int batchSize = validateRequestBatchSize(request.getBatchSize());
+    // FIXME:Is there a default batchsize? Using Zero for compatibility
+    final int batchSize = calcuateBatchSize(request.getBatchSize().orElse(0));
     final byte[] publicKeyData = Base64.getDecoder().decode(request.getPublicKey());
     final PublicKey recipientPublicKey = PublicKey.from(publicKeyData);
 
     final long transactionCount = encryptedTransactionDAO.transactionCount();
     final long batchCount = calculateBatchCount(maxResults, transactionCount);
 
+    LOGGER.debug("Create batchworkflow with txn count {}", transactionCount);
     final BatchWorkflow batchWorkflow = batchWorkflowFactory.create(transactionCount);
 
     IntStream.range(0, (int) batchCount)
@@ -65,6 +72,12 @@ public class BatchResendManagerImpl implements BatchResendManager {
               context.setEncryptedTransaction(encryptedTransaction);
               context.setRecipientKey(recipientPublicKey);
               context.setBatchSize(batchSize);
+
+              LOGGER.debug(
+                  "Created BatchWorkflowContext with txn {}, batchSize{}, recipient: {}",
+                  encryptedTransaction,
+                  batchSize,
+                  recipientPublicKey);
               batchWorkflow.execute(context);
             });
 
@@ -82,7 +95,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
         .forEach(stagingEntityDAO::save);
   }
 
-  private int validateRequestBatchSize(int s) {
+  private int calcuateBatchSize(int s) {
     if (Math.max(1, s) == Math.min(s, maxResults)) {
       return s;
     }
