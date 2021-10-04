@@ -35,7 +35,6 @@ class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
   public BatchWorkflow create(long transactionCount) {
 
     ValidateEnclaveStatus validateEnclaveStatus = new ValidateEnclaveStatus(enclave);
-    DecodePayloadHandler decodePayloadHandler = new DecodePayloadHandler();
     PreparePayloadForRecipient preparePayloadForRecipient =
         new PreparePayloadForRecipient(payloadEncoder);
     FindRecipientFromPartyInfo findRecipientFromPartyInfo =
@@ -50,7 +49,6 @@ class BatchWorkflowFactoryImpl implements BatchWorkflowFactory {
     List<BatchWorkflowAction> handlers =
         List.of(
             validateEnclaveStatus,
-            decodePayloadHandler,
             filterPayload,
             preparePayloadForRecipient,
             searchRecipientKeyForPayload,

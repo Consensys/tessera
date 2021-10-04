@@ -70,6 +70,7 @@ public class BatchResendManagerImpl implements BatchResendManager {
             encryptedTransaction -> {
               final BatchWorkflowContext context = new BatchWorkflowContext();
               context.setEncryptedTransaction(encryptedTransaction);
+              context.setEncodedPayload(encryptedTransaction.getPayload());
               context.setRecipientKey(recipientPublicKey);
               context.setBatchSize(batchSize);
 

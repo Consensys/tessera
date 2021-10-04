@@ -5,6 +5,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.partyinfo.node.Recipient;
 import java.util.Set;
+import java.util.StringJoiner;
 
 public class BatchWorkflowContext {
 
@@ -77,5 +78,17 @@ public class BatchWorkflowContext {
 
   public void setPayloadsToPublish(Set<EncodedPayload> payloadsToPublish) {
     this.payloadsToPublish = payloadsToPublish;
+  }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", BatchWorkflowContext.class.getSimpleName() + "[", "]")
+        .add("expectedTotal=" + expectedTotal)
+        .add("batchSize=" + batchSize)
+        .add("recipient=" + recipient)
+        .add("encryptedTransaction=" + encryptedTransaction)
+        .add("encodedPayload=" + encodedPayload)
+        .add("payloadsToPublish=" + payloadsToPublish)
+        .toString();
   }
 }

@@ -70,6 +70,7 @@ public class LegacyResendManagerImpl implements LegacyResendManager {
             encryptedTransaction -> {
               final BatchWorkflowContext context = new BatchWorkflowContext();
               context.setEncryptedTransaction(encryptedTransaction);
+              context.setEncodedPayload(encryptedTransaction.getPayload());
               context.setRecipientKey(request.getRecipient());
               context.setBatchSize(1);
               batchWorkflow.execute(context);

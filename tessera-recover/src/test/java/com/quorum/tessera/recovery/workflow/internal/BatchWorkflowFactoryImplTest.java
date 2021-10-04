@@ -71,8 +71,11 @@ public class BatchWorkflowFactoryImplTest {
     when(encodedPayload.getSenderKey()).thenReturn(ownedKey);
     when(encodedPayload.getRecipientKeys()).thenReturn(List.of(recipientKey));
 
-    when(payloadEncoder.decode(payloadData)).thenReturn(encodedPayload);
+    when(encryptedTransaction.getPayload()).thenReturn(encodedPayload);
+    batchWorkflowContext.setEncodedPayload(encodedPayload);
+
     when(payloadEncoder.forRecipient(any(), any())).thenReturn(encodedPayload);
+
     when(enclave.status()).thenReturn(Service.Status.STARTED);
     when(enclave.getPublicKeys()).thenReturn(Set.of(ownedKey));
 
@@ -83,8 +86,7 @@ public class BatchWorkflowFactoryImplTest {
 
     assertThat(batchWorkflow.execute(batchWorkflowContext)).isTrue();
     assertThat(batchWorkflow.getPublishedMessageCount()).isOne();
-
-    verify(payloadEncoder).decode(payloadData);
+    assertThat(batchWorkflowContext.toString()).isNotNull();
     verify(enclave).status();
     verify(enclave, times(2)).getPublicKeys();
     verify(payloadEncoder).forRecipient(any(), any());
@@ -108,11 +110,15 @@ public class BatchWorkflowFactoryImplTest {
     batchWorkflowContext.setRecipientKey(publicKey);
 
     EncodedPayload encodedPayload = mock(EncodedPayload.class);
+    when(encodedPayload.getRecipientKeys()).thenReturn(List.of());
+
     EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
     when(encryptedTransaction.getEncodedPayloadCodec()).thenReturn(EncodedPayloadCodec.UNSUPPORTED);
     when(encryptedTransaction.getPayload()).thenReturn(encodedPayload);
 
     batchWorkflowContext.setEncryptedTransaction(encryptedTransaction);
+    batchWorkflowContext.setEncodedPayload(encodedPayload);
+    assertThat(batchWorkflowContext.toString()).isNotNull();
 
     when(enclave.status()).thenReturn(Service.Status.STARTED);
 

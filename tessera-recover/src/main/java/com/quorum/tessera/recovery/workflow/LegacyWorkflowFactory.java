@@ -35,7 +35,6 @@ public class LegacyWorkflowFactory {
 
   public BatchWorkflow create() {
     final ValidateEnclaveStatus validateEnclaveStatus = new ValidateEnclaveStatus(enclave);
-    final DecodePayloadHandler decodePayloadHandler = new DecodePayloadHandler();
     final StandardPrivateOnlyFilter standardPrivateOnlyFilter = new StandardPrivateOnlyFilter();
     final FilterPayload filterPayload = new FilterPayload(enclave);
     final PreparePayloadForRecipient preparePayloadForRecipient =
@@ -51,7 +50,6 @@ public class LegacyWorkflowFactory {
     final List<BatchWorkflowAction> handlers =
         List.of(
             validateEnclaveStatus,
-            decodePayloadHandler,
             standardPrivateOnlyFilter,
             filterPayload,
             preparePayloadForRecipient,
@@ -64,7 +62,6 @@ public class LegacyWorkflowFactory {
 
       @Override
       public boolean execute(final BatchWorkflowContext context) {
-        LOGGER.debug("Executing legacy batch flow {}", context);
         return handlers.stream()
             .filter(Predicate.not(h -> h.doExecute(context)))
             .findFirst()
