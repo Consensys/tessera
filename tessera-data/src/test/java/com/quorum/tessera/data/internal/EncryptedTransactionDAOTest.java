@@ -10,13 +10,11 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import jakarta.persistence.*;
-
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -42,7 +40,7 @@ public class EncryptedTransactionDAOTest {
     properties.put("jakarta.persistence.jdbc.user", "junit");
     properties.put("jakarta.persistence.jdbc.password", "");
     properties.put(
-      "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
+        "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
     properties.put("eclipselink.logging.level", "FINE");
     properties.put("eclipselink.logging.parameters", "true");
     properties.put("eclipselink.logging.level.sql", "FINE");
@@ -72,23 +70,23 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-      encryptedTransaction.setHash(new MessageHash(new byte[]{5}));
+      encryptedTransaction.setHash(new MessageHash(new byte[] {5}));
       encryptedTransaction.setPayload(encodedPayload);
       try {
         encryptedTransactionDAO.save(encryptedTransaction);
         failBecauseExceptionWasNotThrown(PersistenceException.class);
       } catch (PersistenceException ex) {
         String expectedMessage =
-          String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCODED_PAYLOAD");
+            String.format(testConfig.getRequiredFieldColumnTemplate(), "ENCODED_PAYLOAD");
 
         assertThat(ex)
-          .isInstanceOf(PersistenceException.class)
-          .hasMessageContaining(expectedMessage)
-          .hasMessageContaining("ENCODED_PAYLOAD");
+            .isInstanceOf(PersistenceException.class)
+            .hasMessageContaining(expectedMessage)
+            .hasMessageContaining("ENCODED_PAYLOAD");
       }
     }
     verify(payloadEncoder).encode(encodedPayload);
@@ -104,8 +102,8 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setPayload(encodedPayload);
@@ -117,9 +115,9 @@ public class EncryptedTransactionDAOTest {
         String expectedMessage = String.format(testConfig.getRequiredFieldColumnTemplate(), "HASH");
 
         assertThat(ex)
-          .isInstanceOf(PersistenceException.class)
-          .hasMessageContaining(expectedMessage)
-          .hasMessageContaining("HASH");
+            .isInstanceOf(PersistenceException.class)
+            .hasMessageContaining(expectedMessage)
+            .hasMessageContaining("HASH");
       }
     }
   }
@@ -135,19 +133,19 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setPayload(encodedPayload);
-      encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
+      encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
 
       encryptedTransactionDAO.save(encryptedTransaction);
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       final EncryptedTransaction retrieved =
-        entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+          entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
 
       assertThat(retrieved).isNotNull().usingRecursiveComparison().isEqualTo(encryptedTransaction);
 
@@ -158,14 +156,14 @@ public class EncryptedTransactionDAOTest {
       entityManager.getTransaction().begin();
 
       final EncryptedTransaction after =
-        entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+          entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
 
       assertThat(after).usingRecursiveComparison().isEqualTo(encryptedTransaction);
 
       entityManager.getTransaction().rollback();
     }
     verify(payloadEncoder).encode(encodedPayload);
-    verify(payloadEncoder,times(3)).decode(payloadData);
+    verify(payloadEncoder, times(3)).decode(payloadData);
     verifyNoMoreInteractions(payloadEncoder);
   }
 
@@ -178,10 +176,10 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
-      final MessageHash messageHash = new MessageHash(new byte[]{1});
+      final MessageHash messageHash = new MessageHash(new byte[] {1});
 
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setPayload(encodedPayload);
@@ -201,8 +199,8 @@ public class EncryptedTransactionDAOTest {
         failBecauseExceptionWasNotThrown(PersistenceException.class);
       } catch (PersistenceException ex) {
         assertThat(ex)
-          .isInstanceOf(PersistenceException.class)
-          .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
+            .isInstanceOf(PersistenceException.class)
+            .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
       }
       verify(payloadEncoder, times(2)).encode(encodedPayload);
       verifyNoMoreInteractions(payloadEncoder);
@@ -219,18 +217,18 @@ public class EncryptedTransactionDAOTest {
     when(payloadEncoder.decode(payloadData)).thenReturn(encodedPayload);
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setPayload(encodedPayload);
-      encryptedTransaction.setHash(new MessageHash(new byte[]{1}));
+      encryptedTransaction.setHash(new MessageHash(new byte[] {1}));
       encryptedTransactionDAO.save(encryptedTransaction);
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       final EncryptedTransaction retrieved =
-        entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
+          entityManager.find(EncryptedTransaction.class, encryptedTransaction.getHash());
       assertThat(retrieved).usingRecursiveComparison().isEqualTo(encryptedTransaction);
 
       entityManager.getTransaction().rollback();
@@ -248,30 +246,30 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
 
       entityManager.getTransaction().begin();
       final List<EncryptedTransaction> payloads =
-        IntStream.range(0, 50)
-          .mapToObj(i -> UUID.randomUUID().toString().getBytes())
-          .map(MessageHash::new)
-          .map(
-            hash -> {
-              EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-              encryptedTransaction.setHash(hash);
-              encryptedTransaction.setPayload(encodedPayload);
-              return encryptedTransaction;
-            })
-          .peek(entityManager::persist)
-          .collect(Collectors.toList());
+          IntStream.range(0, 50)
+              .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+              .map(MessageHash::new)
+              .map(
+                  hash -> {
+                    EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+                    encryptedTransaction.setHash(hash);
+                    encryptedTransaction.setPayload(encodedPayload);
+                    return encryptedTransaction;
+                  })
+              .peek(entityManager::persist)
+              .collect(Collectors.toList());
 
       entityManager.getTransaction().commit();
 
       final List<EncryptedTransaction> retrievedList =
-        encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
+          encryptedTransactionDAO.retrieveTransactions(0, Integer.MAX_VALUE);
 
       assertThat(encryptedTransactionDAO.transactionCount()).isEqualTo(payloads.size());
       assertThat(retrievedList).hasSameSizeAs(payloads);
@@ -292,8 +290,8 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
@@ -308,8 +306,8 @@ public class EncryptedTransactionDAOTest {
       entityManager.getTransaction().commit();
 
       Query countQuery =
-        entityManager.createQuery(
-          "select count(t) from EncryptedTransaction t where t.hash = :hash");
+          entityManager.createQuery(
+              "select count(t) from EncryptedTransaction t where t.hash = :hash");
       Long result = (Long) countQuery.setParameter("hash", messageHash).getSingleResult();
       assertThat(result).isEqualTo(1L);
 
@@ -343,8 +341,8 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
       // put a transaction in the database
       MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
@@ -358,7 +356,7 @@ public class EncryptedTransactionDAOTest {
       entityManager.getTransaction().commit();
 
       final Optional<EncryptedTransaction> retrieved =
-        encryptedTransactionDAO.retrieveByHash(messageHash);
+          encryptedTransactionDAO.retrieveByHash(messageHash);
 
       assertThat(retrieved.isPresent()).isTrue();
       assertThat(retrieved.get()).usingRecursiveComparison().isEqualTo(encryptedTransaction);
@@ -373,7 +371,7 @@ public class EncryptedTransactionDAOTest {
     MessageHash searchHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
     final Optional<EncryptedTransaction> retrieved =
-      encryptedTransactionDAO.retrieveByHash(searchHash);
+        encryptedTransactionDAO.retrieveByHash(searchHash);
 
     assertThat(retrieved.isPresent()).isFalse();
   }
@@ -388,8 +386,8 @@ public class EncryptedTransactionDAOTest {
     when(payloadEncoder.decode(payloadData)).thenReturn(encodedPayload);
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
@@ -401,7 +399,7 @@ public class EncryptedTransactionDAOTest {
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       final EncryptedTransaction retrieved =
-        entityManager.find(EncryptedTransaction.class, messageHash);
+          entityManager.find(EncryptedTransaction.class, messageHash);
       entityManager.getTransaction().commit();
 
       assertThat(retrieved).isNotNull();
@@ -422,34 +420,34 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
       List<EncryptedTransaction> transactions =
-        IntStream.range(0, 100)
-          .mapToObj(i -> UUID.randomUUID().toString().getBytes())
-          .map(MessageHash::new)
-          .map(
-            h -> {
-              EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-              encryptedTransaction.setHash(h);
-              encryptedTransaction.setPayload(encodedPayload);
-              entityManager.persist(encryptedTransaction);
-              return encryptedTransaction;
-            })
-          .collect(Collectors.toList());
+          IntStream.range(0, 100)
+              .mapToObj(i -> UUID.randomUUID().toString().getBytes())
+              .map(MessageHash::new)
+              .map(
+                  h -> {
+                    EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
+                    encryptedTransaction.setHash(h);
+                    encryptedTransaction.setPayload(encodedPayload);
+                    entityManager.persist(encryptedTransaction);
+                    return encryptedTransaction;
+                  })
+              .collect(Collectors.toList());
 
       entityManager.getTransaction().commit();
 
       Collection<MessageHash> hashes =
-        transactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toList());
+          transactions.stream().map(EncryptedTransaction::getHash).collect(Collectors.toList());
       List<EncryptedTransaction> results = encryptedTransactionDAO.findByHashes(hashes);
 
       assertThat(results).isNotEmpty().containsExactlyInAnyOrderElementsOf(transactions);
       assertThat(results.stream().allMatch(r -> Arrays.equals(r.getEncodedPayload(), payloadData)))
-        .isTrue();
+          .isTrue();
     }
     verify(payloadEncoder, times(100)).encode(encodedPayload);
   }
@@ -458,7 +456,7 @@ public class EncryptedTransactionDAOTest {
   public void findByHashesEmpty() {
 
     List<EncryptedTransaction> results =
-      encryptedTransactionDAO.findByHashes(Collections.EMPTY_LIST);
+        encryptedTransactionDAO.findByHashes(Collections.EMPTY_LIST);
 
     assertThat(results).isEmpty();
   }
@@ -473,8 +471,8 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
       EncryptedTransaction transaction = new EncryptedTransaction();
@@ -487,7 +485,7 @@ public class EncryptedTransactionDAOTest {
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       final EncryptedTransaction result =
-        entityManager.find(EncryptedTransaction.class, transactionHash);
+          entityManager.find(EncryptedTransaction.class, transactionHash);
       assertThat(result).isNotNull();
       assertThat(result.getEncodedPayload()).containsExactly(payloadData);
       assertThat(result.getHash()).isEqualTo(transactionHash);
@@ -510,8 +508,8 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
       EncryptedTransaction transaction = new EncryptedTransaction();
@@ -530,7 +528,7 @@ public class EncryptedTransactionDAOTest {
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       final EncryptedTransaction result =
-        entityManager.find(EncryptedTransaction.class, transactionHash);
+          entityManager.find(EncryptedTransaction.class, transactionHash);
       assertThat(result).isNull();
 
       verify(callback).call();
@@ -550,8 +548,8 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
       MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
       EncryptedTransaction transaction = new EncryptedTransaction();
@@ -570,7 +568,7 @@ public class EncryptedTransactionDAOTest {
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       final EncryptedTransaction result =
-        entityManager.find(EncryptedTransaction.class, transactionHash);
+          entityManager.find(EncryptedTransaction.class, transactionHash);
       assertThat(result).isNull();
 
       verify(callback).call();
@@ -589,10 +587,10 @@ public class EncryptedTransactionDAOTest {
 
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-        .thenReturn(Optional.of(payloadEncoder));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
+          .thenReturn(Optional.of(payloadEncoder));
 
-      final MessageHash messageHash = new MessageHash(new byte[]{1});
+      final MessageHash messageHash = new MessageHash(new byte[] {1});
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setPayload(encodedPayload);
       encryptedTransaction.setHash(messageHash);
@@ -604,7 +602,7 @@ public class EncryptedTransactionDAOTest {
       entityManager.clear();
 
       assertThat(encryptedTransaction.getEncodedPayloadCodec())
-        .isEqualTo(EncodedPayloadCodec.current());
+          .isEqualTo(EncodedPayloadCodec.current());
       assertThat(encryptedTransaction.getEncodedPayload()).containsExactly(payloadData);
 
       final EncryptedTransaction duplicateTransaction = new EncryptedTransaction();
@@ -613,16 +611,16 @@ public class EncryptedTransactionDAOTest {
       AtomicInteger count = new AtomicInteger(0);
       try {
         encryptedTransactionDAO.save(
-          encryptedTransaction,
-          () -> {
-            count.incrementAndGet();
-            return true;
-          });
+            encryptedTransaction,
+            () -> {
+              count.incrementAndGet();
+              return true;
+            });
         failBecauseExceptionWasNotThrown(PersistenceException.class);
       } catch (PersistenceException ex) {
         assertThat(ex)
-          .isInstanceOf(PersistenceException.class)
-          .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
+            .isInstanceOf(PersistenceException.class)
+            .hasMessageContaining(testConfig.getUniqueConstraintViolationMessage());
         assertThat(count.get()).isEqualTo(0);
       }
     }
@@ -646,7 +644,7 @@ public class EncryptedTransactionDAOTest {
     when(mockEntityManagerCallback.execute(mockEntityManager)).thenThrow(RuntimeException.class);
 
     EncryptedTransactionDAO encryptedTransactionDAO =
-      new EncryptedTransactionDAOImpl(mockEntityManagerFactory);
+        new EncryptedTransactionDAOImpl(mockEntityManagerFactory);
 
     assertThat(encryptedTransactionDAO.upcheck()).isFalse();
   }
@@ -659,8 +657,8 @@ public class EncryptedTransactionDAOTest {
       when(serviceLoader.findFirst()).thenReturn(Optional.of(mock(EncryptedTransactionDAO.class)));
 
       mockedServiceLoader
-        .when(() -> ServiceLoader.load(EncryptedTransactionDAO.class))
-        .thenReturn(serviceLoader);
+          .when(() -> ServiceLoader.load(EncryptedTransactionDAO.class))
+          .thenReturn(serviceLoader);
 
       EncryptedTransactionDAO.create();
 
