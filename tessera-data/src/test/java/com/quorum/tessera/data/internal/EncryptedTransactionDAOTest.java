@@ -37,7 +37,6 @@ public class EncryptedTransactionDAOTest {
   @Before
   public void onSetUp() {
 
-    // System.setProperty("disable.jpa.listeners", "true");
     Map properties = new HashMap();
     properties.put("jakarta.persistence.jdbc.url", testConfig.getUrl());
     properties.put("jakarta.persistence.jdbc.user", "junit");
