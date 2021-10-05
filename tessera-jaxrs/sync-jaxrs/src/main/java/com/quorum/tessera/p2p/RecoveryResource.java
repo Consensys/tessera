@@ -65,9 +65,11 @@ public class RecoveryResource {
         com.quorum.tessera.recovery.resend.PushBatchRequest.from(
             pushBatchRequest.getEncodedPayloads(), encodedPayloadCodec);
 
-    batchResendManager.storeResendBatch(request);
+    LOGGER.debug("Storing push request", request);
 
-    LOGGER.debug("Push batch processed successfully");
+    batchResendManager.storeResendBatch(request);
+    LOGGER.debug("Stored push request", request);
+
     return Response.status(Response.Status.OK).build();
   }
 

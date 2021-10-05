@@ -127,9 +127,8 @@ class RecoveryImpl implements Recovery {
                   .filter(
                       t -> {
                         payloadCount.incrementAndGet();
-                        byte[] payload = t.getPayload();
                         try {
-                          EncodedPayload encodedPayload = payloadEncoder.decode(payload);
+                          EncodedPayload encodedPayload = t.getEncodedPayload();
                           transactionManager.storePayload(encodedPayload);
                         } catch (PrivacyViolationException | PersistenceException ex) {
                           LOGGER.error("An error occurred during batch resend sync stage.", ex);

@@ -20,8 +20,6 @@ public class EncryptedTransactionMigrator {
 
   private final EntityManager secondaryEntityManager;
 
-  private final PayloadEncoder payloadEncoder;
-
   private final int maxBatchSize = 100;
 
   public EncryptedTransactionMigrator(
@@ -30,7 +28,6 @@ public class EncryptedTransactionMigrator {
       final PayloadEncoder payloadEncoder) {
     this.primaryEntityManager = Objects.requireNonNull(primaryEntityManager);
     this.secondaryEntityManager = Objects.requireNonNull(secondaryEntityManager);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
   }
 
   public void migrate() {
@@ -69,14 +66,13 @@ public class EncryptedTransactionMigrator {
 
               final EncryptedTransaction outerTx = existing.get();
 
-              final EncodedPayload primaryTx = payloadEncoder.decode(outerTx.getEncodedPayload());
-              final EncodedPayload secondaryTx = payloadEncoder.decode(et.getEncodedPayload());
+              final EncodedPayload primaryTx = outerTx.getPayload();
+              final EncodedPayload secondaryTx = et.getPayload();
 
               final EncodedPayload updatedPayload =
                   this.handleSingleTransaction(primaryTx, secondaryTx);
 
-              final byte[] updatedEncoded = payloadEncoder.encode(updatedPayload);
-              outerTx.setEncodedPayload(updatedEncoded);
+              outerTx.setPayload(updatedPayload);
               primaryEntityManager.getTransaction().begin();
               primaryEntityManager.merge(outerTx);
               primaryEntityManager.getTransaction().commit();

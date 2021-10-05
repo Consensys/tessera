@@ -438,7 +438,7 @@ public class TransactionManagerImpl implements TransactionManager {
             .map(MessageHash::new)
             .collect(Collectors.toSet());
 
-    Set<PublicKey> managedParties = new HashSet<>();
+    final Set<PublicKey> managedParties = new HashSet<>();
     if (payload.getRecipientKeys().isEmpty()) {
       // legacy tx
       for (RecipientBox box : payload.getRecipientBoxes()) {
@@ -448,10 +448,9 @@ public class TransactionManagerImpl implements TransactionManager {
         possibleRecipient.ifPresent(managedParties::add);
       }
     } else {
-      managedParties =
-          enclave.getPublicKeys().stream()
-              .filter(payload.getRecipientKeys()::contains)
-              .collect(Collectors.toSet());
+      enclave.getPublicKeys().stream()
+          .filter(payload.getRecipientKeys()::contains)
+          .forEach(managedParties::add);
     }
 
     final ReceiveResponse.Builder responseBuilder = ReceiveResponse.Builder.create();

@@ -1,5 +1,6 @@
 package com.quorum.tessera.data.staging;
 
+import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PrivacyMode;
 import jakarta.persistence.*;
@@ -7,6 +8,7 @@ import java.io.Serializable;
 import java.util.*;
 
 /** The JPA entity that contains the staging transaction information. */
+@EntityListeners(StagingTransactionListener.class)
 @Entity
 @Table(
     name = "ST_TRANSACTION",
@@ -69,6 +71,8 @@ public class StagingTransaction implements Serializable {
   @Lob
   @Column(name = "PAYLOAD")
   private byte[] payload;
+
+  @Transient private EncodedPayload encodedPayload;
 
   public StagingTransaction() {}
 
@@ -140,6 +144,14 @@ public class StagingTransaction implements Serializable {
 
   public void setTimestamp(long timestamp) {
     this.timestamp = timestamp;
+  }
+
+  public EncodedPayload getEncodedPayload() {
+    return encodedPayload;
+  }
+
+  public void setEncodedPayload(EncodedPayload encodedPayload) {
+    this.encodedPayload = encodedPayload;
   }
 
   @Override

@@ -67,14 +67,12 @@ public class LegacyResendWorkflowFactoryTest {
     when(testPayload.getSenderKey()).thenReturn(targetResendKey);
     when(testPayload.getRecipientBoxes()).thenReturn(List.of(recipientBox));
 
-    when(payloadEncoder.decode(encodedPayloadAsBytes)).thenReturn(testPayload);
-
     final NodeInfo nodeInfo = mock(NodeInfo.class);
     when(nodeInfo.getRecipients()).thenReturn(Set.of(Recipient.of(targetResendKey, "url")));
     when(discovery.getCurrent()).thenReturn(nodeInfo);
 
     final EncryptedTransaction encryptedTx = new EncryptedTransaction();
-    encryptedTx.setEncodedPayload(encodedPayloadAsBytes);
+    encryptedTx.setPayload(testPayload);
 
     when(enclave.getPublicKeys()).thenReturn(Set.of(localRecipient));
     when(enclave.unencryptTransaction(any(EncodedPayload.class), eq(localRecipient)))
@@ -83,6 +81,7 @@ public class LegacyResendWorkflowFactoryTest {
     final BatchWorkflow batchWorkflow = wfFactory.create();
     final BatchWorkflowContext context = new BatchWorkflowContext();
     context.setEncryptedTransaction(encryptedTx);
+    context.setEncodedPayload(testPayload);
     context.setRecipientKey(targetResendKey);
     context.setBatchSize(1);
     final boolean success = batchWorkflow.execute(context);
