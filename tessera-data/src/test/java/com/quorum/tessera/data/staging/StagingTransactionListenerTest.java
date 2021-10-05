@@ -1,25 +1,24 @@
 package com.quorum.tessera.data.staging;
 
-import com.quorum.tessera.enclave.EncodedPayload;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
-import com.quorum.tessera.enclave.PayloadEncoder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.MockedStatic;
-
-import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 
+import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
+import com.quorum.tessera.enclave.PayloadEncoder;
+import java.util.Optional;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.MockedStatic;
+
 public class StagingTransactionListenerTest {
 
   private final MockedStatic<PayloadEncoder> payloadEncoderFactoryFunction =
-    mockStatic(PayloadEncoder.class);
+      mockStatic(PayloadEncoder.class);
 
   private StagingTransactionListener stagingTransactionListener;
 
@@ -30,8 +29,8 @@ public class StagingTransactionListenerTest {
     stagingTransactionListener = new StagingTransactionListener();
     payloadEncoder = mock(PayloadEncoder.class);
     payloadEncoderFactoryFunction
-      .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
-      .thenReturn(Optional.of(payloadEncoder));
+        .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
+        .thenReturn(Optional.of(payloadEncoder));
   }
 
   @After
@@ -58,7 +57,7 @@ public class StagingTransactionListenerTest {
     verify(payloadEncoder).decode(payloadData);
 
     payloadEncoderFactoryFunction.verify(
-      () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test
@@ -68,8 +67,8 @@ public class StagingTransactionListenerTest {
 
     payloadEncoderFactoryFunction.reset();
     payloadEncoderFactoryFunction
-      .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
-      .thenReturn(Optional.empty());
+        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
+        .thenReturn(Optional.empty());
     StagingTransaction stagingTransaction = new StagingTransaction();
     stagingTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     stagingTransaction.setPayload(payloadData);
@@ -116,7 +115,5 @@ public class StagingTransactionListenerTest {
     payloadEncoderFactoryFunction.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
     assertThat(stagingTransaction.getEncodedPayload()).isEqualTo(encodedPayload);
     assertThat(stagingTransaction.getPayload()).containsExactly(payloadData);
-
   }
-
 }
