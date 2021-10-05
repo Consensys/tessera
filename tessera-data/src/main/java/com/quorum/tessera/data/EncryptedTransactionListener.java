@@ -9,15 +9,12 @@ import jakarta.persistence.PreUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EncryptedTransactionListener implements Disableable {
+public class EncryptedTransactionListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedTransactionListener.class);
 
   @PreUpdate
   public void onUpdate(EncryptedTransaction encryptedTransaction) {
-    if (isDisabled()) {
-      return;
-    }
 
     final EncodedPayload encodedPayload = encryptedTransaction.getPayload();
     final EncodedPayloadCodec encodedPayloadCodec = encryptedTransaction.getEncodedPayloadCodec();
@@ -29,9 +26,6 @@ public class EncryptedTransactionListener implements Disableable {
 
   @PrePersist
   public void onSave(EncryptedTransaction encryptedTransaction) {
-    if (isDisabled()) {
-      return;
-    }
 
     final EncodedPayload encodedPayload = encryptedTransaction.getPayload();
     final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.current();
@@ -44,9 +38,7 @@ public class EncryptedTransactionListener implements Disableable {
   @PostLoad
   public void onLoad(EncryptedTransaction encryptedTransaction) {
     LOGGER.debug("onLoad[{}]", encryptedTransaction);
-    if (isDisabled()) {
-      return;
-    }
+
     EncodedPayloadCodec encodedPayloadCodec = encryptedTransaction.getEncodedPayloadCodec();
     byte[] encodedPayloadData = encryptedTransaction.getEncodedPayload();
     PayloadEncoder payloadEncoder = lookup(encodedPayloadCodec);

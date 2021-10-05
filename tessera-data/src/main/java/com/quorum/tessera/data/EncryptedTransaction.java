@@ -47,15 +47,6 @@ public class EncryptedTransaction implements Serializable {
 
   @Transient private transient EncodedPayload payload;
 
-  /*
-  TODO: Use empty consructor jpa entities are intentially mutable and this constructor will make adding new properties trickier
-   */
-  @Deprecated
-  public EncryptedTransaction(final MessageHash hash, final byte[] encodedPayload) {
-    this.hash = hash;
-    this.encodedPayload = encodedPayload;
-  }
-
   public EncryptedTransaction() {}
 
   @PrePersist
