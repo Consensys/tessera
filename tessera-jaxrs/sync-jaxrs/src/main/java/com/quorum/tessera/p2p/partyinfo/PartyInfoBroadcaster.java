@@ -72,7 +72,7 @@ public class PartyInfoBroadcaster implements Runnable {
    */
   @Override
   public void run() {
-    LOGGER.info("Started PartyInfo polling round");
+    LOGGER.debug("Started PartyInfo polling round");
 
     partyStore.loadFromConfigIfEmpty();
 
@@ -96,7 +96,7 @@ public class PartyInfoBroadcaster implements Runnable {
         .filter(url -> !ourUrl.equals(url))
         .forEach(url -> pollSingleParty(url.asString(), encodedPartyInfo));
 
-    LOGGER.info("Finished PartyInfo polling round");
+    LOGGER.debug("Finished PartyInfo polling round");
   }
 
   /**

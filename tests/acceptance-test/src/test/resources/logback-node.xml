@@ -10,20 +10,20 @@
     </appender>
 
     <logger name="org.eclipse.persistence.level" level="ERROR"/>
-    <logger name="org.eclipse.persistence.logging.sql" level="ERROR"/>
+    <logger name="org.eclipse.persistence.logging.sql" level="DEBUG"/>
     <logger name="org.glassfish.jersey.logging.LoggingFeature" level="ERROR"/>
-    <logger name="com.quorum.tessera.q2t.TransactionResource" level="DEBUG"/>
-    <logger name="com.quorum.tessera.transaction" level="DEBUG"/>
-    <logger name="com.quorum.tessera.api.filter" level="DEBUG"/>
-    <logger name="com.quorum.tessera.api.exception" level="DEBUG"/>
+<!--    <logger name="com.quorum.tessera.q2t.TransactionResource" level="DEBUG"/>-->
+<!--    <logger name="com.quorum.tessera.transaction" level="DEBUG"/>-->
+<!--    <logger name="com.quorum.tessera.api.filter" level="DEBUG"/>-->
+<!--    <logger name="com.quorum.tessera.api.exception" level="DEBUG"/>-->
 
-    <logger name="com.quorum.tessera" level="DEBUG" />
-    <logger name="org.hibernate.validator" level="INFO" />
+<!--    <logger name="com.quorum.tessera" level="DEBUG" />-->
+<!--    <logger name="org.hibernate.validator" level="INFO" />-->
 
-    <logger name="com.quorum.tessera.context" level="DEBUG" />
+<!--    <logger name="com.quorum.tessera.context" level="DEBUG" />-->
 
-    <logger name="com.quorum.tessera.nacl" level="INFO" />
-    <logger name="com.quorum.tessera.encryption" level="INFO" />
+<!--    <logger name="com.quorum.tessera.nacl" level="INFO" />-->
+<!--    <logger name="com.quorum.tessera.encryption" level="INFO" />-->
 <!--    <logger name="com.quorum.tessera.discovery" level="DEBUG" />-->
 <!--    <logger name="com.quorum.tessera.p2p" level="DEBUG" />-->
 <!--    <logger name="com.quorum.tessera.p2p.SyncPoller" level="DEBUG" />-->
@@ -35,9 +35,20 @@
     <logger name="io.netty.util.internal" level="INFO" />
 <!--    <logger name="com.quorum.tessera.launcher" level="ALL" />-->
 <!--    <logger name="reactor.netty.http.client" level="ALL" />-->
-
+    <logger name="org.eclipse" level="INFO" />
+    <logger name="com.quorum.tessera.service" level="INFO" />
     <logger name="com.azure" level="INFO" />
-
+    <logger name="com.quorum.tessera" level="ALL" />
+    <logger name="com.quorum.tessera.p2p.partyinfo.PartyInfoBroadcaster" level="INFO" />
+    <logger name="com.quorum.tessera.server.jersey.ServiceLoaderInjectionResolver" level="INFO" />
+    <logger name="com.quorum.tessera.discovery" level="INFO" />
+    <logger name="com.quorum.tessera.encryption.nacl.jnacl.Jnacl" level="INFO" />
+    <logger name="com.quorum.tessera.p2p.PartyInfoResource" level="INFO" />
+    <logger name="com.quorum.tessera.encryption.KeyManagerImpl" level="INFO" />
+    <logger name="eclipselink.logging.sql" level="ALL" />
+    <logger name="com.quorum.tessera.threading" level="INFO" />
+    <logger name="com.quorum.tessera.context.internal" level="INFO" />
+    <logger name="org.glassfish.jersey.internal.inject.Providers" level="ERROR" />
     <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
