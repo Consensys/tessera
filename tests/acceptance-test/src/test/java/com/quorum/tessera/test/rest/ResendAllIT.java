@@ -14,8 +14,6 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -56,7 +54,7 @@ public class ResendAllIT {
     this.partyThree = partyHelper.findByAlias("C");
   }
 
-  // @Test
+  @Test
   public void resendTransactionsForGivenKey() throws UnsupportedEncodingException {
     // setup (sending in a tx)
 
@@ -208,7 +206,7 @@ public class ResendAllIT {
     }
   }
 
-  // @Test
+  @Test
   public void transactionFromSenderDoesNotContainDataOfOtherParties()
       throws UnsupportedEncodingException, SQLException {
     // setup (sending in a tx)
@@ -287,7 +285,7 @@ public class ResendAllIT {
     }
   }
 
-  // @Test
+  @Test
   public void resendForKeyWithNoTransactions() {
     // perform resend
     final ResendRequest req = new ResendRequest();
@@ -306,7 +304,7 @@ public class ResendAllIT {
     assertThat(resendRequest.getStatus()).isEqualTo(200);
   }
 
-  // @Test
+  @Test
   public void resendForInvalidKeyErrors() {
     // perform resend
     final ResendRequest req = new ResendRequest();
