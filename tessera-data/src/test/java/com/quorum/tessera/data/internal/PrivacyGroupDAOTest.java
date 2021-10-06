@@ -406,6 +406,6 @@ public class PrivacyGroupDAOTest {
 
   @Parameterized.Parameters(name = "DB {0}")
   public static Collection<TestConfig> connectionDetails() {
-    return List.of(TestConfig.values());
+    return List.of(TestConfig.H2,TestConfig.HSQL);
   }
 }
