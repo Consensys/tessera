@@ -12,6 +12,7 @@ import java.net.URI;
 import org.junit.Test;
 
 public class NodeUriHeaderDecoratorTest {
+
   @Test
   public void filter() throws Exception {
 
@@ -23,7 +24,7 @@ public class NodeUriHeaderDecoratorTest {
     String serverUri = "http://bogus.com";
 
     ServerConfig serverConfig = mock(ServerConfig.class);
-
+    when(serverConfig.isUnixSocket()).thenReturn(false);
     when(serverConfig.getServerUri()).thenReturn(URI.create(serverUri));
     NodeUriHeaderDecorator versionHeaderDecorator = new NodeUriHeaderDecorator(serverConfig);
     versionHeaderDecorator.filter(requestContext);
@@ -43,11 +44,35 @@ public class NodeUriHeaderDecoratorTest {
     when(requestContext.getHeaders()).thenReturn(headers);
 
     ServerConfig serverConfig = mock(ServerConfig.class);
+    when(serverConfig.isUnixSocket()).thenReturn(false);
     when(serverConfig.getServerUri()).thenReturn(null);
     NodeUriHeaderDecorator versionHeaderDecorator = new NodeUriHeaderDecorator(serverConfig);
     versionHeaderDecorator.filter(requestContext);
 
-    assertThat(headers.getFirst(Constants.NODE_URI_HEADER)).isEqualTo("Unknown");
+    assertThat(headers.getFirst(Constants.NODE_URI_HEADER)).isEqualTo(NodeUriHeaderDecorator.UNKNOWN);
+
+    verify(requestContext).getHeaders();
+    verifyNoMoreInteractions(requestContext);
+  }
+
+  @Test
+  public void filterIpcFile() throws Exception {
+
+    ClientRequestContext requestContext = mock(ClientRequestContext.class);
+
+    MultivaluedMap headers = new MultivaluedHashMap();
+    when(requestContext.getHeaders()).thenReturn(headers);
+
+    String serverAddress = "/tmp/bogus.ipc";
+
+    ServerConfig serverConfig = mock(ServerConfig.class);
+    when(serverConfig.isUnixSocket()).thenReturn(true);
+    when(serverConfig.getServerAddress()).thenReturn(serverAddress);
+
+    NodeUriHeaderDecorator versionHeaderDecorator = new NodeUriHeaderDecorator(serverConfig);
+    versionHeaderDecorator.filter(requestContext);
+
+    assertThat(headers.getFirst(Constants.NODE_URI_HEADER)).isNotNull().isEqualTo(serverAddress);
 
     verify(requestContext).getHeaders();
     verifyNoMoreInteractions(requestContext);
