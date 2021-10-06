@@ -4,12 +4,9 @@ import com.quorum.tessera.config.ServerConfig;
 import com.quorum.tessera.config.util.IntervalPropertyHelper;
 import com.quorum.tessera.context.RestClientFactory;
 import com.quorum.tessera.reflect.ReflectCallback;
-import com.quorum.tessera.shared.Constants;
 import com.quorum.tessera.ssl.context.SSLContextFactory;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
-import jakarta.ws.rs.client.ClientRequestContext;
-import jakarta.ws.rs.client.ClientRequestFilter;
 import jakarta.ws.rs.core.Configuration;
 import java.lang.reflect.Method;
 import java.net.URI;
@@ -75,15 +72,7 @@ public class ClientFactory implements RestClientFactory {
     clientBuilder.connectTimeout(timeout, TimeUnit.MILLISECONDS);
     clientBuilder.readTimeout(timeout, TimeUnit.MILLISECONDS);
     clientBuilder.register(VersionHeaderDecorator.class);
-    clientBuilder.register(
-        new ClientRequestFilter() {
-          @Override
-          public void filter(ClientRequestContext requestContext) {
-            requestContext
-                .getHeaders()
-                .add(Constants.NODE_URI_HEADER, Objects.toString(config.getServerUri(), "Unknown"));
-          }
-        });
+    clientBuilder.register(new NodeUriHeaderDecorator(config));
     if (config.isUnixSocket()) {
       Configuration clientConfig = createUnixServerSocketConfig();
       URI unixfile = config.getServerUri();
