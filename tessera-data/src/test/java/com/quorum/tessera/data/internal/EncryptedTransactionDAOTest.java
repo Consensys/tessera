@@ -43,7 +43,7 @@ public class EncryptedTransactionDAOTest {
         "eclipselink.logging.logger", "org.eclipse.persistence.logging.slf4j.SLF4JLogger");
     properties.put("eclipselink.logging.level", "FINE");
     properties.put("eclipselink.logging.parameters", "true");
-    properties.put("eclipselink.logging.level.sql", "FINE");
+    properties.put("eclipselink.logging.level.sql", "FINEST");
     properties.put("eclipselink.cache.shared.default", "false");
     properties.put("jakarta.persistence.schema-generation.database.action", "create");
 

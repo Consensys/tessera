@@ -17,8 +17,6 @@ public class RestResendBatchPublisher implements ResendBatchPublisher {
 
   private final PayloadEncoder payloadEncoder;
 
-  private static final EncodedPayloadCodec ENCODED_PAYLOAD_CODEC = EncodedPayloadCodec.current();
-
   private final RecoveryClient resendClient;
 
   public RestResendBatchPublisher(

@@ -61,8 +61,8 @@ public class RestPayloadPublisher implements PayloadPublisher {
     }
 
     final String targetUrl = remoteNodeInfo.getUrl();
-    LOGGER.info("Publishing message to {}", targetUrl);
-
+    LOGGER.info("Publishing Payload to {}", targetUrl);
+    LOGGER.debug("Publishing Payload {} to {}", payload, targetUrl);
     final byte[] encoded = payloadEncoder.encode(payload);
 
     try (Response response =
@@ -77,7 +77,7 @@ public class RestPayloadPublisher implements PayloadPublisher {
         throw new PublishPayloadException("Unable to push payload to recipient url " + targetUrl);
       }
 
-      LOGGER.info("Published to {}", targetUrl);
+      LOGGER.info("Published Payload to {}", targetUrl);
     } catch (ProcessingException ex) {
       LOGGER.debug("", ex);
       throw new NodeOfflineException(URI.create(targetUrl));

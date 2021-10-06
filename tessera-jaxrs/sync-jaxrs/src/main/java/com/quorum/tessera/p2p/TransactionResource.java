@@ -91,10 +91,8 @@ public class TransactionResource {
 
     PublicKey recipient =
         Optional.of(resendRequest).map(ResendRequest::getPublicKey).stream()
-            .peek(k -> LOGGER.info("Decoding key {}", k))
             .map(Base64Codec.create()::decode)
             .map(PublicKey::from)
-            .peek(k -> LOGGER.info("Decoded key {}", k.encodeToBase64()))
             .findFirst()
             .get();
 
@@ -150,7 +148,7 @@ public class TransactionResource {
             .withBatchSize(resendBatchRequest.getBatchSize())
             .build();
 
-    LOGGER.debug("Built resend request {}", request);
+    LOGGER.trace("Built resend request {}", request);
 
     ResendBatchResponse response = batchResendManager.resendBatch(request);
 
@@ -189,7 +187,7 @@ public class TransactionResource {
   @Consumes(APPLICATION_OCTET_STREAM)
   public Response push(@Schema(description = "encoded payload") final byte[] payload) {
 
-    LOGGER.debug("Received push request");
+    LOGGER.debug("Received push request payload length {}",payload.length);
     final EncodedPayload encodedPayload = payloadEncoder.decode(payload);
     final MessageHash messageHash = transactionManager.storePayload(encodedPayload);
     LOGGER.debug("Push request generated hash {}", messageHash);

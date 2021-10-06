@@ -6,7 +6,8 @@ import com.quorum.tessera.api.*;
 import com.quorum.tessera.api.constraint.PrivacyValid;
 import com.quorum.tessera.config.constraints.ValidBase64;
 import com.quorum.tessera.data.MessageHash;
-import com.quorum.tessera.enclave.*;
+import com.quorum.tessera.enclave.PrivacyGroup;
+import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.privacygroup.PrivacyGroupManager;
 import com.quorum.tessera.transaction.TransactionManager;
@@ -47,8 +48,6 @@ import org.slf4j.LoggerFactory;
 public class TransactionResource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionResource.class);
-
-  private final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
 
   private final TransactionManager transactionManager;
 

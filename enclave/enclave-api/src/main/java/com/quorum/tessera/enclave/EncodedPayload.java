@@ -308,4 +308,23 @@ public class EncodedPayload {
     result = 31 * result + Arrays.hashCode(execHash);
     return result;
   }
+
+  @Override
+  public String toString() {
+    return new StringJoiner(", ", EncodedPayload.class.getSimpleName() + "[", "]")
+        .add("senderKey=" + senderKey)
+        .add(
+            "cipherText="
+                + (Objects.nonNull(cipherText) ? String.valueOf(cipherText.length) : "null"))
+        .add("cipherTextNonce=" + cipherTextNonce)
+        .add("recipientBoxes=" + recipientBoxes)
+        .add("recipientNonce=" + recipientNonce)
+        .add("recipientKeys=" + recipientKeys)
+        .add("privacyMode=" + privacyMode)
+        .add("affectedContractTransactions=" + affectedContractTransactions)
+        .add("execHash=" + Arrays.toString(execHash))
+        .add("privacyGroupId=" + privacyGroupId)
+        .add("mandatoryRecipients=" + mandatoryRecipients)
+        .toString();
+  }
 }

@@ -18,8 +18,12 @@ import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LegacyResendManagerImpl implements LegacyResendManager {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(LegacyResendManagerImpl.class);
 
   private final Enclave enclave;
 
