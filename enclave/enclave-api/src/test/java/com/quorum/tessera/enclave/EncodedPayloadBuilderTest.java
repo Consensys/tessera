@@ -60,6 +60,44 @@ public class EncodedPayloadBuilderTest {
         .containsExactly(new TxHash(sampleTxHash));
     assertThat(sample.getExecHash()).isEqualTo(execHash);
     assertThat(sample.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+    assertThat(sample.toString()).isNotNull();
+
+    byte[] otherRecipientBox = "OTHETRBIX".getBytes();
+    EncodedPayload fromSample =
+        EncodedPayload.Builder.from(sample).withRecipientBox(otherRecipientBox).build();
+
+    assertThat(fromSample.getRecipientBoxes())
+        .containsExactly(RecipientBox.from(recipientBox), RecipientBox.from(otherRecipientBox));
+  }
+
+  @Test
+  public void buildWithNullCipherText() {
+    final EncodedPayload sample =
+        EncodedPayload.Builder.create()
+            .withSenderKey(senderKey)
+            .withCipherTextNonce(cipherTextNonce)
+            .withRecipientBox(recipientBox)
+            .withRecipientNonce(recipientNonce)
+            .withPrivacyMode(PrivacyMode.PRIVATE_STATE_VALIDATION)
+            .withAffectedContractTransactions(affectedContractTransactionsRaw)
+            .withExecHash(execHash)
+            .withRecipientKey(recipientKey)
+            .build();
+
+    assertThat(sample.getSenderKey()).isEqualTo(senderKey);
+    assertThat(sample.getCipherText()).isNull();
+    assertThat(sample.getCipherTextNonce().getNonceBytes()).isEqualTo(cipherTextNonce);
+    assertThat(sample.getRecipientNonce().getNonceBytes()).isEqualTo(recipientNonce);
+    assertThat(sample.getRecipientBoxes())
+        .hasSize(1)
+        .containsExactlyInAnyOrder(RecipientBox.from(recipientBox));
+    assertThat(sample.getRecipientKeys()).hasSize(1).containsExactlyInAnyOrder(recipientKey);
+    assertThat(sample.getAffectedContractTransactions()).hasSize(1);
+    assertThat(sample.getAffectedContractTransactions().keySet())
+        .containsExactly(new TxHash(sampleTxHash));
+    assertThat(sample.getExecHash()).isEqualTo(execHash);
+    assertThat(sample.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+    assertThat(sample.toString()).isNotNull();
 
     byte[] otherRecipientBox = "OTHETRBIX".getBytes();
     EncodedPayload fromSample =
