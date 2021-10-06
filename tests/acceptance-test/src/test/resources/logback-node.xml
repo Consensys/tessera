@@ -49,6 +49,8 @@
     <logger name="com.quorum.tessera.threading" level="INFO" />
     <logger name="com.quorum.tessera.context.internal" level="INFO" />
     <logger name="org.glassfish.jersey.internal.inject.Providers" level="ERROR" />
+    <logger name="com.quorum.tessera.recovery.workflow" level="DEBUG" />
+    <logger name="com.quorum.tessera.p2p" level="INFO" />
     <root level="INFO">
         <appender-ref ref="FILE"/>
     </root>
