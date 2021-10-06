@@ -23,7 +23,7 @@ import suite.TestSuite;
   //  OpenApiIT.class,
   //  MetricsIT.class,
   ///
-    com.quorum.tessera.test.rest.multitenancy.SendIT.class,
+  com.quorum.tessera.test.rest.multitenancy.SendIT.class,
   //  com.quorum.tessera.test.rest.multitenancy.ReceiveIT.class,
   //  com.quorum.tessera.test.rest.multitenancy.PrivacyIT.class
 })

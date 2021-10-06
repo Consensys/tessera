@@ -41,7 +41,7 @@ public class SendIT {
   private PartyHelper partyHelper = PartyHelper.create();
 
   /** Quorum sends transaction with single public recipient key */
-  //@Test
+  // @Test
   public void sendToSingleRecipient() {
     Party firstParty = partyHelper.findByAlias(NodeAlias.A);
     Party secondParty = partyHelper.findByAlias(NodeAlias.B);
@@ -161,7 +161,7 @@ public class SendIT {
     }
   }
 
-  //@Test
+  // @Test
   public void senderAndRecipientOnSameNode() throws UnsupportedEncodingException {
     // Node C has 2 keys, use them both
     final String[] recipientPublicKeys =
@@ -230,7 +230,7 @@ public class SendIT {
   }
 
   /** Quorum sends transaction with multiple public recipient keys */
- // @Test
+  // @Test
   public void firstPartyForwardsToTwoOtherParties() {
 
     final Party sendingParty = partyHelper.findByAlias("A");
@@ -284,7 +284,7 @@ public class SendIT {
         .forEach(r -> assertThat(r.getStatus()).isEqualTo(404));
   }
 
- // @Test
+  // @Test
   public void sendTransactionWithoutASender() {
 
     Party recipient = partyHelper.getParties().findAny().get();
@@ -323,7 +323,7 @@ public class SendIT {
     assertThat(receiveResponse.getPayload()).isEqualTo(transactionData);
   }
 
- // @Test
+  // @Test
   public void sendTransactionWithMissingRecipients() {
 
     final Party sendingParty = partyHelper.getParties().findAny().get();
@@ -367,7 +367,7 @@ public class SendIT {
     }
   }
 
- // @Test
+  // @Test
   public void missingPayloadFails() {
 
     Party sendingParty = partyHelper.getParties().findAny().get();
@@ -394,7 +394,7 @@ public class SendIT {
     assertThat(response.getStatus()).isEqualTo(400);
   }
 
-  //@Test
+  // @Test
   public void garbageMessageFails() {
     Party sendingParty = partyHelper.getParties().findAny().get();
 
@@ -413,7 +413,7 @@ public class SendIT {
     assertThat(response.getStatus()).isEqualTo(400);
   }
 
-  //@Test
+  // @Test
   public void emptyMessageFails() {
 
     Party sendingParty = partyHelper.getParties().findAny().get();
@@ -433,7 +433,7 @@ public class SendIT {
   }
 
   /** Quorum sends transaction with unknown public key */
-  //@Test
+  // @Test
   public void sendUnknownPublicKey() {
 
     Party sendingParty = partyHelper.getParties().findAny().get();
@@ -463,7 +463,7 @@ public class SendIT {
   }
 
   /** config3.json has party 1's key in always send to list */
-  //@Test
+  // @Test
   public void partyAlwaysSendsToPartyOne() {
 
     Party sender = partyHelper.findByAlias(NodeAlias.C);
