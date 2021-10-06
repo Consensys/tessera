@@ -49,7 +49,8 @@ public class NodeUriHeaderDecoratorTest {
     NodeUriHeaderDecorator versionHeaderDecorator = new NodeUriHeaderDecorator(serverConfig);
     versionHeaderDecorator.filter(requestContext);
 
-    assertThat(headers.getFirst(Constants.NODE_URI_HEADER)).isEqualTo(NodeUriHeaderDecorator.UNKNOWN);
+    assertThat(headers.getFirst(Constants.NODE_URI_HEADER))
+        .isEqualTo(NodeUriHeaderDecorator.UNKNOWN);
 
     verify(requestContext).getHeaders();
     verifyNoMoreInteractions(requestContext);

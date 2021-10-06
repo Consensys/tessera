@@ -20,13 +20,11 @@ public class NodeUriHeaderDecorator implements ClientRequestFilter {
   @Override
   public void filter(ClientRequestContext requestContext) throws IOException {
     final String uri;
-    if(serverConfig.isUnixSocket()) {
+    if (serverConfig.isUnixSocket()) {
       uri = serverConfig.getServerAddress();
     } else {
       uri = Objects.toString(serverConfig.getServerUri(), UNKNOWN);
     }
-    requestContext
-        .getHeaders()
-        .add(Constants.NODE_URI_HEADER, uri);
+    requestContext.getHeaders().add(Constants.NODE_URI_HEADER, uri);
   }
 }
