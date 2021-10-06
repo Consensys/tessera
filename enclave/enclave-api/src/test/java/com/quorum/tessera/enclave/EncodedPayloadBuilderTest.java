@@ -60,6 +60,7 @@ public class EncodedPayloadBuilderTest {
         .containsExactly(new TxHash(sampleTxHash));
     assertThat(sample.getExecHash()).isEqualTo(execHash);
     assertThat(sample.getPrivacyMode()).isEqualTo(PrivacyMode.PRIVATE_STATE_VALIDATION);
+    assertThat(sample.toString()).isNotNull();
 
     byte[] otherRecipientBox = "OTHETRBIX".getBytes();
     EncodedPayload fromSample =
