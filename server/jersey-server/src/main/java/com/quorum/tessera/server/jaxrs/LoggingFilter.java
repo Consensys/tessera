@@ -43,7 +43,13 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
 
   private void log(String prefix, ContainerRequestContext request) {
     String path = Optional.ofNullable(request.getUriInfo()).map(UriInfo::getPath).orElse(null);
-    getLogger().info("{} Request : {} : {}", prefix, request.getMethod(), "/" + path);
+    getLogger()
+        .info(
+            "{} Request : {} : {} . From : {}",
+            prefix,
+            request.getMethod(),
+            "/" + path,
+            request.getHeaderString("TesseraNodeUri"));
   }
 
   /**
