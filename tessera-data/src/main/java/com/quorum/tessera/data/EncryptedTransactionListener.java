@@ -4,6 +4,7 @@ import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import jakarta.persistence.PostLoad;
+import jakarta.persistence.PostUpdate;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ public class EncryptedTransactionListener {
 
   @PreUpdate
   public void onUpdate(EncryptedTransaction encryptedTransaction) {
-
+    LOGGER.debug("onUpdate {}", encryptedTransaction);
     final EncodedPayload encodedPayload = encryptedTransaction.getPayload();
     final EncodedPayloadCodec encodedPayloadCodec = encryptedTransaction.getEncodedPayloadCodec();
 
@@ -26,6 +27,7 @@ public class EncryptedTransactionListener {
 
   @PrePersist
   public void onSave(EncryptedTransaction encryptedTransaction) {
+    LOGGER.debug("onSave {}", encryptedTransaction);
 
     final EncodedPayload encodedPayload = encryptedTransaction.getPayload();
     final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.current();

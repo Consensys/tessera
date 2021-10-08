@@ -1,5 +1,6 @@
 package com.quorum.tessera.data.staging.internal;
 
+import com.quorum.tessera.data.EncryptedTransaction;
 import com.quorum.tessera.data.EntityManagerTemplate;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransaction;
@@ -40,11 +41,14 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
 
     return entityManagerTemplate.execute(
         entityManager -> {
-          entityManager.merge(entity);
+          StagingTransaction existing = entityManager.find(StagingTransaction.class,entity.getHash());
+          existing.setEncodedPayload(entity.getEncodedPayload());
+          existing.setPayload(null);
+          StagingTransaction merged = entityManager.merge(existing);
 
-          LOGGER.debug("Merging StagingTransaction entity with hash {}", entity.getHash());
+          LOGGER.debug("Merging StagingTransaction entity with hash {}", merged.getHash());
 
-          return entity;
+          return merged;
         });
   }
 

@@ -38,11 +38,17 @@ public class EncryptedTransactionDAOImpl implements EncryptedTransactionDAO {
 
   @Override
   public EncryptedTransaction update(final EncryptedTransaction entity) {
+    LOGGER.debug("Enter update {}",entity);
     return entityManagerTemplate.execute(
         entityManager -> {
-          entityManager.merge(entity);
-          LOGGER.debug("Updated transaction {}", entity.getHash());
-          return entity;
+          EncryptedTransaction existing = entityManager.find(EncryptedTransaction.class,entity.getHash());
+          existing.setPayload(entity.getPayload());
+          existing.setEncodedPayload(null);
+          existing.setHash(entity.getHash());
+          EncryptedTransaction merged = entityManager.merge(existing);
+          LOGGER.debug("Updated transaction {}", merged.getHash());
+          LOGGER.debug("Exit update {}",merged);
+          return merged;
         });
   }
 
