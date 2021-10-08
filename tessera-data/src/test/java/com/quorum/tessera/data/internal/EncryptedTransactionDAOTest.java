@@ -162,7 +162,7 @@ public class EncryptedTransactionDAOTest {
 
       entityManager.getTransaction().rollback();
     }
-    verify(payloadEncoder,times(2)).encode(encodedPayload);
+    verify(payloadEncoder, times(2)).encode(encodedPayload);
     verify(payloadEncoder, times(3)).decode(payloadData);
     verifyNoMoreInteractions(payloadEncoder);
   }
