@@ -188,8 +188,6 @@ public class ResendAllIT {
     assertThat(resendRequestNode3).isNotNull();
     assertThat(resendRequestNode3.getStatus()).isEqualTo(200);
 
-    partyHelper.getParties().map(Party::getPublicKey).forEach(System.out::println);
-
     final String fetch = "SELECT ENCODED_PAYLOAD FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
     final Connection databaseConnection =
         PartyHelper.create().findByPublicKey(partyOne.getPublicKey()).getDatabaseConnection();
