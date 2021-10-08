@@ -41,9 +41,15 @@ public class StagingEntityDAOImpl implements StagingEntityDAO {
 
     return entityManagerTemplate.execute(
         entityManager -> {
-          StagingTransaction existing = entityManager.find(StagingTransaction.class,entity.getHash());
+          StagingTransaction existing = entityManager.find(StagingTransaction.class,entity.getId());
           existing.setEncodedPayload(entity.getEncodedPayload());
           existing.setPayload(null);
+          existing.setValidationStage(entity.getValidationStage());
+          existing.setAffectedContractTransactions(entity.getAffectedContractTransactions());
+          existing.setPrivacyMode(entity.getPrivacyMode());
+          existing.setHash(entity.getHash());
+          existing.setEncodedPayloadCodec(entity.getEncodedPayloadCodec());
+
           StagingTransaction merged = entityManager.merge(existing);
 
           LOGGER.debug("Merging StagingTransaction entity with hash {}", merged.getHash());
