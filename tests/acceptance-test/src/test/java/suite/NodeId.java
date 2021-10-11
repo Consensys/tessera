@@ -28,6 +28,11 @@ public class NodeId {
     tokens.add(executionContext.getSocketType().name().toLowerCase());
     tokens.add(executionContext.getEnclaveType().name().toLowerCase());
     tokens.add(executionContext.getDbType().name().toLowerCase());
+
+    if (executionContext.isAutoCreateTables()) {
+      tokens.add("auto_tables");
+    }
+
     tokens.add(executionContext.getEncryptorType().name().toLowerCase());
     tokens.add(executionContext.getEnclaveType().name().toLowerCase() + "_enclave");
     tokens.add(executionContext.getClientMode().name().toLowerCase());
