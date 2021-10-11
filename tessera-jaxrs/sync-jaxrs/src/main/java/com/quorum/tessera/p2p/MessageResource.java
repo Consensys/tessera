@@ -49,8 +49,7 @@ public class MessageResource {
   @Consumes(APPLICATION_OCTET_STREAM)
   public Response push(@Schema(description = "arbitrary message") final byte[] message) {
 
-    LOGGER.info(
-        "Received inbound message {}", java.util.Base64.getEncoder().encodeToString(message));
+    LOGGER.debug("Received inbound message");
 
     try {
       MessageId messageId = inbox.put(message);

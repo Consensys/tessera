@@ -50,7 +50,7 @@ class MessagingImpl implements Messaging {
   @Override
   public String send(Message message) {
 
-    LOGGER.info("Going to try and send {}", message);
+    LOGGER.debug("Going to try and send {}", message);
 
     // Look for an early out
     final PublicKey recipient = message.getRecipient();
@@ -68,9 +68,7 @@ class MessagingImpl implements Messaging {
     final byte[] encoded = payloadEncoder.encode(encrypted);
 
     // Send it, and return the identifier
-    final MessageId messageId = courier.push(encoded, recipient);
-    LOGGER.info("Sent {} as {}", message, messageId);
-    return messageId.toString();
+    return courier.push(encoded, recipient).toString();
   }
 
   @Override
