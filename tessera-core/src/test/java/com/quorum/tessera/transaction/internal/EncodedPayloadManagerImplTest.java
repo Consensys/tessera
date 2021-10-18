@@ -107,7 +107,8 @@ public class EncodedPayloadManagerImplTest {
     when(request.getExecHash()).thenReturn(new byte[0]);
 
     final EncodedPayload sampleReturnPayload = mock(EncodedPayload.class);
-    when(enclave.encryptPayload(eq(testPayload), eq(sender), eq(List.of(singleRecipient, sender)), any()))
+    when(enclave.encryptPayload(
+            eq(testPayload), eq(sender), eq(List.of(singleRecipient, sender)), any()))
         .thenReturn(sampleReturnPayload);
 
     final EncodedPayload encodedPayload = encodedPayloadManager.create(request);
@@ -146,7 +147,6 @@ public class EncodedPayloadManagerImplTest {
     when(samplePayload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
     when(samplePayload.getAffectedContractTransactions()).thenReturn(emptyMap());
     when(samplePayload.getExecHash()).thenReturn(new byte[0]);
-
 
     when(payloadDigest.digest(any())).thenReturn("test hash".getBytes());
     when(enclave.getPublicKeys()).thenReturn(Set.of(singleRecipient));
