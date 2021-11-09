@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.quorum.tessera.api.*;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.test.Party;
@@ -34,6 +35,8 @@ public class SendMandatoryRecipientsIT {
   final Party a = partyHelper.findByAlias(NodeAlias.A);
   final Party b = partyHelper.findByAlias(NodeAlias.B);
   final Party c = partyHelper.findByAlias(NodeAlias.C);
+
+  final PayloadEncoder encoder = PayloadEncoder.create(EncodedPayloadCodec.current()).get();
 
   @Test
   public void invalidRequests() {
@@ -109,7 +112,7 @@ public class SendMandatoryRecipientsIT {
       throw new UncheckedSQLException(ex);
     }
 
-    EncodedPayload payload = PayloadEncoder.create().decode(receivedPayload);
+    EncodedPayload payload = encoder.decode(receivedPayload);
     assertThat(payload.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
@@ -135,7 +138,7 @@ public class SendMandatoryRecipientsIT {
       throw new UncheckedSQLException(ex);
     }
 
-    EncodedPayload payloadC = PayloadEncoder.create().decode(payloadOnC);
+    EncodedPayload payloadC = encoder.decode(payloadOnC);
     assertThat(payloadC.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
@@ -236,7 +239,7 @@ public class SendMandatoryRecipientsIT {
       throw new UncheckedSQLException(ex);
     }
 
-    EncodedPayload payload = PayloadEncoder.create().decode(payloadOnA);
+    EncodedPayload payload = encoder.decode(payloadOnA);
     assertThat(payload.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
 
@@ -262,7 +265,7 @@ public class SendMandatoryRecipientsIT {
       throw new UncheckedSQLException(ex);
     }
 
-    EncodedPayload payloadC = PayloadEncoder.create().decode(payloadOnC);
+    EncodedPayload payloadC = encoder.decode(payloadOnC);
     assertThat(payloadC.getMandatoryRecipients())
         .containsExactly(PublicKey.from(Base64.getDecoder().decode(c.getPublicKey())));
   }

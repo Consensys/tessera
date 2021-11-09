@@ -5,14 +5,16 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.transaction.PrivacyHelper;
+import java.util.Optional;
 import org.junit.Test;
 
 public class PrivacyHelperProviderTest {
 
   @Test
-  public void defaultContstructorForCoverage() {
+  public void defaultConstructorForCoverage() {
     assertThat(new PrivacyHelperProvider()).isNotNull();
   }
 
@@ -30,7 +32,9 @@ public class PrivacyHelperProviderTest {
           .when(EncryptedTransactionDAO::create)
           .thenReturn(mock(EncryptedTransactionDAO.class));
 
-      mockedPayloadEncoder.when(PayloadEncoder::create).thenReturn(mock(PayloadEncoder.class));
+      mockedPayloadEncoder
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
+          .thenReturn(Optional.of(mock(PayloadEncoder.class)));
 
       PrivacyHelper privacyHelper = PrivacyHelperProvider.provider();
 

@@ -10,6 +10,7 @@ import com.quorum.tessera.config.AppType;
 import com.quorum.tessera.context.RuntimeContext;
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.Enclave;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.messaging.Inbox;
 import com.quorum.tessera.p2p.partyinfo.PartyStore;
@@ -20,6 +21,7 @@ import com.quorum.tessera.transaction.TransactionManager;
 import jakarta.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +63,7 @@ public class P2PRestAppTest {
     partyStore = mock(PartyStore.class);
     transactionManager = mock(TransactionManager.class);
     batchResendManager = mock(BatchResendManager.class);
-    payloadEncoder = PayloadEncoder.create();
+    payloadEncoder = mock(PayloadEncoder.class);
     legacyResendManager = mock(LegacyResendManager.class);
     privacyGroupManager = mock(PrivacyGroupManager.class);
     inbox = mock(Inbox.class);
@@ -196,8 +198,8 @@ public class P2PRestAppTest {
           .when(TransactionManager::create)
           .thenReturn(transactionManager);
       payloadEncoderMockedStatic
-          .when(PayloadEncoder::create)
-          .thenReturn(mock(PayloadEncoder.class));
+          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
+          .thenReturn(Optional.of(payloadEncoder));
       batchResendManagerMockedStatic
           .when(BatchResendManager::create)
           .thenReturn(batchResendManager);
@@ -217,7 +219,7 @@ public class P2PRestAppTest {
       transactionManagerMockedStatic.verify(TransactionManager::create);
       transactionManagerMockedStatic.verifyNoMoreInteractions();
 
-      payloadEncoderMockedStatic.verify(PayloadEncoder::create);
+      payloadEncoderMockedStatic.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
       payloadEncoderMockedStatic.verifyNoMoreInteractions();
 
       batchResendManagerMockedStatic.verify(BatchResendManager::create);

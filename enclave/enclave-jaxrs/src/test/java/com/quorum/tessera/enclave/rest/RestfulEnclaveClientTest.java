@@ -31,6 +31,10 @@ public class RestfulEnclaveClientTest {
 
   private RestfulEnclaveClient enclaveClient;
 
+  private EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.LEGACY;
+
+  private PayloadEncoder payloadEncoder;
+
   @BeforeClass
   public static void beforeClass() {
     SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -39,6 +43,8 @@ public class RestfulEnclaveClientTest {
 
   @Before
   public void setUp() throws Exception {
+
+    payloadEncoder = PayloadEncoder.create(encodedPayloadCodec).get();
 
     Config config = new Config();
     config.setEncryptor(new EncryptorConfig());
@@ -157,8 +163,8 @@ public class RestfulEnclaveClientTest {
 
     assertThat(result).isNotNull();
 
-    byte[] encodedResult = PayloadEncoder.create().encode(result);
-    byte[] encodedEncodedPayload = PayloadEncoder.create().encode(encodedPayload);
+    byte[] encodedResult = payloadEncoder.encode(result);
+    byte[] encodedEncodedPayload = payloadEncoder.encode(encodedPayload);
 
     assertThat(result.getPrivacyGroupId()).isNotPresent();
 
@@ -207,8 +213,8 @@ public class RestfulEnclaveClientTest {
 
     assertThat(result).isNotNull();
 
-    byte[] encodedResult = PayloadEncoder.create().encode(result);
-    byte[] encodedEncodedPayload = PayloadEncoder.create().encode(payloadWithGroupId);
+    byte[] encodedResult = payloadEncoder.encode(result);
+    byte[] encodedEncodedPayload = payloadEncoder.encode(payloadWithGroupId);
 
     assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
@@ -270,8 +276,8 @@ public class RestfulEnclaveClientTest {
 
     assertThat(result).isNotNull();
 
-    byte[] encodedResult = PayloadEncoder.create().encode(result);
-    byte[] encodedEncodedPayload = PayloadEncoder.create().encode(encodedPayload);
+    byte[] encodedResult = payloadEncoder.encode(result);
+    byte[] encodedEncodedPayload = payloadEncoder.encode(encodedPayload);
 
     assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 
@@ -322,8 +328,8 @@ public class RestfulEnclaveClientTest {
 
     assertThat(result).isNotNull();
 
-    byte[] encodedResult = PayloadEncoder.create().encode(result);
-    byte[] encodedEncodedPayload = PayloadEncoder.create().encode(encodedPayloadWithGroupId);
+    byte[] encodedResult = payloadEncoder.encode(result);
+    byte[] encodedEncodedPayload = payloadEncoder.encode(encodedPayloadWithGroupId);
 
     assertThat(encodedResult).isEqualTo(encodedEncodedPayload);
 

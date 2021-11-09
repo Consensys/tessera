@@ -24,8 +24,6 @@ public class TransactionManagerImpl implements TransactionManager {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionManagerImpl.class);
 
-  private final PayloadEncoder payloadEncoder;
-
   private final EncryptedTransactionDAO encryptedTransactionDAO;
 
   private final EncryptedRawTransactionDAO encryptedRawTransactionDAO;
@@ -41,36 +39,13 @@ public class TransactionManagerImpl implements TransactionManager {
   private final PayloadDigest payloadDigest;
 
   public TransactionManagerImpl(
-      EncryptedTransactionDAO encryptedTransactionDAO,
       Enclave enclave,
+      EncryptedTransactionDAO encryptedTransactionDAO,
       EncryptedRawTransactionDAO encryptedRawTransactionDAO,
       ResendManager resendManager,
       BatchPayloadPublisher batchPayloadPublisher,
       PrivacyHelper privacyHelper,
       PayloadDigest payloadDigest) {
-    this(
-        PayloadEncoder.create(),
-        encryptedTransactionDAO,
-        batchPayloadPublisher,
-        enclave,
-        encryptedRawTransactionDAO,
-        resendManager,
-        privacyHelper,
-        payloadDigest);
-  }
-
-  // Only use for tests
-  public TransactionManagerImpl(
-      PayloadEncoder payloadEncoder,
-      EncryptedTransactionDAO encryptedTransactionDAO,
-      BatchPayloadPublisher batchPayloadPublisher,
-      Enclave enclave,
-      EncryptedRawTransactionDAO encryptedRawTransactionDAO,
-      ResendManager resendManager,
-      PrivacyHelper privacyHelper,
-      PayloadDigest payloadDigest) {
-
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder, "payloadEncoder is required");
     this.encryptedTransactionDAO =
         Objects.requireNonNull(encryptedTransactionDAO, "encryptedTransactionDAO is required");
     this.batchPayloadPublisher =
@@ -130,9 +105,7 @@ public class TransactionManagerImpl implements TransactionManager {
             .map(MessageHash::new)
             .get();
 
-    byte[] payloadData = this.payloadEncoder.encode(payload);
-    final EncryptedTransaction newTransaction =
-        new EncryptedTransaction(transactionHash, payloadData);
+    final EncryptedTransaction newTransaction = new EncryptedTransaction(transactionHash, payload);
 
     final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
     final Set<PublicKey> managedParties =
@@ -208,8 +181,7 @@ public class TransactionManagerImpl implements TransactionManager {
             recipientListNoDuplicate,
             privacyMetaDataBuilder.build());
 
-    final EncryptedTransaction newTransaction =
-        new EncryptedTransaction(messageHash, this.payloadEncoder.encode(payload));
+    final EncryptedTransaction newTransaction = new EncryptedTransaction(messageHash, payload);
 
     final Set<PublicKey> managedPublicKeys = enclave.getPublicKeys();
     final Set<PublicKey> managedParties =
@@ -277,14 +249,13 @@ public class TransactionManagerImpl implements TransactionManager {
         this.encryptedTransactionDAO.retrieveByHash(transactionHash);
     if (tx.isEmpty()) {
       // This is the first time we have seen the payload, so just save it to the database as is
-      this.encryptedTransactionDAO.save(
-          new EncryptedTransaction(transactionHash, payloadEncoder.encode(encodedPayload)));
+      this.encryptedTransactionDAO.save(new EncryptedTransaction(transactionHash, encodedPayload));
       LOGGER.debug("Stored new payload with hash {}", transactionHash);
       return transactionHash;
     }
 
     final EncryptedTransaction encryptedTransaction = tx.get();
-    final EncodedPayload existing = payloadEncoder.decode(encryptedTransaction.getEncodedPayload());
+    final EncodedPayload existing = encryptedTransaction.getPayload();
 
     // check all the other bits of the payload match
     final boolean txMatches =
@@ -355,7 +326,7 @@ public class TransactionManagerImpl implements TransactionManager {
       existingPayloadBuilder.withNewRecipientKeys(existingKeys);
     }
 
-    encryptedTransaction.setEncodedPayload(payloadEncoder.encode(existingPayloadBuilder.build()));
+    encryptedTransaction.setPayload(existingPayloadBuilder.build());
     this.encryptedTransactionDAO.update(encryptedTransaction);
 
     LOGGER.info("Updated existing payload with hash {}", transactionHash);
@@ -411,8 +382,7 @@ public class TransactionManagerImpl implements TransactionManager {
 
     final EncodedPayload payload =
         Optional.of(encryptedTransaction)
-            .map(EncryptedTransaction::getEncodedPayload)
-            .map(payloadEncoder::decode)
+            .map(EncryptedTransaction::getPayload)
             .orElseThrow(
                 () -> new IllegalStateException("Unable to decode previously encoded payload"));
 
@@ -532,8 +502,7 @@ public class TransactionManagerImpl implements TransactionManager {
   private EncodedPayload fetchPayload(final MessageHash hash) {
     return encryptedTransactionDAO
         .retrieveByHash(hash)
-        .map(EncryptedTransaction::getEncodedPayload)
-        .map(payloadEncoder::decode)
+        .map(EncryptedTransaction::getPayload)
         .orElseThrow(
             () ->
                 new TransactionNotFoundException(

@@ -87,7 +87,7 @@ public class PartyInfoResource {
         partyInfoParser,
         restClient,
         enclave,
-        PayloadEncoder.create(),
+        PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get(),
         enableKeyValidation,
         PartyStore.getInstance());
   }
