@@ -13,7 +13,7 @@ dependencies {
   implementation project(":encryption:encryption-api")
   implementation project(":tessera-jaxrs:jaxrs-client")
   implementation project(':tessera-jaxrs:partyinfo-model')
-  compileOnly "io.swagger.core.v3:swagger-annotations-jakarta"
+  implementation "io.swagger.core.v3:swagger-annotations-jakarta"
   implementation project(":tessera-core")
   implementation project(":tessera-partyinfo")
   implementation project(":tessera-data")
