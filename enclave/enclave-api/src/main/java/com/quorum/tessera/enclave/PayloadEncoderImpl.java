@@ -231,53 +231,7 @@ public class PayloadEncoderImpl implements PayloadEncoder, BinaryEncoder {
   }
 
   @Override
-  public EncodedPayload forRecipient(final EncodedPayload payload, final PublicKey recipient) {
-
-    if (!payload.getRecipientKeys().contains(recipient)) {
-      throw new InvalidRecipientException(
-          "Recipient " + recipient.encodeToBase64() + " is not a recipient of transaction ");
-    }
-
-    final int recipientIndex = payload.getRecipientKeys().indexOf(recipient);
-    final byte[] recipientBox = payload.getRecipientBoxes().get(recipientIndex).getData();
-
-    List<PublicKey> recipientList;
-
-    if (PrivacyMode.PRIVATE_STATE_VALIDATION == payload.getPrivacyMode()) {
-      recipientList = new ArrayList<>(payload.getRecipientKeys());
-      recipientList.remove(recipientIndex);
-      recipientList.add(0, recipient);
-    } else {
-      recipientList = singletonList(recipient);
-    }
-
-    Map<TxHash, byte[]> affectedTxnMap =
-        payload.getAffectedContractTransactions().entrySet().stream()
-            .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().getData()));
-
-    final EncodedPayload.Builder builder =
-        EncodedPayload.Builder.create()
-            .withSenderKey(payload.getSenderKey())
-            .withCipherText(payload.getCipherText())
-            .withCipherTextNonce(payload.getCipherTextNonce())
-            .withRecipientBoxes(singletonList(recipientBox))
-            .withRecipientNonce(payload.getRecipientNonce())
-            .withRecipientKeys(recipientList)
-            .withPrivacyMode(payload.getPrivacyMode())
-            .withAffectedContractTransactions(affectedTxnMap)
-            .withExecHash(payload.getExecHash())
-            .withMandatoryRecipients(payload.getMandatoryRecipients());
-    payload.getPrivacyGroupId().ifPresent(builder::withPrivacyGroupId);
-
-    return builder.build();
-  }
-
-  @Override
-  public EncodedPayload withRecipient(final EncodedPayload payload, final PublicKey recipient) {
-    // this method is to be used for adding a recipient to an EncodedPayload that does not have any.
-    if (!payload.getRecipientKeys().isEmpty()) {
-      return payload;
-    }
-    return EncodedPayload.Builder.from(payload).withRecipientKey(recipient).build();
+  public EncodedPayloadCodec encodedPayloadCodec() {
+    return EncodedPayloadCodec.LEGACY;
   }
 }
