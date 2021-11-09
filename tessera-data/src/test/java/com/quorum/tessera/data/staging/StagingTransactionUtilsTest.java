@@ -24,7 +24,7 @@ public class StagingTransactionUtilsTest {
 
   private final PublicKey recipient1 = PublicKey.from("recipient1".getBytes());
 
-  private final PayloadEncoder encoder = PayloadEncoder.create();
+  private final PayloadEncoder encoder = PayloadEncoder.create(EncodedPayloadCodec.current()).get();
 
   private ClientMode clientMode;
 
@@ -86,7 +86,8 @@ public class StagingTransactionUtilsTest {
 
     final byte[] raw = encoder.encode(encodedPayload);
 
-    StagingTransaction result = StagingTransactionUtils.fromRawPayload(raw);
+    StagingTransaction result =
+        StagingTransactionUtils.fromRawPayload(raw, EncodedPayloadCodec.current());
     assertThat(result).isNotNull();
     assertThat(result.getHash()).isEqualTo(messageHash);
     assertThat(result.getPayload()).isEqualTo(raw);

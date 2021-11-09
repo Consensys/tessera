@@ -3,6 +3,7 @@ package com.quorum.tessera.data;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import com.quorum.tessera.enclave.EncodedPayload;
 import java.util.Objects;
 import org.junit.Test;
 
@@ -25,12 +26,12 @@ public class EncryptedTransactionTest {
   @Test
   public void createInstanceWithConstructorArgs() {
 
-    byte[] payload = "PAYLOAD".getBytes();
+    EncodedPayload payload = mock(EncodedPayload.class);
     MessageHash hash = mock(MessageHash.class);
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction(hash, payload);
 
     assertThat(encryptedTransaction.getHash()).isSameAs(hash);
-    assertThat(encryptedTransaction.getEncodedPayload()).isSameAs(payload);
+    assertThat(encryptedTransaction.getPayload()).isSameAs(payload);
   }
 
   @Test

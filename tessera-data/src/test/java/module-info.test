@@ -1,0 +1,5 @@
+--add-opens
+    tessera.enclave.api/com.quorum.tessera.enclave=openpojo
+
+--add-opens
+    tessera.encryption.api/com.quorum.tessera.encryption=openpojo
