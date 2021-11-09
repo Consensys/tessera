@@ -32,7 +32,7 @@ public class ReceiveRequestTest {
   }
 
   @Test
-  public void buildWithTransactionHashAndRecipent() {
+  public void buildWithTransactionHashAndRecipient() {
     MessageHash messageHash = mock(MessageHash.class);
     PublicKey recipient = mock(PublicKey.class);
     ReceiveRequest result =
@@ -44,5 +44,23 @@ public class ReceiveRequestTest {
     assertThat(result).isNotNull();
     assertThat(result.getTransactionHash()).isNotNull().isSameAs(messageHash);
     assertThat(result.getRecipient()).containsSame(recipient);
+    assertThat(result.isRaw()).isFalse();
+  }
+
+  @Test
+  public void buildWithRaw() {
+    MessageHash messageHash = mock(MessageHash.class);
+    PublicKey recipient = mock(PublicKey.class);
+    ReceiveRequest req =
+        ReceiveRequest.Builder.create()
+            .withTransactionHash(messageHash)
+            .withRecipient(recipient)
+            .withRaw(true)
+            .build();
+
+    assertThat(req).isNotNull();
+    assertThat(req.getTransactionHash()).isNotNull().isSameAs(messageHash);
+    assertThat(req.getRecipient()).containsSame(recipient);
+    assertThat(req.isRaw()).isTrue();
   }
 }
