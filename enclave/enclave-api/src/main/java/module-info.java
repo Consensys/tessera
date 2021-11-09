@@ -19,6 +19,11 @@ module tessera.enclave.api {
   opens com.quorum.tessera.enclave to
       org.eclipse.persistence.moxy;
 
+  exports com.quorum.tessera.enclave.internal;
+
+  opens com.quorum.tessera.enclave.internal to
+      org.eclipse.persistence.moxy;
+
   provides com.quorum.tessera.enclave.PayloadEncoder with
       com.quorum.tessera.enclave.PayloadEncoderImpl;
   provides com.quorum.tessera.enclave.Enclave with
