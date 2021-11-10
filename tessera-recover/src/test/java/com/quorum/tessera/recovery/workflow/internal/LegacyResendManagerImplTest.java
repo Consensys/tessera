@@ -203,7 +203,6 @@ public class LegacyResendManagerImplTest {
     assertThat(response.getPayload()).isNull();
 
     verify(enclave, times(2)).status();
-    verify(encoder, times(2)).decode(any());
     verify(dao).transactionCount();
     verify(dao).retrieveTransactions(0, 1);
     verify(dao).retrieveTransactions(1, 1);

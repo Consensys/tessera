@@ -3,7 +3,6 @@ package com.quorum.tessera.recovery.workflow.internal;
 import com.quorum.tessera.data.EncryptedTransactionDAO;
 import com.quorum.tessera.data.staging.StagingEntityDAO;
 import com.quorum.tessera.data.staging.StagingTransactionUtils;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.recovery.resend.PushBatchRequest;
 import com.quorum.tessera.recovery.resend.ResendBatchRequest;
@@ -74,9 +73,9 @@ public class BatchResendManagerImpl implements BatchResendManager {
   }
 
   @Override
-  public synchronized void storeResendBatch(PushBatchRequest resendPushBatchRequest) {
-    resendPushBatchRequest.getEncodedPayloads().stream()
-        .map(p -> StagingTransactionUtils.fromRawPayload(p, EncodedPayloadCodec.current()))
+  public synchronized void storeResendBatch(PushBatchRequest request) {
+    request.getEncodedPayloads().stream()
+        .map(p -> StagingTransactionUtils.fromRawPayload(p, request.getEncodedPayloadCodec()))
         .forEach(stagingEntityDAO::save);
   }
 
