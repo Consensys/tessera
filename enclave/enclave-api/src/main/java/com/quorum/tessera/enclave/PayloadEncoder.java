@@ -76,24 +76,6 @@ public interface PayloadEncoder {
     return builder.build();
   }
 
-  /**
-   * Checks whether recipientKeys is empty. If it is, it tries to add the specified recipient. If
-   * the recipientKeys list is immutable then it creates a new EncodedPayload with the recipientKeys
-   * containing the specified recipient and the rest of the fields copied from the input
-   * EncodedPayload.
-   *
-   * @param payload the payload
-   * @param recipient the recipient to add to recipientKeys
-   * @return a payload which contains the added recipient key
-   */
-  default EncodedPayload withRecipient(final EncodedPayload payload, final PublicKey recipient) {
-    // this method is to be used for adding a recipient to an EncodedPayload that does not have any.
-    if (!payload.getRecipientKeys().isEmpty()) {
-      return payload;
-    }
-    return EncodedPayload.Builder.from(payload).withRecipientKey(recipient).build();
-  }
-
   EncodedPayloadCodec encodedPayloadCodec();
 
   static Optional<PayloadEncoder> create(EncodedPayloadCodec encodedPayloadCodec) {
