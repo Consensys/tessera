@@ -19,7 +19,6 @@ import com.quorum.tessera.service.Service;
 import java.util.List;
 import java.util.Set;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class BatchWorkflowFactoryImplTest {
@@ -43,8 +42,6 @@ public class BatchWorkflowFactoryImplTest {
     assertThat(batchWorkflowFactory).isExactlyInstanceOf(BatchWorkflowFactoryImpl.class);
   }
 
-  // FIXME:
-  @Ignore
   @Test
   public void createBatchWorkflowFactoryImplAndExecuteWorkflow() {
 
@@ -60,17 +57,17 @@ public class BatchWorkflowFactoryImplTest {
     batchWorkflowContext.setRecipientKey(recipientKey);
     PublicKey ownedKey = mock(PublicKey.class);
 
-    EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
-    byte[] payloadData = "PAYLOAD".getBytes();
-    when(encryptedTransaction.getEncodedPayload()).thenReturn(payloadData);
-
-    batchWorkflowContext.setEncryptedTransaction(encryptedTransaction);
-
     EncodedPayload encodedPayload = mock(EncodedPayload.class);
     when(encodedPayload.getSenderKey()).thenReturn(ownedKey);
     when(encodedPayload.getRecipientKeys()).thenReturn(List.of(recipientKey));
 
-    when(payloadEncoder.decode(payloadData)).thenReturn(encodedPayload);
+    EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
+    when(encryptedTransaction.getPayload()).thenReturn(encodedPayload);
+
+    batchWorkflowContext.setEncryptedTransaction(encryptedTransaction);
+    batchWorkflowContext.setEncodedPayload(encodedPayload);
+    batchWorkflowContext.setBatchSize(100);
+
     when(payloadEncoder.forRecipient(any(), any())).thenReturn(encodedPayload);
     when(enclave.status()).thenReturn(Service.Status.STARTED);
     when(enclave.getPublicKeys()).thenReturn(Set.of(ownedKey));
@@ -83,7 +80,6 @@ public class BatchWorkflowFactoryImplTest {
     assertThat(batchWorkflow.execute(batchWorkflowContext)).isTrue();
     assertThat(batchWorkflow.getPublishedMessageCount()).isOne();
 
-    verify(payloadEncoder).decode(payloadData);
     verify(enclave).status();
     verify(enclave, times(2)).getPublicKeys();
     verify(payloadEncoder).forRecipient(any(), any());
@@ -107,18 +103,15 @@ public class BatchWorkflowFactoryImplTest {
     batchWorkflowContext.setRecipientKey(publicKey);
 
     EncryptedTransaction encryptedTransaction = mock(EncryptedTransaction.class);
-    byte[] payloadData = "PAYLOAD".getBytes();
-    when(encryptedTransaction.getEncodedPayload()).thenReturn(payloadData);
 
     batchWorkflowContext.setEncryptedTransaction(encryptedTransaction);
+    batchWorkflowContext.setEncodedPayload(mock(EncodedPayload.class));
 
-    when(payloadEncoder.decode(payloadData)).thenReturn(mock(EncodedPayload.class));
     when(enclave.status()).thenReturn(Service.Status.STARTED);
 
     assertThat(batchWorkflow.execute(batchWorkflowContext)).isFalse();
     assertThat(batchWorkflow.getPublishedMessageCount()).isZero();
 
-    verify(payloadEncoder).decode(payloadData);
     verify(enclave).status();
   }
 }

@@ -68,7 +68,7 @@ public class BatchResendManagerImplTest {
   }
 
   @Test
-  public void resendbatch() {
+  public void resendBatch() {
 
     ResendBatchRequest request =
         ResendBatchRequest.Builder.create().withBatchSize(3).withPublicKey(KEY_STRING).build();
@@ -226,11 +226,17 @@ public class BatchResendManagerImplTest {
   @Test
   public void testStoreResendBatchMultipleVersions() {
 
-    try (var payloadDigestMockedStatic = mockStatic(PayloadDigest.class)) {
+    try (var payloadDigestMockedStatic = mockStatic(PayloadDigest.class);
+        var payloadEncoderMockedStatic = mockStatic(PayloadEncoder.class)) {
 
       payloadDigestMockedStatic
           .when(PayloadDigest::create)
           .thenReturn((PayloadDigest) cipherText -> cipherText);
+
+      payloadEncoderMockedStatic
+          .when(() -> PayloadEncoder.create(any()))
+          .thenReturn(Optional.of(payloadEncoder));
+
       final EncodedPayload encodedPayload =
           EncodedPayload.Builder.create()
               .withSenderKey(publicKey)
@@ -244,9 +250,11 @@ public class BatchResendManagerImplTest {
               .withExecHash(new byte[0])
               .build();
 
+      when(payloadEncoder.decode(any())).thenReturn(encodedPayload);
+
       final byte[] raw = new PayloadEncoderImpl().encode(encodedPayload);
 
-      PushBatchRequest request = PushBatchRequest.from(List.of(raw));
+      PushBatchRequest request = PushBatchRequest.from(List.of(raw), EncodedPayloadCodec.LEGACY);
 
       StagingTransaction existing = new StagingTransaction();
 
@@ -257,7 +265,8 @@ public class BatchResendManagerImplTest {
       manager.storeResendBatch(request);
 
       verify(stagingEntityDAO).save(any(StagingTransaction.class));
-
+      verify(payloadEncoder).decode(any());
+      verify(payloadEncoder).encodedPayloadCodec();
       payloadDigestMockedStatic.verify(PayloadDigest::create);
       payloadDigestMockedStatic.verifyNoMoreInteractions();
     }
