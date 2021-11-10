@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.discovery.Discovery;
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.enclave.PrivacyMode;
 import com.quorum.tessera.encryption.PublicKey;
@@ -25,17 +26,22 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.MockedStatic;
 
 public class RestPayloadPublisherTest {
 
   private Client client;
 
   private PayloadEncoder payloadEncoder;
+
+  private final MockedStatic<PayloadEncoder> payloadEncoderFactoryFunction =
+      mockStatic(PayloadEncoder.class);
 
   private Discovery discovery;
 
@@ -46,12 +52,21 @@ public class RestPayloadPublisherTest {
     client = mock(Client.class);
     payloadEncoder = mock(PayloadEncoder.class);
     discovery = mock(Discovery.class);
-    payloadPublisher = new RestPayloadPublisher(client, payloadEncoder, discovery);
+    payloadPublisher = new RestPayloadPublisher(client, discovery);
+
+    payloadEncoderFactoryFunction
+        .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
+        .thenReturn(Optional.of(payloadEncoder));
   }
 
   @After
   public void afterTest() {
-    verifyNoMoreInteractions(client, payloadEncoder, discovery);
+    try {
+      verifyNoMoreInteractions(client, payloadEncoder, discovery);
+      payloadEncoderFactoryFunction.verifyNoMoreInteractions();
+    } finally {
+      payloadEncoderFactoryFunction.close();
+    }
   }
 
   @Test
@@ -101,10 +116,12 @@ public class RestPayloadPublisherTest {
       }
     }
 
-    int interations = Response.Status.values().length * PrivacyMode.values().length;
-    verify(client, times(interations)).target(targetUrl);
-    verify(discovery, times(interations)).getRemoteNodeInfo(publicKey);
-    verify(payloadEncoder, times(interations)).encode(encodedPayload);
+    int iterations = Response.Status.values().length * PrivacyMode.values().length;
+    verify(client, times(iterations)).target(targetUrl);
+    verify(discovery, times(iterations)).getRemoteNodeInfo(publicKey);
+    verify(payloadEncoder, times(iterations)).encode(encodedPayload);
+    payloadEncoderFactoryFunction.verify(
+        times(iterations), () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test
@@ -140,6 +157,9 @@ public class RestPayloadPublisherTest {
           .hasMessageContaining("Transactions with enhanced privacy is not currently supported");
       verify(discovery).getRemoteNodeInfo(eq(recipientKey));
     }
+
+    payloadEncoderFactoryFunction.verify(
+        times(2), () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test
@@ -164,8 +184,7 @@ public class RestPayloadPublisherTest {
     when(payload.getPrivacyMode()).thenReturn(PrivacyMode.STANDARD_PRIVATE);
     when(payloadEncoder.encode(payload)).thenReturn("SomeData".getBytes());
 
-    RestPayloadPublisher restPayloadPublisher =
-        new RestPayloadPublisher(client, payloadEncoder, discovery);
+    RestPayloadPublisher restPayloadPublisher = new RestPayloadPublisher(client, discovery);
 
     try {
       restPayloadPublisher.publishPayload(payload, recipientKey);
@@ -176,6 +195,8 @@ public class RestPayloadPublisherTest {
       verify(discovery).getRemoteNodeInfo(eq(recipientKey));
       verify(payloadEncoder).encode(payload);
       verify(discovery).getRemoteNodeInfo(eq(recipientKey));
+      payloadEncoderFactoryFunction.verify(
+          () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
     }
   }
 
@@ -205,5 +226,8 @@ public class RestPayloadPublisherTest {
             "Transactions with mandatory recipients are not currently supported on recipient");
 
     verify(discovery).getRemoteNodeInfo(eq(recipientKey));
+
+    payloadEncoderFactoryFunction.verify(
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 }

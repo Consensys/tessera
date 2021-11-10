@@ -12,7 +12,7 @@ public class BatchPayloadPublisherProvider {
   public static BatchPayloadPublisher provider() {
     ExecutorFactory executorFactory = new ExecutorFactory();
     CancellableCountDownLatchFactory countDownLatchFactory = new CancellableCountDownLatchFactory();
-    PayloadEncoder encoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
+    PayloadEncoder encoder = PayloadEncoder.create(EncodedPayloadCodec.current()).get();
     PayloadPublisher payloadPublisher = PayloadPublisher.create();
     return new AsyncBatchPayloadPublisher(
         executorFactory, countDownLatchFactory, payloadPublisher, encoder);

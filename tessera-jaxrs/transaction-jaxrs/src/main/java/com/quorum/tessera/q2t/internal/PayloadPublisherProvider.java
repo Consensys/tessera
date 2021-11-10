@@ -3,8 +3,6 @@ package com.quorum.tessera.q2t.internal;
 import com.quorum.tessera.config.Config;
 import com.quorum.tessera.config.ConfigFactory;
 import com.quorum.tessera.discovery.Discovery;
-import com.quorum.tessera.enclave.EncodedPayloadCodec;
-import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.jaxrs.client.ClientFactory;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
 import jakarta.ws.rs.client.Client;
@@ -19,8 +17,6 @@ public class PayloadPublisherProvider {
     ClientFactory clientFactory = new ClientFactory();
     Client client = clientFactory.buildFrom(config.getP2PServerConfig());
 
-    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
-
-    return new RestPayloadPublisher(client, payloadEncoder, partyInfoService);
+    return new RestPayloadPublisher(client, partyInfoService);
   }
 }
