@@ -55,7 +55,7 @@ public class TesseraCommand implements Callable<CliResult> {
   }
 
   @CommandLine.Option(
-      names = {"--configfile", "-configfile"},
+      names = {"--configfile", "-configfile", "--config-file"},
       description = "Path to node configuration file")
   public Config config;
 

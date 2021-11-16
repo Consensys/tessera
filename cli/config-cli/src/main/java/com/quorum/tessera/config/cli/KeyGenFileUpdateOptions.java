@@ -6,7 +6,7 @@ import picocli.CommandLine;
 
 public class KeyGenFileUpdateOptions {
   @CommandLine.Option(
-      names = {"--configfile", "-configfile"},
+      names = {"--configfile", "-configfile", "--config-file"},
       description = "Path to node configuration file",
       required = true)
   private Config config;
