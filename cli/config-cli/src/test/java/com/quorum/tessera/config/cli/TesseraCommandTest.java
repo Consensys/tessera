@@ -92,10 +92,10 @@ public class TesseraCommandTest {
             "arg", "-configfile=myconfig.file",
             "convertor", Optional.of(mock(CommandLine.ITypeConverter.class)),
             "convertorType", Optional.of(Config.class)),
-      Map.of(
-        "arg", "--config-file=myconfig.file",
-        "convertor", Optional.of(mock(CommandLine.ITypeConverter.class)),
-        "convertorType", Optional.of(Config.class)),
+        Map.of(
+            "arg", "--config-file=myconfig.file",
+            "convertor", Optional.of(mock(CommandLine.ITypeConverter.class)),
+            "convertorType", Optional.of(Config.class)),
         Map.of(
             "arg", "--recover",
             "convertor", Optional.empty(),
