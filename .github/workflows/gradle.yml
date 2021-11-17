@@ -373,12 +373,12 @@ jobs:
         with:
           name: vault-itest-logs
           path: /home/runner/work/tessera/tessera/tests/acceptance-test/build/logs
-      - uses: homoluctus/slatify@v3.0.0
-        if: always()
-        with:
-          type: ${{job.status}}
-          job_name: Key vault integration tests
-          url: ${{ secrets.SLACK_WEBHOOK }}
+#      - uses: homoluctus/slatify@v3.0.0
+#        if: always()
+#        with:
+#          type: ${{job.status}}
+#          job_name: Key vault integration tests
+#          url: ${{ secrets.SLACK_WEBHOOK }}
 
   recovery_itest:
     name: Recovery integration tests
