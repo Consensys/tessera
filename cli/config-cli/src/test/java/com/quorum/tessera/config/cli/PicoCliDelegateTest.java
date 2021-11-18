@@ -252,7 +252,7 @@ public class PicoCliDelegateTest {
     Throwable ex = catchThrowable(() -> cliDelegate.execute("-configfile"));
 
     assertThat(ex).isExactlyInstanceOf(CliException.class);
-    assertThat(ex).hasMessage("Missing required parameter for option '--configfile' (<config>)");
+    assertThat(ex).hasMessage("Missing required parameter for option '--config-file' (<config>)");
   }
 
   @Test

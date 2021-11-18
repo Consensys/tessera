@@ -66,7 +66,7 @@ public class KeyUpdateCommand implements Callable<CliResult> {
   public Path passwordFile;
 
   @CommandLine.Option(
-      names = {"--configfile", "-configfile"},
+      names = {"--configfile", "-configfile", "--config-file"},
       description = "Path to node configuration file")
   public Config config;
 
