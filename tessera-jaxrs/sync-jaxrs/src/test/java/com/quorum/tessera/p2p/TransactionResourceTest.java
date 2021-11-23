@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.enclave.EncodedPayload;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
 import com.quorum.tessera.p2p.resend.ResendRequest;
@@ -13,10 +14,13 @@ import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.TransactionManager;
 import jakarta.ws.rs.core.Response;
 import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.MockedStatic;
 
 public class TransactionResourceTest {
 
@@ -30,6 +34,9 @@ public class TransactionResourceTest {
 
   private LegacyResendManager legacyResendManager;
 
+  private final MockedStatic<PayloadEncoder> payloadEncoderFactoryFunction =
+      mockStatic(PayloadEncoder.class);
+
   @Before
   public void onSetup() {
     transactionManager = mock(TransactionManager.class);
@@ -37,15 +44,24 @@ public class TransactionResourceTest {
     payloadEncoder = mock(PayloadEncoder.class);
     legacyResendManager = mock(LegacyResendManager.class);
 
+    payloadEncoder = mock(PayloadEncoder.class);
+    payloadEncoderFactoryFunction
+        .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
+        .thenReturn(Optional.of(payloadEncoder));
+
     transactionResource =
-        new TransactionResource(
-            transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
+        new TransactionResource(transactionManager, batchResendManager, legacyResendManager);
   }
 
   @After
   public void onTearDown() {
-    verifyNoMoreInteractions(
-        transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
+    try {
+      verifyNoMoreInteractions(
+          transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
+      payloadEncoderFactoryFunction.verifyNoMoreInteractions();
+    } finally {
+      payloadEncoderFactoryFunction.close();
+    }
   }
 
   @Test
@@ -54,12 +70,15 @@ public class TransactionResourceTest {
     final EncodedPayload payload = mock(EncodedPayload.class);
     when(payloadEncoder.decode(someData)).thenReturn(payload);
 
-    final Response result = transactionResource.push(someData);
+    final Response result = transactionResource.push(someData, List.of("4.0,5.0"));
 
     assertThat(result.getStatus()).isEqualTo(201);
     assertThat(result.hasEntity()).isTrue();
     verify(transactionManager).storePayload(payload);
     verify(payloadEncoder).decode(someData);
+
+    payloadEncoderFactoryFunction.verify(
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test
@@ -85,6 +104,9 @@ public class TransactionResourceTest {
 
     verify(payloadEncoder).encode(payload);
     verify(legacyResendManager).resend(any(com.quorum.tessera.recovery.resend.ResendRequest.class));
+
+    payloadEncoderFactoryFunction.verify(
+        () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
   }
 
   @Test

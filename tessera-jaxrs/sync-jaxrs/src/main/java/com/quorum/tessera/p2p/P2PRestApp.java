@@ -118,8 +118,7 @@ public class P2PRestApp extends TesseraRestApplication
     final IPWhitelistFilter iPWhitelistFilter = new IPWhitelistFilter();
 
     final TransactionResource transactionResource =
-        new TransactionResource(
-            transactionManager, batchResendManager, payloadEncoder, legacyResendManager);
+        new TransactionResource(transactionManager, batchResendManager, legacyResendManager);
 
     final UpCheckResource upCheckResource = new UpCheckResource();
 

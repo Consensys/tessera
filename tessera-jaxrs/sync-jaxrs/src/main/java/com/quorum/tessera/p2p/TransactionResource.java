@@ -1,9 +1,11 @@
 package com.quorum.tessera.p2p;
 
 import static jakarta.ws.rs.core.MediaType.*;
+import static java.util.Collections.emptyList;
 
 import com.quorum.tessera.base64.Base64Codec;
 import com.quorum.tessera.data.MessageHash;
+import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.encryption.PublicKey;
 import com.quorum.tessera.p2p.recovery.ResendBatchRequest;
@@ -11,8 +13,10 @@ import com.quorum.tessera.p2p.resend.ResendRequest;
 import com.quorum.tessera.recovery.resend.ResendBatchResponse;
 import com.quorum.tessera.recovery.workflow.BatchResendManager;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
+import com.quorum.tessera.shared.Constants;
 import com.quorum.tessera.transaction.TransactionManager;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,14 +24,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,18 +47,14 @@ public class TransactionResource {
 
   private final BatchResendManager batchResendManager;
 
-  private final PayloadEncoder payloadEncoder;
-
   private final LegacyResendManager legacyResendManager;
 
   public TransactionResource(
       final TransactionManager transactionManager,
       final BatchResendManager batchResendManager,
-      final PayloadEncoder payloadEncoder,
       final LegacyResendManager legacyResendManager) {
     this.transactionManager = Objects.requireNonNull(transactionManager);
     this.batchResendManager = Objects.requireNonNull(batchResendManager);
-    this.payloadEncoder = Objects.requireNonNull(payloadEncoder);
     this.legacyResendManager = Objects.requireNonNull(legacyResendManager);
   }
 
@@ -87,6 +83,8 @@ public class TransactionResource {
   public Response resend(@Valid @NotNull final ResendRequest resendRequest) {
 
     LOGGER.debug("Received resend request");
+
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
 
     PublicKey recipient =
         Optional.of(resendRequest)
@@ -182,9 +180,25 @@ public class TransactionResource {
   @POST
   @Path("push")
   @Consumes(APPLICATION_OCTET_STREAM)
-  public Response push(@Schema(description = "encoded payload") final byte[] payload) {
+  public Response push(
+      @Schema(description = "encoded payload") final byte[] payload,
+      @HeaderParam(Constants.API_VERSION_HEADER)
+          @Parameter(
+              description = "client's supported API versions",
+              array = @ArraySchema(schema = @Schema(type = "string")))
+          final List<String> headers) {
 
     LOGGER.debug("Received push request");
+
+    final Set<String> versions =
+        Optional.ofNullable(headers).orElse(emptyList()).stream()
+            .filter(Objects::nonNull)
+            .flatMap(v -> Arrays.stream(v.split(",")))
+            .collect(Collectors.toSet());
+
+    final EncodedPayloadCodec codec = EncodedPayloadCodec.getPreferredCodecForVersion(versions);
+
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(codec).get();
 
     final MessageHash messageHash = transactionManager.storePayload(payloadEncoder.decode(payload));
     LOGGER.debug("Push request generated hash {}", messageHash);
