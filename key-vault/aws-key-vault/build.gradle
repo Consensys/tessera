@@ -4,7 +4,6 @@ plugins {
 }
 
 def nettyVersion = "4.1.46.Final"
-def jacksonVersion = "2.12.3";
 
 dependencyCheck {
   failBuildOnCVSS = 11

@@ -2406,6 +2406,6 @@ public class PayloadEncoderTest {
   @Test
   public void createCbor() {
     Optional<PayloadEncoder> result = PayloadEncoder.create(EncodedPayloadCodec.CBOR);
-    assertThat(result).isEmpty();
+    assertThat(result).isNotEmpty();
   }
 }
