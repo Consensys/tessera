@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 
 import com.quorum.tessera.encryption.Nonce;
 import com.quorum.tessera.encryption.PublicKey;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -191,7 +192,8 @@ public class CBOREncoderTest {
 
   @Test
   public void decodeError() {
-    byte[] raw = "bogus".getBytes();
+    String invalid = "oWZzZW5kZXKA";
+    byte[] raw = Base64.getDecoder().decode(invalid);
     assertThatExceptionOfType(RuntimeException.class)
         .isThrownBy(() -> encoder.decode(raw))
         .withMessageContaining("Unable to decode payload data");
