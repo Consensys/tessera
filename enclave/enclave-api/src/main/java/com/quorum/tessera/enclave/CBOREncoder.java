@@ -19,45 +19,52 @@ public class CBOREncoder implements PayloadEncoder {
 
     try (CBORGenerator generator = cborFactory.createGenerator(output)) {
 
-      generator.writeBinary(payload.getSenderKey().getKeyBytes());
-      generator.writeBinary(payload.getCipherText());
-      generator.writeBinary(payload.getCipherTextNonce().getNonceBytes());
-      generator.writeBinary(payload.getRecipientNonce().getNonceBytes());
+      generator.writeStartObject(11);
+      generator.writeBinaryField("sender", payload.getSenderKey().getKeyBytes());
+      generator.writeBinaryField("cipherText", payload.getCipherText());
+      generator.writeBinaryField("nonce", payload.getCipherTextNonce().getNonceBytes());
+      generator.writeBinaryField("recipientNonce", payload.getRecipientNonce().getNonceBytes());
 
-      generator.writeStartArray();
+      generator.writeFieldName("recipientBoxes");
+      generator.writeStartArray(payload.getRecipientBoxes().size());
       for (RecipientBox box : payload.getRecipientBoxes()) {
         generator.writeBinary(box.getData());
       }
       generator.writeEndArray();
 
-      generator.writeStartArray();
-      for (PublicKey recipient : payload.getRecipientKeys()) {
-        generator.writeBinary(recipient.getKeyBytes());
+      generator.writeFieldName("recipients");
+      generator.writeStartArray(payload.getRecipientKeys().size());
+      for (PublicKey key : payload.getRecipientKeys()) {
+        generator.writeBinary(key.getKeyBytes());
       }
       generator.writeEndArray();
 
-      generator.writeNumber(payload.getPrivacyMode().getPrivacyFlag());
+      generator.writeNumberField("privacyFlag", payload.getPrivacyMode().getPrivacyFlag());
 
-      generator.writeStartArray();
+      generator.writeFieldName("affected");
+      generator.writeStartObject(payload.getAffectedContractTransactions().size());
       for (Map.Entry<TxHash, SecurityHash> entry :
           payload.getAffectedContractTransactions().entrySet()) {
-        generator.writeBinary(entry.getKey().getBytes());
+        generator.writeFieldName(entry.getKey().encodeToBase64());
         generator.writeBinary(entry.getValue().getData());
       }
-      generator.writeEndArray();
+      generator.writeEndObject();
 
-      generator.writeBinary(payload.getExecHash());
+      generator.writeBinaryField("execHash", payload.getExecHash());
 
-      generator.writeStartArray();
-      for (PublicKey mr : payload.getMandatoryRecipients()) {
-        generator.writeBinary(mr.getKeyBytes());
+      generator.writeFieldName("mandatoryFor");
+      generator.writeStartArray(payload.getMandatoryRecipients().size());
+      for (PublicKey recipient : payload.getMandatoryRecipients()) {
+        generator.writeBinary(recipient.getKeyBytes());
       }
       generator.writeEndArray();
 
       final byte[] privacyGroupId =
           payload.getPrivacyGroupId().map(PrivacyGroup.Id::getBytes).orElse(new byte[0]);
 
-      generator.writeBinary(privacyGroupId);
+      generator.writeBinaryField("privacyGroupId", privacyGroupId);
+
+      generator.writeEndObject();
 
       generator.flush();
 
@@ -65,85 +72,125 @@ public class CBOREncoder implements PayloadEncoder {
       throw new RuntimeException("Unable to encode payload. ", ex);
     }
 
-    final byte[] encoded = output.toByteArray();
-
-    System.out.println("Encode AAAAA : " + Base64.getEncoder().encodeToString(encoded));
-
-    return encoded;
+    return output.toByteArray();
   }
 
   @Override
   public EncodedPayload decode(byte[] input) {
 
-    EncodedPayload.Builder builder = EncodedPayload.Builder.create();
+    EncodedPayload.Builder payloadBuilder = EncodedPayload.Builder.create();
 
     try (final CBORParser parser = cborFactory.createParser(input)) {
 
-      parser.nextToken();
-      builder.withSenderKey(PublicKey.from(parser.getBinaryValue()));
+      validateToken(JsonToken.START_OBJECT, parser.nextToken());
 
-      parser.nextToken();
-      builder.withCipherText(parser.getBinaryValue());
+      while (parser.nextFieldName() != null) {
 
-      parser.nextToken();
-      builder.withCipherTextNonce(parser.getBinaryValue());
+        if (parser.getCurrentName().equals("sender")) {
+          validateToken(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
+          final byte[] senderKey = parser.getBinaryValue();
+          payloadBuilder.withSenderKey(PublicKey.from(senderKey));
+          continue;
+        }
 
-      parser.nextToken();
-      builder.withRecipientNonce(parser.getBinaryValue());
+        if (parser.getCurrentName().equals("cipherText")) {
+          validateToken(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
+          final byte[] cipherText = parser.getBinaryValue();
+          payloadBuilder.withCipherText(cipherText);
+          continue;
+        }
 
-      parser.nextToken();
-      while (JsonToken.END_ARRAY != parser.nextToken()) {
-        final byte[] box = parser.getBinaryValue();
-        builder.withRecipientBox(box);
+        if (parser.getCurrentName().equals("nonce")) {
+          validateToken(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
+          final byte[] nonceBytes = parser.getBinaryValue();
+          payloadBuilder.withCipherTextNonce(nonceBytes);
+          continue;
+        }
+
+        if (parser.getCurrentName().equals("recipientNonce")) {
+          validateToken(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
+          final byte[] recipientNonceBytes = parser.getBinaryValue();
+          payloadBuilder.withRecipientNonce(recipientNonceBytes);
+          continue;
+        }
+
+        if (parser.getCurrentName().equals("recipients")) {
+          validateToken(JsonToken.START_ARRAY, parser.nextToken());
+          while (parser.nextToken() != JsonToken.END_ARRAY) {
+            final byte[] recipientBytes = parser.getBinaryValue();
+            payloadBuilder.withRecipientKey(PublicKey.from(recipientBytes));
+          }
+          continue;
+        }
+
+        if (parser.getCurrentName().equals("recipientBoxes")) {
+          validateToken(JsonToken.START_ARRAY, parser.nextToken());
+          while (parser.nextToken() != JsonToken.END_ARRAY) {
+            final byte[] box = parser.getBinaryValue();
+            payloadBuilder.withRecipientBox(box);
+          }
+          continue;
+        }
+
+        if (parser.getCurrentName().equals("privacyFlag")) {
+          final int flag = parser.nextIntValue(0);
+          payloadBuilder.withPrivacyFlag(flag);
+          continue;
+        }
+
+        if (parser.getCurrentName().equals("affected")) {
+          validateToken(JsonToken.START_OBJECT, parser.nextToken());
+          final Map<TxHash, byte[]> affectedTxs = new HashMap<>();
+          while (parser.nextToken() != JsonToken.END_OBJECT) {
+            final TxHash txHash = new TxHash(parser.currentName());
+            validateToken(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
+            final byte[] securityHashBytes = parser.getBinaryValue();
+            affectedTxs.put(txHash, securityHashBytes);
+          }
+          payloadBuilder.withAffectedContractTransactions(affectedTxs);
+          continue;
+        }
+
+        if (parser.getCurrentName().equals("execHash")) {
+          validateToken(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
+          final byte[] execHash = parser.getBinaryValue();
+          payloadBuilder.withExecHash(execHash);
+          continue;
+        }
+
+        if (parser.getCurrentName().equals("mandatoryFor")) {
+          validateToken(JsonToken.START_ARRAY, parser.nextToken());
+          final Set<PublicKey> mandatoryRecipients = new HashSet<>();
+          while (parser.nextToken() != JsonToken.END_ARRAY) {
+            final byte[] recipient = parser.getBinaryValue();
+            mandatoryRecipients.add(PublicKey.from(recipient));
+          }
+          payloadBuilder.withMandatoryRecipients(mandatoryRecipients);
+          continue;
+        }
+
+        if (parser.getCurrentName().equals("privacyGroupId")) {
+          validateToken(JsonToken.VALUE_EMBEDDED_OBJECT, parser.nextToken());
+          final byte[] groupId = parser.getBinaryValue();
+          if (groupId.length > 0)
+            payloadBuilder.withPrivacyGroupId(PrivacyGroup.Id.fromBytes(groupId));
+        }
       }
-
-      parser.nextToken();
-      while (JsonToken.END_ARRAY != parser.nextToken()) {
-        final PublicKey recipient = PublicKey.from(parser.getBinaryValue());
-        builder.withRecipientKey(recipient);
-      }
-
-      parser.nextToken();
-      final PrivacyMode privacyMode = PrivacyMode.fromFlag(parser.getIntValue());
-      builder.withPrivacyMode(privacyMode);
-
-      parser.nextToken();
-      Map<TxHash, byte[]> affectedTxs = new HashMap<>();
-      while (JsonToken.END_ARRAY != parser.nextToken()) {
-        TxHash txHash = TxHash.from(parser.getBinaryValue());
-        parser.nextToken();
-        byte[] securityHash = parser.getBinaryValue();
-        affectedTxs.put(txHash, securityHash);
-      }
-      builder.withAffectedContractTransactions(affectedTxs);
-
-      parser.nextToken();
-      builder.withExecHash(parser.getBinaryValue());
-
-      parser.nextToken();
-      final Set<PublicKey> mandatoryRecipients = new HashSet<>();
-      while (JsonToken.END_ARRAY != parser.nextToken()) {
-        final PublicKey recipient = PublicKey.from(parser.getBinaryValue());
-        mandatoryRecipients.add(recipient);
-      }
-      builder.withMandatoryRecipients(mandatoryRecipients);
-
-      parser.nextToken();
-      final byte[] privacyGroupId = parser.getBinaryValue();
-
-      if (privacyGroupId.length > 0) {
-        builder.withPrivacyGroupId(PrivacyGroup.Id.fromBytes(privacyGroupId));
-      }
-
     } catch (Exception ex) {
       throw new RuntimeException("Unable to decode payload data. ", ex);
     }
 
-    return builder.build();
+    return payloadBuilder.build();
   }
 
   @Override
   public EncodedPayloadCodec encodedPayloadCodec() {
     return EncodedPayloadCodec.CBOR;
+  }
+
+  private void validateToken(JsonToken expected, JsonToken current) {
+    if (current != expected) {
+      throw new IllegalArgumentException("Invalid payload data");
+    }
   }
 }
