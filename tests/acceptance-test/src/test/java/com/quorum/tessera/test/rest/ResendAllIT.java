@@ -189,7 +189,8 @@ public class ResendAllIT {
     assertThat(resendRequestNode3).isNotNull();
     assertThat(resendRequestNode3.getStatus()).isEqualTo(200);
 
-    final String fetch = "SELECT ENCODED_PAYLOAD, PAYLOAD_CODEC FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
+    final String fetch =
+        "SELECT ENCODED_PAYLOAD, PAYLOAD_CODEC FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
     final Connection databaseConnection =
         PartyHelper.create().findByPublicKey(partyOne.getPublicKey()).getDatabaseConnection();
     try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
@@ -268,7 +269,8 @@ public class ResendAllIT {
     assertThat(resendRequest).isNotNull();
     assertThat(resendRequest.getStatus()).isEqualTo(200);
 
-    final String fetch = "SELECT ENCODED_PAYLOAD, PAYLOAD_CODEC FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
+    final String fetch =
+        "SELECT ENCODED_PAYLOAD, PAYLOAD_CODEC FROM ENCRYPTED_TRANSACTION WHERE HASH = ?";
     final Connection databaseConnection =
         PartyHelper.create().findByPublicKey(partyTwo.getPublicKey()).getDatabaseConnection();
     try (PreparedStatement statement = databaseConnection.prepareStatement(fetch)) {
