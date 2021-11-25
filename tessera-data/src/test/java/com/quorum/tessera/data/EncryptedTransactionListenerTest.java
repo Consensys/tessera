@@ -92,7 +92,8 @@ public class EncryptedTransactionListenerTest {
     encryptedTransactionListener.onSave(encryptedTransaction);
 
     verify(payloadEncoder).encode(encodedPayload);
-    payloadEncoderFactoryFunction.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
+    payloadEncoderFactoryFunction.verify(
+        () -> PayloadEncoder.create(EncodedPayloadCodec.current()));
     assertThat(encryptedTransaction.getEncodedPayload()).isEqualTo(payloadData);
   }
 }

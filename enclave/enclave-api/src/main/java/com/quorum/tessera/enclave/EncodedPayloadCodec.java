@@ -20,10 +20,10 @@ public enum EncodedPayloadCodec {
   }
 
   public static EncodedPayloadCodec current() {
-    return LEGACY;
+    return CBOR;
   }
 
-  public static EncodedPayloadCodec getPreferredCodecForVersion(Set<String> versions) {
+  public static EncodedPayloadCodec getPreferredCodec(Set<String> versions) {
     return Stream.of(EncodedPayloadCodec.values())
         .filter(codec -> versions.contains(codec.getMinimumSupportedVersion()))
         .findFirst()
