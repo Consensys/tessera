@@ -32,7 +32,7 @@ public class BatchWorkflowFactoryProviderTest {
           .when(ResendBatchPublisher::create)
           .thenReturn(mock(ResendBatchPublisher.class));
       staticPayloadEncoder
-          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
+          .when(() -> PayloadEncoder.create(any()))
           .thenReturn(Optional.of(mock(PayloadEncoder.class)));
 
       BatchWorkflowFactory batchWorkflowFactory = BatchWorkflowFactoryProvider.provider();
@@ -43,7 +43,7 @@ public class BatchWorkflowFactoryProviderTest {
       staticEnclave.verify(Enclave::create);
       staticDiscovery.verify(Discovery::create);
       staticResendBatchPublisher.verify(ResendBatchPublisher::create);
-      staticPayloadEncoder.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
+      staticPayloadEncoder.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.current()));
 
       staticEnclave.verifyNoMoreInteractions();
       staticDiscovery.verifyNoMoreInteractions();

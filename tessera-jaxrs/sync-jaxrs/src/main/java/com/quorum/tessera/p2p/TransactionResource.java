@@ -196,7 +196,7 @@ public class TransactionResource {
             .flatMap(v -> Arrays.stream(v.split(",")))
             .collect(Collectors.toSet());
 
-    final EncodedPayloadCodec codec = EncodedPayloadCodec.getPreferredCodecForVersion(versions);
+    final EncodedPayloadCodec codec = EncodedPayloadCodec.getPreferredCodec(versions);
 
     final PayloadEncoder payloadEncoder = PayloadEncoder.create(codec).get();
 

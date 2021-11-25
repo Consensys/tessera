@@ -11,13 +11,13 @@ public class EncodedPayloadCodecTest {
   @Test
   public void current() {
     EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.current();
-    assertThat(encodedPayloadCodec).isSameAs(EncodedPayloadCodec.LEGACY);
+    assertThat(encodedPayloadCodec).isSameAs(EncodedPayloadCodec.CBOR);
   }
 
   @Test
   public void getPreferredCodecLegacy() {
     EncodedPayloadCodec codec =
-        EncodedPayloadCodec.getPreferredCodecForVersion(
+        EncodedPayloadCodec.getPreferredCodec(
             Set.of(BaseVersion.API_VERSION_1, MandatoryRecipientsVersion.API_VERSION_4));
 
     assertThat(codec).isEqualTo(EncodedPayloadCodec.LEGACY);
@@ -26,7 +26,7 @@ public class EncodedPayloadCodecTest {
   @Test
   public void getPreferredCodecVersion5() {
     EncodedPayloadCodec codec =
-        EncodedPayloadCodec.getPreferredCodecForVersion(
+        EncodedPayloadCodec.getPreferredCodec(
             Set.of(
                 BaseVersion.API_VERSION_1,
                 MandatoryRecipientsVersion.API_VERSION_4,
@@ -38,7 +38,7 @@ public class EncodedPayloadCodecTest {
 
   @Test
   public void getPreferredCodecUnknownVersion() {
-    EncodedPayloadCodec codec = EncodedPayloadCodec.getPreferredCodecForVersion(Set.of());
+    EncodedPayloadCodec codec = EncodedPayloadCodec.getPreferredCodec(Set.of());
 
     assertThat(codec).isEqualTo(EncodedPayloadCodec.LEGACY);
     assertThat(codec.getMinimumSupportedVersion()).isEqualTo(BaseVersion.API_VERSION_1);
