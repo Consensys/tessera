@@ -44,7 +44,7 @@ public class RestfulEnclaveClientTest {
   @Before
   public void setUp() throws Exception {
 
-    payloadEncoder = PayloadEncoder.create(encodedPayloadCodec).get();
+    payloadEncoder = PayloadEncoder.create(encodedPayloadCodec);
 
     Config config = new Config();
     config.setEncryptor(new EncryptorConfig());

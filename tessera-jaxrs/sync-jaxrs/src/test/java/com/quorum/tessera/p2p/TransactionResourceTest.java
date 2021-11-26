@@ -47,7 +47,7 @@ public class TransactionResourceTest {
     payloadEncoder = mock(PayloadEncoder.class);
     payloadEncoderFactoryFunction
         .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
-        .thenReturn(Optional.of(payloadEncoder));
+        .thenReturn(payloadEncoder);
 
     transactionResource =
         new TransactionResource(transactionManager, batchResendManager, legacyResendManager);

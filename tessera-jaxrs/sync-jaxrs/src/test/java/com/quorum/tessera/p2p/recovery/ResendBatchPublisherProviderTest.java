@@ -22,7 +22,7 @@ public class ResendBatchPublisherProviderTest {
           .thenReturn(mock(RecoveryClient.class));
       payloadEncoderMockedStatic
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
-          .thenReturn(Optional.of(mock(PayloadEncoder.class)));
+          .thenReturn(mock(PayloadEncoder.class));
 
       ResendBatchPublisher resendBatchPublisher = ResendBatchPublisherProvider.provider();
       assertThat(resendBatchPublisher)

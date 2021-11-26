@@ -235,7 +235,7 @@ public class BatchResendManagerImplTest {
 
       payloadEncoderMockedStatic
           .when(() -> PayloadEncoder.create(any()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       final EncodedPayload encodedPayload =
           EncodedPayload.Builder.create()
