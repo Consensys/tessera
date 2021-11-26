@@ -26,7 +26,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
@@ -56,7 +55,7 @@ public class RestPayloadPublisherTest {
 
     payloadEncoderFactoryFunction
         .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
-        .thenReturn(Optional.of(payloadEncoder));
+        .thenReturn(payloadEncoder);
   }
 
   @After

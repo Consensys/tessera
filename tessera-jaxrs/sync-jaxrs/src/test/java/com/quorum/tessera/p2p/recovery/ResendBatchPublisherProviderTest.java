@@ -7,7 +7,6 @@ import static org.mockito.Mockito.mockStatic;
 import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
-import java.util.Optional;
 import org.junit.Test;
 
 public class ResendBatchPublisherProviderTest {

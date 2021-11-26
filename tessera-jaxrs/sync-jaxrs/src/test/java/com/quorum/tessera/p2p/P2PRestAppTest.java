@@ -21,7 +21,6 @@ import com.quorum.tessera.transaction.TransactionManager;
 import jakarta.ws.rs.client.Client;
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.junit.After;
 import org.junit.Before;

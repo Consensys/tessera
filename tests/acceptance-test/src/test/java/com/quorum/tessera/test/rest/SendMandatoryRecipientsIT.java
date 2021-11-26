@@ -36,7 +36,7 @@ public class SendMandatoryRecipientsIT {
   final Party b = partyHelper.findByAlias(NodeAlias.B);
   final Party c = partyHelper.findByAlias(NodeAlias.C);
 
-  final PayloadEncoder encoder = PayloadEncoder.create(EncodedPayloadCodec.current()).get();
+  final PayloadEncoder encoder = PayloadEncoder.create(EncodedPayloadCodec.current());
 
   @Test
   public void invalidRequests() {

@@ -15,7 +15,6 @@ import com.quorum.tessera.transaction.TransactionManager;
 import jakarta.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
