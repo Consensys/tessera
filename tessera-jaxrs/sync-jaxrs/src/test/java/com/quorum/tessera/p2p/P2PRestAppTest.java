@@ -199,7 +199,7 @@ public class P2PRestAppTest {
           .thenReturn(transactionManager);
       payloadEncoderMockedStatic
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
       batchResendManagerMockedStatic
           .when(BatchResendManager::create)
           .thenReturn(batchResendManager);

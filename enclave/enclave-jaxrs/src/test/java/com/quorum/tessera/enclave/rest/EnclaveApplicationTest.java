@@ -124,7 +124,7 @@ public class EnclaveApplicationTest {
 
     assertThat(result.getRecipientKeys()).isNotNull().isEqualTo(pay.getRecipientKeys());
 
-    PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec).get();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec);
     byte[] resultBytes = payloadEncoder.encode(result);
 
     assertThat(resultBytes).isEqualTo(payloadEncoder.encode(pay));

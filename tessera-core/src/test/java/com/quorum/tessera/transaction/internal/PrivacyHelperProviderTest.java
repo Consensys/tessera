@@ -22,8 +22,7 @@ public class PrivacyHelperProviderTest {
   public void provider() {
 
     try (var mockedRuntimeContext = mockStatic(RuntimeContext.class);
-        var mockedEncryptedTransactionDAO = mockStatic(EncryptedTransactionDAO.class);
-        var mockedPayloadEncoder = mockStatic(PayloadEncoder.class)) {
+        var mockedEncryptedTransactionDAO = mockStatic(EncryptedTransactionDAO.class)) {
       RuntimeContext runtimeContext = mock(RuntimeContext.class);
       when(runtimeContext.isEnhancedPrivacy()).thenReturn(true);
       mockedRuntimeContext.when(RuntimeContext::getInstance).thenReturn(runtimeContext);
@@ -31,10 +30,6 @@ public class PrivacyHelperProviderTest {
       mockedEncryptedTransactionDAO
           .when(EncryptedTransactionDAO::create)
           .thenReturn(mock(EncryptedTransactionDAO.class));
-
-      mockedPayloadEncoder
-          .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
-          .thenReturn(Optional.of(mock(PayloadEncoder.class)));
 
       PrivacyHelper privacyHelper = PrivacyHelperProvider.provider();
 
