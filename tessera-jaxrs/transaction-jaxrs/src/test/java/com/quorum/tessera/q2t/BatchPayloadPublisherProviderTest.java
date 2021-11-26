@@ -10,7 +10,6 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.q2t.internal.BatchPayloadPublisherProvider;
 import com.quorum.tessera.transaction.publish.BatchPayloadPublisher;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
-import java.util.Optional;
 import org.junit.Test;
 
 public class BatchPayloadPublisherProviderTest {
@@ -22,7 +21,7 @@ public class BatchPayloadPublisherProviderTest {
         var payloadPublisherMockedStatic = mockStatic(PayloadPublisher.class)) {
       payloadEncoderMockedStatic
           .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
-          .thenReturn(Optional.of(mock(PayloadEncoder.class)));
+          .thenReturn(mock(PayloadEncoder.class));
       payloadPublisherMockedStatic
           .when(PayloadPublisher::create)
           .thenReturn(mock(PayloadPublisher.class));
