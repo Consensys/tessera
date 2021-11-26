@@ -16,7 +16,7 @@ public class StagingTransactionUtils {
 
   public static StagingTransaction fromRawPayload(byte[] rawPayload, EncodedPayloadCodec codec) {
     PayloadDigest payloadDigest = PayloadDigest.create();
-    PayloadEncoder encoder = PayloadEncoder.create(codec).get();
+    PayloadEncoder encoder = PayloadEncoder.create(codec);
     return new StagingTransactionUtils(payloadDigest).createFromRawPayload(rawPayload, encoder);
   }
 

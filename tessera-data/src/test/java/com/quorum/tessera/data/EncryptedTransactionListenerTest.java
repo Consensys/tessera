@@ -1,13 +1,11 @@
 package com.quorum.tessera.data;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.*;
 
 import com.quorum.tessera.enclave.EncodedPayload;
 import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
-import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +26,7 @@ public class EncryptedTransactionListenerTest {
     payloadEncoder = mock(PayloadEncoder.class);
     payloadEncoderFactoryFunction
         .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
-        .thenReturn(Optional.of(payloadEncoder));
+        .thenReturn(payloadEncoder);
   }
 
   @After
@@ -45,9 +43,11 @@ public class EncryptedTransactionListenerTest {
   public void onLoad() {
 
     byte[] payloadData = "PayloadData".getBytes();
+    EncodedPayload payload = mock(EncodedPayload.class);
+    when(payloadEncoder.decode(payloadData)).thenReturn(payload);
 
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
+    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.CBOR);
     encryptedTransaction.setEncodedPayload(payloadData);
 
     encryptedTransactionListener.onLoad(encryptedTransaction);
@@ -56,28 +56,29 @@ public class EncryptedTransactionListenerTest {
 
     payloadEncoderFactoryFunction.verify(
         () -> PayloadEncoder.create(any(EncodedPayloadCodec.class)));
+
+    assertThat(encryptedTransaction.getPayload()).isEqualTo(payload);
   }
 
   @Test
-  public void onLoadNoEncoderFound() {
+  public void onLoadLegacyEncodedData() {
 
     byte[] payloadData = "PayloadData".getBytes();
+    EncodedPayload payload = mock(EncodedPayload.class);
+    when(payloadEncoder.decode(payloadData)).thenReturn(payload);
 
-    payloadEncoderFactoryFunction.reset();
-    payloadEncoderFactoryFunction
-        .when(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY))
-        .thenReturn(Optional.empty());
     EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
-    encryptedTransaction.setEncodedPayloadCodec(EncodedPayloadCodec.LEGACY);
     encryptedTransaction.setEncodedPayload(payloadData);
 
-    try {
-      encryptedTransactionListener.onLoad(encryptedTransaction);
-      failBecauseExceptionWasNotThrown(IllegalStateException.class);
-    } catch (IllegalStateException illegalStateException) {
-      assertThat(illegalStateException).hasMessage("No encoder found for LEGACY");
-      payloadEncoderFactoryFunction.verify(() -> PayloadEncoder.create(EncodedPayloadCodec.LEGACY));
-    }
+    encryptedTransactionListener.onLoad(encryptedTransaction);
+
+    verify(payloadEncoder).decode(payloadData);
+
+    payloadEncoderFactoryFunction.verify(
+        () -> PayloadEncoder.create(eq(EncodedPayloadCodec.LEGACY)));
+
+    assertThat(encryptedTransaction.getPayload()).isEqualTo(payload);
+    assertThat(encryptedTransaction.getEncodedPayloadCodec()).isEqualTo(EncodedPayloadCodec.LEGACY);
   }
 
   @Test

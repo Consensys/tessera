@@ -6,6 +6,7 @@ import com.quorum.tessera.enclave.PayloadEncoder;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,11 +17,11 @@ public class EncryptedTransactionListener {
   @PreUpdate
   public void onUpdate(EncryptedTransaction encryptedTransaction) {
     LOGGER.debug("onUpdate {}", encryptedTransaction);
+
     final EncodedPayload encodedPayload = encryptedTransaction.getPayload();
     final EncodedPayloadCodec encodedPayloadCodec = encryptedTransaction.getEncodedPayloadCodec();
-
-    PayloadEncoder payloadEncoder = lookup(encodedPayloadCodec);
-    byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec);
+    final byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
     encryptedTransaction.setEncodedPayload(encodedPayloadData);
   }
 
@@ -30,8 +31,8 @@ public class EncryptedTransactionListener {
 
     final EncodedPayload encodedPayload = encryptedTransaction.getPayload();
     final EncodedPayloadCodec encodedPayloadCodec = EncodedPayloadCodec.current();
-    PayloadEncoder payloadEncoder = lookup(encodedPayloadCodec);
-    byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec);
+    final byte[] encodedPayloadData = payloadEncoder.encode(encodedPayload);
     encryptedTransaction.setEncodedPayloadCodec(encodedPayloadCodec);
     encryptedTransaction.setEncodedPayload(encodedPayloadData);
   }
@@ -40,16 +41,13 @@ public class EncryptedTransactionListener {
   public void onLoad(EncryptedTransaction encryptedTransaction) {
     LOGGER.debug("onLoad[{}]", encryptedTransaction);
 
-    EncodedPayloadCodec encodedPayloadCodec = encryptedTransaction.getEncodedPayloadCodec();
-    byte[] encodedPayloadData = encryptedTransaction.getEncodedPayload();
-    PayloadEncoder payloadEncoder = lookup(encodedPayloadCodec);
-    EncodedPayload encodedPayload = payloadEncoder.decode(encodedPayloadData);
+    final EncodedPayloadCodec encodedPayloadCodec =
+        Optional.ofNullable(encryptedTransaction.getEncodedPayloadCodec())
+            .orElse(EncodedPayloadCodec.LEGACY);
+    final byte[] encodedPayloadData = encryptedTransaction.getEncodedPayload();
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec);
+    final EncodedPayload encodedPayload = payloadEncoder.decode(encodedPayloadData);
     encryptedTransaction.setPayload(encodedPayload);
-  }
-
-  private static PayloadEncoder lookup(EncodedPayloadCodec encodedPayloadCodec) {
-    return PayloadEncoder.create(encodedPayloadCodec)
-        .orElseThrow(
-            () -> new IllegalStateException("No encoder found for " + encodedPayloadCodec));
+    encryptedTransaction.setEncodedPayloadCodec(encodedPayloadCodec);
   }
 }

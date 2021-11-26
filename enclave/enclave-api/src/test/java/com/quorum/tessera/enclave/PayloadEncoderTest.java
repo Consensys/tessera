@@ -2319,7 +2319,7 @@ public class PayloadEncoderTest {
       serviceLoaderMockedStatic
           .when(() -> ServiceLoader.load(PayloadEncoder.class))
           .thenReturn(serviceLoader);
-      result = PayloadEncoder.create(EncodedPayloadCodec.CBOR).get();
+      result = PayloadEncoder.create(EncodedPayloadCodec.CBOR);
 
       serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(PayloadEncoder.class));
       serviceLoaderMockedStatic.verifyNoMoreInteractions();
@@ -2390,7 +2390,7 @@ public class PayloadEncoderTest {
       serviceLoaderMockedStatic
           .when(() -> ServiceLoader.load(PayloadEncoder.class))
           .thenReturn(serviceLoader);
-      result = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
+      result = PayloadEncoder.create(EncodedPayloadCodec.LEGACY);
 
       serviceLoaderMockedStatic.verify(() -> ServiceLoader.load(PayloadEncoder.class));
       serviceLoaderMockedStatic.verifyNoMoreInteractions();
@@ -2404,8 +2404,33 @@ public class PayloadEncoderTest {
   }
 
   @Test
-  public void createCbor() {
-    Optional<PayloadEncoder> result = PayloadEncoder.create(EncodedPayloadCodec.CBOR);
-    assertThat(result).isNotEmpty();
+  public void noEncoderFound() {
+
+    ServiceLoader<PayloadEncoder> serviceLoader = mock(ServiceLoader.class);
+    PayloadEncoder payloadEncoder = mock(PayloadEncoder.class);
+    when(payloadEncoder.encodedPayloadCodec()).thenReturn(EncodedPayloadCodec.LEGACY);
+
+    ServiceLoader.Provider<PayloadEncoder> payloadEncoderProvider =
+        mock(ServiceLoader.Provider.class);
+    when(payloadEncoderProvider.get()).thenReturn(payloadEncoder);
+
+    when(serviceLoader.stream()).thenReturn(Stream.of(payloadEncoderProvider));
+
+    try (var serviceLoaderMockedStatic = Mockito.mockStatic(ServiceLoader.class)) {
+      serviceLoaderMockedStatic
+          .when(() -> ServiceLoader.load(PayloadEncoder.class))
+          .thenReturn(serviceLoader);
+
+      PayloadEncoder.create(EncodedPayloadCodec.CBOR);
+      failBecauseExceptionWasNotThrown(IllegalStateException.class);
+
+    } catch (IllegalStateException illegalStateException) {
+      assertThat(illegalStateException).hasMessage("No encoder found for CBOR");
+    }
+
+    verify(payloadEncoder).encodedPayloadCodec();
+    verify(payloadEncoderProvider).get();
+
+    verifyNoMoreInteractions(payloadEncoder, payloadEncoderProvider);
   }
 }

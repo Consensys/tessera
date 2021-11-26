@@ -9,7 +9,7 @@ public class ResendBatchPublisherProvider {
   public static ResendBatchPublisher provider() {
 
     RecoveryClient client = RecoveryClient.create();
-    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY);
 
     return new RestResendBatchPublisher(payloadEncoder, client);
   }

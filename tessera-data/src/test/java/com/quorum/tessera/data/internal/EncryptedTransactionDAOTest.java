@@ -71,7 +71,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setHash(new MessageHash(new byte[] {5}));
@@ -103,7 +103,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setPayload(encodedPayload);
@@ -138,7 +138,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setPayload(encodedPayload);
@@ -184,7 +184,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       final MessageHash messageHash = new MessageHash(new byte[] {1});
 
@@ -225,7 +225,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
       encryptedTransaction.setPayload(encodedPayload);
@@ -254,7 +254,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
 
@@ -298,7 +298,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       final MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
@@ -349,7 +349,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
       // put a transaction in the database
       MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
 
@@ -394,7 +394,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       MessageHash messageHash = new MessageHash(UUID.randomUUID().toString().getBytes());
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();
@@ -428,7 +428,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       EntityManager entityManager = entityManagerFactory.createEntityManager();
       entityManager.getTransaction().begin();
@@ -479,7 +479,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
       EncryptedTransaction transaction = new EncryptedTransaction();
@@ -516,7 +516,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
       EncryptedTransaction transaction = new EncryptedTransaction();
@@ -556,7 +556,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       MessageHash transactionHash = new MessageHash(UUID.randomUUID().toString().getBytes());
       EncryptedTransaction transaction = new EncryptedTransaction();
@@ -595,7 +595,7 @@ public class EncryptedTransactionDAOTest {
     try (var createEncoderFunction = mockStatic(PayloadEncoder.class)) {
       createEncoderFunction
           .when(() -> PayloadEncoder.create(EncodedPayloadCodec.current()))
-          .thenReturn(Optional.of(payloadEncoder));
+          .thenReturn(payloadEncoder);
 
       final MessageHash messageHash = new MessageHash(new byte[] {1});
       final EncryptedTransaction encryptedTransaction = new EncryptedTransaction();

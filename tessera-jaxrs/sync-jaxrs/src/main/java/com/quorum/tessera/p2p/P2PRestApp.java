@@ -67,7 +67,7 @@ public class P2PRestApp extends TesseraRestApplication
         PartyStore.getInstance(),
         TransactionManager.create(),
         BatchResendManager.create(),
-        PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get(),
+        PayloadEncoder.create(EncodedPayloadCodec.LEGACY),
         LegacyResendManager.create(),
         PrivacyGroupManager.create(),
         Inbox.create());

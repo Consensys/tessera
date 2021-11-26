@@ -62,7 +62,7 @@ public class StagingEntityDAOTest {
 
     mockedStaticPayloadEncoder
         .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
-        .thenReturn(Optional.of(payloadEncoder));
+        .thenReturn(payloadEncoder);
     when(payloadEncoder.decode(payloadData)).thenReturn(encodedPayload);
     when(payloadEncoder.encode(encodedPayload)).thenReturn(payloadData);
 

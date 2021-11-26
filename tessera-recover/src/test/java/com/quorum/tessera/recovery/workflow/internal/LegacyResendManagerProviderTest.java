@@ -12,7 +12,6 @@ import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.workflow.LegacyResendManager;
 import com.quorum.tessera.transaction.publish.PayloadPublisher;
-import java.util.Optional;
 import org.junit.Test;
 
 public class LegacyResendManagerProviderTest {
@@ -31,7 +30,7 @@ public class LegacyResendManagerProviderTest {
           .thenReturn(mock(EncryptedTransactionDAO.class));
       payloadEncoderMockedStatic
           .when(() -> PayloadEncoder.create(any(EncodedPayloadCodec.class)))
-          .thenReturn(Optional.of(mock(PayloadEncoder.class)));
+          .thenReturn(mock(PayloadEncoder.class));
       payloadPublisherMockedStatic
           .when(PayloadPublisher::create)
           .thenReturn(mock(PayloadPublisher.class));

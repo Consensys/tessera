@@ -84,7 +84,7 @@ public class TransactionResource {
 
     LOGGER.debug("Received resend request");
 
-    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY);
 
     PublicKey recipient =
         Optional.of(resendRequest)
@@ -198,7 +198,7 @@ public class TransactionResource {
 
     final EncodedPayloadCodec codec = EncodedPayloadCodec.getPreferredCodec(versions);
 
-    final PayloadEncoder payloadEncoder = PayloadEncoder.create(codec).get();
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(codec);
 
     final MessageHash messageHash = transactionManager.storePayload(payloadEncoder.decode(payload));
     LOGGER.debug("Push request generated hash {}", messageHash);

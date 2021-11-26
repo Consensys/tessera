@@ -37,7 +37,7 @@ public class RestfulEnclaveClient implements EnclaveClient {
   public RestfulEnclaveClient(Client client, URI uri, ExecutorService executorService) {
     this.client = Objects.requireNonNull(client);
     this.uri = Objects.requireNonNull(uri);
-    this.payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
+    this.payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY);
     this.executorService = executorService;
   }
 

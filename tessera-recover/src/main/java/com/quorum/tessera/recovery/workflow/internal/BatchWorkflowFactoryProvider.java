@@ -12,7 +12,7 @@ public class BatchWorkflowFactoryProvider {
   public static BatchWorkflowFactory provider() {
 
     Enclave enclave = Enclave.create();
-    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.current()).get();
+    PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.current());
     Discovery discovery = Discovery.create();
     ResendBatchPublisher resendBatchPublisher = ResendBatchPublisher.create();
 
