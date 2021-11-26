@@ -15,16 +15,10 @@ public class StagingTransactionListener {
   public void onLoad(StagingTransaction stagingTransaction) {
     LOGGER.debug("onLoad[{}]", stagingTransaction);
 
-    EncodedPayloadCodec encodedPayloadCodec = stagingTransaction.getEncodedPayloadCodec();
-    byte[] encodedPayloadData = stagingTransaction.getPayload();
-    PayloadEncoder payloadEncoder = lookup(encodedPayloadCodec);
-    EncodedPayload encodedPayload = payloadEncoder.decode(encodedPayloadData);
+    final EncodedPayloadCodec encodedPayloadCodec = stagingTransaction.getEncodedPayloadCodec();
+    final byte[] encodedPayloadData = stagingTransaction.getPayload();
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(encodedPayloadCodec);
+    final EncodedPayload encodedPayload = payloadEncoder.decode(encodedPayloadData);
     stagingTransaction.setEncodedPayload(encodedPayload);
-  }
-
-  private static PayloadEncoder lookup(EncodedPayloadCodec encodedPayloadCodec) {
-    return PayloadEncoder.create(encodedPayloadCodec)
-        .orElseThrow(
-            () -> new IllegalStateException("No encoder found for " + encodedPayloadCodec));
   }
 }

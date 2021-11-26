@@ -24,7 +24,7 @@ public class StagingTransactionUtilsTest {
 
   private final PublicKey recipient1 = PublicKey.from("recipient1".getBytes());
 
-  private final PayloadEncoder encoder = PayloadEncoder.create(EncodedPayloadCodec.current()).get();
+  private final PayloadEncoder encoder = PayloadEncoder.create(EncodedPayloadCodec.current());
 
   private ClientMode clientMode;
 

@@ -9,7 +9,6 @@ import com.quorum.tessera.enclave.EncodedPayloadCodec;
 import com.quorum.tessera.enclave.PayloadEncoder;
 import com.quorum.tessera.recovery.resend.ResendBatchPublisher;
 import com.quorum.tessera.recovery.workflow.BatchWorkflowFactory;
-import java.util.Optional;
 import org.junit.Test;
 
 public class BatchWorkflowFactoryProviderTest {
@@ -33,7 +32,7 @@ public class BatchWorkflowFactoryProviderTest {
           .thenReturn(mock(ResendBatchPublisher.class));
       staticPayloadEncoder
           .when(() -> PayloadEncoder.create(any()))
-          .thenReturn(Optional.of(mock(PayloadEncoder.class)));
+          .thenReturn(mock(PayloadEncoder.class));
 
       BatchWorkflowFactory batchWorkflowFactory = BatchWorkflowFactoryProvider.provider();
       assertThat(batchWorkflowFactory)

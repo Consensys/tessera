@@ -25,7 +25,7 @@ public class EnclaveResource {
 
   public EnclaveResource(Enclave enclave) {
     this.enclave = Objects.requireNonNull(enclave);
-    payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
+    payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY);
   }
 
   @GET

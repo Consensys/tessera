@@ -78,7 +78,7 @@ public interface PayloadEncoder {
 
   EncodedPayloadCodec encodedPayloadCodec();
 
-  static Optional<PayloadEncoder> create(EncodedPayloadCodec encodedPayloadCodec) {
+  static PayloadEncoder create(EncodedPayloadCodec encodedPayloadCodec) {
     return ServiceLoader.load(PayloadEncoder.class).stream()
         .map(ServiceLoader.Provider::get)
         .filter(e -> e.encodedPayloadCodec() == encodedPayloadCodec)
@@ -86,6 +86,8 @@ public interface PayloadEncoder {
             (l, r) -> {
               throw new IllegalStateException(
                   "Resolved multiple encoders for codec " + encodedPayloadCodec);
-            });
+            })
+        .orElseThrow(
+            () -> new IllegalStateException("No encoder found for " + encodedPayloadCodec));
   }
 }

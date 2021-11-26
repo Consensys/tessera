@@ -14,7 +14,7 @@ public class LegacyResendManagerProvider {
     final Enclave enclave = Enclave.create();
     final EncryptedTransactionDAO encryptedTransactionDAO = EncryptedTransactionDAO.create();
     final int resendFetchSize = 100;
-    final PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY).get();
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(EncodedPayloadCodec.LEGACY);
     final PayloadPublisher payloadPublisher = PayloadPublisher.create();
     final Discovery discovery = Discovery.create();
 

@@ -45,7 +45,7 @@ public class RestPayloadPublisher implements PayloadPublisher {
     final Set<String> supportedApiVersions = remoteNodeInfo.supportedApiVersions();
     final EncodedPayloadCodec preferredCodec =
         EncodedPayloadCodec.getPreferredCodec(supportedApiVersions);
-    final PayloadEncoder payloadEncoder = PayloadEncoder.create(preferredCodec).get();
+    final PayloadEncoder payloadEncoder = PayloadEncoder.create(preferredCodec);
 
     if (PrivacyMode.STANDARD_PRIVATE != payload.getPrivacyMode()
         && !supportedApiVersions.contains(EnhancedPrivacyVersion.API_VERSION_2)) {
