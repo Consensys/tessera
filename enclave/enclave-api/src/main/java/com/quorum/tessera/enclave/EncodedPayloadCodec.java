@@ -26,11 +26,12 @@ public enum EncodedPayloadCodec {
 
   public static EncodedPayloadCodec getPreferredCodec(Set<String> versions) {
     return Stream.of(EncodedPayloadCodec.values())
-        .sorted((c1, c2) -> {
-          Function<EncodedPayloadCodec, Double> parseValue = c ->
-            Double.parseDouble(c.getMinimumSupportedVersion().replaceAll("[^\\d.]", ""));
-          return Double.compare(parseValue.apply(c2), parseValue.apply(c1));
-        })
+        .sorted(
+            (c1, c2) -> {
+              Function<EncodedPayloadCodec, Double> parseValue =
+                  c -> Double.parseDouble(c.getMinimumSupportedVersion().replaceAll("[^\\d.]", ""));
+              return Double.compare(parseValue.apply(c2), parseValue.apply(c1));
+            })
         .filter(codec -> versions.contains(codec.getMinimumSupportedVersion()))
         .findFirst()
         .orElse(LEGACY);
