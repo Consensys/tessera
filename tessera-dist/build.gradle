@@ -30,8 +30,6 @@ configurations.all {
   exclude group: "io.swagger.core.v3", module: "swagger-parser"
   exclude group: "io.swagger.core.v3", module: "swagger-jaxrs2-jakarta"
   exclude group: "com.fasterxml.jackson.datatype"
-  //  exclude group: "com.fasterxml.jackson.core"
-  //  exclude group: "com.fasterxml.jackson.dataformat"
 }
 
 dependencies {
